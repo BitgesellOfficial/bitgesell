@@ -76,4 +76,7 @@ struct timeval MillisToTimeval(int64_t nTimeout);
  */
 struct timeval MillisToTimeval(std::chrono::milliseconds ms);
 
+/** Sanity check epoch match normal Unix epoch */
+bool ChronoSanityCheck();
+
 #endif // BGL_UTIL_TIME_H
