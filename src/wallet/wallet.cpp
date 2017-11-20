@@ -799,7 +799,6 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFlushOnClose)
     // Inserts only if not already there, returns tx inserted or tx found
     std::pair<std::map<uint256, CWalletTx>::iterator, bool> ret = mapWallet.insert(std::make_pair(hash, wtxIn));
     CWalletTx& wtx = (*ret.first).second;
-    wtx.BindWallet(this);
     bool fInsertedNew = ret.second;
     if (fInsertedNew) {
         wtx.nTimeReceived = chain().getAdjustedTime();
@@ -3042,7 +3041,7 @@ void CWallet::CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::ve
     // Notify that old coins are spent
     for (const CTxIn& txin : wtxNew.tx->vin) {
         CWalletTx &coin = mapWallet.at(txin.prevout.hash);
-        coin.BindWallet(this);
+        coin.MarkDirty();
         NotifyTransactionChanged(this, coin.GetHash(), CT_UPDATED);
     }
 
