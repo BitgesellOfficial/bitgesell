@@ -851,9 +851,11 @@ EXTRA_DIST += $(libBGL_ipc_mpgen_input)
 if BUILD_MULTIPROCESS
 LIBBGL_IPC=libBGL_ipc.a
 libBGL_ipc_a_SOURCES = \
+  ipc/capnp/context.h \
   ipc/capnp/init-types.h \
   ipc/capnp/protocol.cpp \
   ipc/capnp/protocol.h \
+  ipc/context.h \
   ipc/exception.h \
   ipc/interfaces.cpp \
   ipc/process.cpp \
