@@ -6,6 +6,8 @@
 #define BGL_IPC_CAPNP_COMMON_TYPES_H
 
 #include <clientversion.h>
+#include <primitives/transaction.h>
+#include <serialize.h>
 #include <streams.h>
 #include <univalue.h>
 
@@ -16,33 +18,24 @@
 
 namespace ipc {
 namespace capnp {
-//! Use SFINAE to define Serializeable<T> trait which is true if type T has a
-//! Serialize(stream) method, false otherwise.
+//! Construct a ParamStream wrapping a data stream with serialization parameters
+//! needed to pass transaction objects between bitcoin processes.
+//! In the future, more params may be added here to serialize other objects that
+//! require serialization parameters. Params should just be chosen to serialize
+//! objects completely and ensure that serializing and deserializing objects
+//! with the specified parameters produces equivalent objects. It's also
+//! harmless to specify serialization parameters here that are not used.
+template <typename S>
+auto Wrap(S& s)
+{
+    return ParamsStream{s, TX_WITH_WITNESS};
+}
+
+//! Detect if type has a deserialize_type constructor, which is
+//! used to deserialize types like CTransaction that can't be unserialized into
+//! existing objects because they are immutable.
 template <typename T>
-struct Serializable {
-private:
-    template <typename C>
-    static std::true_type test(decltype(std::declval<C>().Serialize(std::declval<std::nullptr_t&>()))*);
-    template <typename>
-    static std::false_type test(...);
-
-public:
-    static constexpr bool value = decltype(test<T>(nullptr))::value;
-};
-
-//! Use SFINAE to define Unserializeable<T> trait which is true if type T has
-//! an Unserialize(stream) method, false otherwise.
-template <typename T>
-struct Unserializable {
-private:
-    template <typename C>
-    static std::true_type test(decltype(std::declval<C>().Unserialize(std::declval<std::nullptr_t&>()))*);
-    template <typename>
-    static std::false_type test(...);
-
-public:
-    static constexpr bool value = decltype(test<T>(nullptr))::value;
-};
+concept Deserializable = std::is_constructible_v<T, ::deserialize_type, ::DataStream&>;
 } // namespace capnp
 } // namespace ipc
 
@@ -64,7 +57,8 @@ void CustomBuildField(
                      std::is_same_v<LocalType, std::remove_cv_t<std::remove_reference_t<LocalType>>>>* enable = nullptr)
 {
     DataStream stream;
-    value.Serialize(stream);
+    auto wrapper{ipc::capnp::Wrap(stream)};
+    value.Serialize(wrapper);
     auto result = output.init(stream.size());
     memcpy(result.begin(), stream.data(), stream.size());
 }
@@ -74,18 +68,35 @@ void CustomBuildField(
 //! returned from canproto interface. Use Priority<1> so this hook has medium
 //! priority, and higher priority hooks could take precedence over this one.
 template <typename LocalType, typename Input, typename ReadDest>
-decltype(auto)
-CustomReadField(TypeList<LocalType>, Priority<1>, InvokeContext& invoke_context, Input&& input, ReadDest&& read_dest,
-                std::enable_if_t<ipc::capnp::Unserializable<LocalType>::value>* enable = nullptr)
+decltype(auto) CustomReadField(TypeList<LocalType>, Priority<1>, InvokeContext& invoke_context, Input&& input, ReadDest&& read_dest)
+requires Unserializable<LocalType, DataStream> && (!ipc::capnp::Deserializable<LocalType>)
 {
     return read_dest.update([&](auto& value) {
         if (!input.has()) return;
         auto data = input.get();
         SpanReader stream({data.begin(), data.end()});
-        value.Unserialize(stream);
+        auto wrapper{ipc::capnp::Wrap(stream)};
+        value.Unserialize(wrapper);
     });
 }
 
+//! Overload multiprocess library's CustomReadField hook to allow any object
+//! with a deserialize constructor to be read from a capnproto Data field or
+//! returned from capnproto interface. Use Priority<1> so this hook has medium
+//! priority, and higher priority hooks could take precedence over this one.
+template <typename LocalType, typename Input, typename ReadDest>
+decltype(auto) CustomReadField(TypeList<LocalType>, Priority<1>, InvokeContext& invoke_context, Input&& input, ReadDest&& read_dest)
+requires ipc::capnp::Deserializable<LocalType>
+{
+    assert(input.has());
+    auto data = input.get();
+    SpanReader stream({data.begin(), data.end()});
+    auto wrapper{ipc::capnp::Wrap(stream)};
+    return read_dest.construct(::deserialize, wrapper);
+}
+
+//! Overload CustomBuildField and CustomReadField to serialize UniValue
+//! parameters and return values as JSON strings.
 template <typename Value, typename Output>
 void CustomBuildField(TypeList<UniValue>, Priority<1>, InvokeContext& invoke_context, Value&& value, Output&& output)
 {
@@ -102,8 +113,6 @@ decltype(auto) CustomReadField(TypeList<UniValue>, Priority<1>, InvokeContext& i
         auto data = input.get();
         value.read(std::string_view{data.begin(), data.size()});
     });
-}
-
 //! Generic ::capnp::Data field builder for any C++ type that can be converted
 //! to a span of bytes, like std::vector<char> or std::array<uint8_t>, or custom
 //! blob types like uint256 or PKHash with data() and size() methods pointing to
@@ -121,7 +130,6 @@ template <typename LocalType, typename Value, typename Output>
 void CustomBuildField(TypeList<LocalType>, Priority<2>, InvokeContext& invoke_context, Value&& value, Output&& output)
 requires
     (std::is_same_v<decltype(output.get()), ::capnp::Data::Builder>) &&
-    (std::convertible_to<Value, std::span<const std::byte>> ||
      std::convertible_to<Value, std::span<const char>> ||
      std::convertible_to<Value, std::span<const unsigned char>> ||
      std::convertible_to<Value, std::span<const signed char>>)
