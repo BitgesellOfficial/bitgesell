@@ -163,6 +163,8 @@ BGL_CORE_H = \
   init/common.h \
   interfaces/chain.h \
   interfaces/handler.h \
+  interfaces/init.h \
+  interfaces/ipc.h \
   interfaces/node.h \
   interfaces/wallet.h \
   key.h \
@@ -570,6 +572,7 @@ libBGL_util_a_SOURCES = \
   compat/strnlen.cpp \
   fs.cpp \
   interfaces/handler.cpp \
+  interfaces/init.cpp \
   logging.cpp \
   random.cpp \
   randomenv.cpp \
