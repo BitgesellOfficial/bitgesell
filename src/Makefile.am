@@ -649,13 +649,13 @@ BGL_bin_ldadd = \
 
 BGL_bin_ldadd += $(BOOST_LIBS) $(BDB_LIBS) $(MINIUPNPC_LIBS) $(NATPMP_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS) $(SQLITE_LIBS)
 
-BGLd_SOURCES = $(BGL_daemon_sources)
+BGLd_SOURCES = $(BGL_daemon_sources) init/BGLd.cpp
 BGLd_CPPFLAGS = $(BGL_bin_cppflags)
 BGLd_CXXFLAGS = $(BGL_bin_cxxflags)
 BGLd_LDFLAGS = $(BGL_bin_ldflags)
 BGLd_LDADD = $(LIBBGL_SERVER) $(BGL_bin_ldadd)
 
-BGL_node_SOURCES = $(BGL_daemon_sources)
+BGL_node_SOURCES = $(BGL_daemon_sources) init/BGL-node.cpp
 BGL_node_CPPFLAGS = $(BGL_bin_cppflags)
 BGL_node_CXXFLAGS = $(BGL_bin_cxxflags)
 BGL_node_LDFLAGS = $(BGL_bin_ldflags)
