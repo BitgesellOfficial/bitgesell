@@ -28,6 +28,7 @@ qt_test_test_BGL_qt_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BGL_QT_INCLUDES)
   $(QT_INCLUDES) $(QT_TEST_INCLUDES)
 
 qt_test_test_BGL_qt_SOURCES = \
+  init/BGLd.cpp \
   qt/test/apptests.cpp \
   qt/test/rpcnestedtests.cpp \
   qt/test/test_main.cpp \

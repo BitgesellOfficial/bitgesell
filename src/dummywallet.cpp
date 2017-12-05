@@ -5,10 +5,14 @@
 #include <util/system.h>
 #include <walletinitinterface.h>
 
+class ArgsManager;
 class CWallet;
 
 namespace interfaces {
 class Chain;
+class Handler;
+class Wallet;
+class WalletClient;
 }
 
 class DummyWalletInit : public WalletInitInterface {
@@ -59,6 +63,11 @@ namespace interfaces {
 class Wallet;
 
 std::unique_ptr<Wallet> MakeWallet(const std::shared_ptr<CWallet>& wallet)
+{
+    throw std::logic_error("Wallet function called in non-wallet build.");
+}
+
+std::unique_ptr<WalletClient> MakeWalletClient(Chain& chain, ArgsManager& args)
 {
     throw std::logic_error("Wallet function called in non-wallet build.");
 }

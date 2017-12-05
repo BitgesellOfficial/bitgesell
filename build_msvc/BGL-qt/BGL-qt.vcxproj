@@ -9,7 +9,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\qt\main.cpp" />
-    <ResourceCompile Include="..\..\src\qt\res\BGL-qt-res.rc" />
+    <ClCompile Include="..\..\src\init\BGLd.cpp" />
+    <ResourceCompile Include="..\..\src\qt\res\bgl-qt-res.rc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\libBGLconsensus\libBGLconsensus.vcxproj">

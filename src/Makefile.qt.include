@@ -344,14 +344,14 @@ BGL_qt_libtoolflags = $(AM_LIBTOOLFLAGS) --tag CXX
 
 qt_BGL_qt_CPPFLAGS = $(BGL_qt_cppflags)
 qt_BGL_qt_CXXFLAGS = $(BGL_qt_cxxflags)
-qt_BGL_qt_SOURCES = $(BGL_qt_sources)
+qt_BGL_qt_SOURCES = $(BGL_qt_sources) init/BGLd.cpp
 qt_BGL_qt_LDADD = $(BGL_qt_ldadd)
 qt_BGL_qt_LDFLAGS = $(BGL_qt_ldflags)
 qt_BGL_qt_LIBTOOLFLAGS = $(BGL_qt_libtoolflags)
 
 BGL_gui_CPPFLAGS = $(BGL_qt_cppflags)
 BGL_gui_CXXFLAGS = $(BGL_qt_cxxflags)
-BGL_gui_SOURCES = $(BGL_qt_sources)
+BGL_gui_SOURCES = $(BGL_qt_sources) init/BGLd.cpp
 BGL_gui_LDADD = $(BGL_qt_ldadd)
 BGL_gui_LDFLAGS = $(BGL_qt_ldflags)
 BGL_gui_LIBTOOLFLAGS = $(BGL_qt_libtoolflags)
