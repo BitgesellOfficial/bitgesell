@@ -78,6 +78,7 @@ EXTRA_LIBRARIES += \
   $(LIBBGL_CONSENSUS) \
   $(LIBBGL_SERVER) \
   $(LIBBGL_CLI) \
+  $(LIBBGL_IPC) \
   $(LIBBGL_WALLET) \
   $(LIBBGL_WALLET_TOOL) \
   $(LIBBGL_ZMQ)
@@ -299,6 +300,8 @@ obj/build.h: FORCE
 	@$(top_srcdir)/share/genbuild.sh "$(abs_top_builddir)/src/obj/build.h" \
 	  "$(abs_top_srcdir)"
 libBGL_util_a-clientversion.$(OBJEXT): obj/build.h
+
+ipc/capnp/libBGL_ipc_a-ipc.$(OBJEXT): $(libBGL_ipc_mpgen_input:=.h)
 
 # server: shared between BGLd and BGL-qt
 # Contains code accessing mempool and chain state that is meant to be separated
@@ -651,7 +654,7 @@ BGL_node_SOURCES = $(BGL_daemon_sources)
 BGL_node_CPPFLAGS = $(BGL_bin_cppflags)
 BGL_node_CXXFLAGS = $(BGL_bin_cxxflags)
 BGL_node_LDFLAGS = $(BGL_bin_ldflags)
-BGL_node_LDADD = $(LIBBGL_SERVER) $(BGL_bin_ldadd)
+BGL_node_LDADD = $(LIBBGL_SERVER) $(BGL_bin_ldadd) $(LIBBGL_IPC) $(LIBMULTIPROCESS_LIBS)
 
 # BGL-cli binary #
 BGL_cli_SOURCES = BGL-cli.cpp
@@ -813,6 +816,38 @@ check-security: $(bin_PROGRAMS)
 if HARDEN
 	@echo "Checking binary security..."
 	$(AM_V_at) READELF=$(READELF) OBJDUMP=$(OBJDUMP) OTOOL=$(OTOOL) $(PYTHON) $(top_srcdir)/contrib/devtools/security-check.py $(bin_PROGRAMS)
+endif
+
+libBGL_ipc_mpgen_input = \
+  ipc/capnp/init.capnp
+EXTRA_DIST += $(libBGL_ipc_mpgen_input)
+%.capnp:
+
+if BUILD_MULTIPROCESS
+LIBBGL_IPC=libBGL_ipc.a
+libBGL_ipc_a_SOURCES = \
+  ipc/capnp/init-types.h \
+  ipc/capnp/protocol.cpp \
+  ipc/capnp/protocol.h \
+  ipc/exception.h \
+  ipc/interfaces.cpp \
+  ipc/process.cpp \
+  ipc/process.h \
+  ipc/protocol.h
+libBGL_ipc_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
+libBGL_ipc_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(LIBMULTIPROCESS_CFLAGS)
+
+include $(MPGEN_PREFIX)/include/mpgen.mk
+libBGL_ipc_mpgen_output = \
+  $(libBGL_ipc_mpgen_input:=.c++) \
+  $(libBGL_ipc_mpgen_input:=.h) \
+  $(libBGL_ipc_mpgen_input:=.proxy-client.c++) \
+  $(libBGL_ipc_mpgen_input:=.proxy-server.c++) \
+  $(libBGL_ipc_mpgen_input:=.proxy-types.c++) \
+  $(libBGL_ipc_mpgen_input:=.proxy-types.h) \
+  $(libBGL_ipc_mpgen_input:=.proxy.h)
+nodist_libBGL_ipc_a_SOURCES = $(libBGL_ipc_mpgen_output)
+CLEANFILES += $(libBGL_ipc_mpgen_output)
 endif
 
 if EMBEDDED_LEVELDB
