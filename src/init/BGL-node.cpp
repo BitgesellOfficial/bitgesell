@@ -5,6 +5,7 @@
 #include <interfaces/init.h>
 #include <interfaces/ipc.h>
 #include <node/context.h>
+#include <util/system.h>
 
 #include <memory>
 
@@ -19,6 +20,7 @@ public:
         : m_node(node),
           m_ipc(interfaces::MakeIpc(EXE_NAME, arg0, *this))
     {
+        m_node.args = &gArgs;
         m_node.init = this;
     }
     interfaces::Ipc* ipc() override { return m_ipc.get(); }
