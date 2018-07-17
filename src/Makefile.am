@@ -267,10 +267,10 @@ BGL_CORE_H = \
   walletinitinterface.h \
   warnings.h \
   zmq/zmqabstractnotifier.h \
-  zmq/zmqconfig.h\
   zmq/zmqnotificationinterface.h \
   zmq/zmqpublishnotifier.h \
-  zmq/zmqrpc.h
+  zmq/zmqrpc.h \
+  zmq/zmqutil.h
 
 
 obj/build.h: FORCE
@@ -349,7 +349,8 @@ libBGL_zmq_a_SOURCES = \
   zmq/zmqabstractnotifier.cpp \
   zmq/zmqnotificationinterface.cpp \
   zmq/zmqpublishnotifier.cpp \
-  zmq/zmqrpc.cpp
+  zmq/zmqrpc.cpp \
+  zmq/zmqutil.cpp
 endif
 
 
