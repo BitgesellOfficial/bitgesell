@@ -23,6 +23,8 @@
 #include <mutex>
 #include <optional>
 #include <string>
+#include <sys/socket.h>
+#include <system_error>
 #include <thread>
 
 namespace ipc {
@@ -59,7 +61,7 @@ public:
         }
         mp::ListenConnections<messages::Init>(*m_loop, listen_fd, init);
     }
-    void serve(int fd, const char* exe_name, interfaces::Init& init, const std::function<void()>& ready_fn = {}) override
+    void serve(int fd, const char* exe_name, interfaces::Init& init) override
     {
         assert(!m_loop);
         mp::g_thread_context.thread_name = mp::ThreadName(exe_name);
