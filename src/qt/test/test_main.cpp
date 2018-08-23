@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
     app.setNode(*node);
     app.setApplicationName("BGL-Qt-test");
 
-    app.node().context()->args = &gArgs;     // Make gArgs available in the NodeContext
+    node->context()->args = &gArgs;     // Make gArgs available in the NodeContext
     AppTests app_tests(app);
     if (QTest::qExec(&app_tests) != 0) {
         fInvalid = true;
