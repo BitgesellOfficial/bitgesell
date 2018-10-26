@@ -33,6 +33,7 @@ void DummyWalletInit::AddWalletOptions(ArgsManager& argsman) const
         "-discardfee=<amt>",
         "-fallbackfee=<amt>",
         "-keypool=<n>",
+        "-maxapsfee=<n>",
         "-maxtxfee=<amt>",
         "-mintxfee=<amt>",
         "-paytxfee=<amt>",
