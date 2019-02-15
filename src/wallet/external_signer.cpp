@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <chainparams.h>
 #include <wallet/external_signer.h>
-#include <util/system.h>
 
 ExternalSigner::ExternalSigner(const std::string& command, const std::string& fingerprint, std::string chain, std::string name): m_command(command), m_fingerprint(fingerprint), m_chain(chain), m_name(name) {}
 
@@ -53,16 +53,6 @@ bool ExternalSigner::Enumerate(const std::string& command, std::vector<ExternalS
         signers.push_back(ExternalSigner(command, fingerprintStr, chain, name));
     }
     return true;
-}
-
-UniValue ExternalSigner::DisplayAddress(const std::string& descriptor) const
-{
-    return RunCommandParseJSON(m_command + " --fingerprint \"" + m_fingerprint + "\"" + NetworkArg() + " displayaddress --desc \"" + descriptor + "\"");
-}
-
-UniValue ExternalSigner::GetDescriptors(int account)
-{
-    return RunCommandParseJSON(m_command + " --fingerprint \"" + m_fingerprint + "\"" + NetworkArg() + " getdescriptors --account " + strprintf("%d", account));
 }
 
 #endif

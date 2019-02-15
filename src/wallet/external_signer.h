@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <string>
 #include <univalue.h>
+#include <util/system.h>
 
 class ExternalSignerException : public std::runtime_error {
 public:
@@ -25,7 +26,9 @@ private:
 public:
     //! @param[in] command      the command which handles interaction with the external signer
     //! @param[in] fingerprint  master key fingerprint of the signer
-    ExternalSigner(const std::string& command, const std::string& fingerprint);
+    //! @param[in] chain        "main", "test", "regtest" or "signet"
+    //! @param[in] name         device name
+    ExternalSigner(const std::string& command, const std::string& fingerprint, std::string chain, std::string name);
 
     //! Master key fingerprint of the signer
     std::string m_fingerprint;
@@ -49,15 +52,3 @@ public:
     //! Display address on the device. Calls `<command> displayaddress --desc <descriptor>`.
     //! @param[in] descriptor Descriptor specifying which address to display.
     //!            Must include a public key or xpub, as well as key origin.
-    UniValue DisplayAddress(const std::string& descriptor) const;
-
-    //! Get receive and change Descriptor(s) from device for a given account.
-    //! Calls `<command> getdescriptors --account <account>`
-    //! @param[in] account  which BIP32 account to use (e.g. `m/44'/0'/account'`)
-    //! @param[out] UniValue see doc/external-signer.md
-    UniValue GetDescriptors(int account);
-
-#endif
-};
-
-#endif // BGL_WALLET_EXTERNAL_SIGNER_H
