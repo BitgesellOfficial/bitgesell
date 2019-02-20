@@ -658,6 +658,11 @@ void BGLGUI::setWalletController(WalletController* wallet_controller)
     }
 }
 
+WalletController* BGLGUI::getWalletController()
+{
+    return m_wallet_controller;
+}
+
 void BGLGUI::addWallet(WalletModel* walletModel)
 {
     if (!walletFrame) return;
