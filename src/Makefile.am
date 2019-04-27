@@ -269,7 +269,6 @@ BGL_CORE_H = \
   wallet/db.h \
   wallet/dump.h \
   wallet/external_signer.h \
-  wallet/external_signer_scriptpubkeyman.h \
   wallet/feebumper.h \
   wallet/fees.h \
   wallet/ismine.h \
@@ -385,7 +384,6 @@ libBGL_wallet_a_SOURCES = \
   wallet/crypter.cpp \
   wallet/db.cpp \
   wallet/dump.cpp \
-  wallet/external_signer_scriptpubkeyman.cpp \
   wallet/external_signer.cpp \
   wallet/feebumper.cpp \
   wallet/fees.cpp \
