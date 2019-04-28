@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 The Bitcoin Core developers
+// Copyright (c) 2019-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -24,19 +24,21 @@ namespace util {
 //!       https://github.com/BGL/BGL/pull/15934/files#r337691812)
 using SettingsValue = UniValue;
 
-//! Stored BGL settings. This struct combines settings from the command line
-//! and a read-only configuration file.
+//! Stored settings. This struct combines settings from the command line, a
+//! read-only configuration file, and a read-write runtime settings file.
 struct Settings {
     //! Map of setting name to forced setting value.
     std::map<std::string, SettingsValue> forced_settings;
     //! Map of setting name to list of command line values.
     std::map<std::string, std::vector<SettingsValue>> command_line_options;
+    //! Map of setting name to read-write file setting value.
+    std::map<std::string, SettingsValue> rw_settings;
     //! Map of config section name and setting name to list of config file values.
     std::map<std::string, std::map<std::string, std::vector<SettingsValue>>> ro_config;
 };
 
 //! Get settings value from combined sources: forced settings, command line
-//! arguments and the read-only config file.
+//! arguments, runtime read-write settings, and the read-only config file.
 //!
 //! @param ignore_default_section_config - ignore values in the default section
 //!                                        of the config file (part before any

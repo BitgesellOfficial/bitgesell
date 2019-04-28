@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -73,6 +73,7 @@
 const int64_t nStartupTime = GetTime();
 
 const char * const BGL_CONF_FILENAME = "BGL.conf";
+const char * const BGL_SETTINGS_FILENAME = "settings.json";
 
 ArgsManager gArgs;
 
@@ -370,6 +371,84 @@ std::vector<std::string> ArgsManager::GetArgs(const std::string& strArg) const
 bool ArgsManager::IsArgSet(const std::string& strArg) const
 {
     return !GetSetting(strArg).isNull();
+}
+
+bool ArgsManager::InitSettings(std::string& error)
+{
+    if (!GetSettingsPath()) {
+        return true; // Do nothing if settings file disabled.
+    }
+
+    std::vector<std::string> errors;
+    if (!ReadSettingsFile(&errors)) {
+        error = strprintf("Failed loading settings file:\n- %s\n", Join(errors, "\n- "));
+        return false;
+    }
+    if (!WriteSettingsFile(&errors)) {
+        error = strprintf("Failed saving settings file:\n- %s\n", Join(errors, "\n- "));
+        return false;
+    }
+    return true;
+}
+
+bool ArgsManager::GetSettingsPath(fs::path* filepath, bool temp) const
+{
+    if (IsArgNegated("-settings")) {
+        return false;
+    }
+    if (filepath) {
+        std::string settings = GetArg("-settings", BGL_SETTINGS_FILENAME);
+        *filepath = fs::absolute(temp ? settings + ".tmp" : settings, GetDataDir(/* net_specific= */ true));
+    }
+    return true;
+}
+
+static void SaveErrors(const std::vector<std::string> errors, std::vector<std::string>* error_out)
+{
+    for (const auto& error : errors) {
+        if (error_out) {
+            error_out->emplace_back(error);
+        } else {
+            LogPrintf("%s\n", error);
+        }
+    }
+}
+
+bool ArgsManager::ReadSettingsFile(std::vector<std::string>* errors)
+{
+    fs::path path;
+    if (!GetSettingsPath(&path, /* temp= */ false)) {
+        return true; // Do nothing if settings file disabled.
+    }
+
+    LOCK(cs_args);
+    m_settings.rw_settings.clear();
+    std::vector<std::string> read_errors;
+    if (!util::ReadSettings(path, m_settings.rw_settings, read_errors)) {
+        SaveErrors(read_errors, errors);
+        return false;
+    }
+    return true;
+}
+
+bool ArgsManager::WriteSettingsFile(std::vector<std::string>* errors) const
+{
+    fs::path path, path_tmp;
+    if (!GetSettingsPath(&path, /* temp= */ false) || !GetSettingsPath(&path_tmp, /* temp= */ true)) {
+        throw std::logic_error("Attempt to write settings file when dynamic settings are disabled.");
+    }
+
+    LOCK(cs_args);
+    std::vector<std::string> write_errors;
+    if (!util::WriteSettings(path_tmp, m_settings.rw_settings, write_errors)) {
+        SaveErrors(write_errors, errors);
+        return false;
+    }
+    if (!RenameOver(path_tmp, path)) {
+        SaveErrors({strprintf("Failed renaming settings file %s to %s\n", path_tmp.string(), path.string())}, errors);
+        return false;
+    }
+    return true;
 }
 
 bool ArgsManager::IsArgNegated(const std::string& strArg) const
@@ -893,6 +972,9 @@ void ArgsManager::LogArgs() const
     for (const auto& section : m_settings.ro_config) {
         logArgsPrefix("Config file arg:", section.first, section.second);
     }
+    for (const auto& setting : m_settings.rw_settings) {
+        LogPrintf("Setting file arg: %s = %s\n", setting.first, setting.second.write());
+    }
     logArgsPrefix("Command-line arg:", "", m_settings.command_line_options);
 }
 
@@ -1140,7 +1222,7 @@ std::string CopyrightHolders(const std::string& strPrefix)
 
     // Make sure BGL Core copyright is not removed by accident
     if (copyright_devs.find("BGL Core") == std::string::npos) {
-        strCopyrightHolders += "\n" + strPrefix + "The Bitcoin Core developers";
+        strCopyrightHolders += "\n" + strPrefix + "The BGL Core developers";
     }
     return strCopyrightHolders;
 }
