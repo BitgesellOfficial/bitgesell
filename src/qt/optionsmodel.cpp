@@ -45,15 +45,6 @@ static const char* SettingName(OptionsModel::OptionID option)
     case OptionsModel::MapPortNatpmp: return "natpmp";
     case OptionsModel::Listen: return "listen";
     case OptionsModel::Server: return "server";
-    case OptionsModel::PruneSize: return "prune";
-    case OptionsModel::Prune: return "prune";
-    case OptionsModel::ProxyIP: return "proxy";
-    case OptionsModel::ProxyPort: return "proxy";
-    case OptionsModel::ProxyUse: return "proxy";
-    case OptionsModel::ProxyIPTor: return "onion";
-    case OptionsModel::ProxyPortTor: return "onion";
-    case OptionsModel::ProxyUseTor: return "onion";
-    case OptionsModel::Language: return "lang";
     default: throw std::logic_error(strprintf("GUI option %i has no corresponding node setting.", option));
     }
 }
@@ -187,7 +178,7 @@ bool OptionsModel::Init(bilingual_str& error)
     // These are shared with the core or have a command-line parameter
     // and we want command-line parameters to overwrite the GUI settings.
     for (OptionID option : {DatabaseCache, ThreadsScriptVerif, SpendZeroConfChange, ExternalSignerPath, MapPortUPnP,
-                            MapPortNatpmp, Listen, Server, Prune, ProxyUse, ProxyUseTor}) {
+                            MapPortNatpmp, Listen, Server}) {
         std::string setting = SettingName(option);
         if (node().isSettingIgnored(setting)) addOverriddenOption("-" + setting);
         try {
@@ -216,49 +207,6 @@ bool OptionsModel::Init(bilingual_str& error)
 #endif
 
     // Network
-    if (!settings.contains("fUseUPnP"))
-        settings.setValue("fUseUPnP", DEFAULT_UPNP);
-    if (!gArgs.SoftSetBoolArg("-upnp", settings.value("fUseUPnP").toBool()))
-        addOverriddenOption("-upnp");
-
-    if (!settings.contains("fUseNatpmp")) {
-        settings.setValue("fUseNatpmp", DEFAULT_NATPMP);
-    }
-    if (!gArgs.SoftSetBoolArg("-natpmp", settings.value("fUseNatpmp").toBool())) {
-        addOverriddenOption("-natpmp");
-    }
-
-    if (!settings.contains("fListen"))
-        settings.setValue("fListen", DEFAULT_LISTEN);
-    const bool listen{settings.value("fListen").toBool()};
-    if (!gArgs.SoftSetBoolArg("-listen", listen)) {
-        addOverriddenOption("-listen");
-    } else if (!listen) {
-        // We successfully set -listen=0, thus mimic the logic from InitParameterInteraction():
-        // "parameter interaction: -listen=0 -> setting -listenonion=0".
-        //
-        // Both -listen and -listenonion default to true.
-        //
-        // The call order is:
-        //
-        // InitParameterInteraction()
-        //     would set -listenonion=0 if it sees -listen=0, but for bitcoin-qt with
-        //     fListen=false -listen is 1 at this point
-        //
-        // OptionsModel::Init()
-        //     (this method) can flip -listen from 1 to 0 if fListen=false
-        //
-        // AppInitParameterInteraction()
-        //     raises an error if -listen=0 and -listenonion=1
-        gArgs.SoftSetBoolArg("-listenonion", false);
-    }
-
-    if (!settings.contains("server")) {
-        settings.setValue("server", false);
-    }
-    if (!gArgs.SoftSetBoolArg("-server", settings.value("server").toBool())) {
-        addOverriddenOption("-server");
-    }
 
     if (!settings.contains("fUseProxy"))
         settings.setValue("fUseProxy", false);
@@ -490,9 +438,9 @@ QVariant OptionsModel::getOption(OptionID option) const
     case ThreadsScriptVerif:
         return settings.value("nThreadsScriptVerif");
     case Listen:
-        return settings.value("fListen");
+        return SettingToBool(setting(), DEFAULT_LISTEN);
     case Server:
-        return settings.value("server");
+        return SettingToBool(setting(), false);
     default:
         return QVariant();
     }
@@ -658,14 +606,9 @@ bool OptionsModel::setOption(OptionID option, const QVariant& value)
         }
         break;
     case Listen:
-        if (settings.value("fListen") != value) {
-            settings.setValue("fListen", value);
-            setRestartRequired(true);
-        }
-        break;
     case Server:
-        if (settings.value("server") != value) {
-            settings.setValue("server", value);
+        if (changed()) {
+            update(value.toBool());
             setRestartRequired(true);
         }
         break;
@@ -748,13 +691,6 @@ void OptionsModel::checkAndMigrate()
     migrate_setting(MapPortNatpmp, "fUseNatpmp");
     migrate_setting(Listen, "fListen");
     migrate_setting(Server, "server");
-    migrate_setting(PruneSize, "nPruneSize");
-    migrate_setting(Prune, "bPrune");
-    migrate_setting(ProxyIP, "addrProxy");
-    migrate_setting(ProxyUse, "fUseProxy");
-    migrate_setting(ProxyIPTor, "addrSeparateProxyTor");
-    migrate_setting(ProxyUseTor, "fUseSeparateProxyTor");
-    migrate_setting(Language, "language");
 
     // In case migrating QSettings caused any settings value to change, rerun
     // parameter interaction code to update other settings. This is particularly
