@@ -19,6 +19,7 @@
 #include <txdb.h>       // for -dbcache defaults
 #include <util/string.h>
 #include <validation.h> // For DEFAULT_SCRIPTCHECK_THREADS
+#include <wallet/wallet.h> // For DEFAULT_SPEND_ZEROCONF_CHANGE
 
 #include <QDebug>
 #include <QLatin1Char>
@@ -30,7 +31,38 @@ const char *DEFAULT_GUI_PROXY_HOST = "127.0.0.1";
 
 static const QString GetDefaultProxyAddress();
 
-OptionsModel::OptionsModel(interfaces::Node& node, QObject *parent, bool resetSettings) :
+/** Map GUI option ID to node setting name. */
+static const char* SettingName(OptionsModel::OptionID option)
+{
+    switch (option) {
+    case OptionsModel::DatabaseCache: return "dbcache";
+    case OptionsModel::ThreadsScriptVerif: return "par";
+    case OptionsModel::SpendZeroConfChange: return "spendzeroconfchange";
+    case OptionsModel::ExternalSignerPath: return "signer";
+    default: throw std::logic_error(strprintf("GUI option %i has no corresponding node setting.", option));
+    }
+}
+
+/** Call node.updateRwSetting() with Bitcoin 22.x workaround. */
+static void UpdateRwSetting(interfaces::Node& node, OptionsModel::OptionID option, const util::SettingsValue& value)
+{
+    if (value.isNum() &&
+        (option == OptionsModel::DatabaseCache ||
+         option == OptionsModel::ThreadsScriptVerif)) {
+        // Write certain old settings as strings, even though they are numbers,
+        // because Bitcoin 22.x releases try to read these specific settings as
+        // strings in addOverriddenOption() calls at startup, triggering
+        // uncaught exceptions in UniValue::get_str(). These errors were fixed
+        // in later releases by https://github.com/bitcoin/bitcoin/pull/24498.
+        // If new numeric settings are added, they can be written as numbers
+        // instead of strings, because bitcoin 22.x will not try to read these.
+        node.updateRwSetting(SettingName(option), value.getValStr());
+    } else {
+        node.updateRwSetting(SettingName(option), value);
+    }
+}
+
+OptionsModel::OptionsModel(interfaces::Node& node, QObject *parent) :
     QAbstractListModel(parent), m_node{node}
 {
     Init(resetSettings);
@@ -93,7 +125,20 @@ void OptionsModel::Init(bool resetSettings)
 
     // These are shared with the core or have a command-line parameter
     // and we want command-line parameters to overwrite the GUI settings.
-    //
+    for (OptionID option : {DatabaseCache, ThreadsScriptVerif, SpendZeroConfChange, ExternalSignerPath}) {
+        std::string setting = SettingName(option);
+        if (node().isSettingIgnored(setting)) addOverriddenOption("-" + setting);
+        try {
+            getOption(option);
+        } catch (const std::exception& e) {
+            // This handles exceptions thrown by univalue that can happen if
+            // settings in settings.json don't have the expected types.
+            error.original = strprintf("Could not read setting \"%s\", %s.", setting, e.what());
+            error.translated = tr("Could not read setting \"%1\", %2.").arg(QString::fromStdString(setting), e.what()).toStdString();
+            return false;
+        }
+    }
+
     // If setting doesn't exist create it with defaults.
     //
     // If gArgs.SoftSetArg() or gArgs.SoftSetBoolArg() return false we were overridden
@@ -121,18 +166,6 @@ void OptionsModel::Init(bool resetSettings)
 
     // Wallet
 #ifdef ENABLE_WALLET
-    if (!settings.contains("bSpendZeroConfChange"))
-        settings.setValue("bSpendZeroConfChange", true);
-    if (!gArgs.SoftSetBoolArg("-spendzeroconfchange", settings.value("bSpendZeroConfChange").toBool()))
-        addOverriddenOption("-spendzeroconfchange");
-
-    if (!settings.contains("external_signer_path"))
-        settings.setValue("external_signer_path", "");
-
-    if (!gArgs.SoftSetArg("-signer", settings.value("external_signer_path").toString().toStdString())) {
-        addOverriddenOption("-signer");
-    }
-
     if (!settings.contains("SubFeeFromAmount")) {
         settings.setValue("SubFeeFromAmount", false);
     }
@@ -392,9 +425,9 @@ QVariant OptionsModel::getOption(OptionID option) const
 
 #ifdef ENABLE_WALLET
     case SpendZeroConfChange:
-        return settings.value("bSpendZeroConfChange");
+        return SettingToBool(setting(), wallet::DEFAULT_SPEND_ZEROCONF_CHANGE);
     case ExternalSignerPath:
-        return settings.value("external_signer_path");
+        return QString::fromStdString(SettingToString(setting(), ""));
     case SubFeeFromAmount:
         return m_sub_fee_from_amount;
 #endif
@@ -510,14 +543,14 @@ bool OptionsModel::setOption(OptionID option, const QVariant& value)
 
 #ifdef ENABLE_WALLET
     case SpendZeroConfChange:
-        if (settings.value("bSpendZeroConfChange") != value) {
-            settings.setValue("bSpendZeroConfChange", value);
+        if (changed()) {
+            update(value.toBool());
             setRestartRequired(true);
         }
         break;
     case ExternalSignerPath:
-        if (settings.value("external_signer_path") != value.toString()) {
-            settings.setValue("external_signer_path", value.toString());
+        if (changed()) {
+            update(value.toString().toStdString());
             setRestartRequired(true);
         }
         break;
@@ -650,4 +683,21 @@ void OptionsModel::checkAndMigrate()
     if (settings.contains("addrSeparateProxyTor") && settings.value("addrSeparateProxyTor").toString().endsWith("%2")) {
         settings.setValue("addrSeparateProxyTor", GetDefaultProxyAddress());
     }
+
+    // Migrate and delete legacy GUI settings that have now moved to <datadir>/settings.json.
+    auto migrate_setting = [&](OptionID option, const QString& qt_name) {
+        if (!settings.contains(qt_name)) return;
+        QVariant value = settings.value(qt_name);
+        if (node().getPersistentSetting(SettingName(option)).isNull()) {
+            setOption(option, value);
+        }
+        settings.remove(qt_name);
+    };
+
+    migrate_setting(DatabaseCache, "nDatabaseCache");
+    migrate_setting(ThreadsScriptVerif, "nThreadsScriptVerif");
+#ifdef ENABLE_WALLET
+    migrate_setting(SpendZeroConfChange, "bSpendZeroConfChange");
+    migrate_setting(ExternalSignerPath, "external_signer_path");
+#endif
 }
