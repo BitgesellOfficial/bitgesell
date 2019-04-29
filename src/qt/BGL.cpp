@@ -345,7 +345,7 @@ void BGLApplication::parameterSetup()
 
 void BGLApplication::InitPruneSetting(int64_t prune_MiB)
 {
-    optionsModel->SetPruneTargetGB(PruneMiBtoGB(prune_MiB), true);
+    optionsModel->SetPruneTargetGB(PruneMiBtoGB(prune_MiB));
 }
 
 void BGLApplication::requestInitialize()

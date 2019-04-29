@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <init.h>
-#include <qt/bitcoin.h>
+#include <qt/BGL.h>
 #include <qt/test/optiontests.h>
 #include <test/util/setup_common.h>
 #include <util/system.h>
@@ -33,6 +33,15 @@ void OptionTests::migrateSettings()
     // settings.json
     QSettings settings;
     settings.setValue("nDatabaseCache", 600);
+    settings.setValue("nThreadsScriptVerif", 12);
+    settings.setValue("fUseUPnP", false);
+    settings.setValue("fListen", false);
+    settings.setValue("bPrune", true);
+    settings.setValue("nPruneSize", 3);
+    settings.setValue("fUseProxy", true);
+    settings.setValue("addrProxy", "proxy:123");
+    settings.setValue("fUseSeparateProxyTor", true);
+    settings.setValue("addrSeparateProxyTor", "onion:234");
 
     settings.sync();
 
@@ -40,10 +49,24 @@ void OptionTests::migrateSettings()
     bilingual_str error;
     QVERIFY(options.Init(error));
     QVERIFY(!settings.contains("nDatabaseCache"));
+    QVERIFY(!settings.contains("nThreadsScriptVerif"));
+    QVERIFY(!settings.contains("fUseUPnP"));
+    QVERIFY(!settings.contains("fListen"));
+    QVERIFY(!settings.contains("bPrune"));
+    QVERIFY(!settings.contains("nPruneSize"));
+    QVERIFY(!settings.contains("fUseProxy"));
+    QVERIFY(!settings.contains("addrProxy"));
+    QVERIFY(!settings.contains("fUseSeparateProxyTor"));
+    QVERIFY(!settings.contains("addrSeparateProxyTor"));
 
     std::ifstream file(gArgs.GetDataDirNet() / "settings.json");
     QCOMPARE(std::string(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>()).c_str(), "{\n"
-        "    \"dbcache\": \"600\"\n"
+        "    \"dbcache\": \"600\",\n"
+        "    \"listen\": false,\n"
+        "    \"onion\": \"onion:234\",\n"
+        "    \"par\": \"12\",\n"
+        "    \"proxy\": \"proxy:123\",\n"
+        "    \"prune\": \"2861\"\n"
         "}\n");
 }
 

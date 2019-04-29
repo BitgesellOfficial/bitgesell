@@ -97,8 +97,7 @@ public:
     const QString& getOverriddenByCommandLine() { return strOverriddenByCommandLine; }
 
     /* Explicit setters */
-    void SetPruneEnabled(bool prune, bool force = false);
-    void SetPruneTargetGB(int prune_target_gb, bool force = false);
+    void SetPruneTargetGB(int prune_target_gb);
 
     /* Restart flag helper */
     void setRestartRequired(bool fRequired);
@@ -119,6 +118,15 @@ private:
     bool fCoinControlFeatures;
     bool m_sub_fee_from_amount;
     bool m_enable_psbt_controls;
+
+    //! In-memory settings for display. These are stored persistently by the
+    //! bitcoin node but it's also nice to store them in memory to prevent them
+    //! getting cleared when enable/disable toggles are used in the GUI.
+    int m_prune_size_gb;
+    QString m_proxy_ip;
+    QString m_proxy_port;
+    QString m_onion_ip;
+    QString m_onion_port;
 
     /* settings that were overridden by command-line */
     QString strOverriddenByCommandLine;
