@@ -27,6 +27,8 @@
 #include <QStringList>
 #include <QVariant>
 
+#include <univalue.h>
+
 const char *DEFAULT_GUI_PROXY_HOST = "127.0.0.1";
 
 static const QString GetDefaultProxyAddress();
@@ -36,9 +38,6 @@ static const char* SettingName(OptionsModel::OptionID option)
 {
     switch (option) {
     case OptionsModel::DatabaseCache: return "dbcache";
-    case OptionsModel::ThreadsScriptVerif: return "par";
-    case OptionsModel::SpendZeroConfChange: return "spendzeroconfchange";
-    case OptionsModel::ExternalSignerPath: return "signer";
     default: throw std::logic_error(strprintf("GUI option %i has no corresponding node setting.", option));
     }
 }
@@ -46,9 +45,7 @@ static const char* SettingName(OptionsModel::OptionID option)
 /** Call node.updateRwSetting() with Bitcoin 22.x workaround. */
 static void UpdateRwSetting(interfaces::Node& node, OptionsModel::OptionID option, const util::SettingsValue& value)
 {
-    if (value.isNum() &&
-        (option == OptionsModel::DatabaseCache ||
-         option == OptionsModel::ThreadsScriptVerif)) {
+    if (value.isNum() && option == OptionsModel::DatabaseCache) {
         // Write certain old settings as strings, even though they are numbers,
         // because Bitcoin 22.x releases try to read these specific settings as
         // strings in addOverriddenOption() calls at startup, triggering
@@ -65,7 +62,6 @@ static void UpdateRwSetting(interfaces::Node& node, OptionsModel::OptionID optio
 OptionsModel::OptionsModel(interfaces::Node& node, QObject *parent) :
     QAbstractListModel(parent), m_node{node}
 {
-    Init(resetSettings);
 }
 
 void OptionsModel::addOverriddenOption(const std::string &option)
@@ -74,11 +70,8 @@ void OptionsModel::addOverriddenOption(const std::string &option)
 }
 
 // Writes all missing QSettings with their default values
-void OptionsModel::Init(bool resetSettings)
+bool OptionsModel::Init(bilingual_str& error)
 {
-    if (resetSettings)
-        Reset();
-
     checkAndMigrate();
 
     QSettings settings;
@@ -125,7 +118,7 @@ void OptionsModel::Init(bool resetSettings)
 
     // These are shared with the core or have a command-line parameter
     // and we want command-line parameters to overwrite the GUI settings.
-    for (OptionID option : {DatabaseCache, ThreadsScriptVerif, SpendZeroConfChange, ExternalSignerPath}) {
+    for (OptionID option : {DatabaseCache}) {
         std::string setting = SettingName(option);
         if (node().isSettingIgnored(setting)) addOverriddenOption("-" + setting);
         try {
@@ -150,11 +143,6 @@ void OptionsModel::Init(bool resetSettings)
     if (!settings.contains("nPruneSize"))
         settings.setValue("nPruneSize", DEFAULT_PRUNE_TARGET_GB);
     SetPruneEnabled(settings.value("bPrune").toBool());
-
-    if (!settings.contains("nDatabaseCache"))
-        settings.setValue("nDatabaseCache", (qint64)nDefaultDbCache);
-    if (!gArgs.SoftSetArg("-dbcache", settings.value("nDatabaseCache").toString().toStdString()))
-        addOverriddenOption("-dbcache");
 
     if (!settings.contains("nThreadsScriptVerif"))
         settings.setValue("nThreadsScriptVerif", DEFAULT_SCRIPTCHECK_THREADS);
@@ -250,6 +238,8 @@ void OptionsModel::Init(bool resetSettings)
     }
     m_use_embedded_monospaced_font = settings.value("UseEmbeddedMonospacedFont").toBool();
     Q_EMIT useEmbeddedMonospacedFontChanged(m_use_embedded_monospaced_font);
+
+    return true;
 }
 
 /** Helper function to copy contents from one QSettings to another.
@@ -384,6 +374,8 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
 
 QVariant OptionsModel::getOption(OptionID option) const
 {
+    auto setting = [&]{ return node().getPersistentSetting(SettingName(option)); };
+
     QSettings settings;
     switch (option) {
     case StartAtStartup:
@@ -448,7 +440,7 @@ QVariant OptionsModel::getOption(OptionID option) const
     case PruneSize:
         return settings.value("nPruneSize");
     case DatabaseCache:
-        return settings.value("nDatabaseCache");
+        return qlonglong(SettingToInt(setting(), nDefaultDbCache));
     case ThreadsScriptVerif:
         return settings.value("nThreadsScriptVerif");
     case Listen:
@@ -462,6 +454,9 @@ QVariant OptionsModel::getOption(OptionID option) const
 
 bool OptionsModel::setOption(OptionID option, const QVariant& value)
 {
+    auto changed = [&] { return value.isValid() && value != getOption(option); };
+    auto update = [&](const util::SettingsValue& value) { return UpdateRwSetting(node(), option, value); };
+
     bool successful = true; /* set to false on parse error */
     QSettings settings;
 
@@ -602,8 +597,8 @@ bool OptionsModel::setOption(OptionID option, const QVariant& value)
         }
         break;
     case DatabaseCache:
-        if (settings.value("nDatabaseCache") != value) {
-            settings.setValue("nDatabaseCache", value);
+        if (changed()) {
+            update(static_cast<int64_t>(value.toLongLong()));
             setRestartRequired(true);
         }
         break;
@@ -695,9 +690,4 @@ void OptionsModel::checkAndMigrate()
     };
 
     migrate_setting(DatabaseCache, "nDatabaseCache");
-    migrate_setting(ThreadsScriptVerif, "nThreadsScriptVerif");
-#ifdef ENABLE_WALLET
-    migrate_setting(SpendZeroConfChange, "bSpendZeroConfChange");
-    migrate_setting(ExternalSignerPath, "external_signer_path");
-#endif
 }

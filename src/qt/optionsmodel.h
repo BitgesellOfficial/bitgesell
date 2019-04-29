@@ -13,6 +13,7 @@
 
 #include <assert.h>
 
+struct bilingual_str;
 namespace interfaces {
 class Node;
 }
@@ -41,7 +42,7 @@ class OptionsModel : public QAbstractListModel
     Q_OBJECT
 
 public:
-    explicit OptionsModel(interfaces::Node& node, QObject *parent = nullptr, bool resetSettings = false);
+    explicit OptionsModel(interfaces::Node& node, QObject *parent = nullptr);
 
     enum OptionID {
         StartAtStartup,         // bool
@@ -73,7 +74,7 @@ public:
         OptionIDRowCount,
     };
 
-    void Init(bool resetSettings = false);
+    bool Init(bilingual_str& error);
     void Reset();
 
     int rowCount(const QModelIndex & parent = QModelIndex()) const override;
@@ -117,6 +118,8 @@ private:
     bool m_use_embedded_monospaced_font;
     bool fCoinControlFeatures;
     bool m_sub_fee_from_amount;
+    bool m_enable_psbt_controls;
+
     /* settings that were overridden by command-line */
     QString strOverriddenByCommandLine;
 
@@ -125,6 +128,7 @@ private:
 
     // Check settings version and upgrade default values if required
     void checkAndMigrate();
+
 Q_SIGNALS:
     void displayUnitChanged(BGLUnit unit);
     void coinControlFeaturesChanged(bool);
