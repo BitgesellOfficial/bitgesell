@@ -39,12 +39,6 @@ static const char* SettingName(OptionsModel::OptionID option)
     switch (option) {
     case OptionsModel::DatabaseCache: return "dbcache";
     case OptionsModel::ThreadsScriptVerif: return "par";
-    case OptionsModel::SpendZeroConfChange: return "spendzeroconfchange";
-    case OptionsModel::ExternalSignerPath: return "signer";
-    case OptionsModel::MapPortUPnP: return "upnp";
-    case OptionsModel::MapPortNatpmp: return "natpmp";
-    case OptionsModel::Listen: return "listen";
-    case OptionsModel::Server: return "server";
     default: throw std::logic_error(strprintf("GUI option %i has no corresponding node setting.", option));
     }
 }
@@ -54,9 +48,7 @@ static void UpdateRwSetting(interfaces::Node& node, OptionsModel::OptionID optio
 {
     if (value.isNum() &&
         (option == OptionsModel::DatabaseCache ||
-         option == OptionsModel::ThreadsScriptVerif ||
-         option == OptionsModel::Prune ||
-         option == OptionsModel::PruneSize)) {
+         option == OptionsModel::ThreadsScriptVerif)) {
         // Write certain old settings as strings, even though they are numbers,
         // because Bitcoin 22.x releases try to read these specific settings as
         // strings in addOverriddenOption() calls at startup, triggering
@@ -177,8 +169,7 @@ bool OptionsModel::Init(bilingual_str& error)
 
     // These are shared with the core or have a command-line parameter
     // and we want command-line parameters to overwrite the GUI settings.
-    for (OptionID option : {DatabaseCache, ThreadsScriptVerif, SpendZeroConfChange, ExternalSignerPath, MapPortUPnP,
-                            MapPortNatpmp, Listen, Server}) {
+    for (OptionID option : {DatabaseCache, ThreadsScriptVerif}) {
         std::string setting = SettingName(option);
         if (node().isSettingIgnored(setting)) addOverriddenOption("-" + setting);
         try {
@@ -195,6 +186,11 @@ bool OptionsModel::Init(bilingual_str& error)
     // If setting doesn't exist create it with defaults.
 
     // Main
+    if (!settings.contains("bPrune"))
+        settings.setValue("bPrune", false);
+    if (!settings.contains("nPruneSize"))
+        settings.setValue("nPruneSize", DEFAULT_PRUNE_TARGET_GB);
+    SetPruneEnabled(settings.value("bPrune").toBool());
     if (!settings.contains("strDataDir"))
         settings.setValue("strDataDir", GUIUtil::getDefaultDataDirectory());
 
@@ -436,7 +432,7 @@ QVariant OptionsModel::getOption(OptionID option) const
     case DatabaseCache:
         return qlonglong(SettingToInt(setting(), nDefaultDbCache));
     case ThreadsScriptVerif:
-        return settings.value("nThreadsScriptVerif");
+        return qlonglong(SettingToInt(setting(), DEFAULT_SCRIPTCHECK_THREADS));
     case Listen:
         return SettingToBool(setting(), DEFAULT_LISTEN);
     case Server:
@@ -600,8 +596,8 @@ bool OptionsModel::setOption(OptionID option, const QVariant& value)
         }
         break;
     case ThreadsScriptVerif:
-        if (settings.value("nThreadsScriptVerif") != value) {
-            settings.setValue("nThreadsScriptVerif", value);
+        if (changed()) {
+            update(static_cast<int64_t>(value.toLongLong()));
             setRestartRequired(true);
         }
         break;
@@ -683,19 +679,4 @@ void OptionsModel::checkAndMigrate()
 
     migrate_setting(DatabaseCache, "nDatabaseCache");
     migrate_setting(ThreadsScriptVerif, "nThreadsScriptVerif");
-#ifdef ENABLE_WALLET
-    migrate_setting(SpendZeroConfChange, "bSpendZeroConfChange");
-    migrate_setting(ExternalSignerPath, "external_signer_path");
-#endif
-    migrate_setting(MapPortUPnP, "fUseUPnP");
-    migrate_setting(MapPortNatpmp, "fUseNatpmp");
-    migrate_setting(Listen, "fListen");
-    migrate_setting(Server, "server");
-
-    // In case migrating QSettings caused any settings value to change, rerun
-    // parameter interaction code to update other settings. This is particularly
-    // important for the -listen setting, which should cause -listenonion, -upnp,
-    // and other settings to default to false if it was set to false.
-    // (https://github.com/bitcoin-core/gui/issues/567).
-    node().initParameterInteraction();
 }
