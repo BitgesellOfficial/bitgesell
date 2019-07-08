@@ -498,6 +498,7 @@ public:
         :   ScriptPubKeyMan(storage),
             m_wallet_descriptor(descriptor)
         {}
+
     DescriptorScriptPubKeyMan(WalletStorage& storage, OutputType address_type, bool internal)
         :   ScriptPubKeyMan(storage),
             m_address_type(address_type), m_internal(internal)
