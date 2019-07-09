@@ -488,6 +488,8 @@ private:
     WalletDescriptor m_wallet_descriptor GUARDED_BY(cs_desc_man);
 
     using ScriptPubKeyMap = std::map<CScript, int32_t>; // Map of scripts to descriptor range index
+    using CryptedKeyMap = std::map<CKeyID, std::pair<CPubKey, std::vector<unsigned char>>>;
+    using KeyMap = std::map<CKeyID, CKey>;
 
     ScriptPubKeyMap m_map_script_pub_keys GUARDED_BY(cs_desc_man);
     int32_t m_max_cached_index = -1;
@@ -502,10 +504,13 @@ private:
 
     //! keeps track of whether Unlock has run a thorough check before
     bool m_decryption_thoroughly_checked = false;
+<<<<<<< HEAD
 
     bool AddDescriptorKeyWithDB(WalletBatch& batch, const CKey& key, const CPubKey &pubkey);
 
     KeyMap GetKeys() const EXCLUSIVE_LOCKS_REQUIRED(cs_desc_man);
+=======
+>>>>>>> 953feb3d2... Implement loading of keys for DescriptorScriptPubKeyMan
 public:
     DescriptorScriptPubKeyMan(WalletStorage& storage, WalletDescriptor& descriptor)
         :   ScriptPubKeyMan(storage),
@@ -565,6 +570,9 @@ public:
     void SetType(OutputType type, bool internal) override;
 
     void SetCache(const DescriptorCache& cache);
+
+    bool AddKey(const CKeyID& key_id, const CKey& key);
+    bool AddCryptedKey(const CKeyID& key_id, const CPubKey& pubkey, const std::vector<unsigned char>& crypted_key);
 };
 
 #endif // BGL_WALLET_SCRIPTPUBKEYMAN_H
