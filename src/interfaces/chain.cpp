@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2020 The Bitcoin Core developers
+// Copyright (c) 2018-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -40,15 +40,6 @@ namespace {
 
 class LockImpl : public Chain::Lock, public UniqueLock<RecursiveMutex>
 {
-    Optional<int> getHeight() override
-    {
-        LockAssertion lock(::cs_main);
-        int height = ::ChainActive().Height();
-        if (height >= 0) {
-            return height;
-        }
-        return nullopt;
-    }
     Optional<int> getBlockHeight(const uint256& hash) override
     {
         LockAssertion lock(::cs_main);
@@ -239,6 +230,15 @@ public:
         std::unique_ptr<Chain::Lock> result = std::move(lock); // Temporary to avoid CWG 1579
         return result;
     }
+    Optional<int> getHeight() override
+    {
+        LOCK(::cs_main);
+        int height = ::ChainActive().Height();
+        if (height >= 0) {
+            return height;
+        }
+        return nullopt;
+    }/**
     bool findBlock(const uint256& hash, CBlock* block, int64_t* time, int64_t* time_max) override
     {
         CBlockIndex* index;
@@ -274,7 +274,7 @@ public:
         // Using & instead of && below to avoid short circuiting and leaving
         // output uninitialized.
         return FillBlock(ancestor, ancestor_out, lock) & FillBlock(block1, block1_out, lock) & FillBlock(block2, block2_out, lock);
-    }
+    } **/
     void findCoins(std::map<COutPoint, Coin>& coins) override { return FindCoins(m_node, coins); }
     double guessVerificationProgress(const uint256& block_hash) override
     {
