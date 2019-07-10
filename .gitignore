@@ -5,6 +5,8 @@
 src/BGL
 src/BGLd
 src/BGL-cli
+src/BGL-gui
+src/BGL-node
 src/BGL-tx
 src/BGL-wallet
 src/test/fuzz
