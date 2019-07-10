@@ -249,7 +249,6 @@ if test x$enable_bip70 != xno; then
   AC_MSG_ERROR([BIP70 is no longer supported!])
 fi
 
-<<<<<<< HEAD
 AC_ARG_WITH([libmultiprocess],
   [AS_HELP_STRING([--with-libmultiprocess=yes|no|auto],
   [Build with libmultiprocess library. (default: auto, i.e. detect with pkg-config)])],
@@ -268,8 +267,6 @@ AC_ARG_ENABLE([multiprocess],
   [enable_multiprocess=$enableval],
   [enable_multiprocess=no])
 
-=======
->>>>>>> f29bd546e... Revert "Merge #16367: Multiprocess build support"
 AC_ARG_ENABLE(man,
     [AS_HELP_STRING([--disable-man],
                     [do not install man pages (default is to install)])],,
@@ -1731,6 +1728,7 @@ esac
 
 echo
 echo "Options used to compile and link:"
+echo "  multiprocess  = $build_multiprocess"
 echo "  with wallet   = $enable_wallet"
 echo "  with gui / qt = $BGL_enable_qt"
 if test x$BGL_enable_qt != xno; then

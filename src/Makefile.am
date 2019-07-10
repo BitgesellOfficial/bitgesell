@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2016 The Bitcoin Core developers
+# Copyright (c) 2013-2016 The BGL Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -581,7 +581,7 @@ BGLd_LDADD = \
   $(LIBBGL_UTIL) \
   $(LIBBGL_ZMQ) \
   $(LIBBGL_CONSENSUS) \
-  $(LIBBGL_CRYPTO) \
+  $(LIBBGL_CRYPTO) 
 # BGLd & BGL-node binaries #
 BGL_common_sources = BGLd.cpp
 BGL_common_cppflags = $(AM_CPPFLAGS) $(BGL_INCLUDES)
