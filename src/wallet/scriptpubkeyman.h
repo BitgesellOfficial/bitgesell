@@ -493,6 +493,16 @@ private:
 
     OutputType m_address_type;
     bool m_internal;
+
+    KeyMap m_map_keys GUARDED_BY(cs_desc_man);
+    CryptedKeyMap m_map_crypted_keys GUARDED_BY(cs_desc_man);
+
+    bool SetCrypted();
+
+    //! keeps track of whether Unlock has run a thorough check before
+    bool m_decryption_thoroughly_checked = false;
+
+    bool AddDescriptorKeyWithDB(WalletBatch& batch, const CKey& key, const CPubKey &pubkey);
 public:
     DescriptorScriptPubKeyMan(WalletStorage& storage, WalletDescriptor& descriptor)
         :   ScriptPubKeyMan(storage),
