@@ -3998,7 +3998,7 @@ UniValue walletcreatefundedpsbt(const JSONRPCRequest& request)
                 "\nCreates and funds a transaction in the Partially Signed Transaction format. Inputs will be added if supplied inputs are not enough\n"
                 "Implements the Creator and Updater roles.\n",
                 {
-                    {"inputs", RPCArg::Type::ARR, RPCArg::Optional::NO, "The inputs",
+                    {"inputs", RPCArg::Type::ARR, RPCArg::Optional::OMITTED_NAMED_ARG, "Leave empty to add inputs automatically. See add_inputs option.",
                         {
                             {"", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED, "",
                                 {
