@@ -4,6 +4,9 @@ RPC changes
   `Insufficient funds` when inputs are manually selected but are not enough to cover
   the outputs and fee. Additional inputs can automatically be added through the
   new `add_inputs` option.
+<<<<<<< HEAD
 
 - The `fundrawtransaction` RPC now supports `add_inputs` option that when `false`
   prevents adding more inputs if necessary and consequently the RPC fails.
+=======
+>>>>>>> 79804fe24... [rpc] walletcreatefundedpsbt: don't automatically append inputs
