@@ -66,11 +66,6 @@ public:
     public:
         virtual ~Lock() {}
 
-        //! Get block height above genesis block. Returns 0 for genesis block,
-        //! 1 for following block, and so on. Returns nullopt for a block not
-        //! included in the current chain.
-        virtual Optional<int> getBlockHeight(const uint256& hash) = 0;
-
         //! Get block hash. Height must be valid or this function will abort.
         virtual uint256 getBlockHash(int height) = 0;
 
@@ -154,6 +149,7 @@ public:
 
     //! Check if transaction will be final given chain height current time.
     virtual bool checkFinalTx(const CTransaction& tx) = 0;
+
 
     //! Return whether node has the block and optionally return block metadata
     //! or contents.
