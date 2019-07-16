@@ -40,7 +40,7 @@ namespace {
 
 class LockImpl : public Chain::Lock, public UniqueLock<RecursiveMutex>
 {
-    Optional<int> getBlockHeight(const uint256& hash) override
+    Optional<int> getBlockHeight(const uint256& hash)
     {
         LockAssertion lock(::cs_main);
         CBlockIndex* block = LookupBlockIndex(hash);
@@ -269,6 +269,40 @@ public:
         CBlockIndex* block = ::ChainActive()[height];
         assert(block);
         return block->GetBlockHash();
+    }
+    bool haveBlockOnDisk(int height) override
+    {
+        LOCK(cs_main);
+        CBlockIndex* block = ::ChainActive()[height];
+        return block && ((block->nStatus & BLOCK_HAVE_DATA) != 0) && block->nTx > 0;
+    }
+    Optional<int> findFirstBlockWithTimeAndHeight(int64_t time, int height, uint256* hash) override
+    {
+        LOCK(cs_main);
+        CBlockIndex* block = ::ChainActive().FindEarliestAtLeast(time, height);
+        if (block) {
+            if (hash) *hash = block->GetBlockHash();
+            return block->nHeight;
+        }
+        return nullopt;
+    }
+    CBlockLocator getTipLocator() override
+    {
+        LOCK(cs_main);
+        return ::ChainActive().GetLocator();
+    }
+    bool checkFinalTx(const CTransaction& tx) override
+    {
+        LOCK(cs_main);
+        return CheckFinalTx(tx);
+    }
+    Optional<int> findLocatorFork(const CBlockLocator& locator) override
+    {
+        LOCK(cs_main);
+        if (CBlockIndex* fork = FindForkInGlobalIndex(::ChainActive(), locator)) {
+            return fork->nHeight;
+        }
+        return nullopt;
     }
     bool findBlock(const uint256& hash, const FoundBlock& block) override
     {
