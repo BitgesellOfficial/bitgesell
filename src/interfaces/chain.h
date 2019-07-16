@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2020 The Bitcoin Core developers
+// Copyright (c) 2018-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -124,6 +124,14 @@ public:
     //! chain only contains genesis block, nullopt if chain does not contain
     //! any blocks)
     virtual Optional<int> getHeight() = 0;
+
+    //! Get block height above genesis block. Returns 0 for genesis block,
+    //! 1 for following block, and so on. Returns nullopt for a block not
+    //! included in the current chain.
+    virtual Optional<int> getBlockHeight(const uint256& hash) = 0;
+
+    //! Get block hash. Height must be valid or this function will abort.
+    virtual uint256 getBlockHash(int height) = 0;
 
     //! Return whether node has the block and optionally return block metadata
     //! or contents.
