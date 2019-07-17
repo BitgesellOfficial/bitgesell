@@ -46,6 +46,7 @@ static const int TOOLTIP_WRAP_THRESHOLD = 80;
 #define QAPP_ORG_DOMAIN "BGL.org"
 #define QAPP_APP_NAME_DEFAULT "BGL-Qt"
 #define QAPP_APP_NAME_TESTNET "BGL-Qt-testnet"
+#define QAPP_APP_NAME_SIGNET "BGL-Qt-signet"
 #define QAPP_APP_NAME_REGTEST "BGL-Qt-regtest"
 
 /* One gigabyte (GB) in bytes */
