@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2019 The Bitcoin Core developers
+// Copyright (c) 2011-2019 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -161,20 +161,27 @@ void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
 {
     int unit = walletModel->getOptionsModel()->getDisplayUnit();
     m_balances = balances;
-    if (walletModel->wallet().privateKeysDisabled()) {
-        ui->labelBalance->setText(BGLUnits::formatWithUnit(unit, balances.watch_only_balance, false, BGLUnits::separatorAlways));
-        ui->labelUnconfirmed->setText(BGLUnits::formatWithUnit(unit, balances.unconfirmed_watch_only_balance, false, BGLUnits::separatorAlways));
-        ui->labelImmature->setText(BGLUnits::formatWithUnit(unit, balances.immature_watch_only_balance, false, BGLUnits::separatorAlways));
-        ui->labelTotal->setText(BGLUnits::formatWithUnit(unit, balances.watch_only_balance + balances.unconfirmed_watch_only_balance + balances.immature_watch_only_balance, false, BGLUnits::separatorAlways));
+    if (walletModel->wallet().isLegacy()) {
+        if (walletModel->wallet().privateKeysDisabled()) {
+            ui->labelBalance->setText(BGLUnits::formatWithUnit(unit, balances.watch_only_balance, false, BGLUnits::separatorAlways));
+            ui->labelUnconfirmed->setText(BGLUnits::formatWithUnit(unit, balances.unconfirmed_watch_only_balance, false, BGLUnits::separatorAlways));
+            ui->labelImmature->setText(BGLUnits::formatWithUnit(unit, balances.immature_watch_only_balance, false, BGLUnits::separatorAlways));
+            ui->labelTotal->setText(BGLUnits::formatWithUnit(unit, balances.watch_only_balance + balances.unconfirmed_watch_only_balance + balances.immature_watch_only_balance, false, BGLUnits::separatorAlways));
+        } else {
+            ui->labelBalance->setText(BGLUnits::formatWithUnit(unit, balances.balance, false, BGLUnits::separatorAlways));
+            ui->labelUnconfirmed->setText(BGLUnits::formatWithUnit(unit, balances.unconfirmed_balance, false, BGLUnits::separatorAlways));
+            ui->labelImmature->setText(BGLUnits::formatWithUnit(unit, balances.immature_balance, false, BGLUnits::separatorAlways));
+            ui->labelTotal->setText(BGLUnits::formatWithUnit(unit, balances.balance + balances.unconfirmed_balance + balances.immature_balance, false, BGLUnits::separatorAlways));
+            ui->labelWatchAvailable->setText(BGLUnits::formatWithUnit(unit, balances.watch_only_balance, false, BGLUnits::separatorAlways));
+            ui->labelWatchPending->setText(BGLUnits::formatWithUnit(unit, balances.unconfirmed_watch_only_balance, false, BGLUnits::separatorAlways));
+            ui->labelWatchImmature->setText(BGLUnits::formatWithUnit(unit, balances.immature_watch_only_balance, false, BGLUnits::separatorAlways));
+            ui->labelWatchTotal->setText(BGLUnits::formatWithUnit(unit, balances.watch_only_balance + balances.unconfirmed_watch_only_balance + balances.immature_watch_only_balance, false, BGLUnits::separatorAlways));
+        }
     } else {
         ui->labelBalance->setText(BGLUnits::formatWithUnit(unit, balances.balance, false, BGLUnits::separatorAlways));
         ui->labelUnconfirmed->setText(BGLUnits::formatWithUnit(unit, balances.unconfirmed_balance, false, BGLUnits::separatorAlways));
         ui->labelImmature->setText(BGLUnits::formatWithUnit(unit, balances.immature_balance, false, BGLUnits::separatorAlways));
         ui->labelTotal->setText(BGLUnits::formatWithUnit(unit, balances.balance + balances.unconfirmed_balance + balances.immature_balance, false, BGLUnits::separatorAlways));
-        ui->labelWatchAvailable->setText(BGLUnits::formatWithUnit(unit, balances.watch_only_balance, false, BGLUnits::separatorAlways));
-        ui->labelWatchPending->setText(BGLUnits::formatWithUnit(unit, balances.unconfirmed_watch_only_balance, false, BGLUnits::separatorAlways));
-        ui->labelWatchImmature->setText(BGLUnits::formatWithUnit(unit, balances.immature_watch_only_balance, false, BGLUnits::separatorAlways));
-        ui->labelWatchTotal->setText(BGLUnits::formatWithUnit(unit, balances.watch_only_balance + balances.unconfirmed_watch_only_balance + balances.immature_watch_only_balance, false, BGLUnits::separatorAlways));
     }
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
