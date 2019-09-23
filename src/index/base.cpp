@@ -259,7 +259,7 @@ bool BaseIndex::Rewind(const CBlockIndex* current_tip, const CBlockIndex* new_ti
     return true;
 }
 
-void BaseIndex::BlockConnected(const std::shared_ptr<const CBlock>& block, const CBlockIndex* pindex)
+void BaseIndex::BlockConnected(ChainstateRole role, const std::shared_ptr<const CBlock>& block, const CBlockIndex* pindex)
 {
     // Ignore events from the assumed-valid chain; we will process its blocks
     // (sequentially) after it is fully verified by the background chainstate. This
@@ -316,7 +316,7 @@ void BaseIndex::BlockConnected(const std::shared_ptr<const CBlock>& block, const
     }
 }
 
-void BaseIndex::ChainStateFlushed(const CBlockLocator& locator)
+void BaseIndex::ChainStateFlushed(ChainstateRole role, const CBlockLocator& locator)
 {
     // Ignore events from the assumed-valid chain; we will process its blocks
     // (sequentially) after it is fully verified by the background chainstate.
