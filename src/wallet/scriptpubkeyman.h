@@ -201,10 +201,9 @@ public:
 
     virtual int64_t GetTimeFirstKey() const { return 0; }
 
-    //! Return address metadata
     virtual const CKeyMetadata* GetMetadata(const CTxDestination& dest) const { return nullptr; }
 
-    virtual std::unique_ptr<SigningProvider> GetSigningProvider(const CScript& script) const { return nullptr; }
+    virtual const SigningProvider* GetSigningProvider(const CScript& script) const { return nullptr; }
 
     /** Whether this ScriptPubKeyMan can provide a SigningProvider (via GetSigningProvider) that, combined with
       * sigdata, can produce a valid signature.
@@ -212,18 +211,6 @@ public:
     virtual bool CanProvide(const CScript& script, SignatureData& sigdata) { return false; }
 
     virtual uint256 GetID() const { return uint256(); }
-
-    /** Prepends the wallet name in logging output to ease debugging in multi-wallet use cases */
-    template<typename... Params>
-    void WalletLogPrintf(std::string fmt, Params... parameters) const {
-        LogPrintf(("%s " + fmt).c_str(), m_storage.GetDisplayName(), parameters...);
-    };
-
-    /** Watch-only address added */
-    boost::signals2::signal<void (bool fHaveWatchOnly)> NotifyWatchonlyChanged;
-
-    /** Keypool has new keys */
-    boost::signals2::signal<void ()> NotifyCanGetAddressesChanged;
 };
 
 class LegacyScriptPubKeyMan : public ScriptPubKeyMan, public FillableSigningProvider
@@ -345,7 +332,7 @@ public:
 
     bool CanGetAddresses(bool internal = false) override;
 
-    std::unique_ptr<SigningProvider> GetSigningProvider(const CScript& script) const override;
+    const SigningProvider* GetSigningProvider(const CScript& script) const override;
 
     bool CanProvide(const CScript& script, SignatureData& sigdata) override;
 

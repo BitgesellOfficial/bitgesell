@@ -470,9 +470,9 @@ int64_t LegacyScriptPubKeyMan::GetTimeFirstKey() const
     return nTimeFirstKey;
 }
 
-std::unique_ptr<SigningProvider> LegacyScriptPubKeyMan::GetSigningProvider(const CScript& script) const
+const SigningProvider* LegacyScriptPubKeyMan::GetSigningProvider(const CScript& script) const
 {
-    return MakeUnique<LegacySigningProvider>(*this);
+    return this;
 }
 
 bool LegacyScriptPubKeyMan::CanProvide(const CScript& script, SignatureData& sigdata)
@@ -517,6 +517,11 @@ const CKeyMetadata* LegacyScriptPubKeyMan::GetMetadata(const CTxDestination& des
     }
 
     return nullptr;
+}
+
+uint256 LegacyScriptPubKeyMan::GetID() const
+{
+    return UINT256_ONE();
 }
 
 /**
