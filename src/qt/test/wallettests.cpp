@@ -144,7 +144,7 @@ void TestGUI(interfaces::Node& node)
     bool firstRun;
     wallet->LoadWallet(firstRun);
     {
-        auto spk_man = wallet->GetLegacyScriptPubKeyMan();
+        auto spk_man = wallet->GetOrCreateLegacyScriptPubKeyMan();
         auto locked_chain = wallet->chain().lock();
         LOCK(wallet->cs_wallet);
         AssertLockHeld(spk_man->cs_wallet);
