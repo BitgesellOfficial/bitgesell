@@ -203,6 +203,27 @@ public:
 
     //! Return address metadata
     virtual const CKeyMetadata* GetMetadata(const CTxDestination& dest) const { return nullptr; }
+
+    virtual std::unique_ptr<SigningProvider> GetSigningProvider(const CScript& script) const { return nullptr; }
+
+    /** Whether this ScriptPubKeyMan can provide a SigningProvider (via GetSigningProvider) that, combined with
+      * sigdata, can produce a valid signature.
+      */
+    virtual bool CanProvide(const CScript& script, SignatureData& sigdata) { return false; }
+
+    virtual uint256 GetID() const { return uint256(); }
+
+    /** Prepends the wallet name in logging output to ease debugging in multi-wallet use cases */
+    template<typename... Params>
+    void WalletLogPrintf(std::string fmt, Params... parameters) const {
+        LogPrintf(("%s " + fmt).c_str(), m_storage.GetDisplayName(), parameters...);
+    };
+
+    /** Watch-only address added */
+    boost::signals2::signal<void (bool fHaveWatchOnly)> NotifyWatchonlyChanged;
+
+    /** Keypool has new keys */
+    boost::signals2::signal<void ()> NotifyCanGetAddressesChanged;
 };
 
 class LegacyScriptPubKeyMan : public ScriptPubKeyMan, public FillableSigningProvider
@@ -324,6 +345,12 @@ public:
 
     bool CanGetAddresses(bool internal = false) override;
 
+    std::unique_ptr<SigningProvider> GetSigningProvider(const CScript& script) const override;
+
+    bool CanProvide(const CScript& script, SignatureData& sigdata) override;
+
+    uint256 GetID() const override;
+
     // Map from Key ID to key metadata.
     std::map<CKeyID, CKeyMetadata> mapKeyMetadata GUARDED_BY(cs_KeyStore);
 
@@ -425,6 +452,22 @@ public:
     void NotifyCanGetAddressesChanged() const;
     template<typename... Params> void WalletLogPrintf(const std::string& fmt, const Params&... parameters) const;
     CWallet& m_wallet;
+};
+
+/** Wraps a LegacyScriptPubKeyMan so that it can be returned in a new unique_ptr */
+class LegacySigningProvider : public SigningProvider
+{
+private:
+    const LegacyScriptPubKeyMan& m_spk_man;
+public:
+    LegacySigningProvider(const LegacyScriptPubKeyMan& spk_man) : m_spk_man(spk_man) {}
+
+    bool GetCScript(const CScriptID &scriptid, CScript& script) const override { return m_spk_man.GetCScript(scriptid, script); }
+    bool HaveCScript(const CScriptID &scriptid) const override { return m_spk_man.HaveCScript(scriptid); }
+    bool GetPubKey(const CKeyID &address, CPubKey& pubkey) const override { return m_spk_man.GetPubKey(address, pubkey); }
+    bool GetKey(const CKeyID &address, CKey& key) const override { return m_spk_man.GetKey(address, key); }
+    bool HaveKey(const CKeyID &address) const override { return m_spk_man.HaveKey(address); }
+    bool GetKeyOrigin(const CKeyID& keyid, KeyOriginInfo& info) const override { return m_spk_man.GetKeyOrigin(keyid, info); }
 };
 
 #endif // BGL_WALLET_SCRIPTPUBKEYMAN_H
