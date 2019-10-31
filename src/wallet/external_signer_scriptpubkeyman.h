@@ -25,7 +25,6 @@ class ExternalSignerScriptPubKeyMan : public DescriptorScriptPubKeyMan
 
   static ExternalSigner GetExternalSigner();
 
-  bool DisplayAddress(const CScript scriptPubKey, const ExternalSigner &signer) const;
 };
 #endif
 

@@ -49,6 +49,13 @@ public:
     //! @param[out] success     Boolean
     static bool Enumerate(const std::string& command, std::vector<ExternalSigner>& signers, std::string chain, bool ignore_errors = false);
 
-    //! Display address on the device. Calls `<command> displayaddress --desc <descriptor>`.
-    //! @param[in] descriptor Descriptor specifying which address to display.
-    //!            Must include a public key or xpub, as well as key origin.
+    //! Get receive and change Descriptor(s) from device for a given account.
+    //! Calls `<command> getdescriptors --account <account>`
+    //! @param[in] account  which BIP32 account to use (e.g. `m/44'/0'/account'`)
+    //! @param[out] UniValue see doc/external-signer.md
+    UniValue GetDescriptors(int account);
+
+#endif
+};
+
+#endif // BGL_WALLET_EXTERNAL_SIGNER_H
