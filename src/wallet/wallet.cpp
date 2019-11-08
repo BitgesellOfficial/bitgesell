@@ -871,9 +871,15 @@ CWalletTx* CWallet::AddToWallet(CTransactionRef tx, const CWalletTx::Confirmatio
     return &wtx;
 }
 
-void CWallet::LoadToWallet(CWalletTx& wtxIn)
+bool CWallet::LoadToWallet(const uint256& hash, const UpdateWalletTxFn& fill_wtx)
 {
 
+
+    const auto& ins = mapWallet.emplace(std::piecewise_construct, std::forward_as_tuple(hash), std::forward_as_tuple(this, nullptr));
+    CWalletTx& wtx = ins.first->second;
+    if (!fill_wtx(wtx, ins.second)) {
+        return false;
+    }
     // If wallet doesn't have a chain (e.g BGL-wallet), lock can't be taken.
     auto locked_chain = LockChain();
     if (locked_chain) {
@@ -881,24 +887,20 @@ void CWallet::LoadToWallet(CWalletTx& wtxIn)
         if (block_height) {
             // Update cached block height variable since it not stored in the
             // serialized transaction.
-            wtxIn.m_confirm.block_height = *block_height;
-        } else if (wtxIn.isConflicted() || wtxIn.isConfirmed()) {
+            wtx.m_confirm.block_height = *block_height;
+        } else if (wtx.isConflicted() || wtx.isConfirmed()) {
             // If tx block (or conflicting block) was reorged out of chain
             // while the wallet was shutdown, change tx status to UNCONFIRMED
             // and reset block height, hash, and index. ABANDONED tx don't have
             // associated blocks and don't need to be updated. The case where a
             // transaction was reorged out while online and then reconfirmed
             // while offline is covered by the rescan logic.
-            wtxIn.setUnconfirmed();
-            wtxIn.m_confirm.hashBlock = uint256();
-            wtxIn.m_confirm.block_height = 0;
-            wtxIn.m_confirm.nIndex = 0;
+            wtx.setUnconfirmed();
+            wtx.m_confirm.hashBlock = uint256();
+            wtx.m_confirm.block_height = 0;
+            wtx.m_confirm.nIndex = 0;
         }
     }
-    uint256 hash = wtxIn.GetHash();
-    const auto& ins = mapWallet.emplace(hash, wtxIn);
-    CWalletTx& wtx = ins.first->second;
-    wtx.BindWallet(this);
     if (/* insertion took place */ ins.second) {
         wtx.m_it_wtxOrdered = wtxOrdered.insert(std::make_pair(wtx.nOrderPos, &wtx));
     }
@@ -912,6 +914,7 @@ void CWallet::LoadToWallet(CWalletTx& wtxIn)
             }
         }
     }
+    return true;
 }
 
 bool CWallet::AddToWalletIfInvolvingMe(const CTransactionRef& ptx, CWalletTx::Confirmation confirm, bool fUpdate)
@@ -1674,15 +1677,8 @@ CWallet::ScanResult CWallet::ScanForWalletTransactions(const uint256& start_bloc
         }
 
         CBlock block;
-<<<<<<< HEAD
         if (chain().findBlock(block_hash, &block) && !block.IsNull()) {
             auto locked_chain = chain().lock();
-=======
-        bool next_block;
-        uint256 next_block_hash;
-        bool reorg = false;
-        if (chain().findBlock(block_hash, FoundBlock().data(block)) && !block.IsNull()) {
->>>>>>> 6a72f2696... [wallet] Remove locked_chain from CWallet, its RPCs and tests
             LOCK(cs_wallet);
             if (!locked_chain->getBlockHeight(block_hash)) {
                 // Abort scan if current block is no longer active, to prevent
@@ -1709,13 +1705,9 @@ CWallet::ScanResult CWallet::ScanForWalletTransactions(const uint256& start_bloc
             break;
         }
         {
-<<<<<<< HEAD
             auto locked_chain = chain().lock();
             Optional<int> tip_height = locked_chain->getHeight();
             if (!tip_height || *tip_height <= block_height || !locked_chain->getBlockHeight(block_hash)) {
-=======
-            if (!next_block || reorg) {
->>>>>>> 6a72f2696... [wallet] Remove locked_chain from CWallet, its RPCs and tests
                 // break successfully when rescan has reached the tip, or
                 // previous block is no longer on the chain due to a reorg
                 break;
@@ -1724,7 +1716,7 @@ CWallet::ScanResult CWallet::ScanForWalletTransactions(const uint256& start_bloc
             // increment block and verification progress
             block_hash = locked_chain->getBlockHash(++*block_height);
             progress_current = chain().guessVerificationProgress(block_hash);
-
+                             
             // handle updated tip hash
             const uint256 prev_tip_hash = tip_hash;
             tip_hash = locked_chain->getBlockHash(*tip_height);
