@@ -181,6 +181,7 @@ class ZMQTest (BGLTestFramework):
         return subscribers
 
     def test_basic(self):
+
         # Invalid zmq arguments don't take down the node, see #17185.
         self.restart_node(0, ["-zmqpubrawtx=foo", "-zmqpubhashtx=bar"])
 
