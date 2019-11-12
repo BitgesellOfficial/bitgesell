@@ -7,8 +7,9 @@ src/BGLd
 src/BGL-cli
 src/BGL-tx
 src/BGL-wallet
+src/test/fuzz
+!src/test/fuzz/*.*
 src/test/test_BGL
-src/test/test_BGL_fuzzy
 src/qt/test/test_BGL-qt
 
 # autoreconf
