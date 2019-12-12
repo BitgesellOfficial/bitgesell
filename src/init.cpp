@@ -1618,21 +1618,14 @@ bool AppInitMain(NodeContext& node)
                 break;
             }
 
-            bool failed_rewind{false};
-
-            for (CChainState* chainstate : g_chainman.GetAll()) {
-                if (!fReset) {
-                    // Note that RewindBlockIndex MUST run even if we're about to -reindex-chainstate.
-                    // It both disconnects blocks based on the chainstate, and drops block data in
-                    // BlockIndex() based on lack of available witness data.
-                    uiInterface.InitMessage(_("Rewinding blocks...").translated);
-                    if (!chainstate->RewindBlockIndex(chainparams)) {
-                        strLoadError = _(
-                            "Unable to rewind the database to a pre-fork state. "
-                            "You will need to redownload the blockchain").translated;
-                        failed_rewind = true;
-                        break; // out of the per-chainstate loop
-                    }
+            if (!fReset) {
+                // Note that RewindBlockIndex MUST run even if we're about to -reindex-chainstate.
+                // It both disconnects blocks based on ::ChainActive(), and drops block data in
+                // BlockIndex() based on lack of available witness data.
+                uiInterface.InitMessage(_("Rewinding blocks...").translated);
+                if (!::ChainstateActive().RewindBlockIndex(chainparams)) {
+                    strLoadError = _("Unable to rewind the database to a pre-fork state. You will need to redownload the blockchain").translated;
+                    break;
                 }
             }
 
