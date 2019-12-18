@@ -140,6 +140,22 @@ class LockImpl : public Chain::Lock, public UniqueLock<RecursiveMutex>
 };
 
 class NotificationsHandlerImpl : public Handler, CValidationInterface
+bool FillBlock(const CBlockIndex* index, const FoundBlock& block, UniqueLock<RecursiveMutex>& lock)
+{
+    if (!index) return false;
+    if (block.m_hash) *block.m_hash = index->GetBlockHash();
+    if (block.m_height) *block.m_height = index->nHeight;
+    if (block.m_time) *block.m_time = index->GetBlockTime();
+    if (block.m_max_time) *block.m_max_time = index->GetBlockTimeMax();
+    if (block.m_mtp_time) *block.m_mtp_time = index->GetMedianTimePast();
+    if (block.m_data) {
+        REVERSE_LOCK(lock);
+        if (!ReadBlockFromDisk(*block.m_data, index, Params().GetConsensus())) block.m_data->SetNull();
+    }
+    return true;
+}
+
+class NotificationsProxy : public CValidationInterface
 {
 public:
     explicit NotificationsHandlerImpl(Chain& chain, Chain::Notifications& notifications)
@@ -223,13 +239,6 @@ class ChainImpl : public Chain
 {
 public:
     explicit ChainImpl(NodeContext& node) : m_node(node) {}
-    std::unique_ptr<Chain::Lock> lock(bool try_lock) override
-    {
-        auto lock = MakeUnique<LockImpl>(::cs_main, "cs_main", __FILE__, __LINE__, try_lock);
-        if (try_lock && lock && !*lock) return {};
-        std::unique_ptr<Chain::Lock> result = std::move(lock); // Temporary to avoid CWG 1579
-        return result;
-    }
     Optional<int> getHeight() override
     {
         LOCK(::cs_main);

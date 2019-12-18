@@ -51,6 +51,14 @@ class Wallet;
 //! * The handleRpc, registerRpcs, rpcEnableDeprecated methods and other RPC
 //!   methods can go away if wallets listen for HTTP requests on their own
 //!   ports instead of registering to handle requests on the node HTTP port.
+//!
+//! * Move fee estimation queries to an asynchronous interface and let the
+//!   wallet cache it, fee estimation being driven by node mempool, wallet
+//!   should be the consumer.
+//!
+//! * The `guessVerificationProgress`, `getBlockHeight`, `getBlockHash`, etc
+//!   methods can go away if rescan logic is moved on the node side, and wallet
+//!   only register rescan request.
 class Chain
 {
 public:
