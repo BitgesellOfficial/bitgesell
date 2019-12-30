@@ -250,6 +250,7 @@ $ valgrind --suppressions=contrib/valgrind.supp src/test/test_BGL
 $ valgrind --suppressions=contrib/valgrind.supp --leak-check=full \
       --show-leak-kinds=all src/test/test_BGL --log_level=test_suite
 $ valgrind -v --leak-check=full src/BGLd -printtoconsole
+$ ./test/functional/test_runner.py --valgrind
 ```
 
 ### Compiling for test coverage
