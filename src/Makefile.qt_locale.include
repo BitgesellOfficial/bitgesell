@@ -10,6 +10,7 @@ QT_TS = \
   qt/locale/BGL_de_DE.ts \
   qt/locale/BGL_el.ts \
   qt/locale/BGL_el_GR.ts \
+  qt/locale/BGL_en.ts \
   qt/locale/BGL_en_AU.ts \
   qt/locale/BGL_en_GB.ts \
   qt/locale/BGL_eo.ts \
