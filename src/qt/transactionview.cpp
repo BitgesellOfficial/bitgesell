@@ -8,6 +8,7 @@
 #include <qt/BGLunits.h>
 #include <qt/csvmodelwriter.h>
 #include <qt/editaddressdialog.h>
+#include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
 #include <qt/transactiondescdialog.h>
@@ -397,9 +398,8 @@ void TransactionView::contextualMenu(const QPoint &point)
     copyAddressAction->setEnabled(GUIUtil::hasEntryData(transactionView, 0, TransactionTableModel::AddressRole));
     copyLabelAction->setEnabled(GUIUtil::hasEntryData(transactionView, 0, TransactionTableModel::LabelRole));
 
-    if(index.isValid())
-    {
-        contextMenu->popup(transactionView->viewport()->mapToGlobal(point));
+    if (index.isValid()) {
+        GUIUtil::PopupMenu(contextMenu, transactionView->viewport()->mapToGlobal(point));
     }
 }
 
