@@ -567,12 +567,9 @@ if TARGET_WINDOWS
 BGLd_SOURCES += BGLd-res.rc
 endif
 
-# Libraries below may be listed more than once to resolve circular dependencies (see
-# https://eli.thegreenplace.net/2013/07/09/library-order-in-static-linking#circular-dependency)
 BGLd_LDADD = \
   $(LIBBGL_SERVER) \
   $(LIBBGL_WALLET) \
-  $(LIBBGL_SERVER) \
   $(LIBBGL_COMMON) \
   $(LIBUNIVALUE) \
   $(LIBBGL_UTIL) \
