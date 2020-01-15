@@ -18,6 +18,7 @@ static const bool DEFAULT_ACCEPT_DATACARRIER = true;
 
 class CKeyID;
 class CScript;
+struct ScriptHash;
 
 template<typename HashType>
 class BaseHash
@@ -86,7 +87,7 @@ class CScriptID : public BaseHash<uint160>
 public:
     CScriptID() : BaseHash() {}
     explicit CScriptID(const CScript& in);
-    explicit CScriptID(const uint160& in) : BaseHash(in) {}
+    explicit CScriptID(const uint160& in) : uint160(in) {}
     explicit CScriptID(const ScriptHash& in);
 };
 
@@ -140,6 +141,7 @@ struct PKHash : public BaseHash<uint160>
     PKHash() : BaseHash() {}
     explicit PKHash(const uint160& hash) : BaseHash(hash) {}
     explicit PKHash(const CPubKey& pubkey);
+    explicit PKHash(const CKeyID& pubkey_id);
 };
 CKeyID ToKeyID(const PKHash& key_hash);
 
@@ -154,6 +156,7 @@ struct ScriptHash : public BaseHash<uint160>
 
     explicit ScriptHash(const uint160& hash) : BaseHash(hash) {}
     explicit ScriptHash(const CScript& script);
+    explicit ScriptHash(const CScriptID& script);
 };
 
 struct WitnessV0ScriptHash : public BaseHash<uint256>
@@ -168,6 +171,7 @@ struct WitnessV0KeyHash : public BaseHash<uint160>
     WitnessV0KeyHash() : BaseHash() {}
     explicit WitnessV0KeyHash(const uint160& hash) : BaseHash(hash) {}
     explicit WitnessV0KeyHash(const CPubKey& pubkey);
+    explicit WitnessV0KeyHash(const PKHash& pubkey_hash);
 };
 
 //! CTxDestination subtype to encode any future Witness version
