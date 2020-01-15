@@ -46,7 +46,6 @@ void WalletFrame::addWallet(WalletModel *walletModel)
     if (mapWalletViews.count(walletModel) > 0) return;
 
     WalletView *walletView = new WalletView(platformStyle, this);
-    walletView->setBGLGUI(gui);
     walletView->setClientModel(clientModel);
     walletView->setWalletModel(walletModel);
     walletView->showOutOfSyncWarning(bOutOfSync);
@@ -62,6 +61,16 @@ void WalletFrame::addWallet(WalletModel *walletModel)
     mapWalletViews[walletModel] = walletView;
 
     connect(walletView, &WalletView::outOfSyncWarningClicked, this, &WalletFrame::outOfSyncWarningClicked);
+    connect(walletView, &WalletView::transactionClicked, gui, &BGLGUI::gotoHistoryPage);
+    connect(walletView, &WalletView::coinsSent, gui, &BGLGUI::gotoHistoryPage);
+    connect(walletView, &WalletView::message, [this](const QString& title, const QString& message, unsigned int style) {
+        gui->message(title, message, style);
+    });
+    connect(walletView, &WalletView::encryptionStatusChanged, gui, &BGLGUI::updateWalletStatus);
+    connect(walletView, &WalletView::incomingTransaction, gui, &BGLGUI::incomingTransaction);
+    connect(walletView, &WalletView::hdEnabledStatusChanged, gui, &BGLGUI::updateWalletStatus);
+
+    return true;
 }
 
 void WalletFrame::setCurrentWallet(WalletModel* wallet_model)
