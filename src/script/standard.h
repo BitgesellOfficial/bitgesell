@@ -173,6 +173,7 @@ struct WitnessV0KeyHash : public BaseHash<uint160>
     explicit WitnessV0KeyHash(const CPubKey& pubkey);
     explicit WitnessV0KeyHash(const PKHash& pubkey_hash);
 };
+CKeyID ToKeyID(const WitnessV0KeyHash& key_hash);
 
 //! CTxDestination subtype to encode any future Witness version
 struct WitnessUnknown
