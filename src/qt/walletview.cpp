@@ -97,9 +97,7 @@ void WalletView::setBGLGUI(BGLGUI *gui)
         connect(sendCoinsPage, &SendCoinsDialog::coinsSent, gui, &BGLGUI::gotoHistoryPage);
 
         // Receive and report messages
-        connect(this, &WalletView::message, [gui](const QString &title, const QString &message, unsigned int style) {
-            gui->message(title, message, style);
-        });
+        connect(this, &WalletView::message, gui, &BitcoinGUI::message);
 
         // Pass through encryption status changed signals
         connect(this, &WalletView::encryptionStatusChanged, gui, &BGLGUI::updateWalletStatus);
