@@ -246,28 +246,6 @@ public:
         WAIT_LOCK(cs_main, lock);
         return FillBlock(LookupBlockIndex(hash), block, lock);
     }
-    bool findFirstBlockWithTimeAndHeight(int64_t min_time, int min_height, const FoundBlock& block) override
-    {
-        WAIT_LOCK(cs_main, lock);
-        return FillBlock(ChainActive().FindEarliestAtLeast(min_time, min_height), block, lock);
-    }
-    bool findNextBlock(const uint256& block_hash, int block_height, const FoundBlock& next, bool* reorg) override {
-        WAIT_LOCK(cs_main, lock);
-        CBlockIndex* block = ChainActive()[block_height];
-        if (block && block->GetBlockHash() != block_hash) block = nullptr;
-        if (reorg) *reorg = !block;
-        return FillBlock(block ? ChainActive()[block_height + 1] : nullptr, next, lock);
-    }
-    bool findAncestorByHeight(const uint256& block_hash, int ancestor_height, const FoundBlock& ancestor_out) override
-    {
-        WAIT_LOCK(cs_main, lock);
-        if (const CBlockIndex* block = LookupBlockIndex(block_hash)) {
-            if (const CBlockIndex* ancestor = block->GetAncestor(ancestor_height)) {
-                return FillBlock(ancestor, ancestor_out, lock);
-            }
-        }
-        return FillBlock(nullptr, ancestor_out, lock);
-    }
     bool findAncestorByHash(const uint256& block_hash, const uint256& ancestor_hash, const FoundBlock& ancestor_out) override
     {
         WAIT_LOCK(cs_main, lock);
@@ -275,14 +253,6 @@ public:
         const CBlockIndex* ancestor = LookupBlockIndex(ancestor_hash);
         if (block && ancestor && block->GetAncestor(ancestor->nHeight) != ancestor) ancestor = nullptr;
         return FillBlock(ancestor, ancestor_out, lock);
-    }
-    bool findCommonAncestor(const uint256& block_hash1, const uint256& block_hash2, const FoundBlock& ancestor_out, const FoundBlock& block1_out, const FoundBlock& block2_out) override
-    {
-        WAIT_LOCK(cs_main, lock);
-        const CBlockIndex* block1 = LookupBlockIndex(block_hash1);
-        const CBlockIndex* block2 = LookupBlockIndex(block_hash2);
-        const CBlockIndex* ancestor = block1 && block2 ? LastCommonAncestor(block1, block2) : nullptr;
-        return FillBlock(ancestor, ancestor_out, lock) & FillBlock(block1, block1_out, lock) & FillBlock(block2, block2_out, lock);
     }
     void findCoins(std::map<COutPoint, Coin>& coins) override { return FindCoins(m_node, coins); }
     double guessVerificationProgress(const uint256& block_hash) override
