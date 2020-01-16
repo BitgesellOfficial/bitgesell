@@ -19,8 +19,8 @@ time-machine() {
                       -- "$@"
 }
 
-# Deterministically build BGL Core for HOSTs (overriable by environment)
-for host in ${HOSTS=x86_64-linux-gnu arm-linux-gnueabihf aarch64-linux-gnu riscv64-linux-gnu}; do
+# Deterministically build Bitcoin Core for HOSTs (overriable by environment)
+for host in ${HOSTS=x86_64-linux-gnu arm-linux-gnueabihf aarch64-linux-gnu riscv64-linux-gnu x86_64-w64-mingw32}; do
 
     # Display proper warning when the user interrupts the build
     trap 'echo "** INT received while building ${host}, you may want to clean up the relevant output and distsrc-* directories before rebuilding"' INT
