@@ -361,7 +361,9 @@ void BGLApplication::initializeResult(bool success)
         if (paymentServer) {
             connect(paymentServer, &PaymentServer::receivedPaymentRequest, window, &BGLGUI::handlePaymentRequest);
             connect(window, &BGLGUI::receivedURI, paymentServer, &PaymentServer::handleURIOrFile);
-            connect(paymentServer, &PaymentServer::message, window, &BGLGUI::message);
+            connect(paymentServer, &PaymentServer::message, [this](const QString& title, const QString& message, unsigned int style) {
+                window->message(title, message, style);
+            });
             QTimer::singleShot(100, paymentServer, &PaymentServer::uiReady);
         }
 #endif
