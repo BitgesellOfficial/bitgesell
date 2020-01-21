@@ -233,7 +233,17 @@ public:
         std::unique_ptr<Chain::Lock> result = std::move(lock); // Temporary to avoid CWG 1579
         return result;
     }
-    bool findBlock(const uint256& hash, CBlock* block, int64_t* time, int64_t* time_max) override
+    bool findBlock(const uint256& hash, const FoundBlock& block) override
+    {
+        WAIT_LOCK(cs_main, lock);
+        return FillBlock(LookupBlockIndex(hash), block, lock);
+    }
+    bool findFirstBlockWithTimeAndHeight(int64_t min_time, int min_height, const FoundBlock& block) override
+    {
+        WAIT_LOCK(cs_main, lock);
+        return FillBlock(ChainActive().FindEarliestAtLeast(min_time, min_height), block, lock);
+    }
+    bool findAncestorByHeight(const uint256& block_hash, int ancestor_height, const FoundBlock& ancestor_out) override
     {
         CBlockIndex* index;
         {

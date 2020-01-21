@@ -123,14 +123,31 @@ public:
 
     //! Return whether node has the block and optionally return block metadata
     //! or contents.
-    //!
-    //! If a block pointer is provided to retrieve the block contents, and the
-    //! block exists but doesn't have data (for example due to pruning), the
-    //! block will be empty and all fields set to null.
-    virtual bool findBlock(const uint256& hash,
-        CBlock* block = nullptr,
-        int64_t* time = nullptr,
-        int64_t* max_time = nullptr) = 0;
+    virtual bool findBlock(const uint256& hash, const FoundBlock& block={}) = 0;
+
+    //! Find first block in the chain with timestamp >= the given time
+    //! and height >= than the given height, return false if there is no block
+    //! with a high enough timestamp and height. Optionally return block
+    //! information.
+    virtual bool findFirstBlockWithTimeAndHeight(int64_t min_time, int min_height, const FoundBlock& block={}) = 0;
+
+    //! Find ancestor of block at specified height and optionally return
+    //! ancestor information.
+    virtual bool findAncestorByHeight(const uint256& block_hash, int ancestor_height, const FoundBlock& ancestor_out={}) = 0;
+
+    //! Return whether block descends from a specified ancestor, and
+    //! optionally return ancestor information.
+    virtual bool findAncestorByHash(const uint256& block_hash,
+        const uint256& ancestor_hash,
+        const FoundBlock& ancestor_out={}) = 0;
+
+    //! Find most recent common ancestor between two blocks and optionally
+    //! return block information.
+    virtual bool findCommonAncestor(const uint256& block_hash1,
+        const uint256& block_hash2,
+        const FoundBlock& ancestor_out={},
+        const FoundBlock& block1_out={},
+        const FoundBlock& block2_out={}) = 0;
 
     //! Look up unspent output information. Returns coins in the mempool and in
     //! the current chain UTXO set. Iterates through all the keys in the map and
