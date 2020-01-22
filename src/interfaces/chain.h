@@ -79,13 +79,6 @@ public:
         //! Get block hash. Height must be valid or this function will abort.
         virtual uint256 getBlockHash(int height) = 0;
 
-        //! Get block time. Height must be valid or this function will abort.
-        virtual int64_t getBlockTime(int height) = 0;
-
-        //! Get block median time past. Height must be valid or this function
-        //! will abort.
-        virtual int64_t getBlockMedianTimePast(int height) = 0;
-
         //! Check that the block is available on disk (i.e. has not been
         //! pruned), and contains transactions.
         virtual bool haveBlockOnDisk(int height) = 0;
@@ -145,7 +138,7 @@ public:
     //! return block information.
     virtual bool findCommonAncestor(const uint256& block_hash1,
         const uint256& block_hash2,
-        const FoundBlock& ancestor_out={},
+*        const FoundBlock& ancestor_out={},
         const FoundBlock& block1_out={},
         const FoundBlock& block2_out={}) = 0;
 
