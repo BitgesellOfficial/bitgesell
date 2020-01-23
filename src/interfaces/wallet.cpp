@@ -358,13 +358,13 @@ public:
         }
         return result;
     }
-    bool tryGetBalances(WalletBalances& balances, int& num_blocks) override
+    bool tryGetBalances(WalletBalances& balances, uint256& block_hash) override
     {
         TRY_LOCK(m_wallet->cs_wallet, locked_wallet);
         if (!locked_wallet) {
             return false;
         }
-
+        block_hash = m_wallet->GetLastBlockHash();
         balances = getBalances();
         num_blocks = locked_chain->getHeight().get_value_or(-1);
         return true;

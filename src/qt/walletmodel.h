@@ -146,7 +146,6 @@ public:
     interfaces::Wallet& wallet() const { return *m_wallet; }
     ClientModel& clientModel() const { return m_client_model; }
     void setClientModel(ClientModel* client_model);
-    int getNumBlocks() const { return cachedNumBlocks; }
 
     QString getWalletName() const;
     QString getDisplayName() const;
@@ -182,8 +181,10 @@ private:
     // Cache some values to be able to detect changes
     interfaces::WalletBalances m_cached_balances;
     EncryptionStatus cachedEncryptionStatus;
-    int cachedNumBlocks;
     QTimer* timer;
+
+    // Block hash denoting when the last balance update was done.
+    uint256 m_cached_last_update_tip{};
 
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
