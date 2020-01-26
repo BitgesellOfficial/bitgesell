@@ -648,6 +648,10 @@ void BGLGUI::addWallet(WalletModel* walletModel)
 void BGLGUI::removeWallet(WalletModel* walletModel)
 {
     if (!walletFrame) return;
+
+    labelWalletHDStatusIcon->hide();
+    labelWalletEncryptionIcon->hide();
+
     int index = m_wallet_selector->findData(QVariant::fromValue(walletModel));
     m_wallet_selector->removeItem(index);
     if (m_wallet_selector->count() == 0) {
@@ -659,8 +663,6 @@ void BGLGUI::removeWallet(WalletModel* walletModel)
     rpcConsole->removeWallet(walletModel);
     walletFrame->removeWallet(walletModel);
     updateWindowTitle();
-    labelWalletHDStatusIcon->hide();
-    labelWalletEncryptionIcon->hide();
 }
 
 void BGLGUI::setCurrentWallet(WalletModel* wallet_model)
