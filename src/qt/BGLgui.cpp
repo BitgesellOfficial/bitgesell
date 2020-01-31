@@ -321,8 +321,10 @@ void BGLGUI::createActions()
     signMessageAction->setStatusTip(tr("Sign messages with your BGL addresses to prove you own them"));
     verifyMessageAction = new QAction(tr("&Verify message..."), this);
     verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified BGL addresses"));
-    m_load_psbt_action = new QAction(tr("Load PSBT..."), this);
+    m_load_psbt_action = new QAction(tr("&Load PSBT from file..."), this);
     m_load_psbt_action->setStatusTip(tr("Load Partially Signed BGL Transaction"));
+    m_load_psbt_clipboard_action = new QAction(tr("Load PSBT from clipboard..."), this);
+    m_load_psbt_clipboard_action->setStatusTip(tr("Load Partially Signed BGL Transaction from clipboard"));
 
     openRPCConsoleAction = new QAction(tr("Node window"), this);
     openRPCConsoleAction->setStatusTip(tr("Open node debugging and diagnostic console"));
@@ -381,6 +383,7 @@ void BGLGUI::createActions()
         connect(signMessageAction, &QAction::triggered, [this]{ showNormalIfMinimized(); });
         connect(signMessageAction, &QAction::triggered, [this]{ gotoSignMessageTab(); });
         connect(m_load_psbt_action, &QAction::triggered, [this]{ gotoLoadPSBT(); });
+        connect(m_load_psbt_clipboard_action, &QAction::triggered, [this]{ gotoLoadPSBT(true); });
         connect(verifyMessageAction, &QAction::triggered, [this]{ showNormalIfMinimized(); });
         connect(verifyMessageAction, &QAction::triggered, [this]{ gotoVerifyMessageTab(); });
         connect(usedSendingAddressesAction, &QAction::triggered, walletFrame, &WalletFrame::usedSendingAddresses);
@@ -427,7 +430,7 @@ void BGLGUI::createActions()
         connect(m_close_all_wallets_action, &QAction::triggered, [this] {
             m_wallet_controller->closeAllWallets(this);
         });
-        connect(m_mask_values_action, &QAction::toggled, this, &BitcoinGUI::setPrivacy);
+        connect(m_mask_values_action, &QAction::toggled, this, &BGLGUI::setPrivacy);
     }
 #endif // ENABLE_WALLET
 
@@ -459,6 +462,7 @@ void BGLGUI::createMenuBar()
         file->addAction(signMessageAction);
         file->addAction(verifyMessageAction);
         file->addAction(m_load_psbt_action);
+        file->addAction(m_load_psbt_clipboard_action);
         file->addSeparator();
     }
     file->addAction(quitAction);
@@ -879,9 +883,10 @@ void BGLGUI::gotoVerifyMessageTab(QString addr)
 {
     if (walletFrame) walletFrame->gotoVerifyMessageTab(addr);
 }
-void BGLGUI::gotoLoadPSBT()
+
+void BGLGUI::gotoLoadPSBT(bool from_clipboard)
 {
-    if (walletFrame) walletFrame->gotoLoadPSBT();
+    if (walletFrame) walletFrame->gotoLoadPSBT(from_clipboard);
 }
 #endif // ENABLE_WALLET
 
@@ -1428,7 +1433,7 @@ void BGLGUI::unsubscribeFromCoreSignals()
     m_handler_question->disconnect();
 }
 
-bool BitcoinGUI::isPrivacyModeActivated() const
+bool BGLGUI::isPrivacyModeActivated() const
 {
     assert(m_mask_values_action);
     return m_mask_values_action->isChecked();
