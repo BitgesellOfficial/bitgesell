@@ -8,6 +8,7 @@
 #include <chainparams.h>
 #include <interfaces/handler.h>
 #include <interfaces/wallet.h>
+#include <mapport.h>
 #include <net.h>
 #include <net_processing.h>
 #include <node/coin.h>

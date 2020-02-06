@@ -156,6 +156,7 @@ BGL_CORE_H = \
   key_io.h \
   logging.h \
   logging/timer.h \
+  mapport.h \
   memusage.h \
   merkleblock.h \
   miner.h \
@@ -304,8 +305,7 @@ libBGL_server_a_SOURCES = \
   index/blockfilterindex.cpp \
   index/txindex.cpp \
   init.cpp \
-  interfaces/chain.cpp \
-  interfaces/node.cpp \
+  mapport.cpp \
   miner.cpp \
   net.cpp \
   net_processing.cpp \
