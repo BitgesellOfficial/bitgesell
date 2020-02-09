@@ -268,7 +268,6 @@ The list of files should be:
 ```
 BGL-${VERSION}-aarch64-linux-gnu.tar.gz
 BGL-${VERSION}-arm-linux-gnueabihf.tar.gz
-BGL-${VERSION}-i686-pc-linux-gnu.tar.gz
 BGL-${VERSION}-riscv64-linux-gnu.tar.gz
 BGL-${VERSION}-x86_64-linux-gnu.tar.gz
 BGL-${VERSION}-osx64.tar.gz
