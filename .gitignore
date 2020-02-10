@@ -90,7 +90,7 @@ src/qt/BGL-qt.includes
 *.qm
 Makefile
 !depends/Makefile
-BGL-qt
+src/qt/BGL-qt
 BGL-Qt.app
 background.tiff*
 
