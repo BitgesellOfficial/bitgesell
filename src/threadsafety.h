@@ -1,10 +1,12 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2019 The Bitcoin Core developers
+// Copyright (c) 2009-2019 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BGL_THREADSAFETY_H
 #define BGL_THREADSAFETY_H
+
+#include <mutex>
 
 #ifdef __clang__
 // TL;DR Add GUARDED_BY(mutex) to member variables. The others are
@@ -53,5 +55,14 @@
 #define NO_THREAD_SAFETY_ANALYSIS
 #define ASSERT_EXCLUSIVE_LOCK(...)
 #endif // __GNUC__
+
+// LockGuard provides an annotated version of lock_guard for us
+// should only be used when sync.h Mutex/LOCK/etc aren't usable
+class SCOPED_LOCKABLE LockGuard : public std::lock_guard<std::mutex>
+{
+public:
+    explicit LockGuard(std::mutex& cs) EXCLUSIVE_LOCK_FUNCTION(cs) : std::lock_guard<std::mutex>(cs) { }
+    ~LockGuard() UNLOCK_FUNCTION() {};
+};
 
 #endif // BGL_THREADSAFETY_H
