@@ -153,7 +153,7 @@ $(OSX_TEMP_ISO): $(APP_DIST_EXTRAS)
 
 .INTERMEDIATE: $(OSX_TEMP_ISO)
 $(OSX_TEMP_ISO): $(APP_DIST_EXTRAS)
-	$(GENISOIMAGE) -no-cache-inodes -D -l -probe -V "$(OSX_VOLNAME)" -no-pad -r -dir-mode 0755 -apple -o $@ dist
+	$(XORRISOFS) -D -l -V "$(OSX_VOLNAME)" -no-pad -r -dir-mode 0755 -o $@ dist
 
 $(OSX_DMG): $(OSX_TEMP_ISO)
 	$(DMG) dmg "$<" "$@"
