@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_WALLET_EXTERNAL_SIGNER_H
-#define BITCOIN_WALLET_EXTERNAL_SIGNER_H
+#ifndef BGL_WALLET_EXTERNAL_SIGNER_H
+#define BGL_WALLET_EXTERNAL_SIGNER_H
 
 #include <stdexcept>
 #include <string>
@@ -29,6 +29,35 @@ public:
 
     //! Master key fingerprint of the signer
     std::string m_fingerprint;
+
+    //! BGL mainnet, testnet, etc
+    std::string m_chain;
+
+    //! Name of signer
+    std::string m_name;
+
+    const std::string NetworkArg() const;
+
+#ifdef ENABLE_EXTERNAL_SIGNER
+    //! Obtain a list of signers. Calls `<command> enumerate`.
+    //! @param[in]              command the command which handles interaction with the external signer
+    //! @param[in,out] signers  vector to which new signers (with a unique master key fingerprint) are added
+    //! @param chain            "main", "test", "regtest" or "signet"
+    //! @param[out] success     Boolean
+    static bool Enumerate(const std::string& command, std::vector<ExternalSigner>& signers, std::string chain, bool ignore_errors = false);
+
+    //! Display address on the device. Calls `<command> displayaddress --desc <descriptor>`.
+    //! @param[in] descriptor Descriptor specifying which address to display.
+    //!            Must include a public key or xpub, as well as key origin.
+    UniValue DisplayAddress(const std::string& descriptor) const;
+
+    //! Get receive and change Descriptor(s) from device for a given account.
+    //! Calls `<command> getdescriptors --account <account>`
+    //! @param[in] account  which BIP32 account to use (e.g. `m/44'/0'/account'`)
+    //! @param[out] UniValue see doc/external-signer.md
+    UniValue GetDescriptors(int account);
+
+#endif
 };
 
-#endif // BITCOIN_WALLET_EXTERNAL_SIGNER_H
+#endif // BGL_WALLET_EXTERNAL_SIGNER_H

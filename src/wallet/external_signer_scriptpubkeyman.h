@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_WALLET_EXTERNAL_SIGNER_SCRIPTPUBKEYMAN_H
-#define BITCOIN_WALLET_EXTERNAL_SIGNER_SCRIPTPUBKEYMAN_H
+#ifndef BGL_WALLET_EXTERNAL_SIGNER_SCRIPTPUBKEYMAN_H
+#define BGL_WALLET_EXTERNAL_SIGNER_SCRIPTPUBKEYMAN_H
 
 #ifdef ENABLE_EXTERNAL_SIGNER
 #include <wallet/scriptpubkeyman.h>
@@ -22,7 +22,11 @@ class ExternalSignerScriptPubKeyMan : public DescriptorScriptPubKeyMan
   * Returns false if already setup or setup fails, true if setup is successful
   */
   bool SetupDescriptor(std::unique_ptr<Descriptor>desc);
+
+  static ExternalSigner GetExternalSigner();
+
+  bool DisplayAddress(const CScript scriptPubKey, const ExternalSigner &signer) const;
 };
 #endif
 
-#endif // BITCOIN_WALLET_EXTERNAL_SIGNER_SCRIPTPUBKEYMAN_H
+#endif // BGL_WALLET_EXTERNAL_SIGNER_SCRIPTPUBKEYMAN_H

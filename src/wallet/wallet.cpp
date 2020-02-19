@@ -2797,7 +2797,7 @@ bool CWallet::CreateTransactionInternal(
 
             // Create change script that will be used if we need change
             // TODO: pass in scriptChange instead of reservedest so
-            // change transaction isn't always pay-to-bitcoin-address
+            // change transaction isn't always pay-to-BGL-address
             CScript scriptChange;
 
             // coin control: send change to custom address
@@ -3575,6 +3575,38 @@ void ReserveDestination::ReturnDestination()
     }
     nIndex = -1;
     address = CNoDestination();
+}
+
+#ifdef ENABLE_EXTERNAL_SIGNER
+ExternalSigner CWallet::GetExternalSigner()
+{
+    const std::string command = gArgs.GetArg("-signer", "");
+    if (command == "") throw std::runtime_error(std::string(__func__) + ": restart BGLd with -signer=<cmd>");
+    std::vector<ExternalSigner> signers;
+    ExternalSigner::Enumerate(command, signers, Params().NetworkIDString());
+    if (signers.empty()) throw std::runtime_error(std::string(__func__) + ": No external signers found");
+    // TODO: add fingerprint argument in case of multiple signers
+    return signers[0];
+}
+#endif
+
+bool CWallet::DisplayAddress(const CTxDestination& dest)
+{
+#ifdef ENABLE_EXTERNAL_SIGNER
+    CScript scriptPubKey = GetScriptForDestination(dest);
+    const auto spk_man = GetScriptPubKeyMan(scriptPubKey);
+    if (spk_man == nullptr) {
+        return false;
+    }
+    auto signer_spk_man = dynamic_cast<ExternalSignerScriptPubKeyMan*>(spk_man);
+    if (signer_spk_man == nullptr) {
+        return false;
+    }
+    ExternalSigner signer = GetExternalSigner(); // TODO: move signer in spk_man
+    return signer_spk_man->DisplayAddress(scriptPubKey, signer);
+#else
+    return false;
+#endif
 }
 
 void CWallet::LockCoin(const COutPoint& output)
