@@ -174,16 +174,15 @@ task:
     FILE_ENV: "./ci/test/00_setup_env_native_qt5.sh"
 
 task:
-  name: "debian [deploy]"
-  << : *BASE_TEMPLATE
-  compute_engine_instance:
-    image_project: cirrus-images
-    image: family/docker-kvm
-    platform: linux
-    cpu: 2
-    memory: 8G
-    nested_virtualization: true
-  ci_script:
-    - ./ci/debian_deploy.sh
-  deb_artifacts:
-    path: "/*.deb"
+  name: 'macOS 10.15 native [gui] [no depends]'
+  macos_brew_addon_script:
+    - brew install boost libevent berkeley-db4 qt miniupnpc libnatpmp ccache zeromq qrencode sqlite libtool automake pkg-config gnu-getopt
+  << : *GLOBAL_TASK_TEMPLATE
+  osx_instance:
+    # Use latest image, but hardcode version to avoid silent upgrades (and breaks)
+    image: catalina-xcode-12.1  # https://cirrus-ci.org/guide/macOS
+  env:
+    DANGER_RUN_CI_ON_HOST: "true"
+    CI_USE_APT_INSTALL: "no"
+    PACKAGE_MANAGER_INSTALL: "echo"  # Nothing to do
+    FILE_ENV: "./ci/test/00_setup_env_mac_host.sh"
