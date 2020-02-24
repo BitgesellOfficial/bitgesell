@@ -30,6 +30,27 @@ namespace interfaces {
 class Handler;
 class Wallet;
 
+//! Helper for findBlock to selectively return pieces of block data.
+class FoundBlock
+{
+public:
+    FoundBlock& hash(uint256& hash) { m_hash = &hash; return *this; }
+    FoundBlock& height(int& height) { m_height = &height; return *this; }
+    FoundBlock& time(int64_t& time) { m_time = &time; return *this; }
+    FoundBlock& maxTime(int64_t& max_time) { m_max_time = &max_time; return *this; }
+    FoundBlock& mtpTime(int64_t& mtp_time) { m_mtp_time = &mtp_time; return *this; }
+    //! Read block data from disk. If the block exists but doesn't have data
+    //! (for example due to pruning), the CBlock variable will be set to null.
+    FoundBlock& data(CBlock& data) { m_data = &data; return *this; }
+
+    uint256* m_hash = nullptr;
+    int* m_height = nullptr;
+    int64_t* m_time = nullptr;
+    int64_t* m_max_time = nullptr;
+    int64_t* m_mtp_time = nullptr;
+    CBlock* m_data = nullptr;
+};
+
 //! Interface giving clients (wallet processes, maybe other analysis tools in
 //! the future) ability to access to the chain state, receive notifications,
 //! estimate fees, and submit transactions.
@@ -120,30 +141,6 @@ public:
     //! Return whether node has the block and optionally return block metadata
     //! or contents.
     virtual bool findBlock(const uint256& hash, const FoundBlock& block={}) = 0;
-
-    //! Find first block in the chain with timestamp >= the given time
-    //! and height >= than the given height, return false if there is no block
-    //! with a high enough timestamp and height. Optionally return block
-    //! information.
-    virtual bool findFirstBlockWithTimeAndHeight(int64_t min_time, int min_height, const FoundBlock& block={}) = 0;
-
-    //! Find ancestor of block at specified height and optionally return
-    //! ancestor information.
-    virtual bool findAncestorByHeight(const uint256& block_hash, int ancestor_height, const FoundBlock& ancestor_out={}) = 0;
-
-    //! Return whether block descends from a specified ancestor, and
-    //! optionally return ancestor information.
-    virtual bool findAncestorByHash(const uint256& block_hash,
-        const uint256& ancestor_hash,
-        const FoundBlock& ancestor_out={}) = 0;
-
-    //! Find most recent common ancestor between two blocks and optionally
-    //! return block information.
-    virtual bool findCommonAncestor(const uint256& block_hash1,
-        const uint256& block_hash2,
-*        const FoundBlock& ancestor_out={},
-        const FoundBlock& block1_out={},
-        const FoundBlock& block2_out={}) = 0;
 
     //! Look up unspent output information. Returns coins in the mempool and in
     //! the current chain UTXO set. Iterates through all the keys in the map and

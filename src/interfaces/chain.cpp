@@ -38,6 +38,21 @@
 namespace interfaces {
 namespace {
 
+bool FillBlock(const CBlockIndex* index, const FoundBlock& block, UniqueLock<RecursiveMutex>& lock)
+{
+    if (!index) return false;
+    if (block.m_hash) *block.m_hash = index->GetBlockHash();
+    if (block.m_height) *block.m_height = index->nHeight;
+    if (block.m_time) *block.m_time = index->GetBlockTime();
+    if (block.m_max_time) *block.m_max_time = index->GetBlockTimeMax();
+    if (block.m_mtp_time) *block.m_mtp_time = index->GetMedianTimePast();
+    if (block.m_data) {
+        REVERSE_LOCK(lock);
+        if (!ReadBlockFromDisk(*block.m_data, index, Params().GetConsensus())) block.m_data->SetNull();
+    }
+    return true;
+}
+
 class LockImpl : public Chain::Lock, public UniqueLock<RecursiveMutex>
 {
     Optional<int> getHeight() override
@@ -230,32 +245,6 @@ public:
     {
         WAIT_LOCK(cs_main, lock);
         return FillBlock(LookupBlockIndex(hash), block, lock);
-    }
-    bool findFirstBlockWithTimeAndHeight(int64_t min_time, int min_height, const FoundBlock& block) override
-    {
-        WAIT_LOCK(cs_main, lock);
-        return FillBlock(ChainActive().FindEarliestAtLeast(min_time, min_height), block, lock);
-    }
-    bool findAncestorByHeight(const uint256& block_hash, int ancestor_height, const FoundBlock& ancestor_out) override
-    {
-        CBlockIndex* index;
-        {
-            LOCK(cs_main);
-            index = LookupBlockIndex(hash);
-            if (!index) {
-                return false;
-            }
-            if (time) {
-                *time = index->GetBlockTime();
-            }
-            if (time_max) {
-                *time_max = index->GetBlockTimeMax();
-            }
-        }
-        if (block && !ReadBlockFromDisk(*block, index, Params().GetConsensus())) {
-            block->SetNull();
-        }
-        return true;
     }
     void findCoins(std::map<COutPoint, Coin>& coins) override { return FindCoins(m_node, coins); }
     double guessVerificationProgress(const uint256& block_hash) override
