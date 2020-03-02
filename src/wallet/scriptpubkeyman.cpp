@@ -363,7 +363,7 @@ bool LegacyScriptPubKeyMan::IsHDEnabled() const
     return !hdChain.seed_id.IsNull();
 }
 
-bool LegacyScriptPubKeyMan::CanGetAddresses(bool internal)
+bool LegacyScriptPubKeyMan::CanGetAddresses(bool internal) const
 {
     LOCK(cs_KeyStore);
     // Check if the keypool has keys
