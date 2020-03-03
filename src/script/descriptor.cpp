@@ -186,18 +186,8 @@ class OriginPubkeyProvider final : public PubkeyProvider
     }
 
 public:
-<<<<<<< HEAD
-<<<<<<< HEAD
-    OriginPubkeyProvider(KeyOriginInfo info, std::unique_ptr<PubkeyProvider> provider) : m_origin(std::move(info)), m_provider(std::move(provider)) {}
-    bool GetPubKey(int pos, const SigningProvider& arg, CPubKey* key, KeyOriginInfo& info) const override
-=======
-    OriginPubkeyProvider(uint32_t exp_index, KeyOriginInfo info, std::unique_ptr<PubkeyProvider> provider) : PubkeyProvider(exp_index), m_origin(std::move(info)), m_provider(std::move(provider)) {}
-    bool GetPubKey(int pos, const SigningProvider& arg, CPubKey& key, KeyOriginInfo& info, const DescriptorCache* read_cache = nullptr, DescriptorCache* write_cache = nullptr) override
->>>>>>> 09e25071f... Cache parent xpub inside of BIP32PubkeyProvider
-=======
     OriginPubkeyProvider(uint32_t exp_index, KeyOriginInfo info, std::unique_ptr<PubkeyProvider> provider) : PubkeyProvider(exp_index), m_origin(std::move(info)), m_provider(std::move(provider)) {}
     bool GetPubKey(int pos, const SigningProvider& arg, CPubKey& key, KeyOriginInfo& info, const DescriptorCache* read_cache = nullptr, DescriptorCache* write_cache = nullptr) const override
->>>>>>> 58f54b686... Add DescriptorCache* read_cache and DescriptorCache* write_cache to Expand and GetPubKey
     {
         if (!m_provider->GetPubKey(pos, arg, key, info, read_cache, write_cache)) return false;
         std::copy(std::begin(m_origin.fingerprint), std::end(m_origin.fingerprint), info.fingerprint);
@@ -226,18 +216,8 @@ class ConstPubkeyProvider final : public PubkeyProvider
     CPubKey m_pubkey;
 
 public:
-<<<<<<< HEAD
-<<<<<<< HEAD
-    ConstPubkeyProvider(const CPubKey& pubkey) : m_pubkey(pubkey) {}
-    bool GetPubKey(int pos, const SigningProvider& arg, CPubKey* key, KeyOriginInfo& info) const override
-=======
-    ConstPubkeyProvider(uint32_t exp_index, const CPubKey& pubkey) : PubkeyProvider(exp_index), m_pubkey(pubkey) {}
-    bool GetPubKey(int pos, const SigningProvider& arg, CPubKey& key, KeyOriginInfo& info, const DescriptorCache* read_cache = nullptr, DescriptorCache* write_cache = nullptr) override
->>>>>>> 09e25071f... Cache parent xpub inside of BIP32PubkeyProvider
-=======
     ConstPubkeyProvider(uint32_t exp_index, const CPubKey& pubkey) : PubkeyProvider(exp_index), m_pubkey(pubkey) {}
     bool GetPubKey(int pos, const SigningProvider& arg, CPubKey& key, KeyOriginInfo& info, const DescriptorCache* read_cache = nullptr, DescriptorCache* write_cache = nullptr) const override
->>>>>>> 58f54b686... Add DescriptorCache* read_cache and DescriptorCache* write_cache to Expand and GetPubKey
     {
         key = m_pubkey;
         info.path.clear();
@@ -270,7 +250,8 @@ enum class DeriveType {
 /** An object representing a parsed extended public key in a descriptor. */
 class BIP32PubkeyProvider final : public PubkeyProvider
 {
-    CExtPubKey m_extkey;
+    // Root xpub, path, and final derivation step type being used, if any
+    CExtPubKey m_root_extkey;
     KeyPath m_path;
     DeriveType m_derive;
     // Cache of the parent of the final derived pubkeys.
@@ -280,11 +261,11 @@ class BIP32PubkeyProvider final : public PubkeyProvider
     bool GetExtKey(const SigningProvider& arg, CExtKey& ret) const
     {
         CKey key;
-        if (!arg.GetKey(m_extkey.pubkey.GetID(), key)) return false;
-        ret.nDepth = m_extkey.nDepth;
-        std::copy(m_extkey.vchFingerprint, m_extkey.vchFingerprint + sizeof(ret.vchFingerprint), ret.vchFingerprint);
-        ret.nChild = m_extkey.nChild;
-        ret.chaincode = m_extkey.chaincode;
+        if (!arg.GetKey(m_root_extkey.pubkey.GetID(), key)) return false;
+        ret.nDepth = m_root_extkey.nDepth;
+        std::copy(m_root_extkey.vchFingerprint, m_root_extkey.vchFingerprint + sizeof(ret.vchFingerprint), ret.vchFingerprint);
+        ret.nChild = m_root_extkey.nChild;
+        ret.chaincode = m_root_extkey.chaincode;
         ret.key = key;
         return true;
     }
@@ -309,34 +290,11 @@ class BIP32PubkeyProvider final : public PubkeyProvider
     }
 
 public:
-    BIP32PubkeyProvider(const CExtPubKey& extkey, KeyPath path, DeriveType derive) : m_extkey(extkey), m_path(std::move(path)), m_derive(derive) {}
+    BIP32PubkeyProvider(uint32_t exp_index, const CExtPubKey& extkey, KeyPath path, DeriveType derive) : PubkeyProvider(exp_index), m_root_extkey(extkey), m_path(std::move(path)), m_derive(derive) {}
     bool IsRange() const override { return m_derive != DeriveType::NO; }
     size_t GetSize() const override { return 33; }
-<<<<<<< HEAD
-<<<<<<< HEAD
-    bool GetPubKey(int pos, const SigningProvider& arg, CPubKey* key, KeyOriginInfo& info) const override
-    {
-        if (key) {
-            if (IsHardened()) {
-                CKey priv_key;
-                if (!GetPrivKey(pos, arg, priv_key)) return false;
-                *key = priv_key.GetPubKey();
-            } else {
-                // TODO: optimize by caching
-                CExtPubKey extkey = m_extkey;
-                for (auto entry : m_path) {
-                    extkey.Derive(extkey, entry);
-                }
-                if (m_derive == DeriveType::UNHARDENED) extkey.Derive(extkey, pos);
-                assert(m_derive != DeriveType::HARDENED);
-                *key = extkey.pubkey;
-=======
-    bool GetPubKey(int pos, const SigningProvider& arg, CPubKey& key_out, KeyOriginInfo& final_info_out, const DescriptorCache* read_cache = nullptr, DescriptorCache* write_cache = nullptr) override
-    {
-=======
     bool GetPubKey(int pos, const SigningProvider& arg, CPubKey& key_out, KeyOriginInfo& final_info_out, const DescriptorCache* read_cache = nullptr, DescriptorCache* write_cache = nullptr) const override
     {
->>>>>>> 58f54b686... Add DescriptorCache* read_cache and DescriptorCache* write_cache to Expand and GetPubKey
         // Info of parent of the to be derived pubkey
         KeyOriginInfo parent_info;
         CKeyID keyid = m_root_extkey.pubkey.GetID();
@@ -350,49 +308,21 @@ public:
 
         // Derive keys or fetch them from cache
         CExtPubKey final_extkey = m_root_extkey;
-<<<<<<< HEAD
-        CExtPubKey parent_extkey = m_root_extkey;
-        bool der = true;
-        if (read_cache) {
-            if (!read_cache->GetCachedDerivedExtPubKey(m_expr_index, pos, final_extkey)) {
-                if (m_derive == DeriveType::HARDENED) return false;
-                // Try to get the derivation parent
-                if (!read_cache->GetCachedParentExtPubKey(m_expr_index, parent_extkey)) return false;
-                final_extkey = parent_extkey;
-                if (m_derive == DeriveType::UNHARDENED) der = parent_extkey.Derive(final_extkey, pos);
-            }
-        } else if (m_cached_xpub.pubkey.IsValid() && m_derive != DeriveType::HARDENED) {
-            parent_extkey = final_extkey = m_cached_xpub;
-            if (m_derive == DeriveType::UNHARDENED) der = parent_extkey.Derive(final_extkey, pos);
-        } else if (IsHardened()) {
-            CExtKey xprv;
-            if (!GetDerivedExtKey(arg, xprv)) return false;
-            parent_extkey = xprv.Neuter();
-=======
         bool der = true;
         if (read_cache) {
             if (!read_cache->GetCachedDerivedExtPubKey(m_expr_index, pos, final_extkey)) return false;
         } else if (IsHardened()) {
             CExtKey xprv;
             if (!GetDerivedExtKey(arg, xprv)) return false;
->>>>>>> 58f54b686... Add DescriptorCache* read_cache and DescriptorCache* write_cache to Expand and GetPubKey
             if (m_derive == DeriveType::UNHARDENED) der = xprv.Derive(xprv, pos);
             if (m_derive == DeriveType::HARDENED) der = xprv.Derive(xprv, pos | 0x80000000UL);
             final_extkey = xprv.Neuter();
         } else {
             for (auto entry : m_path) {
-<<<<<<< HEAD
-                der = parent_extkey.Derive(parent_extkey, entry);
-                assert(der);
-            }
-            final_extkey = parent_extkey;
-            if (m_derive == DeriveType::UNHARDENED) der = parent_extkey.Derive(final_extkey, pos);
-=======
                 der = final_extkey.Derive(final_extkey, entry);
                 assert(der);
             }
             if (m_derive == DeriveType::UNHARDENED) der = final_extkey.Derive(final_extkey, pos);
->>>>>>> 58f54b686... Add DescriptorCache* read_cache and DescriptorCache* write_cache to Expand and GetPubKey
             assert(m_derive != DeriveType::HARDENED);
         }
         assert(der);
@@ -400,37 +330,15 @@ public:
         final_info_out = final_info_out_tmp;
         key_out = final_extkey.pubkey;
 
-<<<<<<< HEAD
-        // We rely on the consumer to check that m_derive isn't HARDENED as above
-        // But we can't have already cached something in case we read something from the cache
-        // and parent_extkey isn't actually the parent.
-        if (!m_cached_xpub.pubkey.IsValid()) m_cached_xpub = parent_extkey;
-
-        if (write_cache) {
-            // Only cache parent if there is any unhardened derivation
-            if (m_derive != DeriveType::HARDENED) {
-                write_cache->CacheParentExtPubKey(m_expr_index, parent_extkey);
-            } else if (final_info_out.path.size() > 0) {
-                write_cache->CacheDerivedExtPubKey(m_expr_index, pos, final_extkey);
->>>>>>> 09e25071f... Cache parent xpub inside of BIP32PubkeyProvider
-            }
-        }
-        CKeyID keyid = m_extkey.pubkey.GetID();
-        std::copy(keyid.begin(), keyid.begin() + sizeof(info.fingerprint), info.fingerprint);
-        info.path = m_path;
-        if (m_derive == DeriveType::UNHARDENED) info.path.push_back((uint32_t)pos);
-        if (m_derive == DeriveType::HARDENED) info.path.push_back(((uint32_t)pos) | 0x80000000L);
-=======
         if (write_cache) {
             write_cache->CacheDerivedExtPubKey(m_expr_index, pos, final_extkey);
         }
 
->>>>>>> 58f54b686... Add DescriptorCache* read_cache and DescriptorCache* write_cache to Expand and GetPubKey
         return true;
     }
     std::string ToString() const override
     {
-        std::string ret = EncodeExtPubKey(m_extkey) + FormatHDKeypath(m_path);
+        std::string ret = EncodeExtPubKey(m_root_extkey) + FormatHDKeypath(m_path);
         if (IsRange()) {
             ret += "/*";
             if (m_derive == DeriveType::HARDENED) ret += '\'';
