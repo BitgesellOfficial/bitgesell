@@ -79,25 +79,12 @@ AC_DEFUN([BGL_QT_INIT],[
   AC_SUBST(QT_TRANSLATION_DIR,$qt_translation_path)
 ])
 
-dnl Find the appropriate version of Qt libraries and includes.
-dnl Inputs: $1: Whether or not pkg-config should be used. yes|no. Default: yes.
-dnl Inputs: $2: If $1 is "yes" and --with-gui=auto, which qt version should be
-dnl         tried first.
-dnl Outputs: See _BGL_QT_FIND_LIBS_*
+dnl Find Qt libraries and includes.
+dnl Outputs: See _BITCOIN_QT_FIND_LIBS
 dnl Outputs: Sets variables for all qt-related tools.
-dnl Outputs: BGL_enable_qt, BGL_enable_qt_dbus, BGL_enable_qt_test
+dnl Outputs: bitcoin_enable_qt, bitcoin_enable_qt_dbus, bitcoin_enable_qt_test
 AC_DEFUN([BGL_QT_CONFIGURE],[
-  use_pkgconfig=$1
-
-  if test "x$use_pkgconfig" = x; then
-    use_pkgconfig=yes
-  fi
-
-  if test "x$use_pkgconfig" = xyes; then
-    BGL_QT_CHECK([_BGL_QT_FIND_LIBS_WITH_PKGCONFIG])
-  else
-    BGL_QT_CHECK([_BGL_QT_FIND_LIBS_WITHOUT_PKGCONFIG])
-  fi
+  BGL_QT_CHECK([_BGL_QT_FIND_LIBS])
 
   dnl This is ugly and complicated. Yuck. Works as follows:
   dnl For Qt5, we can check a header to find out whether Qt is build
@@ -139,7 +126,7 @@ AC_DEFUN([BGL_QT_CONFIGURE],[
   CXXFLAGS=$TEMP_CXXFLAGS
   ])
 
-  if test "x$use_pkgconfig$qt_bin_path" = xyes; then
+  if test "x$qt_bin_path" = x; then
     qt_bin_path="`$PKG_CONFIG --variable=host_bins Qt5Core 2>/dev/null`"
   fi
 
@@ -255,6 +242,7 @@ dnl All macros below are internal and should _not_ be used from the main
 dnl configure.ac.
 dnl ----
 
+<<<<<<< HEAD:build-aux/m4/BGL_qt.m4
 dnl Internal. Check included version of Qt against minimum specified in doc/dependencies.md
 dnl Requires: INCLUDES must be populated as necessary.
 dnl Output: BGL_cv_qt5=yes|no
@@ -296,6 +284,8 @@ AC_DEFUN([_BGL_QT_CHECK_QT58],[
 ])])
 
 
+=======
+>>>>>>> ddbb41931... build: Use pkg-config in BITCOIN_QT_CONFIGURE for all hosts:build-aux/m4/bitcoin_qt.m4
 dnl Internal. Check if the linked version of Qt was built as static libs.
 dnl Requires: Qt5.
 dnl Requires: INCLUDES and LIBS must be populated as necessary.
@@ -353,8 +343,6 @@ AC_DEFUN([_BGL_QT_FIND_STATIC_PLUGINS],[
       if test -d "$qt_plugin_path/platforms/android"; then
         QT_LIBS="$QT_LIBS -L$qt_plugin_path/platforms/android -lqtfreetype -lEGL"
       fi
-     if test "x$use_pkgconfig" = xyes; then
-     : dnl
      m4_ifdef([PKG_CHECK_MODULES],[
        if test x$BGL_cv_qt58 = xno; then
          PKG_CHECK_MODULES([QTPLATFORM], [Qt5PlatformSupport], [QT_LIBS="$QTPLATFORM_LIBS $QT_LIBS"])
@@ -374,6 +362,7 @@ AC_DEFUN([_BGL_QT_FIND_STATIC_PLUGINS],[
          PKG_CHECK_MODULES([QTCGL], [Qt5CglSupport], [QT_LIBS="-lQt5CglSupport $QT_LIBS"])
        fi
      ])
+<<<<<<< HEAD:build-aux/m4/BGL_qt.m4
      else
        if test "x$TARGET_OS" = xwindows; then
          AC_CACHE_CHECK(for Qt >= 5.6, BGL_cv_need_platformsupport,[
@@ -406,10 +395,13 @@ AC_DEFUN([_BGL_QT_FIND_STATIC_PLUGINS],[
          fi
        fi
      fi
+=======
+>>>>>>> ddbb41931... build: Use pkg-config in BITCOIN_QT_CONFIGURE for all hosts:build-aux/m4/bitcoin_qt.m4
    fi
 ])
 
 dnl Internal. Find Qt libraries using pkg-config.
+<<<<<<< HEAD:build-aux/m4/BGL_qt.m4
 dnl Inputs: BGL_qt_want_version (from --with-gui=). The version to check
 dnl         first.
 dnl Inputs: $1: If BGL_qt_want_version is "auto", check for this version
@@ -417,6 +409,11 @@ dnl         first.
 dnl Outputs: All necessary QT_* variables are set.
 dnl Outputs: have_qt_test and have_qt_dbus are set (if applicable) to yes|no.
 AC_DEFUN([_BGL_QT_FIND_LIBS_WITH_PKGCONFIG],[
+=======
+dnl Outputs: All necessary QT_* variables are set.
+dnl Outputs: have_qt_test and have_qt_dbus are set (if applicable) to yes|no.
+AC_DEFUN([_BITCOIN_QT_FIND_LIBS],[
+>>>>>>> ddbb41931... build: Use pkg-config in BITCOIN_QT_CONFIGURE for all hosts:build-aux/m4/bitcoin_qt.m4
   m4_ifdef([PKG_CHECK_MODULES],[
     QT_LIB_PREFIX=Qt5
     qt5_modules="Qt5Core Qt5Gui Qt5Network Qt5Widgets"
@@ -437,6 +434,7 @@ AC_DEFUN([_BGL_QT_FIND_LIBS_WITH_PKGCONFIG],[
   ])
   true; dnl
 ])
+<<<<<<< HEAD:build-aux/m4/BGL_qt.m4
 
 dnl Internal. Find Qt libraries without using pkg-config. Version is deduced
 dnl from the discovered headers.
@@ -517,3 +515,5 @@ AC_DEFUN([_BGL_QT_FIND_LIBS_WITHOUT_PKGCONFIG],[
   CXXFLAGS="$TEMP_CXXFLAGS"
   LIBS="$TEMP_LIBS"
 ])
+=======
+>>>>>>> ddbb41931... build: Use pkg-config in BITCOIN_QT_CONFIGURE for all hosts:build-aux/m4/bitcoin_qt.m4

@@ -1088,8 +1088,8 @@ if test "x$enable_fuzz" = "xyes"; then
 else
   BGL_QT_INIT
 
-  dnl sets $BGL_enable_qt, $BGL_enable_qt_test, $BGL_enable_qt_dbus
-  BGL_QT_CONFIGURE([$use_pkgconfig])
+  dnl sets $bitcoin_enable_qt, $bitcoin_enable_qt_test, $bitcoin_enable_qt_dbus
+  BGL_QT_CONFIGURE
 fi
 
 if test x$enable_wallet != xno; then
