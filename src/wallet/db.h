@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -401,5 +401,7 @@ public:
 
     bool static Rewrite(BerkeleyDatabase& database, const char* pszSkip = nullptr);
 };
+
+std::string BerkeleyDatabaseVersion();
 
 #endif // BGL_WALLET_DB_H
