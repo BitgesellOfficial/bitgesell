@@ -1090,7 +1090,7 @@ if test "x$enable_fuzz" = "xyes"; then
 else
   BGL_QT_INIT
 
-  dnl sets $bitcoin_enable_qt, $bitcoin_enable_qt_test, $bitcoin_enable_qt_dbus
+  dnl sets $BGL_enable_qt, $BGL_enable_qt_test, $BGL_enable_qt_dbus
   BGL_QT_CONFIGURE
 fi
 
@@ -1261,12 +1261,10 @@ if test x$use_pkgconfig = xyes; then
       if test x$use_qr != xno; then
         BGL_QT_CHECK([PKG_CHECK_MODULES([QR], [libqrencode], [have_qrencode=yes], [have_qrencode=no])])
       fi
-      if test x$build_BGL_cli$build_BGLd$BGL_enable_qt$use_tests != xnononono; then
-        if test x$enable_libevent != xno; then
-          PKG_CHECK_MODULES([EVENT], [libevent],, [AC_MSG_ERROR(libevent not found.)])
-          if test x$TARGET_OS != xwindows; then
-            PKG_CHECK_MODULES([EVENT_PTHREADS], [libevent_pthreads],, [AC_MSG_ERROR(libevent_pthreads not found.)])
-          fi
+      if test x$build_BGL_cli$build_BGLd$BGL_enable_qt$use_tests$use_bench != xnonononono; then
+        PKG_CHECK_MODULES([EVENT], [libevent],, [AC_MSG_ERROR(libevent not found.)])
+        if test x$TARGET_OS != xwindows; then
+          PKG_CHECK_MODULES([EVENT_PTHREADS], [libevent_pthreads],, [AC_MSG_ERROR(libevent_pthreads not found.)])
         fi
       fi
 
@@ -1283,7 +1281,7 @@ if test x$use_pkgconfig = xyes; then
   )
 else
 
-  if test x$build_BGL_cli$build_BGLd$BGL_enable_qt$use_tests != xnononono; then
+  if test x$build_BGL_cli$build_BGLd$BGL_enable_qt$use_tests$use_bench != xnonononono; then
     AC_CHECK_HEADER([event2/event.h],, AC_MSG_ERROR(libevent headers missing),)
     AC_CHECK_LIB([event],[main],EVENT_LIBS=-levent,AC_MSG_ERROR(libevent missing))
     if test x$TARGET_OS != xwindows; then
