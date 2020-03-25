@@ -48,7 +48,6 @@ bench_bench_bitcoin_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 bench_bench_bitcoin_LDADD = \
   $(LIBBGL_SERVER) \
   $(LIBBGL_WALLET) \
-  $(LIBBGL_SERVER) \
   $(LIBBGL_COMMON) \
   $(LIBBGL_UTIL) \
   $(LIBBGL_CONSENSUS) \
