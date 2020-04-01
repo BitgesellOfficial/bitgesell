@@ -415,7 +415,6 @@ static void entryToJSON(const CTxMemPool& pool, UniValue& info, const CTxMemPool
     info.pushKV("fees", fees);
 
     info.pushKV("vsize", (int)e.GetTxSize());
-    if (IsDeprecatedRPCEnabled("size")) info.pushKV("size", (int)e.GetTxSize());
     info.pushKV("weight", (int)e.GetTxWeight());
     info.pushKV("fee", ValueFromAmount(e.GetFee()));
     info.pushKV("modifiedfee", ValueFromAmount(e.GetModifiedFee()));
