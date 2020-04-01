@@ -172,6 +172,10 @@
         <translation>Rahakott krüpteeritud</translation>
     </message>
     <message>
+        <source>IMPORTANT: Any previous backups you have made of your wallet file should be replaced with the newly generated, encrypted wallet file. For security reasons, previous backups of the unencrypted wallet file will become useless as soon as you start using the new, encrypted wallet.</source>
+        <translation>TÄHTIS: Kõik varasemad rahakoti varundfailid tuleks üle kirjutada äsja loodud krüpteeritud rahakoti failiga. Turvakaalutlustel tühistatakse krüpteerimata rahakoti failid alates uue, krüpteeritud rahakoti, kasutusele võtust.</translation>
+    </message>
+    <message>
         <source>Wallet encryption failed</source>
         <translation>Rahakoti krüpteerimine ebaõnnestus</translation>
     </message>
@@ -292,14 +296,6 @@
     <message>
         <source>Change the passphrase used for wallet encryption</source>
         <translation>Rahakoti krüpteerimise salafraasi muutmine</translation>
-    </message>
-    <message>
-        <source>&amp;Debug window</source>
-        <translation>&amp;Silumise aken</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Ava debugimise ja diagnostika konsool</translation>
     </message>
     <message>
         <source>&amp;Verify message...</source>
@@ -463,7 +459,11 @@
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
         <translation>Rahakott on &lt;b&gt;krüpteeritud&lt;/b&gt; ning hetkel &lt;b&gt;suletud&lt;/b&gt;</translation>
     </message>
-    </context>
+    <message>
+        <source>A fatal error occurred. BGL can no longer continue safely and will quit.</source>
+        <translation>Ilmnes kriitiline tõrge. BGL suletakse turvakaalutluste tõttu.</translation>
+    </message>
+</context>
 <context>
     <name>CoinControlDialog</name>
     <message>
@@ -679,20 +679,8 @@
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>Ava URI</translation>
-    </message>
-    <message>
         <source>URI:</source>
         <translation>URI:</translation>
-    </message>
-    <message>
-        <source>Select payment request file</source>
-        <translation>Vali maksepäringu fail</translation>
-    </message>
-    <message>
-        <source>Select payment request file to open</source>
-        <translation>Vali maksepäringu fail mida avada</translation>
     </message>
 </context>
 <context>
@@ -829,7 +817,7 @@
     </message>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the BGL network after a connection is established, but this process has not completed yet.</source>
-        <translation>Kuvatav info ei pruugi olla ajakohane. Ühenduse loomisel süngitakse sinu rahakott automaatselt Bitconi võrgustikuga, kuid see toiming on hetkel lõpetamata.</translation>
+        <translation>Kuvatav info ei pruugi olla ajakohane. Ühenduse loomisel süngitakse sinu rahakott automaatselt BGLi võrgustikuga, kuid see toiming on hetkel lõpetamata.</translation>
     </message>
     <message>
         <source>Pending:</source>
@@ -859,16 +847,12 @@
         <translation>Maksepäringu tõrge</translation>
     </message>
     <message>
-        <source>Payment request rejected</source>
-        <translation>Maksepäring tagasi lükatud</translation>
+        <source>Cannot start BGL: click-to-pay handler</source>
+        <translation>BGL ei käivitu: vajuta-maksa toiming</translation>
     </message>
     <message>
-        <source>Payment request expired.</source>
-        <translation>Maksepäring aegunud.</translation>
-    </message>
-    <message>
-        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
-        <translation>Kinnitamata maksepäringud kohandatud makse scriptidele ei ole toetatud.</translation>
+        <source>URI handling</source>
+        <translation>URI käsitsemine</translation>
     </message>
     </context>
 <context>
@@ -973,10 +957,6 @@
     <message>
         <source>&amp;Information</source>
         <translation>&amp;Informatsioon</translation>
-    </message>
-    <message>
-        <source>Debug window</source>
-        <translation>Debugimise aken</translation>
     </message>
     <message>
         <source>General</source>
@@ -1405,18 +1385,7 @@
         <source>Pay To:</source>
         <translation>Maksa :</translation>
     </message>
-    <message>
-        <source>Enter a label for this address to add it to your address book</source>
-        <translation>Aadressiraamatusse sisestamiseks märgista aadress</translation>
-    </message>
-</context>
-<context>
-    <name>SendConfirmationDialog</name>
-    <message>
-        <source>Yes</source>
-        <translation>Jah</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>ShutdownWindow</name>
     <message>

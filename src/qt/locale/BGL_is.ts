@@ -322,14 +322,6 @@
         <translation>Breyta lykilsetningunni sem gildir um dulkóðun veskis</translation>
     </message>
     <message>
-        <source>&amp;Debug window</source>
-        <translation>&amp;Kembunargluggi</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Opna kembunar- og greiningarstjórnborð</translation>
-    </message>
-    <message>
         <source>&amp;Verify message...</source>
         <translation>&amp;Yfirfara skilaboð...</translation>
     </message>
@@ -841,9 +833,6 @@
         <source>&amp;Label:</source>
         <translation>&amp;Merki:</translation>
     </message>
-    </context>
-<context>
-    <name>SendConfirmationDialog</name>
     </context>
 <context>
     <name>ShutdownWindow</name>

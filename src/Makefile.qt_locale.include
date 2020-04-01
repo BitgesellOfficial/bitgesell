@@ -98,3 +98,13 @@ QT_TS = \
   qt/locale/BGL_zh_CN.ts \
   qt/locale/BGL_zh_HK.ts \
   qt/locale/BGL_zh_TW.ts
+  qt/locale/BGL_af.ts \
+  qt/locale/BGL_am.ts \
+  qt/locale/BGL_be.ts \
+  qt/locale/BGL_bg.ts \
+  qt/locale/BGL_bn.ts \
+  qt/locale/BGL_bs.ts \
+  qt/locale/BGL_ca.ts \
+  qt/locale/BGL_sq.ts \
+  qt/locale/BGL_uz@Latn.ts \
+  qt/locale/BGL_zh.ts \

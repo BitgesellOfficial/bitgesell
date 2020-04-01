@@ -1,40 +1,32 @@
-<TS language="uz@Latn" version="2.1">
+<TS language="bn" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
+        <source>Right-click to edit address or label</source>
+        <translation>ঠিকানা কিংবা লেভেল সম্পাদনার জন্য রাইট-ক্লিক করুন</translation>
+    </message>
+    <message>
         <source>Create a new address</source>
-        <translation>Yangi manzil yaratish</translation>
+        <translation>নতুন একটি ঠিকানা তৈরি করুন</translation>
     </message>
     <message>
         <source>&amp;New</source>
-        <translation>&amp;Yangi</translation>
+        <translation>নতুন</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation>&amp;Nusxalash</translation>
+        <translation>কপি/প্রতিলিপি</translation>
     </message>
     <message>
         <source>C&amp;lose</source>
-        <translation>Yo&amp;pish</translation>
-    </message>
-    <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;O'chirish</translation>
-    </message>
-    <message>
-        <source>&amp;Copy Address</source>
-        <translation>&amp;Manzillarni nusxalash</translation>
+        <translation>কপি/প্রতিলিপি</translation>
     </message>
     </context>
 <context>
     <name>AddressTableModel</name>
     <message>
-        <source>Label</source>
-        <translation>Yorliq</translation>
-    </message>
-    <message>
         <source>Address</source>
-        <translation>Manzil</translation>
+        <translation>ঠিকানা </translation>
     </message>
     </context>
 <context>
@@ -45,6 +37,10 @@
     </context>
 <context>
     <name>BGLGUI</name>
+    <message>
+        <source>Warning</source>
+        <translation>সতর্কতা</translation>
+    </message>
     </context>
 <context>
     <name>CoinControlDialog</name>
@@ -103,20 +99,16 @@
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
-        <source>Address</source>
-        <translation>Manzil</translation>
+        <source>QR Code</source>
+        <translation>QR কোড</translation>
     </message>
     <message>
-        <source>Label</source>
-        <translation>Yorliq</translation>
+        <source>Address</source>
+        <translation>ঠিকানা </translation>
     </message>
     </context>
 <context>
     <name>RecentRequestsTableModel</name>
-    <message>
-        <source>Label</source>
-        <translation>Yorliq</translation>
-    </message>
     </context>
 <context>
     <name>SendCoinsDialog</name>
@@ -129,6 +121,14 @@
     </context>
 <context>
     <name>SignVerifyMessageDialog</name>
+    <message>
+        <source>The entered address is invalid.</source>
+        <translation>প্রবেশকৃত ঠিকানাটি শুদ্ধ নয়।</translation>
+    </message>
+    <message>
+        <source>Please check the signature and try again.</source>
+        <translation>অনুগ্রহ করে স্বাক্ষরটি পুনরায় পরীক্ষা করে আবারও চেষ্টা করুন।</translation>
+    </message>
     </context>
 <context>
     <name>TrafficGraphWidget</name>
@@ -141,20 +141,12 @@
     </context>
 <context>
     <name>TransactionTableModel</name>
-    <message>
-        <source>Label</source>
-        <translation>Yorliq</translation>
-    </message>
     </context>
 <context>
     <name>TransactionView</name>
     <message>
-        <source>Label</source>
-        <translation>Yorliq</translation>
-    </message>
-    <message>
         <source>Address</source>
-        <translation>Manzil</translation>
+        <translation>ঠিকানা </translation>
     </message>
     </context>
 <context>
@@ -174,5 +166,21 @@
     </context>
 <context>
     <name>BGL-core</name>
+    <message>
+        <source>Do you want to rebuild the block database now?</source>
+        <translation>আপনি কি পুনরায় ব্লক ডাটাবেইজ এখনই তৈরি করতে চান?</translation>
+    </message>
+    <message>
+        <source>This is experimental software.</source>
+        <translation>এটি পরীক্ষামূলক সফটওয়্যার।</translation>
+    </message>
+    <message>
+        <source>Transaction amount too small</source>
+        <translation>লেনদেনের পরিমান অনেক ছোট</translation>
+    </message>
+    <message>
+        <source>Transaction too large</source>
+        <translation>লেনদেনর অংক অনেক বড়</translation>
+    </message>
     </context>
 </TS>
