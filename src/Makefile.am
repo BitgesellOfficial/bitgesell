@@ -538,6 +538,10 @@ libBGL_util_a_SOURCES = \
   util/url.cpp \
   $(BGL_CORE_H)
 
+if USE_LIBEVENT
+libBGL_util_a_SOURCES += util/url.cpp
+endif
+
 if GLIBC_BACK_COMPAT
 libBGL_util_a_SOURCES += compat/glibc_compat.cpp
 AM_LDFLAGS += $(COMPAT_LDFLAGS)
