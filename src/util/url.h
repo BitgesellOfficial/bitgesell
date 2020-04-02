@@ -7,6 +7,8 @@
 
 #include <string>
 
-std::string urlDecode(const std::string &urlEncoded);
+using UrlDecodeFn = std::string(const std::string& url_encoded);
+UrlDecodeFn urlDecode;
+extern UrlDecodeFn* const URL_DECODE;
 
 #endif // BGL_UTIL_URL_H
