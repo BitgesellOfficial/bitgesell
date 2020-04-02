@@ -22,6 +22,7 @@ import shlex
 import sys
 
 from .authproxy import JSONRPCException
+from .descriptors import descsum_create
 from .util import (
     MAX_NODES,
     append_config,
