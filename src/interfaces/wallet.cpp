@@ -364,6 +364,7 @@ public:
         if (!locked_wallet) {
             return false;
         }
+
         balances = getBalances();
         num_blocks = locked_chain->getHeight().get_value_or(-1);
         return true;
