@@ -70,8 +70,11 @@ class ToolWalletTest(BGLTestFramework):
         self.assert_raises_tool_error('Error: two methods provided (info and create). Only one method should be provided.', 'info', 'create')
         self.assert_raises_tool_error('Error parsing command line arguments: Invalid parameter -foo', '-foo')
         locked_dir = os.path.join(self.options.tmpdir, "node0", "regtest", "wallets")
+        error = 'Error initializing wallet database environment "{}"!'.format(locked_dir)
+        if self.options.descriptors:
+            error = "SQLiteDatabase: Unable to obtain an exclusive lock on the database, is it being used by another bitcoind?"
         self.assert_raises_tool_error(
-            'Error initializing wallet database environment "{}"!'.format(locked_dir),
+            error,
             '-wallet=' + self.default_wallet_name,
             'info',
         )
@@ -94,19 +97,33 @@ class ToolWalletTest(BGLTestFramework):
         # shasum_before = self.wallet_shasum()
         timestamp_before = self.wallet_timestamp()
         self.log.debug('Wallet file timestamp before calling info: {}'.format(timestamp_before))
-        out = textwrap.dedent('''\
-            Wallet info
-            ===========
-            Name: \
+        if self.options.descriptors:
+            out = textwrap.dedent('''\
+                Wallet info
+                ===========
+                Name: default_wallet
+                Format: sqlite
+                Descriptors: yes
+                Encrypted: no
+                HD (hd seed available): yes
+                Keypool Size: 6
+                Transactions: 0
+                Address Book: 1
+            ''')
+        else:
+            out = textwrap.dedent('''\
+                Wallet info
+                ===========
+                Name: \
 
-            Format: bdb
-            Descriptors: no
-            Encrypted: no
-            HD (hd seed available): yes
-            Keypool Size: 2
-            Transactions: 0
-            Address Book: 3
-        ''')
+                Format: bdb
+                Descriptors: no
+                Encrypted: no
+                HD (hd seed available): yes
+                Keypool Size: 2
+                Transactions: 0
+                Address Book: 3
+            ''')
         self.assert_tool_output(out, '-wallet=' + self.default_wallet_name, 'info')
         timestamp_after = self.wallet_timestamp()
         self.log.debug('Wallet file timestamp after calling info: {}'.format(timestamp_after))
@@ -137,19 +154,33 @@ class ToolWalletTest(BGLTestFramework):
         shasum_before = self.wallet_shasum()
         timestamp_before = self.wallet_timestamp()
         self.log.debug('Wallet file timestamp before calling info: {}'.format(timestamp_before))
-        out = textwrap.dedent('''\
-            Wallet info
-            ===========
-            Name: \
+        if self.options.descriptors:
+            out = textwrap.dedent('''\
+                Wallet info
+                ===========
+                Name: default_wallet
+                Format: sqlite
+                Descriptors: yes
+                Encrypted: no
+                HD (hd seed available): yes
+                Keypool Size: 6
+                Transactions: 1
+                Address Book: 1
+            ''')
+        else:
+            out = textwrap.dedent('''\
+                Wallet info
+                ===========
+                Name: \
 
-            Format: bdb
-            Descriptors: no
-            Encrypted: no
-            HD (hd seed available): yes
-            Keypool Size: 2
-            Transactions: 1
-            Address Book: 3
-        ''')
+                Format: bdb
+                Descriptors: no
+                Encrypted: no
+                HD (hd seed available): yes
+                Keypool Size: 2
+                Transactions: 1
+                Address Book: 3
+            ''')
         self.assert_tool_output(out, '-wallet=' + self.default_wallet_name, 'info')
         shasum_after = self.wallet_shasum()
         timestamp_after = self.wallet_timestamp()
