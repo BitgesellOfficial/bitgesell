@@ -242,6 +242,7 @@ BGL_TESTS =\
   test/validation_block_tests.cpp \
   test/validation_chainstatemanager_tests.cpp \
   test/validation_flush_tests.cpp \
+  test/validationinterface_tests.cpp \
   test/versionbits_tests.cpp
 
 if ENABLE_PROPERTY_TESTS
