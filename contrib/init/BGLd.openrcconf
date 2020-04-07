@@ -1,0 +1,33 @@
+# /etc/conf.d/BGLd: config file for /etc/init.d/BGLd
+
+# Config file location
+#BGLD_CONFIGFILE="/etc/BGL/BGL.conf"
+
+# What directory to write pidfile to?  (created and owned by $BGLD_USER)
+#BGLD_PIDDIR="/var/run/BGLd"
+
+# What filename to give the pidfile
+#BGLD_PIDFILE="${BGLD_PIDDIR}/BGLd.pid"
+
+# Where to write BGLd data (be mindful that the blockchain is large)
+#BGLD_DATADIR="/var/lib/BGLd"
+
+# User and group to own BGLd process
+#BGLD_USER="BGL"
+#BGLD_GROUP="BGL"
+
+# Path to BGLd executable
+#BGLD_BIN="/usr/bin/BGLd"
+
+# Nice value to run BGLd under
+#BGLD_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+#BGLD_OPTS=""
+
+# The timeout in seconds OpenRC will wait for BGLd to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+BGLD_SIGTERM_TIMEOUT=600

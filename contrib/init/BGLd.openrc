@@ -1,0 +1,92 @@
+#!/sbin/openrc-run
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/BGL/.BGL" ]; then
+	BGLD_DEFAULT_DATADIR="/var/lib/BGL/.BGL"
+else
+	BGLD_DEFAULT_DATADIR="/var/lib/BGLd"
+fi
+
+BGLD_CONFIGFILE=${BGLD_CONFIGFILE:-/etc/BGL/BGL.conf}
+BGLD_PIDDIR=${BGLD_PIDDIR:-/var/run/BGLd}
+BGLD_PIDFILE=${BGLD_PIDFILE:-${BGLD_PIDDIR}/BGLd.pid}
+BGLD_DATADIR=${BGLD_DATADIR:-${BGLD_DEFAULT_DATADIR}}
+BGLD_USER=${BGLD_USER:-${BGL_USER:-BGL}}
+BGLD_GROUP=${BGLD_GROUP:-BGL}
+BGLD_BIN=${BGLD_BIN:-/usr/bin/BGLd}
+BGLD_NICE=${BGLD_NICE:-${NICELEVEL:-0}}
+BGLD_OPTS="${BGLD_OPTS:-${BGL_OPTS}}"
+
+name="BGL Core Daemon"
+description="BGL cryptocurrency P2P network daemon"
+
+command="/usr/bin/BGLd"
+command_args="-pid=\"${BGLD_PIDFILE}\" \
+		-conf=\"${BGLD_CONFIGFILE}\" \
+		-datadir=\"${BGLD_DATADIR}\" \
+		-daemon \
+		${BGLD_OPTS}"
+
+required_files="${BGLD_CONFIGFILE}"
+start_stop_daemon_args="-u ${BGLD_USER} \
+			-N ${BGLD_NICE} -w 2000"
+pidfile="${BGLD_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${BGLD_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${BGLD_USER}:${BGLD_GROUP}" \
+	"${BGLD_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${BGLD_USER}:${BGLD_GROUP}" \
+	"${BGLD_PIDDIR}"
+
+	checkpath -f \
+	-o ${BGLD_USER}:${BGLD_GROUP} \
+	-m 0660 \
+	${BGLD_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${BGLD_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run BGLd."
+		eerror "The setting must appear in ${BGLD_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following "
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"BGL Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}
