@@ -5,6 +5,7 @@
 #ifndef BGL_CUCKOOCACHE_H
 #define BGL_CUCKOOCACHE_H
 
+#include <algorithm> // std::find
 #include <array>
 #include <atomic>
 #include <cmath>
