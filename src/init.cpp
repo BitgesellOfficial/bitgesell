@@ -283,6 +283,7 @@ void Shutdown(NodeContext& node)
     GetMainSignals().UnregisterBackgroundSignalScheduler();
     globalVerifyHandle.reset();
     ECC_Stop();
+    node.args = nullptr;
     if (node.mempool) node.mempool = nullptr;
     node.scheduler.reset();
 
@@ -346,8 +347,11 @@ static void OnRPCStopped()
     LogPrint(BCLog::RPC, "RPC stopped.\n");
 }
 
-void SetupServerArgs()
+void SetupServerArgs(NodeContext& node)
 {
+    assert(!node.args);
+    node.args = &gArgs;
+
     SetupHelpOptions(gArgs);
     gArgs.AddArg("-help-debug", "Print help message with debugging options and exit", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST); // server-only for now
 
