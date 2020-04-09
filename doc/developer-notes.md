@@ -865,7 +865,7 @@ Current subtrees include:
   - Upstream at https://github.com/google/crc32c ; Maintained by Google.
 
 - src/secp256k1
-  - Upstream at https://github.com/bitcoin-core/secp256k1/ ; actively maintained by Core contributors.
+  - Upstream at https://github.com/BGL-core/secp256k1/ ; actively maintained by Core contributors.
 
 - src/crypto/ctaes
   - Upstream at https://github.com/BGL-core/ctaes ; actively maintained by Core contributors.
@@ -1221,4 +1221,4 @@ communication:
 
   Note: This last convention isn't generally followed outside of
   [`src/interfaces/`](../src/interfaces/), though it did come up for discussion
-  before in [#14635](https://github.com/bitcoin/bitcoin/pull/14635).
+  before in [#14635](https://github.com/BGL/BGL/pull/14635).
