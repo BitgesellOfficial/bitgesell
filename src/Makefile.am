@@ -619,6 +619,7 @@ BGL_node_CPPFLAGS = $(BGL_common_cppflags)
 BGL_node_CXXFLAGS = $(BGL_common_cxxflags)
 BGL_node_LDFLAGS = $(BGL_common_ldflags)
 BGL_node_LDADD = $(BGL_common_ldadd)
+BGLd_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
 
 # BGL-cli binary #
 BGL_cli_SOURCES = BGL-cli.cpp
