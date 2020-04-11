@@ -121,7 +121,7 @@ NODISCARD static bool CreatePidFile()
 #endif
         return true;
     } else {
-        return InitError(strprintf(_("Unable to create the PID file '%s': %s").translated, GetPidFile().string(), std::strerror(errno)));
+        return InitError(strprintf(_("Unable to create the PID file '%s': %s"), GetPidFile().string(), std::strerror(errno)));
     }
 }
 
@@ -749,17 +749,15 @@ static void ThreadImport(std::vector<fs::path> vImportFiles)
  */
 static bool InitSanityCheck()
 {
-    if(!ECC_InitSanityCheck()) {
-        InitError("Elliptic curve cryptography sanity check failure. Aborting.");
-        return false;
+    if (!ECC_InitSanityCheck()) {
+        return InitError(Untranslated("Elliptic curve cryptography sanity check failure. Aborting."));
     }
 
     if (!glibc_sanity_test() || !glibcxx_sanity_test())
         return false;
 
     if (!Random_SanityCheck()) {
-        InitError("OS cryptographic RNG sanity check failure. Aborting.");
-        return false;
+        return InitError(Untranslated("OS cryptographic RNG sanity check failure. Aborting."));
     }
 
     return true;
@@ -910,8 +908,9 @@ bool AppInitBasicSetup()
     HeapSetInformation(nullptr, HeapEnableTerminationOnCorruption, nullptr, 0);
 #endif
 
-    if (!SetupNetworking())
-        return InitError("Initializing networking failed");
+    if (!SetupNetworking()) {
+        return InitError(Untranslated("Initializing networking failed."));
+    }
 
 #ifndef WIN32
     if (!gArgs.GetBoolArg("-sysperms", false)) {
@@ -948,7 +947,7 @@ bool AppInitParameterInteraction()
     // on the command line or in this network's section of the config file.
     std::string network = gArgs.GetChainName();
     for (const auto& arg : gArgs.GetUnsuitableSectionOnlyArgs()) {
-        return InitError(strprintf(_("Config setting for %s only applied on %s network when in [%s] section.").translated, arg, network, network));
+        return InitError(strprintf(_("Config setting for %s only applied on %s network when in [%s] section."), arg, network, network));
     }
 
     // Warn if unrecognized section name are present in the config file.
@@ -957,7 +956,7 @@ bool AppInitParameterInteraction()
     }
 
     if (!fs::is_directory(GetBlocksDir())) {
-        return InitError(strprintf(_("Specified blocks directory \"%s\" does not exist.").translated, gArgs.GetArg("-blocksdir", "")));
+        return InitError(strprintf(_("Specified blocks directory \"%s\" does not exist."), gArgs.GetArg("-blocksdir", "")));
     }
 
     // parse and validate enabled filter types
@@ -969,7 +968,7 @@ bool AppInitParameterInteraction()
         for (const auto& name : names) {
             BlockFilterType filter_type;
             if (!BlockFilterTypeByName(name, filter_type)) {
-                return InitError(strprintf(_("Unknown -blockfilterindex value %s.").translated, name));
+                return InitError(strprintf(_("Unknown -blockfilterindex value %s."), name));
             }
             g_enabled_filter_types.insert(filter_type);
         }
@@ -978,16 +977,16 @@ bool AppInitParameterInteraction()
     // if using block pruning, then disallow txindex
     if (gArgs.GetArg("-prune", 0)) {
         if (gArgs.GetBoolArg("-txindex", DEFAULT_TXINDEX))
-            return InitError(_("Prune mode is incompatible with -txindex.").translated);
+            return InitError(_("Prune mode is incompatible with -txindex."));
         if (!g_enabled_filter_types.empty()) {
-            return InitError(_("Prune mode is incompatible with -blockfilterindex.").translated);
+            return InitError(_("Prune mode is incompatible with -blockfilterindex."));
         }
     }
 
     // -bind and -whitebind can't be set when not listening
     size_t nUserBind = gArgs.GetArgs("-bind").size() + gArgs.GetArgs("-whitebind").size();
     if (nUserBind != 0 && !gArgs.GetBoolArg("-listen", DEFAULT_LISTEN)) {
-        return InitError("Cannot set -bind or -whitebind together with -listen=0");
+        return InitError(Untranslated("Cannot set -bind or -whitebind together with -listen=0"));
     }
 
     // Make sure enough file descriptors are available
@@ -1005,7 +1004,7 @@ bool AppInitParameterInteraction()
 #endif
     nMaxConnections = std::max(std::min<int>(nMaxConnections, fd_max - nBind - MIN_CORE_FILEDESCRIPTORS - MAX_ADDNODE_CONNECTIONS), 0);
     if (nFD < MIN_CORE_FILEDESCRIPTORS)
-        return InitError(_("Not enough file descriptors available.").translated);
+        return InitError(_("Not enough file descriptors available."));
     nMaxConnections = std::min(nFD - MIN_CORE_FILEDESCRIPTORS - MAX_ADDNODE_CONNECTIONS, nMaxConnections);
 
     if (nMaxConnections < nUserMaxConnections)
@@ -1050,7 +1049,7 @@ bool AppInitParameterInteraction()
     if (gArgs.IsArgSet("-minimumchainwork")) {
         const std::string minChainWorkStr = gArgs.GetArg("-minimumchainwork", "");
         if (!IsHexNumber(minChainWorkStr)) {
-            return InitError(strprintf("Invalid non-hex (%s) minimum chain work value specified", minChainWorkStr));
+            return InitError(strprintf(Untranslated("Invalid non-hex (%s) minimum chain work value specified"), minChainWorkStr));
         }
         nMinimumChainWork = UintToArith256(uint256S(minChainWorkStr));
     } else {
@@ -1065,21 +1064,21 @@ bool AppInitParameterInteraction()
     int64_t nMempoolSizeMax = gArgs.GetArg("-maxmempool", DEFAULT_MAX_MEMPOOL_SIZE) * 1000000;
     int64_t nMempoolSizeMin = gArgs.GetArg("-limitdescendantsize", DEFAULT_DESCENDANT_SIZE_LIMIT) * 1000 * 40;
     if (nMempoolSizeMax < 0 || nMempoolSizeMax < nMempoolSizeMin)
-        return InitError(strprintf(_("-maxmempool must be at least %d MB").translated, std::ceil(nMempoolSizeMin / 1000000.0)));
+        return InitError(strprintf(_("-maxmempool must be at least %d MB"), std::ceil(nMempoolSizeMin / 1000000.0)));
     // incremental relay fee sets the minimum feerate increase necessary for BIP 125 replacement in the mempool
     // and the amount the mempool min fee increases above the feerate of txs evicted due to mempool limiting.
     if (gArgs.IsArgSet("-incrementalrelayfee"))
     {
         CAmount n = 0;
         if (!ParseMoney(gArgs.GetArg("-incrementalrelayfee", ""), n))
-            return InitError(AmountErrMsg("incrementalrelayfee", gArgs.GetArg("-incrementalrelayfee", "")).translated);
+            return InitError(AmountErrMsg("incrementalrelayfee", gArgs.GetArg("-incrementalrelayfee", "")));
         incrementalRelayFee = CFeeRate(n);
     }
 
     // block pruning; get the amount of disk space (in MiB) to allot for block & undo files
     int64_t nPruneArg = gArgs.GetArg("-prune", 0);
     if (nPruneArg < 0) {
-        return InitError(_("Prune cannot be configured with a negative value.").translated);
+        return InitError(_("Prune cannot be configured with a negative value."));
     }
     nPruneTarget = (uint64_t) nPruneArg * 1024 * 1024;
     if (nPruneArg == 1) {  // manual pruning: -prune=1
@@ -1088,7 +1087,7 @@ bool AppInitParameterInteraction()
         fPruneMode = true;
     } else if (nPruneTarget) {
         if (nPruneTarget < MIN_DISK_SPACE_FOR_BLOCK_FILES) {
-            return InitError(strprintf(_("Prune configured below the minimum of %d MiB.  Please use a higher number.").translated, MIN_DISK_SPACE_FOR_BLOCK_FILES / 1024 / 1024));
+            return InitError(strprintf(_("Prune configured below the minimum of %d MiB.  Please use a higher number."), MIN_DISK_SPACE_FOR_BLOCK_FILES / 1024 / 1024));
         }
         LogPrintf("Prune configured to target %u MiB on disk for block and undo files.\n", nPruneTarget / 1024 / 1024);
         fPruneMode = true;
@@ -1101,13 +1100,13 @@ bool AppInitParameterInteraction()
 
     peer_connect_timeout = gArgs.GetArg("-peertimeout", DEFAULT_PEER_CONNECT_TIMEOUT);
     if (peer_connect_timeout <= 0) {
-        return InitError("peertimeout cannot be configured with a negative value.");
+        return InitError(Untranslated("peertimeout cannot be configured with a negative value."));
     }
 
     if (gArgs.IsArgSet("-minrelaytxfee")) {
         CAmount n = 0;
         if (!ParseMoney(gArgs.GetArg("-minrelaytxfee", ""), n)) {
-            return InitError(AmountErrMsg("minrelaytxfee", gArgs.GetArg("-minrelaytxfee", "")).translated);
+            return InitError(AmountErrMsg("minrelaytxfee", gArgs.GetArg("-minrelaytxfee", "")));
         }
         // High fee check is done afterward in CWallet::CreateWalletFromFile()
         ::minRelayTxFee = CFeeRate(n);
@@ -1123,7 +1122,7 @@ bool AppInitParameterInteraction()
     {
         CAmount n = 0;
         if (!ParseMoney(gArgs.GetArg("-blockmintxfee", ""), n))
-            return InitError(AmountErrMsg("blockmintxfee", gArgs.GetArg("-blockmintxfee", "")).translated);
+            return InitError(AmountErrMsg("blockmintxfee", gArgs.GetArg("-blockmintxfee", "")));
     }
 
     // Feerate used to define dust.  Shouldn't be changed lightly as old
@@ -1132,13 +1131,13 @@ bool AppInitParameterInteraction()
     {
         CAmount n = 0;
         if (!ParseMoney(gArgs.GetArg("-dustrelayfee", ""), n))
-            return InitError(AmountErrMsg("dustrelayfee", gArgs.GetArg("-dustrelayfee", "")).translated);
+            return InitError(AmountErrMsg("dustrelayfee", gArgs.GetArg("-dustrelayfee", "")));
         dustRelayFee = CFeeRate(n);
     }
 
     fRequireStandard = !gArgs.GetBoolArg("-acceptnonstdtxn", !chainparams.RequireStandard());
     if (!chainparams.IsTestChain() && !fRequireStandard) {
-        return InitError(strprintf("acceptnonstdtxn is not currently supported for %s chain", chainparams.NetworkIDString()));
+        return InitError(strprintf(Untranslated("acceptnonstdtxn is not currently supported for %s chain"), chainparams.NetworkIDString()));
     }
     nBytesPerSigOp = gArgs.GetArg("-bytespersigop", nBytesPerSigOp);
 
@@ -1155,10 +1154,10 @@ bool AppInitParameterInteraction()
         nLocalServices = ServiceFlags(nLocalServices | NODE_BLOOM);
 
     if (gArgs.GetArg("-rpcserialversion", DEFAULT_RPC_SERIALIZE_VERSION) < 0)
-        return InitError("rpcserialversion must be non-negative.");
+        return InitError(Untranslated("rpcserialversion must be non-negative."));
 
     if (gArgs.GetArg("-rpcserialversion", DEFAULT_RPC_SERIALIZE_VERSION) > 1)
-        return InitError("unknown rpcserialversion requested.");
+        return InitError(Untranslated("Unknown rpcserialversion requested."));
 
     nMaxTipAge = gArgs.GetArg("-maxtipage", DEFAULT_MAX_TIP_AGE);
 
@@ -1170,10 +1169,10 @@ static bool LockDataDirectory(bool probeOnly)
     // Make sure only a single BGL process is using the data directory.
     fs::path datadir = GetDataDir();
     if (!DirIsWritable(datadir)) {
-        return InitError(strprintf(_("Cannot write to data directory '%s'; check permissions.").translated, datadir.string()));
+        return InitError(strprintf(_("Cannot write to data directory '%s'; check permissions."), datadir.string()));
     }
     if (!LockDirectory(datadir, ".lock", probeOnly)) {
-        return InitError(strprintf(_("Cannot obtain a lock on data directory %s. %s is probably already running.").translated, datadir.string(), PACKAGE_NAME));
+        return InitError(strprintf(_("Cannot obtain a lock on data directory %s. %s is probably already running."), datadir.string(), PACKAGE_NAME));
     }
     return true;
 }
@@ -1191,7 +1190,7 @@ bool AppInitSanityChecks()
 
     // Sanity check
     if (!InitSanityCheck())
-        return InitError(strprintf(_("Initialization sanity check failed. %s is shutting down.").translated, PACKAGE_NAME));
+        return InitError(strprintf(_("Initialization sanity check failed. %s is shutting down."), PACKAGE_NAME));
 
     // Probe the data directory lock to give an early error message, if possible
     // We cannot hold the data directory lock here, as the forking for daemon() hasn't yet happened,
@@ -1227,7 +1226,7 @@ bool AppInitMain(NodeContext& node)
         }
     }
     if (!LogInstance().StartLogging()) {
-            return InitError(strprintf("Could not open debug log file %s",
+            return InitError(strprintf(Untranslated("Could not open debug log file %s"),
                 LogInstance().m_file_path.string()));
     }
 
@@ -1327,7 +1326,7 @@ bool AppInitMain(NodeContext& node)
     {
         uiInterface.InitMessage_connect(SetRPCWarmupStatus);
         if (!AppInitServers())
-            return InitError(_("Unable to start HTTP server. See debug log for details.").translated);
+            return InitError(_("Unable to start HTTP server. See debug log for details."));
     }
 
     // ********************************************************* Step 5: verify wallet database integrity
@@ -1359,12 +1358,12 @@ bool AppInitMain(NodeContext& node)
     std::vector<std::string> uacomments;
     for (const std::string& cmt : gArgs.GetArgs("-uacomment")) {
         if (cmt != SanitizeString(cmt, SAFE_CHARS_UA_COMMENT))
-            return InitError(strprintf(_("User Agent comment (%s) contains unsafe characters.").translated, cmt));
+            return InitError(strprintf(_("User Agent comment (%s) contains unsafe characters."), cmt));
         uacomments.push_back(cmt);
     }
     strSubVersion = FormatSubVersion(CLIENT_NAME, CLIENT_VERSION, uacomments);
     if (strSubVersion.size() > MAX_SUBVERSION_LENGTH) {
-        return InitError(strprintf(_("Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.").translated,
+        return InitError(strprintf(_("Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments."),
             strSubVersion.size(), MAX_SUBVERSION_LENGTH));
     }
 
@@ -1373,7 +1372,7 @@ bool AppInitMain(NodeContext& node)
         for (const std::string& snet : gArgs.GetArgs("-onlynet")) {
             enum Network net = ParseNetwork(snet);
             if (net == NET_UNROUTABLE)
-                return InitError(strprintf(_("Unknown network specified in -onlynet: '%s'").translated, snet));
+                return InitError(strprintf(_("Unknown network specified in -onlynet: '%s'"), snet));
             nets.insert(net);
         }
         for (int n = 0; n < NET_MAX; n++) {
@@ -1394,12 +1393,12 @@ bool AppInitMain(NodeContext& node)
     if (proxyArg != "" && proxyArg != "0") {
         CService proxyAddr;
         if (!Lookup(proxyArg, proxyAddr, 9050, fNameLookup)) {
-            return InitError(strprintf(_("Invalid -proxy address or hostname: '%s'").translated, proxyArg));
+            return InitError(strprintf(_("Invalid -proxy address or hostname: '%s'"), proxyArg));
         }
 
         proxyType addrProxy = proxyType(proxyAddr, proxyRandomize);
         if (!addrProxy.IsValid())
-            return InitError(strprintf(_("Invalid -proxy address or hostname: '%s'").translated, proxyArg));
+            return InitError(strprintf(_("Invalid -proxy address or hostname: '%s'"), proxyArg));
 
         SetProxy(NET_IPV4, addrProxy);
         SetProxy(NET_IPV6, addrProxy);
@@ -1418,11 +1417,11 @@ bool AppInitMain(NodeContext& node)
         } else {
             CService onionProxy;
             if (!Lookup(onionArg, onionProxy, 9050, fNameLookup)) {
-                return InitError(strprintf(_("Invalid -onion address or hostname: '%s'").translated, onionArg));
+                return InitError(strprintf(_("Invalid -onion address or hostname: '%s'"), onionArg));
             }
             proxyType addrOnion = proxyType(onionProxy, proxyRandomize);
             if (!addrOnion.IsValid())
-                return InitError(strprintf(_("Invalid -onion address or hostname: '%s'").translated, onionArg));
+                return InitError(strprintf(_("Invalid -onion address or hostname: '%s'"), onionArg));
             SetProxy(NET_ONION, addrOnion);
             SetReachable(NET_ONION, true);
         }
@@ -1438,7 +1437,7 @@ bool AppInitMain(NodeContext& node)
         if (Lookup(strAddr, addrLocal, GetListenPort(), fNameLookup) && addrLocal.IsValid())
             AddLocal(addrLocal, LOCAL_MANUAL);
         else
-            return InitError(ResolveErrMsg("externalip", strAddr));
+            return InitError(Untranslated(ResolveErrMsg("externalip", strAddr)));
     }
 
     // Read asmap file if configured
@@ -1451,12 +1450,12 @@ bool AppInitMain(NodeContext& node)
             asmap_path = GetDataDir() / asmap_path;
         }
         if (!fs::exists(asmap_path)) {
-            InitError(strprintf(_("Could not find asmap file %s").translated, asmap_path));
+            InitError(strprintf(_("Could not find asmap file %s"), asmap_path));
             return false;
         }
         std::vector<bool> asmap = CAddrMan::DecodeAsmap(asmap_path);
         if (asmap.size() == 0) {
-            InitError(strprintf(_("Could not parse asmap file %s").translated, asmap_path));
+            InitError(strprintf(_("Could not parse asmap file %s"), asmap_path));
             return false;
         }
         const uint256 asmap_version = SerializeHashSHA256(asmap);
@@ -1564,7 +1563,7 @@ bool AppInitMain(NodeContext& node)
                 // (we're likely using a testnet datadir, or the other way around).
                 if (!::BlockIndex().empty() &&
                         !LookupBlockIndex(chainparams.GetConsensus().hashGenesisBlock)) {
-                    return InitError(_("Incorrect or no genesis block found. Wrong datadir for network?").translated);
+                    return InitError(_("Incorrect or no genesis block found. Wrong datadir for network?"));
                 }
 
                 // Check for changed -prune state.  What we are concerned about is a user who has pruned blocks
@@ -1724,7 +1723,7 @@ bool AppInitMain(NodeContext& node)
                     return false;
                 }
             } else {
-                return InitError(strLoadError.translated);
+                return InitError(strLoadError);
             }
         }
     }
@@ -1784,11 +1783,11 @@ bool AppInitMain(NodeContext& node)
     // ********************************************************* Step 11: import blocks
 
     if (!CheckDiskSpace(GetDataDir())) {
-        InitError(strprintf(_("Error: Disk space is low for %s").translated, GetDataDir()));
+        InitError(strprintf(_("Error: Disk space is low for %s"), GetDataDir()));
         return false;
     }
     if (!CheckDiskSpace(GetBlocksDir())) {
-        InitError(strprintf(_("Error: Disk space is low for %s").translated, GetBlocksDir()));
+        InitError(strprintf(_("Error: Disk space is low for %s"), GetBlocksDir()));
         return false;
     }
 
@@ -1873,21 +1872,21 @@ bool AppInitMain(NodeContext& node)
     for (const std::string& strBind : gArgs.GetArgs("-bind")) {
         CService addrBind;
         if (!Lookup(strBind, addrBind, GetListenPort(), false)) {
-            return InitError(ResolveErrMsg("bind", strBind));
+            return InitError(Untranslated(ResolveErrMsg("bind", strBind)));
         }
         connOptions.vBinds.push_back(addrBind);
     }
     for (const std::string& strBind : gArgs.GetArgs("-whitebind")) {
         NetWhitebindPermissions whitebind;
         std::string error;
-        if (!NetWhitebindPermissions::TryParse(strBind, whitebind, error)) return InitError(error);
+        if (!NetWhitebindPermissions::TryParse(strBind, whitebind, error)) return InitError(Untranslated(error));
         connOptions.vWhiteBinds.push_back(whitebind);
     }
 
     for (const auto& net : gArgs.GetArgs("-whitelist")) {
         NetWhitelistPermissions subnet;
         std::string error;
-        if (!NetWhitelistPermissions::TryParse(net, subnet, error)) return InitError(error);
+        if (!NetWhitelistPermissions::TryParse(net, subnet, error)) return InitError(Untranslated(error));
         connOptions.vWhitelistedRange.push_back(subnet);
     }
 
