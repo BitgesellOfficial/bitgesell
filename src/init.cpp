@@ -1520,7 +1520,10 @@ bool AppInitMain(NodeContext& node)
     bool fLoaded = false;
     while (!fLoaded && !ShutdownRequested()) {
         bool fReset = fReindex;
-        std::string strLoadError;
+        auto is_coinsview_empty = [&](CChainState* chainstate) EXCLUSIVE_LOCKS_REQUIRED(::cs_main) {
+            return fReset || fReindexChainState || chainstate->CoinsTip().GetBestBlock().IsNull();
+        };
+        bilingual_str strLoadError;
 
         uiInterface.InitMessage(_("Loading block index...").translated);
 
@@ -1553,7 +1556,7 @@ bool AppInitMain(NodeContext& node)
                 // From here on out fReindex and fReset mean something different!
                 if (!LoadBlockIndex(chainparams)) {
                     if (ShutdownRequested()) break;
-                    strLoadError = _("Error loading block database").translated;
+                    strLoadError = _("Error loading block database");
                     break;
                 }
 
@@ -1567,7 +1570,7 @@ bool AppInitMain(NodeContext& node)
                 // Check for changed -prune state.  What we are concerned about is a user who has pruned blocks
                 // in the past, but is now trying to run unpruned.
                 if (fHavePruned && !fPruneMode) {
-                    strLoadError = _("You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain").translated;
+                    strLoadError = _("You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain");
                     break;
                 }
 
@@ -1576,7 +1579,7 @@ bool AppInitMain(NodeContext& node)
                 // (otherwise we use the one already on disk).
                 // This is called again in ThreadImport after the reindex completes.
                 if (!fReindex && !LoadGenesisBlock(chainparams)) {
-                    strLoadError = _("Error initializing block database").translated;
+                    strLoadError = _("Error initializing block database");
                     break;
                 }
 
@@ -1623,18 +1626,26 @@ bool AppInitMain(NodeContext& node)
                 }
             } catch (const std::exception& e) {
                 LogPrintf("%s\n", e.what());
-                strLoadError = _("Error opening block database").translated;
+                strLoadError = _("Error opening block database");
                 break;
             }
 
-            if (!fReset) {
-                // Note that RewindBlockIndex MUST run even if we're about to -reindex-chainstate.
-                // It both disconnects blocks based on ::ChainActive(), and drops block data in
-                // BlockIndex() based on lack of available witness data.
-                uiInterface.InitMessage(_("Rewinding blocks...").translated);
-                if (!RewindBlockIndex(chainparams)) {
-                    strLoadError = _("Unable to rewind the database to a pre-fork state. You will need to redownload the blockchain").translated;
-                    break;
+            bool failed_rewind{false};
+            // Can't hold cs_main while calling RewindBlockIndex, so retrieve the relevant
+            // chainstates beforehand.
+            for (CChainState* chainstate : WITH_LOCK(::cs_main, return g_chainman.GetAll())) {
+                if (!fReset) {
+                    // Note that RewindBlockIndex MUST run even if we're about to -reindex-chainstate.
+                    // It both disconnects blocks based on the chainstate, and drops block data in
+                    // BlockIndex() based on lack of available witness data.
+                    uiInterface.InitMessage(_("Rewinding blocks...").translated);
+                    if (!chainstate->RewindBlockIndex(chainparams)) {
+                        strLoadError = _(
+                            "Unable to rewind the database to a pre-fork state. "
+                            "You will need to redownload the blockchain");
+                        failed_rewind = true;
+                        break; // out of the per-chainstate loop
+                    }
                 }
             }
 
@@ -1656,15 +1667,41 @@ bool AppInitMain(NodeContext& node)
                         break;
                     }
 
-                    if (!CVerifyDB().VerifyDB(chainparams, &::ChainstateActive().CoinsDB(), gArgs.GetArg("-checklevel", DEFAULT_CHECKLEVEL),
-                                  gArgs.GetArg("-checkblocks", DEFAULT_CHECKBLOCKS))) {
-                        strLoadError = _("Corrupted block database detected").translated;
-                        break;
+                for (CChainState* chainstate : g_chainman.GetAll()) {
+                    if (!is_coinsview_empty(chainstate)) {
+                        uiInterface.InitMessage(_("Verifying blocks...").translated);
+                        if (fHavePruned && gArgs.GetArg("-checkblocks", DEFAULT_CHECKBLOCKS) > MIN_BLOCKS_TO_KEEP) {
+                            LogPrintf("Prune: pruned datadir may not have more than %d blocks; only checking available blocks\n",
+                                MIN_BLOCKS_TO_KEEP);
+                        }
+
+                        const CBlockIndex* tip = chainstate->m_chain.Tip();
+                        RPCNotifyBlockChange(true, tip);
+                        if (tip && tip->nTime > GetAdjustedTime() + 2 * 60 * 60) {
+                            strLoadError = _("The block database contains a block which appears to be from the future. "
+                                    "This may be due to your computer's date and time being set incorrectly. "
+                                    "Only rebuild the block database if you are sure that your computer's date and time are correct");
+                            failed_verification = true;
+                            break;
+                        }
+
+                        // Only verify the DB of the active chainstate. This is fixed in later
+                        // work when we allow VerifyDB to be parameterized by chainstate.
+                        if (&::ChainstateActive() == chainstate &&
+                                !CVerifyDB().VerifyDB(
+                                chainparams, &chainstate->CoinsDB(),
+                                gArgs.GetArg("-checklevel", DEFAULT_CHECKLEVEL),
+                                gArgs.GetArg("-checkblocks", DEFAULT_CHECKBLOCKS))) {
+                            strLoadError = _("Corrupted block database detected");
+                            failed_verification = true;
+                            break;
+                        }
                     }
                 }
             } catch (const std::exception& e) {
                 LogPrintf("%s\n", e.what());
-                strLoadError = _("Error opening block database").translated;
+                strLoadError = _("Error opening block database");
+                failed_verification = true;
                 break;
             }
 
@@ -1676,8 +1713,8 @@ bool AppInitMain(NodeContext& node)
             // first suggest a reindex
             if (!fReset) {
                 bool fRet = uiInterface.ThreadSafeQuestion(
-                    strLoadError + ".\n\n" + _("Do you want to rebuild the block database now?").translated,
-                    strLoadError + ".\nPlease restart with -reindex or -reindex-chainstate to recover.",
+                    strLoadError + Untranslated(".\n\n") + _("Do you want to rebuild the block database now?"),
+                    strLoadError.original + ".\nPlease restart with -reindex or -reindex-chainstate to recover.",
                     "", CClientUIInterface::MSG_ERROR | CClientUIInterface::BTN_ABORT);
                 if (fRet) {
                     fReindex = true;
@@ -1687,7 +1724,7 @@ bool AppInitMain(NodeContext& node)
                     return false;
                 }
             } else {
-                return InitError(strLoadError);
+                return InitError(strLoadError.translated);
             }
         }
     }

@@ -36,6 +36,7 @@
 #include <interfaces/node.h>
 #include <ui_interface.h>
 #include <util/system.h>
+#include <util/translation.h>
 
 #include <QAction>
 #include <QApplication>
@@ -1376,13 +1377,20 @@ static bool ThreadSafeMessageBox(BGLGUI* gui, const std::string& message, const 
     // bool secure = (style & CClientUIInterface::SECURE);
     style &= ~CClientUIInterface::SECURE;
     bool ret = false;
+
+    QString detailed_message; // This is original message, in English, for googling and referencing.
+    if (message.original != message.translated) {
+        detailed_message = BitcoinGUI::tr("Original message:") + "\n" + QString::fromStdString(message.original);
+    }
+
     // In case of modal message, use blocking connection to wait for user to click a button
     bool invoked = QMetaObject::invokeMethod(gui, "message",
                                modal ? GUIUtil::blockingGUIThreadConnection() : Qt::QueuedConnection,
                                Q_ARG(QString, QString::fromStdString(caption)),
-                               Q_ARG(QString, QString::fromStdString(message)),
+                               Q_ARG(QString, QString::fromStdString(message.translated)),
                                Q_ARG(unsigned int, style),
-                               Q_ARG(bool*, &ret));
+                               Q_ARG(bool*, &ret),
+                               Q_ARG(QString, detailed_message));
     assert(invoked);
     return ret;
 }
