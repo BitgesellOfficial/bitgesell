@@ -185,10 +185,11 @@ class BerkeleyBatch : public DatabaseBatch
         uint32_t get_size() const;
 
 public:
-    explicit BerkeleyCursor(BerkeleyDatabase& database);
+    explicit BerkeleyCursor(BerkeleyDatabase& database, BerkeleyBatch* batch=nullptr);
     ~BerkeleyCursor() override;
 
     Status Next(DataStream& key, DataStream& value) override;
+    Dbc* dbc() const { return m_cursor; }
 };
 
 private:
@@ -196,6 +197,7 @@ private:
     bool WriteKey(DataStream&& key, DataStream&& value, bool overwrite = true) override;
     bool EraseKey(DataStream&& key) override;
     bool HasKey(DataStream&& key) override;
+    bool ErasePrefix(Span<const std::byte> prefix) override;
 
 protected:
     Db* pdb{nullptr};
@@ -222,6 +224,7 @@ public:
     bool TxnBegin() override;
     bool TxnCommit() override;
     bool TxnAbort() override;
+    DbTxn* txn() const { return activeTxn; }
 };
 
 std::string BerkeleyDatabaseVersion();
