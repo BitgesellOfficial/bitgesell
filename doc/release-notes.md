@@ -46,16 +46,15 @@ Compatibility
 ==============
 
 BGL Core is supported and extensively tested on operating systems using
-the Linux kernel, macOS 10.10+, and Windows 7 and newer. It is not recommended
+the Linux kernel, macOS 10.12+, and Windows 7 and newer. It is not recommended
 to use BGL Core on unsupported systems.
 
 BGL Core should also work on most other Unix-like systems but is not
 as frequently tested on them.
 
-From BGL Core 0.17.0 onwards, macOS versions earlier than 10.10 are no
-longer supported, as BGL Core is now built using Qt 5.9.x which requires
-macOS 10.10+. Additionally, BGL Core does not yet change appearance when
-macOS "dark mode" is activated.
+From BGL Core 0.20.0 onwards, macOS versions earlier than 10.12 are no
+longer supported. Additionally, BGL Core does not yet change appearance
+when macOS "dark mode" is activated.
 
 In addition to previously supported CPU platforms, this release's pre-compiled
 distribution provides binaries for the RISC-V platform.
