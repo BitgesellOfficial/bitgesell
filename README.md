@@ -19,8 +19,11 @@ Essentially this is a full bitcoin fork, but:
 * Halving Interval = 210000 blocks / 4;           // Halving is every year (bitcoin halving is every 4 years)
 * Block Subsidy = 50 * 4;                         // 21 000 000 coins max
 * Hashing algorithm for blocks is Keccak (sha-3).
+The `master` branch is regularly built (see doc/build-*.md for instructions) and tested, but is not guaranteed to be
+completely stable. [Tags](https://github.com/BGL/BGL/tags) are created
+regularly to indicate new official, stable release versions of BGL Core.
 
-Official thread: https://bitcointalk.org/index.php?topic=5238559.0
+Official thread: https://BGLtalk.org/index.php?topic=5238559.0
 
 License
 -------
