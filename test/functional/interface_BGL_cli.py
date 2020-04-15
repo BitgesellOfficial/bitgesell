@@ -60,12 +60,15 @@ class TestBGLCli(BGLTestFramework):
         assert_raises_process_error(1, "-getinfo takes no arguments", self.nodes[0].cli('-getinfo').help)
 
         self.log.info("Compare responses from `BGL-cli -getinfo` and the RPCs data is retrieved from.")
+        if self.is_wallet_compiled():
+            self.nodes[0].encryptwallet(password)
         cli_get_info = self.nodes[0].cli('-getinfo').send_cli()
         network_info = self.nodes[0].getnetworkinfo()
         blockchain_info = self.nodes[0].getblockchaininfo()
 
         assert_equal(cli_get_info['version'], network_info['version'])
         assert_equal(cli_get_info['blocks'], blockchain_info['blocks'])
+        assert_equal(cli_get_info['headers'], blockchain_info['headers'])
         assert_equal(cli_get_info['timeoffset'], network_info['timeoffset'])
         assert_equal(cli_get_info['connections'], network_info['connections'])
         assert_equal(cli_get_info['proxy'], network_info['networks'][0]['proxy'])
@@ -77,9 +80,10 @@ class TestBGLCli(BGLTestFramework):
             assert_equal(cli_get_info['balance'], BALANCE)
             wallet_info = self.nodes[0].getwalletinfo()
             assert_equal(cli_get_info['keypoolsize'], wallet_info['keypoolsize'])
+            assert_equal(cli_get_info['unlocked_until'], wallet_info['unlocked_until'])
             assert_equal(cli_get_info['paytxfee'], wallet_info['paytxfee'])
             assert_equal(cli_get_info['relayfee'], network_info['relayfee'])
-            # unlocked_until is not tested because the wallet is not encrypted
+            assert_equal(self.nodes[0].cli.getwalletinfo(), wallet_info)
         else:
             self.log.info("*** Wallet not compiled; -getinfo wallet tests skipped")
 
