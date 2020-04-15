@@ -255,10 +255,25 @@ public:
                 *time_max = index->GetBlockTimeMax();
             }
         }
-        if (block && !ReadBlockFromDisk(*block, index, Params().GetConsensus())) {
-            block->SetNull();
-        }
-        return true;
+        return FillBlock(nullptr, ancestor_out, lock);
+    }
+    bool findAncestorByHash(const uint256& block_hash, const uint256& ancestor_hash, const FoundBlock& ancestor_out) override
+    {
+        WAIT_LOCK(cs_main, lock);
+        const CBlockIndex* block = LookupBlockIndex(block_hash);
+        const CBlockIndex* ancestor = LookupBlockIndex(ancestor_hash);
+        if (block && ancestor && block->GetAncestor(ancestor->nHeight) != ancestor) ancestor = nullptr;
+        return FillBlock(ancestor, ancestor_out, lock);
+    }
+    bool findCommonAncestor(const uint256& block_hash1, const uint256& block_hash2, const FoundBlock& ancestor_out, const FoundBlock& block1_out, const FoundBlock& block2_out) override
+    {
+        WAIT_LOCK(cs_main, lock);
+        const CBlockIndex* block1 = LookupBlockIndex(block_hash1);
+        const CBlockIndex* block2 = LookupBlockIndex(block_hash2);
+        const CBlockIndex* ancestor = block1 && block2 ? LastCommonAncestor(block1, block2) : nullptr;
+        // Using & instead of && below to avoid short circuiting and leaving
+        // output uninitialized.
+        return FillBlock(ancestor, ancestor_out, lock) & FillBlock(block1, block1_out, lock) & FillBlock(block2, block2_out, lock);
     }
     void findCoins(std::map<COutPoint, Coin>& coins) override { return FindCoins(m_node, coins); }
     double guessVerificationProgress(const uint256& block_hash) override
