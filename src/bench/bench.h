@@ -5,11 +5,11 @@
 #ifndef BGL_BENCH_BENCH_H
 #define BGL_BENCH_BENCH_H
 
+#include <chrono>
 #include <functional>
 #include <map>
 #include <string>
 #include <vector>
-#include <chrono>
 
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/stringize.hpp>
