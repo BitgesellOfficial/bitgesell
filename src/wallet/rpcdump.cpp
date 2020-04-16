@@ -724,9 +724,8 @@ UniValue dumpprivkey(const JSONRPCRequest& request)
 
 UniValue dumpwallet(const JSONRPCRequest& request)
 {
-    std::shared_ptr<CWallet> const wallet = GetWalletForJSONRPCRequest(request);
-    const CWallet* const pwallet = wallet.get();
-    if (!EnsureWalletIsAvailable(pwallet, request.fHelp)) {
+    std::shared_ptr<CWallet> const pwallet = GetWalletForJSONRPCRequest(request);
+    if (!EnsureWalletIsAvailable(pwallet.get(), request.fHelp)) {
         return NullUniValue;
     }
 
@@ -750,12 +749,17 @@ UniValue dumpwallet(const JSONRPCRequest& request)
                 },
             }.Check(request);
 
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*wallet);
+    CWallet& wallet = *pwallet;
+    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(wallet);
+
+    // Make sure the results are valid at least up to the most recent block
+    // the user could have gotten from another RPC command prior to now
+    wallet.BlockUntilSyncedToCurrentChain();
 
     auto locked_chain = pwallet->chain().lock();
     LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
 
-    EnsureWalletIsUnlocked(pwallet);
+    EnsureWalletIsUnlocked(&wallet);
 
     fs::path filepath = request.params[0].get_str();
     filepath = fs::absolute(filepath);
@@ -794,6 +798,8 @@ UniValue dumpwallet(const JSONRPCRequest& request)
     const Optional<int> tip_height = locked_chain->getHeight();
     file << strprintf("# * Best block at time of backup was %i (%s),\n", tip_height.get_value_or(-1), tip_height ? locked_chain->getBlockHash(*tip_height).ToString() : "(missing block hash)");
     file << strprintf("#   mined on %s\n", tip_height ? FormatISO8601DateTime(locked_chain->getBlockTime(*tip_height)) : "(missing block time)");
+    int64_t block_time = 0;
+    CHECK_NONFATAL(wallet.chain().findBlock(wallet.GetLastBlockHash(), FoundBlock().time(block_time)));
     file << "\n";
 
     // add the base58check encoded extended master if the wallet uses HD
@@ -816,8 +822,8 @@ UniValue dumpwallet(const JSONRPCRequest& request)
         CKey key;
         if (spk_man.GetKey(keyid, key)) {
             file << strprintf("%s %s ", EncodeSecret(key), strTime);
-            if (GetWalletAddressesForKey(&spk_man, pwallet, keyid, strAddr, strLabel)) {
-               file << strprintf("label=%s", strLabel);
+            if (GetWalletAddressesForKey(&spk_man, &wallet, keyid, strAddr, strLabel)) {
+                file << strprintf("label=%s", strLabel);
             } else if (keyid == seed_id) {
                 file << "hdseed=1";
             } else if (mapKeyPool.count(keyid)) {
