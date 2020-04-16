@@ -104,13 +104,9 @@ public:
         pchMessageStart[3] = 0xe8;
         nDefaultPort = 8454;
         nPruneAfterHeight = 100000;
-<<<<<<< HEAD
-        m_assumed_blockchain_size = 1;
-        m_assumed_chain_state_size = 0;
-=======
         m_assumed_blockchain_size = 320;
         m_assumed_chain_state_size = 4;
->>>>>>> 222253e37... chainparams: Bump assumed valid hash
+
 
         genesis = CreateGenesisBlock(1585958400, 0x0278eefd, 0x1d22ffff, 1, 200 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
