@@ -1,5 +1,5 @@
 // Copyright (c) 2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,6 +14,7 @@
 #include <script/descriptor.h>
 #include <util/check.h>
 #include <util/message.h> // For MessageSign(), MessageVerify()
+#include <util/ref.h>
 #include <util/strencodings.h>
 #include <util/system.h>
 
@@ -363,8 +364,13 @@ static UniValue setmocktime(const JSONRPCRequest& request)
     LOCK(cs_main);
 
     RPCTypeCheck(request.params, {UniValue::VNUM});
-    SetMockTime(request.params[0].get_int64());
-
+    int64_t time = request.params[0].get_int64();
+    SetMockTime(time);
+    if (request.context.Has<NodeContext>()) {
+        for (const auto& chain_client : request.context.Get<NodeContext>().chain_clients) {
+            chain_client->setMockTime(time);
+        }
+    }
     return NullUniValue;
 }
 
@@ -391,9 +397,10 @@ static UniValue mockscheduler(const JSONRPCRequest& request)
     }
 
     // protect against null pointer dereference
-    CHECK_NONFATAL(g_rpc_node);
-    CHECK_NONFATAL(g_rpc_node->scheduler);
-    g_rpc_node->scheduler->MockForward(std::chrono::seconds(delta_seconds));
+    CHECK_NONFATAL(request.context.Has<NodeContext>());
+    NodeContext& node = request.context.Get<NodeContext>();
+    CHECK_NONFATAL(node.scheduler);
+    node.scheduler->MockForward(std::chrono::seconds(delta_seconds));
 
     return NullUniValue;
 }
