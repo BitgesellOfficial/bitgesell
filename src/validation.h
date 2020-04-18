@@ -179,11 +179,6 @@ double GuessVerificationProgress(const ChainTxData& data, const CBlockIndex* pin
 uint64_t CalculateCurrentUsage();
 
 /**
- *  Mark one block file as pruned.
- */
-void PruneOneBlockFile(const int fileNumber) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
-
-/**
  *  Actually unlink the specified files
  */
 void UnlinkPrunedFiles(const std::set<int>& setFilesToPrune);
@@ -821,7 +816,7 @@ public:
 
     CChain& ValidatedChain() const { return ValidatedChainstate().m_chain; }
     CBlockIndex* ValidatedTip() const { return ValidatedChain().Tip(); }
-
+    /**
      * block is made active. Note that it does not, however, guarantee that the
      * specific block passed to it has been checked for validity!
      *
