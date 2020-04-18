@@ -1,5 +1,5 @@
 // Copyright (c) 2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -101,7 +101,38 @@ static UniValue getnetworkhashps(const JSONRPCRequest& request)
     return GetNetworkHashPS(!request.params[0].isNull() ? request.params[0].get_int() : 120, !request.params[1].isNull() ? request.params[1].get_int() : -1);
 }
 
-static UniValue generateBlocks(const CTxMemPool& mempool, const CScript& coinbase_script, int nGenerate, uint64_t nMaxTries)
+static bool GenerateBlock(ChainstateManager& chainman, CBlock& block, uint64_t& max_tries, unsigned int& extra_nonce, uint256& block_hash)
+{
+    block_hash.SetNull();
+
+    {
+        LOCK(cs_main);
+        IncrementExtraNonce(&block, ::ChainActive().Tip(), extra_nonce);
+    }
+
+    CChainParams chainparams(Params());
+
+    while (max_tries > 0 && block.nNonce < std::numeric_limits<uint32_t>::max() && !CheckProofOfWork(block.GetHash(), block.nBits, chainparams.GetConsensus()) && !ShutdownRequested()) {
+        ++block.nNonce;
+        --max_tries;
+    }
+    if (max_tries == 0 || ShutdownRequested()) {
+        return false;
+    }
+    if (block.nNonce == std::numeric_limits<uint32_t>::max()) {
+        return true;
+    }
+
+    std::shared_ptr<const CBlock> shared_pblock = std::make_shared<const CBlock>(block);
+    if (!chainman.ProcessNewBlock(chainparams, shared_pblock, true, nullptr)) {
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "ProcessNewBlock, block not accepted");
+    }
+
+    block_hash = block.GetHash();
+    return true;
+}
+
+static UniValue generateBlocks(ChainstateManager& chainman, const CTxMemPool& mempool, const CScript& coinbase_script, int nGenerate, uint64_t nMaxTries)
 {
     int nHeightEnd = 0;
     int nHeight = 0;
@@ -119,9 +150,15 @@ static UniValue generateBlocks(const CTxMemPool& mempool, const CScript& coinbas
         if (!pblocktemplate.get())
             throw JSONRPCError(RPC_INTERNAL_ERROR, "Couldn't create new block");
         CBlock *pblock = &pblocktemplate->block;
-        {
-            LOCK(cs_main);
-            IncrementExtraNonce(pblock, ::ChainActive().Tip(), nExtraNonce);
+
+        uint256 block_hash;
+        if (!GenerateBlock(chainman, *pblock, nMaxTries, nExtraNonce, block_hash)) {
+            break;
+        }
+
+        if (!block_hash.IsNull()) {
+            ++nHeight;
+            blockHashes.push_back(block_hash.GetHex());
         }
         while (nMaxTries > 0 && pblock->nNonce < std::numeric_limits<uint32_t>::max() && !CheckProofOfWork(pblock->GetHash(), pblock->nBits, Params().GetConsensus()) && !ShutdownRequested()) {
             ++pblock->nNonce;
@@ -183,10 +220,9 @@ static UniValue generatetodescriptor(const JSONRPCRequest& request)
     }
 
     const CTxMemPool& mempool = EnsureMemPool(request.context);
+    ChainstateManager& chainman = EnsureChainman(request.context);
 
-    CHECK_NONFATAL(coinbase_script.size() == 1);
-
-    return generateBlocks(mempool, coinbase_script.at(0), num_blocks, max_tries);
+    return generateBlocks(chainman, mempool, coinbase_script, num_blocks, max_tries);
 }
 
 static UniValue generatetoaddress(const JSONRPCRequest& request)
@@ -223,10 +259,11 @@ static UniValue generatetoaddress(const JSONRPCRequest& request)
     }
 
     const CTxMemPool& mempool = EnsureMemPool(request.context);
+    ChainstateManager& chainman = EnsureChainman(request.context);
 
     CScript coinbase_script = GetScriptForDestination(destination);
 
-    return generateBlocks(mempool, coinbase_script, nGenerate, nMaxTries);
+    return generateBlocks(chainman, mempool, coinbase_script, nGenerate, nMaxTries);
 }
 
 static UniValue generateblock(const JSONRPCRequest& request)
@@ -327,7 +364,7 @@ static UniValue generateblock(const JSONRPCRequest& request)
     uint64_t max_tries{1000000};
     unsigned int extra_nonce{0};
 
-    if (!GenerateBlock(block, max_tries, extra_nonce, block_hash) || block_hash.IsNull()) {
+    if (!GenerateBlock(EnsureChainman(request.context), block, max_tries, extra_nonce, block_hash) || block_hash.IsNull()) {
         throw JSONRPCError(RPC_MISC_ERROR, "Failed to make block.");
     }
 
@@ -902,7 +939,7 @@ static UniValue submitblock(const JSONRPCRequest& request)
     bool new_block;
     auto sc = std::make_shared<submitblock_StateCatcher>(block.GetHash());
     RegisterSharedValidationInterface(sc);
-    bool accepted = ProcessNewBlock(Params(), blockptr, /* fForceProcessing */ true, /* fNewBlock */ &new_block);
+    bool accepted = EnsureChainman(request.context).ProcessNewBlock(Params(), blockptr, /* fForceProcessing */ true, /* fNewBlock */ &new_block);
     UnregisterSharedValidationInterface(sc);
     if (!new_block && accepted) {
         return "duplicate";
@@ -941,7 +978,7 @@ static UniValue submitheader(const JSONRPCRequest& request)
     }
 
     BlockValidationState state;
-    ProcessNewBlockHeaders({h}, state, Params());
+    EnsureChainman(request.context).ProcessNewBlockHeaders({h}, state, Params());
     if (state.IsValid()) return NullUniValue;
     if (state.IsError()) {
         throw JSONRPCError(RPC_VERIFY_ERROR, state.ToString());
