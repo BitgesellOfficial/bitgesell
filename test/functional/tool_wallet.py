@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2018-2020 The Bitcoin Core developers
+# Copyright (c) 2018-2020 The BGL Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test BGL-wallet."""
@@ -48,7 +48,7 @@ class ToolWalletTest(BGLTestFramework):
         h = hashlib.sha1()
         mv = memoryview(bytearray(BUFFER_SIZE))
         with open(self.wallet_path, 'rb', buffering=0) as f:
-            for n in iter(lambda : f.readinto(mv), 0):
+            for n in iter(lambda: f.readinto(mv), 0):
                 h.update(mv[:n])
         return h.hexdigest()
 
@@ -69,7 +69,12 @@ class ToolWalletTest(BGLTestFramework):
         self.assert_raises_tool_error('Invalid command: help', 'help')
         self.assert_raises_tool_error('Error: two methods provided (info and create). Only one method should be provided.', 'info', 'create')
         self.assert_raises_tool_error('Error parsing command line arguments: Invalid parameter -foo', '-foo')
-        self.assert_raises_tool_error('Error loading wallet.dat. Is wallet being used by other process?', '-wallet=wallet.dat', 'info')
+        self.assert_raises_tool_error(
+            'Error initializing wallet database environment "{}"!\nError loading wallet.dat. Is wallet being used by other process?'
+            .format(os.path.join(self.nodes[0].datadir, self.chain, 'wallets')),
+            '-wallet=wallet.dat',
+            'info',
+        )
         self.assert_raises_tool_error('Error: no wallet file at nonexistent.dat', '-wallet=nonexistent.dat', 'info')
 
     def test_tool_wallet_info(self):
@@ -84,7 +89,7 @@ class ToolWalletTest(BGLTestFramework):
         #
         # self.log.debug('Setting wallet file permissions to 400 (read-only)')
         # os.chmod(self.wallet_path, stat.S_IRUSR)
-        # assert(self.wallet_permissions() in ['400', '666']) # Sanity check. 666 because Appveyor.
+        # assert self.wallet_permissions() in ['400', '666'] # Sanity check. 666 because Appveyor.
         # shasum_before = self.wallet_shasum()
         timestamp_before = self.wallet_timestamp()
         self.log.debug('Wallet file timestamp before calling info: {}'.format(timestamp_before))
@@ -103,7 +108,7 @@ class ToolWalletTest(BGLTestFramework):
         self.log_wallet_timestamp_comparison(timestamp_before, timestamp_after)
         self.log.debug('Setting wallet file permissions back to 600 (read/write)')
         os.chmod(self.wallet_path, stat.S_IRUSR | stat.S_IWUSR)
-        assert(self.wallet_permissions() in ['600', '666']) # Sanity check. 666 because Appveyor.
+        assert self.wallet_permissions() in ['600', '666']  # Sanity check. 666 because Appveyor.
         #
         # TODO: Wallet tool info should not write to the wallet file.
         # The following lines should be uncommented and the tests still succeed:
