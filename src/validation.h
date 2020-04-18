@@ -42,6 +42,7 @@ class CConnman;
 class CScriptCheck;
 class CBlockPolicyEstimator;
 class CTxMemPool;
+class ChainstateManager;
 class TxValidationState;
 struct ChainTxData;
 
