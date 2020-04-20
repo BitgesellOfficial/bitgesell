@@ -238,7 +238,7 @@ class TestNode():
             except OSError as e:
                 if e.errno != errno.ECONNREFUSED:  # Port not yet open?
                     raise  # unknown OS error
-            except ValueError as e:  # cookie file not found and no rpcuser or rpcpassword; bitcoind is still starting
+            except ValueError as e:  # cookie file not found and no rpcuser or rpcpassword; BGLd is still starting
                 if "No RPC credentials" not in str(e):
                     raise
             time.sleep(1.0 / poll_per_s)
@@ -254,7 +254,7 @@ class TestNode():
                 get_auth_cookie(self.datadir, self.chain)
                 self.log.debug("Cookie credentials successfully retrieved")
                 return
-            except ValueError:  # cookie file not found and no rpcuser or rpcpassword; bitcoind is still starting
+            except ValueError:  # cookie file not found and no rpcuser or rpcpassword; BGLd is still starting
                 pass            # so we continue polling until RPC credentials are retrieved
             time.sleep(1.0 / poll_per_s)
         self._raise_assertion_error("Unable to retrieve cookie credentials after {}s".format(self.rpc_timeout))
@@ -581,7 +581,7 @@ class TestNodeCLI():
         if command is not None:
             p_args += [command]
         p_args += pos_args + named_args
-        self.log.debug("Running BGL-cli command: %s" % command)
+        self.log.debug("Running BGL-cli {}".format(p_args[2:]))
         process = subprocess.Popen(p_args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         cli_stdout, cli_stderr = process.communicate(input=self.input)
         returncode = process.poll()

@@ -62,7 +62,7 @@ class TestBGLCli(BGLTestFramework):
         self.log.info("Compare responses from `BGL-cli -getinfo` and the RPCs data is retrieved from.")
         if self.is_wallet_compiled():
             self.nodes[0].encryptwallet(password)
-        cli_get_info = self.nodes[0].cli().send_cli('-getinfo')
+        cli_get_info = self.nodes[0].cli('-getinfo').send_cli()
         network_info = self.nodes[0].getnetworkinfo()
         blockchain_info = self.nodes[0].getblockchaininfo()
 
@@ -89,7 +89,7 @@ class TestBGLCli(BGLTestFramework):
 
         self.log.info("Test -version with node stopped")
         self.stop_node(0)
-        cli_response = self.nodes[0].cli().send_cli('-version')
+        cli_response = self.nodes[0].cli('-version').send_cli()
         assert "{} RPC client version".format(self.config['environment']['PACKAGE_NAME']) in cli_response
 
         self.log.info("Test -rpcwait option successfully waits for RPC connection")
