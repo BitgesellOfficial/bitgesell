@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2018-2020 The Bitcoin Core developers
+# Copyright (c) 2018-2020 The BGL Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -17,11 +17,11 @@ else
 fi
 END_FOLD
 
-DOCKER_EXEC mkdir -p build
-export P_CI_DIR="$P_CI_DIR/build"
+DOCKER_EXEC mkdir -p "${BASE_BUILD_DIR}"
+export P_CI_DIR="${BASE_BUILD_DIR}"
 
 BEGIN_FOLD configure
-DOCKER_EXEC ../configure --cache-file=config.cache $BGL_CONFIG_ALL $BGL_CONFIG || ( (DOCKER_EXEC cat config.log) && false)
+DOCKER_EXEC "${BASE_ROOT_DIR}/configure" --cache-file=config.cache $BGL_CONFIG_ALL $BGL_CONFIG || ( (DOCKER_EXEC cat config.log) && false)
 END_FOLD
 
 BEGIN_FOLD distdir
@@ -30,7 +30,7 @@ mkdir -p "BGL-$HOST"
 DOCKER_EXEC make distdir VERSION=$HOST
 END_FOLD
 
-export P_CI_DIR="$P_CI_DIR/BGL-$HOST"
+export P_CI_DIR="${BASE_BUILD_DIR}/BGL-$HOST"
 
 BEGIN_FOLD configure
 DOCKER_EXEC ./configure --cache-file=../config.cache $BGL_CONFIG_ALL $BGL_CONFIG || ( (DOCKER_EXEC cat config.log) && false)
