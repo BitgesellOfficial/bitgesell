@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -145,6 +145,8 @@ public:
     interfaces::Node& node() const { return m_node; }
     interfaces::Wallet& wallet() const { return *m_wallet; }
     ClientModel& clientModel() const { return m_client_model; }
+    void setClientModel(ClientModel* client_model);
+    int getNumBlocks() const { return cachedNumBlocks; }
 
     QString getWalletName() const;
     QString getDisplayName() const;
@@ -163,7 +165,7 @@ private:
     std::unique_ptr<interfaces::Handler> m_handler_show_progress;
     std::unique_ptr<interfaces::Handler> m_handler_watch_only_changed;
     std::unique_ptr<interfaces::Handler> m_handler_can_get_addrs_changed;
-    ClientModel& m_client_model;
+    ClientModel* m_client_model;
     interfaces::Node& m_node;
 
     bool fHaveWatchOnly;
@@ -181,6 +183,7 @@ private:
     interfaces::WalletBalances m_cached_balances;
     EncryptionStatus cachedEncryptionStatus;
     int cachedNumBlocks;
+    QTimer* timer;
 
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
