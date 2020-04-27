@@ -684,7 +684,7 @@ class WalletTest(BGLTestFramework):
                                  "category": baz["category"],
                                  "vout":     baz["vout"]}
         expected_fields = frozenset({'amount', 'bip125-replaceable', 'confirmations', 'details', 'fee',
-                                     'hex', 'time', 'timereceived', 'trusted', 'txid', 'wtxid', 'walletconflicts'})
+                                     'hex', 'lastprocessedblock', 'time', 'timereceived', 'trusted', 'txid', 'wtxid', 'walletconflicts'})
         verbose_field = "decoded"
         expected_verbose_fields = expected_fields | {verbose_field}
 
