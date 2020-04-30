@@ -2764,6 +2764,7 @@ CNode::CNode(NodeId idIn, ServiceFlags nLocalServicesIn, int nMyStartingHeightIn
     m_addr_known{block_relay_only ? nullptr : MakeUnique<CRollingBloomFilter>(5000, 0.001)},
     id(idIn),
     nLocalHostNonce(nLocalHostNonceIn),
+    m_conn_type(conn_type_in),
     nLocalServices(nLocalServicesIn),
     nMyStartingHeight(nMyStartingHeightIn)
 {
