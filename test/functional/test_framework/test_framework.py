@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2019 The Bitcoin Core developers
+# Copyright (c) 2014-2019 The BGL Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Base class for RPC testing."""
 
 import configparser
 from enum import Enum
-import logging
 import argparse
+import logging
 import os
 import pdb
 import random
+import re
 import shutil
 import subprocess
 import sys
@@ -185,10 +186,11 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         self.options.BGLd = os.getenv("BGLD", default=config["environment"]["BUILDDIR"] + '/src/BGLd' + config["environment"]["EXEEXT"])
         self.options.BGLcli = os.getenv("BGLCLI", default=config["environment"]["BUILDDIR"] + '/src/BGL-cli' + config["environment"]["EXEEXT"])
 
+        self.options.previous_releases_path = os.getenv("PREVIOUS_RELEASES_DIR") or os.getcwd() + "/releases"
+
         os.environ['PATH'] = os.pathsep.join([
             os.path.join(config['environment']['BUILDDIR'], 'src'),
-            os.path.join(config['environment']['BUILDDIR'], 'src', 'qt'),
-            os.environ['PATH']
+            os.path.join(config['environment']['BUILDDIR'], 'src', 'qt'), os.environ['PATH']
         ])
 
         # Set up temp directory and start logging
@@ -388,6 +390,25 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
 
         Should only be called once after the nodes have been specified in
         set_test_params()."""
+        def get_bin_from_version(version, bin_name, bin_default):
+            if not version:
+                return bin_default
+            return os.path.join(
+                self.options.previous_releases_path,
+                re.sub(
+                    r'\.0$',
+                    '',  # remove trailing .0 for point releases
+                    'v{}.{}.{}.{}'.format(
+                        (version % 100000000) // 1000000,
+                        (version % 1000000) // 10000,
+                        (version % 10000) // 100,
+                        (version % 100) // 1,
+                    ),
+                ),
+                'bin',
+                bin_name,
+            )
+
         if self.bind_to_localhost_only:
             extra_confs = [["bind=127.0.0.1"]] * num_nodes
         else:
@@ -397,9 +418,9 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         if versions is None:
             versions = [None] * num_nodes
         if binary is None:
-            binary = [self.options.BGLd] * num_nodes
+            binary = [get_bin_from_version(v, 'BGLd', self.options.BGLd) for v in versions]
         if binary_cli is None:
-            binary_cli = [self.options.BGLcli] * num_nodes
+            binary_cli = [get_bin_from_version(v, 'BGL-cli', self.options.BGLcli) for v in versions]
         assert_equal(len(extra_confs), num_nodes)
         assert_equal(len(extra_args), num_nodes)
         assert_equal(len(versions), num_nodes)
@@ -639,6 +660,25 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         """Skip the running test if BGL-cli has not been compiled."""
         if not self.is_cli_compiled():
             raise SkipTest("BGL-cli has not been compiled.")
+
+    def skip_if_no_previous_releases(self):
+        """Skip the running test if previous releases are not available."""
+        if not self.has_previous_releases():
+            raise SkipTest("previous releases not available or disabled")
+
+    def has_previous_releases(self):
+        """Checks whether previous releases are present and enabled."""
+        if os.getenv("TEST_PREVIOUS_RELEASES") == "false":
+            # disabled
+            return False
+
+        if not os.path.isdir(self.options.previous_releases_path):
+            if os.getenv("TEST_PREVIOUS_RELEASES") == "true":
+                raise AssertionError("TEST_PREVIOUS_RELEASES=true but releases missing: {}".format(
+                    self.options.previous_releases_path))
+            # missing
+            return False
+        return True
 
     def is_cli_compiled(self):
         """Checks whether BGL-cli was compiled."""
