@@ -128,6 +128,7 @@ class TestNode():
         self.perf_subprocesses = {}
 
         self.p2ps = []
+        self.factor = factor
 
     AddressKeyPair = collections.namedtuple('AddressKeyPair', ['address', 'key'])
     PRIV_KEYS = [
@@ -323,14 +324,14 @@ class TestNode():
         self.log.debug("Node stopped")
         return True
 
-    def wait_until_stopped(self, timeout=BGLD_PROC_WAIT_TIMEOUT):
-        wait_until(self.is_node_stopped, timeout=timeout)
+    def wait_until_stopped(self, timeout=BITCOIND_PROC_WAIT_TIMEOUT):
+        wait_until(self.is_node_stopped, timeout=timeout, factor=self.factor)
 
     @contextlib.contextmanager
     def assert_debug_log(self, expected_msgs, unexpected_msgs=None, timeout=2):
         if unexpected_msgs is None:
             unexpected_msgs = []
-        time_end = time.time() + timeout
+        time_end = time.time() + timeout * self.factor
         debug_log = os.path.join(self.datadir, self.chain, 'debug.log')
         with open(debug_log, encoding='utf-8') as dl:
             dl.seek(0, 2)
@@ -487,7 +488,7 @@ class TestNode():
         if 'dstaddr' not in kwargs:
             kwargs['dstaddr'] = '127.0.0.1'
 
-        p2p_conn.peer_connect(**kwargs, net=self.chain)()
+        p2p_conn.peer_connect(**kwargs, net=self.chain, factor=self.factor)()
         self.p2ps.append(p2p_conn)
         if wait_for_verack:
             # Wait for the node to send us the version and verack
