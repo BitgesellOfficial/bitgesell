@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2018-2020 The Bitcoin Core developers
+# Copyright (c) 2018-2020 The BGL Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the Partially Signed Transaction RPCs.
@@ -44,10 +44,8 @@ class PSBTTest(BGLTestFramework):
         online_node = self.nodes[1]
 
         # Disconnect offline node from others
+        # Topology of test network is linear, so this one call is enough
         disconnect_nodes(offline_node, 1)
-        disconnect_nodes(online_node, 0)
-        disconnect_nodes(offline_node, 2)
-        disconnect_nodes(mining_node, 0)
 
         # Create watchonly on online_node
         online_node.createwallet(wallet_name='wonline', disable_private_keys=True)
