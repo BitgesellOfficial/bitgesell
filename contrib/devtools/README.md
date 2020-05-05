@@ -90,11 +90,11 @@ BUILDDIR=$PWD/build contrib/devtools/gen-manpages.sh
 ```
 
 optimize-pngs.py
-================
 
 A script to optimize png files in the BGL
 repository (requires pngcrush).
 
+=======
 security-check.py and test-security-check.py
 ============================================
 
