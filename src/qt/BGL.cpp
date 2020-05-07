@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -379,7 +379,8 @@ void BGLApplication::shutdownResult()
 
 void BGLApplication::handleRunawayException(const QString &message)
 {
-    QMessageBox::critical(nullptr, "Runaway exception", BGLGUI::tr("A fatal error occurred. BGL can no longer continue safely and will quit.") + QString("\n\n") + message);
+
+    QMessageBox::critical(nullptr, "Runaway exception", BGLGUI::tr("A fatal error occurred. %1 can no longer continue safely and will quit.").arg(PACKAGE_NAME) + QString("<br><br>") + message);
     ::exit(EXIT_FAILURE);
 }
 
