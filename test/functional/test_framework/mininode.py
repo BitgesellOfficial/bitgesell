@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2010 ArtForz -- public domain half-a-node
 # Copyright (c) 2012 Jeff Garzik
-# Copyright (c) 2010-2020 The Bitcoin Core developers
+# Copyright (c) 2010-2020 The BGL Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """BGL P2P network half-a-node.
@@ -634,3 +634,30 @@ class P2PDataStore(P2PInterface):
                 # Check that none of the txs are now in the mempool
                 for tx in txs:
                     assert tx.hash not in raw_mempool, "{} tx found in mempool".format(tx.hash)
+
+class P2PTxInvStore(P2PInterface):
+    """A P2PInterface which stores a count of how many times each txid has been announced."""
+    def __init__(self):
+        super().__init__()
+        self.tx_invs_received = defaultdict(int)
+
+    def on_inv(self, message):
+        super().on_inv(message) # Send getdata in response.
+        # Store how many times invs have been received for each tx.
+        for i in message.inv:
+            if i.type == MSG_TX:
+                # save txid
+                self.tx_invs_received[i.hash] += 1
+
+    def get_invs(self):
+        with mininode_lock:
+            return list(self.tx_invs_received.keys())
+
+    def wait_for_broadcast(self, txns, timeout=60):
+        """Waits for the txns (list of txids) to complete initial broadcast.
+        The mempool should mark unbroadcast=False for these transactions.
+        """
+        # Wait until invs have been received (and getdatas sent) for each txid.
+        self.wait_until(lambda: set(self.get_invs()) == set([int(tx, 16) for tx in txns]), timeout)
+        # Flush messages and wait for the getdatas to be processed
+        self.sync_with_ping()
