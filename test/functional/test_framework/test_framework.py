@@ -185,8 +185,18 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         config = configparser.ConfigParser()
         config.read_file(open(self.options.configfile))
         self.config = config
-        self.options.BGLd = os.getenv("BGLD", default=config["environment"]["BUILDDIR"] + '/src/BGLd' + config["environment"]["EXEEXT"])
-        self.options.BGLcli = os.getenv("BGLCLI", default=config["environment"]["BUILDDIR"] + '/src/BGL-cli' + config["environment"]["EXEEXT"])
+        fname_BGLd = os.path.join(
+            config["environment"]["BUILDDIR"],
+            "src",
+            "BGLd" + config["environment"]["EXEEXT"]
+        )
+        fname_BGLcli = os.path.join(
+            config["environment"]["BUILDDIR"],
+            "src",
+            "BGL-cli" + config["environment"]["EXEEXT"]
+        )
+        self.options.BGLd = os.getenv("BGLD", default=fname_BGLd)
+        self.options.BGLcli = os.getenv("BGLCLI", default=fname_BGLcli)
 
         self.options.previous_releases_path = os.getenv("PREVIOUS_RELEASES_DIR") or os.getcwd() + "/releases"
 
