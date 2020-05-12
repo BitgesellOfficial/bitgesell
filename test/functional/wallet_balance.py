@@ -290,6 +290,10 @@ class WalletTest(BGLTestFramework):
             assert_equal(self.nodes[0].getbalances()['mine']['untrusted_pending'], Decimal('0.1'))
             assert_equal(self.nodes[0].getbalances()['watchonly']['untrusted_pending'], 0)
             self.nodes[0].unloadwallet('w1')
+            # check importprivkey on fresh wallet
+            self.nodes[0].createwallet('w2', False, True)
+            self.nodes[0].importprivkey(privkey)
+            assert_equal(self.nodes[0].getbalances()['mine']['untrusted_pending'], Decimal('0.1'))
 
 
 if __name__ == '__main__':
