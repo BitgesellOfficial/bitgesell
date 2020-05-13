@@ -97,9 +97,8 @@ void BerkeleyEnvironment::Close()
     fDbEnvInit = false;
 
     for (auto& db : m_databases) {
-        auto count = mapFileUseCount.find(db.first);
-        assert(count == mapFileUseCount.end() || count->second == 0);
         BerkeleyDatabase& database = db.second.get();
+        assert(database.m_refcount <= 0);
         if (database.m_db) {
             database.m_db->close(0);
             database.m_db.reset();
@@ -295,7 +294,11 @@ bool BerkeleyDatabase::Verify(bilingual_str& errorStr)
 
     if (fs::exists(file_path))
     {
-        if (!env->Verify(strFile)) {
+        assert(m_refcount == 0);
+
+        Db db(env->dbenv.get(), 0);
+        int result = db.verify(strFile.c_str(), nullptr, nullptr, 0);
+        if (result != 0) {
             errorStr = strprintf(_("%s corrupt. Try using the wallet tool BGL-wallet to salvage or restoring a backup."), file_path);
             return false;
         }
@@ -453,8 +456,8 @@ void BerkeleyEnvironment::ReloadDbEnv()
     AssertLockNotHeld(cs_db);
     std::unique_lock<RecursiveMutex> lock(cs_db);
     m_db_in_use.wait(lock, [this](){
-        for (auto& count : mapFileUseCount) {
-            if (count.second > 0) return false;
+        for (auto& db : m_databases) {
+            if (db.second.get().m_refcount > 0) return false;
         }
         return true;
     });
@@ -482,11 +485,11 @@ bool BerkeleyDatabase::Rewrite(const char* pszSkip)
     while (true) {
         {
             LOCK(cs_db);
-            if (!env->mapFileUseCount.count(strFile) || env->mapFileUseCount[strFile] == 0) {
+            if (m_refcount <= 0) {
                 // Flush log data to the dat file
                 env->CloseDb(strFile);
                 env->CheckpointLSN(strFile);
-                env->mapFileUseCount.erase(strFile);
+                m_refcount = -1;
 
                 bool fSuccess = true;
                 LogPrintf("BerkeleyBatch::Rewrite: Rewriting %s...\n", strFile);
@@ -570,10 +573,11 @@ void BerkeleyEnvironment::Flush(bool fShutdown)
         return;
     {
         LOCK(cs_db);
-        std::map<std::string, int>::iterator mi = mapFileUseCount.begin();
-        while (mi != mapFileUseCount.end()) {
-            std::string strFile = (*mi).first;
-            int nRefCount = (*mi).second;
+        bool no_dbs_accessed = true;
+        for (auto& db_it : m_databases) {
+            std::string strFile = db_it.first;
+            int nRefCount = db_it.second.get().m_refcount;
+            if (nRefCount < 0) continue;
             LogPrint(BCLog::WALLETDB, "BerkeleyEnvironment::Flush: Flushing %s (refcount = %d)...\n", strFile, nRefCount);
             if (nRefCount == 0) {
                 // Move log data to the dat file
@@ -584,14 +588,15 @@ void BerkeleyEnvironment::Flush(bool fShutdown)
                 if (!fMockDb)
                     dbenv->lsn_reset(strFile.c_str(), 0);
                 LogPrint(BCLog::WALLETDB, "BerkeleyEnvironment::Flush: %s closed\n", strFile);
-                mapFileUseCount.erase(mi++);
-            } else
-                mi++;
+                nRefCount = -1;
+            } else {
+                no_dbs_accessed = false;
+            }
         }
         LogPrint(BCLog::WALLETDB, "BerkeleyEnvironment::Flush: Flush(%s)%s took %15dms\n", fShutdown ? "true" : "false", fDbEnvInit ? "" : " database not started", GetTimeMillis() - nStart);
         if (fShutdown) {
             char** listp;
-            if (mapFileUseCount.empty()) {
+            if (no_dbs_accessed) {
                 dbenv->log_archive(&listp, DB_ARCH_REMOVE);
                 Close();
                 if (!fMockDb) {
@@ -612,13 +617,12 @@ bool BerkeleyDatabase::PeriodicFlush()
     if (!lockDb) return false;
 
     // Don't flush if any databases are in use
-    for (const auto& use_count : env->mapFileUseCount) {
-        if (use_count.second > 0) return false;
+    for (auto& it : env->m_databases) {
+        if (it.second.get().m_refcount > 0) return false;
     }
 
     // Don't flush if there haven't been any batch writes for this database.
-    auto it = env->mapFileUseCount.find(strFile);
-    if (it == env->mapFileUseCount.end()) return false;
+    if (m_refcount < 0) return false;
 
     LogPrint(BCLog::WALLETDB, "Flushing %s\n", strFile);
     int64_t nStart = GetTimeMillis();
@@ -626,7 +630,7 @@ bool BerkeleyDatabase::PeriodicFlush()
     // Flush wallet file so it's self contained
     env->CloseDb(strFile);
     env->CheckpointLSN(strFile);
-    env->mapFileUseCount.erase(it);
+    m_refcount = -1;
 
     LogPrint(BCLog::WALLETDB, "Flushed %s %dms\n", strFile, GetTimeMillis() - nStart);
 
@@ -642,12 +646,11 @@ bool BerkeleyDatabase::Backup(const std::string& strDest) const
     {
         {
             LOCK(cs_db);
-            if (!env->mapFileUseCount.count(strFile) || env->mapFileUseCount[strFile] == 0)
+            if (m_refcount <= 0)
             {
                 // Flush log data to the dat file
                 env->CloseDb(strFile);
                 env->CheckpointLSN(strFile);
-                env->mapFileUseCount.erase(strFile);
 
                 // Copy wallet file
                 fs::path pathSrc = env->Directory() / strFile;
@@ -829,15 +832,17 @@ bool BerkeleyBatch::HasKey(CDataStream&& key)
 void BerkeleyDatabase::AddRef()
 {
     LOCK(cs_db);
-    ++env->mapFileUseCount[strFile];
+    if (m_refcount < 0) {
+        m_refcount = 1;
+    } else {
+        m_refcount++;
+    }
 }
 
 void BerkeleyDatabase::RemoveRef()
 {
-    {
-        LOCK(cs_db);
-        --env->mapFileUseCount[strFile];
-    }
+    LOCK(cs_db);
+    m_refcount--;
     env->m_db_in_use.notify_all();
 }
 
