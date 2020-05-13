@@ -1,4 +1,4 @@
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -172,12 +172,10 @@ class CService : public CNetAddr
         CService(const struct in6_addr& ipv6Addr, uint16_t port);
         explicit CService(const struct sockaddr_in6& addr);
 
-        ADD_SERIALIZE_METHODS;
-
-        template <typename Stream, typename Operation>
-        inline void SerializationOp(Stream& s, Operation ser_action) {
-            READWRITE(ip);
-            READWRITE(WrapBigEndian(port));
+        SERIALIZE_METHODS(CService, obj)
+        {
+            READWRITEAS(CNetAddr, obj);
+            READWRITE(Using<BigEndianFormatter<2>>(obj.port));
         }
 };
 
