@@ -138,7 +138,7 @@ class NotificationsTest(BGLTestFramework):
             assert_equal(tx2 in self.nodes[1].getrawmempool(), True)
             connect_nodes(self.nodes[0], 1)
             self.sync_blocks()
-            self.expect_wallet_notify([bump2])
+            self.expect_wallet_notify([bump2, tx2])
             assert_equal(self.nodes[1].gettransaction(bump2)["confirmations"], 1)
 
         # TODO: add test for `-alertnotify` large fork notifications
