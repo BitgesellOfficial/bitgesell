@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -412,7 +412,7 @@ bool BerkeleyBatch::VerifyDatabaseFile(const fs::path& file_path, bilingual_str&
     if (fs::exists(walletDir / walletFile))
     {
         if (!env->Verify(walletFile)) {
-            errorStr = strprintf(_("%s corrupt. Try using the wallet tool bitcoin-wallet to salvage or restoring a backup."), walletFile);
+            errorStr = strprintf(_("%s corrupt. Try using the wallet tool BGL-wallet to salvage or restoring a backup."), walletFile);
             return false;
         }
     }
