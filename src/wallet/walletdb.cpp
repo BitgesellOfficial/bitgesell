@@ -975,6 +975,28 @@ bool WalletBatch::Recover(const fs::path& wallet_path, std::string& out_backup_f
     return WalletBatch::Recover(wallet_path, nullptr, nullptr, out_backup_filename);
 }
 
+bool RecoverKeysOnlyFilter(void *callbackData, CDataStream ssKey, CDataStream ssValue)
+{
+    CWallet *dummyWallet = reinterpret_cast<CWallet*>(callbackData);
+    std::string strType, strErr;
+    bool fReadOK;
+    {
+        // Required in LoadKeyMetadata():
+        LOCK(dummyWallet->cs_wallet);
+        fReadOK = ReadKeyValue(dummyWallet, ssKey, ssValue, strType, strErr);
+    }
+    if (!WalletBatch::IsKeyType(strType) && strType != DBKeys::HDCHAIN) {
+        return false;
+    }
+    if (!fReadOK)
+    {
+        LogPrintf("WARNING: WalletBatch::Recover skipping %s: %s\n", strType, strErr);
+        return false;
+    }
+
+    return true;
+}
+
 bool WalletBatch::VerifyEnvironment(const fs::path& wallet_path, bilingual_str& errorStr)
 {
     return BerkeleyBatch::VerifyEnvironment(wallet_path, errorStr);

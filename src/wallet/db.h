@@ -235,7 +235,6 @@ public:
 
     void Flush();
     void Close();
-    static bool Recover(const fs::path& file_path, void *callbackDataIn, bool (*recoverKVcallback)(void* callbackData, CDataStream ssKey, CDataStream ssValue), std::string& out_backup_filename);
 
     /* flush the wallet passively (TRY_LOCK)
        ideal to be called periodically */
@@ -398,6 +397,8 @@ public:
 
     bool static Rewrite(BerkeleyDatabase& database, const char* pszSkip = nullptr);
 };
+
+bool RecoverDatabaseFile(const fs::path& file_path, void *callbackDataIn, bool (*recoverKVcallback)(void* callbackData, CDataStream ssKey, CDataStream ssValue), std::string& out_backup_filename);
 
 std::string BerkeleyDatabaseVersion();
 
