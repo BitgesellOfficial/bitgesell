@@ -161,6 +161,7 @@ static void push_lock(MutexType* c, const CLockLocation& locklocation)
         const LockPair p1 = std::make_pair(i.first, c);
         if (lockdata.lockorders.count(p1))
             continue;
+        lockdata.lockorders.emplace(p1, lock_stack);
 
         const LockPair p2 = std::make_pair(c, i.first);
         if (lockdata.lockorders.count(p2)) {
@@ -198,15 +199,17 @@ template void EnterCritical(const char*, const char*, int, std::recursive_mutex*
 
 void CheckLastCritical(void* cs, std::string& lockname, const char* guardname, const char* file, int line)
 {
-    LockData& lockdata = GetLockData();
-    std::lock_guard<std::mutex> lock(lockdata.dd_mutex);
+    {
+        LockData& lockdata = GetLockData();
+        std::lock_guard<std::mutex> lock(lockdata.dd_mutex);
 
-    const LockStack& lock_stack = lockdata.m_lock_stacks[std::this_thread::get_id()];
-    if (!lock_stack.empty()) {
-        const auto& lastlock = lock_stack.back();
-        if (lastlock.first == cs) {
-            lockname = lastlock.second.Name();
-            return;
+        const LockStack& lock_stack = lockdata.m_lock_stacks[std::this_thread::get_id()];
+        if (!lock_stack.empty()) {
+            const auto& lastlock = lock_stack.back();
+            if (lastlock.first == cs) {
+                lockname = lastlock.second.Name();
+                return;
+            }
         }
     }
 
