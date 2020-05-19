@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2019 The Bitcoin Core developers
+# Copyright (c) 2015-2019 The BGL Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test multiple RPC users."""
@@ -19,6 +19,7 @@ from random import SystemRandom
 import string
 import configparser
 import sys
+
 
 def call_with_auth(node, user, password):
     url = urllib.parse.urlparse(node.url)
@@ -76,19 +77,16 @@ class HTTPBasicsTest(BGLTestFramework):
         assert_equal(200, call_with_auth(node, user, password).status)
 
         self.log.info('Wrong...')
-        assert_equal(401, call_with_auth(node, user, password+'wrong').status)
+        assert_equal(401, call_with_auth(node, user, password + 'wrong').status)
 
         self.log.info('Wrong...')
-        assert_equal(401, call_with_auth(node, user+'wrong', password).status)
+        assert_equal(401, call_with_auth(node, user + 'wrong', password).status)
 
         self.log.info('Wrong...')
-        assert_equal(401, call_with_auth(node, user+'wrong', password+'wrong').status)
+        assert_equal(401, call_with_auth(node, user + 'wrong', password + 'wrong').status)
 
     def run_test(self):
-
-        ##################################################
-        # Check correctness of the rpcauth config option #
-        ##################################################
+        self.log.info('Check correctness of the rpcauth config option')
         url = urllib.parse.urlparse(self.nodes[0].url)
 
         self.test_auth(self.nodes[0], url.username, url.password)
@@ -96,12 +94,10 @@ class HTTPBasicsTest(BGLTestFramework):
         self.test_auth(self.nodes[0], 'rt2', self.rt2password)
         self.test_auth(self.nodes[0], self.user, self.password)
 
-        ###############################################################
-        # Check correctness of the rpcuser/rpcpassword config options #
-        ###############################################################
+        self.log.info('Check correctness of the rpcuser/rpcpassword config options')
         url = urllib.parse.urlparse(self.nodes[1].url)
 
         self.test_auth(self.nodes[1], self.rpcuser, self.rpcpassword)
 
 if __name__ == '__main__':
-    HTTPBasicsTest ().main ()
+    HTTPBasicsTest().main()
