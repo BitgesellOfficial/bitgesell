@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2019 The Bitcoin Core developers
+// Copyright (c) 2009-2019 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -64,7 +64,7 @@ public:
 };
 
 /**
- * Bitcoin protocol message types. When adding new message types, don't forget
+ * BGL protocol message types. When adding new message types, don't forget
  * to update allNetMessageTypes in protocol.cpp.
  */
 namespace NetMsgType {
@@ -72,100 +72,100 @@ namespace NetMsgType {
 /**
  * The version message provides information about the transmitting node to the
  * receiving node at the beginning of a connection.
- * @see https://bitcoin.org/en/developer-reference#version
+ * @see https://BGL.org/en/developer-reference#version
  */
 extern const char* VERSION;
 /**
  * The verack message acknowledges a previously-received version message,
  * informing the connecting node that it can begin to send other messages.
- * @see https://bitcoin.org/en/developer-reference#verack
+ * @see https://BGL.org/en/developer-reference#verack
  */
 extern const char* VERACK;
 /**
  * The addr (IP address) message relays connection information for peers on the
  * network.
- * @see https://bitcoin.org/en/developer-reference#addr
+ * @see https://BGL.org/en/developer-reference#addr
  */
 extern const char* ADDR;
 /**
  * The inv message (inventory message) transmits one or more inventories of
  * objects known to the transmitting peer.
- * @see https://bitcoin.org/en/developer-reference#inv
+ * @see https://BGL.org/en/developer-reference#inv
  */
 extern const char* INV;
 /**
  * The getdata message requests one or more data objects from another node.
- * @see https://bitcoin.org/en/developer-reference#getdata
+ * @see https://BGL.org/en/developer-reference#getdata
  */
 extern const char* GETDATA;
 /**
  * The merkleblock message is a reply to a getdata message which requested a
  * block using the inventory type MSG_MERKLEBLOCK.
  * @since protocol version 70001 as described by BIP37.
- * @see https://bitcoin.org/en/developer-reference#merkleblock
+ * @see https://BGL.org/en/developer-reference#merkleblock
  */
 extern const char* MERKLEBLOCK;
 /**
  * The getblocks message requests an inv message that provides block header
  * hashes starting from a particular point in the block chain.
- * @see https://bitcoin.org/en/developer-reference#getblocks
+ * @see https://BGL.org/en/developer-reference#getblocks
  */
 extern const char* GETBLOCKS;
 /**
  * The getheaders message requests a headers message that provides block
  * headers starting from a particular point in the block chain.
  * @since protocol version 31800.
- * @see https://bitcoin.org/en/developer-reference#getheaders
+ * @see https://BGL.org/en/developer-reference#getheaders
  */
 extern const char* GETHEADERS;
 /**
  * The tx message transmits a single transaction.
- * @see https://bitcoin.org/en/developer-reference#tx
+ * @see https://BGL.org/en/developer-reference#tx
  */
 extern const char* TX;
 /**
  * The headers message sends one or more block headers to a node which
  * previously requested certain headers with a getheaders message.
  * @since protocol version 31800.
- * @see https://bitcoin.org/en/developer-reference#headers
+ * @see https://BGL.org/en/developer-reference#headers
  */
 extern const char* HEADERS;
 /**
  * The block message transmits a single serialized block.
- * @see https://bitcoin.org/en/developer-reference#block
+ * @see https://BGL.org/en/developer-reference#block
  */
 extern const char* BLOCK;
 /**
  * The getaddr message requests an addr message from the receiving node,
  * preferably one with lots of IP addresses of other receiving nodes.
- * @see https://bitcoin.org/en/developer-reference#getaddr
+ * @see https://BGL.org/en/developer-reference#getaddr
  */
 extern const char* GETADDR;
 /**
  * The mempool message requests the TXIDs of transactions that the receiving
  * node has verified as valid but which have not yet appeared in a block.
  * @since protocol version 60002.
- * @see https://bitcoin.org/en/developer-reference#mempool
+ * @see https://BGL.org/en/developer-reference#mempool
  */
 extern const char* MEMPOOL;
 /**
  * The ping message is sent periodically to help confirm that the receiving
  * peer is still connected.
- * @see https://bitcoin.org/en/developer-reference#ping
+ * @see https://BGL.org/en/developer-reference#ping
  */
 extern const char* PING;
 /**
  * The pong message replies to a ping message, proving to the pinging node that
  * the ponging node is still alive.
  * @since protocol version 60001 as described by BIP31.
- * @see https://bitcoin.org/en/developer-reference#pong
+ * @see https://BGL.org/en/developer-reference#pong
  */
 extern const char* PONG;
 /**
  * The notfound message is a reply to a getdata message which requested an
  * object the receiving node does not have available for relay.
  * @since protocol version 70001.
- * @see https://bitcoin.org/en/developer-reference#notfound
+ * @see https://BGL.org/en/developer-reference#notfound
  */
 extern const char* NOTFOUND;
 /**
@@ -174,7 +174,7 @@ extern const char* NOTFOUND;
  * @since protocol version 70001 as described by BIP37.
  *   Only available with service bit NODE_BLOOM since protocol version
  *   70011 as described by BIP111.
- * @see https://bitcoin.org/en/developer-reference#filterload
+ * @see https://BGL.org/en/developer-reference#filterload
  */
 extern const char* FILTERLOAD;
 /**
@@ -183,7 +183,7 @@ extern const char* FILTERLOAD;
  * @since protocol version 70001 as described by BIP37.
  *   Only available with service bit NODE_BLOOM since protocol version
  *   70011 as described by BIP111.
- * @see https://bitcoin.org/en/developer-reference#filteradd
+ * @see https://BGL.org/en/developer-reference#filteradd
  */
 extern const char* FILTERADD;
 /**
@@ -192,14 +192,14 @@ extern const char* FILTERADD;
  * @since protocol version 70001 as described by BIP37.
  *   Only available with service bit NODE_BLOOM since protocol version
  *   70011 as described by BIP111.
- * @see https://bitcoin.org/en/developer-reference#filterclear
+ * @see https://BGL.org/en/developer-reference#filterclear
  */
 extern const char* FILTERCLEAR;
 /**
  * Indicates that a node prefers to receive new block announcements via a
  * "headers" message rather than an "inv".
  * @since protocol version 70012 as described by BIP130.
- * @see https://bitcoin.org/en/developer-reference#sendheaders
+ * @see https://BGL.org/en/developer-reference#sendheaders
  */
 extern const char* SENDHEADERS;
 /**
@@ -337,11 +337,11 @@ static inline bool MayHaveUsefulAddressDB(ServiceFlags services)
 /** A CService with information about it as peer */
 class CAddress : public CService
 {
-public:
-    CAddress();
-    explicit CAddress(CService ipIn, ServiceFlags nServicesIn);
+    static constexpr uint32_t TIME_INIT{100000000};
 
-    void Init();
+public:
+    CAddress() : CService{} {};
+    explicit CAddress(CService ipIn, ServiceFlags nServicesIn) : CService{ipIn}, nServices{nServicesIn} {};
 
     ADD_SERIALIZE_METHODS;
 
@@ -350,6 +350,7 @@ public:
     {
         if (ser_action.ForRead())
             Init();
+        SER_READ(obj, obj.nTime = TIME_INIT);
         int nVersion = s.GetVersion();
         if (s.GetType() & SER_DISK)
             READWRITE(nVersion);
@@ -362,10 +363,9 @@ public:
         READWRITEAS(CService, *this);
     }
 
-    ServiceFlags nServices;
-
+    ServiceFlags nServices{NODE_NONE};
     // disk and network only
-    unsigned int nTime;
+    uint32_t nTime{TIME_INIT};
 };
 
 /** getdata message type flags */
