@@ -14,12 +14,67 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <ios>
 #include <iterator>
 #include <tuple>
 
 // 0xFD + sha256("BGL")[0:5]
 static const unsigned char g_internal_prefix[] = { 0xFD, 0x6B, 0x88, 0xC0, 0x87, 0x24 };
 constexpr size_t CNetAddr::V1_SERIALIZATION_SIZE;
+constexpr size_t CNetAddr::MAX_ADDRV2_SIZE;
+
+CNetAddr::BIP155Network CNetAddr::GetBIP155Network() const
+{
+    switch (m_net) {
+    case NET_IPV4:
+        return BIP155Network::IPV4;
+    case NET_IPV6:
+        return BIP155Network::IPV6;
+    case NET_ONION:
+        return BIP155Network::TORV2;
+    case NET_INTERNAL:   // should have been handled before calling this function
+    case NET_UNROUTABLE: // m_net is never and should not be set to NET_UNROUTABLE
+    case NET_MAX:        // m_net is never and should not be set to NET_MAX
+        assert(false);
+    } // no default case, so the compiler can warn about missing cases
+
+    assert(false);
+}
+
+bool CNetAddr::SetNetFromBIP155Network(uint8_t possible_bip155_net, size_t address_size)
+{
+    switch (possible_bip155_net) {
+    case BIP155Network::IPV4:
+        if (address_size == ADDR_IPV4_SIZE) {
+            m_net = NET_IPV4;
+            return true;
+        }
+        throw std::ios_base::failure(
+            strprintf("BIP155 IPv4 address with length %u (should be %u)", address_size,
+                      ADDR_IPV4_SIZE));
+    case BIP155Network::IPV6:
+        if (address_size == ADDR_IPV6_SIZE) {
+            m_net = NET_IPV6;
+            return true;
+        }
+        throw std::ios_base::failure(
+            strprintf("BIP155 IPv6 address with length %u (should be %u)", address_size,
+                      ADDR_IPV6_SIZE));
+    case BIP155Network::TORV2:
+        if (address_size == ADDR_TORV2_SIZE) {
+            m_net = NET_ONION;
+            return true;
+        }
+        throw std::ios_base::failure(
+            strprintf("BIP155 TORv2 address with length %u (should be %u)", address_size,
+                      ADDR_TORV2_SIZE));
+    }
+
+    // Don't throw on addresses with unknown network ids (maybe from the future).
+    // Instead silently drop them and have the unserialization code consume
+    // subsequent ones which may be known to us.
+    return false;
+}
 
 /**
  * Construct an unspecified IPv6 network address (::/128).
