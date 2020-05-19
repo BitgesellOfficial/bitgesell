@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2019 The Bitcoin Core developers
+// Copyright (c) 2018-2019 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -38,6 +38,16 @@ namespace interfaces {
 class Handler;
 class Wallet;
 struct BlockTip;
+
+//! Block and header tip information
+struct BlockAndHeaderTipInfo
+{
+    int block_height;
+    int64_t block_time;
+    int header_height;
+    int64_t header_time;
+    double verification_progress;
+};
 
 //! Top-level interface for a BGL node (BGLd process).
 class Node
@@ -96,7 +106,7 @@ public:
     virtual bool baseInitialize() = 0;
 
     //! Start node.
-    virtual bool appInitMain() = 0;
+    virtual bool appInitMain(interfaces::BlockAndHeaderTipInfo* tip_info = nullptr) = 0;
 
     //! Stop node.
     virtual void appShutdown() = 0;
