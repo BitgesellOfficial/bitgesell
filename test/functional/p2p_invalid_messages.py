@@ -24,13 +24,12 @@ from test_framework.p2p import (
     P2PDataStore,
     P2PInterface,
 )
+
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
     hex_str_to_bytes,
 )
-
-
 
 VALID_DATA_LIMIT = MAX_PROTOCOL_MESSAGE_LENGTH - 5  # Account for the 5-byte length prefix
 
@@ -53,6 +52,7 @@ class msg_unrecognized:
 class SenderOfAddrV2(P2PInterface):
     def wait_for_sendaddrv2(self):
         self.wait_until(lambda: 'sendaddrv2' in self.last_message)
+
 
 class InvalidMessagesTest(BGLTestFramework):
 
