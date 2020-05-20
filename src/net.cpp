@@ -1929,6 +1929,22 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
             // also at our block-relay peer limit, but check against that as
             // well for sanity.)
             bool block_relay_only = nOutboundBlockRelay < m_max_outbound_block_relay && !fFeeler && nOutboundFullRelay >= m_max_outbound_full_relay;
+            ConnectionType conn_type;
+            // Determine what type of connection to open. If fFeeler is not
+            // set, open OUTBOUND connections until we meet our full-relay
+            // capacity. Then open BLOCK_RELAY connections until we hit our
+            // block-relay peer limit. Otherwise, default to opening an
+            // OUTBOUND connection.
+            if (fFeeler) {
+                conn_type = ConnectionType::FEELER;
+            } else if (nOutboundFullRelay < m_max_outbound_full_relay) {
+                conn_type = ConnectionType::OUTBOUND;
+            } else if (nOutboundBlockRelay < m_max_outbound_block_relay) {
+                conn_type = ConnectionType::BLOCK_RELAY;
+            } else {
+                // GetTryNewOutboundPeer() is true
+                conn_type = ConnectionType::OUTBOUND;
+            }
 
             OpenNetworkConnection(addrConnect, (int)setConnected.size() >= std::min(nMaxConnections - 1, 2), &grant, nullptr, conn_type);
         }
