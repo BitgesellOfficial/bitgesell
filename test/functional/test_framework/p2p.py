@@ -31,6 +31,7 @@ from test_framework.messages import (
     MAX_HEADERS_RESULTS,
     MIN_VERSION_SUPPORTED,
     msg_addr,
+    msg_addrv2,
     msg_block,
     MSG_BLOCK,
     msg_blocktxn,
@@ -54,6 +55,7 @@ from test_framework.messages import (
     msg_notfound,
     msg_ping,
     msg_pong,
+    msg_sendaddrv2,
     msg_sendcmpct,
     msg_sendheaders,
     msg_tx,
@@ -73,6 +75,7 @@ logger = logging.getLogger("TestFramework.p2p")
 
 MESSAGEMAP = {
     b"addr": msg_addr,
+    b"addrv2": msg_addrv2,
     b"block": msg_block,
     b"blocktxn": msg_blocktxn,
     b"cfcheckpt": msg_cfcheckpt,
@@ -95,6 +98,7 @@ MESSAGEMAP = {
     b"notfound": msg_notfound,
     b"ping": msg_ping,
     b"pong": msg_pong,
+    b"sendaddrv2": msg_sendaddrv2,
     b"sendcmpct": msg_sendcmpct,
     b"sendheaders": msg_sendheaders,
     b"tx": msg_tx,
@@ -283,7 +287,7 @@ class P2PInterface(P2PConnection):
 
     Individual testcases should subclass this and override the on_* methods
     if they want to alter message handling behaviour."""
-    def __init__(self):
+    def __init__(self, support_addrv2=False):
         super().__init__()
 
         # Track number of messages of each type received.
@@ -300,6 +304,8 @@ class P2PInterface(P2PConnection):
 
         # The network services received from the peer
         self.nServices = 0
+
+        self.support_addrv2 = support_addrv2
 
     def peer_connect(self, *args, services=NODE_NETWORK|NODE_WITNESS, send_version=True, **kwargs):
         create_conn = super().peer_connect(*args, **kwargs)
@@ -343,6 +349,7 @@ class P2PInterface(P2PConnection):
         pass
 
     def on_addr(self, message): pass
+    def on_addrv2(self, message): pass
     def on_block(self, message): pass
     def on_blocktxn(self, message): pass
     def on_cfcheckpt(self, message): pass
@@ -363,6 +370,7 @@ class P2PInterface(P2PConnection):
     def on_merkleblock(self, message): pass
     def on_notfound(self, message): pass
     def on_pong(self, message): pass
+    def on_sendaddrv2(self, message): pass
     def on_sendcmpct(self, message): pass
     def on_sendheaders(self, message): pass
     def on_tx(self, message): pass
@@ -387,6 +395,8 @@ class P2PInterface(P2PConnection):
         if message.nVersion >= 70016:
             self.send_message(msg_wtxidrelay())
         self.send_message(msg_verack())
+        if self.support_addrv2:
+            self.send_message(msg_sendaddrv2())
         self.nServices = message.nServices
 
     # Connection helper methods
