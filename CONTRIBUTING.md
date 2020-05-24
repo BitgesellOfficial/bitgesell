@@ -14,6 +14,9 @@ purposes. As such there are repository "maintainers" who are responsible for
 merging pull requests as well as a "lead maintainer" who is responsible for the
 release cycle, overall merging, moderation and appointment of maintainers.
 
+Getting Started
+---------------
+
 If you're looking for somewhere to start contributing, check out the
 [good first issue](https://github.com/BGL/BGL/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
 list or participate in a weekly [BGL Core PR Review Club](https://BGLcore.reviews/) meeting.
@@ -53,6 +56,8 @@ To contribute a patch, the workflow is as follows:
 The project coding conventions in the [developer notes](doc/developer-notes.md)
 must be followed.
 
+### Committing Patches
+
 In general, [commits should be atomic](https://en.wikipedia.org/wiki/Atomic_commit#Atomic_commit_convention)
 and diffs should be easy to read. For this reason, do not mix any formatting
 fixes or code moves with actual code changes.
@@ -75,6 +80,8 @@ about Git.
 
   - Push changes to your fork
   - Create pull request
+
+### Creating the Pull Request
 
 The title of the pull request should be prefixed by the component or area that
 the pull request affects. Valid areas as:
@@ -100,18 +107,24 @@ Examples:
     qt: Add feed bump button
     log: Fix typo in log message
 
+The body of the pull request should contain enough description about what the
+patch does together with any justification/reasoning. You should include
+references to any discussions (for example other tickets or mailing list
+discussions).
+
+### Translation changes
+
 Note that translations should not be submitted as pull requests. Please see
 [Translation Process](https://github.com/wu-emma/bitgesell/blob/master/doc/translation_process.md)
 for more information on helping with translations.
+
+### Work in Progress Changes and Requests for Comments
 
 If a pull request is not to be considered for merging (yet), please
 prefix the title with [WIP] or use [Tasks Lists](https://help.github.com/articles/basic-writing-and-formatting-syntax/#task-lists)
 in the body of the pull request to indicate tasks are pending.
 
-The body of the pull request should contain enough description about what the
-patch does together with any justification/reasoning. You should include
-references to any discussions (for example other tickets or mailing list
-discussions).
+### Address Feedback
 
 At this stage, one should expect comments and review from other contributors. You
 can add more commits to your pull request by committing them locally and pushing
@@ -343,10 +356,10 @@ Rebased-From: <commit hash of the original commit>
 ```
 
 Have a look at [an example backport PR](
-https://github.com/bitcoin/bitcoin/pull/16189).
+https://github.com/BGL/BGL/pull/16189).
 
 Also see the [backport.py script](
-https://github.com/bitcoin-core/bitcoin-maintainer-tools#backport).
+https://github.com/BGL-core/BGL-maintainer-tools#backport).
 
 Release Policy
 --------------
