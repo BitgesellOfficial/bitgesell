@@ -10,6 +10,7 @@
 #include <sync.h>
 #include <util/memory.h>
 #include <util/strencodings.h>
+#include <util/system.h>
 #include <util/translation.h>
 #include <wallet/db.h>
 
@@ -238,14 +239,6 @@ void SQLiteDatabase::Open()
         if (ret != SQLITE_OK) {
             throw std::runtime_error(strprintf("SQLiteDatabase: Failed to create new database: %s\n", sqlite3_errstr(ret)));
         }
-
-        // Set the application id
-        uint32_t app_id = ReadBE32(Params().MessageStart());
-        std::string set_app_id = strprintf("PRAGMA application_id = %d", static_cast<int32_t>(app_id));
-        ret = sqlite3_exec(m_db, set_app_id.c_str(), nullptr, nullptr, nullptr);
-        if (ret != SQLITE_OK) {
-            throw std::runtime_error(strprintf("SQLiteDatabase: Failed to set the application id: %s\n", sqlite3_errstr(ret)));
-        }
     }
 }
 
@@ -277,11 +270,8 @@ std::unique_ptr<DatabaseBatch> SQLiteDatabase::MakeBatch(bool flush_on_close)
 SQLiteBatch::SQLiteBatch(SQLiteDatabase& database)
     : m_database(database)
 {
-
     // Make sure we have a db handle
     assert(m_database.m_db);
-
-    SetupSQLStatements();
 }
 
 void SQLiteBatch::Close()
