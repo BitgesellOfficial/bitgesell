@@ -83,49 +83,6 @@ bool SQLiteDatabase::Verify(bilingual_str& error)
 {
     assert(m_db);
 
-    // Check the application ID matches our network magic
-    sqlite3_stmt* app_id_stmt{nullptr};
-    int ret = sqlite3_prepare_v2(m_db, "PRAGMA application_id", -1, &app_id_stmt, nullptr);
-    if (ret != SQLITE_OK) {
-        sqlite3_finalize(app_id_stmt);
-        error = strprintf(_("SQLiteDatabase: Failed to prepare the statement to fetch the application id: %s"), sqlite3_errstr(ret));
-        return false;
-    }
-    ret = sqlite3_step(app_id_stmt);
-    if (ret != SQLITE_ROW) {
-        sqlite3_finalize(app_id_stmt);
-        error = strprintf(_("SQLiteDatabase: Failed to fetch the application id: %s"), sqlite3_errstr(ret));
-        return false;
-    }
-    uint32_t app_id = static_cast<uint32_t>(sqlite3_column_int(app_id_stmt, 0));
-    sqlite3_finalize(app_id_stmt);
-    uint32_t net_magic = ReadBE32(Params().MessageStart());
-    if (app_id != net_magic) {
-        error = strprintf(_("SQLiteDatabase: Unexpected application id. Expected %u, got %u"), net_magic, app_id);
-        return false;
-    }
-
-    // Check our schema version
-    sqlite3_stmt* user_ver_stmt{nullptr};
-    ret = sqlite3_prepare_v2(m_db, "PRAGMA user_version", -1, &user_ver_stmt, nullptr);
-    if (ret != SQLITE_OK) {
-        sqlite3_finalize(user_ver_stmt);
-        error = strprintf(_("SQLiteDatabase: Failed to prepare the statement to fetch sqlite wallet schema version: %s"), sqlite3_errstr(ret));
-        return false;
-    }
-    ret = sqlite3_step(user_ver_stmt);
-    if (ret != SQLITE_ROW) {
-        sqlite3_finalize(user_ver_stmt);
-        error = strprintf(_("SQLiteDatabase: Failed to fetch sqlite wallet schema version: %s"), sqlite3_errstr(ret));
-        return false;
-    }
-    int32_t user_ver = sqlite3_column_int(user_ver_stmt, 0);
-    sqlite3_finalize(user_ver_stmt);
-    if (user_ver != WALLET_SCHEMA_VERSION) {
-        error = strprintf(_("SQLiteDatabase: Unknown sqlite wallet schema version %d. Only version %d is supported"), user_ver, WALLET_SCHEMA_VERSION);
-        return false;
-    }
-
     sqlite3_stmt* stmt{nullptr};
     ret = sqlite3_prepare_v2(m_db, "PRAGMA integrity_check", -1, &stmt, nullptr);
     if (ret != SQLITE_OK) {
@@ -353,7 +310,19 @@ bool ExistsSQLiteDatabase(const fs::path& path)
 
 std::unique_ptr<SQLiteDatabase> MakeSQLiteDatabase(const fs::path& path, const DatabaseOptions& options, DatabaseStatus& status, bilingual_str& error)
 {
-    return MakeUnique<SQLiteDatabase>(path, path / DATABASE_FILENAME);
+    const fs::path file = path / DATABASE_FILENAME;
+    try {
+        auto db = MakeUnique<SQLiteDatabase>(path, file);
+        if (options.verify && !db->Verify(error)) {
+            status = DatabaseStatus::FAILED_VERIFY;
+            return nullptr;
+        }
+        return db;
+    } catch (const std::runtime_error& e) {
+        status = DatabaseStatus::FAILED_LOAD;
+        error.original = e.what();
+        return nullptr;
+    }
 }
 
 std::string SQLiteDatabaseVersion()
