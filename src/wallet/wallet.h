@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The BGL Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -54,7 +54,9 @@ bool RemoveWallet(const std::shared_ptr<CWallet>& wallet, Optional<bool> load_on
 bool RemoveWallet(const std::shared_ptr<CWallet>& wallet, Optional<bool> load_on_start);
 std::vector<std::shared_ptr<CWallet>> GetWallets();
 std::shared_ptr<CWallet> GetWallet(const std::string& name);
-std::shared_ptr<CWallet> LoadWallet(interfaces::Chain& chain, const std::string& name, Optional<bool> load_on_start, bilingual_str& error, std::vector<bilingual_str>& warnings);
+
+std::shared_ptr<CWallet> LoadWallet(interfaces::Chain& chain, const std::string& name, Optional<bool> load_on_start, const DatabaseOptions& options, DatabaseStatus& status, bilingual_str& error, std::vector<bilingual_str>& warnings);
+std::shared_ptr<CWallet> CreateWallet(interfaces::Chain& chain, const std::string& name, Optional<bool> load_on_start, DatabaseOptions& options, DatabaseStatus& status, bilingual_str& error, std::vector<bilingual_str>& warnings);
 std::unique_ptr<interfaces::Handler> HandleLoadWallet(LoadWalletFn load_wallet);
 std::unique_ptr<WalletDatabase> MakeWalletDatabase(const std::string& name, const DatabaseOptions& options, DatabaseStatus& status, bilingual_str& error);
 
