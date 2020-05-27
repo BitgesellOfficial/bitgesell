@@ -170,6 +170,19 @@ static UniValue generateBlocks(ChainstateManager& chainman, const CTxMemPool& me
         if (pblock->nNonce == std::numeric_limits<uint32_t>::max()) {
             continue;
         }
+
+        // Combo descriptors can have 2 or 4 scripts, so we can't just check scripts.size() == 1
+        CHECK_NONFATAL(scripts.size() > 0 && scripts.size() <= 4);
+
+        if (scripts.size() == 1) {
+            script = scripts.at(0);
+        } else if (scripts.size() == 4) {
+            // For uncompressed keys, take the 3rd script, since it is p2wpkh
+            script = scripts.at(2);
+        } else {
+            // Else take the 2nd script, since it is p2pkh
+            script = scripts.at(1);
+        }
         std::shared_ptr<const CBlock> shared_pblock = std::make_shared<const CBlock>(*pblock);
         if (!ProcessNewBlock(Params(), shared_pblock, true, nullptr))
             throw JSONRPCError(RPC_INTERNAL_ERROR, "ProcessNewBlock, block not accepted");
