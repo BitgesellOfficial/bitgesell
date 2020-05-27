@@ -144,35 +144,13 @@ matrix:
       addons:
         homebrew:
           packages:
-            - gcc-multilib
-            - libgmp-dev:i386
-            - valgrind
-            - libtool-bin
-            - libc6-dbg:i386
-    # S390x build (big endian system)
-    - compiler: gcc
-      env: HOST=s390x-unknown-linux-gnu ECDH=yes RECOVERY=yes EXPERIMENTAL=yes CTIMETEST=
-      arch: s390x
-
-# We use this to install macOS dependencies instead of the built in `homebrew` plugin,
-# because in xcode earlier than 11 they have a bug requiring updating the system which overall takes ~8 minutes.
-# https://travis-ci.community/t/macos-build-fails-because-of-homebrew-bundle-unknown-command/7296
-before_install:
- - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then HOMEBREW_NO_AUTO_UPDATE=1 brew install gmp valgrind gcc@9; fi
-
-before_script: ./autogen.sh
-
-# travis auto terminates jobs that go for 10 minutes without printing to stdout, but travis_wait doesn't work well with forking programs like valgrind (https://docs.travis-ci.com/user/common-build-problems/#build-times-out-because-no-output-was-received https://github.com/BGL-core/secp256k1/pull/750#issuecomment-623476860)
-script:
-  - function keep_alive() { while true; do echo -en "\a"; sleep 60; done }
-  - keep_alive &
-  - ./contrib/travis.sh
-  - kill %keep_alive
-
-after_script:
-    - cat ./tests.log
-    - cat ./exhaustive_tests.log
-    - cat ./valgrind_ctime_test.log
-    - cat ./bench.log
-    - $CC --version
-    - valgrind --version
+          - berkeley-db4
+          - miniupnpc
+          - qrencode
+          - sqlite
+          - ccache
+          - zeromq
+      env: >-
+        DANGER_RUN_CI_ON_HOST=true
+        CI_USE_APT_INSTALL=no
+        FILE_ENV="./ci/test/00_setup_env_mac_host.sh"
