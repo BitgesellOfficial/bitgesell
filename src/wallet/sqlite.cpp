@@ -379,7 +379,8 @@ bool SQLiteBatch::TxnAbort()
 
 bool ExistsSQLiteDatabase(const fs::path& path)
 {
-    return false;
+    const fs::path file = path / DATABASE_FILENAME;
+    return fs::symlink_status(file).type() == fs::regular_file && IsSQLiteFile(file);
 }
 
 std::unique_ptr<SQLiteDatabase> MakeSQLiteDatabase(const fs::path& path, const DatabaseOptions& options, DatabaseStatus& status, bilingual_str& error)
@@ -404,7 +405,6 @@ std::string SQLiteDatabaseVersion()
     return std::string(sqlite3_libversion());
 }
 
-
 bool IsSQLiteFile(const fs::path& path)
 {
     if (!fs::exists(path)) return false;
@@ -421,20 +421,10 @@ bool IsSQLiteFile(const fs::path& path)
     // Magic is at beginning and is 16 bytes long
     char magic[16];
     file.read(magic, 16);
-
-    // Application id is at offset 68 and 4 bytes long
-    file.seekg(68, std::ios::beg);
-    char app_id[4];
-    file.read(app_id, 4);
-
     file.close();
 
     // Check the magic, see https://sqlite.org/fileformat2.html
     std::string magic_str(magic);
-    if (magic_str != std::string("SQLite format 3")) {
-        return false;
-    }
 
-    // Check the application id matches our network magic
-    return memcmp(Params().MessageStart(), app_id, 4) == 0;
+    return magic_str == std::string("SQLite format 3");
 }
