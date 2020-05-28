@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,6 +11,7 @@
 #include <consensus/validation.h>
 #include <crypto/sha256.h>
 #include <init.h>
+#include <interfaces/chain.h>
 #include <miner.h>
 #include <net.h>
 #include <net_processing.h>
@@ -32,6 +33,7 @@
 #include <util/vector.h>
 #include <validation.h>
 #include <validationinterface.h>
+#include <walletinitinterface.h>
 #include <functional>
 
 const std::function<std::string(const char*)> G_TRANSLATION_FUN = nullptr;
@@ -103,6 +105,8 @@ BasicTestingSetup::BasicTestingSetup(const std::string& chainName, const std::ve
     SetupNetworking();
     InitSignatureCache();
     InitScriptExecutionCache();
+    m_node.chain = interfaces::MakeChain(m_node);
+    g_wallet_init_interface.Construct(m_node);
     fCheckBlockIndex = true;
     static bool noui_connected = false;
     if (!noui_connected) {
