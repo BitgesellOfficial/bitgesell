@@ -219,7 +219,8 @@ static bool LockHeld(void* mutex)
     return false;
 }
 
-void AssertLockHeldInternal(const char* pszName, const char* pszFile, int nLine, void* cs)
+template <typename MutexType>
+void AssertLockHeldInternal(const char* pszName, const char* pszFile, int nLine, MutexType* cs)
 {
     for (const LockStackItem& i : g_lockstack)
         if (i.first == cs)
@@ -227,6 +228,8 @@ void AssertLockHeldInternal(const char* pszName, const char* pszFile, int nLine,
     tfm::format(std::cerr, "Assertion failed: lock %s not held in %s:%i; locks held:\n%s", pszName, pszFile, nLine, LocksHeld());
     abort();
 }
+template void AssertLockHeldInternal(const char*, const char*, int, Mutex*);
+template void AssertLockHeldInternal(const char*, const char*, int, RecursiveMutex*);
 
 void AssertLockNotHeldInternal(const char* pszName, const char* pszFile, int nLine, void* cs)
 {
