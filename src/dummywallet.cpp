@@ -4,11 +4,8 @@
 
 #include <util/system.h>
 #include <walletinitinterface.h>
-#include <support/allocators/secure.h>
 
 class CWallet;
-enum class WalletCreationStatus;
-struct bilingual_str;
 
 namespace interfaces {
 class Chain;
