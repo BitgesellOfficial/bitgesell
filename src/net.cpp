@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -51,6 +51,19 @@ static constexpr std::chrono::minutes DUMP_PEERS_INTERVAL{15};
 
 /** Number of DNS seeds to query when the number of connections is low. */
 static constexpr int DNSSEEDS_TO_QUERY_AT_ONCE = 3;
+
+/** How long to delay before querying DNS seeds
+ *
+ * If we have more than THRESHOLD entries in addrman, then it's likely
+ * that we got those addresses from having previously connected to the P2P
+ * network, and that we'll be able to successfully reconnect to the P2P
+ * network via contacting one of them. So if that's the case, spend a
+ * little longer trying to connect to known peers before querying the
+ * DNS seeds.
+ */
+static constexpr std::chrono::seconds DNSSEEDS_DELAY_FEW_PEERS{11};
+static constexpr std::chrono::minutes DNSSEEDS_DELAY_MANY_PEERS{5};
+static constexpr int DNSSEEDS_DELAY_PEER_THRESHOLD = 1000; // "many" vs "few" peers
 
 // We add a random period time (0 to 1 seconds) to feeler connections to prevent synchronization.
 #define FEELER_SLEEP_WINDOW 1
@@ -1587,6 +1600,11 @@ void CConnman::ThreadDNSAddressSeed()
     if (gArgs.GetBoolArg("-forcednsseed", DEFAULT_FORCEDNSSEED)) {
         // When -forcednsseed is provided, query all.
         seeds_right_now = seeds.size();
+    } else if (addrman.size() == 0) {
+        // If we have no known peers, query all.
+        // This will occur on the first run, or if peers.dat has been
+        // deleted.
+        seeds_right_now = seeds.size();
     }
 
     for (const std::string& seed : seeds) {
@@ -1596,7 +1614,6 @@ void CConnman::ThreadDNSAddressSeed()
         // less influence on the network topology, and reduces traffic to the seeds.
         if (addrman.size() > 0 && seeds_right_now == 0) {
             if (!interruptNet.sleep_for(std::chrono::seconds(11))) return;
-
             LOCK(cs_vNodes);
             int nRelevant = 0;
             for (const CNode* pnode : vNodes) {
@@ -1609,8 +1626,14 @@ void CConnman::ThreadDNSAddressSeed()
             seeds_right_now += DNSSEEDS_TO_QUERY_AT_ONCE;
         }
 
-        if (interruptNet) {
-            return;
+        if (interruptNet) return;
+
+        // hold off on querying seeds if P2P network deactivated
+        if (!fNetworkActive) {
+            LogPrintf("Waiting for network to be reactivated before querying DNS seeds.\n");
+            do {
+                if (!interruptNet.sleep_for(std::chrono::seconds{1})) return;
+            } while (!fNetworkActive);
         }
         LogPrintf("Loading addresses from DNS seed %s\n", seed);
         if (HaveNameProxy()) {
@@ -1755,6 +1778,9 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
             return;
 
         // Add seed nodes if DNS seeds are all down (an infrastructure attack?).
+        // Note that we only do this if we started with an empty peers.dat,
+        // (in which case we will query DNS seeds immediately) *and* the DNS
+        // seeds have not returned any results.
         if (addrman.size() == 0 && (GetTime() - nStart > 60)) {
             static bool done = false;
             if (!done) {
