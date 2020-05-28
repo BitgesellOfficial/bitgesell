@@ -9,6 +9,7 @@
 #include <interfaces/handler.h>
 #include <policy/fees.h>
 #include <primitives/transaction.h>
+#include <rpc/server.h>
 #include <script/standard.h>
 #include <support/allocators/secure.h>
 #include <sync.h>
@@ -498,11 +499,9 @@ public:
     }
     void registerRpcs() override
     {
+        g_rpc_chain = &m_chain;
         for (const CRPCCommand& command : GetWalletRPCCommands()) {
-            m_rpc_commands.emplace_back(command.category, command.name, [this, &command](const JSONRPCRequest& request, UniValue& result, bool last_handler) {
-                return command.actor({request, m_context}, result, last_handler);
-            }, command.argNames, command.unique_id);
-            m_rpc_handlers.emplace_back(m_context.chain->handleRpc(m_rpc_commands.back()));
+            m_rpc_handlers.emplace_back(m_chain.handleRpc(command));
         }
     }
     bool verify() override { return VerifyWallets(*m_context.chain, m_wallet_filenames); }
