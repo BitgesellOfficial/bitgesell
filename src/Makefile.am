@@ -246,6 +246,7 @@ BGL_CORE_H = \
   versionbitsinfo.h \
   walletinitinterface.h \
   wallet/coincontrol.h \
+  wallet/context.h \
   wallet/crypter.h \
   wallet/db.h \
   wallet/feebumper.h \
@@ -355,6 +356,7 @@ libBGL_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_wallet_a_SOURCES = \
   interfaces/wallet.cpp \
   wallet/coincontrol.cpp \
+  wallet/context.cpp \
   wallet/crypter.cpp \
   wallet/db.cpp \
   wallet/feebumper.cpp \
