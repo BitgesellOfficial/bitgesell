@@ -323,8 +323,6 @@ void BGLGUI::createActions()
     verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified BGL addresses"));
     m_load_psbt_action = new QAction(tr("&Load PSBT from file..."), this);
     m_load_psbt_action->setStatusTip(tr("Load Partially Signed BGL Transaction"));
-    m_load_psbt_clipboard_action = new QAction(tr("Load PSBT from clipboard..."), this);
-    m_load_psbt_clipboard_action->setStatusTip(tr("Load Partially Signed BGL Transaction from clipboard"));
 
     openRPCConsoleAction = new QAction(tr("Node window"), this);
     openRPCConsoleAction->setStatusTip(tr("Open node debugging and diagnostic console"));
