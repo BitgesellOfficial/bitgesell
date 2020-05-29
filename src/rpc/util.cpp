@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2020 The Bitcoin Core developers
+// Copyright (c) 2017-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -843,16 +843,12 @@ UniValue GetServicesNames(ServiceFlags services)
 {
     UniValue servicesNames(UniValue::VARR);
 
-    if (services & NODE_NETWORK)
-        servicesNames.push_back("NETWORK");
-    if (services & NODE_GETUTXO)
-        servicesNames.push_back("GETUTXO");
-    if (services & NODE_BLOOM)
-        servicesNames.push_back("BLOOM");
-    if (services & NODE_WITNESS)
-        servicesNames.push_back("WITNESS");
-    if (services & NODE_NETWORK_LIMITED)
-        servicesNames.push_back("NETWORK_LIMITED");
+    for (int i = 0; i < 64; ++i) {
+        const uint64_t mask = 1ull << i;
+        if (services_n & mask) {
+            servicesNames.push_back(serviceFlagToStr(i));
+        }
+    }
 
     return servicesNames;
 }
