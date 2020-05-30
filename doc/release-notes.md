@@ -45,19 +45,15 @@ wallet versions of BGL Core are generally supported.
 Compatibility
 ==============
 
-BGL Core is supported and extensively tested on operating systems using
-the Linux kernel, macOS 10.12+, and Windows 7 and newer. It is not recommended
-to use BGL Core on unsupported systems.
-
-BGL Core should also work on most other Unix-like systems but is not
-as frequently tested on them.
+BGL Core is supported and extensively tested on operating systems
+using the Linux kernel, macOS 10.12+, and Windows 7 and newer.  BGL
+Core should also work on most other Unix-like systems but is not as
+frequently tested on them.  It is not recommended to use BGL Core on
+unsupported systems.
 
 From BGL Core 0.20.0 onwards, macOS versions earlier than 10.12 are no
 longer supported. Additionally, BGL Core does not yet change appearance
 when macOS "dark mode" is activated.
-
-In addition to previously supported CPU platforms, this release's pre-compiled
-distribution provides binaries for the RISC-V platform.
 
 Notable changes
 ===============
