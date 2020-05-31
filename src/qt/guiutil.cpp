@@ -83,16 +83,7 @@ static const uint8_t dummydata[] = {0xeb,0x15,0x23,0x1d,0xfc,0xeb,0x60,0x92,0x58
 // Generate a dummy address with invalid CRC, starting with the network prefix.
 static std::string DummyAddress(const CChainParams &params)
 {
-    std::vector<unsigned char> sourcedata = params.Base58Prefix(CChainParams::PUBKEY_ADDRESS);
-    sourcedata.insert(sourcedata.end(), dummydata, dummydata + sizeof(dummydata));
-    for(int i=0; i<256; ++i) { // Try every trailing byte
-        std::string s = EncodeBase58(sourcedata.data(), sourcedata.data() + sourcedata.size());
-        if (!IsValidDestinationString(s)) {
-            return s;
-        }
-        sourcedata[sourcedata.size()-1] += 1;
-    }
-    return "";
+    return "bgl1qkecxxg8ekyruwkkhea7ye5c0ganmhdl7d5nna3";
 }
 
 void setupAddressWidget(QValidatedLineEdit *widget, QWidget *parent)
