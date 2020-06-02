@@ -10,6 +10,16 @@ with no central authority: managing transactions and issuing money are carried
 out collectively by the network. BGL Core is the name of open source
 software which enables the use of this currency.
 
+Specifications
+
+Essentially this is a full bitcoin fork, but:
+Block Reward = nFees*0.1 + GetBlockSubsidy()    // Burn rate is 90% of tx fees
+Block Weight <= 400,000;                        // 10 times smaller than bitcoin
+100% Segwit                                     // Eliminates problems with legacy types of transactions
+Halving Interval = 210000 blocks / 4;           // Halving is every year (bitcoin halving is every 4 years)
+Block Subsidy = 50 * 4;                         // 21 000 000 coins max
+Hashing algorithm for blocks is Keccak (sha-3).
+
 License
 -------
 
