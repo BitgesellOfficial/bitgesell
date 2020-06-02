@@ -833,11 +833,9 @@ void UpdateLastBlockAnnounceTime(NodeId node, int64_t time_in_seconds)
     if (state) state->m_last_block_announcement = time_in_seconds;
 }
 
-// Returns true for outbound peers, excluding manual connections, feelers, and
-// one-shots.
 static bool IsOutboundDisconnectionCandidate(const CNode& node)
 {
-    return node.IsOutboundOrBlockRelayConn();
+    return !(node.fInbound || node.IsManualConn() || node.fFeeler || node.m_addr_fetch);
 }
 
 void PeerLogicValidation::InitializeNode(CNode *pnode) {
@@ -846,7 +844,7 @@ void PeerLogicValidation::InitializeNode(CNode *pnode) {
     NodeId nodeid = pnode->GetId();
     {
         LOCK(cs_main);
-        mapNodeState.emplace_hint(mapNodeState.end(), std::piecewise_construct, std::forward_as_tuple(nodeid), std::forward_as_tuple(addr, std::move(addrName), pnode->fInbound, pnode->m_manual_connection));
+        mapNodeState.emplace_hint(mapNodeState.end(), std::piecewise_construct, std::forward_as_tuple(nodeid), std::forward_as_tuple(addr, std::move(addrName), pnode->fInbound, pnode->IsManualConn()));
     }
     if(!pnode->fInbound)
         PushNodeVersion(*pnode, *connman, GetTime());
@@ -2353,7 +2351,7 @@ void ProcessMessage(
         {
             connman.SetServices(pfrom.addr, nServices);
         }
-        if (pfrom.ExpectServicesFromConn() && !HasAllDesirableServiceFlags(nServices))
+        if (!pfrom.fInbound && !pfrom.fFeeler && !pfrom.IsManualConn() && !HasAllDesirableServiceFlags(nServices))
         {
             LogPrint(BCLog::NET, "peer=%d does not offer the expected services (%08x offered, %08x expected); disconnecting\n", pfrom.GetId(), nServices, GetDesirableServiceFlags(nServices));
             pfrom.fDisconnect = true;
@@ -3787,7 +3785,7 @@ bool PeerLogicValidation::MaybeDiscourageAndDisconnect(CNode& pnode)
         return false;
     }
 
-    if (pnode.m_manual_connection) {
+    if (pnode.IsManualConn()) {
         // We never disconnect or discourage manual peers for bad behavior
         LogPrintf("Warning: not punishing manually connected peer %d!\n", peer_id);
         return false;

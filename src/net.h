@@ -813,7 +813,6 @@ public:
     // This boolean is unusued in actual processing, only present for backward compatibility at RPC/QT level
     bool m_legacyWhitelisted{false};
     bool m_addr_fetch{false};
-    bool m_manual_connection{false};
     bool fClient{false}; // set by version message
     bool m_limited_node{false}; //after BIP159, set by version message
     const bool fInbound;
@@ -829,31 +828,8 @@ public:
     std::atomic_bool fPauseRecv{false};
     std::atomic_bool fPauseSend{false};
 
-    bool IsOutboundOrBlockRelayConn() const {
-        switch(m_conn_type) {
-            case ConnectionType::OUTBOUND:
-            case ConnectionType::BLOCK_RELAY:
-                return true;
-            case ConnectionType::INBOUND:
-            case ConnectionType::MANUAL:
-            case ConnectionType::ADDR_FETCH:
-            case ConnectionType::FEELER:
-                return false;
-        }
-
-        assert(false);
-    }
-
-    bool IsFullOutboundConn() const {
-        return m_conn_type == ConnectionType::OUTBOUND;
-    }
-
     bool IsManualConn() const {
         return m_conn_type == ConnectionType::MANUAL;
-    }
-
-    bool IsFeelerConn() const {
-        return m_conn_type == ConnectionType::FEELER;
     }
 
 protected:
