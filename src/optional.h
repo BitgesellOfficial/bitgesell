@@ -5,15 +5,16 @@
 #ifndef BGL_OPTIONAL_H
 #define BGL_OPTIONAL_H
 
+#include <optional>
 #include <utility>
 
-#include <boost/optional.hpp>
-
 //! Substitute for C++17 std::optional
+//! DEPRECATED use std::optional in new code.
 template <typename T>
-using Optional = boost::optional<T>;
+using Optional = std::optional<T>;
 
 //! Substitute for C++17 std::nullopt
-static auto& nullopt = boost::none;
+//! DEPRECATED use std::nullopt in new code.
+static auto& nullopt = std::nullopt;
 
 #endif // BGL_OPTIONAL_H
