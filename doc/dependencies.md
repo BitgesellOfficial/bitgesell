@@ -6,15 +6,15 @@ These are the dependencies currently used by BGL Core. You can find instructions
 | Dependency | Version used | Minimum required | CVEs | Shared | [Bundled Qt library](https://doc.qt.io/qt-5/configure-options.html#third-party-libraries) |
 | --- | --- | --- | --- | --- | --- |
 | Berkeley DB | [4.8.30](https://www.oracle.com/technetwork/database/database-technologies/berkeleydb/downloads/index.html) | 4.8.x | No |  |  |
-| Boost | [1.70.0](https://www.boost.org/users/download/) | [1.47.0](https://github.com/BGL/BGL/pull/8920) | No |  |  |
-| Clang |  | [3.3+](https://releases.llvm.org/download.html) (C++11 support) |  |  |  |
+| Boost | [1.70.0](https://www.boost.org/users/download/) | [1.58.0](https://github.com/bitcoin/bitcoin/pull/19667) | No |  |  |
+| Clang |  | [5.0+](https://releases.llvm.org/download.html) (C++17 support) |  |  |  |
 | Expat | [2.2.7](https://libexpat.github.io/) |  | No | Yes |  |
 | fontconfig | [2.12.1](https://www.freedesktop.org/software/fontconfig/release/) |  | No | Yes |  |
-| FreeType | [2.7.1](https://download.savannah.gnu.org/releases/freetype) |  | No |  | [Yes](https://github.com/BGL/BGL/blob/master/depends/packages/qt.mk) (Android only) |
-| GCC |  | [4.8+](https://gcc.gnu.org/) (C++11 support) |  |  |  |
-| HarfBuzz-NG |  |  |  |  | [Yes](https://github.com/BGL/BGL/blob/master/depends/packages/qt.mk) |
-| libevent | [2.1.11-stable](https://github.com/libevent/libevent/releases) | 2.0.22 | No |  |  |
-| libpng |  |  |  |  | [Yes](https://github.com/BGL/BGL/blob/master/depends/packages/qt.mk) |
+| FreeType | [2.7.1](https://download.savannah.gnu.org/releases/freetype) |  | No |  | [Yes](https://github.com/bitcoin/bitcoin/blob/master/depends/packages/qt.mk) (Android only) |
+| GCC |  | [7+](https://gcc.gnu.org/) (C++17 support) |  |  |  |
+| HarfBuzz-NG |  |  |  |  | [Yes](https://github.com/bitcoin/bitcoin/blob/master/depends/packages/qt.mk) |
+| libevent | [2.1.11-stable](https://github.com/libevent/libevent/releases) | [2.0.21](https://github.com/bitcoin/bitcoin/pull/18676) | No |  |  |
+| libpng |  |  |  |  | [Yes](https://github.com/bitcoin/bitcoin/blob/master/depends/packages/qt.mk) |
 | librsvg | |  |  |  |  |
 | MiniUPnPc | [2.0.20180203](https://miniupnp.tuxfamily.org/files) |  | No |  |  |
 | PCRE |  |  |  |  | [Yes](https://github.com/bitcoin/bitcoin/blob/master/depends/packages/qt.mk) |
