@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Bitcoin Core developers
+// Copyright (c) 2019 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -6,7 +6,7 @@
 #define BGL_UTIL_CHECK_H
 
 #if defined(HAVE_CONFIG_H)
-#include <config/bitcoin-config.h>
+#include <config/BGL-config.h>
 #endif
 
 #include <tinyformat.h>
@@ -41,5 +41,9 @@ class NonFatalCheckError : public std::runtime_error
                     PACKAGE_BUGREPORT));                          \
         }                                                         \
     } while (false)
+
+#if defined(NDEBUG)
+#error "Cannot compile without assertions!"
+#endif
 
 #endif // BGL_UTIL_CHECK_H
