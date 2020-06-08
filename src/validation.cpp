@@ -50,7 +50,7 @@
 #include <string>
 
 #include <boost/algorithm/string/replace.hpp>
-
+ 
 #define MICRO 0.000001
 #define MILLI 0.001
 
