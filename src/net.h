@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The BGL Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,6 +10,7 @@
 #include <addrman.h>
 #include <amount.h>
 #include <bloom.h>
+#include <chainparams.h>
 #include <compat.h>
 #include <crypto/siphash.h>
 #include <hash.h>
@@ -743,13 +744,14 @@ public:
     // read and deserialize data
     virtual int Read(const char *data, unsigned int bytes) = 0;
     // decomposes a message from the context
-    virtual CNetMessage GetMessage(const CMessageHeader::MessageStartChars& message_start, std::chrono::microseconds time) = 0;
+    virtual Optional<CNetMessage> GetMessage(std::chrono::microseconds time, uint32_t& out_err) = 0;
     virtual ~TransportDeserializer() {}
 };
 
 class V1TransportDeserializer final : public TransportDeserializer
 {
 private:
+    const CChainParams& m_chain_params;
     const NodeId m_node_id; // Only for logging
     mutable CHash256 hasher;
     mutable uint256 data_hash;
@@ -776,8 +778,9 @@ private:
     }
 
 public:
-    V1TransportDeserializer(const CMessageHeader::MessageStartChars& pchMessageStartIn, const NodeId node_id, int nTypeIn, int nVersionIn)
-        : m_node_id(node_id),
+    V1TransportDeserializer(const CChainParams& chain_params, const NodeId node_id, int nTypeIn, int nVersionIn)
+        : m_chain_params(chain_params),
+          m_node_id(node_id),
           hdrbuf(nTypeIn, nVersionIn),
           hdr(pchMessageStartIn),
           vRecv(nTypeIn, nVersionIn)
@@ -801,16 +804,12 @@ public:
         if (ret < 0) Reset();
         return ret;
     }
-    CNetMessage GetMessage(const CMessageHeader::MessageStartChars& message_start, std::chrono::microseconds time) override;
+    Optional<CNetMessage> GetMessage(std::chrono::microseconds time, uint32_t& out_err_raw_size) override;
 };
 
 /** The TransportSerializer prepares messages for the network transport
  */
-class TransportSerializer {
-public:
-    // prepare message for transport (header construction, error-correction computation, payload encryption, etc.)
     virtual void prepareForTransport(CSerializedNetMsg& msg, std::vector<unsigned char>& header) = 0;
-    virtual ~TransportSerializer() {}
 };
 
 class V1TransportSerializer  : public TransportSerializer {
