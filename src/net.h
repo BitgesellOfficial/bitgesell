@@ -778,11 +778,9 @@ private:
     }
 
 public:
-    V1TransportDeserializer(const CChainParams& chain_params, const NodeId node_id, int nTypeIn, int nVersionIn)
-        : m_chain_params(chain_params),
-          m_node_id(node_id),
+    V1TransportDeserializer(const NodeId node_id, int nTypeIn, int nVersionIn)
+        : m_node_id(node_id),
           hdrbuf(nTypeIn, nVersionIn),
-          hdr(pchMessageStartIn),
           vRecv(nTypeIn, nVersionIn)
     {
         Reset();
