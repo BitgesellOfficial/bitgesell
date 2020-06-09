@@ -44,7 +44,31 @@ BOOST_AUTO_TEST_CASE(findBlock)
     BOOST_CHECK(chain->findBlock(active[60]->GetBlockHash(), FoundBlock().mtpTime(mtp_time)));
     BOOST_CHECK_EQUAL(mtp_time, active[60]->GetMedianTimePast());
 
+    bool cur_active{false}, next_active{false};
+    uint256 next_hash;
+    BOOST_CHECK_EQUAL(active.Height(), 100);
+    BOOST_CHECK(chain->findBlock(active[99]->GetBlockHash(), FoundBlock().inActiveChain(cur_active).nextBlock(FoundBlock().inActiveChain(next_active).hash(next_hash))));
+    BOOST_CHECK(cur_active);
+    BOOST_CHECK(next_active);
+    BOOST_CHECK_EQUAL(next_hash, active[100]->GetBlockHash());
+    cur_active = next_active = false;
+    BOOST_CHECK(chain->findBlock(active[100]->GetBlockHash(), FoundBlock().inActiveChain(cur_active).nextBlock(FoundBlock().inActiveChain(next_active))));
+    BOOST_CHECK(cur_active);
+    BOOST_CHECK(!next_active);
+
     BOOST_CHECK(!chain->findBlock({}, FoundBlock()));
+}
+
+BOOST_AUTO_TEST_CASE(findFirstBlockWithTimeAndHeight)
+{
+    auto chain = interfaces::MakeChain(m_node);
+    auto& active = ChainActive();
+    uint256 hash;
+    int height;
+    BOOST_CHECK(chain->findFirstBlockWithTimeAndHeight(/* min_time= */ 0, /* min_height= */ 5, FoundBlock().hash(hash).height(height)));
+    BOOST_CHECK_EQUAL(hash, active[5]->GetBlockHash());
+    BOOST_CHECK_EQUAL(height, 5);
+    BOOST_CHECK(!chain->findFirstBlockWithTimeAndHeight(/* min_time= */ active.Tip()->GetBlockTimeMax() + 1, /* min_height= */ 0));
 }
 
 BOOST_AUTO_TEST_CASE(findAncestorByHeight)
