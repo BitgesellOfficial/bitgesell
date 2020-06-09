@@ -127,6 +127,58 @@ $(OSX_BACKGROUND_IMAGE): $(OSX_BACKGROUND_IMAGE).png $(OSX_BACKGROUND_IMAGE)@2x.
 	tiffutil -cathidpicheck $^ -out $@
 
 deploydir: $(OSX_DMG)
+lib_LTLIBRARIES = libsecp256k1.la
+include_HEADERS = include/secp256k1.h
+include_HEADERS += include/secp256k1_preallocated.h
+noinst_HEADERS =
+noinst_HEADERS += src/scalar.h
+noinst_HEADERS += src/scalar_4x64.h
+noinst_HEADERS += src/scalar_8x32.h
+noinst_HEADERS += src/scalar_low.h
+noinst_HEADERS += src/scalar_impl.h
+noinst_HEADERS += src/scalar_4x64_impl.h
+noinst_HEADERS += src/scalar_8x32_impl.h
+noinst_HEADERS += src/scalar_low_impl.h
+noinst_HEADERS += src/group.h
+noinst_HEADERS += src/group_impl.h
+noinst_HEADERS += src/num_gmp.h
+noinst_HEADERS += src/num_gmp_impl.h
+noinst_HEADERS += src/ecdsa.h
+noinst_HEADERS += src/ecdsa_impl.h
+noinst_HEADERS += src/eckey.h
+noinst_HEADERS += src/eckey_impl.h
+noinst_HEADERS += src/ecmult.h
+noinst_HEADERS += src/ecmult_impl.h
+noinst_HEADERS += src/ecmult_const.h
+noinst_HEADERS += src/ecmult_const_impl.h
+noinst_HEADERS += src/ecmult_gen.h
+noinst_HEADERS += src/ecmult_gen_impl.h
+noinst_HEADERS += src/num.h
+noinst_HEADERS += src/num_impl.h
+noinst_HEADERS += src/field_10x26.h
+noinst_HEADERS += src/field_10x26_impl.h
+noinst_HEADERS += src/field_5x52.h
+noinst_HEADERS += src/field_5x52_impl.h
+noinst_HEADERS += src/field_5x52_int128_impl.h
+noinst_HEADERS += src/field_5x52_asm_impl.h
+noinst_HEADERS += src/util.h
+noinst_HEADERS += src/scratch.h
+noinst_HEADERS += src/scratch_impl.h
+noinst_HEADERS += src/testrand.h
+noinst_HEADERS += src/testrand_impl.h
+noinst_HEADERS += src/hash.h
+noinst_HEADERS += src/hash_impl.h
+noinst_HEADERS += src/field.h
+noinst_HEADERS += src/field_impl.h
+noinst_HEADERS += src/bench.h
+noinst_HEADERS += contrib/lax_der_parsing.h
+noinst_HEADERS += contrib/lax_der_parsing.c
+noinst_HEADERS += contrib/lax_der_privatekey_parsing.h
+noinst_HEADERS += contrib/lax_der_privatekey_parsing.c
+
+if USE_EXTERNAL_ASM
+COMMON_LIB = libsecp256k1_common.la
+noinst_LTLIBRARIES = $(COMMON_LIB)
 else
 APP_DIST_DIR=$(top_builddir)/dist
 APP_DIST_EXTRAS=$(APP_DIST_DIR)/.background/$(OSX_BACKGROUND_IMAGE) $(APP_DIST_DIR)/.DS_Store $(APP_DIST_DIR)/Applications
@@ -154,6 +206,48 @@ $(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/BGL-Qt: $(OSX_APP_BUILT) $(OSX_PACKAGI
 	INSTALLNAMETOOL=$(INSTALLNAMETOOL)  OTOOL=$(OTOOL) STRIP=$(STRIP) $(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) -translations-dir=$(QT_TRANSLATION_DIR) -add-qt-tr $(OSX_QT_TRANSLATIONS) -verbose 2
 
 deploydir: $(APP_DIST_EXTRAS)
+libsecp256k1_la_SOURCES = src/secp256k1.c
+libsecp256k1_la_CPPFLAGS = -DSECP256K1_BUILD -I$(top_srcdir)/include -I$(top_srcdir)/src $(SECP_INCLUDES)
+libsecp256k1_la_LIBADD = $(SECP_LIBS) $(COMMON_LIB)
+
+if VALGRIND_ENABLED
+libsecp256k1_la_CPPFLAGS += -DVALGRIND
+endif
+
+noinst_PROGRAMS =
+if USE_BENCHMARK
+noinst_PROGRAMS += bench_verify bench_sign bench_internal bench_ecmult
+bench_verify_SOURCES = src/bench_verify.c
+bench_verify_LDADD = libsecp256k1.la $(SECP_LIBS) $(SECP_TEST_LIBS) $(COMMON_LIB)
+# SECP_TEST_INCLUDES are only used here for CRYPTO_CPPFLAGS
+bench_verify_CPPFLAGS = -DSECP256K1_BUILD $(SECP_TEST_INCLUDES)
+bench_sign_SOURCES = src/bench_sign.c
+bench_sign_LDADD = libsecp256k1.la $(SECP_LIBS) $(SECP_TEST_LIBS) $(COMMON_LIB)
+bench_internal_SOURCES = src/bench_internal.c
+bench_internal_LDADD = $(SECP_LIBS) $(COMMON_LIB)
+bench_internal_CPPFLAGS = -DSECP256K1_BUILD $(SECP_INCLUDES)
+bench_ecmult_SOURCES = src/bench_ecmult.c
+bench_ecmult_LDADD = $(SECP_LIBS) $(COMMON_LIB)
+bench_ecmult_CPPFLAGS = -DSECP256K1_BUILD $(SECP_INCLUDES)
+endif
+
+TESTS =
+if USE_TESTS
+noinst_PROGRAMS += tests
+tests_SOURCES = src/tests.c
+tests_CPPFLAGS = -DSECP256K1_BUILD -I$(top_srcdir)/src -I$(top_srcdir)/include $(SECP_INCLUDES) $(SECP_TEST_INCLUDES)
+if VALGRIND_ENABLED
+tests_CPPFLAGS += -DVALGRIND
+noinst_PROGRAMS += valgrind_ctime_test
+valgrind_ctime_test_SOURCES = src/valgrind_ctime_test.c
+valgrind_ctime_test_LDADD = libsecp256k1.la $(SECP_LIBS) $(SECP_TEST_LIBS) $(COMMON_LIB)
+endif
+if !ENABLE_COVERAGE
+tests_CPPFLAGS += -DVERIFY
+endif
+tests_LDADD = $(SECP_LIBS) $(SECP_TEST_LIBS) $(COMMON_LIB)
+tests_LDFLAGS = -static
+TESTS += tests
 endif
 
 if TARGET_DARWIN
