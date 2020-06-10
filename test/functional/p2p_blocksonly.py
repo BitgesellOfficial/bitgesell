@@ -22,21 +22,16 @@ class P2PBlocksOnly(BGLTestFramework):
 
     def run_test(self):
         self.blocksonly_mode_tests()
-        self.blocks_relay_conn_tests()
 
     def blocksonly_mode_tests(self):
         self.log.info("Tests with node running in -blocksonly mode")
         assert_equal(self.nodes[0].getnetworkinfo()['localrelay'], False)
-        with self.nodes[0].assert_debug_log(['transaction sent in violation of protocol peer=0']):
-            block_relay_peer.send_message(msg_tx(FromHex(CTransaction(), sigtx)))
-            block_relay_peer.wait_for_disconnect()
-            assert_equal(self.nodes[0].getmempoolinfo()['size'], 0)
 
-        # Remove the disconnected peer and add a new one.
-        del self.nodes[0].p2ps[0]
-        tx_relay_peer = self.nodes[0].add_p2p_connection(P2PInterface())
+        self.nodes[0].add_p2p_connection(P2PInterface())
+        tx, txid, tx_hex = self.check_p2p_tx_violation()
 
         self.log.info('Check that txs from rpc are not rejected and relayed to other peers')
+        tx_relay_peer = self.nodes[0].add_p2p_connection(P2PInterface())
         assert_equal(self.nodes[0].getpeerinfo()[0]['relaytxes'], True)
         txid = self.nodes[0].testmempoolaccept([sigtx])[0]['txid']
         with self.nodes[0].assert_debug_log(['received getdata for: wtx {} peer=1'.format(txid)]):
@@ -72,37 +67,10 @@ class P2PBlocksOnly(BGLTestFramework):
             assert_equal(self.nodes[0].getmempoolinfo()['size'], 1)
         self.log.info("Relay-permission peer's transaction is accepted and relayed")
 
-        self.nodes[0].disconnect_p2ps()
-        self.nodes[0].generate(1)
-
-    def blocks_relay_conn_tests(self):
-        self.log.info('Tests with node in normal mode with block-relay-only connections')
-        self.restart_node(0, ["-noblocksonly"])  # disables blocks only mode
-        assert_equal(self.nodes[0].getnetworkinfo()['localrelay'], True)
-
-        # Ensure we disconnect if a block-relay-only connection sends us a transaction
-        self.nodes[0].add_outbound_p2p_connection(P2PInterface(), p2p_idx=0, connection_type="block-relay-only")
-        assert_equal(self.nodes[0].getpeerinfo()[0]['relaytxes'], False)
-        _, txid, tx_hex = self.check_p2p_tx_violation(index=2)
-
-        self.log.info("Check that txs from RPC are not sent to blockrelay connection")
-        conn = self.nodes[0].add_outbound_p2p_connection(P2PTxInvStore(), p2p_idx=1, connection_type="block-relay-only")
-
-        self.nodes[0].sendrawtransaction(tx_hex)
-
-        # Bump time forward to ensure nNextInvSend timer pops
-        self.nodes[0].setmocktime(int(time.time()) + 60)
-
-        # Calling sync_with_ping twice requires that the node calls
-        # `ProcessMessage` twice, and thus ensures `SendMessages` must have
-        # been called at least once
-        conn.sync_with_ping()
-        conn.sync_with_ping()
-        assert(int(txid, 16) not in conn.get_invs())
-
-    def check_p2p_tx_violation(self, index=1):
+    def check_p2p_tx_violation(self):
         self.log.info('Check that txs from P2P are rejected and result in disconnect')
-        input_txid = self.nodes[0].getblock(self.nodes[0].getblockhash(index), 2)['tx'][0]['txid']
+
+        input_txid = self.nodes[0].getblock(self.nodes[0].getblockhash(1), 2)['tx'][0]['txid']
         tx = create_transaction(self.nodes[0], input_txid, self.nodes[0].getnewaddress(), amount=(50 - 0.001))
         txid = tx.rehash()
         tx_hex = tx.serialize().hex()
