@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2020 The Bitcoin Core developers
+// Copyright (c) 2016-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -16,7 +16,7 @@
 
 // Microbenchmark for verification of a basic P2WPKH script. Can be easily
 // modified to measure performance of other types of scripts.
-static void VerifyScriptBench(benchmark::State& state)
+static void VerifyScriptBench(benchmark::Bench& bench)
 {
     const ECCVerifyHandle verify_handle;
     ECC_Start();
@@ -49,7 +49,7 @@ static void VerifyScriptBench(benchmark::State& state)
     witness.stack.push_back(ToByteVector(pubkey));
 
     // Benchmark.
-    while (state.KeepRunning()) {
+    bench.run([&] {
         ScriptError err;
         bool success = VerifyScript(
             txSpend.vin[0].scriptSig,
@@ -71,8 +71,30 @@ static void VerifyScriptBench(benchmark::State& state)
             (const unsigned char*)stream.data(), stream.size(), 0, flags, nullptr);
         assert(csuccess == 1);
 #endif
-    }
+    });
     ECC_Stop();
 }
 
-BENCHMARK(VerifyScriptBench, 6300);
+static void VerifyNestedIfScript(benchmark::Bench& bench)
+{
+    std::vector<std::vector<unsigned char>> stack;
+    CScript script;
+    for (int i = 0; i < 100; ++i) {
+        script << OP_1 << OP_IF;
+    }
+    for (int i = 0; i < 1000; ++i) {
+        script << OP_1;
+    }
+    for (int i = 0; i < 100; ++i) {
+        script << OP_ENDIF;
+    }
+    bench.run([&] {
+        auto stack_copy = stack;
+        ScriptError error;
+        bool ret = EvalScript(stack_copy, script, 0, BaseSignatureChecker(), SigVersion::BASE, &error);
+        assert(ret);
+    });
+}
+
+BENCHMARK(VerifyScriptBench);
+BENCHMARK(VerifyNestedIfScript);
