@@ -292,4 +292,7 @@ bool ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue, st
 /* Recover filter (used as callback), will only let keys (cryptographical keys) as KV/key-type pass through */
 bool RecoverKeysOnlyFilter(void *callbackData, CDataStream ssKey, CDataStream ssValue);
 
+/** Return whether a wallet database is currently loaded. */
+bool IsWalletLoaded(const fs::path& wallet_path);
+
 #endif // BGL_WALLET_WALLETDB_H
