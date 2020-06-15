@@ -3599,7 +3599,7 @@ void ProcessMessage(
 
 bool PeerLogicValidation::MaybeDiscourageAndDisconnect(CNode& pnode)
 {
-    AssertLockHeld(cs_main);
+    LOCK(cs_main);
     CNodeState &state = *State(pnode.GetId());
 
     if (state.m_should_discourage) {
@@ -3714,9 +3714,6 @@ bool PeerLogicValidation::ProcessMessages(CNode* pfrom, std::atomic<bool>& inter
     } catch (...) {
         LogPrint(BCLog::NET, "%s(%s, %u bytes): Unknown exception caught\n", __func__, SanitizeString(msg_type), nMessageSize);
     }
-
-    LOCK(cs_main);
-    MaybeDiscourageAndDisconnect(*pfrom);
 
     return fMoreWork;
 }
@@ -3879,6 +3876,10 @@ bool PeerLogicValidation::SendMessages(CNode* pto)
 {
     const Consensus::Params& consensusParams = Params().GetConsensus();
 
+    // We must call MaybeDiscourageAndDisconnect first, to ensure that we'll
+    // disconnect misbehaving peers even before the version handshake is complete.
+    if (MaybeDiscourageAndDisconnect(*pto)) return true;
+
     // Don't send anything until the version handshake is complete
     if (!pto->fSuccessfullyConnected || pto->fDisconnect)
         return true;
@@ -3917,8 +3918,6 @@ bool PeerLogicValidation::SendMessages(CNode* pto)
 
     {
         LOCK(cs_main);
-
-        if (MaybeDiscourageAndDisconnect(*pto)) return true;
 
         CNodeState &state = *State(pto->GetId());
 
