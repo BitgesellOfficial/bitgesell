@@ -246,10 +246,6 @@ static UniValue generatetoaddress(const JSONRPCRequest& request)
                 "\nMine blocks immediately to a specified address (before the RPC call returns)\n",
                 {
                     {"nblocks", RPCArg::Type::NUM, RPCArg::Optional::NO, "How many blocks are generated immediately."},
-<<<<<<< HEAD
-                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The address to send the newly generated BGL to."},
-                    {"maxtries", RPCArg::Type::NUM, /* default */ "1000000", "How many iterations to try."},
-=======
                     {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The address to send the newly generated BGL to."},
                     RPCResult::Type::ARR, "", "hashes of blocks generated",
                     {
@@ -257,7 +253,7 @@ static UniValue generatetoaddress(const JSONRPCRequest& request)
                 RPCExamples{
             "\nGenerate 11 blocks to myaddress\n"
             + HelpExampleCli("generatetoaddress", "11 \"myaddress\"")
-            + "If you are running the BGL core wallet, you can get a new address to send the newly generated BGL to with:\n"
+            + "If you are using the " PACKAGE_NAME " wallet, you can get a new address to send the newly generated BGL to with:\n"
             + HelpExampleCli("getnewaddress", "")
                 },
             }.Check(request);
