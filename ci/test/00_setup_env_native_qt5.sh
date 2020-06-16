@@ -21,12 +21,6 @@ export DOCKER_NAME_TAG=ubuntu:18.04  # Check that bionic gcc-7 can compile our c
 #export NO_DEPENDS #default
 #export DEP_OPTS #no relevant
 export GOAL="install"
-export BGL_CONFIG="--with-gui=qt5 --disable-wallet --disable-bench "
-export PACKAGES="libevent-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-test-dev libboost-thread-dev python3-zmq qtbase5-dev qttools5-dev-tools libdbus-1-dev libharfbuzz-dev"
-#export PIP_PACKAGES #no relevant
-
-
-export TEST_RUNNER_EXTRA="--coverage --extended --exclude feature_dbcrash"  # Run extended tests so that coverage does not fail, but exclude the very slow dbcrash
-export RUN_UNIT_TESTS="false"
-export RUN_FUNCTIONAL_TESTS="false"
-export EVENT_LIBS="/usr/lib/x86_64-linux-gnu/libevent.a /usr/lib/x86_64-linux-gnu/libevent_pthreads.a"
+export PREVIOUS_RELEASES_TO_DOWNLOAD="v0.15.2 v0.16.3 v0.17.2 v0.18.1 v0.19.1"
+export BGL_CONFIG="--enable-zmq --with-libs=no --with-gui=qt5 --enable-glibc-back-compat --enable-reduce-exports
+--enable-debug --disable-fuzz-binary  CFLAGS=\"-g0 -O2 -funsigned-char\" CXXFLAGS=\"-g0 -O2 -funsigned-char\""

@@ -21,13 +21,4 @@ export DOCKER_NAME_TAG=ubuntu:18.04  # Check that bionic gcc-7 can compile our c
 #export NO_DEPENDS #default
 #export DEP_OPTS #no relevant
 export GOAL="install"
-export BGL_CONFIG="--with-gui=no --disable-wallet --disable-bench"
-export PACKAGES="libevent-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-test-dev libboost-thread-dev"
-#export PIP_PACKAGES #no relevant
-
-
-export TEST_RUNNER_EXTRA="--coverage --extended --exclude feature_dbcrash"  # Run extended tests so that coverage does not fail, but exclude the very slow dbcrash
-export RUN_UNIT_TESTS="false"
-export RUN_FUNCTIONAL_TESTS="false"
-export EVENT_LIBS="/usr/lib/x86_64-linux-gnu/libevent.a /usr/lib/x86_64-linux-gnu/libevent_pthreads.a"
-
+export BGL_CONFIG="--enable-glibc-back-compat --enable-reduce-exports CC=clang-5.0 CXX=clang++-5.0"
