@@ -149,6 +149,7 @@ BGL_CORE_H = \
   core_memusage.h \
   cuckoocache.h \
   dbwrapper.h \
+  deploymentstatus.h \
   external_signer.h \
   flatfile.h \
   fs.h \
