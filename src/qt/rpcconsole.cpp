@@ -1151,7 +1151,7 @@ void RPCConsole::updateNodeDetail(const CNodeCombinedStats *stats)
         else
             ui->peerCommonHeight->setText(tr("Unknown"));
 
-        ui->peerHeight->setText(QString::number(stats->nodeStateStats.nStartingHeight));
+        ui->peerHeight->setText(QString::number(stats->nodeStateStats.m_starting_height));
     }
 
     ui->detailWidget->show();

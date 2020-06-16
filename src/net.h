@@ -708,7 +708,9 @@ public:
     std::string cleanSubVer;
     bool fInbound;
     bool m_manual_connection;
-    int nStartingHeight;
+    bool m_bip152_highbandwidth_to;
+    bool m_bip152_highbandwidth_from;
+    int m_starting_height;
     uint64_t nSendBytes;
     mapMsgCmdSize mapSendBytesPerMsgCmd;
     uint64_t nRecvBytes;
