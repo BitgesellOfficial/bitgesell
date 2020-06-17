@@ -45,6 +45,11 @@ wallet versions of BGL Core are generally supported.
 Compatibility
 ==============
 
+During this release cycle, work has been done to ensure that the codebase is fully
+compatible with C++17. The intention is to begin using C++17 features starting
+with the 0.22.0 release. This means that a compiler that supports C++17 will be
+required to compile 0.22.0.
+
 BGL Core is supported and extensively tested on operating systems
 using the Linux kernel, macOS 10.12+, and Windows 7 and newer.  BGL
 Core should also work on most other Unix-like systems but is not as
@@ -116,14 +121,14 @@ Wallet
   empty. Previously it failed. (#17219)
 
 - The `-salvagewallet` startup option has been removed. A new `salvage` command
-  has been added to the `bitcoin-wallet` tool which performs the salvage
+  has been added to the `BGL-wallet` tool which performs the salvage
   operations that `-salvagewallet` did. (#18918)
 
 ### Experimental Descriptor Wallets
 
 Please note that Descriptor Wallets are still experimental and not all expected functionality
 is available. Additionally there may be some bugs and current functions may change in the future.
-Bugs and missing functionality can be reported to the [issue tracker](https://github.com/bitcoin/bitcoin/issues).
+Bugs and missing functionality can be reported to the [issue tracker](https://github.com/BGL/BGL/issues).
 
 0.21 introduces a new type of wallet - Descriptor Wallets. Descriptor Wallets store
 scriptPubKey information using descriptors. This is in contrast to the Legacy Wallet
@@ -134,9 +139,9 @@ of "mine" for scripts which is simpler and more intuitive than that used by Lega
 Descriptor Wallets also uses different semantics for watch-only things and imports.
 
 As Descriptor Wallets are a new type of wallet, their introduction does not affect existing wallets.
-Users who already have a Bitcoin Core wallet can continue to use it as they did before without
+Users who already have a BGL Core wallet can continue to use it as they did before without
 any change in behavior. Newly created Legacy Wallets (which is the default type of wallet) will
-behave as they did in previous versions of Bitcoin Core.
+behave as they did in previous versions of BGL Core.
 
 The differences between Descriptor Wallets and Legacy Wallets are largely limited to non user facing
 things. They are intended to behave similarly except for the import/export and watchonly functionality
@@ -152,7 +157,7 @@ In the GUI, a checkbox has been added to the Create Wallet Dialog to indicate th
 Descriptor Wallet should be created.
 
 Without those options being set, a Legacy Wallet will be created instead. Additionally the
-Default Wallet created upon first startup of Bitcoin Core will be a Legacy Wallet.
+Default Wallet created upon first startup of BGL Core will be a Legacy Wallet.
 
 #### `IsMine` Semantics
 
@@ -233,7 +238,7 @@ descriptors with private keys for now as explained earlier.
 
 #### BIP 44/49/84 Support
 
-The change to using descriptors changes the default derivation paths used by Bitcoin Core
+The change to using descriptors changes the default derivation paths used by BGL Core
 to adhere to BIP 44/49/84. Descriptors with different derivation paths can be imported without
 issue.
 
