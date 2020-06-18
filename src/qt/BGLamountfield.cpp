@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2019 The Bitcoin Core developers
+// Copyright (c) 2011-2019 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -56,7 +56,7 @@ public:
 
         if (valid) {
             val = qBound(m_min_amount, val, m_max_amount);
-            input = BGLUnits::format(currentUnit, val, false, BGLUnits::separatorAlways);
+            input = BGLUnits::format(currentUnit, val, false, BGLUnits::SeparatorStyle::ALWAYS);
             lineEdit()->setText(input);
         }
     }
@@ -68,7 +68,7 @@ public:
 
     void setValue(const CAmount& value)
     {
-        lineEdit()->setText(BGLUnits::format(currentUnit, value, false, BGLUnits::separatorAlways));
+        lineEdit()->setText(BGLUnits::format(currentUnit, value, false, BGLUnits::SeparatorStyle::ALWAYS));
         Q_EMIT valueChanged();
     }
 
@@ -102,7 +102,7 @@ public:
         CAmount val = value(&valid);
 
         currentUnit = unit;
-        lineEdit()->setPlaceholderText(BGLUnits::format(currentUnit, m_min_amount, false, BGLUnits::separatorAlways));
+        lineEdit()->setPlaceholderText(BGLUnits::format(currentUnit, m_min_amount, false, BGLUnits::SeparatorStyle::ALWAYS));
         if(valid)
             setValue(val);
         else
@@ -122,7 +122,7 @@ public:
 
             const QFontMetrics fm(fontMetrics());
             int h = lineEdit()->minimumSizeHint().height();
-            int w = GUIUtil::TextWidth(fm, BGLUnits::format(BGLUnits::BGL, BGLUnits::maxMoney(), false, BGLUnits::separatorAlways));
+            int w = GUIUtil::TextWidth(fm, BGLUnits::format(BGLUnits::BTC, BGLUnits::maxMoney(), false, BGLUnits::SeparatorStyle::ALWAYS));
             w += 2; // cursor blinking space
 
             QStyleOptionSpinBox opt;

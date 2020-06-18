@@ -88,7 +88,7 @@ public:
             foreground = option.palette.color(QPalette::Text);
         }
         painter->setPen(foreground);
-        QString amountText = BGLUnits::formatWithUnit(unit, amount, true, BGLUnits::separatorAlways);
+        QString amountText = BGLUnits::formatWithUnit(unit, amount, true, BGLUnits::SeparatorStyle::ALWAYS);
         if(!confirmed)
         {
             amountText = QString("[") + amountText + QString("]");

@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Bitcoin Core developers
+// Copyright (c) 2011-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -179,7 +179,7 @@ QString formatBGLURI(const SendCoinsRecipient &info)
 
     if (info.amount)
     {
-        ret += QString("?amount=%1").arg(BGLUnits::format(BGLUnits::BGL, info.amount, false, BGLUnits::separatorNever));
+        ret += QString("?amount=%1").arg(BGLUnits::format(BGLUnits::BTC, info.amount, false, BGLUnits::SeparatorStyle::NEVER));
         paramCount++;
     }
 
