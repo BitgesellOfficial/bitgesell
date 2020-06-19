@@ -1125,7 +1125,6 @@ void RPCConsole::updateNodeDetail(const CNodeCombinedStats *stats)
     ui->peerVersion->setText(QString::number(stats->nodeStats.nVersion));
     ui->peerSubversion->setText(QString::fromStdString(stats->nodeStats.cleanSubVer));
     ui->peerDirection->setText(stats->nodeStats.fInbound ? tr("Inbound") : tr("Outbound"));
-    ui->peerHeight->setText(QString::number(stats->nodeStats.nStartingHeight));
     if (stats->nodeStats.m_permissionFlags == PF_NONE) {
         ui->peerPermissions->setText(tr("N/A"));
     } else {
@@ -1151,6 +1150,8 @@ void RPCConsole::updateNodeDetail(const CNodeCombinedStats *stats)
             ui->peerCommonHeight->setText(QString("%1").arg(stats->nodeStateStats.nCommonHeight));
         else
             ui->peerCommonHeight->setText(tr("Unknown"));
+
+        ui->peerHeight->setText(QString::number(stats->nodeStateStats.nStartingHeight));
     }
 
     ui->detailWidget->show();
