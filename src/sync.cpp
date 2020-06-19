@@ -13,7 +13,10 @@
 #include <util/strencodings.h>
 #include <util/threadnames.h>
 
+#include <boost/thread/mutex.hpp>
+
 #include <map>
+#include <mutex>
 #include <set>
 #include <system_error>
 #include <thread>
@@ -188,7 +191,8 @@ static void pop_lock()
     }
 }
 
-void EnterCritical(const char* pszName, const char* pszFile, int nLine, void* cs, bool fTry)
+template <typename MutexType>
+void EnterCritical(const char* pszName, const char* pszFile, int nLine, MutexType* cs, bool fTry)
 {
     push_lock(cs, CLockLocation(pszName, pszFile, nLine, fTry, util::ThreadGetInternalName()));
 }
@@ -196,20 +200,19 @@ template void EnterCritical(const char*, const char*, int, Mutex*, bool);
 template void EnterCritical(const char*, const char*, int, RecursiveMutex*, bool);
 template void EnterCritical(const char*, const char*, int, std::mutex*, bool);
 template void EnterCritical(const char*, const char*, int, std::recursive_mutex*, bool);
+template void EnterCritical(const char*, const char*, int, boost::mutex*, bool);
 
 void CheckLastCritical(void* cs, std::string& lockname, const char* guardname, const char* file, int line)
 {
-    {
-        LockData& lockdata = GetLockData();
-        std::lock_guard<std::mutex> lock(lockdata.dd_mutex);
+    LockData& lockdata = GetLockData();
+    std::lock_guard<std::mutex> lock(lockdata.dd_mutex);
 
-        const LockStack& lock_stack = lockdata.m_lock_stacks[std::this_thread::get_id()];
-        if (!lock_stack.empty()) {
-            const auto& lastlock = lock_stack.back();
-            if (lastlock.first == cs) {
-                lockname = lastlock.second.Name();
-                return;
-            }
+    const LockStack& lock_stack = lockdata.m_lock_stacks[std::this_thread::get_id()];
+    if (!lock_stack.empty()) {
+        const auto& lastlock = lock_stack.back();
+        if (lastlock.first == cs) {
+            lockname = lastlock.second.Name();
+            return;
         }
     }
 
