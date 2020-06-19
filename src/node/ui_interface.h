@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BGL_UI_INTERFACE_H
-#define BGL_UI_INTERFACE_H
+#ifndef BGL_NODE_UI_INTERFACE_H
+#define BGL_NODE_UI_INTERFACE_H
 
 #include <functional>
 #include <memory>

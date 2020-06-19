@@ -216,7 +216,7 @@ BGL_CORE_H = \
   torcontrol.h \
   txdb.h \
   txmempool.h \
-  ui_interface.h \
+  node/ui_interface.h \
   undo.h \
   util/asmap.h \
   util/bip32.h \
@@ -328,7 +328,7 @@ libBGL_server_a_SOURCES = \
   torcontrol.cpp \
   txdb.cpp \
   txmempool.cpp \
-  ui_interface.cpp \
+  node/ui_interface.cpp \
   validation.cpp \
   validationinterface.cpp \
   versionbits.cpp \
