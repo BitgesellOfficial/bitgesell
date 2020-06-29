@@ -203,6 +203,15 @@ namespace {
      * million to make it highly unlikely for users to have issues with this
      * filter.
      *
+     * We only need to add wtxids to this filter. For non-segwit
+     * transactions, the txid == wtxid, so this only prevents us from
+     * re-downloading non-segwit transactions when communicating with
+     * non-wtxidrelay peers -- which is important for avoiding malleation
+     * attacks that could otherwise interfere with transaction relay from
+     * non-wtxidrelay peers. For communicating with wtxidrelay peers, having
+     * the reject filter store wtxids is exactly what we want to avoid
+     * redownload of a rejected transaction.
+     *
      * Memory used: 1.3 MB
      */
     std::unique_ptr<CRollingBloomFilter> recentRejects GUARDED_BY(cs_main);
@@ -2035,10 +2044,20 @@ void static ProcessOrphanTx(CConnman& connman, CTxMemPool& mempool, std::set<uin
             // Has inputs but not accepted to mempool
             // Probably non-standard or insufficient fee
             LogPrint(BCLog::MEMPOOL, "   removed orphan tx %s\n", orphanHash.ToString());
-            if (orphanTx.HasWitness() || orphan_state.GetResult() != TxValidationResult::TX_WITNESS_MUTATED) {
-                // Do not use rejection cache for witness transactions or
-                // witness-stripped transactions, as they can have been malleated.
-                // See https://github.com///issues/8279 for details.
+            if (orphan_state.GetResult() != TxValidationResult::TX_WITNESS_STRIPPED) {
+                // We can add the wtxid of this transaction to our reject filter.
+                // Do not add txids of witness transactions or witness-stripped
+                // transactions to the filter, as they can have been malleated;
+                // adding such txids to the reject filter would potentially
+                // interfere with relay of valid transactions from peers that
+                // do not support wtxid-based relay. See
+                // https://github.com/BGL/BGL/issues/8279 for details.
+                // We can remove this restriction (and always add wtxids to
+                // the filter even for witness stripped transactions) once
+                // wtxid-based relay is broadly deployed.
+                // See also comments in https://github.com/BGL/BGL/pull/18044#discussion_r443419034
+                // for concerns around weakening security of unupgraded nodes
+                // if we start doing this too early.
                 assert(recentRejects);
                 recentRejects->insert(orphanTx.GetWitnessHash());
             }
@@ -2990,14 +3009,28 @@ void ProcessMessage(
                 LogPrint(BCLog::MEMPOOL, "not keeping orphan with rejected parents %s\n",tx.GetHash().ToString());
                 // We will continue to reject this tx since it has rejected
                 // parents so avoid re-requesting it from other peers.
+                // Here we add both the txid and the wtxid, as we know that
+                // regardless of what witness is provided, we will not accept
+                // this, so we don't need to allow for redownload of this txid
+                // from any of our non-wtxidrelay peers.
                 recentRejects->insert(tx.GetHash());
                 recentRejects->insert(tx.GetWitnessHash());
             }
         } else {
-            if (tx.HasWitness() || state.GetResult() != TxValidationResult::TX_WITNESS_MUTATED) {
-                // Do not use rejection cache for witness transactions or
-                // witness-stripped transactions, as they can have been malleated.
-                // See https://github.com///issues/8279 for details.
+            if (state.GetResult() != TxValidationResult::TX_WITNESS_STRIPPED) {
+                // We can add the wtxid of this transaction to our reject filter.
+                // Do not add txids of witness transactions or witness-stripped
+                // transactions to the filter, as they can have been malleated;
+                // adding such txids to the reject filter would potentially
+                // interfere with relay of valid transactions from peers that
+                // do not support wtxid-based relay. See
+                // https://github.com/BGL/BGL/issues/8279 for details.
+                // We can remove this restriction (and always add wtxids to
+                // the filter even for witness stripped transactions) once
+                // wtxid-based relay is broadly deployed.
+                // See also comments in https://github.com/BGL/BGL/pull/18044#discussion_r443419034
+                // for concerns around weakening security of unupgraded nodes
+                // if we start doing this too early.
                 assert(recentRejects);
                 recentRejects->insert(tx.GetWitnessHash());
                 if (RecursiveDynamicUsage(*ptx) < 100000) {
