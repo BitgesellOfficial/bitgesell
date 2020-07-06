@@ -242,6 +242,9 @@ public:
 
     virtual uint256 GetID() const { return uint256(); }
 
+    /** Returns a set of all the scriptPubKeys that this ScriptPubKeyMan watches */
+    virtual const std::unordered_set<CScript, SaltedSipHasher> GetScriptPubKeys() const { return {}; };
+
     /** Prepends the wallet name in logging output to ease debugging in multi-wallet use cases */
     template<typename... Params>
     void WalletLogPrintf(std::string fmt, Params... parameters) const {
@@ -510,10 +513,6 @@ public:
 
     std::set<CKeyID> GetKeys() const override;
     const std::unordered_set<CScript, SaltedSipHasher> GetScriptPubKeys() const override;
-
-    /** Get the DescriptorScriptPubKeyMans (with private keys) that have the same scriptPubKeys as this LegacyScriptPubKeyMan.
-     * Does not modify this ScriptPubKeyMan. */
-    std::optional<MigrationData> MigrateToDescriptor();
 };
 
 /** Wraps a LegacyScriptPubKeyMan so that it can be returned in a new unique_ptr. Does not provide privkeys */
@@ -637,7 +636,7 @@ public:
     void WriteDescriptor();
 
     const WalletDescriptor GetWalletDescriptor() const EXCLUSIVE_LOCKS_REQUIRED(cs_desc_man);
-    const std::vector<CScript> GetScriptPubKeys() const;
+    const std::unordered_set<CScript, SaltedSipHasher> GetScriptPubKeys() const override;
 
     bool GetDescriptorString(std::string& out, const bool priv) const;
 
