@@ -403,9 +403,58 @@ void SendCoinsDialog::sendButtonClicked([[maybe_unused]] bool checked)
         CMutableTransaction mtx = CMutableTransaction{*(m_current_transaction->getWtx())};
         PartiallySignedTransaction psbtx(mtx);
         bool complete = false;
-        const TransactionError err = model->wallet().fillPSBT(SIGHASH_ALL, false /* sign */, true /* bip32derivs */, psbtx, complete, nullptr);
+        // Always fill without signing first. This prevents an external signer
+        // from being called prematurely and is not expensive.
+        TransactionError err = model->wallet().fillPSBT(SIGHASH_ALL, false /* sign */, true /* bip32derivs */, nullptr, psbtx, complete);
         assert(!complete);
         assert(err == TransactionError::OK);
+        if (model->wallet().hasExternalSigner()) {
+            try {
+                err = model->wallet().fillPSBT(SIGHASH_ALL, true /* sign */, true /* bip32derivs */, nullptr, psbtx, complete);
+            } catch (const std::runtime_error& e) {
+                QMessageBox::critical(nullptr, tr("Sign failed"), e.what());
+                send_failure = true;
+                return;
+            }
+            if (err == TransactionError::EXTERNAL_SIGNER_NOT_FOUND) {
+                QMessageBox::critical(nullptr, tr("External signer not found"), "External signer not found");
+                send_failure = true;
+                return;
+            }
+            if (err == TransactionError::EXTERNAL_SIGNER_FAILED) {
+                QMessageBox::critical(nullptr, tr("External signer failure"), "External signer failure");
+                send_failure = true;
+                return;
+            }
+            if (err != TransactionError::OK) {
+                tfm::format(std::cerr, "Failed to sign PSBT");
+                processSendCoinsReturn(WalletModel::TransactionCreationFailed);
+                send_failure = true;
+                return;
+            }
+            // fillPSBT does not always properly finalize
+            complete = FinalizeAndExtractPSBT(psbtx, mtx);
+        }
+
+        // Broadcast transaction if complete (even with an external signer this
+        // is not always the case, e.g. in a multisig wallet).
+        if (complete) {
+            const CTransactionRef tx = MakeTransactionRef(mtx);
+            m_current_transaction->setWtx(tx);
+            WalletModel::SendCoinsReturn sendStatus = model->sendCoins(*m_current_transaction);
+            // process sendStatus and on error generate message shown to user
+            processSendCoinsReturn(sendStatus);
+
+            if (sendStatus.status == WalletModel::OK) {
+                Q_EMIT coinsSent(m_current_transaction->getWtx()->GetHash());
+            } else {
+                send_failure = true;
+            }
+            return;
+        }
+
+        // Copy PSBT to clipboard and offer to save
+        assert(!complete);
         // Serialize the PSBT
         CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
         ssTx << psbtx;
