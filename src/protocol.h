@@ -387,12 +387,17 @@ public:
         if (s.GetType() & SER_DISK)
             READWRITE(nVersion);
         if ((s.GetType() & SER_DISK) ||
-            (nVersion >= CADDR_TIME_VERSION && !(s.GetType() & SER_GETHASH)))
-            READWRITE(nTime);
-        uint64_t nServicesInt = nServices;
-        READWRITE(nServicesInt);
-        nServices = static_cast<ServiceFlags>(nServicesInt);
-        READWRITEAS(CService, *this);
+            (nVersion != INIT_PROTO_VERSION && !(s.GetType() & SER_GETHASH))) {
+            // The only time we serialize a CAddress object without nTime is in
+            // the initial VERSION messages which contain two CAddress records.
+            // At that point, the serialization version is INIT_PROTO_VERSION.
+            // After the version handshake, serialization version is >=
+            // MIN_PEER_PROTO_VERSION and all ADDR messages are serialized with
+            // nTime.
+            READWRITE(obj.nTime);
+        }
+        READWRITE(Using<CustomUintFormatter<8>>(obj.nServices));
+        READWRITEAS(CService, obj);
     }
 
     ServiceFlags nServices{NODE_NONE};
