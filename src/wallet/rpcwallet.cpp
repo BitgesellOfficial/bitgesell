@@ -3119,7 +3119,10 @@ static UniValue fundrawtransaction(const JSONRPCRequest& request)
 
     CAmount fee;
     int change_position;
-    FundTransaction(pwallet, tx, fee, change_position, request.params[1]);
+    CCoinControl coin_control;
+    // Automatically select (additional) coins. Can be overridden by options.add_inputs.
+    coin_control.m_add_inputs = true;
+    FundTransaction(pwallet, tx, fee, change_position, request.params[1], coin_control);
 
     UniValue result(UniValue::VOBJ);
     result.pushKV("hex", EncodeHexTx(CTransaction(tx)));
@@ -4074,7 +4077,11 @@ UniValue walletcreatefundedpsbt(const JSONRPCRequest& request)
         rbf = replaceable_arg.isTrue();
     }
     CMutableTransaction rawTx = ConstructTransaction(request.params[0], request.params[1], request.params[2], rbf);
-    FundTransaction(pwallet, rawTx, fee, change_position, request.params[3]);
+    CCoinControl coin_control;
+    // Automatically select coins, unless at least one is manually selected. Can
+    // be overridden by options.add_inputs.
+    coin_control.m_add_inputs = rawTx.vin.size() == 0;
+    FundTransaction(pwallet, rawTx, fee, change_position, request.params[3], coin_control);
 
     // Make a blank psbt
     PartiallySignedTransaction psbtx(rawTx);
