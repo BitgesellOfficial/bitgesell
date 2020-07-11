@@ -112,6 +112,8 @@ BGLGUI::BGLGUI(interfaces::Node& node, const PlatformStyle *_platformStyle, cons
         Q_EMIT consoleShown(rpcConsole);
     }
 
+    modalOverlay = new ModalOverlay(enableWallet, this->centralWidget());
+
     // Accept D&D of URIs
     setAcceptDrops(true);
 
@@ -201,7 +203,6 @@ BGLGUI::BGLGUI(interfaces::Node& node, const PlatformStyle *_platformStyle, cons
         openOptionsDialogWithTab(OptionsDialog::TAB_NETWORK);
     });
 
-    modalOverlay = new ModalOverlay(enableWallet, this->centralWidget());
     connect(labelBlocksIcon, &GUIUtil::ClickableLabel::clicked, this, &BGLGUI::showModalOverlay);
     connect(progressBar, &GUIUtil::ClickableProgressBar::clicked, this, &BGLGUI::showModalOverlay);
 #ifdef ENABLE_WALLET
@@ -238,6 +239,7 @@ BGLGUI::~BGLGUI()
 void BGLGUI::createActions()
 {
     QActionGroup *tabGroup = new QActionGroup(this);
+    connect(modalOverlay, &ModalOverlay::triggered, tabGroup, &QActionGroup::setEnabled);
 
     overviewAction = new QAction(platformStyle->SingleColorIcon(":/icons/overview"), tr("&Overview"), this);
     overviewAction->setStatusTip(tr("Show general overview of wallet"));
