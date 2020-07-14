@@ -42,9 +42,8 @@ TimeoutStopSec=600
 # Directory creation and permissions
 ####################################
 
-# Run as BGL:BGL
-User=BGL
-Group=BGL
+# Run as bitcoin:bitcoin
+User=bitgesell
 
 # /run/BGLd
 RuntimeDirectory=BGLd
