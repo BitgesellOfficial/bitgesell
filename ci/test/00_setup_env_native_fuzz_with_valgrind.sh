@@ -15,3 +15,4 @@ export RUN_FUZZ_TESTS=true
 export FUZZ_TESTS_CONFIG="--valgrind"
 export GOAL="install"
 export BGL_CONFIG="--enable-fuzz --with-sanitizers=fuzzer CC=clang CXX=clang++"
+export CCACHE_SIZE=200M
