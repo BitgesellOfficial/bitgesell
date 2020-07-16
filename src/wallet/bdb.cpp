@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -24,7 +24,7 @@ namespace {
 //!
 //! BerkeleyDB generates unique fileids by default
 //! (https://docs.oracle.com/cd/E17275_01/html/programmer_reference/program_copy.html),
-//! so bitcoin should never create different databases with the same fileid, but
+//! so BGL should never create different databases with the same fileid, but
 //! this error can be triggered if users manually copy database files.
 void CheckUniqueFileid(const BerkeleyEnvironment& env, const std::string& filename, Db& db, WalletDatabaseFileId& fileid)
 {
@@ -32,12 +32,12 @@ void CheckUniqueFileid(const BerkeleyEnvironment& env, const std::string& filena
 
     int ret = db.get_mpf()->get_fileid(fileid.value);
     if (ret != 0) {
-        throw std::runtime_error(strprintf("BerkeleyBatch: Can't open database %s (get_fileid failed with %d)", filename, ret));
+        throw std::runtime_error(strprintf("BerkeleyDatabase: Can't open database %s (get_fileid failed with %d)", filename, ret));
     }
 
     for (const auto& item : env.m_fileids) {
         if (fileid == item.second && &fileid != &item.second) {
-            throw std::runtime_error(strprintf("BerkeleyBatch: Can't open database %s (duplicates fileid %s from %s)", filename,
+            throw std::runtime_error(strprintf("BerkeleyDatabase: Can't open database %s (duplicates fileid %s from %s)", filename,
                 HexStr(std::begin(item.second.value), std::end(item.second.value)), item.first));
         }
     }
@@ -148,7 +148,7 @@ bool BerkeleyEnvironment::Open(bilingual_str& err)
     fs::path pathIn = strPath;
     TryCreateDirectories(pathIn);
     if (!LockDirectory(pathIn, ".walletlock")) {
-        LogPrintf("Cannot obtain a lock on wallet directory %s. Another instance of bitcoin may be using it.\n", strPath);
+        LogPrintf("Cannot obtain a lock on wallet directory %s. Another instance of BGL may be using it.\n", strPath);
         err = strprintf(_("Error initializing wallet database environment %s!"), Directory());
         return false;
     }
@@ -296,7 +296,7 @@ bool BerkeleyDatabase::Verify(bilingual_str& errorStr)
     if (fs::exists(file_path))
     {
         if (!env->Verify(strFile)) {
-            errorStr = strprintf(_("%s corrupt. Try using the wallet tool bitcoin-wallet to salvage or restoring a backup."), file_path);
+            errorStr = strprintf(_("%s corrupt. Try using the wallet tool BGL-wallet to salvage or restoring a backup."), file_path);
             return false;
         }
     }
@@ -316,6 +316,8 @@ BerkeleyDatabase::~BerkeleyDatabase()
 {
     if (env) {
         LOCK(cs_db);
+        env->CloseDb(strFile);
+        assert(!m_db);
         size_t erased = env->m_databases.erase(strFile);
         assert(erased == 1);
         env->m_fileids.erase(strFile);
@@ -367,25 +369,12 @@ BerkeleyBatch::BerkeleyBatch(BerkeleyDatabase& database, const char* pszMode, bo
             if (ret != 0) {
                 throw std::runtime_error(strprintf("BerkeleyBatch: Error %d, can't open database %s", ret, strFilename));
             }
+            m_file_path = (env->Directory() / strFile).string();
 
             // Call CheckUniqueFileid on the containing BDB environment to
             // avoid BDB data consistency bugs that happen when different data
             // files in the same environment have the same fileid.
-            //
-            // Also call CheckUniqueFileid on all the other g_dbenvs to prevent
-            // bitcoin from opening the same data file through another
-            // environment when the file is referenced through equivalent but
-            // not obviously identical symlinked or hard linked or bind mounted
-            // paths. In the future a more relaxed check for equal inode and
-            // device ids could be done instead, which would allow opening
-            // different backup copies of a wallet at the same time. Maybe even
-            // more ideally, an exclusive lock for accessing the database could
-            // be implemented, so no equality checks are needed at all. (Newer
-            // versions of BDB have an set_lk_exclusive method for this
-            // purpose, but the older version we use does not.)
-            for (const auto& env : g_dbenvs) {
-                CheckUniqueFileid(*env.second.lock().get(), strFilename, *pdb_temp, this->env->m_fileids[strFilename]);
-            }
+            CheckUniqueFileid(*env, strFile, *pdb_temp, this->env->m_fileids[strFile]);
 
             pdb = pdb_temp.release();
             database.m_db.reset(pdb);
