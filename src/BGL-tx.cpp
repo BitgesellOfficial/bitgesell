@@ -1,4 +1,4 @@
-// Copyright (c) 2009-2020 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -36,14 +36,14 @@ static const int CONTINUE_EXECUTION=-1;
 
 const std::function<std::string(const char*)> G_TRANSLATION_FUN = nullptr;
 
-static void SetupBGLTxArgs()
+static void SetupBGLTxArgs(ArgsManager &argsman)
 {
-    SetupHelpOptions(gArgs);
+    SetupHelpOptions(argsman);
 
     gArgs.AddArg("-create", "Create new, empty TX.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     gArgs.AddArg("-json", "Select JSON output", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     gArgs.AddArg("-txid", "Output only the hex-encoded transaction id of the resultant transaction.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
-    SetupChainParamsBaseOptions();
+    SetupChainParamsBaseOptions(argsman);
 
     gArgs.AddArg("delin=N", "Delete input N from TX", ArgsManager::ALLOW_ANY, OptionsCategory::COMMANDS);
     gArgs.AddArg("delout=N", "Delete output N from TX", ArgsManager::ALLOW_ANY, OptionsCategory::COMMANDS);
@@ -81,7 +81,7 @@ static int AppInitRawTx(int argc, char* argv[])
     //
     // Parameters
     //
-    SetupBGLTxArgs();
+    SetupBGLTxArgs(gArgs);
     std::string error;
     if (!gArgs.ParseParameters(argc, argv, error)) {
         tfm::format(std::cerr, "Error parsing command line arguments: %s\n", error);
