@@ -12,8 +12,8 @@ import re
 
 from test_framework.blocktools import create_block, create_coinbase
 from test_framework.messages import msg_block
-from test_framework.mininode import P2PInterface, mininode_lock
-from test_framework.test_framework import BGLTestFramework
+from test_framework.mininode import P2PInterface, p2p_lock
+from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import wait_until
 
 VB_PERIOD = 144           # versionbits period length for regtest
@@ -91,7 +91,7 @@ class VersionBitsWarningTest(BGLTestFramework):
 
         # Generating one block guarantees that we'll get out of IBD
         node.generatetoaddress(1, node_deterministic_address)
-        wait_until(lambda: not node.getblockchaininfo()['initialblockdownload'], timeout=10, lock=mininode_lock)
+        wait_until(lambda: not node.getblockchaininfo()['initialblockdownload'], timeout=10, lock=p2p_lock)
         # Generating one more block will be enough to generate an error.
         node.generatetoaddress(1, node_deterministic_address)
         # Check that get*info() shows the versionbits unknown rules warning
