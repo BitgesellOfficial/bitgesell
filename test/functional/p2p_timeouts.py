@@ -24,8 +24,9 @@
 from time import sleep
 
 from test_framework.messages import msg_ping
-from test_framework.mininode import P2PInterface
+from test_framework.p2p import P2PInterface
 from test_framework.test_framework import BGLTestFramework
+
 
 
 class TestP2PConn(P2PInterface):
