@@ -22,7 +22,7 @@ src/BGL-gui
 src/BGL-node
 src/BGL-tx
 src/BGL-wallet
-src/test/fuzz
+src/test/fuzz/*
 !src/test/fuzz/*.*
 src/test/test_BGL
 src/qt/test/test_BGL-qt
