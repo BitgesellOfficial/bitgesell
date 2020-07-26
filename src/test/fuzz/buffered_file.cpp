@@ -1,4 +1,4 @@
-// Copyright (c) 2020 The Bitcoin Core developers
+// Copyright (c) 2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -40,14 +40,20 @@ void test_one_input(const std::vector<uint8_t>& buffer)
                 break;
             }
             case 1: {
-                opt_buffered_file->Seek(fuzzed_data_provider.ConsumeIntegralInRange<uint64_t>(0, 4096));
-                break;
-            }
-            case 2: {
                 opt_buffered_file->SetLimit(fuzzed_data_provider.ConsumeIntegralInRange<uint64_t>(0, 4096));
                 break;
             }
+            case 2: {
+                if (!opt_buffered_file->SetPos(fuzzed_data_provider.ConsumeIntegralInRange<uint64_t>(0, 4096))) {
+                    setpos_fail = true;
+                }
+                break;
+            }
             case 3: {
+                if (setpos_fail) {
+                    // Calling FindByte(...) after a failed SetPos(...) call may result in an infinite loop.
+                    break;
+                }
                 try {
                     opt_buffered_file->FindByte(fuzzed_data_provider.ConsumeIntegral<char>());
                 } catch (const std::ios_base::failure&) {
