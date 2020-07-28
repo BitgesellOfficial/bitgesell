@@ -1545,7 +1545,7 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
             bool is_coinsview_empty;
             try {
                 LOCK(cs_main);
-                chainman.InitializeChainstate();
+                chainman.InitializeChainstate(*Assert(node.mempool));
                 chainman.m_total_coinstip_cache = nCoinCacheUsage;
                 chainman.m_total_coinsdb_cache = nCoinDBCache;
 
