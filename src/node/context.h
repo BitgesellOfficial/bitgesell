@@ -12,6 +12,7 @@
 
 class ArgsManager;
 class BanMan;
+class CBlockPolicyEstimator;
 class CConnman;
 class CScheduler;
 class CTxMemPool;
