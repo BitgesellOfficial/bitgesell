@@ -812,7 +812,6 @@ public:
     }
     // This boolean is unusued in actual processing, only present for backward compatibility at RPC/QT level
     bool m_legacyWhitelisted{false};
-    bool m_addr_fetch{false};
     bool fClient{false}; // set by version message
     bool m_limited_node{false}; //after BIP159, set by version message
     std::atomic_bool fSuccessfullyConnected{false};
@@ -837,10 +836,6 @@ public:
 
     bool IsAddrFetchConn() const {
         return m_conn_type == ConnectionType::ADDR_FETCH;
-    }
-
-    bool IsInboundConn() const {
-        return m_conn_type == ConnectionType::INBOUND;
     }
 
 protected:
