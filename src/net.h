@@ -815,7 +815,6 @@ public:
     bool m_addr_fetch{false};
     bool fClient{false}; // set by version message
     bool m_limited_node{false}; //after BIP159, set by version message
-    const bool fInbound;
     std::atomic_bool fSuccessfullyConnected{false};
     // Setting fDisconnect to true will cause the node to be disconnected the
     // next time DisconnectNodes() runs
@@ -830,6 +829,18 @@ public:
 
     bool IsManualConn() const {
         return m_conn_type == ConnectionType::MANUAL;
+    }
+
+    bool IsFeelerConn() const {
+        return m_conn_type == ConnectionType::FEELER;
+    }
+
+    bool IsAddrFetchConn() const {
+        return m_conn_type == ConnectionType::ADDR_FETCH;
+    }
+
+    bool IsInboundConn() const {
+        return m_conn_type == ConnectionType::INBOUND;
     }
 
 protected:

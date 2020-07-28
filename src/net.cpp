@@ -346,7 +346,7 @@ bool CConnman::CheckIncomingNonce(uint64_t nonce)
 {
     LOCK(cs_vNodes);
     for (const CNode* pnode : vNodes) {
-        if (!pnode->fSuccessfullyConnected && !pnode->fInbound && pnode->GetLocalNonce() == nonce)
+        if (!pnode->fSuccessfullyConnected && !pnode->IsInboundConn() && pnode->GetLocalNonce() == nonce)
             return false;
     }
     return true;
@@ -538,7 +538,7 @@ void CNode::copyStats(CNodeStats &stats, const std::vector<bool> &m_asmap)
         LOCK(cs_SubVer);
         X(cleanSubVer);
     }
-    X(fInbound);
+    stats.fInbound = IsInboundConn();
     stats.m_manual_connection = IsManualConn();
     X(nStartingHeight);
     {
@@ -874,7 +874,7 @@ bool CConnman::AttemptToEvictConnection()
         for (const CNode* node : vNodes) {
             if (node->HasPermission(PF_NOBAN))
                 continue;
-            if (!node->fInbound)
+            if (!node->IsInboundConn())
                 continue;
             if (node->fDisconnect)
                 continue;
@@ -985,7 +985,7 @@ void CConnman::AcceptConnection(const ListenSocket& hListenSocket) {
     {
         LOCK(cs_vNodes);
         for (const CNode* pnode : vNodes) {
-            if (pnode->fInbound) nInbound++;
+            if (pnode->IsInboundConn()) nInbound++;
         }
     }
 
@@ -1636,7 +1636,7 @@ void CConnman::ThreadDNSAddressSeed()
                     {
                         LOCK(cs_vNodes);
                         for (const CNode* pnode : vNodes) {
-                            nRelevant += pnode->fSuccessfullyConnected && !pnode->fFeeler && !pnode->m_addr_fetch && !pnode->IsManualConn() && !pnode->fInbound;
+                            nRelevant += pnode->fSuccessfullyConnected && !pnode->IsFeelerConn() && !pnode->IsAddrFetchConn() && !pnode->IsManualConn() && !pnode->IsInboundConn();
                         }
                     }
                     if (nRelevant >= 2) {
@@ -1746,7 +1746,7 @@ int CConnman::GetExtraOutboundCount()
     {
         LOCK(cs_vNodes);
         for (const CNode* pnode : vNodes) {
-            if (!pnode->fInbound && !pnode->IsManualConn() && !pnode->fFeeler && !pnode->fDisconnect && !pnode->m_addr_fetch && pnode->fSuccessfullyConnected) {
+            if (!pnode->IsInboundConn() && !pnode->IsManualConn() && !pnode->IsFeelerConn() && !pnode->fDisconnect && !pnode->IsAddrFetchConn() && pnode->fSuccessfullyConnected) {
                 ++nOutbound;
             }
         }
@@ -1819,7 +1819,7 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
         {
             LOCK(cs_vNodes);
             for (const CNode* pnode : vNodes) {
-                if (!pnode->fInbound && (pnode->m_conn_type != ConnectionType::MANUAL)) {
+                if (!pnode->IsInboundConn() && (pnode->m_conn_type != ConnectionType::MANUAL)) {
                     // Netgroups for inbound and addnode peers are not excluded because our goal here
                     // is to not use multiple of our limited outbound slots on a single netgroup
                     // but inbound and addnode peers do not use our outbound slots.  Inbound peers
@@ -1970,11 +1970,11 @@ std::vector<AddedNodeInfo> CConnman::GetAddedNodeInfo()
         LOCK(cs_vNodes);
         for (const CNode* pnode : vNodes) {
             if (pnode->addr.IsValid()) {
-                mapConnected[pnode->addr] = pnode->fInbound;
+                mapConnected[pnode->addr] = pnode->IsInboundConn();
             }
             std::string addrName = pnode->GetAddrName();
             if (!addrName.empty()) {
-                mapConnectedByName[std::move(addrName)] = std::make_pair(pnode->fInbound, static_cast<const CService&>(pnode->addr));
+                mapConnectedByName[std::move(addrName)] = std::make_pair(pnode->IsInboundConn(), static_cast<const CService&>(pnode->addr));
             }
         }
     }
@@ -2562,7 +2562,7 @@ size_t CConnman::GetNodeCount(NumConnections flags)
 
     int nNum = 0;
     for (const auto& pnode : vNodes) {
-        if (flags & (pnode->fInbound ? CONNECTIONS_IN : CONNECTIONS_OUT)) {
+        if (flags & (pnode->IsInboundConn() ? CONNECTIONS_IN : CONNECTIONS_OUT)) {
             nNum++;
         }
     }
@@ -2750,9 +2750,6 @@ CNode::CNode(NodeId idIn, ServiceFlags nLocalServicesIn, int nMyStartingHeightIn
     : nTimeConnected(GetSystemTimeInSeconds()),
     addr(addrIn),
     addrBind(addrBindIn),
-    fFeeler(conn_type_in == ConnectionType::FEELER),
-    m_addr_fetch(conn_type_in == ConnectionType::ADDR_FETCH),
-    fInbound(conn_type_in == ConnectionType::INBOUND),
     nKeyedNetGroup(nKeyedNetGroupIn),
     // Don't relay addr messages to peers that we connect to as block-relay-only
     // peers (to prevent adversaries from inferring these links from addr
