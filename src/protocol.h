@@ -421,7 +421,7 @@ class CInv
 {
 public:
     CInv();
-    CInv(int typeIn, const uint256& hashIn);
+    CInv(uint32_t typeIn, const uint256& hashIn);
 
     ADD_SERIALIZE_METHODS;
 
@@ -455,7 +455,7 @@ public:
         return type == MSG_BLOCK || type == MSG_FILTERED_BLOCK || type == MSG_CMPCT_BLOCK || type == MSG_WITNESS_BLOCK;
     }
 
-    int type;
+    uint32_t type;
     uint256 hash;
 };
 
