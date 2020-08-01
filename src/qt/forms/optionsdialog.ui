@@ -462,7 +462,7 @@
           <string>Connect to the BGL network through a separate SOCKS5 proxy for Tor hidden services.</string>
          </property>
          <property name="text">
-          <string>Use separate SOCKS&amp;5 proxy to reach peers via Tor hidden services:</string>
+          <string>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</string>
          </property>
         </widget>
        </item>

@@ -14,12 +14,12 @@ outgoing connections, but more is possible.
 	-proxy=ip:port  Set the proxy server. If SOCKS5 is selected (default), this proxy
 	                server will be used to try to reach .onion addresses as well.
 
-	-onion=ip:port  Set the proxy server to use for Tor hidden services. You do not
+	-onion=ip:port  Set the proxy server to use for Tor onion services. You do not
 	                need to set this if it's the same as -proxy. You can use -noonion
-	                to explicitly disable access to hidden services.
+	                to explicitly disable access to onion services.
 
 	-listen         When using -proxy, listening is disabled by default. If you want
-	                to run a hidden service (see next section), you'll need to enable
+	                to run an onion service (see next section), you'll need to enable
 	                it explicitly.
 
 	-connect=X      When behind a Tor proxy, you can specify .onion addresses instead
@@ -110,7 +110,7 @@ Connecting to Tor's control socket API requires one of two authentication method
 configured. It also requires the control socket to be enabled, e.g. put `ControlPort 9051`
 in `torrc` config file. For cookie authentication the user running BGLd must have read
 access to the `CookieAuthFile` specified in Tor configuration. In some cases this is
-preconfigured and the creation of a hidden service is automatic. If permission problems
+preconfigured and the creation of an onion service is automatic. If permission problems
 are seen with `-debug=tor` they can be resolved by adding both the user running Tor and
 the user running BGLd to the same group and setting permissions appropriately. On
 Debian-based systems the user running BGLd can be added to the debian-tor group,
