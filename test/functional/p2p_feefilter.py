@@ -19,7 +19,7 @@ def hashToHex(hash):
 
 # Wait up to 60 secs to see if the testnode has received all the expected invs
 def allInvsMatch(invsExpected, testnode):
-    for x in range(60):
+    for _ in range(60):
         with mininode_lock:
             if (sorted(invsExpected) == sorted(testnode.txinvs)):
                 return True
@@ -90,7 +90,7 @@ class FeeFilterTest(BGLTestFramework):
         # Test that invs are received by test connection for all txs at
         # feerate of .2 sat/byte
         node1.settxfee(Decimal("0.00000200"))
-        txids = [node1.sendtoaddress(node1.getnewaddress(), 1) for x in range(3)]
+        txids = [node1.sendtoaddress(node1.getnewaddress(), 1) for _ in range(3)]
         assert allInvsMatch(txids, conn)
         conn.clear_invs()
 
@@ -99,14 +99,14 @@ class FeeFilterTest(BGLTestFramework):
 
         # Test that txs are still being received by test connection (paying .15 sat/byte)
         node1.settxfee(Decimal("0.00000150"))
-        txids = [node1.sendtoaddress(node1.getnewaddress(), 1) for x in range(3)]
+        txids = [node1.sendtoaddress(node1.getnewaddress(), 1) for _ in range(3)]
         assert allInvsMatch(txids, conn)
         conn.clear_invs()
 
         # Change tx fee rate to .1 sat/byte and test they are no longer received
         # by the test connection
         node1.settxfee(Decimal("0.00000100"))
-        [node1.sendtoaddress(node1.getnewaddress(), 1) for x in range(3)]
+        [node1.sendtoaddress(node1.getnewaddress(), 1) for _ in range(3)]
         self.sync_mempools()  # must be sure node 0 has received all txs
 
         # Send one transaction from node0 that should be received, so that we
@@ -123,7 +123,7 @@ class FeeFilterTest(BGLTestFramework):
 
         # Remove fee filter and check that txs are received again
         conn.send_and_ping(msg_feefilter(0))
-        txids = [node1.sendtoaddress(node1.getnewaddress(), 1) for x in range(3)]
+        txids = [node1.sendtoaddress(node1.getnewaddress(), 1) for _ in range(3)]
         assert allInvsMatch(txids, conn)
         conn.clear_invs()
 

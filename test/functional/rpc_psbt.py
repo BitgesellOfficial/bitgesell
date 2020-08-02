@@ -431,7 +431,7 @@ class PSBTTest(BGLTestFramework):
         # Check that joining shuffles the inputs and outputs
         # 10 attempts should be enough to get a shuffled join
         shuffled = False
-        for i in range(0, 10):
+        for _ in range(10):
             shuffled_joined = self.nodes[0].joinpsbts([psbt, psbt2])
             shuffled |= joined != shuffled_joined
             if shuffled:
