@@ -661,15 +661,16 @@ void BGLGUI::setWalletController(WalletController* wallet_controller)
 void BGLGUI::addWallet(WalletModel* walletModel)
 {
     if (!walletFrame) return;
-    const QString display_name = walletModel->getDisplayName();
-    setWalletActionsEnabled(true);
+    if (!walletFrame->addWallet(walletModel)) return;
     rpcConsole->addWallet(walletModel);
-    walletFrame->addWallet(walletModel);
-    m_wallet_selector->addItem(display_name, QVariant::fromValue(walletModel));
-    if (m_wallet_selector->count() == 2) {
+    if (m_wallet_selector->count() == 0) {
+        setWalletActionsEnabled(true);
+    } else if (m_wallet_selector->count() == 1) {
         m_wallet_selector_label_action->setVisible(true);
         m_wallet_selector_action->setVisible(true);
     }
+    const QString display_name = walletModel->getDisplayName();
+    m_wallet_selector->addItem(display_name, QVariant::fromValue(walletModel));
 }
 
 void BGLGUI::removeWallet(WalletModel* walletModel)
