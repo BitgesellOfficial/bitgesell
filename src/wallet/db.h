@@ -9,6 +9,7 @@
 #include <clientversion.h>
 #include <fs.h>
 #include <streams.h>
+#include <support/allocators/secure.h>
 #include <util/memory.h>
 
 #include <atomic>
@@ -194,5 +195,31 @@ public:
     bool Verify(bilingual_str& errorStr) override { return true; }
     std::unique_ptr<DatabaseBatch> MakeBatch(const char* mode = "r+", bool flush_on_close = true) override { return MakeUnique<DummyBatch>(); }
 };
+
+enum class DatabaseFormat {
+    BERKELEY,
+};
+
+struct DatabaseOptions {
+    bool require_existing = false;
+    bool require_create = false;
+    uint64_t create_flags = 0;
+    SecureString create_passphrase;
+    bool verify = true;
+};
+
+enum class DatabaseStatus {
+    SUCCESS,
+    FAILED_BAD_PATH,
+    FAILED_BAD_FORMAT,
+    FAILED_ALREADY_LOADED,
+    FAILED_ALREADY_EXISTS,
+    FAILED_NOT_FOUND,
+    FAILED_CREATE,
+    FAILED_VERIFY,
+    FAILED_ENCRYPT,
+};
+
+std::unique_ptr<WalletDatabase> MakeDatabase(const fs::path& path, const DatabaseOptions& options, DatabaseStatus& status, bilingual_str& error);
 
 #endif // BGL_WALLET_DB_H
