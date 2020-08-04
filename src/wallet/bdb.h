@@ -89,6 +89,9 @@ std::shared_ptr<BerkeleyEnvironment> GetWalletEnv(const fs::path& wallet_path, s
 /** Check format of database file */
 bool IsBerkeleyBtree(const fs::path& path);
 
+/** Check format of database file */
+bool IsBerkeleyBtree(const fs::path& path);
+
 class BerkeleyBatch;
 
 /** An instance of this class represents one database.
@@ -225,5 +228,11 @@ public:
 };
 
 std::string BerkeleyDatabaseVersion();
+
+//! Check if Berkeley database exists at specified path.
+bool ExistsBerkeleyDatabase(const fs::path& path);
+
+//! Return object giving access to Berkeley database at specified path.
+std::unique_ptr<BerkeleyDatabase> MakeBerkeleyDatabase(const fs::path& path, const DatabaseOptions& options, DatabaseStatus& status, bilingual_str& error);
 
 #endif // BGL_WALLET_BDB_H

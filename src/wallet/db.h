@@ -199,8 +199,6 @@ enum class DatabaseFormat {
 struct DatabaseOptions {
     bool require_existing = false;
     bool require_create = false;
-    uint64_t create_flags = 0;
-    SecureString create_passphrase;
     bool verify = true;
 };
 
@@ -211,9 +209,7 @@ enum class DatabaseStatus {
     FAILED_ALREADY_LOADED,
     FAILED_ALREADY_EXISTS,
     FAILED_NOT_FOUND,
-    FAILED_CREATE,
     FAILED_VERIFY,
-    FAILED_ENCRYPT,
 };
 
 std::unique_ptr<WalletDatabase> MakeDatabase(const fs::path& path, const DatabaseOptions& options, DatabaseStatus& status, bilingual_str& error);
