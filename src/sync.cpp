@@ -240,7 +240,8 @@ void AssertLockHeldInternal(const char* pszName, const char* pszFile, int nLine,
 template void AssertLockHeldInternal(const char*, const char*, int, Mutex*);
 template void AssertLockHeldInternal(const char*, const char*, int, RecursiveMutex*);
 
-void AssertLockNotHeldInternal(const char* pszName, const char* pszFile, int nLine, void* cs)
+template <typename MutexType>
+void AssertLockNotHeldInternal(const char* pszName, const char* pszFile, int nLine, MutexType* cs)
 {
     for (const LockStackItem& i : g_lockstack) {
         if (i.first == cs) {
@@ -249,6 +250,8 @@ void AssertLockNotHeldInternal(const char* pszName, const char* pszFile, int nLi
         }
     }
 }
+template void AssertLockNotHeldInternal(const char*, const char*, int, Mutex*);
+template void AssertLockNotHeldInternal(const char*, const char*, int, RecursiveMutex*);
 
 void DeleteLock(void* cs)
 {
