@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The BGL Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -253,13 +253,6 @@ std::shared_ptr<CWallet> CreateWallet(interfaces::Chain& chain, const std::strin
     if (!passphrase.empty()) {
         wallet_creation_flags |= WALLET_FLAG_BLANK_WALLET;
     }
-
-    // Check the wallet file location
-    if (fs::symlink_status(fs::absolute(name.empty() ? "wallet.dat" : name, GetWalletDir())).type() != fs::file_not_found) {
-        error = strprintf(Untranslated("Wallet %s already exists."), name);
-        return WalletCreationStatus::CREATION_FAILED;
-    }
-
     // Wallet::Verify will check if we're trying to create a wallet with a duplicate name.
     if (!MakeWalletDatabase(name, options, status, error)) {
         error = Untranslated("Wallet file verification failed.") + Untranslated(" ") + error;

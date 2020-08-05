@@ -2651,6 +2651,7 @@ static UniValue createwallet(const JSONRPCRequest& request)
 
     DatabaseOptions options;
     DatabaseStatus status;
+    options.require_create = true;
     options.create_flags = flags;
     options.create_passphrase = passphrase;
     bilingual_str error;
