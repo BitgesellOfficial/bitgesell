@@ -1209,7 +1209,7 @@ nodist_test_test_BGL_SOURCES = $(GENERATED_TEST_FILES)
 
 $(BGL_TESTS): $(GENERATED_TEST_FILES)
 
-CLEAN_BGL_TEST = test/*.gcda test/*.gcno $(GENERATED_TEST_FILES) $(BGL_TESTS:=.log)
+CLEAN_BGL_TEST = test/*.gcda test/*.gcno test/fuzz/*.gcda test/fuzz/*.gcno $(GENERATED_TEST_FILES) $(BGL_TESTS:=.log)
 
 CLEANFILES += $(CLEAN_BGL_TEST)
 
