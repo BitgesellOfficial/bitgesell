@@ -868,6 +868,12 @@ public:
         return m_conn_type == ConnectionType::INBOUND;
     }
 
+    /* Whether we send addr messages over this connection */
+    bool RelayAddrsWithConn() const
+    {
+        return m_conn_type != ConnectionType::BLOCK_RELAY;
+    }
+
     bool ExpectServicesFromConn() const {
         switch (m_conn_type) {
             case ConnectionType::INBOUND:
@@ -897,8 +903,6 @@ public:
     bool fGetAddr{false};
     int64_t nNextAddrSend GUARDED_BY(cs_sendProcessing){0};
     int64_t nNextLocalAddrSend GUARDED_BY(cs_sendProcessing){0};
-
-    bool IsAddrRelayPeer() const { return m_addr_known != nullptr; }
 
     // List of block ids we still have announce.
     // There is no final sorting before sending, as they are always sent immediately
