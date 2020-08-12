@@ -1869,7 +1869,7 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
                     case ConnectionType::INBOUND:
                     case ConnectionType::MANUAL:
                         break;
-                    case ConnectionType::OUTBOUND:
+                    case ConnectionType::OUTBOUND_FULL_RELAY:
                     case ConnectionType::BLOCK_RELAY:
                     case ConnectionType::ADDR_FETCH:
                     case ConnectionType::FEELER:
@@ -1972,10 +1972,13 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
             ConnectionType conn_type;
             if(fFeeler) {
                 conn_type = ConnectionType::FEELER;
-            } else if (block_relay_only) {
+            } else if (nOutboundFullRelay < m_max_outbound_full_relay) {
+                conn_type = ConnectionType::OUTBOUND_FULL_RELAY;
+            } else if (nOutboundBlockRelay < m_max_outbound_block_relay) {
                 conn_type = ConnectionType::BLOCK_RELAY;
             } else {
-                conn_type = ConnectionType::OUTBOUND;
+                // GetTryNewOutboundPeer() is true
+                conn_type = ConnectionType::OUTBOUND_FULL_RELAY;
             }
 
             OpenNetworkConnection(addrConnect, (int)setConnected.size() >= std::min(nMaxConnections - 1, 2), &grant, nullptr, false, conn_type);
