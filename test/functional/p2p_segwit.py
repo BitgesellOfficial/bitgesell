@@ -84,7 +84,6 @@ from test_framework.util import (
     softfork_active,
     hex_str_to_bytes,
     assert_raises_rpc_error,
-    wait_until,
 )
 
 # The versionbit bit used to signal activation of SegWit
@@ -2115,7 +2114,7 @@ class SegWitTest(BGLTestFramework):
         # Check wtxidrelay feature negotiation message through connecting a new peer
         def received_wtxidrelay():
             return (len(self.wtx_node.last_wtxidrelay) > 0)
-        wait_until(received_wtxidrelay, timeout=60, lock=p2p_lock)
+        self.wtx_node.wait_until(received_wtxidrelay)
 
         # Create a Segwit output from the latest UTXO
         # and announce it to the network

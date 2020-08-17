@@ -22,10 +22,11 @@ from test_framework.p2p import (
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
-    wait_until,
 )
 
+
 class P2PFingerprintTest(BGLTestFramework):
+
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1
@@ -102,12 +103,12 @@ class P2PFingerprintTest(BGLTestFramework):
         # Check that getdata request for stale block succeeds
         self.send_block_request(stale_hash, node0)
         test_function = lambda: self.last_block_equals(stale_hash, node0)
-        wait_until(test_function, timeout=3)
+        self.wait_until(test_function, timeout=3)
 
         # Check that getheader request for stale block header succeeds
         self.send_header_request(stale_hash, node0)
         test_function = lambda: self.last_header_equals(stale_hash, node0)
-        wait_until(test_function, timeout=3)
+        self.wait_until(test_function, timeout=3)
 
         # Longest chain is extended so stale is much older than chain tip
         self.nodes[0].setmocktime(0)
@@ -138,11 +139,11 @@ class P2PFingerprintTest(BGLTestFramework):
 
         self.send_block_request(block_hash, node0)
         test_function = lambda: self.last_block_equals(block_hash, node0)
-        wait_until(test_function, timeout=3)
+        self.wait_until(test_function, timeout=3)
 
         self.send_header_request(block_hash, node0)
         test_function = lambda: self.last_header_equals(block_hash, node0)
-        wait_until(test_function, timeout=3)
+        self.wait_until(test_function, timeout=3)
 
 if __name__ == '__main__':
     P2PFingerprintTest().main()
