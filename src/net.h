@@ -881,7 +881,7 @@ public:
             case ConnectionType::ADDR_FETCH:
             case ConnectionType::FEELER:
                 return false;
-        }
+        } // no default case, so the compiler can warn about missing cases
 
         assert(false);
     }
@@ -926,7 +926,7 @@ public:
             case ConnectionType::BLOCK_RELAY:
             case ConnectionType::ADDR_FETCH:
                 return true;
-        }
+        } // no default case, so the compiler can warn about missing cases
 
         assert(false);
     }
