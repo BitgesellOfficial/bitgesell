@@ -50,11 +50,8 @@ static bool AppInit(int argc, char* argv[])
 
     util::ThreadSetInternalName("init");
 
-    //
-    // Parameters
-    //
-    // If Qt is used, parameters/BGL.conf are parsed in qt/BGL.cpp's main()
     SetupServerArgs(node);
+    ArgsManager& args = *Assert(node.args);
     std::string error;
     if (!gArgs.ParseParameters(argc, argv, error)) {
         return InitError(Untranslated(strprintf("Error parsing command line arguments: %s\n", error)));
@@ -110,15 +107,13 @@ static bool AppInit(int argc, char* argv[])
         // -server defaults to true for BGLd but not for the GUI so do this here
         gArgs.SoftSetBoolArg("-server", true);
         // Set this early so that parameter interactions go to console
-        InitLogging();
-        InitParameterInteraction();
-        if (!AppInitBasicSetup())
-        {
+        InitLogging(args);
+        InitParameterInteraction(args);
+        if (!AppInitBasicSetup(args)) {
             // InitError will have been called with detailed error, which ends up on console
             return false;
         }
-        if (!AppInitParameterInteraction())
-        {
+        if (!AppInitParameterInteraction(args)) {
             // InitError will have been called with detailed error, which ends up on console
             return false;
         }
