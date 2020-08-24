@@ -14,6 +14,7 @@
 class CChainParams;
 class CTxMemPool;
 class ChainstateManager;
+class TxValidationState;
 
 extern RecursiveMutex cs_main;
 
@@ -82,6 +83,13 @@ public:
                         const std::chrono::microseconds time_received, const std::atomic<bool>& interruptMsgProc);
 
 private:
+
+    /**
+     * Potentially disconnect and discourage a node based on the contents of a TxValidationState object
+     *
+     * @return Returns true if the peer was punished (probably disconnected)
+     */
+    bool MaybePunishNodeForTx(NodeId nodeid, const TxValidationState& state, const std::string& message = "");
 
     /** Maybe disconnect a peer and discourage future connections from its address.
      *
