@@ -27,15 +27,6 @@ static const bool DEFAULT_PEERBLOCKFILTERS = false;
 static const int DISCOURAGEMENT_THRESHOLD{100};
 
 class PeerLogicValidation final : public CValidationInterface, public NetEventsInterface {
-private:
-    CConnman& m_connman;
-    /** Pointer to this node's banman. May be nullptr - check existence before dereferencing. */
-    BanMan* const m_banman;
-    ChainstateManager& m_chainman;
-    CTxMemPool& m_mempool;
-
-    bool MaybeDiscourageAndDisconnect(CNode& pnode);
-
 public:
     PeerLogicValidation(const CChainParams& chainparams, CConnman& connman, BanMan* banman,
                         CScheduler& scheduler, ChainstateManager& chainman, CTxMemPool& pool);
@@ -98,8 +89,6 @@ private:
      * @return                True if the peer was marked for disconnection in this function
      */
     bool MaybeDiscourageAndDisconnect(CNode& pnode);
-
-    const CChainParams& m_chainparams;
     CConnman& m_connman;
     /** Pointer to this node's banman. May be nullptr - check existence before dereferencing. */
     BanMan* const m_banman;
@@ -107,7 +96,6 @@ private:
     CTxMemPool& m_mempool;
 
     int64_t m_stale_tip_check_time; //!< Next time to check for stale tip
-
 };
 
 struct CNodeStateStats {
