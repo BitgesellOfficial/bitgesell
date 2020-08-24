@@ -11,7 +11,6 @@
 #include <sync.h>
 #include <validationinterface.h>
 
-class BlockValidationState;
 class CBlockHeader;
 class CChainParams;
 class CTxMemPool;
@@ -112,12 +111,8 @@ private:
      */
     bool MaybeDiscourageAndDisconnect(CNode& pnode);
 
-    void ProcessOrphanTx(std::set<uint256>& orphan_work_set, std::list<CTransactionRef>& removed_txn)
-        EXCLUSIVE_LOCKS_REQUIRED(cs_main, g_cs_orphans);
     /** Process a single headers message from a peer. */
     void ProcessHeadersMessage(CNode& pfrom, const std::vector<CBlockHeader>& headers, bool via_compact_block);
-
-    void SendBlockTransactions(CNode& pfrom, const CBlock& block, const BlockTransactionsRequest& req);
 
     const CChainParams& m_chainparams;
     CConnman& m_connman;
