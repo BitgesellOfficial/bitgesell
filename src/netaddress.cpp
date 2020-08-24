@@ -822,16 +822,13 @@ static inline int NetmaskBits(uint8_t x)
     }
 }
 
-CSubNet::CSubNet(const CNetAddr& addr, const CNetAddr& mask) : CSubNet()
+CSubNet::CSubNet(const CNetAddr &addr, const CNetAddr &mask)
 {
-    valid = (addr.IsIPv4() || addr.IsIPv6()) && addr.m_net == mask.m_net;
-    if (!valid) {
-        return;
-    }
+    valid = true;
     // Check if `mask` contains 1-bits after 0-bits (which is an invalid netmask).
     bool zeros_found = false;
-    for (auto b : mask.m_addr) {
-        const int num_bits = NetmaskBits(b);
+    for (size_t i = mask.IsIPv4() ? 12 : 0; i < sizeof(mask.ip); ++i) {
+        const int num_bits = NetmaskBits(mask.ip[i]);
         if (num_bits == -1 || (zeros_found && num_bits != 0)) {
             valid = false;
             return;
@@ -842,7 +839,6 @@ CSubNet::CSubNet(const CNetAddr& addr, const CNetAddr& mask) : CSubNet()
     }
 
     assert(mask.m_addr.size() <= sizeof(netmask));
-
     memcpy(netmask, mask.m_addr.data(), mask.m_addr.size());
 
     network = addr;
@@ -886,40 +882,16 @@ bool CSubNet::Match(const CNetAddr &addr) const
 
 std::string CSubNet::ToString() const
 {
-    /* Parse binary 1{n}0{N-n} to see if mask can be represented as /n */
-    int cidr = 0;
-    bool valid_cidr = true;
-    int n = network.IsIPv4() ? 12 : 0;
-    for (; n < 16 && netmask[n] == 0xff; ++n)
-        cidr += 8;
-    if (n < 16) {
-        int bits = NetmaskBits(netmask[n]);
-        if (bits < 0)
-            valid_cidr = false;
-        else
-            cidr += bits;
-        ++n;
-    }
-    for (; n < 16 && valid_cidr; ++n)
-        if (netmask[n] != 0x00)
-            valid_cidr = false;
+    uint8_t cidr = 0;
 
-    /* Format output */
-    std::string strNetmask;
-    if (valid_cidr) {
-        strNetmask = strprintf("%u", cidr);
-    } else {
-        if (network.IsIPv4())
-            strNetmask = strprintf("%u.%u.%u.%u", netmask[12], netmask[13], netmask[14], netmask[15]);
-        else
-            strNetmask = strprintf("%x:%x:%x:%x:%x:%x:%x:%x",
-                             netmask[0] << 8 | netmask[1], netmask[2] << 8 | netmask[3],
-                             netmask[4] << 8 | netmask[5], netmask[6] << 8 | netmask[7],
-                             netmask[8] << 8 | netmask[9], netmask[10] << 8 | netmask[11],
-                             netmask[12] << 8 | netmask[13], netmask[14] << 8 | netmask[15]);
+    for (size_t i = network.IsIPv4() ? 12 : 0; i < sizeof(netmask); ++i) {
+        if (netmask[i] == 0x00) {
+            break;
+        }
+        cidr += NetmaskBits(netmask[i]);
     }
 
-    return network.ToString() + "/" + strNetmask;
+    return network.ToString() + strprintf("/%u", cidr);
 }
 
 bool CSubNet::IsValid() const
