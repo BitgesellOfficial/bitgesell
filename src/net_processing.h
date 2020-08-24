@@ -11,7 +11,6 @@
 #include <sync.h>
 #include <validationinterface.h>
 
-class BlockTransactionsRequest;
 class BlockValidationState;
 class CBlockHeader;
 class CChainParams;
@@ -86,13 +85,18 @@ public:
                         const std::chrono::microseconds time_received, const std::atomic<bool>& interruptMsgProc);
 
 private:
-
     /**
-     * Potentially disconnect and discourage a node based on the contents of a TxValidationState object
+     * Potentially mark a node discouraged based on the contents of a BlockValidationState object
+     *
+     * @param[in] via_compact_block this bool is passed in because net_processing should
+     * punish peers differently depending on whether the data was provided in a compact
+     * block message or not. If the compact block had a valid header, but contained invalid
+     * txs, the peer should not be punished. See BIP 152.
      *
      * @return Returns true if the peer was punished (probably disconnected)
      */
-    bool MaybePunishNodeForTx(NodeId nodeid, const TxValidationState& state, const std::string& message = "");
+    bool MaybePunishNodeForBlock(NodeId nodeid, const BlockValidationState& state,
+                                 bool via_compact_block, const std::string& message = "");
 
     /** Maybe disconnect a peer and discourage future connections from its address.
      *
