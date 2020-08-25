@@ -39,6 +39,7 @@ class CBlockIndex;
 class CBlockTreeDB;
 class CBlockUndo;
 class CChainParams;
+class CCheckpointData;
 class CInv;
 class CConnman;
 class CScriptCheck;
@@ -434,6 +435,9 @@ public:
 
     /** Find the last common block between the parameter chain and a locator. */
     CBlockIndex* FindForkInGlobalIndex(const CChain& chain, const CBlockLocator& locator) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+
+    //! Returns last CBlockIndex* that is a checkpoint
+    CBlockIndex* GetLastCheckpoint(const CCheckpointData& data) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
 
     /**
      * Return the spend height, which is one more than the inputs.GetBestBlock().
