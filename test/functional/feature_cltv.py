@@ -8,10 +8,24 @@ Test that the CHECKLOCKTIMEVERIFY soft-fork activates at (regtest) block height
 1351.
 """
 
-from test_framework.blocktools import create_coinbase, create_block, create_transaction
-from test_framework.messages import CTransaction, msg_block, ToHex
+from test_framework.blocktools import (
+    create_block,
+    create_coinbase,
+    create_transaction,
+)
+from test_framework.messages import (
+    CTransaction,
+    ToHex,
+    msg_block,
+)
 from test_framework.p2p import P2PInterface
-from test_framework.script import CScript, OP_1NEGATE, OP_CHECKLOCKTIMEVERIFY, OP_DROP, CScriptNum
+from test_framework.script import (
+    CScript,
+    CScriptNum,
+    OP_1NEGATE,
+    OP_CHECKLOCKTIMEVERIFY,
+    OP_DROP,
+)
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
@@ -30,6 +44,20 @@ def cltv_modify_tx(node, tx, prepend_scriptsig, nsequence=None, nlocktime=None):
     if nsequence is not None:
         tx.vin[0].nSequence = nsequence
         tx.nLockTime = nlocktime
+
+        # Need to re-sign, since nSequence and nLockTime changed
+        signed_result = node.signrawtransactionwithwallet(ToHex(tx))
+        new_tx = CTransaction()
+        new_tx.deserialize(BytesIO(hex_str_to_bytes(signed_result['hex'])))
+    else:
+        new_tx = tx
+
+    new_tx.vin[0].scriptSig = CScript(prepend_scriptsig + list(CScript(new_tx.vin[0].scriptSig)))
+    return new_tx
+
+
+def cltv_invalidate(tx):
+    '''Modify the signature in vin 0 of the tx to fail CLTV
 
         # Need to re-sign, since nSequence and nLockTime changed
         signed_result = node.signrawtransactionwithwallet(ToHex(tx))
@@ -65,12 +93,18 @@ def cltv_invalidate(node, tx, failure_reason):
 
     return cltv_modify_tx(node, tx, prepend_scriptsig=scheme[0], nsequence=scheme[1], nlocktime=scheme[2])
 
+    TODO: test more ways that transactions using CLTV could be invalid (eg
+    locktime requirements fail, sequence time requirements fail, etc).
+    '''
+    cltv_modify_tx(None, tx, [OP_1NEGATE, OP_CHECKLOCKTIMEVERIFY, OP_DROP])
+
 
 def cltv_validate(node, tx, height):
-    # Modify the signature in vin 0 and nSequence/nLockTime of the tx to pass CLTV
-    scheme = [[CScriptNum(height), OP_CHECKLOCKTIMEVERIFY, OP_DROP], 0, height]
-
-    return cltv_modify_tx(node, tx, prepend_scriptsig=scheme[0], nsequence=scheme[1], nlocktime=scheme[2])
+    '''Modify the signature in vin 0 of the tx to pass CLTV
+    Prepends <height> CLTV DROP in the scriptSig, and sets
+    the locktime to height'''
+    return cltv_modify_tx(node, tx, [CScriptNum(height), OP_CHECKLOCKTIMEVERIFY, OP_DROP],
+                          nsequence=0, nlocktime=height)
 
 
 class BIP65Test(BGLTestFramework):
@@ -88,8 +122,7 @@ class BIP65Test(BGLTestFramework):
         self.skip_if_no_wallet()
 
     def test_cltv_info(self, *, is_active):
-        assert_equal(self.nodes[0].getblockchaininfo()['softforks']['bip65'],
-            {
+        assert_equal(self.nodes[0].getblockchaininfo()['softforks']['bip65'], {
                 "active": is_active,
                 "height": CLTV_HEIGHT,
                 "type": "buried",
@@ -109,7 +142,7 @@ class BIP65Test(BGLTestFramework):
 
         spendtx = create_transaction(self.nodes[0], self.coinbase_txids[0],
                                      self.nodeaddress, amount=1.0)
-        spendtx = cltv_invalidate(self.nodes[0], spendtx, 1)
+        cltv_invalidate(spendtx)
         spendtx.rehash()
 
         tip = self.nodes[0].getbestblockhash()
@@ -142,7 +175,7 @@ class BIP65Test(BGLTestFramework):
 
         spendtx = create_transaction(self.nodes[0], self.coinbase_txids[1],
                                      self.nodeaddress, amount=1.0)
-        spendtx = cltv_invalidate(self.nodes[0], spendtx, 1)
+        cltv_invalidate(spendtx)
         spendtx.rehash()
 
         # First we show that this tx is valid except for CLTV by getting it
