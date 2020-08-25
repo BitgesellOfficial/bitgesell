@@ -3118,8 +3118,6 @@ void PeerLogicValidation::ProcessMessage(CNode& pfrom, const std::string& msg_ty
                 if (RecursiveDynamicUsage(*ptx) < 100000) {
                     AddToCompactExtraTransactions(ptx);
                 }
-            } else if (tx.HasWitness() && RecursiveDynamicUsage(*ptx) < 100000) {
-                AddToCompactExtraTransactions(ptx);
             }
 
             if (pfrom.HasPermission(PF_FORCERELAY)) {
