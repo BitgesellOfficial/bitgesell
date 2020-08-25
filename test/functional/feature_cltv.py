@@ -23,32 +23,54 @@ from io import BytesIO
 CLTV_HEIGHT = 1351
 
 
-def cltv_invalidate(tx):
-    '''Modify the signature in vin 0 of the tx to fail CLTV
+# Helper function to modify a transaction by
+# 1) prepending a given script to the scriptSig of vin 0 and
+# 2) (optionally) modify the nSequence of vin 0 and the tx's nLockTime
+def cltv_modify_tx(node, tx, prepend_scriptsig, nsequence=None, nlocktime=None):
+    if nsequence is not None:
+        tx.vin[0].nSequence = nsequence
+        tx.nLockTime = nlocktime
 
-    Prepends -1 CLTV DROP in the scriptSig itself.
+        # Need to re-sign, since nSequence and nLockTime changed
+        signed_result = node.signrawtransactionwithwallet(ToHex(tx))
+        new_tx = CTransaction()
+        new_tx.deserialize(BytesIO(hex_str_to_bytes(signed_result['hex'])))
+    else:
+        new_tx = tx
 
-    TODO: test more ways that transactions using CLTV could be invalid (eg
-    locktime requirements fail, sequence time requirements fail, etc).
-    '''
-    tx.vin[0].scriptSig = CScript([OP_1NEGATE, OP_CHECKLOCKTIMEVERIFY, OP_DROP] +
-                                  list(CScript(tx.vin[0].scriptSig)))
+    new_tx.vin[0].scriptSig = CScript(prepend_scriptsig + list(CScript(new_tx.vin[0].scriptSig)))
+    return new_tx
+
+
+def cltv_invalidate(node, tx, failure_reason):
+    # Modify the signature in vin 0 and nSequence/nLockTime of the tx to fail CLTV
+    #
+    # According to BIP65, OP_CHECKLOCKTIMEVERIFY can fail due the following reasons:
+    # 1) the stack is empty
+    # 2) the top item on the stack is less than 0
+    # 3) the lock-time type (height vs. timestamp) of the top stack item and the
+    #    nLockTime field are not the same
+    # 4) the top stack item is greater than the transaction's nLockTime field
+    # 5) the nSequence field of the txin is 0xffffffff
+    assert failure_reason in range(5)
+    scheme = [
+        # | Script to prepend to scriptSig                  | nSequence  | nLockTime    |
+        # +-------------------------------------------------+------------+--------------+
+        [[OP_CHECKLOCKTIMEVERIFY],                            None,       None],
+        [[OP_1NEGATE, OP_CHECKLOCKTIMEVERIFY, OP_DROP],       None,       None],
+        [[CScriptNum(1000), OP_CHECKLOCKTIMEVERIFY, OP_DROP], 0,          1296688602],  # timestamp of genesis block
+        [[CScriptNum(1000), OP_CHECKLOCKTIMEVERIFY, OP_DROP], 0,          500],
+        [[CScriptNum(500),  OP_CHECKLOCKTIMEVERIFY, OP_DROP], 0xffffffff, 500],
+    ][failure_reason]
+
+    return cltv_modify_tx(node, tx, prepend_scriptsig=scheme[0], nsequence=scheme[1], nlocktime=scheme[2])
+
 
 def cltv_validate(node, tx, height):
-    '''Modify the signature in vin 0 of the tx to pass CLTV
-    Prepends <height> CLTV DROP in the scriptSig, and sets
-    the locktime to height'''
-    tx.vin[0].nSequence = 0
-    tx.nLockTime = height
+    # Modify the signature in vin 0 and nSequence/nLockTime of the tx to pass CLTV
+    scheme = [[CScriptNum(height), OP_CHECKLOCKTIMEVERIFY, OP_DROP], 0, height]
 
-    # Need to re-sign, since nSequence and nLockTime changed
-    signed_result = node.signrawtransactionwithwallet(ToHex(tx))
-    new_tx = CTransaction()
-    new_tx.deserialize(BytesIO(hex_str_to_bytes(signed_result['hex'])))
-
-    new_tx.vin[0].scriptSig = CScript([CScriptNum(height), OP_CHECKLOCKTIMEVERIFY, OP_DROP] +
-                                  list(CScript(new_tx.vin[0].scriptSig)))
-    return new_tx
+    return cltv_modify_tx(node, tx, prepend_scriptsig=scheme[0], nsequence=scheme[1], nlocktime=scheme[2])
 
 
 class BIP65Test(BGLTestFramework):
@@ -86,8 +108,8 @@ class BIP65Test(BGLTestFramework):
         self.log.info("Test that an invalid-according-to-CLTV transaction can still appear in a block")
 
         spendtx = create_transaction(self.nodes[0], self.coinbase_txids[0],
-                self.nodeaddress, amount=1.0)
-        cltv_invalidate(spendtx)
+                                     self.nodeaddress, amount=1.0)
+        spendtx = cltv_invalidate(self.nodes[0], spendtx, 1)
         spendtx.rehash()
 
         tip = self.nodes[0].getbestblockhash()
@@ -119,8 +141,8 @@ class BIP65Test(BGLTestFramework):
         block.nVersion = 4
 
         spendtx = create_transaction(self.nodes[0], self.coinbase_txids[1],
-                self.nodeaddress, amount=1.0)
-        cltv_invalidate(spendtx)
+                                     self.nodeaddress, amount=1.0)
+        spendtx = cltv_invalidate(self.nodes[0], spendtx, 1)
         spendtx.rehash()
 
         # First we show that this tx is valid except for CLTV by getting it
