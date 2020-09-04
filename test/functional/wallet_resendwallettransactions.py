@@ -9,7 +9,7 @@ import time
 from test_framework.blocktools import create_block, create_coinbase
 from test_framework.messages import ToHex
 from test_framework.p2p import P2PTxInvStore
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 from test_framework.util import assert_equal
 
 
@@ -36,7 +36,7 @@ class ResendWalletTransactionsTest(BGLTestFramework):
     def run_test(self):
         node = self.nodes[0]  # alias
 
-        node.add_p2p_connection(P2PStoreTxInvs())
+        peer_first = node.add_p2p_connection(P2PTxInvStore())
 
         self.log.info("Create a new transaction and wait until it's broadcast")
         txid = node.sendtoaddress(node.getnewaddress(), 1)
@@ -48,10 +48,10 @@ class ResendWalletTransactionsTest(BGLTestFramework):
         time.sleep(1.1)
 
         # Can take a few seconds due to transaction trickling
-        node.p2p.wait_for_broadcast([txid])
+        peer_first.wait_for_broadcast([txid])
 
         # Add a second peer since txs aren't rebroadcast to the same peer (see filterInventoryKnown)
-        node.add_p2p_connection(P2PStoreTxInvs())
+        peer_second = node.add_p2p_connection(P2PTxInvStore())
 
         self.log.info("Create a block")
         # Create and submit a block without the transaction.
@@ -79,7 +79,7 @@ class ResendWalletTransactionsTest(BGLTestFramework):
         # Transaction should be rebroadcast approximately 24 hours in the future,
         # but can range from 12-36. So bump 36 hours to be sure.
         node.setmocktime(now + 36 * 60 * 60)
-        node.p2p.wait_for_broadcast([txid])
+        peer_second.wait_for_broadcast([txid])
 
 
 if __name__ == '__main__':
