@@ -24,6 +24,7 @@ BGL_DAEMON_NAME=BGLd
 BGL_GUI_NAME=BGL-qt
 BGL_CLI_NAME=BGL-cli
 BGL_TX_NAME=BGL-tx
+BGL_UTIL_NAME=BGL-util
 BGL_WALLET_TOOL_NAME=BGL-wallet
 dnl Multi Process
 BGL_MP_NODE_NAME=BGL-node
@@ -577,7 +578,7 @@ CPPFLAGS="$CPPFLAGS -DHAVE_BUILD_INFO -D__STDC_FORMAT_MACROS"
 
 AC_ARG_WITH([utils],
   [AS_HELP_STRING([--with-utils],
-  [build BGL-cli BGL-tx BGL-wallet (default=yes)])],
+  [build BGL-cli BGL-tx BGL-util BGL-wallet (default=yes)])],
   [build_BGL_utils=$withval],
   [build_BGL_utils=yes])
 
@@ -598,6 +599,12 @@ AC_ARG_ENABLE([util-wallet],
   [build BGL-wallet])],
   [build_BGL_wallet=$enableval],
   [build_BGL_wallet=$build_BGL_utils])
+
+AC_ARG_ENABLE([util-util],
+  [AS_HELP_STRING([--enable-util-util],
+  [build BGL-util])],
+  [build_BGL_util=$enableval],
+  [build_BGL_util=$build_BGL_utils])
 
 AC_ARG_WITH([libs],
   [AS_HELP_STRING([--with-libs],
@@ -1218,6 +1225,7 @@ if test "x$enable_fuzz" = "xyes"; then
   build_BGL_utils=no
   build_BGL_cli=no
   build_BGL_tx=no
+  build_BGL_util=no
   build_BGL_wallet=no
   build_BGLd=no
   build_BGL_libs=no
@@ -1450,7 +1458,7 @@ fi
 dnl univalue check
 
 need_bundled_univalue=yes
-if test x$build_BGL_wallet$build_BGL_cli$build_BGL_tx$build_BGLd$BGL_enable_qt$use_tests$use_bench = xnonononononono; then
+if test x$build_BGL_wallet$build_BGL_cli$build_BGL_tx$build_BGL_util$build_BGLd$BGL_enable_qt$use_tests$use_bench = xnononononononono; then
   need_bundled_univalue=no
 else
   if test x$system_univalue != xno; then
@@ -1532,6 +1540,10 @@ AC_MSG_RESULT($build_BGL_tx)
 AC_MSG_CHECKING([whether to build BGL-wallet])
 AM_CONDITIONAL([BUILD_BGL_WALLET], [test x$build_BGL_wallet = xyes])
 AC_MSG_RESULT($build_BGL_wallet)
+
+AC_MSG_CHECKING([whether to build BGL-util])
+AM_CONDITIONAL([BUILD_BGL_UTIL], [test x$build_BGL_util = xyes])
+AC_MSG_RESULT($build_BGL_util)
 
 AC_MSG_CHECKING([whether to build libraries])
 AM_CONDITIONAL([BUILD_BGL_LIBS], [test x$build_BGL_libs = xyes])
@@ -1735,6 +1747,7 @@ AC_SUBST(BGL_DAEMON_NAME)
 AC_SUBST(BGL_GUI_NAME)
 AC_SUBST(BGL_CLI_NAME)
 AC_SUBST(BGL_TX_NAME)
+AC_SUBST(BGL_UTIL_NAME)
 AC_SUBST(BGL_WALLET_TOOL_NAME)
 AC_SUBST(BGL_MP_NODE_NAME)
 AC_SUBST(BGL_MP_GUI_NAME)
@@ -1853,7 +1866,7 @@ echo "  with zmq      = $use_zmq"
 if test x$enable_fuzz == xno; then
     echo "  with test     = $use_tests"
 else
-    echo "  with test     = not building test_bitcoin because fuzzing is enabled"
+    echo "  with test     = not building test_BGL because fuzzing is enabled"
     echo "    with fuzz   = $enable_fuzz"
 fi
 echo "  with bench    = $use_bench"

@@ -22,6 +22,7 @@ src/BGL-cli
 src/BGL-gui
 src/BGL-node
 src/BGL-tx
+src/BGL-util
 src/BGL-wallet
 src/test/fuzz/*
 !src/test/fuzz/*.*

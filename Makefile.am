@@ -25,6 +25,7 @@ BGLD_BIN=$(top_builddir)/src/$(BGL_DAEMON_NAME)$(EXEEXT)
 BGL_QT_BIN=$(top_builddir)/src/qt/$(BGL_GUI_NAME)$(EXEEXT)
 BGL_CLI_BIN=$(top_builddir)/src/$(BGL_CLI_NAME)$(EXEEXT)
 BGL_TX_BIN=$(top_builddir)/src/$(BGL_TX_NAME)$(EXEEXT)
+BGL_UTIL_BIN=$(top_builddir)/src/$(BGL_UTIL_NAME)$(EXEEXT)
 BGL_WALLET_BIN=$(top_builddir)/src/$(BGL_WALLET_TOOL_NAME)$(EXEEXT)
 BGL_NODE_BIN=$(top_builddir)/src/$(BGL_MP_NODE_NAME)$(EXEEXT)
 BGL_GUI_BIN=$(top_builddir)/src/$(BGL_MP_GUI_NAME)$(EXEEXT)
@@ -90,6 +91,7 @@ $(BGL_WIN_INSTALLER): all-recursive
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_CLI_BIN) $(top_builddir)/release
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_TX_BIN) $(top_builddir)/release
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_WALLET_BIN) $(top_builddir)/release
+	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_UTIL_BIN) $(top_builddir)/release
 	@test -f $(MAKENSIS) && echo 'OutFile "$@"' | cat $(top_builddir)/share/setup.nsi - | $(MAKENSIS) -V2 - || \
 	  echo error: could not build $@
 	@echo built $@
@@ -188,6 +190,9 @@ $(BGL_CLI_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
 $(BGL_TX_BIN): FORCE
+	$(MAKE) -C src $(@F)
+
+$(BGL_UTIL_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
 $(BGL_WALLET_BIN): FORCE

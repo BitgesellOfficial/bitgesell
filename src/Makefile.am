@@ -99,10 +99,15 @@ endif
 if BUILD_BGL_TX
   bin_PROGRAMS += BGL-tx
 endif
+
 if ENABLE_WALLET
 if BUILD_BGL_WALLET
   bin_PROGRAMS += BGL-wallet
 endif
+endif
+
+if BUILD_BGL_UTIL
+  bin_PROGRAMS += BGL-util
 endif
 
 .PHONY: FORCE check-symbols check-security
@@ -677,10 +682,31 @@ BGL_wallet_SOURCES += BGL-wallet-res.rc
 endif
 #
 
+# BGL-util binary #
+BGL_util_SOURCES = BGL-util.cpp
+BGL_util_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
+BGL_util_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+BGL_util_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+
+if TARGET_WINDOWS
+BGL_util_SOURCES += BGL-util-res.rc
+endif
+
+BGL_util_LDADD = \
+  $(LIBBGL_COMMON) \
+  $(LIBBGL_UTIL) \
+  $(LIBUNIVALUE) \
+  $(LIBBGL_CONSENSUS) \
+  $(LIBBGL_CRYPTO) \
+  $(LIBSECP256K1)
+
+BGL_util_LDADD += $(BOOST_LIBS)
+#
+
 # BGLconsensus library #
 if BUILD_BGL_LIBS
 include_HEADERS = script/BGLconsensus.h
-libBGLconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libBGL_crypto_base_a_SOURCES) $(crypto_sha3_libBGL_crypto_sha3_a_SOURCES) $(libBGL_consensus_a_SOURCES)
+libBGLconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libBGL_crypto_base_a_SOURCES) $(libBGL_consensus_a_SOURCES)
 
 if GLIBC_BACK_COMPAT
   libBGLconsensus_la_SOURCES += compat/glibc_compat.cpp
