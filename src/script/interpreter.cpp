@@ -1430,14 +1430,26 @@ void PrecomputedTransactionData::Init(const T& txTo, std::vector<CTxOut>&& spent
         m_spent_outputs_ready = true;
     }
 
-
-    m_spent_outputs = std::move(spent_outputs);
-
-    // Cache is calculated only for transactions with witness
-    if (txTo.HasWitness()) {
-        hashPrevouts = SHA256Uint256(GetPrevoutsSHA256(txTo));
-        hashSequence = SHA256Uint256(GetSequencesSHA256(txTo));
-        hashOutputs = SHA256Uint256(GetOutputsSHA256(txTo));
+    // Determine which precomputation-impacting features this transaction uses.
+    bool uses_bip143_segwit = false;
+    bool uses_bip341_taproot = false;
+    for (size_t inpos = 0; inpos < txTo.vin.size(); ++inpos) {
+        if (!txTo.vin[inpos].scriptWitness.IsNull()) {
+            if (m_spent_outputs_ready && m_spent_outputs[inpos].scriptPubKey.size() == 2 + WITNESS_V1_TAPROOT_SIZE &&
+                m_spent_outputs[inpos].scriptPubKey[0] == OP_1) {
+                // Treat every witness-bearing spend with 34-byte scriptPubKey that starts with OP_1 as a Taproot
+                // spend. This only works if spent_outputs was provided as well, but if it wasn't, actual validation
+                // will fail anyway. Note that this branch may trigger for scriptPubKeys that aren't actually segwit
+                // but in that case validation will fail as SCRIPT_ERR_WITNESS_UNEXPECTED anyway.
+                uses_bip341_taproot = true;
+            } else {
+                // Treat every spend that's not known to native witness v1 as a Witness v0 spend. This branch may
+                // also be taken for unknown witness versions, but it is harmless, and being precise would require
+                // P2SH evaluation to find the redeemScript.
+                uses_bip143_segwit = true;
+            }
+        }
+        if (uses_bip341_taproot && uses_bip143_segwit) break; // No need to scan further if we already need all.
     }
 
     if (uses_bip143_segwit || uses_bip341_taproot) {
@@ -1472,26 +1484,14 @@ template PrecomputedTransactionData::PrecomputedTransactionData(const CTransacti
 template PrecomputedTransactionData::PrecomputedTransactionData(const CMutableTransaction& txTo);
 
 static const CHashWriter HASHER_TAPSIGHASH = TaggedHash("TapSighash");
-static const CHashWriter HASHER_TAPLEAF = TaggedHash("TapLeaf");
-static const CHashWriter HASHER_TAPBRANCH = TaggedHash("TapBranch");
-static const CHashWriter HASHER_TAPTWEAK = TaggedHash("TapTweak");
 
 template<typename T>
-bool SignatureHashSchnorr(uint256& hash_out, const ScriptExecutionData& execdata, const T& tx_to, uint32_t in_pos, uint8_t hash_type, SigVersion sigversion, const PrecomputedTransactionData& cache)
+bool SignatureHashSchnorr(uint256& hash_out, const T& tx_to, uint32_t in_pos, uint8_t hash_type, SigVersion sigversion, const PrecomputedTransactionData& cache)
 {
-    uint8_t ext_flag, key_version;
+    uint8_t ext_flag;
     switch (sigversion) {
     case SigVersion::TAPROOT:
         ext_flag = 0;
-        // key_version is not used and left uninitialized.
-        break;
-    case SigVersion::TAPSCRIPT:
-        ext_flag = 1;
-        // key_version must be 0 for now, representing the current version of
-        // 32-byte public keys in the tapscript signature opcode execution.
-        // An upgradable public key version (with a size not 32-byte) may
-        // request a different key_version with a new sigversion.
-        key_version = 0;
         break;
     default:
         assert(false);
@@ -1525,8 +1525,8 @@ bool SignatureHashSchnorr(uint256& hash_out, const ScriptExecutionData& execdata
     }
 
     // Data about the input/prevout being spent
-    assert(execdata.m_annex_init);
-    const bool have_annex = execdata.m_annex_present;
+    const auto& witstack = tx_to.vin[in_pos].scriptWitness.stack;
+    bool have_annex = witstack.size() > 1 && witstack.back().size() > 0 && witstack.back()[0] == ANNEX_TAG;
     const uint8_t spend_type = (ext_flag << 1) + (have_annex ? 1 : 0); // The low bit indicates whether an annex is present.
     ss << spend_type;
     if (input_type == SIGHASH_ANYONECANPAY) {
@@ -1537,7 +1537,7 @@ bool SignatureHashSchnorr(uint256& hash_out, const ScriptExecutionData& execdata
         ss << in_pos;
     }
     if (have_annex) {
-        ss << execdata.m_annex_hash;
+        ss << (CHashWriter(SER_GETHASH, 0) << witstack.back()).GetSHA256();
     }
 
     // Data about the output (if only one).
@@ -1546,15 +1546,6 @@ bool SignatureHashSchnorr(uint256& hash_out, const ScriptExecutionData& execdata
         CHashWriter sha_single_output(SER_GETHASH, 0);
         sha_single_output << tx_to.vout[in_pos];
         ss << sha_single_output.GetSHA256();
-    }
-
-    // Additional data for BIP 342 signatures
-    if (sigversion == SigVersion::TAPSCRIPT) {
-        assert(execdata.m_tapleaf_hash_init);
-        ss << execdata.m_tapleaf_hash;
-        ss << key_version;
-        assert(execdata.m_codeseparator_pos_init);
-        ss << execdata.m_codeseparator_pos;
     }
 
     hash_out = ss.GetSHA256();

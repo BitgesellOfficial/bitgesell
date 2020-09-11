@@ -157,8 +157,12 @@ struct PrecomputedTransactionData
 
     // BIP143 precomputed data (double-SHA256).
     uint256 hashPrevouts, hashSequence, hashOutputs;
-    bool m_ready = false;
+    //! Whether the 3 fields above are initialized.
+    bool m_bip143_segwit_ready = false;
+
     std::vector<CTxOut> m_spent_outputs;
+    //! Whether m_spent_outputs is initialized.
+    bool m_spent_outputs_ready = false;
 
     PrecomputedTransactionData() = default;
 
@@ -174,45 +178,12 @@ enum class SigVersion
     BASE = 0,        //!< Bare scripts and BIP16 P2SH-wrapped redeemscripts
     WITNESS_V0 = 1,  //!< Witness v0 (P2WPKH and P2WSH); see BIP 141
     TAPROOT = 2,     //!< Witness v1 with 32-byte program, not BIP16 P2SH-wrapped, key path spending; see BIP 341
-    TAPSCRIPT = 3,   //!< Witness v1 with 32-byte program, not BIP16 P2SH-wrapped, script path spending, leaf version 0xc0; see BIP 342
-};
-
-struct ScriptExecutionData
-{
-    //! Whether m_tapleaf_hash is initialized.
-    bool m_tapleaf_hash_init = false;
-    //! The tapleaf hash.
-    uint256 m_tapleaf_hash;
-
-    //! Whether m_codeseparator_pos is initialized.
-    bool m_codeseparator_pos_init = false;
-    //! Opcode position of the last executed OP_CODESEPARATOR (or 0xFFFFFFFF if none executed).
-    uint32_t m_codeseparator_pos;
-
-    //! Whether m_annex_present and (when needed) m_annex_hash are initialized.
-    bool m_annex_init = false;
-    //! Whether an annex is present.
-    bool m_annex_present;
-    //! Hash of the annex data.
-    uint256 m_annex_hash;
-
-    //! Whether m_validation_weight_left is initialized.
-    bool m_validation_weight_left_init = false;
-    //! How much validation weight is left (decremented for every successful non-empty signature check).
-    int64_t m_validation_weight_left;
 };
 
 /** Signature hash sizes */
 static constexpr size_t WITNESS_V0_SCRIPTHASH_SIZE = 32;
 static constexpr size_t WITNESS_V0_KEYHASH_SIZE = 20;
 static constexpr size_t WITNESS_V1_TAPROOT_SIZE = 32;
-
-static constexpr uint8_t TAPROOT_LEAF_MASK = 0xfe;
-static constexpr uint8_t TAPROOT_LEAF_TAPSCRIPT = 0xc0;
-static constexpr size_t TAPROOT_CONTROL_BASE_SIZE = 33;
-static constexpr size_t TAPROOT_CONTROL_NODE_SIZE = 32;
-static constexpr size_t TAPROOT_CONTROL_MAX_NODE_COUNT = 128;
-static constexpr size_t TAPROOT_CONTROL_MAX_SIZE = TAPROOT_CONTROL_BASE_SIZE + TAPROOT_CONTROL_NODE_SIZE * TAPROOT_CONTROL_MAX_NODE_COUNT;
 
 template <class T>
 uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn, int nHashType, const CAmount& amount, SigVersion sigversion, const PrecomputedTransactionData* cache = nullptr);
