@@ -157,12 +157,8 @@ struct PrecomputedTransactionData
 
     // BIP143 precomputed data (double-SHA256).
     uint256 hashPrevouts, hashSequence, hashOutputs;
-    //! Whether the 3 fields above are initialized.
-    bool m_bip143_segwit_ready = false;
-
+    bool m_ready = false;
     std::vector<CTxOut> m_spent_outputs;
-    //! Whether m_spent_outputs is initialized.
-    bool m_spent_outputs_ready = false;
 
     PrecomputedTransactionData() = default;
 
