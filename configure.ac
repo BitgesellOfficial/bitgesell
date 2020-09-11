@@ -770,6 +770,116 @@ if test x$ac_cv_sys_file_offset_bits != x &&
    test x$ac_cv_sys_file_offset_bits != xunknown; then
   CPPFLAGS="$CPPFLAGS -D_FILE_OFFSET_BITS=$ac_cv_sys_file_offset_bits"
 fi
+AC_ARG_ENABLE(openssl_tests,
+    AS_HELP_STRING([--enable-openssl-tests],[enable OpenSSL tests [default=auto]]),
+    [enable_openssl_tests=$enableval],
+    [enable_openssl_tests=auto])
+
+AC_ARG_ENABLE(experimental,
+    AS_HELP_STRING([--enable-experimental],[allow experimental configure options [default=no]]),
+    [use_experimental=$enableval],
+    [use_experimental=no])
+
+AC_ARG_ENABLE(exhaustive_tests,
+    AS_HELP_STRING([--enable-exhaustive-tests],[compile exhaustive tests [default=yes]]),
+    [use_exhaustive_tests=$enableval],
+    [use_exhaustive_tests=yes])
+
+AC_ARG_ENABLE(endomorphism,
+    AS_HELP_STRING([--enable-endomorphism],[enable endomorphism [default=no]]),
+    [use_endomorphism=$enableval],
+    [use_endomorphism=no])
+
+AC_ARG_ENABLE(ecmult_static_precomputation,
+    AS_HELP_STRING([--enable-ecmult-static-precomputation],[enable precomputed ecmult table for signing [default=auto]]),
+    [use_ecmult_static_precomputation=$enableval],
+    [use_ecmult_static_precomputation=auto])
+
+AC_ARG_ENABLE(module_ecdh,
+    AS_HELP_STRING([--enable-module-ecdh],[enable ECDH shared secret computation (experimental)]),
+    [enable_module_ecdh=$enableval],
+    [enable_module_ecdh=no])
+
+AC_ARG_ENABLE(module_recovery,
+    AS_HELP_STRING([--enable-module-recovery],[enable ECDSA pubkey recovery module [default=no]]),
+    [enable_module_recovery=$enableval],
+    [enable_module_recovery=no])
+
+AC_ARG_ENABLE(module_extrakeys,
+    AS_HELP_STRING([--enable-module-extrakeys],[enable extrakeys module (experimental)]),
+    [enable_module_extrakeys=$enableval],
+    [enable_module_extrakeys=no])
+
+AC_ARG_ENABLE(module_schnorrsig,
+    AS_HELP_STRING([--enable-module-schnorrsig],[enable schnorrsig module (experimental)]),
+    [enable_module_schnorrsig=$enableval],
+    [enable_module_schnorrsig=no])
+
+AC_ARG_ENABLE(external_default_callbacks,
+    AS_HELP_STRING([--enable-external-default-callbacks],[enable external default callback functions [default=no]]),
+    [use_external_default_callbacks=$enableval],
+    [use_external_default_callbacks=no])
+
+dnl Test-only override of the (autodetected by the C code) "widemul" setting.
+dnl Legal values are int64 (for [u]int64_t), int128 (for [unsigned] __int128), and auto (the default).
+AC_ARG_WITH([test-override-wide-multiply], [] ,[set_widemul=$withval], [set_widemul=auto])
+
+AC_ARG_WITH([bignum], [AS_HELP_STRING([--with-bignum=gmp|no|auto],
+[bignum implementation to use [default=auto]])],[req_bignum=$withval], [req_bignum=auto])
+
+AC_ARG_WITH([asm], [AS_HELP_STRING([--with-asm=x86_64|arm|no|auto],
+[assembly optimizations to use (experimental: arm) [default=auto]])],[req_asm=$withval], [req_asm=auto])
+
+AC_ARG_WITH([ecmult-window], [AS_HELP_STRING([--with-ecmult-window=SIZE|auto],
+[window size for ecmult precomputation for verification, specified as integer in range [2..24].]
+[Larger values result in possibly better performance at the cost of an exponentially larger precomputed table.]
+[The table will store 2^(SIZE-2) * 64 bytes of data but can be larger in memory due to platform-specific padding and alignment.]
+[If the endomorphism optimization is enabled, two tables of this size are used instead of only one.]
+["auto" is a reasonable setting for desktop machines (currently 15). [default=auto]]
+)],
+[req_ecmult_window=$withval], [req_ecmult_window=auto])
+
+AC_ARG_WITH([ecmult-gen-precision], [AS_HELP_STRING([--with-ecmult-gen-precision=2|4|8|auto],
+[Precision bits to tune the precomputed table size for signing.]
+[The size of the table is 32kB for 2 bits, 64kB for 4 bits, 512kB for 8 bits of precision.]
+[A larger table size usually results in possible faster signing.]
+["auto" is a reasonable setting for desktop machines (currently 4). [default=auto]]
+)],
+[req_ecmult_gen_precision=$withval], [req_ecmult_gen_precision=auto])
+
+AC_CHECK_HEADER([valgrind/memcheck.h], [enable_valgrind=yes], [enable_valgrind=no], [])
+AM_CONDITIONAL([VALGRIND_ENABLED],[test "$enable_valgrind" = "yes"])
+
+if test x"$enable_coverage" = x"yes"; then
+    AC_DEFINE(COVERAGE, 1, [Define this symbol to compile out all VERIFY code])
+    CFLAGS="-O0 --coverage $CFLAGS"
+    LDFLAGS="--coverage $LDFLAGS"
+else
+    CFLAGS="-O2 $CFLAGS"
+fi
+
+if test x"$use_ecmult_static_precomputation" != x"no"; then
+  # Temporarily switch to an environment for the native compiler
+  save_cross_compiling=$cross_compiling
+  cross_compiling=no
+  SAVE_CC="$CC"
+  CC="$CC_FOR_BUILD"
+  SAVE_CFLAGS="$CFLAGS"
+  CFLAGS="$CFLAGS_FOR_BUILD"
+  SAVE_CPPFLAGS="$CPPFLAGS"
+  CPPFLAGS="$CPPFLAGS_FOR_BUILD"
+  SAVE_LDFLAGS="$LDFLAGS"
+  LDFLAGS="$LDFLAGS_FOR_BUILD"
+
+  warn_CFLAGS_FOR_BUILD="-Wall -Wextra -Wno-unused-function"
+  saved_CFLAGS="$CFLAGS"
+  CFLAGS="$warn_CFLAGS_FOR_BUILD $CFLAGS"
+  AC_MSG_CHECKING([if native ${CC_FOR_BUILD} supports ${warn_CFLAGS_FOR_BUILD}])
+  AC_COMPILE_IFELSE([AC_LANG_SOURCE([[char foo;]])],
+      [ AC_MSG_RESULT([yes]) ],
+      [ AC_MSG_RESULT([no])
+        CFLAGS="$saved_CFLAGS"
+      ])
 
 if test x$ac_cv_sys_large_files != x &&
    test x$ac_cv_sys_large_files != xno &&
@@ -1354,6 +1464,10 @@ else
   if test x$need_bundled_univalue = xyes; then
     UNIVALUE_CFLAGS='-I$(srcdir)/univalue/include'
     UNIVALUE_LIBS='univalue/libunivalue.la'
+if test x"$req_bignum" = x"auto"; then
+  SECP_GMP_CHECK
+  if test x"$has_gmp" = x"yes"; then
+    set_bignum=gmp
   fi
 fi
 
@@ -1402,18 +1516,25 @@ if test x$build_multiprocess != xno; then
   fi
   AC_SUBST(MPGEN_PREFIX)
 fi
+# select wide multiplication implementation
+case $set_widemul in
+int128)
+  AC_DEFINE(USE_FORCE_WIDEMUL_INT128, 1, [Define this symbol to force the use of the (unsigned) __int128 based wide multiplication implementation])
+  ;;
+int64)
+  AC_DEFINE(USE_FORCE_WIDEMUL_INT64, 1, [Define this symbol to force the use of the (u)int64_t based wide multiplication implementation])
+  ;;
+auto)
+  ;;
+*)
+  AC_MSG_ERROR([invalid wide multiplication implementation])
+  ;;
+esac
 
 AC_MSG_CHECKING([whether to build BGLd])
 AM_CONDITIONAL([BUILD_BGLD], [test x$build_BGLd = xyes])
 AC_MSG_RESULT($build_BGLd)
 
-AC_MSG_CHECKING([whether to build BGL-cli])
-AM_CONDITIONAL([BUILD_BGL_CLI], [test x$build_BGL_cli = xyes])
-AC_MSG_RESULT($build_BGL_cli)
-
-AC_MSG_CHECKING([whether to build BGL-tx])
-AM_CONDITIONAL([BUILD_BGL_TX], [test x$build_BGL_tx = xyes])
-AC_MSG_RESULT($build_BGL_tx)
 #set ecmult window size
 if test x"$req_ecmult_window" = x"auto"; then
   set_ecmult_window=15
@@ -1581,11 +1702,15 @@ else
   BUILD_TEST=""
 fi
 
-AC_MSG_CHECKING([whether to reduce exports])
-if test x$use_reduce_exports = xyes; then
-  AC_MSG_RESULT([yes])
-else
-  AC_MSG_RESULT([no])
+if test x"$enable_module_schnorrsig" = x"yes"; then
+  AC_DEFINE(ENABLE_MODULE_SCHNORRSIG, 1, [Define this symbol to enable the schnorrsig module])
+  enable_module_extrakeys=yes
+fi
+
+# Test if extrakeys is set after the schnorrsig module to allow the schnorrsig
+# module to set enable_module_extrakeys=yes
+if test x"$enable_module_extrakeys" = x"yes"; then
+  AC_DEFINE(ENABLE_MODULE_EXTRAKEYS, 1, [Define this symbol to enable the extrakeys module])
 fi
 
 if test x$build_BGL_wallet$build_BGL_cli$build_BGL_tx$build_BGL_libs$build_BGLd$BGL_enable_qt$use_bench$use_tests = xnononononononono; then
@@ -1715,10 +1840,18 @@ if test x"$enable_experimental" = x"yes"; then
   AC_MSG_NOTICE([WARNING: experimental build])
   AC_MSG_NOTICE([Experimental features do not have stable APIs or properties, and may not be safe for production use.])
   AC_MSG_NOTICE([Building ECDH module: $enable_module_ecdh])
+  AC_MSG_NOTICE([Building extrakeys module: $enable_module_extrakeys])
+  AC_MSG_NOTICE([Building schnorrsig module: $enable_module_schnorrsig])
   AC_MSG_NOTICE([******])
 else
   if test x"$enable_module_ecdh" = x"yes"; then
     AC_MSG_ERROR([ECDH module is experimental. Use --enable-experimental to allow.])
+  fi
+  if test x"$enable_module_extrakeys" = x"yes"; then
+    AC_MSG_ERROR([extrakeys module is experimental. Use --enable-experimental to allow.])
+  fi
+  if test x"$enable_module_schnorrsig" = x"yes"; then
+    AC_MSG_ERROR([schnorrsig module is experimental. Use --enable-experimental to allow.])
   fi
   if test x"$set_asm" = x"arm"; then
     AC_MSG_ERROR([ARM assembly optimization is experimental. Use --enable-experimental to allow.])
@@ -1738,6 +1871,8 @@ AM_CONDITIONAL([USE_BENCHMARK], [test x"$use_benchmark" = x"yes"])
 AM_CONDITIONAL([USE_ECMULT_STATIC_PRECOMPUTATION], [test x"$set_precomp" = x"yes"])
 AM_CONDITIONAL([ENABLE_MODULE_ECDH], [test x"$enable_module_ecdh" = x"yes"])
 AM_CONDITIONAL([ENABLE_MODULE_RECOVERY], [test x"$enable_module_recovery" = x"yes"])
+AM_CONDITIONAL([ENABLE_MODULE_EXTRAKEYS], [test x"$enable_module_extrakeys" = x"yes"])
+AM_CONDITIONAL([ENABLE_MODULE_SCHNORRSIG], [test x"$enable_module_schnorrsig" = x"yes"])
 AM_CONDITIONAL([USE_EXTERNAL_ASM], [test x"$use_external_asm" = x"yes"])
 AM_CONDITIONAL([USE_ASM_ARM], [test x"$set_asm" = x"arm"])
 
@@ -1768,29 +1903,25 @@ case ${OS} in
 esac
 
 echo
-echo "Options used to compile and link:"
-echo "  boost process = $ax_cv_boost_process"
-echo "  multiprocess  = $build_multiprocess"
-echo "  with wallet   = $enable_wallet"
-echo "  with gui / qt = $BGL_enable_qt"
-if test x$BGL_enable_qt != xno; then
-    echo "    with qr     = $use_qr"
-fi
-echo "  with zmq      = $use_zmq"
-echo "  with test     = $use_tests"
-if test x$use_tests != xno; then
-    echo "    with fuzz   = $enable_fuzz"
-fi
-echo "  with bench    = $use_bench"
-echo "  with upnp     = $use_upnp"
-echo "  use asm       = $use_asm"
-echo "  sanitizers    = $use_sanitizers"
-echo "  debug enabled = $enable_debug"
-echo "  gprof enabled = $enable_gprof"
-echo "  werror        = $enable_werror"
+echo "Build Options:"
+echo "  with endomorphism       = $use_endomorphism"
+echo "  with ecmult precomp     = $set_precomp"
+echo "  with external callbacks = $use_external_default_callbacks"
+echo "  with benchmarks         = $use_benchmark"
+echo "  with coverage           = $enable_coverage"
+echo "  module ecdh             = $enable_module_ecdh"
+echo "  module recovery         = $enable_module_recovery"
+echo "  module extrakeys        = $enable_module_extrakeys"
+echo "  module schnorrsig       = $enable_module_schnorrsig"
 echo
-echo "  target os     = $TARGET_OS"
-echo "  build os      = $build_os"
+echo "  asm                     = $set_asm"
+echo "  bignum                  = $set_bignum"
+echo "  ecmult window size      = $set_ecmult_window"
+echo "  ecmult gen prec. bits   = $set_ecmult_gen_precision"
+dnl Hide test-only options unless they're used.
+if test x"$set_widemul" != xauto; then
+echo "  wide multiplication     = $set_widemul"
+fi
 echo
 echo "  CC            = $CC"
 echo "  CFLAGS        = $CFLAGS"

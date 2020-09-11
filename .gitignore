@@ -1,12 +1,13 @@
 
+
 *.tar.gz
 
 bench_inv
 bench_ecdh
 bench_ecmult
+bench_schnorrsig
 bench_sign
 bench_verify
-bench_schnorr_verify
 bench_recover
 bench_internal
 tests
@@ -31,6 +32,21 @@ src/qt/test/test_BGL-qt
 Makefile.in
 aclocal.m4
 autom4te.cache/
+config.log
+config.status
+*.tar.gz
+*.la
+libtool
+.deps/
+.dirstamp
+*.lo
+*.o
+*~
+*.log
+*.trs
+src/libsecp256k1-config.h
+src/libsecp256k1-config.h.in
+src/ecmult_static_context.h
 build-aux/config.guess
 build-aux/config.sub
 build-aux/depcomp

@@ -42,28 +42,29 @@ stages:
   - test
 env:
   global:
-    - CI_RETRY_EXE="travis_retry"
-    - CACHE_ERR_MSG="Error! Initial build successful, but not enough time remains to run later build stages and tests. See https://docs.travis-ci.com/user/customizing-the-build#build-timeouts . Please manually re-run this job by using the travis restart button. The next run should not time out because the build cache has been saved."
-before_install:
-  - set -o errexit; source ./ci/test/00_setup_env.sh
-  - set -o errexit; source ./ci/test/03_before_install.sh
-install:
-  - set -o errexit; source ./ci/test/04_install.sh
-before_script:
-  # Temporary workaround for https://github.com/BGL/BGL/issues/16368
-  - for i in {1..4}; do echo "$(sleep 500)" ; done &
-  - set -o errexit; source ./ci/test/05_before_script.sh &> "/dev/null"
-script:
-  - export CONTINUE=1
-  - if [ $SECONDS -gt 1200 ]; then export CONTINUE=0; fi  # Likely the depends build took very long
-  - if [ $TRAVIS_REPO_SLUG = "BGL/BGL" ]; then export CONTINUE=1; fi  # continue on repos with extended build time (90 minutes)
-  - if [ $CONTINUE = "1" ]; then set -o errexit; source ./ci/test/06_script_a.sh; else set +o errexit; echo "$CACHE_ERR_MSG"; false; fi
-  - if [[ $SECONDS -gt 50*60-$EXPECTED_TESTS_DURATION_IN_SECONDS ]]; then export CONTINUE=0; fi
-  - if [ $TRAVIS_REPO_SLUG = "BGL/BGL" ]; then export CONTINUE=1; fi  # continue on repos with extended build time (90 minutes)
-
-after_script:
-  - echo $TRAVIS_COMMIT_RANGE
-jobs:
+    - WIDEMUL=auto  BIGNUM=auto  ENDOMORPHISM=no  STATICPRECOMPUTATION=yes  ECMULTGENPRECISION=auto  ASM=no  BUILD=check  EXTRAFLAGS=  HOST=  ECDH=no  RECOVERY=no SCHNORRSIG=no EXPERIMENTAL=no CTIMETEST=yes BENCH=yes ITERS=2
+  matrix:
+    - WIDEMUL=int64   RECOVERY=yes
+    - WIDEMUL=int64   ECDH=yes  EXPERIMENTAL=yes SCHNORRSIG=yes
+    - WIDEMUL=int64   ENDOMORPHISM=yes
+    - WIDEMUL=int128
+    - WIDEMUL=int128  RECOVERY=yes EXPERIMENTAL=yes SCHNORRSIG=yes
+    - WIDEMUL=int128  ENDOMORPHISM=yes
+    - WIDEMUL=int128  ENDOMORPHISM=yes  ECDH=yes EXPERIMENTAL=yes SCHNORRSIG=yes
+    - WIDEMUL=int128                    ASM=x86_64
+    - WIDEMUL=int128  ENDOMORPHISM=yes  ASM=x86_64
+    - BIGNUM=no
+    - BIGNUM=no       ENDOMORPHISM=yes RECOVERY=yes EXPERIMENTAL=yes SCHNORRSIG=yes
+    - BIGNUM=no       STATICPRECOMPUTATION=no
+    - BUILD=distcheck CTIMETEST= BENCH=
+    - CPPFLAGS=-DDETERMINISTIC
+    - CFLAGS=-O0 CTIMETEST=
+    - ECMULTGENPRECISION=2
+    - ECMULTGENPRECISION=8
+    - VALGRIND=yes ENDOMORPHISM=yes BIGNUM=no ASM=x86_64 EXPERIMENTAL=yes ECDH=yes  RECOVERY=yes EXTRAFLAGS="--disable-openssl-tests" CPPFLAGS=-DVALGRIND BUILD=
+    - VALGRIND=yes                  BIGNUM=no ASM=x86_64 EXPERIMENTAL=yes ECDH=yes  RECOVERY=yes EXTRAFLAGS="--disable-openssl-tests" CPPFLAGS=-DVALGRIND BUILD=
+matrix:
+  fast_finish: true
   include:
 
     - stage: lint
@@ -143,20 +144,15 @@ jobs:
       addons:
         homebrew:
           packages:
-          - berkeley-db4
-          - miniupnpc
-          - qrencode
-          - ccache
-          - zeromq
-          - gcc-multilib
-          - libgmp-dev:i386
-          - valgrind
-          - libtool-bin
-          - libc6-dbg:i386
-      env: >-
-        DANGER_RUN_CI_ON_HOST=true
-        CI_USE_APT_INSTALL=no
-        FILE_ENV="./ci/test/00_setup_env_mac_host.sh"
+            - gcc-multilib
+            - libgmp-dev:i386
+            - valgrind
+            - libtool-bin
+            - libc6-dbg:i386
+    # S390x build (big endian system)
+    - compiler: gcc
+      env: HOST=s390x-unknown-linux-gnu ECDH=yes RECOVERY=yes EXPERIMENTAL=yes CTIMETEST=
+      arch: s390x
 
 # We use this to install macOS dependencies instead of the built in `homebrew` plugin,
 # because in xcode earlier than 11 they have a bug requiring updating the system which overall takes ~8 minutes.
