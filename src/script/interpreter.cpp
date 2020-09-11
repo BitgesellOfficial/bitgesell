@@ -368,66 +368,6 @@ static bool EvalChecksigPreTapscript(const valtype& vchSig, const valtype& vchPu
     return true;
 }
 
-static bool EvalChecksigTapscript(const valtype& sig, const valtype& pubkey, ScriptExecutionData& execdata, unsigned int flags, const BaseSignatureChecker& checker, SigVersion sigversion, ScriptError* serror, bool& success)
-{
-    assert(sigversion == SigVersion::TAPSCRIPT);
-
-    /*
-     *  The following validation sequence is consensus critical. Please note how --
-     *    upgradable public key versions precede other rules;
-     *    the script execution fails when using empty signature with invalid public key;
-     *    the script execution fails when using non-empty invalid signature.
-     */
-    success = !sig.empty();
-    if (success) {
-        // Implement the sigops/witnesssize ratio test.
-        // Passing with an upgradable public key version is also counted.
-        assert(execdata.m_validation_weight_left_init);
-        execdata.m_validation_weight_left -= VALIDATION_WEIGHT_PER_SIGOP_PASSED;
-        if (execdata.m_validation_weight_left < 0) {
-            return set_error(serror, SCRIPT_ERR_TAPSCRIPT_VALIDATION_WEIGHT);
-        }
-    }
-    if (pubkey.size() == 0) {
-        return set_error(serror, SCRIPT_ERR_PUBKEYTYPE);
-    } else if (pubkey.size() == 32) {
-        if (success && !checker.CheckSchnorrSignature(sig, pubkey, sigversion, execdata, serror)) {
-            return false; // serror is set
-        }
-    } else {
-        /*
-         *  New public key version softforks should be defined before this `else` block.
-         *  Generally, the new code should not do anything but failing the script execution. To avoid
-         *  consensus bugs, it should not modify any existing values (including `success`).
-         */
-        if ((flags & SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_PUBKEYTYPE) != 0) {
-            return set_error(serror, SCRIPT_ERR_DISCOURAGE_UPGRADABLE_PUBKEYTYPE);
-        }
-    }
-
-    return true;
-}
-
-/** Helper for OP_CHECKSIG, OP_CHECKSIGVERIFY, and (in Tapscript) OP_CHECKSIGADD.
- *
- * A return value of false means the script fails entirely. When true is returned, the
- * success variable indicates whether the signature check itself succeeded.
- */
-static bool EvalChecksig(const valtype& sig, const valtype& pubkey, CScript::const_iterator pbegincodehash, CScript::const_iterator pend, ScriptExecutionData& execdata, unsigned int flags, const BaseSignatureChecker& checker, SigVersion sigversion, ScriptError* serror, bool& success)
-{
-    switch (sigversion) {
-    case SigVersion::BASE:
-    case SigVersion::WITNESS_V0:
-        return EvalChecksigPreTapscript(sig, pubkey, pbegincodehash, pend, flags, checker, sigversion, serror, success);
-    case SigVersion::TAPSCRIPT:
-        return EvalChecksigTapscript(sig, pubkey, execdata, flags, checker, sigversion, serror, success);
-    case SigVersion::TAPROOT:
-        // Key path spending in Taproot has no script, so this is unreachable.
-        break;
-    }
-    assert(false);
-}
-
 bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& script, unsigned int flags, const BaseSignatureChecker& checker, SigVersion sigversion, ScriptExecutionData& execdata, ScriptError* serror)
 {
     static const CScriptNum bnZero(0);
@@ -1489,7 +1429,7 @@ static const CHashWriter HASHER_TAPBRANCH = TaggedHash("TapBranch");
 static const CHashWriter HASHER_TAPTWEAK = TaggedHash("TapTweak");
 
 template<typename T>
-bool SignatureHashSchnorr(uint256& hash_out, const T& tx_to, uint32_t in_pos, uint8_t hash_type, SigVersion sigversion, const PrecomputedTransactionData& cache)
+bool SignatureHashSchnorr(uint256& hash_out, const ScriptExecutionData& execdata, const T& tx_to, uint32_t in_pos, uint8_t hash_type, SigVersion sigversion, const PrecomputedTransactionData& cache)
 {
     uint8_t ext_flag;
     switch (sigversion) {
@@ -1528,8 +1468,8 @@ bool SignatureHashSchnorr(uint256& hash_out, const T& tx_to, uint32_t in_pos, ui
     }
 
     // Data about the input/prevout being spent
-    const auto& witstack = tx_to.vin[in_pos].scriptWitness.stack;
-    bool have_annex = witstack.size() > 1 && witstack.back().size() > 0 && witstack.back()[0] == ANNEX_TAG;
+    assert(execdata.m_annex_init);
+    const bool have_annex = execdata.m_annex_present;
     const uint8_t spend_type = (ext_flag << 1) + (have_annex ? 1 : 0); // The low bit indicates whether an annex is present.
     ss << spend_type;
     if (input_type == SIGHASH_ANYONECANPAY) {
@@ -1540,7 +1480,7 @@ bool SignatureHashSchnorr(uint256& hash_out, const T& tx_to, uint32_t in_pos, ui
         ss << in_pos;
     }
     if (have_annex) {
-        ss << (CHashWriter(SER_GETHASH, 0) << witstack.back()).GetSHA256();
+        ss << execdata.m_annex_hash;
     }
 
     // Data about the output (if only one).
@@ -1658,7 +1598,7 @@ bool GenericTransactionSignatureChecker<T>::CheckECDSASignature(const std::vecto
 }
 
 template <class T>
-bool GenericTransactionSignatureChecker<T>::CheckSchnorrSignature(Span<const unsigned char> sig, Span<const unsigned char> pubkey_in, SigVersion sigversion, ScriptError* serror) const
+bool GenericTransactionSignatureChecker<T>::CheckSchnorrSignature(Span<const unsigned char> sig, Span<const unsigned char> pubkey_in, SigVersion sigversion, const ScriptExecutionData& execdata, ScriptError* serror) const
 {
     assert(sigversion == SigVersion::TAPROOT);
     // Schnorr signatures have 32-byte public keys. The caller is responsible for enforcing this.
@@ -1674,7 +1614,7 @@ bool GenericTransactionSignatureChecker<T>::CheckSchnorrSignature(Span<const uns
     }
     uint256 sighash;
     assert(this->txdata);
-    if (!SignatureHashSchnorr(sighash, *txTo, nIn, hashtype, sigversion, *this->txdata)) {
+    if (!SignatureHashSchnorr(sighash, execdata, *txTo, nIn, hashtype, sigversion, *this->txdata)) {
         return set_error(serror, SCRIPT_ERR_SCHNORR_SIG_HASHTYPE);
     }
     if (!VerifySchnorrSignature(sig, pubkey, sighash)) return set_error(serror, SCRIPT_ERR_SCHNORR_SIG);
@@ -1866,11 +1806,16 @@ static bool VerifyWitnessProgram(const CScriptWitness& witness, int witversion, 
         if (stack.size() == 0) return set_error(serror, SCRIPT_ERR_WITNESS_PROGRAM_WITNESS_EMPTY);
         if (stack.size() >= 2 && !stack.back().empty() && stack.back()[0] == ANNEX_TAG) {
             // Drop annex (this is non-standard; see IsWitnessStandard)
-            SpanPopBack(stack);
+            const valtype& annex = SpanPopBack(stack);
+            execdata.m_annex_hash = (CHashWriter(SER_GETHASH, 0) << annex).GetSHA256();
+            execdata.m_annex_present = true;
+        } else {
+            execdata.m_annex_present = false;
         }
+        execdata.m_annex_init = true;
         if (stack.size() == 1) {
             // Key path spending (stack size is 1 after removing optional annex)
-            if (!checker.CheckSchnorrSignature(stack.front(), program, SigVersion::TAPROOT, serror)) {
+            if (!checker.CheckSchnorrSignature(stack.front(), program, SigVersion::TAPROOT, execdata, serror)) {
                 return false; // serror is set
             }
             return set_success(serror);
