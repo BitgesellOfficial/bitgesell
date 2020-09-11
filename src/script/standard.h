@@ -203,12 +203,13 @@ struct WitnessUnknown
 /**
  * A txout script template with a specific destination. It is either:
  *  * CNoDestination: no destination set
- *  * PKHash: TX_PUBKEYHASH destination (P2PKH)
- *  * ScriptHash: TX_SCRIPTHASH destination (P2SH)
- *  * WitnessV0ScriptHash: TX_WITNESS_V0_SCRIPTHASH destination (P2WSH)
- *  * WitnessV0KeyHash: TX_WITNESS_V0_KEYHASH destination (P2WPKH)
- *  * WitnessUnknown: TX_WITNESS_UNKNOWN destination (P2W???)
- *  A CTxDestination is the internal data type encoded in a BGL address
+ *  * PKHash: TxoutType::PUBKEYHASH destination (P2PKH)
+ *  * ScriptHash: TxoutType::SCRIPTHASH destination (P2SH)
+ *  * WitnessV0ScriptHash: TxoutType::WITNESS_V0_SCRIPTHASH destination (P2WSH)
+ *  * WitnessV0KeyHash: TxoutType::WITNESS_V0_KEYHASH destination (P2WPKH)
+ *  * WitnessUnknown: TxoutType::WITNESS_UNKNOWN/WITNESS_V1_TAPROOT destination (P2W???)
+ *    (taproot outputs do not require their own type as long as no wallet support exists)
+ *  A CTxDestination is the internal data type encoded in a bitcoin address
  */
 typedef boost::variant<CNoDestination, PKHash, ScriptHash, WitnessV0ScriptHash, WitnessV0KeyHash, WitnessUnknown> CTxDestination;
 
