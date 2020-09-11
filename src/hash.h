@@ -15,7 +15,10 @@
 #include <uint256.h>
 #include <version.h>
 
+<<<<<<< HEAD
 #include <iostream>
+=======
+>>>>>>> 9eb590894... Add TaggedHash function (BIP 340)
 #include <string>
 #include <vector>
 
