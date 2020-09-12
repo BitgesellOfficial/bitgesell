@@ -11,9 +11,9 @@
 #include <serialize.h>
 
 #include <string>
-#include <map>
+#include <vector>
 
-class CSubNet;
+class CAddress;
 class CAddrMan;
 class CDataStream;
 
@@ -73,4 +73,13 @@ public:
     bool Read(banmap_t& banSet);
 };
 
+/**
+ * Dump the anchor IP address database (anchors.dat)
+ *
+ * Anchors are last known outgoing block-relay-only peers that are
+ * tried to re-connect to on startup.
+ */
+void DumpAnchors(const fs::path& anchors_db_path, const std::vector<CAddress>& anchors);
+
 #endif // BGL_ADDRDB_H
+
