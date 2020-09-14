@@ -7,17 +7,31 @@
 This file is modified from python-BGLlib.
 """
 
-from .messages import CTransaction, CTxOut, sha256, hash256, uint256_from_str, ser_uint256, ser_string
-
+from collections import namedtuple
 import hashlib
 import struct
 import unittest
 from typing import List, Dict
 
-from .bignum import bn2vch
+from .key import TaggedHash, tweak_add_pubkey
+
+from .messages import (
+    CTransaction,
+    CTxOut,
+    hash256,
+    ser_string,
+    ser_uint256,
+    sha256,
+    uint256_from_str,
+)
 
 MAX_SCRIPT_ELEMENT_SIZE = 520
+LOCKTIME_THRESHOLD = 500000000
+ANNEX_TAG = 0x50
+
 OPCODE_NAMES = {}  # type: Dict[CScriptOp, str]
+
+LEAF_VERSION_TAPSCRIPT = 0xc0
 
 def hash160(s):
     return hashlib.new('ripemd160', sha256(s)).digest()
@@ -234,11 +248,8 @@ OP_NOP8 = CScriptOp(0xb7)
 OP_NOP9 = CScriptOp(0xb8)
 OP_NOP10 = CScriptOp(0xb9)
 
-# template matching params
-OP_SMALLINTEGER = CScriptOp(0xfa)
-OP_PUBKEYS = CScriptOp(0xfb)
-OP_PUBKEYHASH = CScriptOp(0xfd)
-OP_PUBKEY = CScriptOp(0xfe)
+# BIP 342 opcodes (Tapscript)
+OP_CHECKSIGADD = CScriptOp(0xba)
 
 OP_INVALIDOPCODE = CScriptOp(0xff)
 
@@ -251,114 +262,110 @@ OPCODE_NAMES.update({
     OP_RESERVED : 'OP_RESERVED',
     OP_1 : 'OP_1',
     OP_2 : 'OP_2',
-    OP_3 : 'OP_3',
-    OP_4 : 'OP_4',
-    OP_5 : 'OP_5',
-    OP_6 : 'OP_6',
-    OP_7 : 'OP_7',
-    OP_8 : 'OP_8',
-    OP_9 : 'OP_9',
-    OP_10 : 'OP_10',
-    OP_11 : 'OP_11',
-    OP_12 : 'OP_12',
-    OP_13 : 'OP_13',
-    OP_14 : 'OP_14',
-    OP_15 : 'OP_15',
-    OP_16 : 'OP_16',
-    OP_NOP : 'OP_NOP',
-    OP_VER : 'OP_VER',
-    OP_IF : 'OP_IF',
-    OP_NOTIF : 'OP_NOTIF',
-    OP_VERIF : 'OP_VERIF',
-    OP_VERNOTIF : 'OP_VERNOTIF',
-    OP_ELSE : 'OP_ELSE',
-    OP_ENDIF : 'OP_ENDIF',
-    OP_VERIFY : 'OP_VERIFY',
-    OP_RETURN : 'OP_RETURN',
-    OP_TOALTSTACK : 'OP_TOALTSTACK',
-    OP_FROMALTSTACK : 'OP_FROMALTSTACK',
-    OP_2DROP : 'OP_2DROP',
-    OP_2DUP : 'OP_2DUP',
-    OP_3DUP : 'OP_3DUP',
-    OP_2OVER : 'OP_2OVER',
-    OP_2ROT : 'OP_2ROT',
-    OP_2SWAP : 'OP_2SWAP',
-    OP_IFDUP : 'OP_IFDUP',
-    OP_DEPTH : 'OP_DEPTH',
-    OP_DROP : 'OP_DROP',
-    OP_DUP : 'OP_DUP',
-    OP_NIP : 'OP_NIP',
-    OP_OVER : 'OP_OVER',
-    OP_PICK : 'OP_PICK',
-    OP_ROLL : 'OP_ROLL',
-    OP_ROT : 'OP_ROT',
-    OP_SWAP : 'OP_SWAP',
-    OP_TUCK : 'OP_TUCK',
-    OP_CAT : 'OP_CAT',
-    OP_SUBSTR : 'OP_SUBSTR',
-    OP_LEFT : 'OP_LEFT',
-    OP_RIGHT : 'OP_RIGHT',
-    OP_SIZE : 'OP_SIZE',
-    OP_INVERT : 'OP_INVERT',
-    OP_AND : 'OP_AND',
-    OP_OR : 'OP_OR',
-    OP_XOR : 'OP_XOR',
-    OP_EQUAL : 'OP_EQUAL',
-    OP_EQUALVERIFY : 'OP_EQUALVERIFY',
-    OP_RESERVED1 : 'OP_RESERVED1',
-    OP_RESERVED2 : 'OP_RESERVED2',
-    OP_1ADD : 'OP_1ADD',
-    OP_1SUB : 'OP_1SUB',
-    OP_2MUL : 'OP_2MUL',
-    OP_2DIV : 'OP_2DIV',
-    OP_NEGATE : 'OP_NEGATE',
-    OP_ABS : 'OP_ABS',
-    OP_NOT : 'OP_NOT',
-    OP_0NOTEQUAL : 'OP_0NOTEQUAL',
-    OP_ADD : 'OP_ADD',
-    OP_SUB : 'OP_SUB',
-    OP_MUL : 'OP_MUL',
-    OP_DIV : 'OP_DIV',
-    OP_MOD : 'OP_MOD',
-    OP_LSHIFT : 'OP_LSHIFT',
-    OP_RSHIFT : 'OP_RSHIFT',
-    OP_BOOLAND : 'OP_BOOLAND',
-    OP_BOOLOR : 'OP_BOOLOR',
-    OP_NUMEQUAL : 'OP_NUMEQUAL',
-    OP_NUMEQUALVERIFY : 'OP_NUMEQUALVERIFY',
-    OP_NUMNOTEQUAL : 'OP_NUMNOTEQUAL',
-    OP_LESSTHAN : 'OP_LESSTHAN',
-    OP_GREATERTHAN : 'OP_GREATERTHAN',
-    OP_LESSTHANOREQUAL : 'OP_LESSTHANOREQUAL',
-    OP_GREATERTHANOREQUAL : 'OP_GREATERTHANOREQUAL',
-    OP_MIN : 'OP_MIN',
-    OP_MAX : 'OP_MAX',
-    OP_WITHIN : 'OP_WITHIN',
-    OP_RIPEMD160 : 'OP_RIPEMD160',
-    OP_SHA1 : 'OP_SHA1',
-    OP_SHA256 : 'OP_SHA256',
-    OP_HASH160 : 'OP_HASH160',
-    OP_HASH256 : 'OP_HASH256',
-    OP_CODESEPARATOR : 'OP_CODESEPARATOR',
-    OP_CHECKSIG : 'OP_CHECKSIG',
-    OP_CHECKSIGVERIFY : 'OP_CHECKSIGVERIFY',
-    OP_CHECKMULTISIG : 'OP_CHECKMULTISIG',
-    OP_CHECKMULTISIGVERIFY : 'OP_CHECKMULTISIGVERIFY',
-    OP_NOP1 : 'OP_NOP1',
-    OP_CHECKLOCKTIMEVERIFY : 'OP_CHECKLOCKTIMEVERIFY',
-    OP_CHECKSEQUENCEVERIFY : 'OP_CHECKSEQUENCEVERIFY',
-    OP_NOP4 : 'OP_NOP4',
-    OP_NOP5 : 'OP_NOP5',
-    OP_NOP6 : 'OP_NOP6',
-    OP_NOP7 : 'OP_NOP7',
-    OP_NOP8 : 'OP_NOP8',
-    OP_NOP9 : 'OP_NOP9',
-    OP_NOP10 : 'OP_NOP10',
-    OP_SMALLINTEGER : 'OP_SMALLINTEGER',
-    OP_PUBKEYS : 'OP_PUBKEYS',
-    OP_PUBKEYHASH : 'OP_PUBKEYHASH',
-    OP_PUBKEY : 'OP_PUBKEY',
-    OP_INVALIDOPCODE : 'OP_INVALIDOPCODE',
+    OP_4: 'OP_4',
+    OP_5: 'OP_5',
+    OP_6: 'OP_6',
+    OP_7: 'OP_7',
+    OP_8: 'OP_8',
+    OP_9: 'OP_9',
+    OP_10: 'OP_10',
+    OP_11: 'OP_11',
+    OP_12: 'OP_12',
+    OP_13: 'OP_13',
+    OP_14: 'OP_14',
+    OP_15: 'OP_15',
+    OP_16: 'OP_16',
+    OP_NOP: 'OP_NOP',
+    OP_VER: 'OP_VER',
+    OP_IF: 'OP_IF',
+    OP_NOTIF: 'OP_NOTIF',
+    OP_VERIF: 'OP_VERIF',
+    OP_VERNOTIF: 'OP_VERNOTIF',
+    OP_ELSE: 'OP_ELSE',
+    OP_ENDIF: 'OP_ENDIF',
+    OP_VERIFY: 'OP_VERIFY',
+    OP_RETURN: 'OP_RETURN',
+    OP_TOALTSTACK: 'OP_TOALTSTACK',
+    OP_FROMALTSTACK: 'OP_FROMALTSTACK',
+    OP_2DROP: 'OP_2DROP',
+    OP_2DUP: 'OP_2DUP',
+    OP_3DUP: 'OP_3DUP',
+    OP_2OVER: 'OP_2OVER',
+    OP_2ROT: 'OP_2ROT',
+    OP_2SWAP: 'OP_2SWAP',
+    OP_IFDUP: 'OP_IFDUP',
+    OP_DEPTH: 'OP_DEPTH',
+    OP_DROP: 'OP_DROP',
+    OP_DUP: 'OP_DUP',
+    OP_NIP: 'OP_NIP',
+    OP_OVER: 'OP_OVER',
+    OP_PICK: 'OP_PICK',
+    OP_ROLL: 'OP_ROLL',
+    OP_ROT: 'OP_ROT',
+    OP_SWAP: 'OP_SWAP',
+    OP_TUCK: 'OP_TUCK',
+    OP_CAT: 'OP_CAT',
+    OP_SUBSTR: 'OP_SUBSTR',
+    OP_LEFT: 'OP_LEFT',
+    OP_RIGHT: 'OP_RIGHT',
+    OP_SIZE: 'OP_SIZE',
+    OP_INVERT: 'OP_INVERT',
+    OP_AND: 'OP_AND',
+    OP_OR: 'OP_OR',
+    OP_XOR: 'OP_XOR',
+    OP_EQUAL: 'OP_EQUAL',
+    OP_EQUALVERIFY: 'OP_EQUALVERIFY',
+    OP_RESERVED1: 'OP_RESERVED1',
+    OP_RESERVED2: 'OP_RESERVED2',
+    OP_1ADD: 'OP_1ADD',
+    OP_1SUB: 'OP_1SUB',
+    OP_2MUL: 'OP_2MUL',
+    OP_2DIV: 'OP_2DIV',
+    OP_NEGATE: 'OP_NEGATE',
+    OP_ABS: 'OP_ABS',
+    OP_NOT: 'OP_NOT',
+    OP_0NOTEQUAL: 'OP_0NOTEQUAL',
+    OP_ADD: 'OP_ADD',
+    OP_SUB: 'OP_SUB',
+    OP_MUL: 'OP_MUL',
+    OP_DIV: 'OP_DIV',
+    OP_MOD: 'OP_MOD',
+    OP_LSHIFT: 'OP_LSHIFT',
+    OP_RSHIFT: 'OP_RSHIFT',
+    OP_BOOLAND: 'OP_BOOLAND',
+    OP_BOOLOR: 'OP_BOOLOR',
+    OP_NUMEQUAL: 'OP_NUMEQUAL',
+    OP_NUMEQUALVERIFY: 'OP_NUMEQUALVERIFY',
+    OP_NUMNOTEQUAL: 'OP_NUMNOTEQUAL',
+    OP_LESSTHAN: 'OP_LESSTHAN',
+    OP_GREATERTHAN: 'OP_GREATERTHAN',
+    OP_LESSTHANOREQUAL: 'OP_LESSTHANOREQUAL',
+    OP_GREATERTHANOREQUAL: 'OP_GREATERTHANOREQUAL',
+    OP_MIN: 'OP_MIN',
+    OP_MAX: 'OP_MAX',
+    OP_WITHIN: 'OP_WITHIN',
+    OP_RIPEMD160: 'OP_RIPEMD160',
+    OP_SHA1: 'OP_SHA1',
+    OP_SHA256: 'OP_SHA256',
+    OP_HASH160: 'OP_HASH160',
+    OP_HASH256: 'OP_HASH256',
+    OP_CODESEPARATOR: 'OP_CODESEPARATOR',
+    OP_CHECKSIG: 'OP_CHECKSIG',
+    OP_CHECKSIGVERIFY: 'OP_CHECKSIGVERIFY',
+    OP_CHECKMULTISIG: 'OP_CHECKMULTISIG',
+    OP_CHECKMULTISIGVERIFY: 'OP_CHECKMULTISIGVERIFY',
+    OP_NOP1: 'OP_NOP1',
+    OP_CHECKLOCKTIMEVERIFY: 'OP_CHECKLOCKTIMEVERIFY',
+    OP_CHECKSEQUENCEVERIFY: 'OP_CHECKSEQUENCEVERIFY',
+    OP_NOP4: 'OP_NOP4',
+    OP_NOP5: 'OP_NOP5',
+    OP_NOP6: 'OP_NOP6',
+    OP_NOP7: 'OP_NOP7',
+    OP_NOP8: 'OP_NOP8',
+    OP_NOP9: 'OP_NOP9',
+    OP_NOP10: 'OP_NOP10',
+    OP_CHECKSIGADD: 'OP_CHECKSIGADD',
+    OP_INVALIDOPCODE: 'OP_INVALIDOPCODE',
 })
 
 class CScriptInvalidError(Exception):
@@ -367,7 +374,6 @@ class CScriptInvalidError(Exception):
 
 class CScriptTruncatedPushDataError(CScriptInvalidError):
     """Invalid pushdata due to truncation"""
-    def __init__(self, msg, data):
         self.data = data
         super().__init__(msg)
 
@@ -589,6 +595,7 @@ class CScript(bytes):
         return n
 
 
+SIGHASH_DEFAULT = 0 # Taproot-only default, semantics same as SIGHASH_ALL
 SIGHASH_ALL = 1
 SIGHASH_NONE = 2
 SIGHASH_SINGLE = 3
@@ -610,7 +617,6 @@ def FindAndDelete(script, sig):
     if not skip:
         r += script[last_sop_idx:]
     return CScript(r)
-
 
 def LegacySignatureHash(script, txTo, inIdx, hashtype):
     """Consensus-correct SignatureHash
@@ -734,3 +740,113 @@ class TestFrameworkScript(unittest.TestCase):
         values = [0, 1, -1, -2, 127, 128, -255, 256, (1 << 15) - 1, -(1 << 16), (1 << 24) - 1, (1 << 31), 1 - (1 << 32), 1 << 40, 1500, -1500]
         for value in values:
             self.assertEqual(CScriptNum.decode(CScriptNum.encode(CScriptNum(value))), value)
+
+def TaprootSignatureHash(txTo, spent_utxos, hash_type, input_index = 0, scriptpath = False, script = CScript(), codeseparator_pos = -1, annex = None, leaf_ver = LEAF_VERSION_TAPSCRIPT):
+    assert (len(txTo.vin) == len(spent_utxos))
+    assert (input_index < len(txTo.vin))
+    out_type = SIGHASH_ALL if hash_type == 0 else hash_type & 3
+    in_type = hash_type & SIGHASH_ANYONECANPAY
+    spk = spent_utxos[input_index].scriptPubKey
+    ss = bytes([0, hash_type]) # epoch, hash_type
+    ss += struct.pack("<i", txTo.nVersion)
+    ss += struct.pack("<I", txTo.nLockTime)
+    if in_type != SIGHASH_ANYONECANPAY:
+        ss += sha256(b"".join(i.prevout.serialize() for i in txTo.vin))
+        ss += sha256(b"".join(struct.pack("<q", u.nValue) for u in spent_utxos))
+        ss += sha256(b"".join(ser_string(u.scriptPubKey) for u in spent_utxos))
+        ss += sha256(b"".join(struct.pack("<I", i.nSequence) for i in txTo.vin))
+    if out_type == SIGHASH_ALL:
+        ss += sha256(b"".join(o.serialize() for o in txTo.vout))
+    spend_type = 0
+    if annex is not None:
+        spend_type |= 1
+    if (scriptpath):
+        spend_type |= 2
+    ss += bytes([spend_type])
+    if in_type == SIGHASH_ANYONECANPAY:
+        ss += txTo.vin[input_index].prevout.serialize()
+        ss += struct.pack("<q", spent_utxos[input_index].nValue)
+        ss += ser_string(spk)
+        ss += struct.pack("<I", txTo.vin[input_index].nSequence)
+    else:
+        ss += struct.pack("<I", input_index)
+    if (spend_type & 1):
+        ss += sha256(ser_string(annex))
+    if out_type == SIGHASH_SINGLE:
+        if input_index < len(txTo.vout):
+            ss += sha256(txTo.vout[input_index].serialize())
+        else:
+            ss += bytes(0 for _ in range(32))
+    if (scriptpath):
+        ss += TaggedHash("TapLeaf", bytes([leaf_ver]) + ser_string(script))
+        ss += bytes([0])
+        ss += struct.pack("<i", codeseparator_pos)
+    assert len(ss) ==  175 - (in_type == SIGHASH_ANYONECANPAY) * 49 - (out_type != SIGHASH_ALL and out_type != SIGHASH_SINGLE) * 32 + (annex is not None) * 32 + scriptpath * 37
+    return TaggedHash("TapSighash", ss)
+
+def taproot_tree_helper(scripts):
+    if len(scripts) == 0:
+        return ([], bytes(0 for _ in range(32)))
+    if len(scripts) == 1:
+        # One entry: treat as a leaf
+        script = scripts[0]
+        assert(not callable(script))
+        if isinstance(script, list):
+            return taproot_tree_helper(script)
+        assert(isinstance(script, tuple))
+        version = LEAF_VERSION_TAPSCRIPT
+        name = script[0]
+        code = script[1]
+        if len(script) == 3:
+            version = script[2]
+        assert version & 1 == 0
+        assert isinstance(code, bytes)
+        h = TaggedHash("TapLeaf", bytes([version]) + ser_string(code))
+        if name is None:
+            return ([], h)
+        return ([(name, version, code, bytes())], h)
+    elif len(scripts) == 2 and callable(scripts[1]):
+        # Two entries, and the right one is a function
+        left, left_h = taproot_tree_helper(scripts[0:1])
+        right_h = scripts[1](left_h)
+        left = [(name, version, script, control + right_h) for name, version, script, control in left]
+        right = []
+    else:
+        # Two or more entries: descend into each side
+        split_pos = len(scripts) // 2
+        left, left_h = taproot_tree_helper(scripts[0:split_pos])
+        right, right_h = taproot_tree_helper(scripts[split_pos:])
+        left = [(name, version, script, control + right_h) for name, version, script, control in left]
+        right = [(name, version, script, control + left_h) for name, version, script, control in right]
+    if right_h < left_h:
+        right_h, left_h = left_h, right_h
+    h = TaggedHash("TapBranch", left_h + right_h)
+    return (left + right, h)
+
+TaprootInfo = namedtuple("TaprootInfo", "scriptPubKey,inner_pubkey,negflag,tweak,leaves")
+TaprootLeafInfo = namedtuple("TaprootLeafInfo", "script,version,merklebranch")
+
+def taproot_construct(pubkey, scripts=None):
+    """Construct a tree of Taproot spending conditions
+
+    pubkey: an ECPubKey object for the internal pubkey
+    scripts: a list of items; each item is either:
+             - a (name, CScript) tuple
+             - a (name, CScript, leaf version) tuple
+             - another list of items (with the same structure)
+             - a function, which specifies how to compute the hashing partner
+               in function of the hash of whatever it is combined with
+
+    Returns: script (sPK or redeemScript), tweak, {name:(script, leaf version, negation flag, innerkey, merklepath), ...}
+    """
+    if scripts is None:
+        scripts = []
+
+    ret, h = taproot_tree_helper(scripts)
+    tweak = TaggedHash("TapTweak", pubkey + h)
+    tweaked, negated = tweak_add_pubkey(pubkey, tweak)
+    leaves = dict((name, TaprootLeafInfo(script, version, merklebranch)) for name, version, script, merklebranch in ret)
+    return TaprootInfo(CScript([OP_1, tweaked]), pubkey, negated + 0, tweak, leaves)
+
+def is_op_success(o):
+    return o == 0x50 or o == 0x62 or o == 0x89 or o == 0x8a or o == 0x8d or o == 0x8e or (o >= 0x7e and o <= 0x81) or (o >= 0x83 and o <= 0x86) or (o >= 0x95 and o <= 0x99) or (o >= 0xbb and o <= 0xfe)
