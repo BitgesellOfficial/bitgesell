@@ -66,8 +66,13 @@ your BGLd's P2P listen port (8333 by default).
 	                configuration, you can find your .onion address in
 	                /var/lib/tor/BGL-service/hostname. For connections
 	                coming from unroutable addresses (such as 127.0.0.1, where the
-	                Tor proxy typically runs), .onion addresses are given
+	                Tor proxy typically runs), onion addresses are given
 	                preference for your node to advertise itself with.
+
+	                You can set multiple local addresses with -externalip. The
+	                one that will be rumoured to a particular peer is the most
+	                compatible one and also using heuristics, e.g. the address
+	                with the most incoming connections, etc.
 
 	-listen         You'll need to enable listening for incoming connections, as this
 	                is off by default behind a proxy.
