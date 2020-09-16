@@ -5,10 +5,12 @@
 #include <test/data/script_tests.json.h>
 
 #include <core_io.h>
+#include <fs.h>
 #include <key.h>
 #include <rpc/util.h>
 #include <script/script.h>
 #include <script/script_error.h>
+#include <script/sigcache.h>
 #include <script/sign.h>
 #include <script/signingprovider.h>
 #include <streams.h>
@@ -1341,13 +1343,41 @@ BOOST_AUTO_TEST_CASE(script_GetScriptAsm)
     BOOST_CHECK_EQUAL(derSig + "83 " + pubKey, ScriptToAsmStr(CScript() << ToByteVector(ParseHex(derSig + "83")) << vchPubKey));
 }
 
-static CScript
-ScriptFromHex(const char* hex)
+static CScript ScriptFromHex(const std::string& str)
 {
-    std::vector<unsigned char> data = ParseHex(hex);
+    std::vector<unsigned char> data = ParseHex(str);
     return CScript(data.begin(), data.end());
 }
 
+static CMutableTransaction TxFromHex(const std::string& str)
+{
+    CMutableTransaction tx;
+    VectorReader(SER_DISK, SERIALIZE_TRANSACTION_NO_WITNESS, ParseHex(str), 0) >> tx;
+    return tx;
+}
+
+static std::vector<CTxOut> TxOutsFromJSON(const UniValue& univalue)
+{
+    assert(univalue.isArray());
+    std::vector<CTxOut> prevouts;
+    for (size_t i = 0; i < univalue.size(); ++i) {
+        CTxOut txout;
+        VectorReader(SER_DISK, 0, ParseHex(univalue[i].get_str()), 0) >> txout;
+        prevouts.push_back(std::move(txout));
+    }
+    return prevouts;
+}
+
+static CScriptWitness ScriptWitnessFromJSON(const UniValue& univalue)
+{
+    assert(univalue.isArray());
+    CScriptWitness scriptwitness;
+    for (size_t i = 0; i < univalue.size(); ++i) {
+        auto bytes = ParseHex(univalue[i].get_str());
+        scriptwitness.stack.push_back(std::move(bytes));
+    }
+    return scriptwitness;
+}
 
 BOOST_AUTO_TEST_CASE(script_FindAndDelete)
 {
@@ -1609,7 +1639,7 @@ BOOST_AUTO_TEST_CASE(BGLconsensus_verify_script_invalid_flags)
     BGLconsensus_error err;
     int result = BGLconsensus_verify_script(scriptPubKey.data(), scriptPubKey.size(), (const unsigned char*)&stream[0], stream.size(), nIn, libconsensus_flags, &err);
     BOOST_CHECK_EQUAL(result, 0);
-    BOOST_CHECK_EQUAL(err, bitcoinconsensus_ERR_INVALID_FLAGS);
+    BOOST_CHECK_EQUAL(err, BGLconsensus_ERR_INVALID_FLAGS);
 }
 
 static std::vector<unsigned int> AllConsensusFlags()
@@ -1687,9 +1717,6 @@ static void AssetTest(const UniValue& test)
 
 BOOST_AUTO_TEST_CASE(script_assets_test)
 {
-    // See src/test/fuzz/script_assets_test_minimizer.cpp for information on how to generate
-    // the script_assets_test.json file used by this test.
-
     const char* dir = std::getenv("DIR_UNIT_TEST_DATA");
     BOOST_WARN_MESSAGE(dir != nullptr, "Variable DIR_UNIT_TEST_DATA unset, skipping script_assets_test");
     if (dir == nullptr) return;

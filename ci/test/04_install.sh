@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2018-2020 The BGL Core developers
+# Copyright (c) 2018-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -81,11 +81,10 @@ else
 fi
 
 if [ ! -d ${DIR_QA_ASSETS} ]; then
- if [ "$RUN_FUZZ_TESTS" = "true" ]; then
-  DOCKER_EXEC git clone https://github.com/BGL-core/qa-assets ${DIR_QA_ASSETS}
- fi
+  DOCKER_EXEC git clone --depth=1 https://github.com/BGL-core/qa-assets ${DIR_QA_ASSETS}
 fi
 export DIR_FUZZ_IN=${DIR_QA_ASSETS}/fuzz_seed_corpus/
+export DIR_UNIT_TEST_DATA=${DIR_QA_ASSETS}/unit_test_data/
 
 DOCKER_EXEC mkdir -p "${BASE_SCRATCH_DIR}/sanitizer-output/"
 
