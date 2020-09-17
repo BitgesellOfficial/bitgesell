@@ -9,8 +9,6 @@ from test_framework.address import ADDRESS_BCRT1_UNSPENDABLE, keyhash_to_p2pkh
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
-    connect_nodes,
-    disconnect_nodes,
     hex_str_to_bytes,
 )
 
@@ -76,7 +74,7 @@ class NotificationsTest(BGLTestFramework):
             self.log.info("test -walletnotify after rescan")
             # restart node to rescan to force wallet notifications
             self.start_node(1)
-            connect_nodes(self.nodes[0], 1)
+            self.connect_nodes(0, 1)
 
             self.wait_until(lambda: len(os.listdir(self.walletnotify_dir)) == block_count, timeout=10)
 
@@ -126,18 +124,13 @@ class NotificationsTest(BGLTestFramework):
 
             # Bump tx2 as bump2 and generate a block on node 0 while
             # disconnected, then reconnect and check for notifications on node 1
-            # about newly confirmed bump2 and newly conflicted tx2. Currently
-            # only the bump2 notification is sent. Ideally, notifications would
-            # be sent both for bump2 and tx2, which was the previous behavior
-            # before being broken by an accidental change in PR
-            # https://github.com/BGL/BGL/pull/16624. The bug is reported
-            # in issue https://github.com/BGL/BGL/issues/18325.
-            disconnect_nodes(self.nodes[0], 1)
+            # about newly confirmed bump2 and newly conflicted tx2.
+            self.disconnect_nodes(0, 1)
             bump2 = self.nodes[0].bumpfee(tx2)["txid"]
             self.nodes[0].generatetoaddress(1, ADDRESS_BCRT1_UNSPENDABLE)
             assert_equal(self.nodes[0].gettransaction(bump2)["confirmations"], 1)
             assert_equal(tx2 in self.nodes[1].getrawmempool(), True)
-            connect_nodes(self.nodes[0], 1)
+            self.connect_nodes(0, 1)
             self.sync_blocks()
             self.expect_wallet_notify([bump2, tx2])
             assert_equal(self.nodes[1].gettransaction(bump2)["confirmations"], 1)
