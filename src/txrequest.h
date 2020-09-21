@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_TXREQUEST_H
-#define BITCOIN_TXREQUEST_H
+#ifndef BGL_TXREQUEST_H
+#define BGL_TXREQUEST_H
 
 #include <primitives/transaction.h>
 #include <net.h> // For NodeId
@@ -148,7 +148,6 @@ public:
      *
      * It does the following:
      *  - Convert all REQUESTED announcements (for all txhashes/peers) with (expiry <= now) to COMPLETED ones.
-     *    These are returned in expired, if non-nullptr.
      *  - Requestable announcements are selected: CANDIDATE announcements from the specified peer with
      *    (reqtime <= now) for which no existing REQUESTED announcement with the same txhash from a different peer
      *    exists, and for which the specified peer is the best choice among all (reqtime <= now) CANDIDATE
@@ -160,9 +159,7 @@ public:
      *    out of order: if multiple dependent transactions are announced simultaneously by one peer, and end up
      *    being requested from them, the requests will happen in announcement order.
      */
-    std::vector<GenTxid> GetRequestable(NodeId peer, std::chrono::microseconds now,
-        std::vector<std::pair<NodeId, GenTxid>>* expired = nullptr);
-
+    std::vector<GenTxid> GetRequestable(NodeId peer, std::chrono::microseconds now);
     /** Marks a transaction as requested, with a specified expiry.
      *
      * If no CANDIDATE announcement for the provided peer and txhash exists, this call has no effect. Otherwise:
@@ -194,18 +191,6 @@ public:
 
     /** Count how many announcements are being tracked in total across all peers and transaction hashes. */
     size_t Size() const;
-
-    /** Access to the internal priority computation (testing only) */
-    uint64_t ComputePriority(const uint256& txhash, NodeId peer, bool preferred) const;
-
-    /** Run internal consistency check (testing only). */
-    void SanityCheck() const;
-
-    /** Run a time-dependent internal consistency check (testing only).
-     *
-     * This can only be called immediately after GetRequestable, with the same 'now' parameter.
-     */
-    void PostGetRequestableSanityCheck(std::chrono::microseconds now) const;
 };
 
-#endif // BITCOIN_TXREQUEST_H
+#endif // BGL_TXREQUEST_H
