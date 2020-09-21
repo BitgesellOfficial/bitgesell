@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The BGL Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -75,11 +75,8 @@ static const unsigned int MAX_INV_SZ = 50000;
 /** Maximum number of in-flight transaction requests from a peer. It is not a hard limit, but the threshold at which
  *  point the OVERLOADED_PEER_TX_DELAY kicks in. */
 static constexpr int32_t MAX_PEER_TX_REQUEST_IN_FLIGHT = 100;
-/** Maximum number of transactions to consider for requesting, per peer. It provides a reasonable DoS limit to
- *  per-peer memory usage spent on announcements, while covering peers continuously sending INVs at the maximum
- *  rate (by our own policy, see INVENTORY_BROADCAST_PER_SECOND) for several minutes, while not receiving
- *  the actual transaction (from any peer) in response to requests for them. */
-static constexpr int32_t MAX_PEER_TX_ANNOUNCEMENTS = 5000;
+/** Maximum number of announced transactions from a peer */
+static constexpr int32_t MAX_PEER_TX_ANNOUNCEMENTS = 2 * MAX_INV_SZ;
 /** How long to delay requesting transactions via txids, if we have wtxid-relaying peers */
 static constexpr auto TXID_RELAY_DELAY = std::chrono::seconds{2};
 /** How long to delay requesting transactions from non-preferred peers */
@@ -756,25 +753,20 @@ void PeerManager::AddTxAnnouncement(const CNode& node, const GenTxid& gtxid, std
 {
     AssertLockHeld(::cs_main); // For m_txrequest
     NodeId nodeid = node.GetId();
-    if (!node.HasPermission(PF_RELAY) && m_txrequest.Count(nodeid) >= MAX_PEER_TX_ANNOUNCEMENTS) {
+    if (m_txrequest.Count(nodeid) >= MAX_PEER_TX_ANNOUNCEMENTS) {
         // Too many queued announcements from this peer
         return;
     }
-    const CNodeState* state = State(nodeid);
-
-    // Decide the TxRequestTracker parameters for this announcement:
     // - "preferred": if fPreferredDownload is set (= outbound, or PF_NOBAN permission)
-    // - "reqtime": current time plus delays for:
     //   - NONPREF_PEER_TX_DELAY for announcements from non-preferred connections
-    //   - TXID_RELAY_DELAY for txid announcements while wtxid peers are available
+    //   - TXID_RELAY_DELAY for announcements from txid peers while wtxid peers are available
     //   - OVERLOADED_PEER_TX_DELAY for announcements from peers which have at least
-    //     MAX_PEER_TX_REQUEST_IN_FLIGHT requests in flight (and don't have PF_RELAY).
+    //     MAX_PEER_TX_REQUEST_IN_FLIGHT requests in flight.
     auto delay = std::chrono::microseconds{0};
     const bool preferred = state->fPreferredDownload;
     if (!preferred) delay += NONPREF_PEER_TX_DELAY;
     if (!state->m_wtxid_relay && g_wtxid_relay_peers > 0) delay += TXID_RELAY_DELAY;
-    const bool overloaded = !node.HasPermission(PF_RELAY) &&
-        m_txrequest.CountInFlight(nodeid) >= MAX_PEER_TX_REQUEST_IN_FLIGHT;
+    const bool overloaded = m_txrequest.CountInFlight(nodeid) >= MAX_PEER_TX_REQUEST_IN_FLIGHT;
     if (overloaded) delay += OVERLOADED_PEER_TX_DELAY;
     m_txrequest.ReceivedInv(nodeid, gtxid, preferred, current_time + delay);
 }
@@ -4486,13 +4478,7 @@ bool PeerManager::SendMessages(CNode* pto)
         //
         // Message: getdata (non-blocks)
         //
-        std::vector<std::pair<NodeId, GenTxid>> expired;
-        auto requestable = m_txrequest.GetRequestable(pto->GetId(), current_time, &expired);
-        for (const auto& entry : expired) {
-            LogPrint(BCLog::NET, "timeout of inflight %s %s from peer=%d\n", entry.second.IsWtxid() ? "wtx" : "tx",
-                entry.second.GetHash().ToString(), entry.first);
-        }
-        for (const GenTxid& gtxid : requestable) {
+        for (const GenTxid& gtxid : m_txrequest.GetRequestable(pto->GetId(), current_time)) {
             if (!AlreadyHaveTx(gtxid, m_mempool)) {
                 LogPrint(BCLog::NET, "Requesting %s %s peer=%d\n", gtxid.IsWtxid() ? "wtx" : "tx",
                     gtxid.GetHash().ToString(), pto->GetId());
@@ -4503,8 +4489,6 @@ bool PeerManager::SendMessages(CNode* pto)
                 }
                 m_txrequest.RequestedTx(pto->GetId(), gtxid.GetHash(), current_time + GETDATA_TX_INTERVAL);
             } else {
-                // We have already seen this transaction, no need to download. This is just a belt-and-suspenders, as
-                // this should already be called whenever a transaction becomes AlreadyHaveTx().
                 m_txrequest.ForgetTxHash(gtxid.GetHash());
             }
         }
