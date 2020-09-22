@@ -347,6 +347,10 @@ RPC
 Tests
 -----
 
+- The BIP 325 default signet can be enabled by the `-chain=signet` or `-signet`
+  setting. The settings `-signetchallenge` and `-signetseednode` allow
+  enabling a custom signet.
+
 Credits
 =======
 
