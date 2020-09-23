@@ -4489,6 +4489,8 @@ bool PeerManager::SendMessages(CNode* pto)
                 }
                 m_txrequest.RequestedTx(pto->GetId(), gtxid.GetHash(), current_time + GETDATA_TX_INTERVAL);
             } else {
+                // We have already seen this transaction, no need to download. This is just a belt-and-suspenders, as
+                // this should already be called whenever a transaction becomes AlreadyHaveTx().
                 m_txrequest.ForgetTxHash(gtxid.GetHash());
             }
         }
