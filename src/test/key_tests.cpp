@@ -67,6 +67,10 @@ BOOST_AUTO_TEST_CASE(key_test1)
     BOOST_CHECK(!key2C.VerifyPubKey(pubkey2));
     BOOST_CHECK(key2C.VerifyPubKey(pubkey2C));
 
+    CTxDestination dest1 = DecodeDestination(addr1);
+    CTxDestination dest2 = CTxDestination(PKHash(pubkey1));
+    BOOST_CHECK(dest1 == dest2);
+
     BOOST_CHECK(DecodeDestination(addr1)  == CTxDestination(PKHash(pubkey1)));
     BOOST_CHECK(DecodeDestination(addr2)  == CTxDestination(PKHash(pubkey2)));
     BOOST_CHECK(DecodeDestination(addr1C) == CTxDestination(PKHash(pubkey1C)));

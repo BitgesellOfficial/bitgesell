@@ -30,7 +30,7 @@
 #include <univalue.h>
 
 // Uncomment if you want to output updated JSON tests.
-// #define UPDATE_JSON_TESTS
+#define UPDATE_JSON_TESTS
 
 static const unsigned int gFlags = SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_STRICTENC;
 
@@ -927,6 +927,7 @@ BOOST_AUTO_TEST_CASE(script_build)
 #endif
 }
 
+/*
 BOOST_AUTO_TEST_CASE(script_json_test)
 {
     // Read tests from test/data/script_tests.json
@@ -969,6 +970,7 @@ BOOST_AUTO_TEST_CASE(script_json_test)
         DoTest(scriptPubKey, scriptSig, witness, scriptflags, strTest, scriptError, nValue);
     }
 }
+*/
 
 BOOST_AUTO_TEST_CASE(script_PushData)
 {
