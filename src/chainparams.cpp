@@ -286,23 +286,8 @@ public:
         genesis = CreateGenesisBlock(1585958400, 5, 0x207fffff, 1, 200 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
 
-        //sha3
-        //std::cout << "Genesis hash: " << consensus.hashGenesisBlock.ToString() << std::endl;
-        //std::cout << "Genesis merkle: " << genesis.hashMerkleRoot.ToString() << std::endl;
-
-
         assert(consensus.hashGenesisBlock == uint256S("0x2e14eaec9745ec9690602feddf650eb6e436d32a3ae8453cf6a90ef1d53a6c42"));
         assert(genesis.hashMerkleRoot == uint256S("0xd43b1b5a37f95846879543c56610dfa59d436896c52394d2a684e38550d70662"));
-        
-
-        //genesis = CreateGenesisBlock(1585958400, 0x0278eefd, 0x1d22ffff, 1, 200 * COIN);
-        //consensus.hashGenesisBlock = genesis.GetHash();
-
-        //sha3
-        //assert(consensus.hashGenesisBlock == uint256S("0x00000018cdcfeeb4dfdebe9392b855cfea7d6ddb953ef13f974b58773606d53d"));
-        //assert(genesis.hashMerkleRoot == uint256S("0x0926305e87ec7ee71ed8d119c9b4958cb22f298cc20f90586c35b5a47e1c3f9b"));
-
-
 
         vFixedSeeds.clear(); //!< Regtest mode doesn't have any fixed seeds.
         vSeeds.clear();      //!< Regtest mode doesn't have any DNS seeds.
