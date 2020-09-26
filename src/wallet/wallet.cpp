@@ -325,6 +325,9 @@ std::shared_ptr<CWallet> CreateWallet(interfaces::Chain& chain, const std::strin
     return wallet;
 }
 
+
+const uint256 CWalletTx::ABANDON_HASH(uint256::ONE);
+
 /** @defgroup mapWallet
  *
  * @{

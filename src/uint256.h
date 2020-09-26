@@ -150,6 +150,5 @@ inline uint256 uint256S(const std::string& str)
     return rv;
 }
 
-inline const uint256& UINT256_ONE() { return uint256::ONE; }
 
 #endif // BGL_UINT256_H
