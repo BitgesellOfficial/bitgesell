@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2019 The BGL Core developers
+# Copyright (c) 2015-2019 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test node responses to invalid network messages."""
@@ -21,13 +21,12 @@ from test_framework.p2p import (
     P2PDataStore,
     P2PInterface,
 )
-
 from test_framework.test_framework import BGLTestFramework
-from test_framework.util import (
-    assert_equal,
-)
+from test_framework.util import assert_equal
+
 
 VALID_DATA_LIMIT = MAX_PROTOCOL_MESSAGE_LENGTH - 5  # Account for the 5-byte length prefix
+
 
 class msg_unrecognized:
     """Nonsensical message. Modeled after similar types in test_framework.messages."""
@@ -101,6 +100,8 @@ class InvalidMessagesTest(BGLTestFramework):
             msg = msg[:cut_len] + b'\xff' * 4 + msg[cut_len + 4:]
             conn.send_raw_message(msg)
             conn.sync_with_ping(timeout=1)
+        # Check that traffic is accounted for (24 bytes header + 2 bytes payload)
+        assert_equal(self.nodes[0].getpeerinfo()[0]['bytesrecv_per_msg']['*other*'], 26)
         self.nodes[0].disconnect_p2ps()
 
     def test_size(self):
@@ -123,6 +124,8 @@ class InvalidMessagesTest(BGLTestFramework):
             msg = msg[:7] + b'\x00' + msg[7 + 1:]
             conn.send_raw_message(msg)
             conn.sync_with_ping(timeout=1)
+        # Check that traffic is accounted for (24 bytes header + 2 bytes payload)
+        assert_equal(self.nodes[0].getpeerinfo()[0]['bytesrecv_per_msg']['*other*'], 26)
         self.nodes[0].disconnect_p2ps()
 
     def test_oversized_msg(self, msg, size):
