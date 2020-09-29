@@ -212,7 +212,7 @@ class ToolWalletTest(BGLTestFramework):
         self.assert_tool_output('', '-wallet=salvage', 'salvage')
 
     def run_test(self):
-        self.wallet_path = os.path.join(self.nodes[0].datadir, 'regtest', 'wallets', 'wallet.dat')
+        self.wallet_path = os.path.join(self.nodes[0].datadir, self.chain, 'wallets', self.default_wallet_name, self.wallet_data_filename)
         self.test_invalid_tool_commands_and_args()
         # Warning: The following tests are order-dependent.
         self.test_tool_wallet_info()
