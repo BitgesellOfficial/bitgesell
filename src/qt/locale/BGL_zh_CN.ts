@@ -1124,7 +1124,7 @@
     </message>
     <message>
         <source>&amp;Start %1 on system login</source>
-        <translation>系统登入时启动 %1 (%S)</translation>
+        <translation>系统登入时启动 %1 (&amp;S)</translation>
     </message>
     <message>
         <source>Size of &amp;database cache</source>
@@ -1791,6 +1791,14 @@
     <message>
         <source>Synced Blocks</source>
         <translation>已同步区块</translation>
+    </message>
+    <message>
+        <source>The mapped Autonomous System used for diversifying peer selection.</source>
+        <translation>映射到的自治系统，被用来多样化选择节点</translation>
+    </message>
+    <message>
+        <source>Mapped AS</source>
+        <translation>映射到的AS</translation>
     </message>
     <message>
         <source>User Agent</source>

@@ -1793,6 +1793,14 @@
         <translation>Blocos Sincronizados</translation>
     </message>
     <message>
+        <source>The mapped Autonomous System used for diversifying peer selection.</source>
+        <translation>O sistema autônomo delineado usado para a diversificação da seleção de pares.</translation>
+    </message>
+    <message>
+        <source>Mapped AS</source>
+        <translation>Mapeado como</translation>
+    </message>
+    <message>
         <source>User Agent</source>
         <translation>User Agent</translation>
     </message>
@@ -1866,7 +1874,7 @@
     </message>
     <message>
         <source>&amp;Network Traffic</source>
-        <translation>&amp;Tráfico de Rede</translation>
+        <translation>&amp;Tráfego da Rede</translation>
     </message>
     <message>
         <source>Totals</source>
@@ -1934,7 +1942,7 @@
     </message>
     <message>
         <source>WARNING: Scammers have been active, telling users to type commands here, stealing their wallet contents. Do not use this console without fully understanding the ramifications of a command.</source>
-        <translation>ATENÇÃO: Fraudadores solicitam a usuários que digitem comandos aqui, e assim roubão o conteúdo de suas carteiras. Não utilize este console sem antes conhecer os comandos e seus efeitos.</translation>
+        <translation>ATENÇÃO: Fraudadores solicitam a usuários que digitem comandos aqui, e assim roubam o conteúdo de suas carteiras. Não utilize este console sem antes conhecer os comandos e seus efeitos.</translation>
     </message>
     <message>
         <source>Network activity disabled</source>

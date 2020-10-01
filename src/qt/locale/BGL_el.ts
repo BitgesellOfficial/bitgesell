@@ -1778,6 +1778,14 @@
         <translation>Συγχρονισμένα Μπλοκς</translation>
     </message>
     <message>
+        <source>The mapped Autonomous System used for diversifying peer selection.</source>
+        <translation>Το χαρτογραφημένο Αυτόνομο Σύστημα που χρησιμοποιείται για τη διαφοροποίηση της επιλογής ομοτίμων.</translation>
+    </message>
+    <message>
+        <source>Mapped AS</source>
+        <translation>Χαρτογραφημένο ως</translation>
+    </message>
+    <message>
         <source>User Agent</source>
         <translation>Agent χρήστη</translation>
     </message>
