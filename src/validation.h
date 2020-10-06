@@ -1033,6 +1033,12 @@ public:
     //! Check to see if caches are out of balance and if so, call
     //! ResizeCoinsCaches() as needed.
     void MaybeRebalanceCaches() EXCLUSIVE_LOCKS_REQUIRED(::cs_main);
+
+    ~ChainstateManager() {
+        LOCK(::cs_main);
+        UnloadBlockIndex(/* mempool */ nullptr, *this);
+        Reset();
+    }
 };
 
 /** Global variable that points to the active block tree (protected by cs_main) */
