@@ -8,7 +8,19 @@
 #ifndef BGL_TORCONTROL_H
 #define BGL_TORCONTROL_H
 
+#include <fs.h>
+#include <netaddress.h>
+
+#include <boost/signals2/signal.hpp>
+
+#include <event2/bufferevent.h>
+#include <event2/event.h>
+
+#include <cstdlib>
+#include <deque>
+#include <functional>
 #include <string>
+#include <vector>
 
 class CService;
 
@@ -19,6 +31,45 @@ void StartTorControl(CService onion_service_target);
 void InterruptTorControl();
 void StopTorControl();
 
+
+/** Reply from Tor, can be single or multi-line */
+class TorControlReply
+{
+public:
+    TorControlReply() { Clear(); }
+
+    int code;
+    std::vector<std::string> lines;
+
+    void Clear()
+    {
+        code = 0;
+        lines.clear();
+    }
+};
+
+/** Low-level handling for Tor control connection.
+ * Speaks the SMTP-like protocol as defined in torspec/control-spec.txt
+ */
+class TorControlConnection
+{
+public:
+    typedef std::function<void(TorControlConnection&)> ConnectionCB;
+    typedef std::function<void(TorControlConnection &,const TorControlReply &)> ReplyHandlerCB;
+
+    /** Create a new TorControlConnection.
+     */
+    explicit TorControlConnection(struct event_base *base);
+    ~TorControlConnection();
+
+    /**
+     * Connect to a Tor control port.
+     * tor_control_center is address of the form host:port.
+     * connected is the handler that is called when connection is successfully established.
+     * disconnected is a handler that is called when the connection is broken.
+     * Return true on success.
+     */
+    bool Connect(const std::string& tor_control_center, const ConnectionCB& connected, const ConnectionCB& disconnected);
 
     /**
      * Disconnect from Tor control port.
@@ -61,9 +112,6 @@ class TorController
 {
 public:
     TorController(struct event_base* base, const std::string& tor_control_center, const CService& target);
-    TorController() : conn{nullptr} {
-        // Used for testing only.
-    }
     ~TorController();
 
     /** Get name of file to store private key in */
@@ -78,7 +126,7 @@ private:
     std::string private_key;
     std::string service_id;
     bool reconnect;
-    struct event *reconnect_ev = nullptr;
+    struct event *reconnect_ev;
     float reconnect_timeout;
     CService service;
     const CService m_target;
@@ -87,7 +135,6 @@ private:
     /** ClientNonce for SAFECOOKIE auth */
     std::vector<uint8_t> clientNonce;
 
-public:
     /** Callback for ADD_ONION result */
     void add_onion_cb(TorControlConnection& conn, const TorControlReply& reply);
     /** Callback for AUTHENTICATE result */
