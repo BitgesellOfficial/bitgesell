@@ -13,19 +13,6 @@ from test_framework.test_framework import BGLTestFramework
 from test_framework.util import assert_equal
 
 
-class P2PStoreTxInvs(P2PInterface):
-    def __init__(self):
-        super().__init__()
-        self.tx_invs_received = defaultdict(int)
-
-    def on_inv(self, message):
-        # Store how many times invs have been received for each tx.
-        for i in message.inv:
-            if i.type == 1:
-                # save txid
-                self.tx_invs_received[i.hash] += 1
-
-
 class ResendWalletTransactionsTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
@@ -42,10 +29,10 @@ class ResendWalletTransactionsTest(BGLTestFramework):
         txid = node.sendtoaddress(node.getnewaddress(), 1)
 
         # Wallet rebroadcast is first scheduled 1 sec after startup (see
-        # nNextResend in ResendWalletTransactions()). Sleep for just over a
-        # second to be certain that it has been called before the first
+        # nNextResend in ResendWalletTransactions()). Tell scheduler to call
+        # MaybeResendWalletTxn now to initialize nNextResend before the first
         # setmocktime call below.
-        time.sleep(1.1)
+        node.mockscheduler(1)
 
         # Can take a few seconds due to transaction trickling
         peer_first.wait_for_broadcast([txid])
@@ -72,15 +59,16 @@ class ResendWalletTransactionsTest(BGLTestFramework):
         twelve_hrs = 12 * 60 * 60
         two_min = 2 * 60
         node.setmocktime(now + twelve_hrs - two_min)
-        time.sleep(2) # ensure enough time has passed for rebroadcast attempt to occur
+        node.mockscheduler(1)  # Tell scheduler to call MaybeResendWalletTxn now
         assert_equal(int(txid, 16) in peer_second.get_invs(), False)
 
         self.log.info("Bump time & check that transaction is rebroadcast")
         # Transaction should be rebroadcast approximately 24 hours in the future,
         # but can range from 12-36. So bump 36 hours to be sure.
-        node.setmocktime(now + 36 * 60 * 60)
-        # Tell scheduler to call MaybeResendWalletTxn now.
-        node.mockscheduler(1)
+        with node.assert_debug_log(['ResendWalletTransactions: resubmit 1 unconfirmed transactions']):
+            node.setmocktime(now + 36 * 60 * 60)
+            # Tell scheduler to call MaybeResendWalletTxn now.
+            node.mockscheduler(1)
         # Give some time for trickle to occur
         node.setmocktime(now + 36 * 60 * 60 + 600)
         peer_second.wait_for_broadcast([txid])
