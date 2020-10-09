@@ -6,19 +6,19 @@ destdir = $(builddir)/debian/bitgesell
 CC  = gcc-8
 CXX = g++-8
 
-.PHONY: distrib download-distrib unpack-distrib berlkeleydb libevent miniupnpc
+.PHONY: distrib download-distrib unpack-distrib berkeleydb libevent miniupnpc
 
 %:
 	dh $@ --with autoreconf
 
 build: distrib
 
-distrib: unpack-distrib boost berlkeleydb libevent miniupnpc
+distrib: unpack-distrib boost berkeleydb libevent miniupnpc
 
-download-distrib: distrib/boost_1_74_0.tar.gz distrib/db-4.8.30.tar.gz distrib/libevent-2.1.12-stable.tar.gz distrib/miniupnpc-2.1.20200928.tar.gz
+download-distrib: distrib/boost_1_74_0.tar.gz distrib/db-4.8.30.tar.gz distrib/libevent-2.1.12-stable.tar.gz distrib/miniupnpc-2.1.orig.tar.gz
 
 unpack-distrib: download-distrib
-	cd distrib/ && for i in *.tar.gz; do tar -xzf $$i; done
+	cd distrib/ && for i in *.tar.gz; do tar -xzf $$i && rm "$$i"; done
 
 distrib/boost_1_74_0.tar.gz:
 	mkdir -p distrib/
@@ -32,7 +32,7 @@ distrib/libevent-2.1.12-stable.tar.gz:
 	mkdir -p distrib/
 	wget -O$@ https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz
 
-distrib/miniupnpc_2.1.orig.tar.gz:
+distrib/miniupnpc-2.1.orig.tar.gz:
 	mkdir -p distrib/
 	wget -O$@ https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/miniupnpc/2.1-1/miniupnpc_2.1.orig.tar.gz
 
@@ -43,7 +43,7 @@ boost:
 
 # --disable-atomicsupport slows things down, but that's necessary to compile (at least on on Ubuntu 20.04.1)
 # TODO: Modify libdb to make it faster.
-berlkeleydb:
+berkeleydb:
 	cd distrib/db-4.8.30/build_unix && \
 		../dist/configure CC=$(CC) CXX=$(CXX) --disable-static --with-pic --with-gnu-ld --enable-cxx --disable-atomicsupport \
 			--prefix=$(builddir)/distrib/tmp/libdb --includedir=$(builddir)/distrib/tmp/libdb/include/db && \
