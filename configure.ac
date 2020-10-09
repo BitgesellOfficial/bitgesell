@@ -118,6 +118,13 @@ AC_ARG_WITH([miniupnpc],
   [use_upnp=$withval],
   [use_upnp=auto])
 
+AC_ARG_ENABLE(libevent,
+    [AS_HELP_STRING([--disable-libevent],
+                    [Disable using EVENT package (used for Debian packages)])],,
+    [enable_libevent=$enableval],
+    [enable_libevent=yes])
+
+
 AC_ARG_ENABLE([upnp-default],
   [AS_HELP_STRING([--enable-upnp-default],
   [if UPNP is enabled, turn it on at startup (default is no)])],
@@ -1248,9 +1255,11 @@ if test x$use_pkgconfig = xyes; then
         BGL_QT_CHECK([PKG_CHECK_MODULES([QR], [libqrencode], [have_qrencode=yes], [have_qrencode=no])])
       fi
       if test x$build_BGL_cli$build_BGLd$BGL_enable_qt$use_tests != xnononono; then
-        PKG_CHECK_MODULES([EVENT], [libevent],, [AC_MSG_ERROR(libevent not found.)])
-        if test x$TARGET_OS != xwindows; then
-          PKG_CHECK_MODULES([EVENT_PTHREADS], [libevent_pthreads],, [AC_MSG_ERROR(libevent_pthreads not found.)])
+        if test x$enable_libevent != xno; then
+          PKG_CHECK_MODULES([EVENT], [libevent],, [AC_MSG_ERROR(libevent not found.)])
+          if test x$TARGET_OS != xwindows; then
+            PKG_CHECK_MODULES([EVENT_PTHREADS], [libevent_pthreads],, [AC_MSG_ERROR(libevent_pthreads not found.)])
+          fi
         fi
       fi
 
