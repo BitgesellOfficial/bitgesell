@@ -1,4 +1,4 @@
-// Copyright (c) 2009-2020 The BGL Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -84,11 +84,11 @@ static const std::array<uint8_t, 6> TORV2_IN_IPV6_PREFIX{
 
 /// Prefix of an IPv6 address when it contains an embedded "internal" address.
 /// Used when (un)serializing addresses in ADDRv1 format (pre-BIP155).
-/// The prefix comes from 0xFD + SHA256("bitcoin")[0:5].
+/// The prefix comes from 0xFD + SHA256("BGL")[0:5].
 /// Such dummy IPv6 addresses are guaranteed to not be publicly routable as they
 /// fall under RFC4193's fc00::/7 subnet allocated to unique-local addresses.
 static const std::array<uint8_t, 6> INTERNAL_IN_IPV6_PREFIX{
-    0xFD, 0x6B, 0x88, 0xC0, 0x87, 0x24 // 0xFD + sha256("bitcoin")[0:5].
+    0xFD, 0x6B, 0x88, 0xC0, 0x87, 0x24 // 0xFD + sha256("BGL")[0:5].
 };
 
 /// Size of IPv4 address (in bytes).
@@ -476,13 +476,20 @@ class CSubNet
         friend bool operator!=(const CSubNet& a, const CSubNet& b) { return !(a == b); }
         friend bool operator<(const CSubNet& a, const CSubNet& b);
 
-        ADD_SERIALIZE_METHODS;
-
-        template <typename Stream, typename Operation>
-        inline void SerializationOp(Stream& s, Operation ser_action) {
-            READWRITE(network);
-            READWRITE(netmask);
-            READWRITE(valid);
+        SERIALIZE_METHODS(CSubNet, obj)
+        {
+            READWRITE(obj.network);
+            if (obj.network.IsIPv4()) {
+                // Before commit 102867c587f5f7954232fb8ed8e85cda78bb4d32, CSubNet used the last 4 bytes of netmask
+                // to store the relevant bytes for an IPv4 mask. For compatiblity reasons, keep doing so in
+                // serialized form.
+                unsigned char dummy[12] = {0};
+                READWRITE(dummy);
+                READWRITE(MakeSpan(obj.netmask).first(4));
+            } else {
+                READWRITE(obj.netmask);
+            }
+            READWRITE(obj.valid);
         }
 };
 
