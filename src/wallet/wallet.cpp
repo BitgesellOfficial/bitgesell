@@ -4130,7 +4130,7 @@ const CAddressBookData* CWallet::FindAddressBookEntry(const CTxDestination& dest
 
 }
 
-bool CWallet::UpgradeWallet(int version, bilingual_str& error, std::vector<bilingual_str>& warnings)
+bool CWallet::UpgradeWallet(int version, bilingual_str& error)
 {
     int prev_version = GetVersion();
     if (version == 0) {
