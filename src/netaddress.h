@@ -492,8 +492,6 @@ class CSubNet
                 READWRITE(obj.netmask);
             }
             READWRITE(obj.valid);
-            // Mark invalid if the result doesn't pass sanity checking.
-            SER_READ(obj, if (obj.valid) obj.valid = obj.SanityCheck());
         }
 };
 
