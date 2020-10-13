@@ -1225,7 +1225,7 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
         return 0;
 
     CAmount nSubsidy = consensusParams.nInitialBlockSubsidy;
-    // Subsidy is cut in half every 210,000 blocks which will occur approximately every 4 years.
+    // Subsidy is cut in half every 52,500 blocks which will occur approximately every 1 year.
     nSubsidy >>= halvings;
     return nSubsidy;
 }
