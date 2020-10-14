@@ -20,6 +20,8 @@ Essentially this is a full bitcoin fork, but:
 * Block Subsidy = 50 * 4;                         // 21 000 000 coins max
 * Hashing algorithm for blocks is Keccak (sha-3).
 
+Official thread: https://bitcointalk.org/index.php?topic=5238559.0
+
 License
 -------
 
