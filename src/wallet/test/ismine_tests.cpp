@@ -65,38 +65,6 @@ BOOST_AUTO_TEST_CASE(ismine_standard)
         BOOST_CHECK_EQUAL(result, ISMINE_SPENDABLE);
     }
 
-    // P2PKH compressed
-    {
-        CWallet keystore(chain.get(), WalletLocation(), WalletDatabase::CreateDummy());
-        LOCK(keystore.cs_wallet);
-        scriptPubKey = GetScriptForDestination(PKHash(pubkeys[0]));
-
-        // Keystore does not have key
-        result = keystore.GetLegacyScriptPubKeyMan()->IsMine(scriptPubKey);
-        BOOST_CHECK_EQUAL(result, ISMINE_NO);
-
-        // Keystore has key
-        BOOST_CHECK(keystore.GetLegacyScriptPubKeyMan()->AddKey(keys[0]));
-        result = keystore.GetLegacyScriptPubKeyMan()->IsMine(scriptPubKey);
-        BOOST_CHECK_EQUAL(result, ISMINE_SPENDABLE);
-    }
-
-    // P2PKH uncompressed
-    {
-        CWallet keystore(chain.get(), WalletLocation(), WalletDatabase::CreateDummy());
-        LOCK(keystore.cs_wallet);
-        scriptPubKey = GetScriptForDestination(PKHash(uncompressedPubkey));
-
-        // Keystore does not have key
-        result = keystore.GetLegacyScriptPubKeyMan()->IsMine(scriptPubKey);
-        BOOST_CHECK_EQUAL(result, ISMINE_NO);
-
-        // Keystore has key
-        BOOST_CHECK(keystore.GetLegacyScriptPubKeyMan()->AddKey(uncompressedKey));
-        result = keystore.GetLegacyScriptPubKeyMan()->IsMine(scriptPubKey);
-        BOOST_CHECK_EQUAL(result, ISMINE_SPENDABLE);
-    }
-
     // P2SH
     {
         CWallet keystore(chain.get(), WalletLocation(), WalletDatabase::CreateDummy());

@@ -573,7 +573,7 @@ protected:
         CKeyID id = keys[0].GetID();
         out.pubkeys.emplace(id, keys[0]);
         ret.emplace_back(GetScriptForRawPubKey(keys[0])); // P2PK
-        ret.emplace_back(GetScriptForDestination(PKHash(id))); // P2PKH
+        // ret.emplace_back(GetScriptForDestination(PKHash(id))); // P2PKH
         if (keys[0].IsCompressed()) {
             CScript p2wpkh = GetScriptForDestination(WitnessV0KeyHash(id));
             out.scripts.emplace(CScriptID(p2wpkh), p2wpkh);

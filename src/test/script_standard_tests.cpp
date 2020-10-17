@@ -39,13 +39,13 @@ BOOST_AUTO_TEST_CASE(script_standard_Solver_success)
     BOOST_CHECK_EQUAL(solutions.size(), 1U);
     BOOST_CHECK(solutions[0] == ToByteVector(pubkeys[0].GetID()));
 
-    // TX_SCRIPTHASH
-    CScript redeemScript(s); // initialize with leftover P2PKH script
-    s.clear();
-    s << OP_HASH160 << ToByteVector(CScriptID(redeemScript)) << OP_EQUAL;
-    BOOST_CHECK_EQUAL(Solver(s, solutions), TX_SCRIPTHASH);
-    BOOST_CHECK_EQUAL(solutions.size(), 1U);
-    BOOST_CHECK(solutions[0] == ToByteVector(CScriptID(redeemScript)));
+    // // TX_SCRIPTHASH
+    // CScript redeemScript(s); // initialize with leftover P2PKH script
+    // s.clear();
+    // s << OP_HASH160 << ToByteVector(CScriptID(redeemScript)) << OP_EQUAL;
+    // BOOST_CHECK_EQUAL(Solver(s, solutions), TX_SCRIPTHASH);
+    // BOOST_CHECK_EQUAL(solutions.size(), 1U);
+    // BOOST_CHECK(solutions[0] == ToByteVector(CScriptID(redeemScript)));
 
     // TX_MULTISIG
     s.clear();
@@ -187,13 +187,13 @@ BOOST_AUTO_TEST_CASE(script_standard_ExtractDestination)
     BOOST_CHECK(boost::get<PKHash>(&address) &&
                 *boost::get<PKHash>(&address) == PKHash(pubkey));
 
-    // TX_SCRIPTHASH
-    CScript redeemScript(s); // initialize with leftover P2PKH script
-    s.clear();
-    s << OP_HASH160 << ToByteVector(CScriptID(redeemScript)) << OP_EQUAL;
-    BOOST_CHECK(ExtractDestination(s, address));
-    BOOST_CHECK(boost::get<ScriptHash>(&address) &&
-                *boost::get<ScriptHash>(&address) == ScriptHash(redeemScript));
+    // // TX_SCRIPTHASH
+    // CScript redeemScript(s); // initialize with leftover P2PKH script
+    // s.clear();
+    // s << OP_HASH160 << ToByteVector(CScriptID(redeemScript)) << OP_EQUAL;
+    // BOOST_CHECK(ExtractDestination(s, address));
+    // BOOST_CHECK(boost::get<ScriptHash>(&address) &&
+    //             *boost::get<ScriptHash>(&address) == ScriptHash(redeemScript));
 
     // TX_MULTISIG
     s.clear();
@@ -266,16 +266,16 @@ BOOST_AUTO_TEST_CASE(script_standard_ExtractDestinations)
     BOOST_CHECK(boost::get<PKHash>(&addresses[0]) &&
                 *boost::get<PKHash>(&addresses[0]) == PKHash(pubkeys[0]));
 
-    // TX_SCRIPTHASH
-    CScript redeemScript(s); // initialize with leftover P2PKH script
-    s.clear();
-    s << OP_HASH160 << ToByteVector(CScriptID(redeemScript)) << OP_EQUAL;
-    BOOST_CHECK(ExtractDestinations(s, whichType, addresses, nRequired));
-    BOOST_CHECK_EQUAL(whichType, TX_SCRIPTHASH);
-    BOOST_CHECK_EQUAL(addresses.size(), 1U);
-    BOOST_CHECK_EQUAL(nRequired, 1);
-    BOOST_CHECK(boost::get<ScriptHash>(&addresses[0]) &&
-                *boost::get<ScriptHash>(&addresses[0]) == ScriptHash(redeemScript));
+    // // TX_SCRIPTHASH
+    // CScript redeemScript(s); // initialize with leftover P2PKH script
+    // s.clear();
+    // s << OP_HASH160 << ToByteVector(CScriptID(redeemScript)) << OP_EQUAL;
+    // BOOST_CHECK(ExtractDestinations(s, whichType, addresses, nRequired));
+    // BOOST_CHECK_EQUAL(whichType, TX_SCRIPTHASH);
+    // BOOST_CHECK_EQUAL(addresses.size(), 1U);
+    // BOOST_CHECK_EQUAL(nRequired, 1);
+    // BOOST_CHECK(boost::get<ScriptHash>(&addresses[0]) &&
+    //             *boost::get<ScriptHash>(&addresses[0]) == ScriptHash(redeemScript));
 
     // TX_MULTISIG
     s.clear();

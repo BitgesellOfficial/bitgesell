@@ -156,8 +156,8 @@ BOOST_FIXTURE_TEST_CASE(checkinputs_test, TestChain100Setup)
 
     CScript p2pk_scriptPubKey = CScript() << ToByteVector(coinbaseKey.GetPubKey()) << OP_CHECKSIG;
     CScript p2sh_scriptPubKey = GetScriptForDestination(ScriptHash(p2pk_scriptPubKey));
-    CScript p2pkh_scriptPubKey = GetScriptForDestination(PKHash(coinbaseKey.GetPubKey()));
-    CScript p2wpkh_scriptPubKey = GetScriptForWitness(p2pkh_scriptPubKey);
+    // CScript p2pkh_scriptPubKey = GetScriptForDestination(PKHash(coinbaseKey.GetPubKey()));
+    // CScript p2wpkh_scriptPubKey = GetScriptForWitness(p2pkh_scriptPubKey);
 
     FillableSigningProvider keystore;
     BOOST_CHECK(keystore.AddKey(coinbaseKey));
