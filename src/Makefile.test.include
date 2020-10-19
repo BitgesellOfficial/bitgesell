@@ -307,6 +307,10 @@ BGL_TESTS += \
   wallet/test/ismine_tests.cpp \
   wallet/test/scriptpubkeyman_tests.cpp
 
+if USE_BDB
+BGL_TESTS += wallet/test/db_tests.cpp
+endif
+
 BGL_TEST_SUITE += \
   wallet/test/wallet_test_fixture.cpp \
   wallet/test/wallet_test_fixture.h \
