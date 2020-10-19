@@ -179,19 +179,15 @@ class ConfArgsTest(BGLTestFramework):
 
         # Create the directory and ensure the config file now works
         os.mkdir(new_data_dir)
-        self.start_node(0, ['-conf='+conf_file, '-wallet=w1'])
+        self.start_node(0, ['-conf='+conf_file])
         self.stop_node(0)
-        assert os.path.exists(os.path.join(new_data_dir, 'regtest', 'blocks'))
-        if self.is_wallet_compiled():
-            assert os.path.exists(os.path.join(new_data_dir, 'regtest', 'wallets', 'w1'))
+        assert os.path.exists(os.path.join(new_data_dir, self.chain, 'blocks'))
 
         # Ensure command line argument overrides datadir in conf
         os.mkdir(new_data_dir_2)
         self.nodes[0].datadir = new_data_dir_2
-        self.start_node(0, ['-datadir='+new_data_dir_2, '-conf='+conf_file, '-wallet=w2'])
-        assert os.path.exists(os.path.join(new_data_dir_2, 'regtest', 'blocks'))
-        if self.is_wallet_compiled():
-            assert os.path.exists(os.path.join(new_data_dir_2, 'regtest', 'wallets', 'w2'))
+        self.start_node(0, ['-datadir='+new_data_dir_2, '-conf='+conf_file])
+        assert os.path.exists(os.path.join(new_data_dir_2, self.chain, 'blocks'))
 
 
 if __name__ == '__main__':
