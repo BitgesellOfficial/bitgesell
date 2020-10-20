@@ -97,6 +97,10 @@ class ToolWalletTest(BGLTestFramework):
         out = textwrap.dedent('''\
             Wallet info
             ===========
+            Name: \
+
+            Format: bdb
+            Descriptors: no
             Encrypted: no
             HD (hd seed available): yes
             Keypool Size: 2
@@ -136,6 +140,10 @@ class ToolWalletTest(BGLTestFramework):
         out = textwrap.dedent('''\
             Wallet info
             ===========
+            Name: \
+
+            Format: bdb
+            Descriptors: no
             Encrypted: no
             HD (hd seed available): yes
             Keypool Size: 2
@@ -163,6 +171,9 @@ class ToolWalletTest(BGLTestFramework):
             Topping up keypool...
             Wallet info
             ===========
+            Name: foo
+            Format: bdb
+            Descriptors: no
             Encrypted: no
             HD (hd seed available): yes
             Keypool Size: 2000
