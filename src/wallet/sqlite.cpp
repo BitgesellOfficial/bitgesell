@@ -575,7 +575,10 @@ bool IsSQLiteFile(const fs::path& path)
     file.close();
 
     // Check the magic, see https://sqlite.org/fileformat2.html
-    std::string magic_str(magic);
+    std::string magic_str(magic, 16);
+    if (magic_str != std::string("SQLite format 3", 16)) {
+        return false;
+    }
 
     return magic_str == std::string("SQLite format 3");
 }
