@@ -1404,7 +1404,7 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
 
     assert(!node.peerman);
     node.peerman = std::make_unique<PeerManager>(chainparams, *node.connman, node.banman.get(),
-                                                 *node.scheduler, chainman, *node.mempool, ignores_incoming_txs);
+                                                 *node.scheduler, chainman, *node.mempool, !g_relay_txes);
     RegisterValidationInterface(node.peerman.get());
 
     // sanitize comments per BIP-0014, format user agent and check total size
