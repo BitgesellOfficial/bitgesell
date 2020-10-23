@@ -2667,21 +2667,6 @@ CConnman::~CConnman()
     Stop();
 }
 
-void CConnman::SetServices(const CService &addr, ServiceFlags nServices)
-{
-    addrman.SetServices(addr, nServices);
-}
-
-void CConnman::MarkAddressGood(const CAddress& addr)
-{
-    addrman.Good(addr);
-}
-
-bool CConnman::AddNewAddresses(const std::vector<CAddress>& vAddr, const CAddress& addrFrom, int64_t nTimePenalty)
-{
-    return addrman.Add(vAddr, addrFrom, nTimePenalty);
-}
-
 std::vector<CAddress> CConnman::GetAddresses(size_t max_addresses, size_t max_pct)
 {
     std::vector<CAddress> addresses = addrman.GetAddr(max_addresses, max_pct);
