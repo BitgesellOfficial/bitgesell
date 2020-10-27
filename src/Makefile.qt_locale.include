@@ -72,6 +72,7 @@ QT_TS = \
   qt/locale/BGL_ta.ts \
   qt/locale/BGL_te.ts \
   qt/locale/BGL_th.ts \
+  qt/locale/BGL_tr.ts \
   qt/locale/BGL_uk.ts \
   qt/locale/BGL_ur.ts \
   qt/locale/BGL_uz@Cyrl.ts \

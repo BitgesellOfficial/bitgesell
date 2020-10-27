@@ -418,6 +418,9 @@
     </message>
     </context>
 <context>
+    <name>PSBTOperationsDialog</name>
+    </context>
+<context>
     <name>PaymentServer</name>
     </context>
 <context>
@@ -446,16 +449,8 @@
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
-        <source>Address</source>
-        <translation>വിലാസം</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>തുക </translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>ലേബൽ</translation>
+        <source>Amount:</source>
+        <translation>തുക:</translation>
     </message>
     </context>
 <context>
@@ -597,6 +592,10 @@
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation>നിലവിലെ ടാബിൽ ഒരു ഫയലിൽ ഡാറ്റ എക്സ്പോർട്ട് ചെയ്യുക</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>പിശക് </translation>
     </message>
     </context>
 <context>

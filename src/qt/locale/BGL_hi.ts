@@ -488,6 +488,9 @@
     </message>
     </context>
 <context>
+    <name>PSBTOperationsDialog</name>
+    </context>
+<context>
     <name>PaymentServer</name>
     </context>
 <context>
@@ -538,26 +541,18 @@
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
+        <source>Amount:</source>
+        <translation>राशि :</translation>
+    </message>
+    <message>
+        <source>Wallet:</source>
+        <translation>तिजोरी</translation>
+    </message>
+    <message>
         <source>Copy &amp;Address</source>
         <translation>&amp;पता कॉपी करे</translation>
     </message>
-    <message>
-        <source>Address</source>
-        <translation>पता</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>राशि</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>परचा</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>वॉलेट</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>RecentRequestsTableModel</name>
     <message>
@@ -753,6 +748,10 @@
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation>डेटा को मौजूदा टैब से एक फ़ाइल में निर्यात करें</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>भूल</translation>
     </message>
     </context>
 <context>

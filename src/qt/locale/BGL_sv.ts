@@ -631,10 +631,6 @@ Försök igen.</translation>
         <translation>Denna plånbok är &lt;b&gt;krypterad&lt;/b&gt; och för närvarande &lt;b&gt;olåst&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
-        <translation>Denna plånbok är &lt;b&gt;krypterad&lt;/b&gt; och för närvarande &lt;b&gt;låst&lt;/b&gt;</translation>
-    </message>
-    <message>
         <source>A fatal error occurred. BGL can no longer continue safely and will quit.</source>
         <translation>Ett kritiskt fel uppstod. BGL kan inte fortsätta att köra säkert och kommer att avslutas.</translation>
     </message>
@@ -1140,10 +1136,6 @@ Försök igen.</translation>
         <translation>Visar om den angivna standard-SOCKS5-proxyn används för att nå noder via den här nätverkstypen.</translation>
     </message>
     <message>
-        <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor hidden services:</source>
-        <translation>Använd separat SOCKS&amp;5-proxy för att nå noder via Tors dolda tjänster:</translation>
-    </message>
-    <message>
         <source>Hide the icon from the system tray.</source>
         <translation>Dölj ikonen från systemfältet.</translation>
     </message>
@@ -1454,7 +1446,22 @@ Försök igen.</translation>
         <source>Current total balance in watch-only addresses</source>
         <translation>Aktuellt totalt saldo i granska-bara adresser</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>PSBTOperationsDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Dialog</translation>
+    </message>
+    <message>
+        <source>Total Amount</source>
+        <translation>Totalt belopp</translation>
+    </message>
+    <message>
+        <source>or</source>
+        <translation>eller</translation>
+    </message>
+    </context>
 <context>
     <name>PaymentServer</name>
     <message>
@@ -1714,10 +1721,6 @@ Försök igen.</translation>
         <translation>Blockkedja</translation>
     </message>
     <message>
-        <source>Current number of blocks</source>
-        <translation>Aktuellt antal block</translation>
-    </message>
-    <message>
         <source>Memory Pool</source>
         <translation>Minnespool</translation>
     </message>
@@ -1762,10 +1765,6 @@ Försök igen.</translation>
         <translation>Välj en klient för att se detaljerad information.</translation>
     </message>
     <message>
-        <source>Whitelisted</source>
-        <translation>Vitlistad</translation>
-    </message>
-    <message>
         <source>Direction</source>
         <translation>Riktning</translation>
     </message>
@@ -1808,10 +1807,6 @@ Försök igen.</translation>
     <message>
         <source>Services</source>
         <translation>Tjänster</translation>
-    </message>
-    <message>
-        <source>Ban Score</source>
-        <translation>Bannlysningspoäng</translation>
     </message>
     <message>
         <source>Connection Time</source>
@@ -1962,14 +1957,6 @@ Försök igen.</translation>
         <translation>Utgående</translation>
     </message>
     <message>
-        <source>Yes</source>
-        <translation>Ja</translation>
-    </message>
-    <message>
-        <source>No</source>
-        <translation>Nej</translation>
-    </message>
-    <message>
         <source>Unknown</source>
         <translation>Okänd</translation>
     </message>
@@ -2064,12 +2051,28 @@ Försök igen.</translation>
         <source>Copy amount</source>
         <translation>Kopiera belopp</translation>
     </message>
-</context>
+    <message>
+        <source>Could not unlock wallet.</source>
+        <translation>Kunde inte låsa upp plånboken.</translation>
+    </message>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
-        <source>QR Code</source>
-        <translation>QR-kod</translation>
+        <source>Amount:</source>
+        <translation>Belopp:</translation>
+    </message>
+    <message>
+        <source>Label:</source>
+        <translation>Etikett:</translation>
+    </message>
+    <message>
+        <source>Message:</source>
+        <translation>Meddelande:</translation>
+    </message>
+    <message>
+        <source>Wallet:</source>
+        <translation>Plånbok:</translation>
     </message>
     <message>
         <source>Copy &amp;URI</source>
@@ -2090,30 +2093,6 @@ Försök igen.</translation>
     <message>
         <source>Payment information</source>
         <translation>Betalinformaton</translation>
-    </message>
-    <message>
-        <source>URI</source>
-        <translation>URI</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adress</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Belopp</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>Etikett</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Meddelande</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>Plånbok</translation>
     </message>
 </context>
 <context>
@@ -2398,16 +2377,8 @@ Notera: Då avgiften beräknas per byte kommer en avgift på 50 satoshi tas ut f
         <translation>Bekräfta transaktionsförslag</translation>
     </message>
     <message>
-        <source>Copy PSBT to clipboard</source>
-        <translation>Kopiera PSBT till urklipp</translation>
-    </message>
-    <message>
         <source>Send</source>
         <translation>Skicka</translation>
-    </message>
-    <message>
-        <source>PSBT copied</source>
-        <translation>PSBT kopierad</translation>
     </message>
     <message>
         <source>The recipient address is not valid. Please recheck.</source>
@@ -3187,12 +3158,12 @@ Notera: Då avgiften beräknas per byte kommer en avgift på 50 satoshi tas ut f
         <source>Closing the wallet for too long can result in having to resync the entire chain if pruning is enabled.</source>
         <translation>Om plånboken är stängd under för lång tid och gallring är aktiverad kan hela kedjan behöva synkroniseras på nytt.</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>WalletFrame</name>
     <message>
-        <source>No wallet has been loaded.</source>
-        <translation>Ingen plånbok har lästs in.</translation>
+        <source>Create a new wallet</source>
+        <translation>Skapa ny plånbok</translation>
     </message>
 </context>
 <context>
@@ -3261,6 +3232,10 @@ Notera: Då avgiften beräknas per byte kommer en avgift på 50 satoshi tas ut f
         <translation>Exportera informationen i aktuell flik till en fil</translation>
     </message>
     <message>
+        <source>Error</source>
+        <translation>Fel</translation>
+    </message>
+    <message>
         <source>Backup Wallet</source>
         <translation>Säkerhetskopiera Plånbok</translation>
     </message>
@@ -3304,10 +3279,6 @@ Notera: Då avgiften beräknas per byte kommer en avgift på 50 satoshi tas ut f
         <translation>Gallring: senaste plånbokssynkroniseringen ligger utanför gallrade data. Du måste använda -reindex (ladda ner hela blockkedjan igen om noden gallrats)</translation>
     </message>
     <message>
-        <source>Error: A fatal internal error occurred, see debug.log for details</source>
-        <translation>Fel: Ett kritiskt internt fel uppstod, se debug.log för detaljer</translation>
-    </message>
-    <message>
         <source>Pruning blockstore...</source>
         <translation>Gallrar blockstore...</translation>
     </message>
@@ -3318,10 +3289,6 @@ Notera: Då avgiften beräknas per byte kommer en avgift på 50 satoshi tas ut f
     <message>
         <source>The %s developers</source>
         <translation>%s-utvecklarna</translation>
-    </message>
-    <message>
-        <source>Can't generate a change-address key. No keys in the internal keypool and can't generate any keys.</source>
-        <translation>Det går inte att skapa en nyckel för växel-adress. Det finns inga nycklar i den interna nyckelpoolen och det går inte att skapa några nycklar.</translation>
     </message>
     <message>
         <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
@@ -3370,14 +3337,6 @@ Notera: Då avgiften beräknas per byte kommer en avgift på 50 satoshi tas ut f
     <message>
         <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
         <translation>Varning: Vi verkar inte helt överens med våra peers! Du kan behöva uppgradera, eller andra noder kan behöva uppgradera.</translation>
-    </message>
-    <message>
-        <source>%d of last 100 blocks have unexpected version</source>
-        <translation>%d av de senaste 100 blocken har oväntad version</translation>
-    </message>
-    <message>
-        <source>%s corrupt, salvage failed</source>
-        <translation>%s är korrupt, räddning misslyckades</translation>
     </message>
     <message>
         <source>-maxmempool must be at least %d MB</source>
@@ -3494,10 +3453,6 @@ Notera: Då avgiften beräknas per byte kommer en avgift på 50 satoshi tas ut f
     <message>
         <source>Loading P2P addresses...</source>
         <translation>Läser in P2P-adresser...</translation>
-    </message>
-    <message>
-        <source>Error: Disk space is too low!</source>
-        <translation>Fel: Diskutrymmet är för lågt!</translation>
     </message>
     <message>
         <source>Loading banlist...</source>
@@ -3682,10 +3637,6 @@ Notera: Då avgiften beräknas per byte kommer en avgift på 50 satoshi tas ut f
         <translation>Varning: okända nya regler aktiverade (versionsbit %i)</translation>
     </message>
     <message>
-        <source>Zapping all transactions from wallet...</source>
-        <translation>Töm plånboken på alla transaktioner...</translation>
-    </message>
-    <message>
         <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
         <translation>-maxtxfee är väldigt högt satt! Så höga avgifter kan komma att betalas för en enstaka transaktion.</translation>
     </message>
@@ -3696,10 +3647,6 @@ Notera: Då avgiften beräknas per byte kommer en avgift på 50 satoshi tas ut f
     <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
         <translation>Total längd på strängen för nätverksversion (%i) överskrider maxlängden (%i). Minska numret eller storleken på uacomments.</translation>
-    </message>
-    <message>
-        <source>Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; if your balance or transactions are incorrect you should restore from a backup.</source>
-        <translation>Varning: Plånboksfilen var korrupt, data har räddats! Den ursprungliga %s har sparas som %s i %s. Om ditt saldo eller transaktioner är felaktiga bör du återställa från en säkerhetskopia.</translation>
     </message>
     <message>
         <source>%s is set very high!</source>
@@ -3744,10 +3691,6 @@ Notera: Då avgiften beräknas per byte kommer en avgift på 50 satoshi tas ut f
     <message>
         <source>Insufficient funds</source>
         <translation>Otillräckligt med BGLs</translation>
-    </message>
-    <message>
-        <source>Cannot upgrade a non HD split wallet without upgrading to support pre split keypool. Please use -upgradewallet=169900 or -upgradewallet with no version specified.</source>
-        <translation>Kan inte uppgradera till en icke-HD delad plånbok utan att uppgradera till att stödja nyckelpoolen innan delning. Var vänlig använd -upgradewallet=169900 eller -upgradewallet utan version specificerad.</translation>
     </message>
     <message>
         <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>

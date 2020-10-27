@@ -303,6 +303,9 @@
     <name>OverviewPage</name>
     </context>
 <context>
+    <name>PSBTOperationsDialog</name>
+    </context>
+<context>
     <name>PaymentServer</name>
     </context>
 <context>
@@ -326,23 +329,7 @@
     </context>
 <context>
     <name>ReceiveRequestDialog</name>
-    <message>
-        <source>Address</source>
-        <translation>చిరునామా</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>ఉల్లాకు</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>సందేశం</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>వాలెట్</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>RecentRequestsTableModel</name>
     <message>
@@ -482,6 +469,10 @@
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation>ప్రస్తుతం ఉన్న సమాచారాన్ని ఫైల్ లోనికి ఎగుమతి చేసుకోండి</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>లోపం</translation>
     </message>
     </context>
 <context>

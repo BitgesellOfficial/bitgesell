@@ -1144,10 +1144,6 @@
         <translation>指定されたデフォルト SOCKS5 プロキシが、このネットワークタイプ経由でピアに接続しているかどうか。</translation>
     </message>
     <message>
-        <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor hidden services:</source>
-        <translation>Tor秘匿サービス経由でピアに接続するために専用の SOCKS5 プロキシを利用する(&amp;5):</translation>
-    </message>
-    <message>
         <source>Hide the icon from the system tray.</source>
         <translation>システムトレイのアイコンを隠す</translation>
     </message>
@@ -1458,7 +1454,18 @@
         <source>Current total balance in watch-only addresses</source>
         <translation>ウォッチ限定アドレスの現在の残高の総計</translation>
     </message>
-</context>
+    </context>
+<context>
+    <name>PSBTOperationsDialog</name>
+    <message>
+        <source>Total Amount</source>
+        <translation>合計</translation>
+    </message>
+    <message>
+        <source>or</source>
+        <translation>または</translation>
+    </message>
+    </context>
 <context>
     <name>PaymentServer</name>
     <message>
@@ -1722,10 +1729,6 @@
         <translation>ブロック チェーン</translation>
     </message>
     <message>
-        <source>Current number of blocks</source>
-        <translation>現在のブロック数</translation>
-    </message>
-    <message>
         <source>Memory Pool</source>
         <translation>メモリ プール</translation>
     </message>
@@ -1768,10 +1771,6 @@
     <message>
         <source>Select a peer to view detailed information.</source>
         <translation>詳しい情報を見たいピアを選択してください。</translation>
-    </message>
-    <message>
-        <source>Whitelisted</source>
-        <translation>ホワイトリスト登録済み</translation>
     </message>
     <message>
         <source>Direction</source>
@@ -1824,10 +1823,6 @@
     <message>
         <source>Services</source>
         <translation>サービス</translation>
-    </message>
-    <message>
-        <source>Ban Score</source>
-        <translation>Banスコア</translation>
     </message>
     <message>
         <source>Connection Time</source>
@@ -1978,14 +1973,6 @@
         <translation>外向き</translation>
     </message>
     <message>
-        <source>Yes</source>
-        <translation>はい</translation>
-    </message>
-    <message>
-        <source>No</source>
-        <translation>いいえ</translation>
-    </message>
-    <message>
         <source>Unknown</source>
         <translation>不明</translation>
     </message>
@@ -2084,12 +2071,28 @@
         <source>Copy amount</source>
         <translation>金額をコピー</translation>
     </message>
-</context>
+    <message>
+        <source>Could not unlock wallet.</source>
+        <translation>ウォレットをアンロックできませんでした。</translation>
+    </message>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
-        <source>QR Code</source>
-        <translation>QRコード</translation>
+        <source>Amount:</source>
+        <translation>金額:</translation>
+    </message>
+    <message>
+        <source>Label:</source>
+        <translation>ラベル:</translation>
+    </message>
+    <message>
+        <source>Message:</source>
+        <translation>メッセージ:</translation>
+    </message>
+    <message>
+        <source>Wallet:</source>
+        <translation>ウォレット:</translation>
     </message>
     <message>
         <source>Copy &amp;URI</source>
@@ -2110,30 +2113,6 @@
     <message>
         <source>Payment information</source>
         <translation>支払い情報</translation>
-    </message>
-    <message>
-        <source>URI</source>
-        <translation>URI</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>アドレス</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>金額</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>ラベル</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>メッセージ</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>ウォレット</translation>
     </message>
 </context>
 <context>
@@ -2422,16 +2401,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>トランザクション提案を承認する</translation>
     </message>
     <message>
-        <source>Copy PSBT to clipboard</source>
-        <translation>PSBTをクリップボードにコピー</translation>
-    </message>
-    <message>
         <source>Send</source>
         <translation>送金</translation>
-    </message>
-    <message>
-        <source>PSBT copied</source>
-        <translation>PSBTがコピーされました</translation>
     </message>
     <message>
         <source>Watch-only balance:</source>
@@ -3219,12 +3190,12 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <source>Closing the wallet for too long can result in having to resync the entire chain if pruning is enabled.</source>
         <translation>ブロックファイル剪定が有効の場合、長期間ウォレットを起動しないと全チェーンを再度同期させる必要があるかもしれません。</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>WalletFrame</name>
     <message>
-        <source>No wallet has been loaded.</source>
-        <translation>ウォレットが読み込まれていません。</translation>
+        <source>Create a new wallet</source>
+        <translation>新しいウォレットを作成</translation>
     </message>
 </context>
 <context>
@@ -3297,6 +3268,10 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>現在のタブのデータをファイルにエクスポート</translation>
     </message>
     <message>
+        <source>Error</source>
+        <translation>エラー</translation>
+    </message>
+    <message>
         <source>Backup Wallet</source>
         <translation>ウォレットのバックアップ</translation>
     </message>
@@ -3340,10 +3315,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>剪定: 最後のウォレット同期ポイントが、剪定されたデータを越えています。-reindex を実行する必要があります (剪定されたノードの場合、ブロックチェーン全体を再ダウンロードします)</translation>
     </message>
     <message>
-        <source>Error: A fatal internal error occurred, see debug.log for details</source>
-        <translation>エラー: 致命的な内部エラーが発生しました。詳細は debug.log を参照してください</translation>
-    </message>
-    <message>
         <source>Pruning blockstore...</source>
         <translation>ブロック保存容量を剪定中...</translation>
     </message>
@@ -3354,10 +3325,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>The %s developers</source>
         <translation>%s の開発者</translation>
-    </message>
-    <message>
-        <source>Can't generate a change-address key. No keys in the internal keypool and can't generate any keys.</source>
-        <translation>おつりアドレスの鍵を作成することができません。内部のキープールに鍵が存在しないため、鍵を生成することができません。</translation>
     </message>
     <message>
         <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
@@ -3406,14 +3373,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
         <translation>警告: ピアと完全に合意が取れていないようです！ このノードもしくは他のノードのアップグレードが必要な可能性があります。</translation>
-    </message>
-    <message>
-        <source>%d of last 100 blocks have unexpected version</source>
-        <translation>直近の100ブロックの内、%d ブロックが予期しないバージョンを含んでいます</translation>
-    </message>
-    <message>
-        <source>%s corrupt, salvage failed</source>
-        <translation>%s が壊れています。復旧にも失敗しました</translation>
     </message>
     <message>
         <source>-maxmempool must be at least %d MB</source>
@@ -3538,10 +3497,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>Loading P2P addresses...</source>
         <translation>P2Pアドレスの読み込み中...</translation>
-    </message>
-    <message>
-        <source>Error: Disk space is too low!</source>
-        <translation>エラー: ディスク容量が不足しています！</translation>
     </message>
     <message>
         <source>Loading banlist...</source>
@@ -3726,10 +3681,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
         <translation>警告: 未知の新しいルールが有効化されました (バージョンビット %i)</translation>
     </message>
     <message>
-        <source>Zapping all transactions from wallet...</source>
-        <translation>ウォレットから全取引を消去中...</translation>
-    </message>
-    <message>
         <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
         <translation>-maxtxfee が非常に高く設定されています！ ひとつの取引でこの金額の手数料が支払われてしまうことがあります。</translation>
     </message>
@@ -3740,10 +3691,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
         <translation>ネットワークバージョン文字列の長さ（%i）が、最大の長さ（%i） を超えています。UAコメントの数や長さを削減してください。</translation>
-    </message>
-    <message>
-        <source>Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; if your balance or transactions are incorrect you should restore from a backup.</source>
-        <translation>警告: ウォレットファイルが破損していたため、データを復旧しました！ 復旧前の %s は %s として %s に保存されました。残高や取引が正しくない場合にはバックアップから復元してください。</translation>
     </message>
     <message>
         <source>%s is set very high!</source>
@@ -3788,10 +3735,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of "100 satoshis p
     <message>
         <source>Insufficient funds</source>
         <translation>残高不足</translation>
-    </message>
-    <message>
-        <source>Cannot upgrade a non HD split wallet without upgrading to support pre split keypool. Please use -upgradewallet=169900 or -upgradewallet with no version specified.</source>
-        <translation>分割済みキープールをサポートするようにアップグレードしないと、非HD分割ウォレットをアップグレードすることはできません。 -upgradewallet=169900 オプションか、バージョン指定無しで -upgradewallet オプションを指定してください。</translation>
     </message>
     <message>
         <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>

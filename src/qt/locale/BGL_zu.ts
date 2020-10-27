@@ -184,6 +184,9 @@ Lahla YONKE IBGL YAKHO!</translation>
     <name>OverviewPage</name>
     </context>
 <context>
+    <name>PSBTOperationsDialog</name>
+    </context>
+<context>
     <name>PaymentServer</name>
     </context>
 <context>
@@ -203,14 +206,6 @@ Lahla YONKE IBGL YAKHO!</translation>
     </context>
 <context>
     <name>ReceiveRequestDialog</name>
-    <message>
-        <source>Address</source>
-        <translation>Ikheli</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>Ilebuli</translation>
-    </message>
     </context>
 <context>
     <name>RecentRequestsTableModel</name>

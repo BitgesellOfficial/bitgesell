@@ -539,18 +539,10 @@ Solicitar pagos (genera códigos QR y BGL: URI)
         <translation>La cartera esta &lt;b&gt;encriptada&lt;/b&gt; y &lt;b&gt;desbloqueada&lt;/b&gt; actualmente </translation>
     </message>
     <message>
-        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
-        <translation>La cartera esta &lt;b&gt;encriptada&lt;/b&gt; y &lt;b&gt;bloqueada&lt;/b&gt; actualmente </translation>
-    </message>
-    <message>
         <source>A fatal error occurred. BGL can no longer continue safely and will quit.</source>
         <translation>Se produjo un error fatal. BGL ya no puede continuar de forma segura y va a renunciar.</translation>
-    </message>
 </context>
 <context>
-    <name>CoinControlDialog</name>
-    <message>
-        <source>Coin Selection</source>
         <translation>Selección de moneda</translation>
     </message>
     <message>
@@ -950,6 +942,21 @@ Solicitar pagos (genera códigos QR y BGL: URI)
         <source>Form</source>
         <translation>Formulario</translation>
     </message>
+    <message>
+        <source>Recent transactions</source>
+        <translation>&lt;b&gt;Transacciones recientes&lt;/b&gt;</translation>
+    </message>
+    </context>
+<context>
+    <name>PSBTOperationsDialog</name>
+    <message>
+        <source>Total Amount</source>
+        <translation>Cantidad total</translation>
+    </message>
+    <message>
+        <source>or</source>
+        <translation>o</translation>
+    </message>
     </context>
 <context>
     <name>PaymentServer</name>
@@ -1098,14 +1105,6 @@ Solicitar pagos (genera códigos QR y BGL: URI)
         <translation>Salida</translation>
     </message>
     <message>
-        <source>Yes</source>
-        <translation>Sí</translation>
-    </message>
-    <message>
-        <source>No</source>
-        <translation>No</translation>
-    </message>
-    <message>
         <source>Unknown</source>
         <translation>Desconocido</translation>
     </message>
@@ -1188,9 +1187,25 @@ Solicitar pagos (genera códigos QR y BGL: URI)
         <source>Copy amount</source>
         <translation>copiar monto</translation>
     </message>
-</context>
+    <message>
+        <source>Could not unlock wallet.</source>
+        <translation>No se puede desbloquear la cartera</translation>
+    </message>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
+    <message>
+        <source>Amount:</source>
+        <translation>Monto:</translation>
+    </message>
+    <message>
+        <source>Message:</source>
+        <translation>Mensaje:</translation>
+    </message>
+    <message>
+        <source>Wallet:</source>
+        <translation>Cartera:</translation>
+    </message>
     <message>
         <source>Copy &amp;Address</source>
         <translation>&amp;Copiar dirección</translation>
@@ -1199,27 +1214,7 @@ Solicitar pagos (genera códigos QR y BGL: URI)
         <source>&amp;Save Image...</source>
         <translation>&amp;Guardar imagen...</translation>
     </message>
-    <message>
-        <source>Address</source>
-        <translation>Dirección</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Monto</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>Etiqueta</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Mensaje</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>Cartera</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>RecentRequestsTableModel</name>
     <message>
@@ -1763,8 +1758,8 @@ Solicitar pagos (genera códigos QR y BGL: URI)
 <context>
     <name>WalletFrame</name>
     <message>
-        <source>No wallet has been loaded.</source>
-        <translation>No se há cargado la cartera.</translation>
+        <source>Create a new wallet</source>
+        <translation>Crear una nueva cartera</translation>
     </message>
 </context>
 <context>
@@ -1787,6 +1782,10 @@ Solicitar pagos (genera códigos QR y BGL: URI)
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation>Exportar la información en la pestaña actual a un archivo</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Error</translation>
     </message>
     <message>
         <source>There was an error trying to save the wallet data to %1.</source>

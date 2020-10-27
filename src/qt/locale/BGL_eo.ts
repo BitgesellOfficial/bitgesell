@@ -440,10 +440,6 @@
         <translation>Monujo estas &lt;b&gt;ĉifrita&lt;/b&gt; kaj aktuale &lt;b&gt;malŝlosita&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
-        <translation>Monujo estas &lt;b&gt;ĉifrita&lt;/b&gt; kaj aktuale &lt;b&gt;ŝlosita&lt;/b&gt;</translation>
-    </message>
-    <message>
         <source>A fatal error occurred. BGL can no longer continue safely and will quit.</source>
         <translation>Okazis neriparebla eraro. Bitmono ne plu povas sekure daŭri, do ĝi sekure ĉesos.</translation>
     </message>
@@ -897,6 +893,13 @@
     </message>
     </context>
 <context>
+    <name>PSBTOperationsDialog</name>
+    <message>
+        <source>or</source>
+        <translation>aŭ</translation>
+    </message>
+    </context>
+<context>
     <name>PaymentServer</name>
     <message>
         <source>Payment request error</source>
@@ -1047,10 +1050,6 @@
         <translation>Blokĉeno</translation>
     </message>
     <message>
-        <source>Current number of blocks</source>
-        <translation>Aktuala nombro de blokoj</translation>
-    </message>
-    <message>
         <source>Received</source>
         <translation>Ricevita</translation>
     </message>
@@ -1157,12 +1156,24 @@
         <source>Copy amount</source>
         <translation>Kopii sumon</translation>
     </message>
-</context>
+    <message>
+        <source>Could not unlock wallet.</source>
+        <translation>Ne eblis malŝlosi monujon.</translation>
+    </message>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
-        <source>QR Code</source>
-        <translation>QR-kodo</translation>
+        <source>Amount:</source>
+        <translation>Sumo:</translation>
+    </message>
+    <message>
+        <source>Label:</source>
+        <translation>Etikedo:</translation>
+    </message>
+    <message>
+        <source>Message:</source>
+        <translation>Mesaĝo:</translation>
     </message>
     <message>
         <source>Copy &amp;URI</source>
@@ -1183,30 +1194,6 @@
     <message>
         <source>Payment information</source>
         <translation>Paginformoj</translation>
-    </message>
-    <message>
-        <source>URI</source>
-        <translation>URI</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adreso</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Sumo</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>Etikedo</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Mesaĝo</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>Monujo</translation>
     </message>
 </context>
 <context>
@@ -1912,6 +1899,10 @@
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation>Eksporti la datumojn el la aktuala langeto al dosiero</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Eraro</translation>
     </message>
     <message>
         <source>Backup Wallet</source>

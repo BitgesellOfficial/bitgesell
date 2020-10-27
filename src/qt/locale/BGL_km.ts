@@ -3,11 +3,11 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation>ចុចម៉ៅស្ដាំ ដើម្បីកែសម្រួលអាសយដ្ឋាន រឺស្លាក</translation>
+        <translation>ចុចម៉ៅស្តាំ ដើម្បីកែសម្រួលអាសយដ្ឋាន រឺស្លាក</translation>
     </message>
     <message>
         <source>Create a new address</source>
-        <translation>បង្កើតអាសយដ្ឋានថ្មីមួយ</translation>
+        <translation>បង្កើតអាស្រយដ្ឋានថ្មីមួយ</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -31,7 +31,7 @@
     </message>
     <message>
         <source>Enter address or label to search</source>
-        <translation>វាយអាសយដ្ឋាន រឺស្លាកដើម្បីស្វែងរក</translation>
+        <translation>វាយអាសយដ្ឋាន រឺ បិទស្លាក ដើម្បីស្វែងរក</translation>
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
@@ -463,6 +463,9 @@
     <name>OverviewPage</name>
     </context>
 <context>
+    <name>PSBTOperationsDialog</name>
+    </context>
+<context>
     <name>PaymentServer</name>
     </context>
 <context>
@@ -483,18 +486,10 @@
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
-        <source>Address</source>
-        <translation>អាសយដ្ឋាន</translation>
+        <source>Wallet:</source>
+        <translation>កាបូបចល័ត៖</translation>
     </message>
-    <message>
-        <source>Label</source>
-        <translation>ឡាបែល</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>កាបូប</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>RecentRequestsTableModel</name>
     <message>
@@ -569,7 +564,11 @@
     </context>
 <context>
     <name>WalletFrame</name>
-    </context>
+    <message>
+        <source>Create a new wallet</source>
+        <translation>បង្កើតកាបូបចល័តថ្មី</translation>
+    </message>
+</context>
 <context>
     <name>WalletModel</name>
     </context>
@@ -582,6 +581,10 @@
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation>នាំចេញទិន្នន័យនៃថេបបច្ចុប្បន្នទៅជាឯកសារ</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>បញ្ហា</translation>
     </message>
     </context>
 <context>

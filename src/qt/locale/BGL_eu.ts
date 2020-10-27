@@ -805,6 +805,9 @@
     </message>
     </context>
 <context>
+    <name>PSBTOperationsDialog</name>
+    </context>
+<context>
     <name>PaymentServer</name>
     </context>
 <context>
@@ -853,28 +856,28 @@
         <source>Copy label</source>
         <translation>Etiketa kopiatu</translation>
     </message>
+    <message>
+        <source>Could not unlock wallet.</source>
+        <translation>Ezin da diruzorroa desblokeatu.</translation>
+    </message>
     </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
+        <source>Amount:</source>
+        <translation>Kopurua:</translation>
+    </message>
+    <message>
+        <source>Message:</source>
+        <translation>Mezua:</translation>
+    </message>
+    <message>
+        <source>Wallet:</source>
+        <translation>Diruzorroa:</translation>
+    </message>
+    <message>
         <source>Copy &amp;Address</source>
         <translation>&amp;Helbidea kopiatu</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Helbidea</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Kopurua</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>Izendapen</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Mezua</translation>
     </message>
     </context>
 <context>
@@ -1219,7 +1222,11 @@
     </context>
 <context>
     <name>WalletFrame</name>
-    </context>
+    <message>
+        <source>Create a new wallet</source>
+        <translation>Diruzorro berri bat sortu</translation>
+    </message>
+</context>
 <context>
     <name>WalletModel</name>
     <message>
@@ -1240,6 +1247,10 @@
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation>Uneko fitxategian datuak esportatu</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Akatsa</translation>
     </message>
     </context>
 <context>
