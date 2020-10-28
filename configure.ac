@@ -806,7 +806,7 @@ AC_ARG_ENABLE(ecmult_static_precomputation,
     [use_ecmult_static_precomputation=auto])
 
 AC_ARG_ENABLE(module_ecdh,
-    AS_HELP_STRING([--enable-module-ecdh],[enable ECDH shared secret computation (experimental)]),
+    AS_HELP_STRING([--enable-module-ecdh],[enable ECDH shared secret computation]),
     [enable_module_ecdh=$enableval],
     [enable_module_ecdh=no])
 
@@ -1659,57 +1659,22 @@ esac
 
 if test x"$use_tests" = x"yes"; then
   SECP_OPENSSL_CHECK
-  if test x"$has_openssl_ec" = x"yes"; then
-    if test x"$enable_openssl_tests" != x"no"; then
+  if test x"$enable_openssl_tests" != x"no" && test x"$has_openssl_ec" = x"yes"; then
+      enable_openssl_tests=yes
       AC_DEFINE(ENABLE_OPENSSL_TESTS, 1, [Define this symbol if OpenSSL EC functions are available])
       SECP_TEST_INCLUDES="$SSL_CFLAGS $CRYPTO_CFLAGS $CRYPTO_CPPFLAGS"
       SECP_TEST_LIBS="$CRYPTO_LIBS"
 
-AC_MSG_CHECKING([whether to build BGL-wallet])
-AM_CONDITIONAL([BUILD_BGL_WALLET], [test x$build_BGL_wallet = xyes])
-AC_MSG_RESULT($build_BGL_wallet)
-
-AC_MSG_CHECKING([whether to build libraries])
-AM_CONDITIONAL([BUILD_BGL_LIBS], [test x$build_BGL_libs = xyes])
-if test x$build_BGL_libs = xyes; then
-  AC_DEFINE(HAVE_CONSENSUS_LIB, 1, [Define this symbol if the consensus lib has been built])
-  AC_CONFIG_FILES([libBGLconsensus.pc:libBGLconsensus.pc.in])
-fi
-AC_MSG_RESULT($build_BGL_libs)
-
-AC_LANG_POP
-
-if test "x$use_ccache" != "xno"; then
-  AC_MSG_CHECKING(if ccache should be used)
-  if test x$CCACHE = x; then
-    if test "x$use_ccache" = "xyes"; then
-      AC_MSG_ERROR([ccache not found.]);
-    else
-      use_ccache=no
-    fi
+      case $host in
+      *mingw*)
+        SECP_TEST_LIBS="$SECP_TEST_LIBS -lgdi32"
+        ;;
+      esac
   else
-    use_ccache=yes
-    CC="$ac_cv_path_CCACHE $CC"
-    CXX="$ac_cv_path_CCACHE $CXX"
-  fi
-  AC_MSG_RESULT($use_ccache)
-fi
-
-dnl enable wallet
-AC_MSG_CHECKING([if wallet should be enabled])
-if test x$enable_wallet != xno; then
-  AC_MSG_RESULT(yes)
-  AC_DEFINE_UNQUOTED([ENABLE_WALLET],[1],[Define to 1 to enable wallet functions])
-
-else
-  AC_MSG_RESULT(no)
-fi
-
-dnl enable upnp support
-AC_MSG_CHECKING([whether to build with support for UPnP])
-if test x$have_miniupnpc = xno; then
-  if test x$use_upnp = xyes; then
-     AC_MSG_ERROR("UPnP requested but cannot be built. Use --without-miniupnpc.")
+    if test x"$enable_openssl_tests" = x"yes"; then
+      AC_MSG_ERROR([OpenSSL tests requested but OpenSSL with EC support is not available])
+    fi
+    enable_openssl_tests=no
   fi
   AC_MSG_RESULT(no)
   use_upnp=no
@@ -1731,6 +1696,7 @@ else
   else
     AC_MSG_RESULT(no)
   fi
+  enable_openssl_tests=no
 fi
 
 dnl these are only used when qt is enabled
@@ -1911,14 +1877,10 @@ if test x"$enable_experimental" = x"yes"; then
   AC_MSG_NOTICE([******])
   AC_MSG_NOTICE([WARNING: experimental build])
   AC_MSG_NOTICE([Experimental features do not have stable APIs or properties, and may not be safe for production use.])
-  AC_MSG_NOTICE([Building ECDH module: $enable_module_ecdh])
   AC_MSG_NOTICE([Building extrakeys module: $enable_module_extrakeys])
   AC_MSG_NOTICE([Building schnorrsig module: $enable_module_schnorrsig])
   AC_MSG_NOTICE([******])
 else
-  if test x"$enable_module_ecdh" = x"yes"; then
-    AC_MSG_ERROR([ECDH module is experimental. Use --enable-experimental to allow.])
-  fi
   if test x"$enable_module_extrakeys" = x"yes"; then
     AC_MSG_ERROR([extrakeys module is experimental. Use --enable-experimental to allow.])
   fi
@@ -1975,29 +1937,17 @@ case ${OS} in
 esac
 
 echo
-echo "Options used to compile and link:"
-echo "  boost process = $ax_cv_boost_process"
-echo "  multiprocess  = $build_multiprocess"
-echo "  with wallet   = $enable_wallet"
-if test "x$enable_wallet" != "xno"; then
-    echo "    with sqlite = $use_sqlite"
-fi
-echo "  with gui / qt = $BGL_enable_qt"
-if test x$BGL_enable_qt != xno; then
-    echo "    with qr     = $use_qr"
-fi
-echo "  with zmq      = $use_zmq"
-echo "  with test     = $use_tests"
-if test x$use_tests != xno; then
-    echo "    with fuzz   = $enable_fuzz"
-fi
-echo "  with bench    = $use_bench"
-echo "  with upnp     = $use_upnp"
-echo "  use asm       = $use_asm"
-echo "  sanitizers    = $use_sanitizers"
-echo "  debug enabled = $enable_debug"
-echo "  gprof enabled = $enable_gprof"
-echo "  werror        = $enable_werror"
+echo "Build Options:"
+echo "  with ecmult precomp     = $set_precomp"
+echo "  with external callbacks = $use_external_default_callbacks"
+echo "  with benchmarks         = $use_benchmark"
+echo "  with tests              = $use_tests"
+echo "  with openssl tests      = $enable_openssl_tests"
+echo "  with coverage           = $enable_coverage"
+echo "  module ecdh             = $enable_module_ecdh"
+echo "  module recovery         = $enable_module_recovery"
+echo "  module extrakeys        = $enable_module_extrakeys"
+echo "  module schnorrsig       = $enable_module_schnorrsig"
 echo
 echo "  asm                     = $set_asm"
 echo "  bignum                  = $set_bignum"
