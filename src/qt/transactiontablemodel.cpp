@@ -738,7 +738,7 @@ static void ShowProgress(TransactionTableModel *ttm, const std::string &title, i
 
             vQueueNotifications[i].invoke(ttm);
         }
-        std::vector<TransactionNotification >().swap(vQueueNotifications); // clear
+        vQueueNotifications.clear();
     }
 }
 
