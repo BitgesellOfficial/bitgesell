@@ -794,6 +794,8 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             raise SkipTest("wallet has not been compiled.")
         if self.options.descriptors:
             self.skip_if_no_sqlite()
+        else:
+            self.skip_if_no_bdb()
 
     def skip_if_no_sqlite(self):
         """Skip the running test if sqlite has not been compiled."""
