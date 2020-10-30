@@ -1,0 +1,1028 @@
+Bitcoin master branch sync log
+==============================
+
+- "v" means commit was merged;
+- "cr" means commit was merged after resolving conflicts;
+- "pr" means commit is merge commit (usually a pull request merge) and was skipped;
+- "s" means commit was skipped for a reason specified
+
+Commits on Dec 16, 2019
+https://github.com/bitcoin/bitcoin/commit/19267cbc82c1a09b37a0266b7bd930e9a62d1288 v
+https://github.com/bitcoin/bitcoin/commit/7965e0b41ae03110ad784a1b374f831600c0cca1 v
+https://github.com/bitcoin/bitcoin/commit/7aab8d1024996c7c422bd34a8226df0117b813f7 v
+https://github.com/bitcoin/bitcoin/commit/ec8dcb0199c6d6ae47a13abbd158f59532554adb v
+https://github.com/bitcoin/bitcoin/commit/893aa207e84b74e7623243967d29f03570fdfd6f v
+https://github.com/bitcoin/bitcoin/commit/a5089f62bda9a39c1d6cbba285477670f1aa1f3f v
+https://github.com/bitcoin/bitcoin/commit/ccc53e43c5464058171d6291da861a88184b230e v
+https://github.com/bitcoin/bitcoin/commit/93cc18b0f6fa5fa8144079a4f51904d8b3087e94 v
+https://github.com/bitcoin/bitcoin/commit/a6fc26da55dea3b76bd89fbbca24ded170238674 v
+https://github.com/bitcoin/bitcoin/commit/137c80d579502e329964d7d1028a9507d4667774 v
+https://github.com/bitcoin/bitcoin/commit/c3628e448315c95c2f3ca227eb7003a17162a299 v
+https://github.com/bitcoin/bitcoin/commit/5e4912f99096e9955b332df004662f83885b322f v
+https://github.com/bitcoin/bitcoin/commit/6b51cce65afd9a6357277c4339d7cf56814e476e v
+https://github.com/bitcoin/bitcoin/commit/806a2c602cdf1df17b0b92258bb0d7dca2ee1ee9 v
+https://github.com/bitcoin/bitcoin/commit/fa8e650b525e9493bdfa393c0c3e34cb22c78c08 v
+https://github.com/bitcoin/bitcoin/commit/988eaf2fcb71284c5fc57c7ef755bdafa4b929a0 v
+
+Commits on Dec 17, 2019
+https://github.com/bitcoin/bitcoin/commit/abc147de95fb294a2c0a3105695e708517010322 v
+https://github.com/bitcoin/bitcoin/commit/48d64d73c06f4d5db3ad35bed87388ff0795d511 v
+https://github.com/bitcoin/bitcoin/commit/f9fd3a27fda3da3eb45de4e46e7145506e27d96b v
+https://github.com/bitcoin/bitcoin/commit/94c6f2bba45100abeaf310057a989f8644115eaf v
+https://github.com/bitcoin/bitcoin/commit/22d9bae36f2a164acf35765231f1d93364c1c4a9 v
+https://github.com/bitcoin/bitcoin/commit/32e27129ff26c7cc10321652d5d2678876081983 v
+https://github.com/bitcoin/bitcoin/commit/526dd78bedcebcf170ce13349eb3e9fc7fbf39bb v
+https://github.com/bitcoin/bitcoin/commit/c18405732e38eadb2c47533c3f982f4605fbfd9a v
+https://github.com/bitcoin/bitcoin/commit/03dfa36641077033ffebf8b431945bfc503632a9 v
+https://github.com/bitcoin/bitcoin/commit/419ef3b7cc04e3ab26252d7024da847dfd5ab1a3 v
+https://github.com/bitcoin/bitcoin/commit/529d332fbfe633d60845a97e1a06f552bd63d0d4 v
+https://github.com/bitcoin/bitcoin/commit/4d88c3dcb61e7c075ed3dd442044e0eff4e3c8de v
+https://github.com/bitcoin/bitcoin/commit/7df6a7ea98121997af2dcc57a69046ae252a9ec6 v
+https://github.com/bitcoin/bitcoin/commit/a54c16cdb6522b55cf25c1ef568a9a691c46fabb v
+https://github.com/bitcoin/bitcoin/commit/890eac8f8286496bbae664792cd2a1e56991c669 v
+https://github.com/bitcoin/bitcoin/commit/faede70882b4fd54390f5205dbe1dbcf019195c8 v
+https://github.com/bitcoin/bitcoin/commit/e6acd9f72c61bf535d9413854b1434ec40633ca0 v
+https://github.com/bitcoin/bitcoin/commit/ab4e6ad7629430d02d101417e010228c1099f0ae v
+https://github.com/bitcoin/bitcoin/commit/6094222de7820d235e6e8c66e589aa71db08c077 v
+
+Commits on Dec 18, 2019
+https://github.com/bitcoin/bitcoin/commit/47f45b677653c496a40acff00d11bd0e175ee058 v
+https://github.com/bitcoin/bitcoin/commit/6fef85bfa3cd7f76e83b8b57f9e4acd63eb664ec v
+https://github.com/bitcoin/bitcoin/commit/75a5e478b631d3d0821d003300c4eae3c8433973 v
+https://github.com/bitcoin/bitcoin/commit/e9b4f9419cc778b5164708991a55014abef6c5f9 v
+https://github.com/bitcoin/bitcoin/commit/091a876664af4427db670ea8244d713b1b840048 v
+https://github.com/bitcoin/bitcoin/commit/34d826ea5f900b6320f6ff070c3632155acb716e v
+
+Commits on Dec 19, 2019
+https://github.com/bitcoin/bitcoin/commit/f41d58966995fe69df433fa684117fae74a56e66 v
+https://github.com/bitcoin/bitcoin/commit/8feb4e4b667361bf23344149c01594abebd56fdb v
+https://github.com/bitcoin/bitcoin/commit/4f4ae6f97e210fa0a2aa274bcd2a77a226fe6a7e v
+https://github.com/bitcoin/bitcoin/commit/7f9fbb89e82f78846b9e6592a1def6648802de49 v
+https://github.com/bitcoin/bitcoin/commit/6020ce3c01fe5ee15a236c47da23342005b63055 v
+https://github.com/bitcoin/bitcoin/commit/3e949380725ca32be6c9812a926727b0a45723a9 v
+
+Commits on Dec 20, 2019
+https://github.com/bitcoin/bitcoin/commit/6677be64f69b3d6f60f5a675ff9746def27a2de8 v
+https://github.com/bitcoin/bitcoin/commit/bcad0144eff3192cb54f65fa7737be53e03f8b0f v
+https://github.com/bitcoin/bitcoin/commit/3f95fb085e73b5537dda6d7258bfdab72d695fa9 cr
+https://github.com/bitcoin/bitcoin/commit/900d8f6f70859f528e84c5c38d0332f81d19df55 v
+https://github.com/bitcoin/bitcoin/commit/6666ef13f167cfe880c2e94c09d003594d010cf3 v
+
+Commits on Dec 21, 2019
+https://github.com/bitcoin/bitcoin/commit/0cda5573405d75d695aba417e8f22f1301ded001 v
+
+Commits on Dec 23, 2019
+https://github.com/bitcoin/bitcoin/commit/faa92a2297b4a6aebdd58d1818c428f1c0346078 v
+
+Commits on Dec 24, 2019
+https://github.com/bitcoin/bitcoin/commit/b6fa752bc7c68ef5b2f839b6101c86241d3af85c s, we don't have CI currently
+https://github.com/bitcoin/bitcoin/commit/0b5a366bd70119b34b112825d69804057141535f s, we don't have CI currently
+https://github.com/bitcoin/bitcoin/commit/1dbf3350c683f93d7fc9b861400724f6fd2b2f1d pr
+
+Commits on Dec 25, 2019
+https://github.com/bitcoin/bitcoin/commit/ec45646de9e62b3d42c85716bfeb06d8f2b507dc v
+
+Commits on Dec 27, 2019
+https://github.com/bitcoin/bitcoin/commit/8dc9aa90c3c7990dd5b491937ddc0e39bc929d1c ce
+
+Commits on Dec 28, 2019
+https://github.com/bitcoin/bitcoin/commit/6cb80a068dc198832febe456139bed3ae7a1145c v
+https://github.com/bitcoin/bitcoin/commit/90df92206cfce4e61eff9d584112643512f6b91c v
+
+Commits on Dec 29, 2019
+https://github.com/bitcoin/bitcoin/commit/0661a3c4a6ac7e9aa24812dcd1c3ca9053248aff v
+https://github.com/bitcoin/bitcoin/commit/7851f14ccf2bcd1e9b2ad48e5e08881be06d9d21 v
+https://github.com/bitcoin/bitcoin/commit/b931f61b9ab098ea4ea8fbe4cbf0b03c566c3f63 pr
+https://github.com/bitcoin/bitcoin/commit/42ec4994892e67e3430f867af069aafcc2e08593 cr
+https://github.com/bitcoin/bitcoin/commit/df97e592078a33f6bf535979e05967c563de317b cr
+
+Commits on Dec 30, 2019
+https://github.com/bitcoin/bitcoin/commit/aaaaad6ac95b402fe18d019d67897ced6b316ee0 cr
+https://github.com/bitcoin/bitcoin/commit/155a11f897c7dfdc891587cc7ddd7c153cbc2a8f cr
+https://github.com/bitcoin/bitcoin/commit/8830cb58abc888144a1edb9b2fba427716cc45d8 v
+
+Commits on Dec 31, 2019
+https://github.com/bitcoin/bitcoin/commit/27fc6a38f813b65e5110c77925a335214aec756a pr
+https://github.com/bitcoin/bitcoin/commit/99813a9745fe10a58bedd7a4cb721faf14f907a4 pr
+
+Commits on Jan 1, 2020
+https://github.com/bitcoin/bitcoin/commit/35fff5be60e853455abc24713481544e91adfedb pr
+https://github.com/bitcoin/bitcoin/commit/c0bc453135b3f549f800545075cb7bdb310c3ad4 v
+https://github.com/bitcoin/bitcoin/commit/f7453dcc0386a4a1162ced1a490c096afa13178a v
+
+Commits on Jan 2, 2020
+https://github.com/bitcoin/bitcoin/commit/4ca92dc6d3f3e487d63286d8871d1829b3d279ff v
+https://github.com/bitcoin/bitcoin/commit/7c9e821c4e6cb186208ead9c8df616d1f393a49a v
+https://github.com/bitcoin/bitcoin/commit/0655c7a94cc9bf54d43eceed805e83f1b59e2409 pr
+https://github.com/bitcoin/bitcoin/commit/87744b16b02cb9e4f6e97509facf6cc781e60b98 v
+https://github.com/bitcoin/bitcoin/commit/3f8dbcd655479ce2e564a8b17139aca19888ca79 pr
+
+Commits on Jan 3, 2020
+https://github.com/bitcoin/bitcoin/commit/52900a764c4213f960d2b9c95d54f64753fcfedd pr
+https://github.com/bitcoin/bitcoin/commit/ca33451535dc29f64d37c49af8b22142d7716d0d v
+https://github.com/bitcoin/bitcoin/commit/9250a087d2f450f37342010aea0a5d583eea508b v
+https://github.com/bitcoin/bitcoin/commit/4bdd68f301a9cee3360deafc7531c638e923226b v
+https://github.com/bitcoin/bitcoin/commit/190a4051fde736faf99681d107f0b38dd385e90c pr
+https://github.com/bitcoin/bitcoin/commit/1f0adb3dac461b3f24f2a98b736d972e9713d67e cr
+https://github.com/bitcoin/bitcoin/commit/17e14ac92fced92457945859463eda5d435bdd49 pr
+https://github.com/bitcoin/bitcoin/commit/fa37e0a68bea65979f9f8f2e5258fe608acf2bdf cr
+https://github.com/bitcoin/bitcoin/commit/71af793512100ee7d508c3fb815af47925fe80ba v
+https://github.com/bitcoin/bitcoin/commit/fa5d709fb266c97d4db15006bf855e887a6c123b v
+https://github.com/bitcoin/bitcoin/commit/faba4672b64fb5ba89e5cb6299479887494b571a cr
+https://github.com/bitcoin/bitcoin/commit/fabb946090be2f604da3d7d4b1bbe93b79baf23e v
+https://github.com/bitcoin/bitcoin/commit/fa3d77623ecb25dde6b5f4be11626ed16966eb29 v
+https://github.com/bitcoin/bitcoin/commit/fa569e1a9c5ad1bf8bdf866235b21aff56112224 v
+https://github.com/bitcoin/bitcoin/commit/77ef48d53263deaf89290c1cbadb6d90e688575d cr
+https://github.com/bitcoin/bitcoin/commit/071f2fc204f542c5a287ca8835115a2ee0bf2f50 v
+https://github.com/bitcoin/bitcoin/commit/1998152f15fd2b0e83f5068c375a34feaf73db8c v
+https://github.com/bitcoin/bitcoin/commit/6fde9d5e47fc9a1042b3fb68031eab5bf55e508d v
+
+Commits on Jan 4, 2020
+https://github.com/bitcoin/bitcoin/commit/60aba1f2f11529add115d963d05599130288ae28 cr
+https://github.com/bitcoin/bitcoin/commit/8bb405bbadf11391ccba7b334b4cfe66dc85b390 v
+https://github.com/bitcoin/bitcoin/commit/8925df86c4df16b1070343fef8e4d238f3cc3bd1 v
+https://github.com/bitcoin/bitcoin/commit/428ac70095253225f64462ee15c595644747f376 v
+https://github.com/bitcoin/bitcoin/commit/72f3227c83810936e7a334304e5fd7c6dab8e91b v
+https://github.com/bitcoin/bitcoin/commit/6edebacb2191373e76d79a4972d6192300976096 v
+https://github.com/bitcoin/bitcoin/commit/f9abf4ab6d3d3e4d4b7e90723020b5422a141a6f v
+https://github.com/bitcoin/bitcoin/commit/816464198c34a373229e865d76f4bc0ca8f127dc pr
+https://github.com/bitcoin/bitcoin/commit/09502452bbbe21bb974f1de8cf53196373921ab9 v
+https://github.com/bitcoin/bitcoin/commit/76bf97213f4b153dd3ccf1314088a73c4804601d v
+https://github.com/bitcoin/bitcoin/commit/c491368d8cfddf3a5b6d574f10ed67492fcecbed v
+https://github.com/bitcoin/bitcoin/commit/9a4cc52d734d56d781aaedc6679e1a70a74439c2 pr
+https://github.com/bitcoin/bitcoin/commit/392edbd49abec4a8c587979dbb1f44e8605b7ce1 pr
+https://github.com/bitcoin/bitcoin/commit/7754d7ab1e4f1918fcc31396cd3e7507f936477f v
+https://github.com/bitcoin/bitcoin/commit/593f5e239f277e3fd917737122c2aed3c615430c pr
+
+Commits on Jan 5, 2020
+https://github.com/bitcoin/bitcoin/commit/fac86ac7b3ceac2f884412c7a9f4bd5bab5e3916 cr
+https://github.com/bitcoin/bitcoin/commit/da279fe0eef91402329f270cfdf74065fed7eb11 pr
+https://github.com/bitcoin/bitcoin/commit/b949ac9697a6cfe087f60a16c063ab9c5bf1e81f pr
+https://github.com/bitcoin/bitcoin/commit/c902c4c0c6a26de8cb69a469503bf4a0bd73903c v
+
+Commits on Jan 6, 2020
+https://github.com/bitcoin/bitcoin/commit/a004673c54d4c015775e0baced21f3fa961bf754 v
+https://github.com/bitcoin/bitcoin/commit/b0a254019c3bc8a353c1304ee65a55cfb3d4ecac v
+https://github.com/bitcoin/bitcoin/commit/e8e79958a7b2a0bf1b02adcce9f4d811eac37dfc pr
+https://github.com/bitcoin/bitcoin/commit/2a6bce482c13cff37c1af00231265de4656a454b v
+https://github.com/bitcoin/bitcoin/commit/deaa6dd144f5650b385658a0c4f9a014aff8dde2 cr
+
+Commits on Jan 7, 2020
+https://github.com/bitcoin/bitcoin/commit/44f15cfdcfc64d5a0c36fded39e4aef49415b11b v
+https://github.com/bitcoin/bitcoin/commit/e1c582cbaa4c094d204da34c3b1fdd0d4c557519 v
+https://github.com/bitcoin/bitcoin/commit/63bf06afc387a9aba7e9933d7970ff88da26dc29 cr
+
+Commits on Jan 8, 2020
+https://github.com/bitcoin/bitcoin/commit/bcb4cdcca321b9dd9e754c68add4cfcdf0439a70 pr
+https://github.com/bitcoin/bitcoin/commit/45f151913ef5c7d4f7fb0f81e442fb6377dad353 pr
+https://github.com/bitcoin/bitcoin/commit/e3b19d869612b637f8bb702add0c363afe8adb8f v
+https://github.com/bitcoin/bitcoin/commit/68c9bbe9bc91f882404556998666b1b5acea60e4 cr
+https://github.com/bitcoin/bitcoin/commit/b0bfbe50282877a1eee87118902901a280d6656d cr
+https://github.com/bitcoin/bitcoin/commit/af112ab62895b145660f4cd7ff842e9cfea2a530 cr
+https://github.com/bitcoin/bitcoin/commit/7ea3b85ecf7bcd8933c8e89985fdde9a3c57d7af pr
+https://github.com/bitcoin/bitcoin/commit/cab3859a356d1fbce67c45ccaf2b7f233397ae55 pr
+https://github.com/bitcoin/bitcoin/commit/fcef6dbc15ef9630832697b9ebf80f05f20efda8 pr
+https://github.com/bitcoin/bitcoin/commit/8b2f471a1bff753cc4df29805ef38c3623f64f6e v
+https://github.com/bitcoin/bitcoin/commit/9574de86ad703ad942cdd0eca79f48c0d42b102b v
+https://github.com/bitcoin/bitcoin/commit/fefb9165f23fe9d10ad092ec31715f906e0d2ee7 v
+https://github.com/bitcoin/bitcoin/commit/7a046cdc1423963bdcbcf9bb98560af61fa90b37 v
+https://github.com/bitcoin/bitcoin/commit/6dd982aa9eeb7f29aeb210894e1c490eef22978e pr
+https://github.com/bitcoin/bitcoin/commit/07efb3fe2ba4c54ba49840af3a7510d5d3baae79 pr
+https://github.com/bitcoin/bitcoin/commit/b065df803ce2969193ff273457cceb781b433177 pr
+https://github.com/bitcoin/bitcoin/commit/40a495a38a265a86f5a73381635870865d5aa048 pr
+https://github.com/bitcoin/bitcoin/commit/7f3675b3ce2a67e09e5d43c2c42a91112c26bdad pr
+https://github.com/bitcoin/bitcoin/commit/295211e668290d7741eb0fd46223087c21fc7c59 pr
+https://github.com/bitcoin/bitcoin/commit/6196e930018181301b5972842ae384ea4288ff34 pr
+https://github.com/bitcoin/bitcoin/commit/e35e4b2ba052c9a533626286026dbe0a2d546c5b cr
+https://github.com/bitcoin/bitcoin/commit/2bede28cd9ec638d8bb32c187ccf12d89345218e cr
+
+Commits on Jan 9, 2020
+https://github.com/bitcoin/bitcoin/commit/ef63f5fc1136ad2a2cd080d44142a2ee3945c238 v
+https://github.com/bitcoin/bitcoin/commit/0874a109da5463699199cf732b974635b97643dd cr
+https://github.com/bitcoin/bitcoin/commit/c7654af6f830577a54df12b5d65df93532db0dc2 v
+https://github.com/bitcoin/bitcoin/commit/dc0cabeda49a7edbfa71df22846721b6f6224aea v
+https://github.com/bitcoin/bitcoin/commit/d48875fa20d0b71b978cb3d1f85dd9ec14e664cc v
+https://github.com/bitcoin/bitcoin/commit/72af93f36479dc12d795f1d05fa3d8fbd9b293bd v
+
+Commits on Jan 10, 2020
+https://github.com/bitcoin/bitcoin/commit/e7f84503571c171a7e6728cd2d77dd4103bd7a6f pr
+https://github.com/bitcoin/bitcoin/commit/96cb597325f64cadb3cf43e2cdb3d7c1e2e49891 v
+https://github.com/bitcoin/bitcoin/commit/9dd58ca611f6f2b59c25d727a4e955333525d345 v
+
+Commits on Jan 11, 2020
+https://github.com/bitcoin/bitcoin/commit/8313fa8e8112e429e104b7e7fd48e5e6e359b82e v
+https://github.com/bitcoin/bitcoin/commit/62b189b91d4fc08f7da893d7874f17553f7e27b3 pr
+https://github.com/bitcoin/bitcoin/commit/f8c69677a1a899a662e02cff20b79dbe924f05dd pr
+https://github.com/bitcoin/bitcoin/commit/498cdbb42616bc1e6c44492c907678b4dce41870 v
+https://github.com/bitcoin/bitcoin/commit/e258ce792a4849927a6db51786732d71cbbb65fc pr
+https://github.com/bitcoin/bitcoin/commit/d3bc18408146e91b3836f72360ff6fa2420b6887 v
+
+Commits on Jan 12, 2020
+https://github.com/bitcoin/bitcoin/commit/831e1220bc151b1016412359775406b34cb8f52c v
+
+Commits on Jan 13, 2020
+https://github.com/bitcoin/bitcoin/commit/f2645c26017591f819344d24dc0a88dc32dde6fd v
+https://github.com/bitcoin/bitcoin/commit/3d5d7aad269c7afe7e36677d3e76c6579e1b8aba v
+https://github.com/bitcoin/bitcoin/commit/f2f9fdf5794ebfc76603054c551f2dd02995a5bb pr
+https://github.com/bitcoin/bitcoin/commit/2ed74a43a05a47129d56117deeb489addbcaf05f pr
+https://github.com/bitcoin/bitcoin/commit/6fc554f591d8ea1681b8bb25aa12da8d4f023f66 v
+https://github.com/bitcoin/bitcoin/commit/ca62563df341786d1d1809a037d8b592924e78c4 v
+https://github.com/bitcoin/bitcoin/commit/2f1b2f4ed044fe005e5a6c1b55e95822e83c16df v
+https://github.com/bitcoin/bitcoin/commit/9b66083788581c264a097e26795561cb3eac455d v
+
+Commits on Jan 14, 2020
+https://github.com/bitcoin/bitcoin/commit/a4a93a0badb328c4e54c3ceb7cc29a740bce5e43 pr
+https://github.com/bitcoin/bitcoin/commit/ceb789cf3a9075729efa07f5114ce0369d8606c3 pr
+https://github.com/bitcoin/bitcoin/commit/e4caa82a03df5c6a6d5d29f34ab006d732c6dac1 cr
+https://github.com/bitcoin/bitcoin/commit/daa3f3fa9071a229275dd6a1b8445237ddc3fa97 cr
+https://github.com/bitcoin/bitcoin/commit/4824a7d36cf47e766865e0fefe952ec860eb82dd v
+https://github.com/bitcoin/bitcoin/commit/4f7127d1e3a51f0f55d42a08439c516dcc8d1a26 v
+
+Commits on Jan 15, 2020
+https://github.com/bitcoin/bitcoin/commit/7f5db163a4ebc607d441e2457af10942be511d2c cr
+https://github.com/bitcoin/bitcoin/commit/5855cc564fd456463e6d335830526675626923c6 cr
+https://github.com/bitcoin/bitcoin/commit/4b8f1e989f3b969dc628b0801d5c31ebd373719c v
+https://github.com/bitcoin/bitcoin/commit/6cbe6209646db8914b87bf6edbc18c6031a16f1e v
+https://github.com/bitcoin/bitcoin/commit/e09c701e0110350f78366fb837308c086b6503c0 v
+https://github.com/bitcoin/bitcoin/commit/6dd59d2e491bc11ab26498668543e65440a3a931 v
+https://github.com/bitcoin/bitcoin/commit/75163f4729c10c40d2843da28a8c79ab89193f6a v
+https://github.com/bitcoin/bitcoin/commit/2ccb7cca4ac67198ac89bd58f5b4ae41a5163ceb v
+https://github.com/bitcoin/bitcoin/commit/bd5a02692853f7240a4fdc593d7d0123d7916e45 v
+https://github.com/bitcoin/bitcoin/commit/af05bd9e1e362c3148e3b434b7fac96a9a5155a1 pr
+https://github.com/bitcoin/bitcoin/commit/002f9e9b4041e9b5bf8a91680ce980bf9ff15074 pr
+https://github.com/bitcoin/bitcoin/commit/ac61ec9da6793f00b29ba11f784b9b1c3ae662e9 pr
+https://github.com/bitcoin/bitcoin/commit/9a5b5ee81f15b1d89cb25ff3e137a672536cdc46 v
+https://github.com/bitcoin/bitcoin/commit/f117fb00da747147cddfb071c1427a2754c278cd v
+https://github.com/bitcoin/bitcoin/commit/3c30d7118a5d5cb40c3686e0da884d3928caaeba v
+
+Commits on Jan 16, 2020
+https://github.com/bitcoin/bitcoin/commit/486f51099ff4e68b67c5bb7ea428c56f3ea1bd55 v
+https://github.com/bitcoin/bitcoin/commit/4e8b564df0d4ff2bc2463aa072b15471361d9e7d pr
+https://github.com/bitcoin/bitcoin/commit/22c5a986e95d2bd14273465ca0e15fbe3772252d v
+https://github.com/bitcoin/bitcoin/commit/c279a81e9c7dc3386e929ff8b635e7a0de9c20c5 v
+https://github.com/bitcoin/bitcoin/commit/a9c789ed964dbfae59585e3b56c35816afc3d95e pr
+https://github.com/bitcoin/bitcoin/commit/4537ba5f21ad8afb705325cd8e15dd43877eb28f v
+
+Commits on Jan 17, 2020
+https://github.com/bitcoin/bitcoin/commit/f018d0c9cd7f408dac016b6bfc873670de713d27 pr
+https://github.com/bitcoin/bitcoin/commit/7d0a8f4f530885cbf3870291f10f667326373bd1 cr
+https://github.com/bitcoin/bitcoin/commit/1a53b0da60097cd7fd423c519f01ceca0fd0aa14 cr
+https://github.com/bitcoin/bitcoin/commit/218274de7d1f3aeebc86dcacb4ffaaff32bd237f pr
+https://github.com/bitcoin/bitcoin/commit/ec9b964cc998160f9836663d3d4706edb0deb25c pr
+https://github.com/bitcoin/bitcoin/commit/2aaeca50b22d541ed2cf44a67a3a5a256515873f pr
+https://github.com/bitcoin/bitcoin/commit/95ca6aeec7b8d9dbf39e3a036a5c238634ce3793 pr
+https://github.com/bitcoin/bitcoin/commit/2b1641492fbf81e2c5a95f3e580811ca8700adc5 v
+https://github.com/bitcoin/bitcoin/commit/7fb94c0ed418202ba0b49f5886bcf0c9cac22552 pr
+https://github.com/bitcoin/bitcoin/commit/297e09855793feb94c3229ed989bef8b1eac864e v
+https://github.com/bitcoin/bitcoin/commit/2abe8cc3b760219cfa434e4c96e9f8d3611d0037 v
+https://github.com/bitcoin/bitcoin/commit/412d5fe8791c417bf46fc55a5bb8d59be98a33db v
+https://github.com/bitcoin/bitcoin/commit/2ddf041a8d5e2c9251da19c4b14259c1d318a442 pr
+https://github.com/bitcoin/bitcoin/commit/c20fbb7be864bb7652280d5855be89b6b04cdfd1 pr
+https://github.com/bitcoin/bitcoin/commit/0deba680646fc5c2bd4ead59933605970ae80995 pr
+https://github.com/bitcoin/bitcoin/commit/a654626f076a72416a3d354218d7107571d6caaf pr
+https://github.com/bitcoin/bitcoin/commit/c4ea501e96363e937200bc97b8e2d78162bdb699 cr
+https://github.com/bitcoin/bitcoin/commit/ca34c5cba5fbb9b046b074a234f06ecf6ed5d610 v
+
+Commits on Jan 19, 2020
+https://github.com/bitcoin/bitcoin/commit/219417b388a0373f9eb71446e1b0499ab55dd3e2 cr
+https://github.com/bitcoin/bitcoin/commit/70e4706093fd7b08a32f9638dace178852a9d249 cr
+https://github.com/bitcoin/bitcoin/commit/7e841f3f9b6c43f0fe84dc5ac4b922e4d7edc636 pr
+https://github.com/bitcoin/bitcoin/commit/5d2ff75e207021467160aec5986d7d6d54a2b708 pr
+https://github.com/bitcoin/bitcoin/commit/daae6403d8bd1d03b108d0517bd74e3197e315a8 pr
+https://github.com/bitcoin/bitcoin/commit/631df3ee87ec93e1fc748715671cdb5cff7308e6 pr
+https://github.com/bitcoin/bitcoin/commit/e80317be5fc6f6a04ea3b35bfe9991b3a5d29f7a v
+
+Commits on Jan 22, 2020
+https://github.com/bitcoin/bitcoin/commit/742f84d0de79fcaf17578f9c3376be248c3259bc pr
+https://github.com/bitcoin/bitcoin/commit/4de934b9b5b4be1bac8fe205f4ee9a79e772dc34 cr
+https://github.com/bitcoin/bitcoin/commit/a5a2654bbc43b5c208418872e5d4c0acbadda5de v
+https://github.com/bitcoin/bitcoin/commit/e45463a06abef44e9fff0f9bb19435283fd568df pr
+https://github.com/bitcoin/bitcoin/commit/a51aa2880d123fc0bcbc0ccd930dbf98e4d29863 pr
+https://github.com/bitcoin/bitcoin/commit/4a7fd7a7124f84e010b01d0769ef0572bf031ee8 v
+https://github.com/bitcoin/bitcoin/commit/2f63ffd15caeb79867e56c8cedbe2c702952db9e cr
+https://github.com/bitcoin/bitcoin/commit/0a8b68cdf7d25f3a08290fdd05595dc1a063ec7c pr
+https://github.com/bitcoin/bitcoin/commit/0038e536de6ecbdcf027f07cb14af420d52033c2 pr
+https://github.com/bitcoin/bitcoin/commit/04f78b818f02279d32c3ad3a1140e9410bfb26bf pr
+
+Commits on Jan 23, 2020
+https://github.com/bitcoin/bitcoin/commit/1ae46dce60a187740ec78b5a3cee8baad0fa539d pr
+https://github.com/bitcoin/bitcoin/commit/a3d198c93cbed085e5327d99a4fd635e9a8e6b35 pr
+https://github.com/bitcoin/bitcoin/commit/16d6113f4faa901e248adb693d4768a9e5019a16 v
+https://github.com/bitcoin/bitcoin/commit/4a072330763b3ff2d1b5c5b8d30a9517873ac6de pr
+https://github.com/bitcoin/bitcoin/commit/7a311fa54a936ea611d47204ba4530ffd4529981 pr
+https://github.com/bitcoin/bitcoin/commit/2525c096b002a89d4c561e1474800496ad8ebd7e cr
+https://github.com/bitcoin/bitcoin/commit/faf40810d7b7f42f3588bfa8a663095aa24001b1 v
+https://github.com/bitcoin/bitcoin/commit/fa6b57bcaaf4dc65d78316353033b03d171a3beb cr
+https://github.com/bitcoin/bitcoin/commit/aaaae4d0ebd5ef34d81997a73ab9839ba7b4b9e4 cr
+https://github.com/bitcoin/bitcoin/commit/2fa8dc545417ab8ff54676ff22a93674d1a54797 v
+https://github.com/bitcoin/bitcoin/commit/fa0545901daad32b09511cc61c4af1400c48088d v
+https://github.com/bitcoin/bitcoin/commit/faff5a60ed328d4c5fdef253e8935a351cb57bd0 v
+https://github.com/bitcoin/bitcoin/commit/fa9dec7c395897e8dbbb6de7a16ec5185a609d41 v
+https://github.com/bitcoin/bitcoin/commit/fa04cd6cfc0330b62058ed169d621e08108dc87e v
+https://github.com/bitcoin/bitcoin/commit/fab63111bec73859597e6ce0986f76e5e9959091 v
+
+-- new format with names --
+
+v  2020-01-23 16:23:30 fa5c6622c8ecf1954e7177888ad8c97a77b16fb7 doc: Use proper RPC help syntax in importmulti
+pr 2020-01-23 16:52:53 fe3b58b95955644f5b8e1cd9080d414378f14755 Merge #17992: doc: Correct a small typo in help / manpage
+v  2020-01-23 20:22:56 e4658aa8eaf1629dd5af8cf7b9717a8e72028251 Return mapped AS in RPC call getpeerinfo
+v  2020-01-23 20:23:06 3c1bc40205a3fcab606e70b0e3c13d68b2860e34 Add extra logging of asmap use and bucketing
+cr 2020-01-23 22:34:28 eb81fc3ee58d3e88af36d8091b9e4017a8603b3c Refactor: Allow LegacyScriptPubKeyMan to be null
+v  2020-01-23 22:34:28 f5be479694d4dbaf59eef562d80fbeacb3bb7dc1 wallet: Improve CWallet:MarkDestinationsDirty
+cr 2020-01-23 22:34:28 fadc08ad944cad42e805228cdd58e0332f4d7184 Locking: Lock cs_KeyStore instead of cs_wallet in legacy keyman
+v  2020-01-23 22:35:06 81610eddbc57c46ae243f45d73e715d509f53a6c List output types in an array in order to be iterated over
+v  2020-01-23 22:35:08 01b4511206e399981a77976deb15785d18db46ae Make UpgradeKeyMetadata work only on LegacyScriptPubKeyMan
+v  2020-01-23 22:35:08 3afe53c4039103670cec5f9cace897ead76e20a8 Cleanup: Drop unused GUI learnRelatedScripts method
+cr 2020-01-23 22:35:08 3f373659d732a5b1e5fdc692a45b2b8179f66bec Refactor: Replace SigningProvider pointers with unique_ptrs
+v  2020-01-23 22:35:08 415afcccd3e5583defdb76e3a280f48e98983301 HD Split: Avoid redundant upgrades
+v  2020-01-23 22:35:08 4977c30d59e88a3e5ee248144bcc023debcd895b refactor: define a UINT256_ONE global constant
+v  2020-01-23 22:35:08 4a7e43e8460127a40a7895519587399feff3b682 Store p2sh scripts in AddAndGetDestinationForScript
+v  2020-01-23 22:35:08 501acb5538008d98abe79288b92040bc186b93f3 Always try to sign for all pubkeys in multisig
+cr 2020-01-23 22:35:08 c729afd0a3b74a3943e4c359270beaf3e6ff8a7b Box the wallet: Add multiple keyman maps and loops
+v  2020-01-23 22:35:08 e2f02aa59e3402048269362ff692d49a6df35cfd Refactor: Copy CWallet signals and print function to LegacyScriptPubKeyMan
+pr 2020-01-24 08:35:57 28fbe68fdcac2a06f359b1e48555a3d23015c2b7 Merge #17740: build: remove configure checks for win libraries we don't link against
+v  2020-01-24 20:27:49 1a638e11055743ac089973b92f46c376466fe621 gui: Shortcut to close ModalOverlay
+v  2020-01-25 08:51:35 2d23082cbe4641175d752a5969f67cdadf1afcea bump test timeouts so that functional tests run in valgrind
+pr 2020-01-25 17:20:47 c26b05c2b78f1df45652caf38972d849af9551d0 Merge #17770: test: bump test timeouts so that functional tests run in valgrind
+v  2020-01-25 20:07:03 2bcc70531ac88e29a7d59a1ab8c787c55e7f88f5 Updated appveyor job to checkout a specific vcpkg commit ID.
+pr 2020-01-26 02:42:30 b4f832e24e779980e5dbf1ea67b41e478feb9022 Merge #18001: Updated appveyor job to checkout a specific vcpkg commit ID
+v  2020-01-26 03:43:10 acd644b83d789a6cdfbeda19732119534d10058e build: remove --large-address-aware linker flag
+v  2020-01-26 23:55:10 4c524f0aad11b44baa56d2b2e432bbddffff74c2 Bugfix: GUI: Hide the HD/encrypt icons earlier so they get re-shown if another wallet is open
+pr 2020-01-27 11:14:13 36ded99717592c122c3df3e32fa98023851fbd4b Merge #17998: gui: Shortcut to close ModalOverlay
+pr 2020-01-27 11:31:09 3253b5dcf4d5997dc7918e9bc82aa64ee5d3ce53 Merge #17096: gui: rename debug window
+pr 2020-01-27 15:21:57 ef8e2cee9f5d157eeb3139b64e9c3a5fa4bf36f3 Merge #18007: Bugfix: GUI: Hide the HD/encrypt icons earlier so they get re-shown if another wallet is open
+pr 2020-01-27 18:15:45 b89f2d05993701736c84f1e0966814333f9684b3 Merge #17453: gui: Fix intro dialog labels when the prune button is toggled
+v  2020-01-27 22:31:42 6ef04912af7f216f3112e0e9919f67e36415a792 tests: Update FuzzedDataProvider.h from upstream (LLVM)
+v  2020-01-27 22:31:42 cc668d06fb71463fd406df761b0e89e25d4de968 tests: Add fuzzing harness for strprintf(...)
+v  2020-01-27 22:31:42 ccc3c76e2b5d28a2372ae5752c08256396bf43e6 tests: Add fuzzer strprintf to FUZZERS_MISSING_CORPORA (temporarily)
+cr 2020-01-27 22:38:07 e6050884fdabfa6e51e6afce2041d91e60a5adec guix: Pin Guix using `guix time-machine`
+v  2020-01-27 22:41:20 88c83636d5a56bd9551577139786bdd3e74852c2 guix: Update documentation for time-machine
+v  2020-01-27 22:44:02 b3c4d9bac6910f6c28f6008c5ca7064a315fd2a5 test: rename test suite name "tx_validationcache_tests" to match filename
+pr 2020-01-28 10:14:50 3774281327c83023fdd5a1e61bdc3673b21d7c79 Merge #17933: guix: Pin Guix using `guix time-machine`
+pr 2020-01-28 11:25:54 2755b2b1092d0286022cf3cc3028e96f6bee2b34 Merge #18010: test: rename test suite name "tx_validationcache_tests" to match filename
+v  2020-01-28 16:10:15 0dae5a5c34ef54ad912382836d12688813745bc5 Fix benchmarks filters
+
+submodules commits skipped:
+s  2020-01-28 16:59:07 20a6babfa9a66f5432ef19c6c433b4357560f853 Update to leveldb upstream using subtree merge
+s  2020-01-28 16:59:07 66480821b36c839ab7615cb9309850015bceadb0 Squashed 'src/leveldb/' changes from f545dfabff4c2e9836efed094dba99a34fbc6b88..f8ae182c1e5176d12e816fb2217ae33a5472fdd7
+s  2020-01-28 16:59:58 2e1819311a59fb5cb26e3ca50a510bfe01358350 Squashed 'src/crc32c/' content from commit 224988680f7673cd7c769963d4035cb315aa3388
+pr 2020-01-28 17:00:01 3acaa13b157509e81f0eba6c1e16938816439e7b Import crc32c using subtree merge as as 'src/crc32c'
+
+v  2020-01-28 17:01:48 24d02a9ac00a82d172b171f73554a882df264c80 build: Update build system for new leveldb
+v  2020-01-28 17:01:48 3a037d0067c2c12a1c2c800fb85613a0a2911253 test: Add crc32c exception to various linters and generation scripts
+v  2020-01-28 17:01:48 402252a8081e25f22aa1a5c60708714cf1d84ec4 build: Add LCOV exception for crc32c
+v  2020-01-28 17:01:48 677fb8e92380d4deb6a3753047c01f7cf7b5af91 test: Add ubsan surpression for crc32c
+v  2020-01-28 17:01:48 7cf13a513409c18d18dff2f6203b3630937b487d doc: Add crc32c subtree to developer notes
+v  2020-01-28 17:01:48 84ff1b2076ef91ce688930d0aa0a7f4078ef3e1d test: Add crc32c to subtree check linter
+v  2020-01-28 17:01:48 8e68bb1ddeca504bedd40aee8492b5478a88c1e5 build: Disable msvc warning 4722 for leveldb build
+v  2020-01-28 17:01:48 9ebdf047578f0da7e6578d0c51c32f55e84ac157 build: CRC32C build system integration
+v  2020-01-28 17:01:48 be23949765e1b2e050574c6c2a136658a89dee5d build: MSVC changes for leveldb update
+pr 2020-01-28 20:02:13 fe48ac8580ae7ddf38575f958dcf9d6ea316e90d Merge #18013: bench: Fix benchmarks filters
+v  2020-01-29 00:46:21 b6c3e84e87055be311347d7b636d68a6a828f563 doc: Improve fuzzing docs for macOS users
+v  2020-01-29 01:18:22 b35567fe0ba3e6f8d8f9525088eb8ee62065ad01 test: only declare a main() when fuzzing with AFL
+pr 2020-01-29 12:39:50 1326092e6cef8c58353c1d6438870c9a35266fd1 Merge #17156: psbt: check that various indexes and amounts are within bounds
+pr 2020-01-29 13:16:00 e061b8dc8fba9831db1f674bc1965244d3c11c19 Merge #17971: refactor: Remove redundant conditional
+pr 2020-01-29 13:48:30 c434282d2cb816fd92f7e229385169e783c84fdd Merge #18008: test: only declare a main() when fuzzing with AFL
+pr 2020-01-29 13:55:43 01fc5891fb5702a744184af362da2850fd38038e Merge #16702: p2p: supplying and using asmap to improve IP bucketing in addrman
+pr 2020-01-29 14:45:09 3b5b27673414f622c6211c345781e41ce736f99f Merge #17942: doc: Improve fuzzing docs for macOS users
+pr 2020-01-29 15:10:59 c1607b5df4877e5f799d861784cb91dba3ea5887 Merge #17957: Serialization improvements step 3 (compression.h)
+v  2020-01-29 15:37:21 a029e18c2bf67dd00552b0f4bbc85fa2fa5b973b Use rolling bloom filter of recent block tx's for AlreadyHave() check
+pr 2020-01-29 21:10:15 aabec94541e23a67a9f30dc2c80dab3383a01737 Merge #17719: Document better -keypool as a look-ahead safety mechanism
+cr 2020-01-29 22:57:41 fa1a46e7f4631a001bc28d415f27aae5ee324ccc build: Fix appveyor test_bitcoin build of *.raw
+v  2020-01-29 23:44:00 b951b0973cfd4e0db4607a00d434a04afb0d6199 on startup, write config options to debug.log
+pr 2020-01-30 00:12:29 638239de7502eed57f3b800d9b488de85f00d391 Merge #18022: test: Fix appveyor test_bitcoin build of *.raw
+v  2020-01-30 01:41:24 1b96a3cd1ebe725896f59614903184289fe62cf8 tests: reset fIsBareMultisigStd after bare-multisig tests
+pr 2020-01-30 05:21:21 2d6e76af240969aa284cd4c3d376493988e218c2 Merge #17261: Make ScriptPubKeyMan an actual interface and the wallet to have multiple
+v  2020-01-30 05:56:05 37d800bea016d5cba5635db036f53a486614ed30 Add a constant for the maximum vector allocation (5 Mbyte)
+v  2020-01-30 07:09:13 1115ba693b6f6e216cd8417aa499fd018a7c016e psbt_wallet_tests: use unique_ptr for GetSigningProvider
+pr 2020-01-30 08:23:53 44c2400bccbc6e77416e9debbeedbeed5cdc0eac Merge #18026: psbt_wallet_tests: use unique_ptr for GetSigningProvider
+v  2020-01-30 12:31:07 ac3d10777d65b68862c6deb57594c8fc4d21ca77 gui: Add transactionClicked and coinsSent signals to WalletView
+v  2020-01-30 12:38:06 cb8a86d9f952401eaad68b2e3818ce50f7befd91 gui: Remove WalletView and BitcoinGUI circular dependency
+pr 2020-01-30 14:50:47 0130abbdb7f5e2a290901064b5ae09097afe2139 Merge #18018: tests: reset fIsBareMultisigStd after bare-multisig tests
+pr 2020-01-30 14:56:49 7fcaa8291c6e155e6f5fba42e2ee8ec0bee046a3 Merge #18009: tests: Add fuzzing harness for strprintf(…)
+pr 2020-01-30 15:41:59 3b69310beb172b2b56fbfc38c45898a1b627ac54 Merge #17984: test: Add p2p test for forcerelay permission
+cr 2020-01-30 17:04:38 8d07706985a72b105b63efa289121d17d31607a1 tests: Add fuzzing harness for AS-mapping (asmap)
+cr 2020-01-30 17:06:02 4d2aceaad8d28a54246b6639966e2278d2d795e3 tests: Add fuzzer asmap to FUZZERS_MISSING_CORPORA (temporarily)
+v  2020-01-30 19:45:28 085423b978c4cb6a2d1385e091e8e4151599d5e0 Remove GitHub Actions CI workflow.
+v  2020-01-30 20:42:50 a8334f7ac39532528c5f8bd3b0eea05aa63e8794 Read and write a checksum for encrypted keys
+v  2020-01-30 20:44:22 c9a9ddb4142af0af5f7b1a5ccd13f8e585007089 Set fDecryptionThoroughlyChecked based on whether crypted key checksums are valid
+v  2020-01-30 20:44:22 d67055e00dd90f504384e5c3f229fc95306d5aac Upgrade or rewrite encrypted key checksums
+pr 2020-01-30 23:10:56 1d1f8bbf57118e01904448108a104e20f50d2544 Merge #16115: On bitcoind startup, write config args to debug.log
+v  2020-01-31 00:34:25 c7ec9a18888e040a2e1de2cc740a6ef0372d336d Add missing supported rpcs to doc/descriptors.md
+pr 2020-01-31 01:21:26 d176aeafde2944f026c4045aadfd3a74726308dd Merge #18031: Remove GitHub Actions CI workflow.
+pr 2020-01-31 01:43:58 3e1bf71064ccb98d0684753e844c80d6da421287 Merge #18025: doc: Add missing supported rpcs to doc/descriptors.md
+cr 2020-01-31 05:55:36 19a354b11f85a3c6c81ff83bf702bf7a40cf5046 Output a descriptor in createmultisig and addmultisigaddress
+cr 2020-01-31 09:18:27 61eb058cc10592cfa314ba2209fb370706100e8b gui: Drop BanTableModel dependency to ClientModel
+v  2020-01-31 10:38:04 5bad7921d0b33b62c0a59a478c2e8c869fc5e3b5 [test] PSBT RPC: check that bip32_derivs are present by default
+cr 2020-01-31 12:49:51 3aee10b80b9d9a0f5172fc2ee75f03a37d5c3863 gui: Drop ShutdownWindow dependency to BitcoinGUI
+cr 2020-01-31 13:36:13 3c82b92d2e01e409cc46261bffcf3643102f0b94 tests: Add fuzzing harness for functions taking floating-point types as input
+v  2020-01-31 13:36:13 c2bd5888607d283a229c9361747a93c83dfea0de Add missing includes
+pr 2020-01-31 14:42:59 d104aa0ace36f5c2a125d8ae80f2e7e746f9eab8 Merge #17951: Use rolling bloom filter of recent block txs for AlreadyHave() check
+v  2020-01-31 23:43:26 4e9efac678a9c0ea4e4c7dd956ea036ae6cf17ec test: Check wallet name in -walletnotify script
+v  2020-01-31 23:51:37 38c2395d7a905c87dc4630031849fd8e403e61bf Use ASNs for mapped IPv4 addresses correctly
+v  2020-01-31 23:51:37 6f8c93731203c111f86c39eaf2102f9a825d1706 Mark asmap const in statistics code
+v  2020-01-31 23:51:37 c86bc144081f960347232546f7d22deb65d27deb Make asmap Interpret tolerant of malicious map data
+v  2020-01-31 23:51:37 d58bcdc4b569a667b6974c3547b7ff6f665afce9 Avoid asmap copies in initialization
+pr 2020-02-01 10:07:42 cadb9d33421d44e4c8b78897a1276ab5b5871425 Merge #18036: gui: Break trivial circular dependencies
+pr 2020-02-01 10:11:24 f05c1ac444e0c893516535bfdf07c5c8cd9bce16 Merge #17937: gui: Remove WalletView and BitcoinGUI circular dependency
+v  2020-02-01 12:32:32 0e519fe28425b0148fe0d026bd084ecd244f5669 build: Fix behavior when ALLOW_HOST_PACKAGES unset
+v  2020-02-01 22:07:19 e9434ee03efdfc0a5a54cf46561e95fd93cba007 Remove false positive GCC warning
+pr 2020-02-02 09:35:46 6d0e532ae029cb687258f8cdd43d7f9f3cfaa900 Merge #17585: rpc: deprecate getaddressinfo label
+v  2020-02-02 10:27:47 9a299a59cc8a9ab516e047356c5bc0e93774b557 net: reference instead of copy in BlockConnected range loop
+pr 2020-02-03 05:02:23 365c83e6a8399913cec5f0383978c28f8418fa3b Merge #18054: net: reference instead of copy in BlockConnected range loop
+pr 2020-02-03 11:54:34 b2df21b32ca95f5a24ae8ebaa840aefce6301da6 Merge #17925: Improve UpdateTransactionsFromBlock with Epochs
+pr 2020-02-03 12:28:38 651e34388832149402fea0d26f3dc13bbe197f5a Merge #16974: Walk pindexBestHeader back to ChainActive().Tip() if it is invalid
+v  2020-02-03 12:49:46 1de8c067c74cd171144c8a900a8a20efe3072c43 depends: clang 6.0.1
+v  2020-02-03 12:49:46 7e2104433cd0905ccf94632511b3ca0ce5b0463b build: use macOS 10.14 SDK
+v  2020-02-03 12:49:46 ca5055a5aa07aba81a87cf12f6f0526a63c423b5 depends: native_cctools 921, ld64 409.12, libtapi 1000.10.8
+cr 2020-02-03 15:48:40 ff59bcd3213ef61f2167c0aa60fcaf5afbc20c61 gui: Drop PeerTableModel dependency to ClientModel
+v  2020-02-03 21:05:04 acf8abc7f3cf7efa418a46f9f69f23f1a5035582 gui: Fix unintialized WalletView::progressDialog
+v  2020-02-04 03:46:47 6c223152238d2e818e38357b03f38a4dbe9de016 build: add additional attributes to Win installer
+pr 2020-02-04 07:57:53 02fafdd12ccad91d4fdebb010134d84a31c055f3 Merge #18060: gui: Drop PeerTableModel dependency to ClientModel
+v  2020-02-04 11:18:02 5efc25f9638866941028454cfa9bae27f1519cb4 [wallet] translate "Keypool ran out" message
+v  2020-02-04 11:20:25 709f8685ac37510aa145ac259753583c82280038 [wallet] CreateTransaction: simplify change address check
+v  2020-02-04 11:20:25 92bcd70808b9cac56b184903aa6d37baf9641b37 [wallet] allow transaction without change if keypool is empty
+pr 2020-02-04 21:55:26 f32564f0a73c5ad1a107dd112e40516f39d1a51e Merge #16681: Tests: Use self.chain instead of 'regtest' in all current tests
+pr 2020-02-05 01:45:06 8625446b4d86880be9e218f3cd136de1e382101d Merge #17336: scripts: search for first block file for linearize-data with some block files pruned
+pr 2020-02-05 04:16:06 a064e005fa6b2b9f2c7f01e45a04a4d740f4605d Merge #18059: build: add missing attributes to Win installer
+v  2020-02-05 04:28:40 eca56f89293b74f11ca631ff2a0793e970e65841 test: replace 'regtest' leftovers by self.chain
+v  2020-02-05 07:13:01 f5a3a5b9ab362c58fa424261f313aa9cf46d2a98 gui: Add close window shortcut
+pr 2020-02-05 11:40:22 554d89fb295efe5c8adc81583d5ded1acbd98305 Merge #18029: tests: Add fuzzing harness for AS-mapping (asmap)
+pr 2020-02-05 11:41:40 bd5c4c69716e4236d2959bd733a2170afbc715f6 Merge #18069: test: replace 'regtest' leftovers by self.chain
+pr 2020-02-05 13:59:42 adea5e1b54cf5155b56bffe08af16538d5789c38 Merge #18023: Fix some asmap issues
+pr 2020-02-05 14:26:00 01668839de3693736c29be61c4330aea00bb0136 Merge #17660: build: remove deprecated key from macOS Info.plist
+pr 2020-02-05 14:27:32 c8ce2632ebff53aea721301b87b48ed1f98c40d4 Merge #16392: build: macOS toolchain update
+pr 2020-02-05 14:43:28 b30a1f3e39aae7c5828d508fcd12d107afaa5a6d Merge #18052: Remove false positive GCC warning
+pr 2020-02-05 14:54:42 712b7d9b479dd68c0b410cf45407f11de0b64f79 Merge #17804: doc: Misc RPC help fixes
+pr 2020-02-05 16:23:53 8a56f79d491271120abc3843c46e9dda44edd308 Merge #17482: util: Disallow network-qualified command line options
+v  2020-02-06 01:24:13 dc9305b6162ec615ff5fb2876e4f312051b543af random: don't special case clock usage on macOS
+v  2020-02-06 05:02:09 cb9e88e73a042ff4e1c83289a6f8fa1db03fb093 build: don't embed a build-id when building libdmg-hfsplus
+v  2020-02-06 05:21:00 d76894987d0277e8011932ab7dfd77c537f8ea6e logging: enable thread_local usage on macOS
+pr 2020-02-06 07:29:59 4d211c8da11253d39f10b56d23fc91fb29f485f5 Merge #18003: build: remove --large-address-aware linker flag
+pr 2020-02-06 07:43:38 23fab1a3dfe6f308880197dbe2bd7ce70866f13c Merge #18062: gui: Fix unintialized WalletView::progressDialog
+v  2020-02-06 13:24:40 b837b334db5dd6232725fd2350928ff4fbd3feee net: Fail instead of truncate command name in CMessageHeader
+v  2020-02-06 13:43:15 ff9c671b11d40e5d0623eff3dd12e48cbaafb34e refactor: Work around GCC 9 `-Wredundant-move` warning
+v  2020-02-06 18:05:55 63ce882760e1ceb4114c716851aedaf911ebb93b doc: link to homebrew's troubleshooting page
+v  2020-02-07 03:58:44 abf86243568af380c1384ac4e0bfcdcfd4dab085 Add custom vector-element formatter
+v  2020-02-07 04:06:09 3cd8ab9d11e4c0ea47e56be4f6f2fdd48806796c Make std::vector and prevector reuse the VectorFormatter logic
+v  2020-02-07 04:08:11 3c94b0039d2ca2a8c41fd6127ff5019a2afc304e Convert undo.h to new serialization framework
+v  2020-02-07 18:40:38 2af3e16ca917acd85c2d4f709f6d486519d6af0d Qt: pass clientmodel changes from walletframe to walletviews
+pr 2020-02-09 13:55:45 75fb37ce68289eb7e00e2ccdd2ef7f9271332545 Merge #18032: rpc: Output a descriptor in createmultisig and addmultisigaddress
+v  2020-02-09 14:12:43 fad027fb0ce019f31b20861c37e802d4e29e6931 scripted-diff: Add missing spaces in RPCResult, Fix type names
+
+submodule update skipped:
+s 2020-02-09 16:43:12 97aa5740c0e9ef433cbedafe689b641297b50f5e Squashed 'src/univalue/' changes from 5a58a46671..98261b1e7b
+s 2020-02-09 16:44:29 fad9ea8fdb0a7269a3fcc472fd948669d74f7aa7 Update univalue subtree
+
+v  2020-02-09 17:59:14 ac57859e53167f4ff3da467b616b0902c93701a9 qt: Fix deprecated QCharRef usage
+v  2020-02-09 22:22:29 fa55a2554c2661b8f2a759044d5ac85c9979d9ca depends: Remove reference to win32
+cr 2020-02-09 22:22:53 fae9084ac5b10f94bdee54853d307838c4254e9c build: Skip i686 build by default in guix and gitian
+pr 2020-02-10 11:36:09 22d11187ee3c7abfe9d43c9eb68f102498cc2b9a Merge #17398: build: Update leveldb to 1.22+
+pr 2020-02-10 12:22:32 0193fd766bdef4913aab5e098b59871e6be71f1c Merge #18082: logging: enable thread_local usage on macOS
+pr 2020-02-10 12:24:15 407d7c831aab92aaf80b1d7609835347bd72011a Merge #18091: Qt: pass clientmodel changes from walletframe to walletviews
+pr 2020-02-10 12:30:28 9e77726fb7371022862449ab35f3d7f7eac223eb Merge #18101: qt: Fix deprecated QCharRef usage
+v  2020-02-10 12:44:35 b0a01299ed8cc2026e91a8dcad880b700e462cee test: Disable s390 build on travis
+pr 2020-02-10 12:57:35 657c5e5f1cd92169b5a3c880f01376b7ed0fd9b3 Merge #18099: Update univalue subtree
+v  2020-02-10 13:03:52 9e111db088e4137865ae068d206c769994ea0a29 test: set a name for CI Docker containers
+pr 2020-02-10 13:49:40 ab7915f804b776c68ae017d55506c66af533f5a0 Merge #18106: test: Disable s390 build on travis
+v  2020-02-10 14:34:11 faf2c5aca01643eb560287e08f9c0a7ca0ac9c88 build: Remove unused USE_COVERAGE
+v  2020-02-10 14:34:45 fac71e364e4bbaeffc35e45aff8c8c2c6f2b5c67 build: link fuzz/test_runner.py for out-of-tree builds
+cr 2020-02-10 14:41:34 faf7d4fa86b700ec272806cd2bd8666a92405619 build: Add cov_fuzz target
+pr 2020-02-10 14:52:51 b063cb690f5735db87e760afc6ace30a7a219447 Merge #18081: test: set a name for CI Docker containers
+pr 2020-02-10 16:10:34 4c2578706c70148fc001f42a0918a2fb10252b43 Merge #18021: Serialization improvements step 4 (undo.h)
+v  2020-02-10 16:48:15 2a95c7c95690112a03b14ccb0fb8f66db12cb75b ci: Check for submodules
+cr 2020-02-10 17:42:13 79c811ca2b922e19c4e6289bfd57481e587cd024 Specify ignored bitcoin-qt file precisely
+v  2020-02-10 17:47:26 dcb7af053da8f4ce479db7e776802cea26e84434 Ignore only auto-generated .vcxproj files
+pr 2020-02-10 17:59:50 ceb3d45f7d86731a700b2851602bca9be9b8703a Merge #17947: test: add unit test for non-standard txs with too large tx size
+pr 2020-02-10 18:11:49 646f0ada0205ae4b3952107e3b1542f06adda32b Merge #18051: build: Fix behavior when ALLOW_HOST_PACKAGES unset
+v  2020-02-10 21:00:10 0e0fa27acb74b4f0075afcf59a0dff51a21baddb Get rid of VARINT default argument
+pr 2020-02-11 08:26:31 35b7a8e539fae30b0d0bc0ae4a3a994091626cbe Merge #18087: Get rid of VARINT default argument
+pr 2020-02-11 09:32:17 98264e2ccb177a6603fe957f7e263fb413b50d04 Merge #18104: build: Skip i686 build by default in guix and gitian
+v  2020-02-11 16:44:12 facb71576cd4d2e90fd03e09d29b42fa3d730e8c net: Remove forcerelay of rejected txs
+v  2020-02-11 19:23:51 7e80f646b24a2abf3c031a649bcc706a695f80da Get the OutputType for a descriptor
+v  2020-02-11 19:37:37 ae379cf7d12943fc192d58176673bcfe7d53da53 [scripts] build earlier releases
+v  2020-02-11 21:46:21 8b1460dbd1b732f06d4cebe1fa6844286c7a0056 [tests] check v0.17.1 and v0.18.1 backwards compatibility
+v  2020-02-11 21:46:22 c7ca6308968b29a0e0edc485cd06e68e5edb7c7d [scripts] support release candidates of earlier releases
+v  2020-02-11 21:46:23 9d9390dab716f07057c94e8e21f3c7dd06192f35 [tests] add wallet backwards compatility tests
+v  2020-02-11 21:46:23 b769cd142deda74fe46e231cc7b687a86514f2f1 [test] add v0.17.1 wallet upgrade test
+v  2020-02-11 21:46:23 c456145b2c65f580683df03bf10cd39000cf24d5 [test] add 0.19 backwards compatibility tests
+v  2020-02-11 22:53:53 bf36a3ccc212ad4d7c5cb8f26d7a22e279fe3cec gui: Fix race in WalletModel::pollBalanceChanged
+pr 2020-02-12 01:50:07 73a396e0280a40be55bf1acf9abef2f81999a440 Merge #18004: build: don't embed a build-id when building libdmg-hfsplus
+v  2020-02-12 02:42:28 53234fd0c7107e8bf4dfb5d44fb8d31359c80bbc doc: remove PPA note from release-process.md
+pr 2020-02-12 15:20:12 caa2f3af2928f5840a38496cf787777293bde717 Merge #12134: Build previous releases and run functional tests
+v  2020-02-12 15:27:19 470e2ac602ed2d6e62e5c80f27cd0a60c7cf6bce tests: Avoid hitting some known minor tinyformat issues when fuzzing strprintf(...)
+pr 2020-02-12 16:45:17 d4fc9aeb8b6a66d8d40ab93547c8b1390458d638 Merge #18125: doc: remove PPA note from release-process.md
+v  2020-02-12 17:48:30 005f8a92ccb5bc10c8daa106d75e1c21390461d3 wallet: Improve LegacyScriptPubKeyMan::CanProvide script recognition
+pr 2020-02-12 17:48:30 2bdc476d4d23256d8396bb9051a511f540d87392 Merge #17708: prevector: avoid misaligned member accesses
+v  2020-02-12 17:48:30 a304a3632f0437f4d0f04589a2200e2da91624a7 Revert "Store p2sh scripts in AddAndGetDestinationForScript"
+v  2020-02-12 17:48:30 eb7d8a5b07e89133a5fb465ad1b793362e7439f7 [test] check for addmultisigaddress regression
+v  2020-02-12 20:20:38 c8e24ddce31a8de6255b23c19d958c1cd44a8847 [REFACTOR] Abstract out script execution out of VerifyWitnessProgram()
+v  2020-02-12 22:51:41 c9fe61291e9b23f37cf66194c2dad28e4d4a8954 gui: Throttle GUI update pace when -reindex
+pr 2020-02-13 08:44:36 b6a16fa44ef27cb597dae7e264a7028352740bd5 Merge #18123: gui: Fix race in WalletModel::pollBalanceChanged
+pr 2020-02-13 08:48:07 0c20809da85ac708386fa1ca80f7242917f90761 Merge #18121: gui: Throttle GUI update pace when -reindex
+v  2020-02-13 11:20:43 530d02addbfea01ab24a2acd17af456a1e7b798a build: pass -fno-ident in Windows gitian descriptor
+v  2020-02-13 12:57:37 7f1475c7119e8c72bce39a63386a6ca859066b80 rpc: update validateaddress RPCExamples to bech32
+v  2020-02-13 16:43:35 25bc17fceb08ee9625c5e09e2579117ec6f7a1c5 refactor: rpc: Remove vector copy from listtransactions
+v  2020-02-13 17:59:51 1cd43e83c6e8d81e950aaaede7a8a51505d0a2bc [test] unit test for new MockForward scheduler method
+v  2020-02-13 17:59:51 930d8375421451c8c4127608c360b0f6a0a62127 [test] add chainparams property to indicate chain allows time mocking
+v  2020-02-13 17:59:51 a6f63598adb880a75e1571aac58338c17fa7ad53 [util] allow scheduler to be mocked
+pr 2020-02-13 18:50:02 470664f2b788e2cce9202991d11476a6fef00ef4 Merge #17746: refactor: rpc: Remove vector copy from listtransactions
+v  2020-02-14 10:40:23 6ba617dbe2b79d13ceec7d452e44ecab3bb814e7 build: add Wreturn-type to Werror flags
+v  2020-02-14 10:40:23 c98c26ee992f204b17bf17d271512b36c40ad8c5 ci: use --enable-werror on more hosts
+cr 2020-02-14 10:45:40 2ce3447eb1e25ec7aec4b300dabf6c1e394f1906 Deduplicate the message verifying code
+v  2020-02-14 10:45:40 f8f0d9893d7969bdaa870fadb94ec5d0dfa8334d Deduplicate the message signing code
+v  2020-02-14 10:45:41 e193a84fb28068e38d5f54fbfd6208428c5bb655 Refactor message hashing into a utility function
+v  2020-02-15 04:22:39 3ca574cef0b4423f21b2c3efd8f5c9f71d52f219 Convert CCompactSize to proper formatter
+pr 2020-02-15 19:40:44 2a2631fb0dc781504df0f3fe8b42f21cbdb6f20d Merge #18108: Fix .gitignore policy in build_msvc directory
+v  2020-02-16 04:49:24 10633398f2dddf929d3f535aa48d138ad5e6c50f Add DifferenceFormatter
+v  2020-02-16 04:49:24 56dd9f04c701aa3ac340e95065bf83de20373c8b Make VectorFormatter support stateful formatters
+v  2020-02-16 12:11:54 1b068c50dd1522990cc33e1aca444741c7e5a747 tests: Add --valgrind option to test/fuzz/test_runner.py for running fuzzing test cases under valgrind
+v  2020-02-16 12:38:49 0933a37078e1ce3a3d70983c3e7f4b3ac6c3fa37 gui: Avoid Wallet::GetBalance in WalletModel::pollBalanceChanged
+pr 2020-02-16 18:22:06 33861a836727cc0514f9ec8de0e692b89f98c410 Merge #18145: build: add Wreturn-type to Werror flags, check on more Travis machines
+pr 2020-02-16 18:47:54 94c0287aec9a250f58c4c633dabaf405d82cecd2 Merge #18159: tests: Add --valgrind option to test/fuzz/test_runner.py for running fuzzing test cases under valgrind
+pr 2020-02-17 02:26:21 263f53e2d07acfbb5c301b654cab7ba63fd96784 Merge #18098: scripted-diff: Add missing spaces in RPCResult, Normalize type names
+pr 2020-02-17 11:59:23 051439813e2cfcbba69c9b0c0eb00b43f9dde825 Merge #13339: wallet: Replace %w by wallet name in -walletnotify script
+pr 2020-02-17 12:05:44 179504ccb6f4e5a4418b064a184ba37b04491a31 Merge #17948: build: pass -fno-ident in Windows gitian descriptor
+v  2020-02-17 20:53:50 be94096dfb0c4862e2314cbae4120d7360b08ef2 Fix a violation of C++ standard rules that unions cannot be switched.
+v  2020-02-17 23:49:34 7c8b6e5b5206a98f86675d0107ad99ea1d080466 [lib] add scheduler to node context
+v  2020-02-17 23:49:34 8bca30ea17cd4c1dacee28eaa27e5fa3493b021d [rpc] expose ability to mock scheduler via the rpc
+pr 2020-02-18 02:01:50 36f42e1bf43f2c9f3b4642814051cedf66f05a5e Merge #18037: Util: Allow scheduler to be mocked
+cr 2020-02-18 04:32:35 7ba962276e3e540a15eb0bdbbaaa101958229bd4 doc: Minor grammatical changes and flow improvements
+v  2020-02-18 07:56:26 a3b539a924f8611abb3096f2bd9d35094b5577e3 ci: Run fuzz testing test cases under valgrind
+v  2020-02-18 08:29:35 aff2748f8aee72f03b5fb6f6f97f0d0f66391755 httpserver: use own HTTP status codes
+pr 2020-02-19 02:28:41 68e841e0af223a220d1f037e4c5680c1b228aa3e Merge #18067: wallet: Improve LegacyScriptPubKeyMan::CanProvide script recognition
+v  2020-02-19 10:03:48 d6d2602a32251c1017da88b47c801b7283c66ce3 add: test that transactions expire from mempool
+v  2020-02-19 14:36:03 555236f769c13518db70f5df36e5688d63486bd5 tests: Remove -detect_leaks=0 from test/fuzz/test_runner.py - no longer needed
+v  2020-02-19 15:10:22 5ea81449f30a6fe6db3b6df5e8009f21a782ff44 tests: Add support for excluding fuzz targets using -x/--exclude
+v  2020-02-19 15:11:54 733bbec34fbec85574cc456832b2b2f807e5dce9 tests: Add --exclude integer,parse_iso8601 (temporarily) to make Travis pass until uninitialized read issue in FormatISO8601DateTime is fixed
+v  2020-02-19 15:27:19 f2472f64604a0c583f950c56e8753d0bee246388 tests: Improve test runner output in case of target errors
+pr 2020-02-19 17:20:38 eddcbfb109e592fdf39ea2c38c4d7ba183de3e34 Merge #18166: ci: Run fuzz testing test cases (bitcoin-core/qa-assets) under valgrind to catch memory errors
+v  2020-02-19 18:44:46 0653939ac130eddffe40c53ac418bea305d3bf82 Add static_asserts to ser_X_to_Y() methods
+cr 2020-02-19 20:51:40 fa31eebfe9107e14dc1d6b588f5b4c878d1010de test: Tabs to spaces in all tests
+pr 2020-02-19 20:52:25 faca8eff39876cc8c0ee609a89bdcebc21976d47 test: Remove incorrect assumptions in validation_flush_tests
+v  2020-02-19 23:41:06 12a2f377185a413b740460db36812de22ee2e041 util: Avoid potential uninitialized read in FormatISO8601DateTime(int64_t nTime) by checking gmtime_s/gmtime_r return value
+v  2020-02-20 01:14:50 fac52dafa013047b051ca7163cc30ac69ad35531 test: Set catch_system_errors=no on boost unit tests
+pr 2020-02-20 13:28:46 56fc2dfcc3e61a05f6e54c2479897162c8ae4c75 Merge #18122: rpc: update validateaddress RPCExamples to bech32
+pr 2020-02-20 13:56:41 eb3c6b0912349873113bfd49baf1c505bb48d9cf Merge #18070: doc: add note about `brew doctor`
+v  2020-02-21 18:49:37 fa4620be782c2bf6b5ffddf4f671194fdd1536f3 util: Add UnintrruptibleSleep
+v  2020-02-21 19:06:21 fa9af06d91e9357e86863781746f0e78a509967e scripted-diff: Replace MilliSleep with UninterruptibleSleep
+v  2020-02-21 19:06:27 fae86c38bca5c960462e53975314a0749db5d17d util: Remove unused MilliSleep
+pr 2020-02-21 19:23:20 e9fc8f6e7f572224d2bd4577eee6d538331ef663 Merge #18172: test: Transaction expiry from mempool
+pr 2020-02-21 20:02:52 9dd7bd47be2f046ea4b114ab86a099ec483d9f3a Merge #18034: Get the OutputType for a descriptor
+v  2020-02-21 20:10:04 c31bc5bcfddf440e9a1713f7ba2ca2bf9cfa8e2e Consolidate service flag bit-to-name conversion to a shared serviceFlagToStr function
+v  2020-02-21 20:10:04 cea91a1e40e12029140ebfba969ce3ef2965029c Bugfix: GUI: Use unsigned long long type to avoid implicit conversion of MSB check
+v  2020-02-21 22:16:40 bca8665d0895c450e552c357a036d9e9579e3678 scripted-diff: Wallet: Rename incorrectly named *UsedDestination
+pr 2020-02-22 00:00:22 36e507227ed6b7006227eabb13475177359cbc04 Merge #18183: test: Set catch_system_errors=no on boost unit tests
+pr 2020-02-22 16:18:46 ab9de435880c9d77e4137b65050591ef2d14f809 Merge #18181: test: Remove incorrect assumptions in validation_flush_tests
+v  2020-02-22 18:11:09 c72a11a1a030036eb1fe4472086a9733731961ce test: Add cost_of_change parameter assertions to bnb_search_test
+pr 2020-02-24 17:01:24 225aa5d6d51968919d0d3a1abc13d37f7e83c7d2 Merge #18193: scripted-diff: Wallet: Rename incorrectly named *UsedDestination
+pr 2020-02-25 03:06:38 a674e89d2771a076d9e9dd182a05b60662ef9cf4 Merge #18162: util: Avoid potential uninitialized read in FormatISO8601DateTime(int64_t) by checking gmtime_s/gmtime_r return value
+pr 2020-02-25 11:29:54 03f98b15ad4f910d25b0fa9024c1880af70d44f5 Merge #17577: refactor: deduplicate the message sign/verify code
+v  2020-02-25 11:50:39 1dde238f2c21a0cc9bada10a2449cf9c6b2178ad Add ChainClient setMockTime, getWallets methods
+pr 2020-02-25 11:50:39 31c0006a6cd5ecbabd119eaf9dae6978aa54f150 Merge #17264: rpc: set default bip32derivs to true for psbt methods
+v  2020-02-25 11:50:39 3ce16ad2f91d1e2edc7e7bdc5a19f72aa8c3e739 refactor: Use psbt forward declaration
+v  2020-02-25 16:33:01 fa7d0503d320900e14c4d9bc016d65c7431070bb rpc: Move OuterType enum to header
+cr 2020-02-25 16:35:58 fa6b061fc118995eec41766519a11bc0dd1a901d rpc: Auto-format RPCResult
+v  2020-02-25 18:00:29 fa45d606461dbf5bf1017d6ab15e89c1bcf821a6 test: Reduce unneeded whitelist permissions in tests
+cr 2020-02-25 18:04:03 2a6a6ea0f5b97cba95b5678268d638c81764b9b1 tests: Add fuzzing harness for bloom filter class CBloomFilter
+cr 2020-02-25 18:04:03 eabbbe409f397e97b1e6fad7385d9d1813ae2880 tests: Add fuzzing harness for rolling bloom filter class CRollingBloomFilter
+pr 2020-02-25 20:37:43 c3b471592346b98ae9aedf7cbc2a4058061b1ad8 Merge #18206: tests: Add fuzzing harness for bloom filter classes (CBloomFilter + CRollingBloomFilter)
+v  2020-02-25 23:10:38 e574fff53eec4a27c83b765cb69e31d8399047ea Add CustomUintFormatter
+v  2020-02-25 23:10:44 353f376277ad9b87e03c9ccbc1028c4b6d12e8ea Convert blockencodings.h to new serialization framework
+v  2020-02-26 18:19:16 fab2527515e8db944ae044bea8580e2cd9414bcd test: Disable mockforward scheduler unit test for now
+pr 2020-02-26 18:46:05 89a97a71f2eeb5cd99cd77f31cdc64e194f16ab6 Merge #17985: net: Remove forcerelay of rejected txs
+pr 2020-02-26 19:00:24 e5d47ed8fd3724cc5295fca70573f1edf552ff62 Merge #18167: Fix a violation of C++ standard rules where unions are used for type-punning
+v  2020-02-27 00:24:33 b902bd66b0f35c5016dc5d7aaf501940935edd62 test: check custom descendant limit in mempool_packages.py
+pr 2020-02-27 02:42:13 4502ed7cd1b3f0478dd2fdf048ad36cd87a8e2df Merge #18211: test: Disable mockforward scheduler unit test for now
+v  2020-02-27 05:12:18 3d9b41ecc02a69daa19df2bc850d60bf9917b724 build: add --enable-determinism configure flag
+v  2020-02-27 15:11:30 76445677586a4c2fa72606b662269a4390c2e71f Add missing step in win deployment instructions
+pr 2020-02-27 20:35:14 324a6dfeafcbee8d92231d23f15064edf12715b4 Merge #17771: tests: Add fuzzing harness for V1TransportDeserializer (P2P transport)
+pr 2020-02-27 21:02:24 1615043935ef9c185eb1dc5d2365d0460424bc7b Merge #17461: test: check custom descendant limit in mempool_packages.py
+v  2020-02-27 21:26:36 fa2cf85e6f366d62ebf173bf0bd51af45806afe1 test: Fix race in p2p_segwit
+pr 2020-02-28 01:37:03 fe63d79eabf1a9a0084d43802620d34f383aa358 Merge #18212: doc: add missing step in win deployment instructions
+pr 2020-02-28 02:59:07 0aed17ef2892478c28cd660e53223c6dd1dc0187 Refactor FormatStateMessage into ValidationState
+v  2020-02-28 02:59:21 10e85d4adc9b7dbbda63e00195e0a962f51e4d2c Remove ValidationState's constructor
+v  2020-02-28 02:59:21 10efc0487c442bccb0e4a9ac29452af1592a3cf2 Templatize ValidationState instead of subclassing
+pr 2020-02-28 05:32:31 eae48ec84c4deacfe92139d07ee80e51136cb766 Merge #18209: test: Reduce unneeded whitelist permissions in tests
+v  2020-02-28 09:04:18 cbd345a75c2be26e17fce4c65c0c1ca19a3eb9e0 test: test OP_CSV empty stack fail in feature_csv_activation.py
+v  2020-02-28 09:04:59 09f706ab8e47ddfdfa41418f2e7cb6d87661147a test: check for OP_CSV empty stack fail reject reason in feature_csv_activation.py
+v  2020-02-28 09:04:59 5ffaf883b93fb8d3d841c36e808b90d61d39d492 test: eliminiated magic numbers in feature_csv_activation.py
+pr 2020-02-28 16:49:29 e5753fa4e808aab0f10641a5ed4d53fa1ae0e141 Merge #17921: test: test OP_CSV empty stack fail in feature_csv_activation.py
+v  2020-02-28 17:31:35 1ef28b4f7cfba410fef524def1dac24bbc4086ca Make AnalyzePSBT next role calculation simple, correct
+v  2020-02-28 18:25:37 fab30b61eb51538a4db62e34f7133c44575b3fe9 util: Remove unused ParseMoney that takes a c_str
+v  2020-02-28 18:25:58 8888461f6814ae8b6221b02049fb9e1f69a5ff70 util: Fail to parse empty string in ParseMoney
+pr 2020-02-28 18:39:52 73cfa070e5e4edcace587dde3190ac913ac0623c Merge #18195: test: Add cost_of_change parameter assertions to bnb_search_test
+pr 2020-02-28 19:08:38 5ad80bec3f31c0e4bec0bc0b62dff28b32e4b8b5 Merge #18135: build: add --enable-determinism configure flag
+v  2020-02-28 20:42:23 54be4e71d898de8f14e3269550d56097c023d1cc test: check specific reject reasons in feature_csv_activation.py
+v  2020-02-28 21:07:40 9aa8145bc0241c39281e300b4183ca672d4ae2ac Merge #17959: test: check specific reject reasons in feature_csv_activation.py
+cr 2020-02-28 21:09:03 7bf4ce4f644bb7dac9b63172c656b5d599eedea3 refactor: test/bench: dedup SetupDummyInputs()
+v  2020-02-28 21:20:31 5aab011805ceb12801644170700b1a62e0bf4a5d test: add unit test for non-standard "scriptsig-not-pushonly" txs
+pr 2020-02-28 21:23:04 7a266a679d66803a2838324179a50dd0757bbb54 Merge #18173: refactor: test/bench: deduplicate SetupDummyInputs()
+cr 2020-02-28 22:04:27 faf6f156ffd1a8ed1aed047428d791a8c13c162b test: Add missing syncwithvalidationinterfacequeue
+pr 2020-02-28 22:51:54 1a51cd1ac5a094c911d6cafb3f57ef0798d51570 Merge #17800: random: don't special case clock usage on macOS
+pr 2020-02-28 23:01:58 eca4d8ef6afff6706d8626f72345768b1f78f630 Merge #16562: Refactor message transport packaging
+v  2020-02-28 23:56:49 d36146009fb3fc9b9a772823b4df139a85173481 Drop unused mach time headers
+pr 2020-02-29 02:44:48 902796093235083c23df10c1c45f80d89a93b2ab Merge #18225: util: Fail to parse empty string in ParseMoney
+pr 2020-02-29 11:08:11 715dbbe9e8b64fd4b556a0b0720b44d68c3b5e32 Merge #18229: random: drop unused MACH time headers
+v  2020-03-01 16:13:35 3e32499909ca8127baaa9b40ad113b25ee151bbd Change example addresses to bech32
+pr 2020-03-01 21:34:05 54a7ef612a3b69984d521432f8a694a682c76090 Merge #17399: validation: Templatize ValidationState instead of subclassing
+v  2020-03-02 09:26:30 037fa770eb1ed5152b3ef2c5d3fb2a812d3ef944 wallet: make KeypoolCountExternalKeys() const
+v  2020-03-02 09:26:30 22d329ad0ed3ed501bd811720be6a2876d1afe4d wallet: use constant CWallets in rpcdump.cpp
+v  2020-03-02 09:26:30 7b3587b29db9eaf11718fc09d48817a45a0a429a wallet/db: make IsDummy() const
+v  2020-03-02 09:26:30 8cd0b86340870d8f359e4ae26880e03ea36818ab wallet: make CanGetAddresses() const
+v  2020-03-02 09:26:30 d366795d180bc52ba750f71f201a6e5e0c40f1b6 wallet/db: make Backup() const
+v  2020-03-02 09:26:30 dc2d0650fdb69d27fe1b0092555b7841d542a635 make BlockUntilSyncedToCurrentChain() const
+v  2020-03-02 09:26:30 ddc93557ad0cf8e433df850d38710828ccd99c16 wallet: make CanGenerateKeys() const
+v  2020-03-02 09:26:31 227b9dd2d6e1914edfec108af6bec5f12d9f6f39 wallet/spkm: make GetOldestKeyPoolTime() const
+v  2020-03-02 09:27:35 57c569e4d9779e2263848770e0ba7eab3054a1bf wallet: make BackupWallet() const
+v  2020-03-02 09:27:35 d9b0ebc1da8758645f6de24a4a557511ef9b5e36 wallet: make ReserveDestination pwallet ivar const
+v  2020-03-02 09:27:35 df3a818d2a9fe48e656a8ad2da18fab8a1bfd6e3 wallet: make getters const
+v  2020-03-02 09:27:36 79facb11e92f8b61063f301027dee7c7344eb1be wallet: use constant CWallets in rpcwallet.cpp
+pr 2020-03-02 10:47:59 1f886243e464032123045cbf70ff2a72de9b9c80 Merge #18224: Make AnalyzePSBT next role calculation simple, correct
+pr 2020-03-02 17:10:55 ac5c5d0162a963be6fbaa53261c01705436a65f3 Merge #18168: httpserver: use own HTTP status codes
+v  2020-03-02 22:25:05 fa6df0de538c15a6d393830af373ac9af6f48125 test: Bump timeouts to accomodate really slow disks
+v  2020-03-03 08:07:21 9b0e16226e6c1fb6a3550d635339f1bbb49a852f doc: Correct spelling errors in comments
+v  2020-03-03 18:42:52 faae5a9a356d821f0cbdea32030b0ce356351a1d test: Add bad-txns-*-toolarge test cases to invalid_txs
+pr 2020-03-04 05:22:17 088604221b4a5d4cb7eaee34158550a7cce19e6f Merge #18253: doc: Correct spelling errors in comments
+pr 2020-03-04 14:16:57 a71c34742c24245a0d642e68f9e61f46cc7573fb Merge #17809: rpc: Auto-format RPCResult
+v  2020-03-04 14:24:08 08b992675cf8d946db19b7bea747fa1085fdb2a2 test: add feature_asmap functional tests
+v  2020-03-04 14:24:11 fbe9b024f01c29153afe494fed74b623ce3ffefa config: use default value in -asmap config
+v  2020-03-04 14:24:13 81c38a24975f34e5894efe3d1aaf45ff6a8cee4a config: enable passing -asmap an absolute file path
+v  2020-03-04 14:24:15 b8d0412b213df18f23bf8677ab94068c6cca9f51 config: separate the asmap finding and parsing checks
+v  2020-03-04 14:24:17 dcaf543ba0241f9219cea70b67c7b066d4c9ca9b test: add functional test for an empty, unparsable asmap
+cr 2020-03-04 14:24:19 819fb5549b0d02477f47b3c40338071f37b6d885 logging: asmap logging and #include fixups
+v  2020-03-04 14:31:31 c90b9a2399f4cead37bad39f388ce1255e123dc4 net: extract conditional to bool CNetAddr::IsHeNet
+v  2020-03-04 14:54:27 5ba829e12e99f119df56cab422f827b9be03fe57 rpc: fix getpeerinfo RPCResult `mapped_as` type
+v  2020-03-04 14:54:30 1ba3e1cc21150abe632a5b82a1a38998b33815dc init: move asmap code earlier in init process
+cr 2020-03-04 16:06:23 fa8b6020ec9350c5ddf05018eb390ff565cefca3 doc: Merge release notes for 0.20.0 release
+cr 2020-03-04 19:44:25 b054c46977667953593819248c167545aa3e7a40 refactor: Convert ping time from double to int64_t
+v  2020-03-04 19:44:57 e6fc63ec7ee637a4b533e4d7b22def05e74e1dff refactor: Convert min ping time from double to int64_t
+v  2020-03-04 19:45:29 7a810b1d7a9d03818706dc94457dc3255f062796 refactor: Convert ping wait time from double to int64_t
+v  2020-03-04 20:52:16 d831831822885717e9841f1ff67c19add566fa45 lockedpool: When possible, use madvise to avoid including sensitive information in core dumps
+v  2020-03-04 22:35:15 9b5950db8683f9b4be03f79ee0aae8a780b01a4b bnb: exit selection when best_waste is 0
+pr 2020-03-05 03:25:39 2492dc0068f84e2cc4d776c87f489bce79afa47b Merge #18259: doc: Merge release notes for 0.20.0 release
+pr 2020-03-05 08:06:52 cbc32d67dc0cbe636ee3510802ae863bee73ac13 Merge #18249: test: Bump timeouts to accomodate really slow disks
+v  2020-03-05 10:44:50 1891245e7318bf625bbf67aab08a79fc3e87b61d refactor: Cast ping values to double before output
+pr 2020-03-05 13:13:33 d0601e67f151a753bc71e41e5a5c56a3fa09c1f1 Merge #17812: config, net, test: asmap feature refinements and functional tests
+pr 2020-03-05 16:33:54 a2a77ba34f713d6406c31a4baa991666b13794a0 Merge #18056: ci: Check for submodules
+cr 2020-03-05 16:35:47 8a2a652e6fab5eb8224beefcc07d9011b61865a8 Remove redundant type information from rpc docs
+v  2020-03-05 19:09:28 2455aa5d7f54befeade05795ed8f5dd89d01042a [rpc] changed MineBlocksOnDemand to IsMockableChain
+pr 2020-03-05 19:40:06 96488e67847997548a532a82001b6cd58dfa1822 Merge #18263: rpc: change setmocktime check to use IsMockableChain
+pr 2020-03-05 19:50:10 aaf09469fb2c0976292854be5c6de484667ecf91 Merge #18260: refactor: Fix implicit value conversion in  formatPingTime
+pr 2020-03-05 19:56:26 727857d12d040b467f6956019a1698e15d27ccaa Merge #18112: Serialization improvements step 5 (blockencodings)
+pr 2020-03-05 21:08:31 891464950b071091ecb5166c235ef32ab2eb8bac Merge #18109: tests: Avoid hitting some known minor tinyformat issues when fuzzing strprintf(...)
+v  2020-03-05 21:22:47 7e9c7113afbed96cef80c327cc93e82000d6bb69 compressor: Make the domain of CompressAmount(...) explicit
+pr 2020-03-05 21:25:36 d7134b306a1787c2c867e6e667cb6583192cd6f5 Merge #17917: tests: Add amount compression/decompression fuzzing to existing fuzzing harness
+v  2020-03-05 21:35:26 8f6fb0a85ae6399c8fb4f205ad35c319c42294f1 tests: Add serialization/deserialization fuzzing for integral types
+v  2020-03-05 21:35:26 9ff41f64198e8ddb969544fc1a5328763f1fa183 tests: Add float to FUZZERS_MISSING_CORPORA (temporarily)
+pr 2020-03-05 21:41:30 a2b5aae9f3470f4a1366c4d0b3b9644baf371db4 Merge #17996: tests: Add fuzzing harness for serialization/deserialization of floating-points and integrals
+cr 2020-03-05 22:11:10 f4691b6c217ab843e6e66fa0ad34d83137499a89 tests: Add fuzzing harness for CKey related functions
+pr 2020-03-05 22:43:16 3f826598a42dcc707b58224e94c394e30a42ceee Merge #17972: tests: Add fuzzing harness for CKey and key related functions
+pr 2020-03-06 08:41:00 97aadf98d0b890e09eff45535fa13a663f27334d Merge #16117: util: Replace boost sleep with std sleep
+v  2020-03-06 14:13:31 306f71b4eb4a0fd8e64f47dc008bc235b80b13d9 scheduler: don't rely on boost interrupt on shutdown
+v  2020-03-06 14:13:31 b9c426012770d166e6ebfab27689be44e6e89aa5 sync.h: add REVERSE_LOCK
+v  2020-03-06 14:14:08 d0ebd93270758ea97ea956b8821e17a2d001ea94 scheduler: switch from boost to std
+v  2020-03-06 14:14:10 294937b39de5924e772f8ed90d35c53290c8acab scheduler_tests: re-enable mockforward test
+cr 2020-03-06 14:14:10 cea19f685915be8affb2203184a549576194413f Drop unused reverselock.h
+cr 2020-03-06 14:29:21 259e290db8f784dba75979acf16e7964af63445c tests: Add fuzzing harness for locale independence testing
+v  2020-03-06 19:20:41 70a6b529f306ff72ea1badf25e970a92b2b17ab3 lint-cppcheck: Remove -DHAVE_WORKING_BOOST_SLEEP_FOR
+pr 2020-03-06 20:31:11 45cdcd47d99e3af28c82839148b637d31c0b4fc9 Merge #18126: tests: Add fuzzing harness testing the locale independence of the strencodings.h functions
+pr 2020-03-06 20:51:56 3516a31eaa7714a815e0346625ae096f281d3d9e Merge #18234: refactor: Replace boost::mutex,condition_var,chrono with std equivalents in scheduler
+v  2020-03-06 22:08:12 fab7d14ea5a4305317d66f35beb3225a07823d42 test: Check that wait_until returns if time point is in the past
+pr 2020-03-07 00:24:54 4d80274b9963e85d6e6dc79a41cd3ff4f389ada5 Merge #18241: wallet/refactor: refer to CWallet immutably when possible
+v  2020-03-07 00:29:23 0d0bc3b5c1dad86cd5b2d7d90925d5722f2be6e8 build: Add locale fuzzer to FUZZERS_MISSING_CORPORA
+pr 2020-03-07 01:04:53 3d28c886f077ce22fb7755fe9ec1f4e08d3d4a62 Merge #18286: build: Add locale fuzzer to FUZZERS_MISSING_CORPORA (and unbreak Travis! :))
+v  2020-03-07 01:34:30 1d0a87e712a6253ef3f9b06a9611fd8e113401d2 build: remove chrono package from depends Boost
+v  2020-03-07 01:34:31 ad345909b2465a65ee023b389fae342088e2f187 doc: remove Boost Chrono from install docs
+v  2020-03-07 01:34:31 bd37f2bc26158f85ef1ab73b9ca1fc0da8ea562a build: remove Boost Chrono detection from build system
+v  2020-03-07 01:34:31 e21fa542b189263ad3a4342d048905d68c3a3507 test: remove Boost Chrono installation from CI
+v  2020-03-07 14:39:25 4fe4de6364b05d2abde196b486b6e3f254d18026 tests: Fuzz additional functions in the hex fuzzing harness
+v  2020-03-07 14:39:25 c7ea12d098ee292b78274671b698202c6551b075 tests: Add key_io fuzzing harness
+v  2020-03-07 14:40:19 1d324ce92229f3557f6bb38a63873dea1677240e tests: Fuzz additional functions in the integer fuzzing harness
+v  2020-03-07 14:58:38 fa70ccc6c4e304646b4610228f3975b3a9762643 scheduler: Use C++11 member initialization, add shutdown assert
+v  2020-03-07 15:35:49 52fed696d251dc38211eb2fa7f144b6a989dd479 tests: Fuzz additional functions in the script fuzzing harness
+v  2020-03-07 15:35:49 5fc10f3cb5991684f10c589fa5ccf2d694ffa32a tests: Fuzz additional functions in the transaction fuzzing harness
+v  2020-03-07 16:13:43 474ea3b927ddc67e64ae78e08c20c9264817e84d Introduce DescriptorCache struct which caches xpubs
+cr 2020-03-07 16:13:47 09e25071f40c564af08a1386c39c4f2d8eb484b6 Cache parent xpub inside of BIP32PubkeyProvider
+cr 2020-03-07 16:13:47 58f54b686f663e4c46a2cf7a64560409007c7eb3 Add DescriptorCache* read_cache and DescriptorCache* write_cache to Expand and GetPubKey
+cr 2020-03-07 16:13:47 66c2cadc91d26074b89e5ada68350b5c8676efac Rename BIP32PubkeyProvider.m_extkey to m_root_extkey
+cr 2020-03-07 16:13:47 deb791c7ba057a3765d09b12bf3e55547a5298e4 Only cache xpubs that have a hardened last step
+cr 2020-03-07 16:13:47 df55d44d0de2174ba74ed3a28bef5e83b0a51b47 Track the index of the key expression in PubkeyProvider
+cr 2020-03-07 16:13:47 f76733eda5f4c161e9eb47c74b949582ab8f448a Cache the immediate derivation parent xpub
+v  2020-03-07 16:38:06 ddc7e42d600a0cb3e763cda0dc04a1f2f34e9440 build: Set minimum Automake version to 1.13
+pr 2020-03-07 17:19:52 5e12a61044b15e4e29ac786135a9ebb72d1bfc61 Merge #17926: tests: Add key_io fuzzing harness. Fuzz additional functions in existing fuzzing harnesses.
+v  2020-03-07 22:55:34 fab0e5ba7f2777b86f1487234ed7cc4be9f72ea8 fuzz: Add assert(script == decompressed_script)
+v  2020-03-08 17:26:27 2c52b59d0a44a86d94fee4e437978d822862c542 Refactor rawtransaction's SignTransaction into generic SignTransaction function
+v  2020-03-08 17:26:32 d999dd588cab0ff479bc7bee8c9fc33880265ec6 Add SignTransaction function to ScriptPubKeyMan and LegacyScriptPubKeyMan
+v  2020-03-08 17:26:32 f37de927442d3f024926a66c436d59e391c8696a Implement CWallet::SignTransaction using ScriptPubKeyMan::SignTransaction
+v  2020-03-08 17:27:05 a4af324d15c1ee43c2abd11a304ae18c7ee82eb0 Use CWallet::SignTransaction in CreateTransaction and signrawtransactionwithwallet
+v  2020-03-09 01:02:31 492971de35bab26346545f68365872211f458b00 build: Fix mingw pkgconfig file and dependency naming
+v  2020-03-09 02:20:41 a652ba6293ef8d144935dc882b5f0003c987fa22 rpc/wallet: initialize nFeeRequired to avoid using garbage value on failure
+pr 2020-03-09 12:17:51 6ddf435493cb428b10001638a726fad1ab6e55b8 Merge #18274: rpc/wallet: initialize nFeeRequired to avoid using garbage value on failure
+v  2020-03-09 15:30:18 bf0664181965787829935d5f9704640cff5cfc66 tests: Reset FUZZERS_MISSING_CORPORA to enable regression fuzzing for more harnesses
+pr 2020-03-09 16:05:52 31b2ce70fb279e886da636716e45ec75bca0a711 Merge #18299: tests: Update FUZZERS_MISSING_CORPORA to enable regression fuzzing for all harnesses in master
+v  2020-03-09 16:13:48 fa4fa88d7648bfeb75fac941cdff79dcc38affbf doc: Remove --disable-ccache from docs
+v  2020-03-09 16:13:57 aaaa055ff72a33241a3fdc2308d77bcbf51c262d fuzz: Add option to merge input dir to test runner
+v  2020-03-09 16:16:17 3d70dd99f9f74eef70b19ff6f6f850adc0d5ef8f Move FillPSBT to be a member of CWallet
+v  2020-03-09 16:16:20 6a9c429084b40356aa36aa67992da35f61c2f6a2 Move direct calls to MessageSign into new SignMessage functions in CWallet and ScriptPubKeyMan
+cr 2020-03-09 16:16:20 82a30fade70a2a95c2bbeac4aa06dafda600479d Move key and script filling and signing from CWallet::FillPSBT to ScriptPubKeyMan::FillPSBT
+v  2020-03-09 16:16:20 d2774c09cfcc6c5c967d40bb094eabc8c0bdb6bf Clear any input_errors for an input after it is signed
+cr 2020-03-09 16:16:20 dc174881ad8498a6905ba282a48077bc5c8037a7 Replace GetSigningProvider with GetSolvingProvider
+cr 2020-03-09 16:16:36 815c7a679316e34b2072a45949ad4ecb1ae1c7fb tests: Add basic fuzzing harness for CNetAddr/CService/CSubNet related functions (netaddress.h)
+pr 2020-03-09 16:19:29 be00ef2aca0e5c350af0043af29428ac85dcca1d Merge #18292: fuzz: Add assert(script == decompressed_script)
+cr 2020-03-09 18:20:52 6590395f6047cbfbe29f491d816c25c9a28d23a2 tests: Remove FUZZERS_MISSING_CORPORA
+v  2020-03-09 18:41:39 46a1ee7732550956a5db35f9a5cb87530b6cff43 doc: Add historical release notes for 0.19.1
+v  2020-03-09 18:51:03 c1e07423083cd2a7e3f2b28f69a573ea1837af4d doc: Warn about wallet.dat re-use and backups
+pr 2020-03-09 18:53:46 5518eeec2727d40e1105901a8751bf584ab69402 Merge #18047: tests: Add basic fuzzing harness for CNetAddr/CService/CSubNet related functions (netaddress.h)
+cr 2020-03-09 20:24:50 65a52a002475056183ea8ee1a42b78aec7d68583 tests: Add fuzzing harness for CScript operations
+v  2020-03-09 20:24:50 eb7c50ca1f4eafed4bb9a20d3012776545a6a433 tests: Add common Consume* fuzzing functions
+pr 2020-03-09 20:54:19 ffdde475b0688217a3b000389aed78d48b91aa47 Merge #18303: doc: Add historical release notes for 0.19.1
+pr 2020-03-09 21:02:12 dcf2ccbfde1f11c055900aff69fd527559512eab Merge #18115: wallet: Pass in transactions and messages for signing instead of exporting the private keys
+v  2020-03-09 21:12:03 d484279a46fe2cd5e133b6c18a1e00f802084772 test: add logging to wallet_listsinceblock.py
+pr 2020-03-09 21:16:21 ccb2c9e7891a53bdfcf4bbefd364fff1fb0cc30e Merge #18306: test: add logging to wallet_listsinceblock.py
+v  2020-03-09 21:39:48 e37f53648e3acc6aea75adafec4de2bdbd8cb293 Make lifetime correctness easier to see (avoid reference lifetime extension)
+cr 2020-03-09 21:39:48 e7ddbd98937412b2e8b7a3dfacdcacfcbb1d9148 tests: Add fuzzing harness for CScriptNum operations
+pr 2020-03-10 04:01:31 6fb4bbfb0e5f1885bd8c4fea652facfbe3de5299 Merge #18176: tests: Add fuzzing harness for CScript and CScriptNum operations
+v  2020-03-10 09:14:04 cbf2d75d8f49b7b1e32acb5373b312b484f3fa6a qa: Add getdescriptorinfo functional test
+pr 2020-03-10 13:17:23 1a97c9a483e580e4c7b0fd33136edb92f52bca1d Merge #15443: qa: Add getdescriptorinfo functional test
+pr 2020-03-10 13:24:10 5d92ac26ed8984c29eabc4b78bcddd2423e68dac Merge #18264: build: Remove Boost Chrono
+v  2020-03-10 13:24:49 ffff9dcdc3cbe427739cc19cc7a53f032474fa2a test: Explain why test logging should be used
+v  2020-03-10 14:47:32 fadafb83cff9a9a340eac1b5a853e2467d5e0ef7 scheduler: Make schedule* methods type safe
+v  2020-03-10 14:52:53 fa36f3a29538012a6eb5c3402b3b3c18fd32b230 refactor: move DUMP_BANS_INTERVAL to banman.h
+v  2020-03-10 16:15:11 fa3fa27c45618bcd8e325b27728b5f6c175d1a03 fuzz: Remove option --export_coverage from test_runner
+v  2020-03-10 17:35:01 ac73afbcbf7751cf2b8d52de6f2a341e8bac5cf6 doc: asmap release note
+pr 2020-03-10 17:45:38 cf4cb28efcf80c018a7f070c671f43cd172dbd86 Merge #18305: test: Explain why test logging should be used
+v  2020-03-10 18:56:52 2e4edc68f903cf7873027440ff551f3f6121dbe6 Add some test logging to wallet_bumpfee.py
+v  2020-03-10 18:56:52 f1b45031148105754c23af08c891387e71c3c2c3 bumpfee test: exit loop at proper time with new fee value being compared
+pr 2020-03-10 19:15:39 b5c7665e3083f5daaf2b9f247a59a008f2d689a4 Merge #18311: Bumpfee test fix
+v  2020-03-10 23:38:42 4444edc2e6671d3f73de3725447130f73ecf0375 ci: Enable all functional tests in valgrind
+cr 2020-03-11 07:57:55 9220a0fdd0f3dc2c8dd7cbeefac7d11106451b51 tests: Add one specialized ProcessMessage(...) fuzzing binary per message type for optimal results when using coverage-guided fuzzing
+cr 2020-03-11 07:57:55 fd1dae10b4a549ba9292d837235d59bd9eebbed3 tests: Add fuzzing harness for ProcessMessage(...)
+cr 2020-03-11 12:42:27 516cc6fc7842c13a1d54c6ea2b9e3d335a872125 tests: Remove unit test from fuzzing harness
+cr 2020-03-11 12:42:27 7b169cae207ad1301c4edf7d623407d1f377169d tests: Add deserialization fuzzing of SnapshotMetadata (utxo_snapshot), uint160 and uint256
+v  2020-03-11 12:51:23 fa1244783ccb4798af4906ac6be5a38df241fa38 doc: Explain rebase/squash policy in CONTRIBUTING.md
+v  2020-03-11 13:37:59 46ef4cfe5f416cb34e889646df3ee241b1d5ae5a tests: Re-arrange test cases in parse_univalue to increase coverage
+v  2020-03-11 13:38:10 9f8d74a8c78457ed49c7ff81bae909c8e003670b tests: Fuzz currently uncovered code path in TxToUniv(...)
+pr 2020-03-11 13:39:09 16dfaed1b732c4f1607326af07b4e83498f38e1c Merge #18304: ci: Enable all functional tests in valgrind
+pr 2020-03-11 13:51:24 f1064c1b0d102ad669c04099bb474f71d797fce8 Merge #17989: tests: Add fuzzing harness for ProcessMessage(...). Enables high-level fuzzing of the P2P layer.
+v  2020-03-11 13:51:26 08eab0f599a7be7b9b0256bfe9e3a793fe7450db tests: Add fuzzing of CSubNet, CNetAddr and CService related functions
+v  2020-03-11 13:51:26 117a706faba586f2095f97cf630b709b3e29a947 tests: Fuzz RecursiveDynamicUsage(const std::shared_ptr<X>& p)
+v  2020-03-11 13:51:26 47a263108b05c7039baba5618656898312a7a5ef tests: Fuzz DecodeBase64PSBT(...)
+v  2020-03-11 13:51:26 7a861a62c164ab9b07d6fca09b6a8176e688f1f6 tests: Fuzz HasAllDesirableServiceFlags(...) and MayHaveUsefulAddressDB(...)
+v  2020-03-11 13:51:26 81b58a3161c5d558dadd2b7093e4fc9687844cd9 tests: Fuzz operator!= of CService
+v  2020-03-11 13:51:26 c2c58f6f59d38e3d60fe0a8fa45b2a45deee84cc tests: Increase fuzzing coverage of DecompressScript(...)
+v  2020-03-11 13:51:26 d3d4892ef45d09edbbe4672b112100743970b2a5 tests: Simplify code by removing unwarranted use of unique_ptr:s
+v  2020-03-11 13:51:26 e57e67057ae76db73f52ddd5480a4ea5b4bf1636 tests: Fuzz DecodeHexBlk(...)
+pr 2020-03-11 15:05:33 9c507a77f7a11fd280bb4c534a59b62a8f92f9bd Merge #18310: doc: asmap release note
+pr 2020-03-11 15:17:43 b813fbe804a39b2a07755e4bf5af82597bb7cfd0 Merge #17159: doc: Add a note about backporting
+pr 2020-03-11 15:21:05 90b3e59caf2e9701d23af429372d9b61acd4768a Merge #17833: doc: Added running functional tests in valgrind
+pr 2020-03-11 15:25:47 377eed564e103a1bae8502617d1f426f939bab73 Merge #18170: doc: Minor grammatical changes and flow improvements
+pr 2020-03-11 15:28:15 2926cbcebb70fa3b4402bf50b0d6f31a5e8c673b Merge #18219: doc: Add warning against wallet.dat re-use
+pr 2020-03-11 16:01:25 414f6c496d9c4c44a5251d88d4a63039de961524 Merge #18283: doc: Explain rebase policy in CONTRIBUTING.md
+pr 2020-03-11 16:11:56 d20d5dc824269fff45bb6fc9dbf1a6ce811b8559 Merge #18285: test: Check that wait_until returns if time point is in the past
+pr 2020-03-11 16:31:38 3b21a7863411b4b0391313e765f23b2664d4540a Merge #18290: build: Set minimum Automake version to 1.13
+v  2020-03-11 16:32:15 a33cffbeabcc42137c4a66aa19b7dd1d300e6d73 util: HelpExampleRpc formatting fixup
+pr 2020-03-11 16:45:47 24a727e23e4143bcc4e5dfac536bae8d8261d32a Merge #18255: test: Add bad-txns-*-toolarge test cases to invalid_txs
+pr 2020-03-11 17:42:47 0eebe45cf7c63f55af0116c25cf0824ef31b9e33 Merge #18208: rpc: Change RPCExamples to bech32
+pr 2020-03-11 18:02:43 249114b1a6a4a10f8cfa61cafd01c391991a750f Merge #18314: tests: Add deserialization fuzzing of SnapshotMetadata (utxo_snapshot). Increase fuzzing coverage.
+v  2020-03-11 18:23:59 fa72d270ad5326d8ad78bb7100e74dd460188c32 test: Bump walletpassphrase timeouts in wallet_createwallet to avoid valgrind timeouts
+2020-03-11 18:28:57 58c72880ff70807cf622cdebf1d6273f4041bd2e Merge #18268: rpc: Remove redundant types from descriptions
+cr 2020-03-11 18:37:17 fa9b3040e7f21733416c3ea155f372c8c398ea80 test: Bump rpc timeout in feature_assumevalid to avoid valgrind timeouts
+v  2020-03-11 20:16:54 bbbbb53dd1111c615ea519e5f275a115616e5a33 fuzz: Add missing ECC_Start to key_io test
+pr 2020-03-11 20:55:28 309b0c4c19319a8e0fd3fd7ff82ef9ebb2803072 Merge #13693: [test] Add coverage to estimaterawfee and estimatesmartfee
+pr 2020-03-11 20:57:14 5c73645ac79f1d12611051d2e9467a003383ffd9 Merge #18319: fuzz: Add missing ECC_Start to key_io test
+v  2020-03-11 21:16:31 0ae42a16c766a7ecb8711bfad6f22b8581ea0258 guix: Remove now-unnecessary gcc make flag
+pr 2020-03-11 21:17:15 9cc7eba1b5651195c05473004c00021fe3856f30 Merge #18318: test: Bump rpc timeout in feature_assumevalid to avoid valgrind timeouts
+v  2020-03-11 23:38:27 1168394d759b13af68acec6d5bfa04aaa24561f8 [wallet] Notify conflicted transactions in TransactionRemovedFromMempool
+v  2020-03-11 23:38:33 2dd561f36124972d2364f941de9c3417c65f05b6 [validation] Remove pool member from ConnectTrace
+v  2020-03-11 23:38:33 5613f9842b4000fed088b8cf7b99674c328d15e1 [validation] Remove conflictedTxs from PerBlockConnectTrace
+v  2020-03-11 23:38:33 969b65f3f527631ede1a31c7855151e5c5d91f8f [validation] Remove NotifyEntryRemoved callback from ConnectTrace
+v  2020-03-11 23:38:33 cdb893443cc16edf974f099b8485e04b3db1b1d7 [validation interface] Remove vtxConflicted from BlockConnected
+v  2020-03-11 23:38:33 e57980b4738c10344baf136de3e050a3cb958ca5 [mempool] Remove NotifyEntryAdded and NotifyEntryRemoved callbacks
+v  2020-03-12 10:34:43 5e6b8b391243016cb06e9e107c2e6a13a744b31e build: Use git archive as source tarball
+pr 2020-03-12 10:36:37 4c42a13205a1b75c9b4c171d4eae4716dca646e3 Merge #18320: guix: Remove now-unnecessary gcc make flag
+v  2020-03-12 10:43:16 6c4da59f5b5b3c40526d38965d4ffa7fd59f2ebc build: Drop SOURCEDIST reordering
+cr 2020-03-12 13:07:17 79804fe24bd00e183382dfbcab9343960d158aa5 [rpc] walletcreatefundedpsbt: don't automatically append inputs
+cr 2020-03-12 13:07:17 e5327f947c310849e1ddbb24321e4c9f85564549 [rpc] fundrawtransaction: add_inputs option to control automatic input adding
+pr 2020-03-12 14:15:43 2737197ff39f98b0fbdf0fe913c1a7c8ee0f318c Merge #18213: test: Fix race in p2p_segwit
+pr 2020-03-12 14:20:50 e2d36639ca87b980b147047e4e47cf160b2c9406 Merge #18228: test: Add missing syncwithvalidationinterfacequeue
+v  2020-03-12 14:23:56 fa7fea3654203bf7e7bd504589dd564af7fc749d refactor: Remove mempool global from net
+v  2020-03-12 15:15:10 100213c5c29ebd7bd50aa885e54594ae10bf87a4 util: Fail to parse space-only strings in ParseMoney(...) (instead of parsing as zero)
+pr 2020-03-13 03:23:19 3f9e6a3c1ce8710364a815ac1796b45ccf1325b5 Merge #18316: util: HelpExampleRpc formatting
+v  2020-03-13 15:18:24 fb15bfd99e6ed705cb6f7c4dcd1b2a6bc68be79e Fix nit in getblockchaininfo
+v  2020-03-13 20:35:41 fadd99f61032c0b75ad9b198eb5d8e307b0518ee rpc: Add missing newline in RPCResult description
+v  2020-03-13 20:36:15 fac52253f81a4f0d04b25eb4b6c28d04b85ef10b rpc: Document an RPCResult for all calls; Enforce at compile time
+pr 2020-03-13 22:30:21 e5cb0dffd5ac8d05d1512d440f45201c1792aca9 Merge #18002: Abstract out script execution out of VerifyWitnessProgram()
+pr 2020-03-13 22:45:09 7f8176a1ebd00679596971fd01012cf61743b826 Merge #18204: descriptors: improve descriptor cache and cache xpubs
+cr 2020-03-14 09:24:21 7df0cf719fecf1b8d09801295db8bd2137bfe033 Replace remaining literals BTC with CURRENCY_UNIT
+v  2020-03-14 14:44:56 7a6627ae87b637bf32c03122865402bd71adf0d1 Fix mining to an invalid target + ensure that a new block has the correct hash internally in Python tests
+cr 2020-03-14 20:23:01 d056df033a1e88554f7cc39dd709a87b17cb49df Replace std::to_string with locale-independent alternative
+pr 2020-03-14 21:03:45 67dfd18f4401986063e22c79d4d7da61f15b5cd4 Merge #16902: O(1) OP_IF/NOTIF/ELSE/ENDIF script implementation
+cr 2020-03-15 03:15:52 fa192952507dbe5f405abffce38b3556923ba271 test: Bump timeouts to avoid valgrind failures
+pr 2020-03-15 15:14:40 d402c1e4d3e812341176e0948d64ff126f9ec3c1 Merge #18345: test: Bump timeouts to avoid valgrind failures
+v  2020-03-15 16:19:50 0579a276307d22ae62ecbcaa704e8477274e784d tests: Add fuzzing harness for CBlockHeader
+v  2020-03-15 16:19:50 cb4eec13c03089617a94169b4e30381d87788b56 tests: Add fuzzing harness for count_seconds(...)
+cr 2020-03-15 17:25:29 44abf417eb1cd8598084eee1a429ca57c7d0579a tests: Add fuzzing harness for various functions taking std::string as input
+cr 2020-03-15 17:25:29 7726f3bc4671fbc23e5bc31d0eb9fe381e2f07ef tests: Add fuzzing harness for CFeeRate
+cr 2020-03-15 17:25:29 d69145acb76ff12b7c5c1e55ce89e14bc6453904 tests: Add fuzzing harness for MultiplicationOverflow(...)
+cr 2020-03-15 17:34:27 e4d366788bc2e8dce8e6ca572fce08d913d15d6b build: Drop needless EXTRA_DIST content
+v  2020-03-15 23:43:39 686c5456f2fcf7e301907223d16a85f7eb378c6c Fix missing header in sync.h
+cr 2020-03-16 10:08:07 ddbb41931019ed4226af3df37874c7eb7cf570f1 build: Use pkg-config in BITCOIN_QT_CONFIGURE for all hosts
+cr 2020-03-16 10:09:22 05a93d5d96101b45d87571af5b772c7a1e82fd27 build: Fix indentation in bitcoin_qt.m4
+cr 2020-03-16 10:09:22 9123ec15db104397998f5084afc69403d2f9e4b8 build: Remove extra tokens warning
+v  2020-03-16 10:09:22 fded4f48c33742d7c790335c8de59c15b80d94e6 build: Remove duplicated QT_STATICPLUGIN define
+v  2020-03-16 10:09:23 8a26848c460160e1279f26bc413f693a34e33b9d build: Fix m4 escaping
+cr 2020-03-16 10:51:11 82dd8860bbe81567e4afb033d9026dc0e69b1574 qt: Periodical translations update
+pr 2020-03-16 10:52:55 2a1b85f3c54fdaa8d13aeaf7e1acab1afb98fd97 tx: Bump transifex slug to 020x
+pr 2020-03-16 11:29:26 d31f92586a05803fcc372b3febb8bd36b7c1ac32 Merge #18360: Bump transifex slug and update English translations for 0.20
+pr 2020-03-16 13:04:54 69f4f2c43358e2e86b70f8e89a404781be591002 Merge #18357: Fix missing header in sync.h
+pr 2020-03-16 13:14:10 9ed429c50a45c5103130943431ba875125ec4e99 Merge #18341: doc: Replace remaining literal BTC with CURRENCY_UNIT.
+pr 2020-03-16 13:19:35 a64e5bed6bfe7c95ee232070e18b8fd680bfaf62 Merge #18344: doc: Fix nit in getblockchaininfo
+pr 2020-03-16 16:05:45 86623873095f8d73fd28ad323ed3d06e20433176 Merge #17997: refactor: Remove mempool global from net
+pr 2020-03-16 18:04:08 25424cf57e296fc4ed3f32bf5d472646d0df3a11 Merge #18346: rpc: Document an RPCResult for all calls; Enforce at compile time
+pr 2020-03-16 21:31:42 7060d2d97a289097f41fcc79698312c0117a75c8 Merge #18350: test: Fix mining to an invalid target + ensure that a new block has the correct hash internally
+v  2020-03-17 02:33:07 fa5894f7f581718ea28bb34b52fcd3b33ff3e644 DNS seeds: wait for 5m instead of 11s if 1000+ peers are known
+v  2020-03-17 03:10:47 96954d17948662672cababc940e453dff08e8cbb DNS seeds: don't query DNS while network is inactive
+v  2020-03-17 06:00:31 a8897115626ab6509c67511e50e73c0f7c953c6a rand: remove getentropy() fallback for macOS < 10.12
+v  2020-03-17 06:09:52 f9f210d8de43b4559fe7c80bb286aeb60de52b54 doc: fix GetTimeMicros() comment in random.cpp
+v  2020-03-17 14:45:00 612a931d1a3ac1678d02aed30c48fd25ccd113db tests: simplify next_block() function in feature_block
+pr 2020-03-17 15:23:58 8fc5f2bdf01d09d2e6f5df3134e95cebc7f3519a Merge #18366: tests: simplify next_block() function in feature_block
+pr 2020-03-17 17:03:20 1d64dfe4fa050a81e4f9b665f2fad2180401cc6e Merge #18364: random: remove getentropy() fallback for macOS < 10.12
+pr 2020-03-17 18:07:42 d2d0a04a661fde731a212b0489fe211566ff5ca8 Merge #18353: tests: Add fuzzing harnesses for classes CBlockHeader, CFeeRate and various functions
+cr 2020-03-17 18:27:39 89cdf4d5692d396b8c7177b3918aa9dab07f9624 validation: introduce unused ChainstateManager
+v  2020-03-17 18:27:39 8e2ecfe2496d8a015f3ee8723025a438feffbd28 validation: add CChainState.m_from_snapshot_blockhash
+pr 2020-03-17 18:38:00 ad04f0d8a533861237b0ed882a417ec6dbe2107f Merge #17319: Tests: remove bignum module
+v  2020-03-17 19:03:40 2b081c4568e8019886fdb0f2a57babc73d7487f7 test: add basic tests for ChainstateManager
+cr 2020-03-17 19:03:40 4ae29f5f0c5117032debb722d7049664fdceeae8 use ChainstateManager to initialize chainstate
+cr 2020-03-17 19:03:40 5b690f0aae21e7d46cbefe3f5be645842ac4ae3b refactor: move RewindBlockIndex to CChainState
+cr 2020-03-17 19:07:58 c9017ce3bc27665594c9d80f395780d40755bb22 protect g_chainman with cs_main
+pr 2020-03-17 19:27:42 39497d1f3268d3aa75a41d07a5a5442a463265c6 Merge #15283: log: Fix UB with bench on genesis block
+cr 2020-03-17 20:10:59 5e47b19e50cf5a8de77dfe363988522cfd212c06 tests: Add harness which fuzzes EvalScript and VerifyScript using a fuzzed signature checker
+pr 2020-03-17 21:34:53 ce87d5613a5537b68cf23e7bc25c1e3770704ff9 Merge #18289: refactor: Make scheduler methods type safe
+v  2020-03-18 00:55:07 84a46a9b93671b899faf3900936904199d92daaf doc: mention MAKE=gmake workaround when building on a BSD
+v  2020-03-18 04:10:20 6afaf2f680d8d4b048352e695d3b1f884db22e61 test: use fs namespace in dbwrapper unicodepath test
+v  2020-03-18 13:03:26 7d8e1dec3b26074df1533f715871f79c956cc224 net: fix use-after-free in tests
+pr 2020-03-18 14:42:25 3a8d25064e700ff2e69600cc1ede597751283a85 Merge #18371: test: use fs namespace in dbwrapper unicodepath test
+v  2020-03-18 18:34:53 5b59a19731827398aa32754d1f327178247d3199 Update merkle.cpp
+pr 2020-03-18 19:02:22 dbb067da389d457e73c6ecbf6389baa3ab082b46 Merge #18379: doc: Comment fix merkle.cpp
+pr 2020-03-18 20:48:27 e83a1de4c03f305f4a89febc648168003a6e7987 Merge #18155: tests: Add harness which fuzzes EvalScript and VerifyScript using a fuzzed signature checker
+pr 2020-03-18 20:51:44 5c9d408b2dd8c7a5b40b3e6051bb095eaad62604 Merge #18300: fuzz: Add option to merge input dir to test runner
+pr 2020-03-18 21:40:47 a421e0a22f1230abd69b4661a019bed39b72205f Merge #18376: net: fix use-after-free in tests
+cr 2020-03-18 21:54:01 a3ad6459b77e9b7156e486a9e4a37dbfdc35e324 Simplify bn2vch using int.to_bytes
+v  2020-03-18 21:54:01 a733ad514a172a77309b84cbc6c81562bdf12e28 Add bn2vch test to functional tests
+cr 2020-03-18 23:32:01 33dd764984def9371f324d3add19ee894a0260bf doc: Add fuzzing quickstart guides for libFuzzer and afl-fuzz. Simplify instructions.
+v  2020-03-19 04:36:38 e90e3e684ffa7b25f0dfb5b45e70bb0c358261fb build: fix sysctl() detection on macOS
+pr 2020-03-19 09:58:11 67de1ee8bc18afff0f2f9f203803467a2274bfc1 Merge #18378: Bugfix & simplify bn2vch using int.to_bytes
+pr 2020-03-19 15:23:51 3d3d834324f313328ca1465f28e47e5569721c82 Merge #18359: build: fix sysctl() detection on macOS
+pr 2020-03-19 15:50:31 527c3989e7467b66522b2cd196f7ad9fad470828 Merge #18340: doc: mention MAKE=gmake workaround when building on a BSD
+pr 2020-03-19 17:26:51 312d27b11ceaacd3be75a14907f856352b7dcf48 Merge #17477: Remove the mempool's NotifyEntryAdded and NotifyEntryRemoved signals
+cr 2020-03-19 20:57:11 b4926840633a254e46a462f9d38ac664ce7682f6 doc: Temporary note that release notes should be edited in wiki
+v  2020-03-19 21:26:04 1c2ab1a6d29f2c6c065dae4f4a4e2ad1286311b3 refactor: Rename Node::disconnect methods
+v  2020-03-19 21:26:04 1dca9dc4c772fa0a4ec52c4d88b7cd3d243aea7b refactor: Change createWallet, fillPSBT argument order
+v  2020-03-19 21:26:04 3dc27a15242a22b5301904375e5880372e9b7f4d doc: Add internal interface conventions to developer notes
+pr 2020-03-19 21:26:04 5bf45fe2a9642f8ae8f8a12bcbf8f8b4770421ad Merge #18386: doc: Temporary note that release notes should be edited in wiki
+v  2020-03-19 21:26:04 6ceb21909ce66b7b4762a855889acd46bb6b77f3 refactor: Rename Chain::Notifications methods to be consistent with other interfaces methods
+cr 2020-03-19 21:26:04 77e4b0657298c715c835d8d2eb11e173852e6815 refactor: Get rid of Wallet::IsWalletFlagSet method
+v  2020-03-19 21:26:04 96dfe5ced64979e51649d20555aa182defc80119 refactor: Change Chain::broadcastTransaction param order
+v  2020-03-20 20:49:10 ca2e47437277ef6851a739f247b44e73a53f21a1 Fix a compiler warning: unused GetDevURandom()
+v  2020-03-21 01:58:13 fa01febeaf801bade77a613e64f18b556ae16d86 test: Remove ci timeout restriction in test_runner
+v  2020-03-21 10:03:40 d18bf0c0b0506f38256c49f6bcbe5de0098f514a rpc: add missing HelpExampleRpc for getblockfilter
+cr 2020-03-21 13:18:07 f709ad0c907d87d03002455967cc30ae7d704d80 build: Fix libevent linking for bench_bitcoin binary
+v  2020-03-21 13:23:30 cd04286825c6512b46bf59ab7b3dfffb0e36d65b build: Fix typo in EVENT_CFLAGS variable
+pr 2020-03-21 14:17:38 5504703a9f8388dff66d33bd077bcc4c82dff6c8 Merge #18396: rpc: add missing HelpExampleRpc for getblockfilter
+v  2020-03-21 14:56:33 ef35604c9c88e7800e9be106b791b1c0fa8b310a rpc: fix broken RPCExamples for waitforblock(height)
+v  2020-03-21 15:21:31 a2a03c3ca94b1cdd279ac09f2a81e04d262586fd fixing documentation to not require rpcpassword
+v  2020-03-22 03:47:38 1a0993ae354c36d6f219e67f82ca8236530d6201 scripts: add PE dylib checking to symbol-check.py
+cr 2020-03-22 11:02:54 a6d1ab8caa63bd343207baa60edb705209f16fb4 test: update bumpfee testing from totalFee to fee_rate
+v  2020-03-22 11:02:57 bd05f96d79df1a1561f84850d777808f8575fb8b test: delete wallet_bumpfee_totalfee_deprecation.py
+v  2020-03-22 14:29:00 7c1ac70c01536a8dd5b455f5b268a087cecf10a1 tests: Don't assume presence of __builtin_mul_overflow in MultiplicationOverflow(...) fuzzing harness
+cr 2020-03-22 15:12:40 fa92af5af39a08982f785542df5419d6d5a4706d ci: Run feature_block and feature_abortnode in valgrind
+v  2020-03-22 20:26:39 079df9609e6ed2a09949ebe5e98a179f61709801 build: Drop ZeroMQ patch for Mingw-w64 < 4.0
+v  2020-03-22 20:27:56 f642b49af73fedc6dc9af4ac299e4cfa80755583 build: Drop ZeroMQ patch for glibc < 2.12
+cr 2020-03-22 23:20:35 test: add executable flag for rpc_estimatefee.py
+pr 2020-03-23 03:46:07 57a8fa9c3b4452ef7a9d9ed4b957b3888f542fb0 Merge #18406: test: add executable flag for rpc_estimatefee.py
+pr 2020-03-23 12:38:07 d478a737dbdd9c6e60718cdef3352dbe6c86aa10 Merge #18392: ci: Run feature_block in valgrind
+pr 2020-03-23 12:39:47 97b0687501cee77a9170f9e288755a5d268e9bd4 Merge #18393: tests: Don't assume presence of __builtin_mul_overflow(…) in MultiplicationOverflow(…) fuzzing harness
+v  2020-03-23 15:36:24 f65c9ad40f2f5cdc581bdaf72e7dc68e9d7f7a80 Check for overflow when calculating sum of outputs
+v  2020-03-23 17:33:48 41ff4992e57f8626019c0b2ab3d024db71e4c20f script: fix SCRIPT_ERR_SIG_PUSHONLY error string
+pr 2020-03-23 21:37:50 ac579ada7e83a1b8100d611412f9ede885a4e522 Merge #18278: interfaces: Describe and follow some code conventions
+v  2020-03-23 22:44:58 2b0fcff7f26d59fed4bcafd1602325122a206c67 Make VerifyWitnessProgram use a Span stack
+v  2020-03-24 03:57:19 ac94141af0c16161afa68de1c3720f254ae4e12c validation: delay flushing undo files in syncing node case
+v  2020-03-24 14:04:14 aae26053f958ae9a96a25d32c6341b14daaa4f26 gui: display Mapped AS in peers info window
+v  2020-03-24 14:04:16 76db4b260e4826a1e59a5e44c92e4c10ec986527 gui: avoid QT Designer/Form Editor re-formatting
+v  2020-03-24 15:39:23 4308aa67e3ea38e3fe5ac84e38a29df36c0d0e10 tests: Add fuzzing harness for functions in net_permissions.h
+cr 2020-03-24 15:39:23 43ff0d91f8a4af68e64fd12273133322d44a69ea tests: Add fuzzing harness for functions in timedata.h
+pr 2020-03-24 15:39:23 a8695db7851dabdda08b2ec9a68d6a27c0e2fdc4 tests: Add fuzzing harness for functions in addrdb.h
+pr 2020-03-24 16:12:33 98fbb2a1844a5397fdc50eacb799f9109a597e26 Merge #17720: test: add unit test for non-standard "scriptsig-not-pushonly" txs
+pr 2020-03-24 16:35:32 5236b2e267a58870239673c7ec85e5df0cb8fc8e Merge #18417: tests: Add fuzzing harnesses for functions in addrdb.h, net_permissions.h and timedata.h
+v  2020-03-24 16:44:26 83e1d92413e262e6a876336ec433a6fbc335223a test: listsinceblock block height checks
+v  2020-03-24 17:22:46 3e0df92bf216e1dce05ca9bf14049f2e42783c30 Update with new Windows code signing certificate
+v  2020-03-24 17:48:28 87d24e67bb8f6a01ff710df4f14cb7d1caf651ae tests: Add integer serialization/deserialization fuzzing harness
+cr 2020-03-24 18:01:54 102f3267e9e7925a7ea42f1181303cf1da8ce643 tests: Add fuzzing harness for classes/functions in blockfilter.h
+v  2020-03-24 20:29:49 6ab3aad9a51cc5e97a8e2ae7dbd5082272163c30 [gui] send dialog: split on_sendButton_clicked
+v  2020-03-24 20:29:49 86e22d23bb90383971a68ead0666f225ddd632fb [util] GetFileSize
+v  2020-03-24 21:53:07 8e08d005989c6b5f7f05e0a1e0ba84f544a76d01 qt: Use parent-child relation to manage lifetime of OptionsModel object
+v  2020-03-25 02:48:27 14e8cf974a7a317796ef8e97e5cf9c355ceff0ee [consensus] MOVEONLY: Move single-sig checking EvalScript code to EvalChecksig
+pr 2020-03-25 08:40:54 5b4a9f4bdf9d90f29921425e13e50a0076edffab Merge #18342: doc: Add fuzzing quickstart guides for libFuzzer and afl-fuzz
+v  2020-03-25 09:06:48 332f373a9dece71717f75eb06e6a1fc957f2952b [scripts] previous_release: improve failed download error message
+v  2020-03-25 11:45:43 fa156999695ddaeb016d8320bee62f8d96679d55 test: Add basic test for BIP 37
+pr 2020-03-25 12:35:03 3f5107d008e15efa364c53bd3ed4e819cd2c6712 Merge #18423: tests: Add fuzzing harness for classes/functions in blockfilter.h. Add integer {de,}serialization fuzzing.
+cr 2020-03-25 13:33:44 1f97b69ba27deb645bf5dd229d0cb97d2baf8f49 build: remove double LIBBITCOIN_SERVER from bench-Makefile
+pr 2020-03-25 14:48:44 baa72cd9a2fd1c7213f726e5354f87591ddd895f Merge #18331: build: Use git archive as source tarball
+pr 2020-03-25 15:11:10 244e88e6b580f94434d16b2cea2e5690db24f0d4 Merge #18402: gui: display mapped AS in peers info window
+pr 2020-03-25 15:35:36 3e50fdbe4e5bb98194e88023468bd77dee78b26e Merge #18395: scripts: add PE dylib checking to symbol-check.py
+cr 2020-03-25 16:10:18 fae1e992898aa6b36c402cec4085fbf6da9b33ad ci: Only clone bitcoin-core/qa-assets when fuzzing
+pr 2020-03-25 17:04:53 60a39a96fc04c9bde98f0a55c0deb2a0b3fc25a7 Merge #18425: releases: Update with new Windows code signing certificate
+pr 2020-03-25 18:36:50 7c942250264e75957d7737ff0d2f5c72e0e19a42 Merge #18430: ci: Only clone bitcoin-core/qa-assets when fuzzing
+pr 2020-03-25 20:11:47 2e97d8001705214b6b915b61a2c9c34832b85323 Merge #18134: Replace std::to_string with locale-independent alternative
+v  2020-03-26 04:39:34 1a4e9f32efcc5f6a74290446dc58784fd85c7b31 scripts: add MACHO tests to test-security-check.py
+pr 2020-03-26 04:39:34 7142d50ac33e0ad7d24e49e04c1fc7e3e769ed46 scripts: rename test_64bit_PE to test_PE
+v  2020-03-26 04:39:34 edaca2dd123cef958699c07ab248cf0ffc71af07 scripts: add MACHO NX check to security-check.py
+pr 2020-03-26 09:22:24 d8ce27ff9f806efaf95cb4aeb11b9d5a3f106e88 Merge #18397: build: Fix libevent linking for bench_bitcoin binary
+pr 2020-03-26 10:20:28 e99ca783cd2d064734dfe7920bcfa438355b5aab Merge #18429: build: remove double LIBBITCOIN_SERVER from bench-Makefile
+v  2020-03-26 13:56:43 596c627a1eb2b32e2755ae5b9bf32235cf8ce72b ci: Fix brew in Travis
+v  2020-03-26 13:57:14 25c8b73656c90f7b78a90f25c5bcc308f8b7c598 ci: Use Homebrew addon on native macOS
+pr 2020-03-26 14:10:31 f3a91ab0edc70e1bcb7e770f0878f03459c399e1 Merge #18438: ci: Use Homebrew addon on native macOS
+pr 2020-03-26 16:56:03 23991ee53af21c2fdc28f6e8e002dc1455c71098 Merge #15600: lockedpool: When possible, use madvise to avoid including sensitive information in core dumps
+pr 2020-03-26 17:34:27 94d3063c93b2e3f2081b0b10385ac71ce29eb06e Merge #18412: script: fix SCRIPT_ERR_SIG_PUSHONLY error string
+v  2020-03-26 17:54:18 e347cfa9a7244277f9d220a4dc3537182f18441e rpc: remove deprecated totalFee arg from RPC bumpfee
+v  2020-03-26 17:54:21 4a0b27bb01738e6917e27b2cf47f9a8536249693 wallet: remove totalfee from createBumpTransaction()
+v  2020-03-26 17:54:23 c3857c5fcb21836ddc1b79a6b19cffe562cade10 wallet: remove CreateTotalBumpTransaction()
+pr 2020-03-26 18:34:49 694f4cbd7853ffeb7b4576d42368920b0ef79b01 Merge #18312: wallet: remove deprecated fee bumping by totalFee
+v  2020-03-26 18:55:29 e41e46cee0d9b98869a569b73dafc5452b4272d6 ci: Remove misplaced comments from folded block scalar
+pr 2020-03-26 19:04:41 7f9dedb22dcd9550ca525c0e35fec38b2d59e029 Merge #18441: ci: Remove misplaced comments from folded block scalar
+v  2020-03-26 20:43:17 f85203097f78d9daa1d35c4097a80beab31da2a4 lockedpool: avoid sensitive data in core files (FreeBSD)
+pr 2020-03-26 22:21:34 7834c3b9ecf6bfd343542e4c5dc9b44f265f1922 tests: Add fuzzing harness for functions/classes in chain.h
+cr 2020-03-26 22:21:34 d7930c43269346686ec67614281cbca59808f43c tests: Add fuzzing harness for functions/classes in protocol.h
+pr 2020-03-27 01:25:55 0dc6218c7911762027f7839f54b5d27845531255 Merge #18270: util: Fail to parse whitespace-only strings in ParseMoney(...) (instead of parsing as zero)
+pr 2020-03-27 01:37:48 e3154aacf444a29f9f5642b6c937e875ab9a2c13 Merge #18445: tests: Add fuzzing harnesses for functions/classes in chain.h and protocol.h
+cr 2020-03-27 04:10:31 dcda81c47101196e53e379d965a2692515ef8363 test: add coverage for script parse error in ParseScript
+pr 2020-03-27 07:49:50 54646167db5ec86e1f532b6dcf8a1713ea026b6b Merge #18388: Make VerifyWitnessProgram use a Span stack
+cr 2020-03-27 07:51:05 9ab14e4d21c73d16d8d782f1576fe29e659e2a70 Limit decimal range of numbers ParseScript accepts
+pr 2020-03-27 08:02:51 b53af72b8276e8a23915d38fe459889cccb56f50 Merge #18416: util: Limit decimal range of numbers ParseScript accepts
+pr 2020-03-27 08:24:11 7eed413e72a236b6f1475a198f7063fd24929e23 Merge #18398: rpc: fix broken RPCExamples for waitforblock(height)
+v  2020-03-27 13:59:06 fac96fff624a3ab65209dcd3378efb6e6ab47a58 util: Remove unused itostr
+pr 2020-03-27 14:29:48 bdc2644b72d68b52383bb461ccd6ef8448674cea Merge #18107: build: Add cov_fuzz target
+pr 2020-03-27 14:58:12 210b533a114462473024c92a20a0765001abd45d Merge #18447: test: Add coverage for script parse error in ParseScript
+v  2020-03-27 14:58:39 1d05a9d80b1211b47af465ba6958b0ec5a8c33ab Move DEFAULT_MAX_RAW_TX_FEE_RATE to node/transaction.h
+v  2020-03-27 14:59:19 1cd8dc2556b847e11a238b9e69493cd8fbeecc6c [gui] load PSBT
+v  2020-03-27 14:59:19 764bfe4cba35c24f7627cc425d9e7eba56e98964 [psbt] add file size limit
+v  2020-03-27 14:59:19 f6895301f768220f3ea70231d5cc5b45ecbf4488 [gui] save PSBT to file
+v  2020-03-27 15:14:08 faaf1cb5b9a4c22b21757f7578833f908b79b867 util: Replace i64tostr with ToString
+cr 2020-03-27 16:00:10 dcc8332543f8fb6d1bb47cb270fcbb6a814a7d6e Add generateblock rpc
+v  2020-03-27 16:17:35 41b0baf43c243b64b394e774e336475a489cca2b gui: Handle WalletModel::unload asynchronous
+v  2020-03-27 16:17:35 ab31b9d6fe7b39713682e3f52d11238dbe042c16 Fix wallet unload race condition
+v  2020-03-27 17:09:31 7524b6479cb20471d827aec5500925c86c62ce1c Add tests for generateblock
+pr 2020-03-27 19:26:00 a1d5b12ec07d2f7aa9fa955a6dd99e8a2be5cb25 Merge getreceivedby tally into GetReceived function
+pr 2020-03-27 20:04:46 f2c416bcf5f898dd996106871dbbd7051851ccac Merge #16995: Fix gcc 9 warnings
+v  2020-03-27 22:58:51 fa47a0b003f53708b6d5df1ed4e7f8a7c68aa3ac net: Make addr relay mockable
+v  2020-03-28 00:38:07 e980214bc4fd49530e8d50fe0a6657b8583bc6b5 serialization: prevent int overflow for big Coin::nHeight
+pr 2020-03-28 11:49:04 1277ca401a796b5b26a9e85afc455ff92e20cdfb Merge #18415: scripts: add MACHO tests to test-security-check.py
+v  2020-03-28 18:32:28 c34164896c62fc6307b4cc72c060a277263590bb Bugfix: RPC: Remove final comma for last entry of fixed-size Arrays and Objects in RPCResult
+pr 2020-03-28 19:26:45 1668c80bdcc3c2742fbe220573f5b5248129f3fa Merge #18449: util: Remove unused itostr
+pr 2020-03-28 20:13:13 6b4f182806d62f00035cd9edc8ea8b837138e7f0 Merge #18444: RPC: Remove final comma for last entry of fixed-size arrays/objects in RPCResult
+v  2020-03-28 20:25:53 6e0d82c55bf4a9aae98c47b7cd00b2828b5dd0ee rpc: remove unused getbalances() code
+pr 2020-03-28 22:09:52 27a82d347eddfe1cde0005f8a2174274ab6efe9f Merge #18459: rpc: remove unused getbalances() code
+v  2020-03-29 13:12:30 621e86ee8d0102e2bf41f7656a368083b89b2f83 Update -blocksonly documentation
+pr 2020-03-29 13:15:55 6cfb3dbbdbf575b4f3ab1fced3410d67c00d01de Merge #18391: doc: Update init and reduce-traffic docs for -blocksonly
+v  2020-03-29 14:17:04 11a520f6793e21e0a8a9301f5ec4c28a48131b85 tests: Add fuzzing harness for functions/classes in random.h
+v  2020-03-29 14:17:04 64d277bbbcbd464b2a795bae011ee808298a42ca tests: Add fuzzing harness for LimitedString (serialize.h)
+v  2020-03-29 14:17:04 9718f38f54357f15b8a27e060aed56f91015112d tests: Add fuzzing harness for functions/classes in merkleblock.h
+v  2020-03-29 14:17:04 a16ea051f915eb4c975fe06f89470aa99d99d7e4 tests: Add fuzzing harness for functions/classes in flatfile.h
+cr 2020-03-29 14:17:04 f205cf7fef5618aaa96f016fda168eedfd9da437 tests: Add fuzzing harness for functions/classes in span.h
+pr 2020-03-29 15:32:05 5f9cd62f33fb4d440173b9c376cadf4887e81e9d Merge #18455: tests: Add fuzzing harness for functions/classes in flatfile.h, merkleblock.h, random.h, serialize.h and span.h
+v  2020-03-29 16:45:46 fa369651c5523f393e0bfcfa328b8e27006711aa net: Add missing cs_vNodes lock
+v  2020-03-30 14:09:12 fa6e01f2a163511a735088895ab02232b150801b doc: block-relay-only is not blocksonly
+pr 2020-03-30 15:16:12 6a11d9e33034242cbb3398f7eb4b448d034072c7 Merge #18433: serialization: prevent int overflow for big Coin::nHeight
+v  2020-03-30 20:18:42 fa3cc0bfc4c4fc13a384fc291403c9fd41082f18 test: Remove unsafe BOOST_TEST_MESSAGE
+pr 2020-03-30 20:28:02 7e1fc03b185d89f21da1bee2f8b7900d65745b30 Merge #18334: test: Add basic test for BIP 37
+v  2020-03-30 20:51:05 fac3716b09bb9ee121db629873d9694a95cae942 test: check that peer is connected when calling sync_*
+pr 2020-03-30 23:36:14 769ee5fa0011ae658770586442715452a656559d Merge BigEndian functionality into CustomUintFormatter
+v  2020-03-30 23:36:16 6f9a1e5ad0a270d3b5a715f3e3ea0911193bf244 Extend CustomUintFormatter to support enums
+v  2020-03-30 23:36:16 d06fedd1bc26bf5bf2b203d4445aeaebccca780e Add SER_READ and SER_WRITE for read/write-dependent statements
+pr 2020-03-30 23:57:59 faa9491870bf29583a989c407694d01f49b65bec ci: Use Focal for fuzzers
+pr 2020-03-31 00:06:43 965c0c37d54c727bee50920fdfa62f8174a94280 Merge #18420: test: listsinceblock block height checks
+v  2020-03-31 00:09:51 73747afbbeb013669faf4c4d2c0903cec4526fb0 Convert merkleblock to new serialization
+v  2020-03-31 00:10:30 2b1f85e8c52c8bc5a17eae4c809eaf61d724af98 Convert blockencodings_tests to new serialization
+cr 2020-03-31 00:10:30 4eb5643e3538863c9d2ff261f49a9a1b248de243 Convert everything except wallet/qt to new serialization
+v  2020-03-31 10:14:48 00559229588feb19de2a0cb7506f70c483a1f433 test: add BIP37 'filterclear' test to p2p_filter.py
+pr 2020-03-31 13:23:30 f2880e21eff2428615ee3024570c4861d3238107 Merge #18160: gui: Avoid Wallet::GetBalance in WalletModel::pollBalanceChanged
+v  2020-03-31 13:42:09 d695eb4c2164fc8777dc014e1a30c014cf04982a doc: note the costs of fetching all pull requests
+pr 2020-03-31 14:07:06 9a2b5f22c1f603a6e3abc16dbf074c8d33a8d01f Merge #18338: Fix wallet unload race condition
+v  2020-03-31 14:23:43 9eefc6e92fa1acef6eddd87886ed80510b439a57 gui: Delete progress dialog instead of hidding it
+v  2020-03-31 14:23:43 ee9e88ba2734b81d0ffe23fd45c4f69a970c6494 wallet: Handle duplicate fileid exception
+cr 2020-03-31 14:36:02 1be8ff280c78c30baabae9429c53c0bebb89c44d wallet: Avoid use of Chain::Lock in rescanblockchain
+v  2020-03-31 14:36:02 25a9fcf9e53bfa94e8f8b19a4abfda0f444f6b2a wallet: Avoid use of Chain::Lock in importwallet and dumpwallet
+v  2020-03-31 14:36:02 3cb85ac594f115db99f96b0a0f4bfdcd69ef0590 wallet refactor: Avoid use of Chain::Lock in CWallet::RescanFromTime
+cr 2020-03-31 14:36:02 48973402d8bccb673eaeb68b7aa86faa39d3cb8a wallet: Avoid use of Chain::Lock in CWallet::GetKeyBirthTimes
+v  2020-03-31 14:36:02 ade5f87971211bc67753f14a0d49e020142efc7c wallet refactor: Avoid use of Chain::Lock in qt wallettests
+cr 2020-03-31 14:36:02 bc96a9bfc61afdb696fb92cb644ed5fc3d1793f1 wallet: Avoid use of Chain::Lock in importmulti
+v  2020-03-31 14:36:02 bf30cd4922ea62577d7bf63f5029e8be62665d45 refactor: Add interfaces::FoundBlock class to selectively return block data
+v  2020-03-31 14:36:02 c0d07dc4cba7634cde4e8bf586557772f3248a42 wallet: Avoid use of Chain::Lock in CWallet::ScanForWalletTransactions
+cr 2020-03-31 14:36:02 c1694ce6bb7e19a8722d5583cd85ad17da40bb67 wallet: Avoid use of Chain::Lock in importprunedfunds
+pr 2020-03-31 14:36:02 d52ba21dfff99173abb927bc964ce7ceb711d789 Merge #18481: test: add BIP37 'filterclear' test to p2p_filter.py
+v  2020-03-31 14:36:02 e958ff9ab5607da2cd321f29fc785a6d359e44f4 wallet: Avoid use of Chain::Lock in CWallet::CreateTransaction
+v  2020-03-31 14:36:02 f6da44ccce4cfff53433e665305a6fe0a01364e4 wallet: Avoid use of Chain::Lock in tryGetTxStatus and tryGetBalances
+v  2020-03-31 14:36:02 f7ba881bc669451a60fedac58a449794702a3e23 wallet: Avoid use of Chain::Lock in listsinceblock
+v  2020-03-31 16:07:33 bda84a08a0ac92dff6cadc99cf9bb8c3fadd7e13 rpc: Add documentation for deactivating settxfee
+-- end of processed commits --
