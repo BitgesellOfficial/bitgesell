@@ -371,7 +371,7 @@ public:
         // can be ignored by older clients for backward compatibility.
         uint256 asmap_version;
         if (m_asmap.size() != 0) {
-            asmap_version = SerializeHash(m_asmap);
+            asmap_version = SerializeHashSHA256(m_asmap);
         }
         s << asmap_version;
     }
@@ -452,7 +452,7 @@ public:
 
         uint256 supplied_asmap_version;
         if (m_asmap.size() != 0) {
-            supplied_asmap_version = SerializeHash(m_asmap);
+            supplied_asmap_version = SerializeHashSHA256(m_asmap);
         }
         uint256 serialized_asmap_version;
         if (nVersion > 1) {

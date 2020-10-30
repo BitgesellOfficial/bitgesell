@@ -11,6 +11,7 @@
         <file alias="de_DE">locale/BGL_de_DE.qm</file>
         <file alias="el">locale/BGL_el.qm</file>
         <file alias="el_GR">locale/BGL_el_GR.qm</file>
+        <file alias="en">locale/BGL_en.qm</file>
         <file alias="en_AU">locale/BGL_en_AU.qm</file>
         <file alias="en_GB">locale/BGL_en_GB.qm</file>
         <file alias="eo">locale/BGL_eo.qm</file>

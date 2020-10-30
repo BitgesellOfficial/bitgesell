@@ -20,7 +20,7 @@ bool LegacyScriptPubKeyMan::GetNewDestination(const OutputType type, CTxDestinat
     // Generate a new key that is added to wallet
     CPubKey new_key;
     if (!GetKeyFromPool(new_key, type)) {
-        error = _("Error: Keypool ran out, please call keypoolrefill first").translated;
+        error = "Error: Keypool ran out, please call keypoolrefill first";
         return false;
     }
     LearnRelatedScripts(new_key, type);
@@ -220,7 +220,6 @@ bool LegacyScriptPubKeyMan::CheckDecryptionKey(const CKeyingMaterial& master_key
         bool keyPass = mapCryptedKeys.empty(); // Always pass when there are no encrypted keys
         bool keyFail = false;
         CryptedKeyMap::const_iterator mi = mapCryptedKeys.begin();
-        WalletBatch batch(m_storage.GetDatabase());
         for (; mi != mapCryptedKeys.end(); ++mi)
         {
             const CPubKey &vchPubKey = (*mi).second.first;
@@ -234,10 +233,6 @@ bool LegacyScriptPubKeyMan::CheckDecryptionKey(const CKeyingMaterial& master_key
             keyPass = true;
             if (fDecryptionThoroughlyChecked)
                 break;
-            else {
-                // Rewrite these encrypted keys with checksums
-                batch.WriteCryptedKey(vchPubKey, vchCryptedSecret, mapKeyMetadata[vchPubKey.GetID()]);
-            }
         }
         if (keyPass && keyFail)
         {
@@ -486,7 +481,7 @@ int64_t LegacyScriptPubKeyMan::GetTimeFirstKey() const
 
 std::unique_ptr<SigningProvider> LegacyScriptPubKeyMan::GetSolvingProvider(const CScript& script) const
 {
-    return this;
+    return MakeUnique<LegacySigningProvider>(*this);
 }
 
 bool LegacyScriptPubKeyMan::CanProvide(const CScript& script, SignatureData& sigdata)
@@ -515,6 +510,20 @@ bool LegacyScriptPubKeyMan::CanProvide(const CScript& script, SignatureData& sig
 bool LegacyScriptPubKeyMan::SignTransaction(CMutableTransaction& tx, const std::map<COutPoint, Coin>& coins, int sighash, std::map<int, std::string>& input_errors) const
 {
     return ::SignTransaction(tx, this, coins, sighash, input_errors);
+}
+
+SigningResult LegacyScriptPubKeyMan::SignMessage(const std::string& message, const PKHash& pkhash, std::string& str_sig) const
+{
+    CKeyID key_id(pkhash);
+    CKey key;
+    if (!GetKey(key_id, key)) {
+        return SigningResult::PRIVATE_KEY_NOT_AVAILABLE;
+    }
+
+    if (MessageSign(key, message, str_sig)) {
+        return SigningResult::OK;
+    }
+    return SigningResult::SIGNING_FAILED;
 }
 
 TransactionError LegacyScriptPubKeyMan::FillPSBT(PartiallySignedTransaction& psbtx, int sighash_type, bool sign, bool bip32derivs) const
@@ -705,13 +714,8 @@ bool LegacyScriptPubKeyMan::AddKeyPubKeyInner(const CKey& key, const CPubKey &pu
     return true;
 }
 
-bool LegacyScriptPubKeyMan::LoadCryptedKey(const CPubKey &vchPubKey, const std::vector<unsigned char> &vchCryptedSecret, bool checksum_valid)
+bool LegacyScriptPubKeyMan::LoadCryptedKey(const CPubKey &vchPubKey, const std::vector<unsigned char> &vchCryptedSecret)
 {
-    // Set fDecryptionThoroughlyChecked to false when the checksum is invalid
-    if (!checksum_valid) {
-        fDecryptionThoroughlyChecked = false;
-    }
-
     return AddCryptedKeyInner(vchPubKey, vchCryptedSecret);
 }
 

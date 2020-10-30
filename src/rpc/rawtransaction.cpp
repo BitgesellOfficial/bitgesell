@@ -40,6 +40,12 @@
 
 #include <univalue.h>
 
+/** Maximum fee rate for sendrawtransaction and testmempoolaccept.
+ * By default, a transaction with a fee rate higher than this will be rejected
+ * by the RPCs. This can be overridden with the maxfeerate argument.
+ */
+static const CFeeRate DEFAULT_MAX_RAW_TX_FEE_RATE{COIN / 10};
+
 static void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
 {
     // Call into TxToUniv() in BGL-common to decode the transaction hex.
@@ -1116,7 +1122,12 @@ UniValue decodepsbt(const JSONRPCRequest& request)
             UniValue out(UniValue::VOBJ);
 
             out.pushKV("amount", ValueFromAmount(txout.nValue));
-            total_in += txout.nValue;
+            if (MoneyRange(txout.nValue) && MoneyRange(total_in + txout.nValue)) {
+                total_in += txout.nValue;
+            } else {
+                // Hack to just not show fee later
+                have_all_utxos = false;
+            }
 
             UniValue o(UniValue::VOBJ);
             ScriptToUniv(txout.scriptPubKey, o, true);
@@ -1126,7 +1137,13 @@ UniValue decodepsbt(const JSONRPCRequest& request)
             UniValue non_wit(UniValue::VOBJ);
             TxToUniv(*input.non_witness_utxo, uint256(), non_wit, false);
             in.pushKV("non_witness_utxo", non_wit);
-            total_in += input.non_witness_utxo->vout[psbtx.tx->vin[i].prevout.n].nValue;
+            CAmount utxo_val = input.non_witness_utxo->vout[psbtx.tx->vin[i].prevout.n].nValue;
+            if (MoneyRange(utxo_val) && MoneyRange(total_in + utxo_val)) {
+                total_in += utxo_val;
+            } else {
+                // Hack to just not show fee later
+                have_all_utxos = false;
+            }
         } else {
             have_all_utxos = false;
         }
@@ -1242,7 +1259,12 @@ UniValue decodepsbt(const JSONRPCRequest& request)
         outputs.push_back(out);
 
         // Fee calculation
-        output_value += psbtx.tx->vout[i].nValue;
+        if (MoneyRange(psbtx.tx->vout[i].nValue) && MoneyRange(output_value + psbtx.tx->vout[i].nValue)) {
+            output_value += psbtx.tx->vout[i].nValue;
+        } else {
+            // Hack to just not show fee later
+            have_all_utxos = false;
+        }
     }
     result.pushKV("outputs", outputs);
     if (have_all_utxos) {

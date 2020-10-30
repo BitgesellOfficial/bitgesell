@@ -15,6 +15,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <psbt.h>
 #include <stdint.h>
 #include <string>
 #include <tuple>
@@ -25,13 +26,12 @@ class CCoinControl;
 class CFeeRate;
 class CKey;
 class CWallet;
-enum class FeeReason;
-enum class OutputType;
-enum class TransactionError;
 enum isminetype : unsigned int;
-struct CRecipient;
-struct PartiallySignedTransaction;
+enum class FeeReason;
 typedef uint8_t isminefilter;
+
+enum class OutputType;
+struct CRecipient;
 
 namespace interfaces {
 
@@ -201,11 +201,8 @@ public:
     //! Get balances.
     virtual WalletBalances getBalances() = 0;
 
-    //! Get balances if possible without waiting for chain and wallet locks.
-    virtual bool tryGetBalances(WalletBalances& balances,
-        int& num_blocks,
-        bool force,
-        int cached_num_blocks) = 0;
+    //! Get balances if possible without blocking.
+    virtual bool tryGetBalances(WalletBalances& balances, int& num_blocks) = 0;
 
     //! Get balance.
     virtual CAmount getBalance() = 0;

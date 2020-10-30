@@ -190,8 +190,6 @@ template<typename X> const X& ReadWriteAsHelper(const X& x) { return x; }
 
 #define READWRITE(...) (::SerReadWriteMany(s, ser_action, __VA_ARGS__))
 #define READWRITEAS(type, obj) (::SerReadWriteMany(s, ser_action, ReadWriteAsHelper<type>(obj)))
-#define SER_READ(obj, code) ::SerRead(s, ser_action, obj, [&](Stream& s, typename std::remove_const<Type>::type& obj) { code; })
-#define SER_WRITE(obj, code) ::SerWrite(s, ser_action, obj, [&](Stream& s, const Type& obj) { code; })
 
 /**
  * Implement three methods for serializable objects. These are actually wrappers over
@@ -535,16 +533,10 @@ struct CustomUintFormatter
 
     template <typename Stream, typename I> void Unser(Stream& s, I& v)
     {
-        using U = typename std::conditional<std::is_enum<I>::value, std::underlying_type<I>, std::common_type<I>>::type::type;
-        static_assert(std::numeric_limits<U>::max() >= MAX && std::numeric_limits<U>::min() <= 0, "Assigned type too small");
+        static_assert(std::numeric_limits<I>::max() >= MAX && std::numeric_limits<I>::min() <= 0, "CustomUintFormatter type too small");
         uint64_t raw = 0;
-        if (BigEndian) {
-            s.read(((char*)&raw) + 8 - Bytes, Bytes);
-            v = static_cast<I>(be64toh(raw));
-        } else {
-            s.read((char*)&raw, Bytes);
-            v = static_cast<I>(le64toh(raw));
-        }
+        s.read((char*)&raw, Bytes);
+        v = le64toh(raw);
     }
 };
 
@@ -1130,28 +1122,6 @@ template<typename Stream, typename... Args>
 inline void SerReadWriteMany(Stream& s, CSerActionUnserialize ser_action, Args&&... args)
 {
     ::UnserializeMany(s, args...);
-}
-
-template<typename Stream, typename Type, typename Fn>
-inline void SerRead(Stream& s, CSerActionSerialize ser_action, Type&&, Fn&&)
-{
-}
-
-template<typename Stream, typename Type, typename Fn>
-inline void SerRead(Stream& s, CSerActionUnserialize ser_action, Type&& obj, Fn&& fn)
-{
-    fn(s, std::forward<Type>(obj));
-}
-
-template<typename Stream, typename Type, typename Fn>
-inline void SerWrite(Stream& s, CSerActionSerialize ser_action, Type&& obj, Fn&& fn)
-{
-    fn(s, std::forward<Type>(obj));
-}
-
-template<typename Stream, typename Type, typename Fn>
-inline void SerWrite(Stream& s, CSerActionUnserialize ser_action, Type&&, Fn&&)
-{
 }
 
 template<typename I>

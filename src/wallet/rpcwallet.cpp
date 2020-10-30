@@ -37,8 +37,6 @@
 #include <univalue.h>
 
 
-using interfaces::FoundBlock;
-
 static const std::string WALLET_ENDPOINT_BASE = "/wallet/";
 
 static inline bool GetAvoidReuseFlag(const CWallet* const pwallet, const UniValue& param) {
@@ -151,7 +149,8 @@ static void WalletTxToJSON(interfaces::Chain& chain, interfaces::Chain::Lock& lo
         entry.pushKV("blockheight", wtx.m_confirm.block_height);
         entry.pushKV("blockindex", wtx.m_confirm.nIndex);
         int64_t block_time;
-        CHECK_NONFATAL(chain.findBlock(wtx.m_confirm.hashBlock, FoundBlock().time(block_time)));
+        bool found_block = chain.findBlock(wtx.m_confirm.hashBlock, nullptr /* block */, &block_time);
+        CHECK_NONFATAL(found_block);
         entry.pushKV("blocktime", block_time);
     } else {
         entry.pushKV("trusted", wtx.IsTrusted(locked_chain));
@@ -1581,9 +1580,8 @@ static UniValue listsinceblock(const JSONRPCRequest& request)
     uint256 blockId;
     if (!request.params[0].isNull() && !request.params[0].get_str().empty()) {
         blockId = ParseHashV(request.params[0], "blockhash");
-        height.emplace();
-        altheight.emplace();
-        if (!pwallet->chain().findCommonAncestor(blockId, pwallet->GetLastBlockHash(), /* ancestor out */ FoundBlock().height(*height), /* blockId out */ FoundBlock().height(*altheight))) {
+        height = locked_chain->findFork(blockId, &altheight);
+        if (!height) {
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Block not found");
         }
     }
@@ -1602,7 +1600,8 @@ static UniValue listsinceblock(const JSONRPCRequest& request)
 
     bool include_removed = (request.params[3].isNull() || request.params[3].get_bool());
 
-    int depth = height ? pwallet->GetLastBlockHeight() + 1 - *height : -1;
+    const Optional<int> tip_height = locked_chain->getHeight();
+    int depth = tip_height && height ? (1 + *tip_height - *height) : -1;
 
     UniValue transactions(UniValue::VARR);
 
@@ -1619,7 +1618,7 @@ static UniValue listsinceblock(const JSONRPCRequest& request)
     UniValue removed(UniValue::VARR);
     while (include_removed && altheight && *altheight > *height) {
         CBlock block;
-        if (!pwallet->chain().findBlock(blockId, FoundBlock().data(block)) || block.IsNull()) {
+        if (!pwallet->chain().findBlock(blockId, &block) || block.IsNull()) {
             throw JSONRPCError(RPC_INTERNAL_ERROR, "Can't read block from disk");
         }
         for (const CTransactionRef& tx : block.vtx) {
@@ -1634,8 +1633,8 @@ static UniValue listsinceblock(const JSONRPCRequest& request)
         --*altheight;
     }
 
-    uint256 lastblock;
-    CHECK_NONFATAL(pwallet->chain().findAncestorByHeight(pwallet->GetLastBlockHash(), pwallet->GetLastBlockHeight() + 1 - target_confirms, FoundBlock().hash(lastblock)));
+    int last_height = tip_height ? *tip_height + 1 - target_confirms : -1;
+    uint256 lastblock = last_height >= 0 ? locked_chain->getBlockHash(last_height) : uint256();
 
     UniValue ret(UniValue::VOBJ);
     ret.pushKV("transactions", transactions);
@@ -3016,12 +3015,13 @@ static UniValue listunspent(const JSONRPCRequest& request)
     return results;
 }
 
-void FundTransaction(CWallet* const pwallet, CMutableTransaction& tx, CAmount& fee_out, int& change_position, UniValue options, CCoinControl& coinControl)
+void FundTransaction(CWallet* const pwallet, CMutableTransaction& tx, CAmount& fee_out, int& change_position, UniValue options)
 {
     // Make sure the results are valid at least up to the most recent block
     // the user could have gotten from another RPC command prior to now
     pwallet->BlockUntilSyncedToCurrentChain();
 
+    CCoinControl coinControl;
     change_position = -1;
     bool lockUnspents = false;
     UniValue subtractFeeFromOutputs;
@@ -3036,7 +3036,6 @@ void FundTransaction(CWallet* const pwallet, CMutableTransaction& tx, CAmount& f
         RPCTypeCheckArgument(options, UniValue::VOBJ);
         RPCTypeCheckObj(options,
             {
-                {"add_inputs", UniValueType(UniValue::VBOOL)},
                 {"changeAddress", UniValueType(UniValue::VSTR)},
                 {"changePosition", UniValueType(UniValue::VNUM)},
                 {"change_type", UniValueType(UniValue::VSTR)},
@@ -3049,10 +3048,6 @@ void FundTransaction(CWallet* const pwallet, CMutableTransaction& tx, CAmount& f
                 {"estimate_mode", UniValueType(UniValue::VSTR)},
             },
             true, true);
-
-        if (options.exists("add_inputs") ) {
-            coinControl.m_add_inputs = options["add_inputs"].get_bool();
-        }
 
         if (options.exists("changeAddress")) {
             CTxDestination dest = DecodeDestination(options["changeAddress"].get_str());
@@ -3148,8 +3143,8 @@ static UniValue fundrawtransaction(const JSONRPCRequest& request)
     }
 
     RPCHelpMan{"fundrawtransaction",
-                "\nIf the transaction has no inputs, they will be automatically selected to meet its out value.\n"
-                "It will add at most one change output to the outputs.\n"
+                "\nAdd inputs to a transaction until it has enough in value to meet its out value.\n"
+                "This will not modify existing inputs, and will add at most one change output to the outputs.\n"
                 "No existing outputs will be modified unless \"subtractFeeFromOutputs\" is specified.\n"
                 "Note that inputs which were signed may need to be resigned after completion since in/outputs have been added.\n"
                 "The inputs added will not be signed, use signrawtransactionwithkey\n"
@@ -3163,7 +3158,6 @@ static UniValue fundrawtransaction(const JSONRPCRequest& request)
                     {"hexstring", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The hex string of the raw transaction"},
                     {"options", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED_NAMED_ARG, "for backward compatibility: passing in a true instead of an object will result in {\"includeWatching\":true}",
                         {
-                            {"add_inputs", RPCArg::Type::BOOL, /* default */ "true", "For a transaction with existing inputs, automatically include more if they are not enough."},
                             {"changeAddress", RPCArg::Type::STR, /* default */ "pool address", "The BGL address to receive the change"},
                             {"changePosition", RPCArg::Type::NUM, /* default */ "random", "The index of the change output"},
                             {"change_type", RPCArg::Type::STR, /* default */ "set by -changetype", "The output type to use. Only valid if changeAddress is not specified. Options are \"legacy\", \"p2sh-segwit\", and \"bech32\"."},
@@ -3229,10 +3223,7 @@ static UniValue fundrawtransaction(const JSONRPCRequest& request)
 
     CAmount fee;
     int change_position;
-    CCoinControl coin_control;
-    // Automatically select (additional) coins. Can be overriden by options.add_inputs.
-    coin_control.m_add_inputs = true;
-    FundTransaction(pwallet, tx, fee, change_position, request.params[1], coin_control);
+    FundTransaction(pwallet, tx, fee, change_position, request.params[1]);
 
     UniValue result(UniValue::VOBJ);
     result.pushKV("hex", EncodeHexTx(CTransaction(tx)));
@@ -3545,23 +3536,22 @@ UniValue rescanblockchain(const JSONRPCRequest& request)
     }
 
     int start_height = 0;
-    Optional<int> stop_height;
-    uint256 start_block;
+    uint256 start_block, stop_block;
     {
         auto locked_chain = pwallet->chain().lock();
-        LOCK(pwallet->cs_wallet);
-        int tip_height = pwallet->GetLastBlockHeight();
+        Optional<int> tip_height = locked_chain->getHeight();
 
         if (!request.params[0].isNull()) {
             start_height = request.params[0].get_int();
-            if (start_height < 0 || start_height > tip_height) {
+            if (start_height < 0 || !tip_height || start_height > *tip_height) {
                 throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid start_height");
             }
         }
 
+        Optional<int> stop_height;
         if (!request.params[1].isNull()) {
             stop_height = request.params[1].get_int();
-            if (*stop_height < 0 || *stop_height > tip_height) {
+            if (*stop_height < 0 || !tip_height || *stop_height > *tip_height) {
                 throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid stop_height");
             }
             else if (*stop_height < start_height) {
@@ -3570,15 +3560,25 @@ UniValue rescanblockchain(const JSONRPCRequest& request)
         }
 
         // We can't rescan beyond non-pruned blocks, stop and throw an error
-        if (!pwallet->chain().hasBlocks(pwallet->GetLastBlockHash(), start_height, stop_height)) {
+        if (locked_chain->findPruned(start_height, stop_height)) {
             throw JSONRPCError(RPC_MISC_ERROR, "Can't rescan beyond pruned data. Use RPC call getblockchaininfo to determine your pruned height.");
         }
 
-        CHECK_NONFATAL(pwallet->chain().findAncestorByHeight(pwallet->GetLastBlockHash(), start_height, FoundBlock().hash(start_block)));
+        if (tip_height) {
+            start_block = locked_chain->getBlockHash(start_height);
+            // If called with a stop_height, set the stop_height here to
+            // trigger a rescan to that height.
+            // If called without a stop height, leave stop_height as null here
+            // so rescan continues to the tip (even if the tip advances during
+            // rescan).
+            if (stop_height) {
+                stop_block = locked_chain->getBlockHash(*stop_height);
+            }
+        }
     }
 
     CWallet::ScanResult result =
-        pwallet->ScanForWalletTransactions(start_block, start_height, stop_height, reserver, true /* fUpdate */);
+        pwallet->ScanForWalletTransactions(start_block, stop_block, reserver, true /* fUpdate */);
     switch (result.status) {
     case CWallet::ScanResult::SUCCESS:
         break;
@@ -3766,7 +3766,7 @@ UniValue getaddressinfo(const JSONRPCRequest& request)
                             "as an array to keep the API stable if multiple labels are enabled in the future.",
                         {
                             {RPCResult::Type::STR, "label name", "The label name. Defaults to \"\"."},
-                            {RPCResult::Type::OBJ, "", "label data, DEPRECATED, will be removed in 0.21. To re-enable, launch BGL with `-deprecatedrpc=labelspurpose`",
+                            {RPCResult::Type::OBJ, "", "label data, DEPRECATED, will be removed in 0.21. To re-enable, launch BGLd with `-deprecatedrpc=labelspurpose`",
                             {
                                 {RPCResult::Type::STR, "name", "The label name. Defaults to \"\"."},
                                 {RPCResult::Type::STR, "purpose", "The purpose of the associated address (send or receive)."},
@@ -4069,7 +4069,7 @@ UniValue walletprocesspsbt(const JSONRPCRequest& request)
             "       \"ALL|ANYONECANPAY\"\n"
             "       \"NONE|ANYONECANPAY\"\n"
             "       \"SINGLE|ANYONECANPAY\""},
-                    {"bip32derivs", RPCArg::Type::BOOL, /* default */ "false", "If true, includes the BIP 32 derivation paths for public keys if we know them"},
+                    {"bip32derivs", RPCArg::Type::BOOL, /* default */ "true", "Include BIP 32 derivation paths for public keys if we know them"},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -4097,7 +4097,7 @@ UniValue walletprocesspsbt(const JSONRPCRequest& request)
 
     // Fill transaction with our data and also sign
     bool sign = request.params[1].isNull() ? true : request.params[1].get_bool();
-    bool bip32derivs = request.params[3].isNull() ? false : request.params[3].get_bool();
+    bool bip32derivs = request.params[3].isNull() ? true : request.params[3].get_bool();
     bool complete = true;
     const TransactionError err = pwallet->FillPSBT(psbtx, complete, nHashType, sign, bip32derivs);
     if (err != TransactionError::OK) {
@@ -4123,10 +4123,10 @@ UniValue walletcreatefundedpsbt(const JSONRPCRequest& request)
     }
 
             RPCHelpMan{"walletcreatefundedpsbt",
-                "\nCreates and funds a transaction in the Partially Signed Transaction format.\n"
+                "\nCreates and funds a transaction in the Partially Signed Transaction format. Inputs will be added if supplied inputs are not enough\n"
                 "Implements the Creator and Updater roles.\n",
                 {
-                    {"inputs", RPCArg::Type::ARR, RPCArg::Optional::NO, "The inputs. Leave empty to add inputs automatically. See add_inputs option.",
+                    {"inputs", RPCArg::Type::ARR, RPCArg::Optional::NO, "The inputs",
                         {
                             {"", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED, "",
                                 {
@@ -4157,7 +4157,6 @@ UniValue walletcreatefundedpsbt(const JSONRPCRequest& request)
                     {"locktime", RPCArg::Type::NUM, /* default */ "0", "Raw locktime. Non-0 value also locktime-activates inputs"},
                     {"options", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED_NAMED_ARG, "",
                         {
-                            {"add_inputs", RPCArg::Type::BOOL, /* default */ "false", "If inputs are specified, automatically include more if they are not enough."},
                             {"changeAddress", RPCArg::Type::STR_HEX, /* default */ "pool address", "The BGL address to receive the change"},
                             {"changePosition", RPCArg::Type::NUM, /* default */ "random", "The index of the change output"},
                             {"change_type", RPCArg::Type::STR, /* default */ "set by -changetype", "The output type to use. Only valid if changeAddress is not specified. Options are \"legacy\", \"p2sh-segwit\", and \"bech32\"."},
@@ -4181,7 +4180,7 @@ UniValue walletcreatefundedpsbt(const JSONRPCRequest& request)
                             "         \"CONSERVATIVE\""},
                         },
                         "options"},
-                    {"bip32derivs", RPCArg::Type::BOOL, /* default */ "false", "If true, includes the BIP 32 derivation paths for public keys if we know them"},
+                    {"bip32derivs", RPCArg::Type::BOOL, /* default */ "true", "Include BIP 32 derivation paths for public keys if we know them"},
                 },
                 RPCResult{
                     RPCResult::Type::OBJ, "", "",
@@ -4215,17 +4214,13 @@ UniValue walletcreatefundedpsbt(const JSONRPCRequest& request)
         rbf = replaceable_arg.isTrue();
     }
     CMutableTransaction rawTx = ConstructTransaction(request.params[0], request.params[1], request.params[2], rbf);
-    CCoinControl coin_control;
-    // Automatically select coins, unless at least one is manually selected. Can
-    // be overriden by options.add_inputs.
-    coin_control.m_add_inputs = rawTx.vin.size() == 0;
-    FundTransaction(pwallet, rawTx, fee, change_position, request.params[3], coin_control);
+    FundTransaction(pwallet, rawTx, fee, change_position, request.params[3]);
 
     // Make a blank psbt
     PartiallySignedTransaction psbtx(rawTx);
 
     // Fill transaction with out data but don't sign
-    bool bip32derivs = request.params[4].isNull() ? false : request.params[4].get_bool();
+    bool bip32derivs = request.params[4].isNull() ? true : request.params[4].get_bool();
     bool complete = true;
     const TransactionError err = pwallet->FillPSBT(psbtx, complete, 1, false, bip32derivs);
     if (err != TransactionError::OK) {

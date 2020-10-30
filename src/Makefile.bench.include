@@ -43,9 +43,9 @@ bench_bench_BGL_SOURCES = \
 
 nodist_bench_bench_BGL_SOURCES = $(GENERATED_BENCH_FILES)
 
-bench_bench_bitcoin_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS) -I$(builddir)/bench/
-bench_bench_bitcoin_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-bench_bench_bitcoin_LDADD = \
+bench_bench_BGL_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS) -I$(builddir)/bench/
+bench_bench_BGL_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+bench_bench_BGL_LDADD = \
   $(LIBBGL_SERVER) \
   $(LIBBGL_WALLET) \
   $(LIBBGL_COMMON) \

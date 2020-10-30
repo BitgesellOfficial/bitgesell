@@ -26,13 +26,12 @@
 #include <txmempool.h>
 #include <util/system.h>
 #include <util/strencodings.h>
-#include <util/validation.h>
 
 #include <memory>
 #include <typeinfo>
 
 #if defined(NDEBUG)
-# error "BGL cannot be compiled without assertions."
+# error " cannot be compiled without assertions."
 #endif
 
 /** Expiration time for orphan transactions in seconds */
@@ -98,10 +97,10 @@ void EraseOrphansFor(NodeId peer);
 /** Increase a node's misbehavior score. */
 void Misbehaving(NodeId nodeid, int howmuch, const std::string& message="") EXCLUSIVE_LOCKS_REQUIRED(cs_main);
 
-/** Average delay between local address broadcasts */
-static constexpr std::chrono::hours AVG_LOCAL_ADDRESS_BROADCAST_INTERVAL{24};
-/** Average delay between peer address broadcasts */
-static constexpr std::chrono::seconds AVG_ADDRESS_BROADCAST_INTERVAL{30};
+/** Average delay between local address broadcasts in seconds. */
+static constexpr unsigned int AVG_LOCAL_ADDRESS_BROADCAST_INTERVAL = 24 * 60 * 60;
+/** Average delay between peer address broadcasts in seconds. */
+static const unsigned int AVG_ADDRESS_BROADCAST_INTERVAL = 30;
 /** Average delay between trickled inventory transmissions in seconds.
  *  Blocks and whitelisted receivers bypass this, outbound peers get half this delay. */
 static const unsigned int INVENTORY_BROADCAST_INTERVAL = 5;
@@ -1435,7 +1434,7 @@ void static ProcessGetBlockData(CNode* pfrom, const CChainParams& chainparams, c
     if (need_activate_chain) {
         BlockValidationState state;
         if (!ActivateBestChain(state, Params(), a_recent_block)) {
-            LogPrint(BCLog::NET, "failed to activate chain (%s)\n", FormatStateMessage(state));
+            LogPrint(BCLog::NET, "failed to activate chain (%s)\n", state.ToString());
         }
     }
 
@@ -1901,7 +1900,7 @@ void static ProcessOrphanTx(CConnman* connman, CTxMemPool& mempool, std::set<uin
             if (!orphanTx.HasWitness() && orphan_state.GetResult() != TxValidationResult::TX_WITNESS_MUTATED) {
                 // Do not use rejection cache for witness transactions or
                 // witness-stripped transactions, as they can have been malleated.
-                // See https://github.com/BGL/BGL/issues/8279 for details.
+                // See https://github.com///issues/8279 for details.
                 assert(recentRejects);
                 recentRejects->insert(orphanHash);
             }
@@ -2345,7 +2344,7 @@ bool ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vR
             }
             BlockValidationState state;
             if (!ActivateBestChain(state, Params(), a_recent_block)) {
-                LogPrint(BCLog::NET, "failed to activate chain (%s)\n", FormatStateMessage(state));
+                LogPrint(BCLog::NET, "failed to activate chain (%s)\n", state.ToString());
             }
         }
 
@@ -2591,7 +2590,7 @@ bool ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vR
             if (!tx.HasWitness() && state.GetResult() != TxValidationResult::TX_WITNESS_MUTATED) {
                 // Do not use rejection cache for witness transactions or
                 // witness-stripped transactions, as they can have been malleated.
-                // See https://github.com/BGL/BGL/issues/8279 for details.
+                // See https://github.com///issues/8279 for details.
                 assert(recentRejects);
                 recentRejects->insert(tx.GetHash());
                 if (RecursiveDynamicUsage(*ptx) < 100000) {
@@ -2639,7 +2638,7 @@ bool ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vR
         {
             LogPrint(BCLog::MEMPOOLREJ, "%s from peer=%d was not accepted: %s\n", tx.GetHash().ToString(),
                 pfrom->GetId(),
-                FormatStateMessage(state));
+                state.ToString());
             MaybePunishNodeForTx(pfrom->GetId(), state);
         }
         return true;
@@ -3362,32 +3361,10 @@ bool PeerLogicValidation::ProcessMessages(CNode* pfrom, std::atomic<bool>& inter
             return false;
         if (!pfrom->vRecvGetData.empty())
             fMoreWork = true;
-    }
-    catch (const std::ios_base::failure& e)
-    {
-        if (strstr(e.what(), "end of data")) {
-            // Allow exceptions from under-length message on vRecv
-            LogPrint(BCLog::NET, "%s(%s, %u bytes): Exception '%s' caught, normally caused by a message being shorter than its stated length\n", __func__, SanitizeString(strCommand), nMessageSize, e.what());
-        } else if (strstr(e.what(), "size too large")) {
-            // Allow exceptions from over-long size
-            LogPrint(BCLog::NET, "%s(%s, %u bytes): Exception '%s' caught\n", __func__, SanitizeString(strCommand), nMessageSize, e.what());
-        } else if (strstr(e.what(), "non-canonical ReadCompactSize()")) {
-            // Allow exceptions from non-canonical encoding
-            LogPrint(BCLog::NET, "%s(%s, %u bytes): Exception '%s' caught\n", __func__, SanitizeString(strCommand), nMessageSize, e.what());
-        } else if (strstr(e.what(), "Superfluous witness record")) {
-            // Allow exceptions from illegal witness encoding
-            LogPrint(BCLog::NET, "%s(%s, %u bytes): Exception '%s' caught\n", __func__, SanitizeString(strCommand), nMessageSize, e.what());
-        } else if (strstr(e.what(), "Unknown transaction optional data")) {
-            // Allow exceptions from unknown witness encoding
-            LogPrint(BCLog::NET, "%s(%s, %u bytes): Exception '%s' caught\n", __func__, SanitizeString(strCommand), nMessageSize, e.what());
-        } else {
-            PrintExceptionContinue(&e, "ProcessMessages()");
-        }
-    }
-    catch (const std::exception& e) {
-        PrintExceptionContinue(&e, "ProcessMessages()");
+    } catch (const std::exception& e) {
+        LogPrint(BCLog::NET, "%s(%s, %u bytes): Exception '%s' (%s) caught\n", __func__, SanitizeString(strCommand), nMessageSize, e.what(), typeid(e).name());
     } catch (...) {
-        PrintExceptionContinue(nullptr, "ProcessMessages()");
+        LogPrint(BCLog::NET, "%s(%s, %u bytes): Unknown exception caught\n", __func__, SanitizeString(strCommand), nMessageSize);
     }
 
     if (!fRet) {
@@ -3606,16 +3583,16 @@ bool PeerLogicValidation::SendMessages(CNode* pto)
         int64_t nNow = GetTimeMicros();
         auto current_time = GetTime<std::chrono::microseconds>();
 
-        if (pto->IsAddrRelayPeer() && !::ChainstateActive().IsInitialBlockDownload() && pto->m_next_local_addr_send < current_time) {
+        if (pto->IsAddrRelayPeer() && !::ChainstateActive().IsInitialBlockDownload() && pto->nNextLocalAddrSend < nNow) {
             AdvertiseLocal(pto);
-            pto->m_next_local_addr_send = PoissonNextSend(current_time, AVG_LOCAL_ADDRESS_BROADCAST_INTERVAL);
+            pto->nNextLocalAddrSend = PoissonNextSend(nNow, AVG_LOCAL_ADDRESS_BROADCAST_INTERVAL);
         }
 
         //
         // Message: addr
         //
-        if (pto->IsAddrRelayPeer() && pto->m_next_addr_send < current_time) {
-            pto->m_next_addr_send = PoissonNextSend(current_time, AVG_ADDRESS_BROADCAST_INTERVAL);
+        if (pto->IsAddrRelayPeer() && pto->nNextAddrSend < nNow) {
+            pto->nNextAddrSend = PoissonNextSend(nNow, AVG_ADDRESS_BROADCAST_INTERVAL);
             std::vector<CAddress> vAddr;
             vAddr.reserve(pto->vAddrToSend.size());
             assert(pto->m_addr_known);

@@ -536,7 +536,6 @@ libBGL_util_a_SOURCES = \
   util/string.cpp \
   util/time.cpp \
   util/url.cpp \
-  util/validation.cpp \
   $(BGL_CORE_H)
 
 if GLIBC_BACK_COMPAT

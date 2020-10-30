@@ -9,6 +9,7 @@
 #include <script/signingprovider.h>
 #include <script/standard.h>
 #include <util/error.h>
+#include <util/message.h>
 #include <wallet/crypter.h>
 #include <wallet/ismine.h>
 #include <wallet/walletdb.h>
@@ -214,6 +215,8 @@ public:
 
     /** Creates new signatures and adds them to the transaction. Returns whether all inputs were signed */
     virtual bool SignTransaction(CMutableTransaction& tx, const std::map<COutPoint, Coin>& coins, int sighash, std::map<int, std::string>& input_errors) const { return false; }
+    /** Sign a message with the given script */
+    virtual SigningResult SignMessage(const std::string& message, const PKHash& pkhash, std::string& str_sig) const { return SigningResult::SIGNING_FAILED; };
     /** Adds script and derivation path information to a PSBT, and optionally signs it. */
     virtual TransactionError FillPSBT(PartiallySignedTransaction& psbt, int sighash_type = 1 /* SIGHASH_ALL */, bool sign = true, bool bip32derivs = false) const { return TransactionError::INVALID_PSBT; }
 
@@ -236,7 +239,7 @@ class LegacyScriptPubKeyMan : public ScriptPubKeyMan, public FillableSigningProv
 {
 private:
     //! keeps track of whether Unlock has run a thorough check before
-    bool fDecryptionThoroughlyChecked = true;
+    bool fDecryptionThoroughlyChecked = false;
 
     using WatchOnlySet = std::set<CScript>;
     using WatchKeyMap = std::map<CKeyID, CPubKey>;
@@ -358,6 +361,7 @@ public:
     bool CanProvide(const CScript& script, SignatureData& sigdata) override;
 
     bool SignTransaction(CMutableTransaction& tx, const std::map<COutPoint, Coin>& coins, int sighash, std::map<int, std::string>& input_errors) const override;
+    SigningResult SignMessage(const std::string& message, const PKHash& pkhash, std::string& str_sig) const override;
     TransactionError FillPSBT(PartiallySignedTransaction& psbt, int sighash_type = 1 /* SIGHASH_ALL */, bool sign = true, bool bip32derivs = false) const override;
 
     uint256 GetID() const override;
@@ -375,7 +379,7 @@ public:
     //! Adds an encrypted key to the store, and saves it to disk.
     bool AddCryptedKey(const CPubKey &vchPubKey, const std::vector<unsigned char> &vchCryptedSecret);
     //! Adds an encrypted key to the store, without saving it to disk (used by LoadWallet)
-    bool LoadCryptedKey(const CPubKey &vchPubKey, const std::vector<unsigned char> &vchCryptedSecret, bool checksum_valid);
+    bool LoadCryptedKey(const CPubKey &vchPubKey, const std::vector<unsigned char> &vchCryptedSecret);
     void UpdateTimeFirstKey(int64_t nCreateTime) EXCLUSIVE_LOCKS_REQUIRED(cs_KeyStore);
     //! Adds a CScript to the store
     bool LoadCScript(const CScript& redeemScript);

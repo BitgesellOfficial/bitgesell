@@ -99,7 +99,12 @@ class CNetAddr
         friend bool operator!=(const CNetAddr& a, const CNetAddr& b) { return !(a == b); }
         friend bool operator<(const CNetAddr& a, const CNetAddr& b);
 
-        SERIALIZE_METHODS(CNetAddr, obj) { READWRITE(obj.ip); }
+        ADD_SERIALIZE_METHODS;
+
+        template <typename Stream, typename Operation>
+        inline void SerializationOp(Stream& s, Operation ser_action) {
+            READWRITE(ip);
+        }
 
         friend class CSubNet;
 };
@@ -131,7 +136,14 @@ class CSubNet
         friend bool operator!=(const CSubNet& a, const CSubNet& b) { return !(a == b); }
         friend bool operator<(const CSubNet& a, const CSubNet& b);
 
-        SERIALIZE_METHODS(CSubNet, obj) { READWRITE(obj.network, obj.netmask, obj.valid); }
+        ADD_SERIALIZE_METHODS;
+
+        template <typename Stream, typename Operation>
+        inline void SerializationOp(Stream& s, Operation ser_action) {
+            READWRITE(network);
+            READWRITE(netmask);
+            READWRITE(valid);
+        }
 };
 
 /** A combination of a network address (CNetAddr) and a (TCP) port */
@@ -159,7 +171,13 @@ class CService : public CNetAddr
         CService(const struct in6_addr& ipv6Addr, unsigned short port);
         explicit CService(const struct sockaddr_in6& addr);
 
-        SERIALIZE_METHODS(CService, obj) { READWRITE(obj.ip, Using<BigEndianFormatter<2>>(obj.port)); }
+        ADD_SERIALIZE_METHODS;
+
+        template <typename Stream, typename Operation>
+        inline void SerializationOp(Stream& s, Operation ser_action) {
+            READWRITE(ip);
+            READWRITE(WrapBigEndian(port));
+        }
 };
 
 #endif // BGL_NETADDRESS_H

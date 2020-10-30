@@ -637,7 +637,7 @@
     </message>
     <message>
         <location line="+4"/>
-        <source>Open a bitcoin: URI</source>
+        <source>Open a BGL: URI</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1359,7 +1359,7 @@
     <name>OpenURIDialog</name>
     <message>
         <location filename="../forms/openuridialog.ui" line="+14"/>
-        <source>Open bitcoin URI</source>
+        <source>Open BGL URI</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3008,7 +3008,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     </message>
     <message>
         <location line="+1"/>
-        <source>Creates a Partially Signed Bitcoin Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Creates a Partially Signed BGL Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3038,7 +3038,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
     </message>
     <message>
         <location line="+5"/>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed Bitcoin Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed BGL Transaction (PSBT) which you can copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -20,7 +20,6 @@
 #include <timedata.h>
 #include <util/moneystr.h>
 #include <util/system.h>
-#include <util/validation.h>
 
 #include <algorithm>
 #include <utility>
@@ -38,17 +37,6 @@ int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParam
         pblock->nBits = GetNextWorkRequired(pindexPrev, pblock, consensusParams);
 
     return nNewTime - nOldTime;
-}
-
-void RegenerateCommitments(CBlock& block)
-{
-    CMutableTransaction tx{*block.vtx.at(0)};
-    tx.vout.erase(tx.vout.begin() + GetWitnessCommitmentIndex(block));
-    block.vtx.at(0) = MakeTransactionRef(tx);
-
-    GenerateCoinbaseCommitment(block, WITH_LOCK(cs_main, return LookupBlockIndex(block.hashPrevBlock)), Params().GetConsensus());
-
-    block.hashMerkleRoot = BlockMerkleRoot(block);
 }
 
 BlockAssembler::Options::Options() {
@@ -178,7 +166,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     BlockValidationState state;
     if (!TestBlockValidity(state, chainparams, *pblock, pindexPrev, false, false)) {
-        throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, FormatStateMessage(state)));
+        throw std::runtime_error(strprintf("%s: TestBlockValidity failed: %s", __func__, state.ToString()));
     }
     int64_t nTime2 = GetTimeMicros();
 

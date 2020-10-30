@@ -197,20 +197,7 @@ void Shutdown(NodeContext& node)
     // Because these depend on each-other, we make sure that neither can be
     // using the other before destroying them.
     if (node.peer_logic) UnregisterValidationInterface(node.peer_logic.get());
-    // Follow the lock order requirements:
-    // * CheckForStaleTipAndEvictPeers locks cs_main before indirectly calling GetExtraOutboundCount
-    //   which locks cs_vNodes.
-    // * ProcessMessage locks cs_main and g_cs_orphans before indirectly calling ForEachNode which
-    //   locks cs_vNodes.
-    // * CConnman::Stop calls DeleteNode, which calls FinalizeNode, which locks cs_main and calls
-    //   EraseOrphansFor, which locks g_cs_orphans.
-    //
-    // Thus the implicit locking order requirement is: (1) cs_main, (2) g_cs_orphans, (3) cs_vNodes.
-    if (node.connman) {
-        node.connman->StopThreads();
-        LOCK2(::cs_main, ::g_cs_orphans);
-        node.connman->StopNodes();
-    }
+    if (node.connman) node.connman->Stop();
 
     StopTorControl();
 
@@ -243,12 +230,13 @@ void Shutdown(NodeContext& node)
     }
 
     // FlushStateToDisk generates a ChainStateFlushed callback, which we should avoid missing
+    //
+    // g_chainstate is referenced here directly (instead of ::ChainstateActive()) because it
+    // may not have been initialized yet.
     {
         LOCK(cs_main);
-        for (CChainState* chainstate : g_chainman.GetAll()) {
-            if (chainstate->CanFlushToDisk()) {
-                chainstate->ForceFlushStateToDisk();
-            }
+        if (g_chainstate && g_chainstate->CanFlushToDisk()) {
+            g_chainstate->ForceFlushStateToDisk();
         }
     }
 
@@ -272,11 +260,9 @@ void Shutdown(NodeContext& node)
 
     {
         LOCK(cs_main);
-        for (CChainState* chainstate : g_chainman.GetAll()) {
-            if (chainstate->CanFlushToDisk()) {
-                chainstate->ForceFlushStateToDisk();
-                chainstate->ResetCoinsViews();
-            }
+        if (g_chainstate && g_chainstate->CanFlushToDisk()) {
+            g_chainstate->ForceFlushStateToDisk();
+            g_chainstate->ResetCoinsViews();
         }
         pblocktree.reset();
     }
@@ -577,7 +563,7 @@ std::string LicenseInfo()
     const std::string URL_SOURCE_CODE = "<https://github.com/BGL/BGL>";
     const std::string URL_WEBSITE = "<https://BGLcore.org>";
 
-    return CopyrightHolders(strprintf("Copyright (C) Bitcoin Core Developers, " + _("Copyright (C) %i-%i").translated, 2009, COPYRIGHT_YEAR) + " ") + "\n" +
+    return CopyrightHolders(strprintf(_("Copyright (C) %i-%i").translated, 2009, COPYRIGHT_YEAR) + " ") + "\n" +
            "\n" +
            strprintf(_("Please contribute if you find %s useful. "
                        "Visit %s for further information about the software.").translated,
@@ -719,17 +705,11 @@ static void ThreadImport(std::vector<fs::path> vImportFiles)
     }
 
     // scan for better chains in the block chain database, that are not yet connected in the active best chain
-
-    // We can't hold cs_main during ActivateBestChain even though we're accessing
-    // the g_chainman unique_ptrs since ABC requires us not to be holding cs_main, so retrieve
-    // the relevant pointers before the ABC call.
-    for (CChainState* chainstate : WITH_LOCK(::cs_main, return g_chainman.GetAll())) {
-        BlockValidationState state;
-        if (!chainstate->ActivateBestChain(state, chainparams, nullptr)) {
-            LogPrintf("Failed to connect best block (%s)\n", state.ToString());
-            StartShutdown();
-            return;
-        }
+    BlockValidationState state;
+    if (!ActivateBestChain(state, chainparams)) {
+        LogPrintf("Failed to connect best block (%s)\n", state.ToString());
+        StartShutdown();
+        return;
     }
 
     if (gArgs.GetBoolArg("-stopafterblockimport", DEFAULT_STOPAFTERBLOCKIMPORT)) {
@@ -1458,7 +1438,7 @@ bool AppInitMain(NodeContext& node)
             InitError(strprintf(_("Could not parse asmap file %s").translated, asmap_path));
             return false;
         }
-        const uint256 asmap_version = SerializeHash(asmap);
+        const uint256 asmap_version = SerializeHashSHA256(asmap);
         node.connman->SetAsmap(std::move(asmap));
         LogPrintf("Using asmap version %s for IP bucketing\n", asmap_version.ToString());
     } else {
@@ -1519,18 +1499,17 @@ bool AppInitMain(NodeContext& node)
     bool fLoaded = false;
     while (!fLoaded && !ShutdownRequested()) {
         bool fReset = fReindex;
-        auto is_coinsview_empty = [&](CChainState* chainstate) EXCLUSIVE_LOCKS_REQUIRED(::cs_main) {
-            return fReset || fReindexChainState || chainstate->CoinsTip().GetBestBlock().IsNull();
-        };
         std::string strLoadError;
 
         uiInterface.InitMessage(_("Loading block index...").translated);
 
         do {
             const int64_t load_block_index_start_time = GetTimeMillis();
+            bool is_coinsview_empty;
             try {
                 LOCK(cs_main);
-                g_chainman.InitializeChainstate();
+                // This statement makes ::ChainstateActive() usable.
+                g_chainstate = MakeUnique<CChainState>();
                 UnloadBlockIndex();
 
                 // new CBlockTreeDB tries to delete the existing file, which
@@ -1583,53 +1562,43 @@ bool AppInitMain(NodeContext& node)
                 // At this point we're either in reindex or we've loaded a useful
                 // block tree into BlockIndex()!
 
-                bool failed_chainstate_init = false;
+                ::ChainstateActive().InitCoinsDB(
+                    /* cache_size_bytes */ nCoinDBCache,
+                    /* in_memory */ false,
+                    /* should_wipe */ fReset || fReindexChainState);
 
-                for (CChainState* chainstate : g_chainman.GetAll()) {
-                    LogPrintf("Initializing chainstate %s\n", chainstate->ToString());
-                    chainstate->InitCoinsDB(
-                        /* cache_size_bytes */ nCoinDBCache,
-                        /* in_memory */ false,
-                        /* should_wipe */ fReset || fReindexChainState);
+                ::ChainstateActive().CoinsErrorCatcher().AddReadErrCallback([]() {
+                    uiInterface.ThreadSafeMessageBox(
+                        _("Error reading from database, shutting down.").translated,
+                        "", CClientUIInterface::MSG_ERROR);
+                });
 
-                    chainstate->CoinsErrorCatcher().AddReadErrCallback([]() {
-                        uiInterface.ThreadSafeMessageBox(
-                            _("Error reading from database, shutting down.").translated,
-                            "", CClientUIInterface::MSG_ERROR);
-                    });
-
-                    // If necessary, upgrade from older database format.
-                    // This is a no-op if we cleared the coinsviewdb with -reindex or -reindex-chainstate
-                    if (!chainstate->CoinsDB().Upgrade()) {
-                        strLoadError = _("Error upgrading chainstate database").translated;
-                        failed_chainstate_init = true;
-                        break;
-                    }
-
-                    // ReplayBlocks is a no-op if we cleared the coinsviewdb with -reindex or -reindex-chainstate
-                    if (!chainstate->ReplayBlocks(chainparams)) {
-                        strLoadError = _("Unable to replay blocks. You will need to rebuild the database using -reindex-chainstate.").translated;
-                        failed_chainstate_init = true;
-                        break;
-                    }
-
-                    // The on-disk coinsdb is now in a good state, create the cache
-                    chainstate->InitCoinsCache();
-                    assert(chainstate->CanFlushToDisk());
-
-                    if (!is_coinsview_empty(chainstate)) {
-                        // LoadChainTip initializes the chain based on CoinsTip()'s best block
-                        if (!chainstate->LoadChainTip(chainparams)) {
-                            strLoadError = _("Error initializing block database").translated;
-                            failed_chainstate_init = true;
-                            break; // out of the per-chainstate loop
-                        }
-                        assert(chainstate->m_chain.Tip() != nullptr);
-                    }
+                // If necessary, upgrade from older database format.
+                // This is a no-op if we cleared the coinsviewdb with -reindex or -reindex-chainstate
+                if (!::ChainstateActive().CoinsDB().Upgrade()) {
+                    strLoadError = _("Error upgrading chainstate database").translated;
+                    break;
                 }
 
-                if (failed_chainstate_init) {
-                    break; // out of the chainstate activation do-while
+                // ReplayBlocks is a no-op if we cleared the coinsviewdb with -reindex or -reindex-chainstate
+                if (!::ChainstateActive().ReplayBlocks(chainparams)) {
+                    strLoadError = _("Unable to replay blocks. You will need to rebuild the database using -reindex-chainstate.").translated;
+                    break;
+                }
+
+                // The on-disk coinsdb is now in a good state, create the cache
+                ::ChainstateActive().InitCoinsCache();
+                assert(::ChainstateActive().CanFlushToDisk());
+
+                is_coinsview_empty = fReset || fReindexChainState ||
+                    ::ChainstateActive().CoinsTip().GetBestBlock().IsNull();
+                if (!is_coinsview_empty) {
+                    // LoadChainTip initializes the chain based on CoinsTip()'s best block
+                    if (!::ChainstateActive().LoadChainTip(chainparams)) {
+                        strLoadError = _("Error initializing block database").translated;
+                        break;
+                    }
+                    assert(::ChainActive().Tip() != nullptr);
                 }
             } catch (const std::exception& e) {
                 LogPrintf("%s\n", e.what());
@@ -1637,76 +1606,49 @@ bool AppInitMain(NodeContext& node)
                 break;
             }
 
-            bool failed_rewind{false};
-            // Can't hold cs_main while calling RewindBlockIndex, so retrieve the relevant
-            // chainstates beforehand.
-            for (CChainState* chainstate : WITH_LOCK(::cs_main, return g_chainman.GetAll())) {
-                if (!fReset) {
-                    // Note that RewindBlockIndex MUST run even if we're about to -reindex-chainstate.
-                    // It both disconnects blocks based on the chainstate, and drops block data in
-                    // BlockIndex() based on lack of available witness data.
-                    uiInterface.InitMessage(_("Rewinding blocks...").translated);
-                    if (!chainstate->RewindBlockIndex(chainparams)) {
-                        strLoadError = _(
-                            "Unable to rewind the database to a pre-fork state. "
-                            "You will need to redownload the blockchain").translated;
-                        failed_rewind = true;
-                        break; // out of the per-chainstate loop
-                    }
+            if (!fReset) {
+                // Note that RewindBlockIndex MUST run even if we're about to -reindex-chainstate.
+                // It both disconnects blocks based on ::ChainActive(), and drops block data in
+                // BlockIndex() based on lack of available witness data.
+                uiInterface.InitMessage(_("Rewinding blocks...").translated);
+                if (!RewindBlockIndex(chainparams)) {
+                    strLoadError = _("Unable to rewind the database to a pre-fork state. You will need to redownload the blockchain").translated;
+                    break;
                 }
             }
-
-            if (failed_rewind) {
-                break; // out of the chainstate activation do-while
-            }
-
-            bool failed_verification = false;
 
             try {
                 LOCK(cs_main);
+                if (!is_coinsview_empty) {
+                    uiInterface.InitMessage(_("Verifying blocks...").translated);
+                    if (fHavePruned && gArgs.GetArg("-checkblocks", DEFAULT_CHECKBLOCKS) > MIN_BLOCKS_TO_KEEP) {
+                        LogPrintf("Prune: pruned datadir may not have more than %d blocks; only checking available blocks\n",
+                            MIN_BLOCKS_TO_KEEP);
+                    }
 
-                for (CChainState* chainstate : g_chainman.GetAll()) {
-                    if (!is_coinsview_empty(chainstate)) {
-                        uiInterface.InitMessage(_("Verifying blocks...").translated);
-                        if (fHavePruned && gArgs.GetArg("-checkblocks", DEFAULT_CHECKBLOCKS) > MIN_BLOCKS_TO_KEEP) {
-                            LogPrintf("Prune: pruned datadir may not have more than %d blocks; only checking available blocks\n",
-                                MIN_BLOCKS_TO_KEEP);
-                        }
+                    CBlockIndex* tip = ::ChainActive().Tip();
+                    RPCNotifyBlockChange(true, tip);
+                    if (tip && tip->nTime > GetAdjustedTime() + 2 * 60 * 60) {
+                        strLoadError = _("The block database contains a block which appears to be from the future. "
+                                "This may be due to your computer's date and time being set incorrectly. "
+                                "Only rebuild the block database if you are sure that your computer's date and time are correct").translated;
+                        break;
+                    }
 
-                        const CBlockIndex* tip = chainstate->m_chain.Tip();
-                        RPCNotifyBlockChange(true, tip);
-                        if (tip && tip->nTime > GetAdjustedTime() + 2 * 60 * 60) {
-                            strLoadError = _("The block database contains a block which appears to be from the future. "
-                                    "This may be due to your computer's date and time being set incorrectly. "
-                                    "Only rebuild the block database if you are sure that your computer's date and time are correct").translated;
-                            failed_verification = true;
-                            break;
-                        }
-
-                        // Only verify the DB of the active chainstate. This is fixed in later
-                        // work when we allow VerifyDB to be parameterized by chainstate.
-                        if (&::ChainstateActive() == chainstate &&
-                                !CVerifyDB().VerifyDB(
-                                chainparams, &chainstate->CoinsDB(),
-                                gArgs.GetArg("-checklevel", DEFAULT_CHECKLEVEL),
-                                gArgs.GetArg("-checkblocks", DEFAULT_CHECKBLOCKS))) {
-                            strLoadError = _("Corrupted block database detected").translated;
-                            failed_verification = true;
-                            break;
-                        }
+                    if (!CVerifyDB().VerifyDB(chainparams, &::ChainstateActive().CoinsDB(), gArgs.GetArg("-checklevel", DEFAULT_CHECKLEVEL),
+                                  gArgs.GetArg("-checkblocks", DEFAULT_CHECKBLOCKS))) {
+                        strLoadError = _("Corrupted block database detected").translated;
+                        break;
                     }
                 }
             } catch (const std::exception& e) {
                 LogPrintf("%s\n", e.what());
                 strLoadError = _("Error opening block database").translated;
-                failed_verification = true;
                 break;
             }
 
-            if (!failed_verification) {
-                fLoaded = true;
-                LogPrintf(" block index %15dms\n", GetTimeMillis() - load_block_index_start_time);
-            }
+            fLoaded = true;
+            LogPrintf(" block index %15dms\n", GetTimeMillis() - load_block_index_start_time);
         } while(false);
 
         if (!fLoaded && !ShutdownRequested()) {
@@ -1770,11 +1712,8 @@ bool AppInitMain(NodeContext& node)
         LogPrintf("Unsetting NODE_NETWORK on prune mode\n");
         nLocalServices = ServiceFlags(nLocalServices & ~NODE_NETWORK);
         if (!fReindex) {
-            LOCK(cs_main);
-            for (CChainState* chainstate : g_chainman.GetAll()) {
-                uiInterface.InitMessage(_("Pruning blockstore...").translated);
-                chainstate->PruneAndFlush();
-            }
+            uiInterface.InitMessage(_("Pruning blockstore...").translated);
+            ::ChainstateActive().PruneAndFlush();
         }
     }
 

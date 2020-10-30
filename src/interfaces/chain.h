@@ -30,27 +30,6 @@ namespace interfaces {
 class Handler;
 class Wallet;
 
-//! Helper for findBlock to selectively return pieces of block data.
-class FoundBlock
-{
-public:
-    FoundBlock& hash(uint256& hash) { m_hash = &hash; return *this; }
-    FoundBlock& height(int& height) { m_height = &height; return *this; }
-    FoundBlock& time(int64_t& time) { m_time = &time; return *this; }
-    FoundBlock& maxTime(int64_t& max_time) { m_max_time = &max_time; return *this; }
-    FoundBlock& mtpTime(int64_t& mtp_time) { m_mtp_time = &mtp_time; return *this; }
-    //! Read block data from disk. If the block exists but doesn't have data
-    //! (for example due to pruning), the CBlock variable will be set to null.
-    FoundBlock& data(CBlock& data) { m_data = &data; return *this; }
-
-    uint256* m_hash = nullptr;
-    int* m_height = nullptr;
-    int64_t* m_time = nullptr;
-    int64_t* m_max_time = nullptr;
-    int64_t* m_mtp_time = nullptr;
-    CBlock* m_data = nullptr;
-};
-
 //! Interface giving clients (wallet processes, maybe other analysis tools in
 //! the future) ability to access to the chain state, receive notifications,
 //! estimate fees, and submit transactions.
@@ -64,7 +43,7 @@ public:
 //!   asynchronously
 //!   (https://github.com/BGL/BGL/pull/10973#issuecomment-380101269).
 //!
-//! * The initMessages() and loadWallet() methods which the wallet uses to send
+//! * The initMessage() and showProgress() methods which the wallet uses to send
 //!   notifications to the GUI should go away when GUI and wallet can directly
 //!   communicate with each other without going through the node
 //!   (https://github.com/BGL/BGL/pull/15288#discussion_r253321096).
@@ -103,6 +82,10 @@ public:
         //! Get block time. Height must be valid or this function will abort.
         virtual int64_t getBlockTime(int height) = 0;
 
+        //! Get block median time past. Height must be valid or this function
+        //! will abort.
+        virtual int64_t getBlockMedianTimePast(int height) = 0;
+
         //! Check that the block is available on disk (i.e. has not been
         //! pruned), and contains transactions.
         virtual bool haveBlockOnDisk(int height) = 0;
@@ -113,6 +96,10 @@ public:
         //! timestamp and height. Also return the block hash as an optional output parameter
         //! (to avoid the cost of a second lookup in case this information is needed.)
         virtual Optional<int> findFirstBlockWithTimeAndHeight(int64_t time, int height, uint256* hash) = 0;
+
+        //! Return height of last block in the specified range which is pruned, or
+        //! nullopt if no block in the range is pruned. Range is inclusive.
+        virtual Optional<int> findPruned(int start_height = 0, Optional<int> stop_height = nullopt) = 0;
 
         //! Return height of the specified block if it is on the chain, otherwise
         //! return the height of the highest block on chain that's an ancestor
@@ -140,25 +127,14 @@ public:
 
     //! Return whether node has the block and optionally return block metadata
     //! or contents.
-    virtual bool findBlock(const uint256& hash, const FoundBlock& block={}) = 0;
-
-    //! Find ancestor of block at specified height and optionally return
-    //! ancestor information.
-    virtual bool findAncestorByHeight(const uint256& block_hash, int ancestor_height, const FoundBlock& ancestor_out={}) = 0;
-
-    //! Return whether block descends from a specified ancestor, and
-    //! optionally return ancestor information.
-    virtual bool findAncestorByHash(const uint256& block_hash,
-        const uint256& ancestor_hash,
-        const FoundBlock& ancestor_out={}) = 0;
-
-    //! Find most recent common ancestor between two blocks and optionally
-    //! return block information.
-    virtual bool findCommonAncestor(const uint256& block_hash1,
-        const uint256& block_hash2,
-        const FoundBlock& ancestor_out={},
-        const FoundBlock& block1_out={},
-        const FoundBlock& block2_out={}) = 0;
+    //!
+    //! If a block pointer is provided to retrieve the block contents, and the
+    //! block exists but doesn't have data (for example due to pruning), the
+    //! block will be empty and all fields set to null.
+    virtual bool findBlock(const uint256& hash,
+        CBlock* block = nullptr,
+        int64_t* time = nullptr,
+        int64_t* max_time = nullptr) = 0;
 
     //! Look up unspent output information. Returns coins in the mempool and in
     //! the current chain UTXO set. Iterates through all the keys in the map and
@@ -168,11 +144,6 @@ public:
     //! Estimate fraction of total transactions verified if blocks up to
     //! the specified block hash are verified.
     virtual double guessVerificationProgress(const uint256& block_hash) = 0;
-
-    //! Return true if data is available for all blocks in the specified range
-    //! of blocks. This checks all blocks that are ancestors of block_hash in
-    //! the height range from min_height to max_height, inclusive.
-    virtual bool hasBlocks(const uint256& block_hash, int min_height = 0, Optional<int> max_height = {}) = 0;
 
     //! Check if transaction is RBF opt in.
     virtual RBFTransactionState isRBFOptIn(const CTransaction& tx) = 0;
@@ -241,9 +212,6 @@ public:
     //! Send init error.
     virtual void initError(const std::string& message) = 0;
 
-    //! Send wallet load notification to the GUI.
-    virtual void loadWallet(std::unique_ptr<Wallet> wallet) = 0;
-
     //! Send progress indicator.
     virtual void showProgress(const std::string& title, int progress, bool resume_possible) = 0;
 
@@ -261,7 +229,7 @@ public:
     };
 
     //! Register handler for notifications.
-    virtual std::unique_ptr<Handler> handleNotifications(std::shared_ptr<Notifications> notifications) = 0;
+    virtual std::unique_ptr<Handler> handleNotifications(Notifications& notifications) = 0;
 
     //! Wait for pending notifications to be processed unless block hash points to the current
     //! chain tip.
@@ -315,12 +283,6 @@ public:
 
     //! Shut down client.
     virtual void stop() = 0;
-
-    //! Set mock time.
-    virtual void setMockTime(int64_t time) = 0;
-
-    //! Return interfaces for accessing wallets (if any).
-    virtual std::vector<std::unique_ptr<Wallet>> getWallets() = 0;
 };
 
 //! Return implementation of Chain interface.

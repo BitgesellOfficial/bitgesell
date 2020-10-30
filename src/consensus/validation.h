@@ -109,6 +109,18 @@ public:
     Result GetResult() const { return m_result; }
     std::string GetRejectReason() const { return m_reject_reason; }
     std::string GetDebugMessage() const { return m_debug_message; }
+    std::string ToString() const
+    {
+        if (IsValid()) {
+            return "Valid";
+        }
+
+        if (!m_debug_message.empty()) {
+            return m_reject_reason + ", " + m_debug_message;
+        }
+
+        return m_reject_reason;
+    }
 };
 
 class TxValidationState : public ValidationState<TxValidationResult> {};

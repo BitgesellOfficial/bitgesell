@@ -823,15 +823,18 @@ std::vector<CScript> EvalDescriptorStringOrObject(const UniValue& scanobject, Fl
 
 UniValue GetServicesNames(ServiceFlags services)
 {
-    const uint64_t services_n = services;
     UniValue servicesNames(UniValue::VARR);
 
-    for (int i = 0; i < 64; ++i) {
-        const uint64_t mask = 1ull << i;
-        if (services_n & mask) {
-            servicesNames.push_back(serviceFlagToStr(mask, i));
-        }
-    }
+    if (services & NODE_NETWORK)
+        servicesNames.push_back("NETWORK");
+    if (services & NODE_GETUTXO)
+        servicesNames.push_back("GETUTXO");
+    if (services & NODE_BLOOM)
+        servicesNames.push_back("BLOOM");
+    if (services & NODE_WITNESS)
+        servicesNames.push_back("WITNESS");
+    if (services & NODE_NETWORK_LIMITED)
+        servicesNames.push_back("NETWORK_LIMITED");
 
     return servicesNames;
 }

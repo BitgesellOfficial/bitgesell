@@ -45,10 +45,9 @@ std::vector<fs::path> ListWalletDir();
 std::vector<std::shared_ptr<CWallet>> GetWallets();
 std::shared_ptr<CWallet> LoadWallet(interfaces::Chain& chain, const std::string& name, std::string& error, std::vector<std::string>& warnings);
 WalletCreationStatus CreateWallet(interfaces::Chain& chain, const SecureString& passphrase, uint64_t wallet_creation_flags, const std::string& name, std::string& error, std::vector<std::string>& warnings, std::shared_ptr<CWallet>& result);
+std::unique_ptr<interfaces::Handler> HandleLoadWallet(interfaces::Node::LoadWalletFn load_wallet);
 
 namespace interfaces {
-
-class Wallet;
 
 namespace {
 
@@ -254,9 +253,8 @@ public:
     std::vector<std::unique_ptr<Wallet>> getWallets() override
     {
         std::vector<std::unique_ptr<Wallet>> wallets;
-        for (auto& client : m_context.chain_clients) {
-            auto client_wallets = client->getWallets();
-            std::move(client_wallets.begin(), client_wallets.end(), std::back_inserter(wallets));
+        for (const std::shared_ptr<CWallet>& wallet : GetWallets()) {
+            wallets.emplace_back(MakeWallet(wallet));
         }
         return wallets;
     }
@@ -288,7 +286,7 @@ public:
     }
     std::unique_ptr<Handler> handleLoadWallet(LoadWalletFn fn) override
     {
-        return MakeHandler(::uiInterface.LoadWallet_connect([fn](std::unique_ptr<Wallet>& wallet) { fn(std::move(wallet)); }));
+        return HandleLoadWallet(std::move(fn));
     }
     std::unique_ptr<Handler> handleNotifyNumConnectionsChanged(NotifyNumConnectionsChangedFn fn) override
     {

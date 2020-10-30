@@ -38,6 +38,8 @@
 
 #include <boost/signals2/signal.hpp>
 
+using LoadWalletFn = std::function<void(std::unique_ptr<interfaces::Wallet> wallet)>;
+
 //! Explicitly unload and delete the wallet.
 //! Blocks the current thread after signaling the unload intent so that all
 //! wallet clients release the wallet.
@@ -51,6 +53,7 @@ bool HasWallets();
 std::vector<std::shared_ptr<CWallet>> GetWallets();
 std::shared_ptr<CWallet> GetWallet(const std::string& name);
 std::shared_ptr<CWallet> LoadWallet(interfaces::Chain& chain, const WalletLocation& location, std::string& error, std::vector<std::string>& warnings);
+std::unique_ptr<interfaces::Handler> HandleLoadWallet(LoadWalletFn load_wallet);
 
 enum class WalletCreationStatus {
     SUCCESS,
@@ -81,9 +84,9 @@ static const bool DEFAULT_WALLET_RBF = false;
 static const bool DEFAULT_WALLETBROADCAST = true;
 static const bool DEFAULT_DISABLE_WALLET = false;
 //! -maxtxfee default
-constexpr CAmount DEFAULT_TRANSACTION_MAXFEE{COIN * 5};
+constexpr CAmount DEFAULT_TRANSACTION_MAXFEE{COIN / 10};
 //! Discourage users to set fees higher than this amount (in satoshis) per kB
-constexpr CAmount HIGH_TX_FEE_PER_KB{COIN / 10};
+constexpr CAmount HIGH_TX_FEE_PER_KB{COIN / 100};
 //! -maxtxfee will warn if called with a higher fee than this amount (in satoshis)
 constexpr CAmount HIGH_MAX_TX_FEE{100 * HIGH_TX_FEE_PER_KB};
 
@@ -603,7 +606,7 @@ class WalletRescanReserver; //forward declarations for ScanForWalletTransactions
 /**
  * A CWallet maintains a set of transactions and balances, and provides the ability to create new transactions.
  */
-class CWallet final : public WalletStorage, public interfaces::Chain::Notifications
+class CWallet final : public WalletStorage, private interfaces::Chain::Notifications
 {
 private:
     CKeyingMaterial vMasterKey GUARDED_BY(cs_wallet);
@@ -779,6 +782,9 @@ public:
     /** Registered interfaces::Chain::Notifications handler. */
     std::unique_ptr<interfaces::Handler> m_chain_notifications_handler;
 
+    /** Register the wallet for chain notifications */
+    void handleNotifications();
+
     /** Interface for accessing chain state. */
     interfaces::Chain& chain() const { assert(m_chain); return *m_chain; }
 
@@ -891,7 +897,7 @@ public:
         //! USER_ABORT.
         uint256 last_failed_block;
     };
-    ScanResult ScanForWalletTransactions(const uint256& start_block, int start_height, Optional<int> max_height, const WalletRescanReserver& reserver, bool fUpdate);
+    ScanResult ScanForWalletTransactions(const uint256& first_block, const uint256& last_block, const WalletRescanReserver& reserver, bool fUpdate);
     void transactionRemovedFromMempool(const CTransactionRef &ptx) override;
     void ReacceptWalletTransactions() EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     void ResendWalletTransactions();
@@ -1197,12 +1203,6 @@ public:
         assert(m_last_block_processed_height >= 0);
         return m_last_block_processed_height;
     };
-    uint256 GetLastBlockHash() const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet)
-    {
-        AssertLockHeld(cs_wallet);
-        assert(m_last_block_processed_height >= 0);
-        return m_last_block_processed;
-    }
     /** Set last block processed height, currently only use in unit test */
     void SetLastBlockProcessed(int block_height, uint256 block_hash) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet)
     {

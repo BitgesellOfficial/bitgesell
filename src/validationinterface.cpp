@@ -11,7 +11,6 @@
 #include <primitives/block.h>
 #include <primitives/transaction.h>
 #include <scheduler.h>
-#include <util/validation.h>
 
 #include <future>
 #include <unordered_map>
@@ -76,10 +75,8 @@ CMainSignals& GetMainSignals()
     return g_signals;
 }
 
-void RegisterSharedValidationInterface(std::shared_ptr<CValidationInterface> pwalletIn) {
-    // Each connection captures pwalletIn to ensure that each callback is
-    // executed before pwalletIn is destroyed. For more details see #18338.
-    ValidationInterfaceConnections& conns = g_signals.m_internals->m_connMainSignals[pwalletIn.get()];
+void RegisterValidationInterface(CValidationInterface* pwalletIn) {
+    ValidationInterfaceConnections& conns = g_signals.m_internals->m_connMainSignals[pwalletIn];
     conns.UpdatedBlockTip = g_signals.m_internals->UpdatedBlockTip.connect(std::bind(&CValidationInterface::UpdatedBlockTip, pwalletIn, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
     conns.TransactionAddedToMempool = g_signals.m_internals->TransactionAddedToMempool.connect(std::bind(&CValidationInterface::TransactionAddedToMempool, pwalletIn, std::placeholders::_1));
     conns.BlockConnected = g_signals.m_internals->BlockConnected.connect(std::bind(&CValidationInterface::BlockConnected, pwalletIn, std::placeholders::_1, std::placeholders::_2));
@@ -88,18 +85,6 @@ void RegisterSharedValidationInterface(std::shared_ptr<CValidationInterface> pwa
     conns.ChainStateFlushed = g_signals.m_internals->ChainStateFlushed.connect(std::bind(&CValidationInterface::ChainStateFlushed, pwalletIn, std::placeholders::_1));
     conns.BlockChecked = g_signals.m_internals->BlockChecked.connect(std::bind(&CValidationInterface::BlockChecked, pwalletIn, std::placeholders::_1, std::placeholders::_2));
     conns.NewPoWValidBlock = g_signals.m_internals->NewPoWValidBlock.connect(std::bind(&CValidationInterface::NewPoWValidBlock, pwalletIn, std::placeholders::_1, std::placeholders::_2));
-}
-
-void RegisterValidationInterface(CValidationInterface* callbacks)
-{
-    // Create a shared_ptr with a no-op deleter - CValidationInterface lifecycle
-    // is managed by the caller.
-    RegisterSharedValidationInterface({callbacks, [](CValidationInterface*){}});
-}
-
-void UnregisterSharedValidationInterface(std::shared_ptr<CValidationInterface> callbacks)
-{
-    UnregisterValidationInterface(callbacks.get());
 }
 
 void UnregisterValidationInterface(CValidationInterface* pwalletIn) {
@@ -207,7 +192,7 @@ void CMainSignals::ChainStateFlushed(const CBlockLocator &locator) {
 
 void CMainSignals::BlockChecked(const CBlock& block, const BlockValidationState& state) {
     LOG_EVENT("%s: block hash=%s state=%s", __func__,
-              block.GetHash().ToString(), FormatStateMessage(state));
+              block.GetHash().ToString(), state.ToString());
     m_internals->BlockChecked(block, state);
 }
 
