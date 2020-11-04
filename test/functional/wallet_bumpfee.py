@@ -29,12 +29,12 @@ from test_framework.util import (
 WALLET_PASSPHRASE = "test"
 WALLET_PASSPHRASE_TIMEOUT = 3600
 
-# Fee rates (in BGL per 1000 vbytes)
-INSUFFICIENT = 0.00001000
-ECONOMICAL   = 0.00050000
-NORMAL       = 0.00100000
-HIGH         = 0.00500000
-TOO_HIGH     = 1.00000000
+# Fee rates (sat/vB)
+INSUFFICIENT =      1
+ECONOMICAL   =     50
+NORMAL       =    100
+HIGH         =    500
+TOO_HIGH     = 100000
 
 
 class BumpFeeTest(BitcoinTestFramework):
@@ -76,10 +76,9 @@ class BumpFeeTest(BitcoinTestFramework):
 
         self.log.info("Running tests")
         dest_address = peer_node.getnewaddress()
-        self.test_invalid_parameters(rbf_node, dest_address)
-        test_simple_bumpfee_succeeds(self, "default", rbf_node, peer_node, dest_address)
-        test_simple_bumpfee_succeeds(self, "fee_rate", rbf_node, peer_node, dest_address)
-        test_feerate_args(self, rbf_node, peer_node, dest_address)
+        for mode in ["default", "fee_rate"]:
+            test_simple_bumpfee_succeeds(self, mode, rbf_node, peer_node, dest_address)
+        self.test_invalid_parameters(rbf_node, peer_node, dest_address)
         test_segwit_bumpfee_succeeds(self, rbf_node, dest_address)
         test_nonrbf_bumpfee_fails(self, peer_node, dest_address)
         test_notmine_bumpfee_fails(self, rbf_node, peer_node, dest_address)
@@ -98,28 +97,49 @@ class BumpFeeTest(BitcoinTestFramework):
         test_small_output_with_feerate_succeeds(self, rbf_node, dest_address)
         test_no_more_inputs_fails(self, rbf_node, dest_address)
 
-    def test_invalid_parameters(self, node, dest_address):
-        txid = spend_one_input(node, dest_address)
-        # invalid estimate mode
-        assert_raises_rpc_error(-8, "Invalid estimate_mode parameter", node.bumpfee, txid, {
-            "estimate_mode": "moo",
-        })
-        assert_raises_rpc_error(-3, "Expected type string", node.bumpfee, txid, {
-            "estimate_mode": 38,
-        })
-        assert_raises_rpc_error(-3, "Expected type string", node.bumpfee, txid, {
-            "estimate_mode": {
-                "foo": "bar",
-            },
-        })
-        assert_raises_rpc_error(-8, "Invalid estimate_mode parameter", node.bumpfee, txid, {
-            "estimate_mode": Decimal("3.141592"),
-        })
-        # confTarget and conf_target
-        assert_raises_rpc_error(-8, "confTarget and conf_target options should not both be set", node.bumpfee, txid, {
-            "confTarget": 123,
-            "conf_target": 456,
-        })
+    def test_invalid_parameters(self, rbf_node, peer_node, dest_address):
+        self.log.info('Test invalid parameters')
+        rbfid = spend_one_input(rbf_node, dest_address)
+        self.sync_mempools((rbf_node, peer_node))
+        assert rbfid in rbf_node.getrawmempool() and rbfid in peer_node.getrawmempool()
+
+        for key in ["totalFee", "feeRate"]:
+            assert_raises_rpc_error(-3, "Unexpected key {}".format(key), rbf_node.bumpfee, rbfid, {key: NORMAL})
+
+        # Bumping to just above minrelay should fail to increase the total fee enough.
+        assert_raises_rpc_error(-8, "Insufficient total fee 0.00000141, must be at least 0.00001704 (oldFee 0.00000999 + incrementalFee 0.00000705)",
+            rbf_node.bumpfee, rbfid, {"fee_rate": INSUFFICIENT})
+
+        self.log.info("Test invalid fee rate settings")
+        assert_raises_rpc_error(-8, "Invalid fee_rate 0.00000000 BTC/kB (must be greater than 0)",
+            rbf_node.bumpfee, rbfid, {"fee_rate": 0})
+        assert_raises_rpc_error(-4, "Specified or calculated fee 0.141 is too high (cannot be higher than -maxtxfee 0.10",
+            rbf_node.bumpfee, rbfid, {"fee_rate": TOO_HIGH})
+        assert_raises_rpc_error(-3, "Amount out of range", rbf_node.bumpfee, rbfid, {"fee_rate": -1})
+        for value in [{"foo": "bar"}, True]:
+            assert_raises_rpc_error(-3, "Amount is not a number or string", rbf_node.bumpfee, rbfid, {"fee_rate": value})
+        assert_raises_rpc_error(-3, "Invalid amount", rbf_node.bumpfee, rbfid, {"fee_rate": ""})
+
+        self.log.info("Test explicit fee rate raises RPC error if both fee_rate and conf_target are passed")
+        assert_raises_rpc_error(-8, "Cannot specify both conf_target and fee_rate. Please provide either a confirmation "
+            "target in blocks for automatic fee estimation, or an explicit fee rate.",
+            rbf_node.bumpfee, rbfid, {"conf_target": NORMAL, "fee_rate": NORMAL})
+
+        self.log.info("Test explicit fee rate raises RPC error if both fee_rate and estimate_mode are passed")
+        assert_raises_rpc_error(-8, "Cannot specify both estimate_mode and fee_rate",
+            rbf_node.bumpfee, rbfid, {"estimate_mode": "economical", "fee_rate": NORMAL})
+
+        self.log.info("Test invalid conf_target settings")
+        assert_raises_rpc_error(-8, "confTarget and conf_target options should not both be set",
+            rbf_node.bumpfee, rbfid, {"confTarget": 123, "conf_target": 456})
+
+        self.log.info("Test invalid estimate_mode settings")
+        for k, v in {"number": 42, "object": {"foo": "bar"}}.items():
+            assert_raises_rpc_error(-3, "Expected type string for estimate_mode, got {}".format(k),
+                rbf_node.bumpfee, rbfid, {"estimate_mode": v})
+        for mode in ["foo", Decimal("3.1415"), "sat/B", "BTC/kB"]:
+            assert_raises_rpc_error(-8, "Invalid estimate_mode parameter", rbf_node.bumpfee, rbfid, {"estimate_mode": mode})
+
         self.clear_mempool()
 
 
@@ -303,11 +323,11 @@ def test_dust_to_fee(self, rbf_node, dest_address):
     # boundary. Thus expected transaction size (p2wpkh, 1 input, 2 outputs) is 140-141 vbytes, usually 141.
     if not 140 <= fulltx["vsize"] <= 141:
         raise AssertionError("Invalid tx vsize of {} (140-141 expected), full tx: {}".format(fulltx["vsize"], fulltx))
-    # Bump with fee_rate of 0.00350250 BTC per 1000 vbytes to create dust.
+    # Bump with fee_rate of 350.25 sat/vB vbytes to create dust.
     # Expected fee is 141 vbytes * fee_rate 0.00350250 BTC / 1000 vbytes = 0.00049385 BTC.
     # or occasionally 140 vbytes * fee_rate 0.00350250 BTC / 1000 vbytes = 0.00049035 BTC.
     # Dust should be dropped to the fee, so actual bump fee is 0.00050000 BTC.
-    bumped_tx = rbf_node.bumpfee(rbfid, {"fee_rate": 0.00350250})
+    bumped_tx = rbf_node.bumpfee(rbfid, {"fee_rate": 350.25})
     full_bumped_tx = rbf_node.getrawtransaction(bumped_tx["txid"], 1)
     assert_equal(bumped_tx["fee"], Decimal("0.00050000"))
     assert_equal(len(fulltx["vout"]), 2)
