@@ -511,7 +511,7 @@ ap = ArgumentParser(description="""Improved version of macdeployqt.
 Outputs a ready-to-deploy app in a folder "dist" and optionally wraps it in a .dmg file.
 Note, that the "dist" folder will be deleted before deploying on each run.
 
-Optionally, Qt translation files (.qm) and additional resources can be added to the bundle.""")
+Optionally, Qt translation files (.qm) can be added to the bundle.""")
 
 ap.add_argument("app_bundle", nargs=1, metavar="app-bundle", help="application bundle to be deployed")
 ap.add_argument("appname", nargs=1, metavar="appname", help="name of the app being deployed")
@@ -520,6 +520,7 @@ ap.add_argument("-no-plugins", dest="plugins", action="store_false", default=Tru
 ap.add_argument("-no-strip", dest="strip", action="store_false", default=True, help="don't run 'strip' on the binaries")
 ap.add_argument("-dmg", nargs="?", const="", metavar="basename", help="create a .dmg disk image")
 ap.add_argument("-translations-dir", nargs=1, metavar="path", default=None, help="Path to Qt's translations. Base translations will automatically be added to the bundle's resources.")
+ap.add_argument("-volname", nargs=1, metavar="volname", default=[], help="custom volume name for dmg")
 
 config = ap.parse_args()
 
@@ -532,6 +533,65 @@ app_bundle = config.app_bundle[0]
 if not os.path.exists(app_bundle):
     sys.stderr.write("Error: Could not find app bundle \"{}\"\n".format(app_bundle))
     sys.exit(1)
+
+app_bundle_name = os.path.splitext(os.path.basename(app_bundle))[0]
+
+# ------------------------------------------------
+
+if len(config.fancy) == 1:
+    if verbose >= 3:
+        print("Fancy: Importing plistlib...")
+    try:
+        import plistlib
+    except ImportError:
+        if verbose >= 1:
+            sys.stderr.write("Error: Could not import plistlib which is required for fancy disk images.\n")
+        sys.exit(1)
+    
+    p = config.fancy[0]
+    if verbose >= 3:
+        print("Fancy: Loading \"{}\"...".format(p))
+    if not os.path.exists(p):
+        if verbose >= 1:
+            sys.stderr.write("Error: Could not find fancy disk image plist at \"{}\"\n".format(p))
+        sys.exit(1)
+    
+    try:
+        with open(p, 'rb') as fp:
+            fancy = plistlib.load(fp, fmt=plistlib.FMT_XML)
+    except:
+        if verbose >= 1:
+            sys.stderr.write("Error: Could not parse fancy disk image plist at \"{}\"\n".format(p))
+        sys.exit(1)
+    
+    try:
+        assert "window_bounds" not in fancy or (isinstance(fancy["window_bounds"], list) and len(fancy["window_bounds"]) == 4)
+        assert "background_picture" not in fancy or isinstance(fancy["background_picture"], str)
+        assert "icon_size" not in fancy or isinstance(fancy["icon_size"], int)
+        assert "applications_symlink" not in fancy or isinstance(fancy["applications_symlink"], bool)
+        if "items_position" in fancy:
+            assert isinstance(fancy["items_position"], dict)
+            for key, value in fancy["items_position"].items():
+                assert isinstance(value, list) and len(value) == 2 and isinstance(value[0], int) and isinstance(value[1], int)
+    except:
+        if verbose >= 1:
+            sys.stderr.write("Error: Bad format of fancy disk image plist at \"{}\"\n".format(p))
+        sys.exit(1)
+    
+    if "background_picture" in fancy:
+        bp = fancy["background_picture"]
+        if verbose >= 3:
+            print("Fancy: Resolving background picture \"{}\"...".format(bp))
+        if not os.path.exists(bp):
+            bp = os.path.join(os.path.dirname(p), bp)
+            if not os.path.exists(bp):
+                if verbose >= 1:
+                    sys.stderr.write("Error: Could not find background picture at \"{}\" or \"{}\"\n".format(fancy["background_picture"], bp))
+                sys.exit(1)
+            else:
+                fancy["background_picture"] = bp
+else:
+    fancy = None
 
 # ------------------------------------------------
 
@@ -609,50 +669,6 @@ print("+ Installing qt.conf +")
 
 with open(os.path.join(applicationBundle.resourcesPath, "qt.conf"), "wb") as f:
     f.write(qt_conf.encode())
-
-# ------------------------------------------------
-
-print("+ Generating .DS_Store +")
-
-output_file = os.path.join("dist", ".DS_Store")
-
-ds = DSStore.open(output_file, 'w+')
-
-ds['.']['bwsp'] = {
-    'WindowBounds': '{{300, 280}, {500, 343}}',
-    'PreviewPaneVisibility': False,
-}
-
-icvp = {
-    'gridOffsetX': 0.0,
-    'textSize': 12.0,
-    'viewOptionsVersion': 1,
-    'backgroundImageAlias': b'\x00\x00\x00\x00\x02\x1e\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xd1\x94\\\xb0H+\x00\x05\x00\x00\x00\x98\x0fbackground.tiff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x99\xd19\xb0\xf8\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\x00\x00\r\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0b.background\x00\x00\x10\x00\x08\x00\x00\xd1\x94\\\xb0\x00\x00\x00\x11\x00\x08\x00\x00\xd19\xb0\xf8\x00\x00\x00\x01\x00\x04\x00\x00\x00\x98\x00\x0e\x00 \x00\x0f\x00b\x00a\x00c\x00k\x00g\x00r\x00o\x00u\x00n\x00d\x00.\x00t\x00i\x00f\x00f\x00\x0f\x00\x02\x00\x00\x00\x12\x00\x1c/.background/background.tiff\x00\x14\x01\x06\x00\x00\x00\x00\x01\x06\x00\x02\x00\x00\x0cMacintosh HD\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xce\x97\xab\xc3H+\x00\x00\x01\x88[\x88\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02u\xab\x8d\xd1\x94\\\xb0devrddsk\xff\xff\xff\xff\x00\x00\t \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x07BGL\x00\x00\x10\x00\x08\x00\x00\xce\x97\xab\xc3\x00\x00\x00\x11\x00\x08\x00\x00\xd1\x94\\\xb0\x00\x00\x00\x01\x00\x14\x01\x88[\x88\x00\x16\xa9\t\x00\x08\xfaR\x00\x08\xfaQ\x00\x02d\x8e\x00\x0e\x00\x02\x00\x00\x00\x0f\x00\x1a\x00\x0c\x00M\x00a\x00c\x00i\x00n\x00t\x00o\x00s\x00h\x00 \x00H\x00D\x00\x13\x00\x01/\x00\x00\x15\x00\x02\x00\x14\xff\xff\x00\x00\xff\xff\x00\x00',
-    'backgroundColorBlue': 1.0,
-    'iconSize': 96.0,
-    'backgroundColorGreen': 1.0,
-    'arrangeBy': 'none',
-    'showIconPreview': True,
-    'gridSpacing': 100.0,
-    'gridOffsetY': 0.0,
-    'showItemInfo': False,
-    'labelOnBottom': True,
-    'backgroundType': 2,
-    'backgroundColorRed': 1.0
-}
-alias = Alias().from_bytes(icvp['backgroundImageAlias'])
-alias.volume.name = appname
-alias.volume.posix_path = '/Volumes/' + appname
-icvp['backgroundImageAlias'] = alias.to_bytes()
-ds['.']['icvp'] = icvp
-
-ds['.']['vSrn'] = ('long', 1)
-
-ds['Applications']['Iloc'] = (370, 156)
-ds['BGL-Qt.app']['Iloc'] = (128, 156)
-
-ds.flush()
-ds.close()
 
 # ------------------------------------------------
 
