@@ -25,7 +25,7 @@ class AbortNodeTest(BGLTestFramework):
         # We'll connect the nodes later
 
     def run_test(self):
-        self.generate(self.nodes[0], 3)
+        self.generate(self.nodes[0], 3, sync_fun=self.no_op)
         datadir = get_datadir_path(self.options.tmpdir, 0)
 
         # Deleting the undo file will result in reorg failure
@@ -33,10 +33,10 @@ class AbortNodeTest(BGLTestFramework):
 
         # Connecting to a node with a more work chain will trigger a reorg
         # attempt.
-        self.generate(self.nodes[1], 3)
+        self.generate(self.nodes[1], 3, sync_fun=self.no_op)
         with self.nodes[0].assert_debug_log(["Failed to disconnect block"]):
             self.connect_nodes(0, 1)
-            self.generate(self.nodes[1], 1)
+            self.generate(self.nodes[1], 1, sync_fun=self.no_op)
 
             # Check that node0 aborted
             self.log.info("Waiting for crash")

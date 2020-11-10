@@ -60,15 +60,14 @@ class WalletTest(BGLTestFramework):
 
         self.log.info("Mining blocks...")
 
-        self.generate(self.nodes[0], 1)
+        self.generate(self.nodes[0], 1, sync_fun=self.no_op)
 
         walletinfo = self.nodes[0].getwalletinfo()
         assert_equal(walletinfo['immature_balance'], 200)
         assert_equal(walletinfo['balance'], 0)
 
         self.sync_all(self.nodes[0:3])
-        self.generate(self.nodes[1], COINBASE_MATURITY + 1)
-        self.sync_all(self.nodes[0:3])
+        self.generate(self.nodes[1], COINBASE_MATURITY + 1, sync_fun=lambda: self.sync_all(self.nodes[0:3]))
 
         assert_equal(self.nodes[0].getbalance(), 200)
         assert_equal(self.nodes[1].getbalance(), 200)
@@ -121,8 +120,7 @@ class WalletTest(BGLTestFramework):
         assert_equal(walletinfo['immature_balance'], 0)
 
         # Have node0 mine a block, thus it will collect its own fee.
-        self.generate(self.nodes[0], 1)
-        self.sync_all(self.nodes[0:3])
+        self.generate(self.nodes[0], 1, sync_fun=lambda: self.sync_all(self.nodes[0:3]))
 
         # Exercise locking of unspent outputs
         unspent_0 = self.nodes[2].listunspent()[0]
@@ -201,8 +199,7 @@ class WalletTest(BGLTestFramework):
         assert_equal(len(self.nodes[1].listlockunspent()), 0)
 
         # Have node1 generate 100 blocks (so node0 can recover the fee)
-        self.generate(self.nodes[1], COINBASE_MATURITY)
-        self.sync_all(self.nodes[0:3])
+        self.generate(self.nodes[1], COINBASE_MATURITY, sync_fun=lambda: self.sync_all(self.nodes[0:3]))
 
         # node0 should end up with 100 BGL in block rewards plus fees, but
         # minus the 21 plus fees sent to node2
@@ -230,8 +227,7 @@ class WalletTest(BGLTestFramework):
         self.nodes[1].sendrawtransaction(hexstring=txns_to_send[1]["hex"], maxfeerate=0)
 
         # Have node1 mine a block to confirm transactions:
-        self.generate(self.nodes[1], 1)
-        self.sync_all(self.nodes[0:3])
+        self.generate(self.nodes[1], 1, sync_fun=lambda: self.sync_all(self.nodes[0:3]))
 
         assert_equal(self.nodes[0].getbalance(), 0)
         assert_equal(self.nodes[2].getbalance(), 394-fees*Decimal("0.9"))
@@ -245,31 +241,27 @@ class WalletTest(BGLTestFramework):
         fee_per_byte = Decimal('0.001') / 1000
         self.nodes[2].settxfee(fee_per_byte * 1000)
         txid = self.nodes[2].sendtoaddress(address, 10, "", "", False)
-        self.generate(self.nodes[2], 1)
-        self.sync_all(self.nodes[0:3])
-        node_2_bal = self.check_fee_amount(self.nodes[2].getbalance(), Decimal('384')-fees*Decimal("0.9"), fee_per_byte, self.get_vsize(self.nodes[2].gettransaction(txid)['hex']))
+        self.generate(self.nodes[2], 1, sync_fun=lambda: self.sync_all(self.nodes[0:3]))
+        node_2_bal = self.check_fee_amount(self.nodes[2].getbalance(), Decimal('84'), fee_per_byte, self.get_vsize(self.nodes[2].gettransaction(txid)['hex']))
         assert_equal(self.nodes[0].getbalance(), Decimal('10'))
 
         # Send 10 BGL with subtract fee from amount
         txid = self.nodes[2].sendtoaddress(address, 10, "", "", True)
-        self.generate(self.nodes[2], 1)
-        self.sync_all(self.nodes[0:3])
+        self.generate(self.nodes[2], 1, sync_fun=lambda: self.sync_all(self.nodes[0:3]))
         node_2_bal -= Decimal('10')
         assert_equal(self.nodes[2].getbalance(), node_2_bal)
         node_0_bal = self.check_fee_amount(self.nodes[0].getbalance(), Decimal('20'), fee_per_byte, self.get_vsize(self.nodes[2].gettransaction(txid)['hex']))
 
         # Sendmany 10 BGL
         txid = self.nodes[2].sendmany('', {address: 10}, 0, "", [])
-        self.generate(self.nodes[2], 1)
-        self.sync_all(self.nodes[0:3])
+        self.generate(self.nodes[2], 1, sync_fun=lambda: self.sync_all(self.nodes[0:3]))
         node_0_bal += Decimal('10')
         node_2_bal = self.check_fee_amount(self.nodes[2].getbalance(), node_2_bal - Decimal('10'), fee_per_byte, self.get_vsize(self.nodes[2].gettransaction(txid)['hex']))
         assert_equal(self.nodes[0].getbalance(), node_0_bal)
 
         # Sendmany 10 BGL with subtract fee from amount
         txid = self.nodes[2].sendmany('', {address: 10}, 0, "", [address])
-        self.generate(self.nodes[2], 1)
-        self.sync_all(self.nodes[0:3])
+        self.generate(self.nodes[2], 1, sync_fun=lambda: self.sync_all(self.nodes[0:3]))
         node_2_bal -= Decimal('10')
         assert_equal(self.nodes[2].getbalance(), node_2_bal)
         node_0_bal = self.check_fee_amount(self.nodes[0].getbalance(), node_0_bal + Decimal('10'), fee_per_byte, self.get_vsize(self.nodes[2].gettransaction(txid)['hex']))
@@ -281,8 +273,7 @@ class WalletTest(BGLTestFramework):
 
         # Test passing fee_rate as a string
         txid = self.nodes[2].sendmany(amounts={address: 10}, fee_rate=str(fee_rate_sat_vb))
-        self.generate(self.nodes[2], 1)
-        self.sync_all(self.nodes[0:3])
+        self.generate(self.nodes[2], 1, sync_fun=lambda: self.sync_all(self.nodes[0:3]))
         balance = self.nodes[2].getbalance()
         node_2_bal = self.check_fee_amount(balance, node_2_bal - Decimal('10'), explicit_fee_rate_BGL_kvb, self.get_vsize(self.nodes[2].gettransaction(txid)['hex']))
         assert_equal(balance, node_2_bal)
@@ -292,8 +283,7 @@ class WalletTest(BGLTestFramework):
         # Test passing fee_rate as an integer
         amount = Decimal("0.0001")
         txid = self.nodes[2].sendmany(amounts={address: amount}, fee_rate=fee_rate_sat_vb)
-        self.generate(self.nodes[2], 1)
-        self.sync_all(self.nodes[0:3])
+        self.generate(self.nodes[2], 1, sync_fun=lambda: self.sync_all(self.nodes[0:3]))
         balance = self.nodes[2].getbalance()
         node_2_bal = self.check_fee_amount(balance, node_2_bal - amount, explicit_fee_rate_BGL_kvb, self.get_vsize(self.nodes[2].gettransaction(txid)['hex']))
         assert_equal(balance, node_2_bal)
@@ -377,14 +367,12 @@ class WalletTest(BGLTestFramework):
 
         txid_not_broadcast = self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 2)
         tx_obj_not_broadcast = self.nodes[0].gettransaction(txid_not_broadcast)
-        self.generate(self.nodes[1], 1)  # mine a block, tx should not be in there
-        self.sync_all(self.nodes[0:3])
+        self.generate(self.nodes[1], 1, sync_fun=lambda: self.sync_all(self.nodes[0:3]))  # mine a block, tx should not be in there
         assert_equal(self.nodes[2].getbalance(), node_2_bal)  # should not be changed because tx was not broadcasted
 
         # now broadcast from another node, mine a block, sync, and check the balance
         self.nodes[1].sendrawtransaction(tx_obj_not_broadcast['hex'])
-        self.generate(self.nodes[1], 1)
-        self.sync_all(self.nodes[0:3])
+        self.generate(self.nodes[1], 1, sync_fun=lambda: self.sync_all(self.nodes[0:3]))
         node_2_bal += 2
         tx_obj_not_broadcast = self.nodes[0].gettransaction(txid_not_broadcast)
         assert_equal(self.nodes[2].getbalance(), node_2_bal)
@@ -402,8 +390,7 @@ class WalletTest(BGLTestFramework):
         self.connect_nodes(0, 2)
         self.sync_blocks(self.nodes[0:3])
 
-        self.generate(self.nodes[0], 1)
-        self.sync_blocks(self.nodes[0:3])
+        self.generate(self.nodes[0], 1, sync_fun=lambda: self.sync_blocks(self.nodes[0:3]))
         node_2_bal += 2
 
         # tx should be added to balance because after restarting the nodes tx should be broadcast
@@ -470,8 +457,7 @@ class WalletTest(BGLTestFramework):
             self.sync_mempools(self.nodes[0:3])
             vout = find_vout_for_address(self.nodes[2], txid, address_to_import)
             self.nodes[2].lockunspent(False, [{"txid": txid, "vout": vout}])
-            self.generate(self.nodes[0], 1)
-            self.sync_all(self.nodes[0:3])
+            self.generate(self.nodes[0], 1, sync_fun=lambda: self.sync_all(self.nodes[0:3]))
 
             self.log.info("Test sendtoaddress with fee_rate param (explicit fee rate in sat/vB)")
             prebalance = self.nodes[2].getbalance()
@@ -483,8 +469,7 @@ class WalletTest(BGLTestFramework):
 
             txid = self.nodes[2].sendtoaddress(address=address, amount=amount, fee_rate=fee_rate_sat_vb)
             tx_size = self.get_vsize(self.nodes[2].gettransaction(txid)['hex'])
-            self.generate(self.nodes[0], 1)
-            self.sync_all(self.nodes[0:3])
+            self.generate(self.nodes[0], 1, sync_fun=lambda: self.sync_all(self.nodes[0:3]))
             postbalance = self.nodes[2].getbalance()
             fee = prebalance - postbalance - Decimal(amount)
             assert_fee_amount(fee, tx_size, Decimal(fee_rate_BGL_kvb))
@@ -496,8 +481,7 @@ class WalletTest(BGLTestFramework):
             # Test passing fee_rate as a string
             txid = self.nodes[2].sendtoaddress(address=address, amount=amount, fee_rate=str(fee_rate_sat_vb))
             tx_size = self.get_vsize(self.nodes[2].gettransaction(txid)['hex'])
-            self.generate(self.nodes[0], 1)
-            self.sync_all(self.nodes[0:3])
+            self.generate(self.nodes[0], 1, sync_fun=lambda: self.sync_all(self.nodes[0:3]))
             postbalance = self.nodes[2].getbalance()
             fee = prebalance - postbalance - amount
             assert_fee_amount(fee, tx_size, Decimal(fee_rate_btc_kvb))
@@ -559,17 +543,15 @@ class WalletTest(BGLTestFramework):
 
         # Mine a block from node0 to an address from node1
         coinbase_addr = self.nodes[1].getnewaddress()
-        block_hash = self.generatetoaddress(self.nodes[0], 1, coinbase_addr)[0]
+        block_hash = self.generatetoaddress(self.nodes[0], 1, coinbase_addr, sync_fun=lambda: self.sync_all(self.nodes[0:3]))[0]
         coinbase_txid = self.nodes[0].getblock(block_hash)['tx'][0]
-        self.sync_all(self.nodes[0:3])
 
         # Check that the txid and balance is found by node1
         self.nodes[1].gettransaction(coinbase_txid)
 
         # check if wallet or blockchain maintenance changes the balance
         self.sync_all(self.nodes[0:3])
-        blocks = self.generate(self.nodes[0], 2)
-        self.sync_all(self.nodes[0:3])
+        blocks = self.generate(self.nodes[0], 2, sync_fun=lambda: self.sync_all(self.nodes[0:3]))
         balance_nodes = [self.nodes[i].getbalance() for i in range(3)]
         block_count = self.nodes[0].getblockcount()
 
@@ -610,13 +592,13 @@ class WalletTest(BGLTestFramework):
         # Get all non-zero utxos together
         chain_addrs = [self.nodes[0].getnewaddress(), self.nodes[0].getnewaddress()]
         singletxid = self.nodes[0].sendtoaddress(chain_addrs[0], self.nodes[0].getbalance(), "", "", True)
-        self.generate(self.nodes[0], 1)
+        self.generate(self.nodes[0], 1, sync_fun=self.no_op)
         node0_balance = self.nodes[0].getbalance()
         # Split into two chains
         rawtx = self.nodes[0].createrawtransaction([{"txid": singletxid, "vout": 0}], {chain_addrs[0]: node0_balance / 2 - Decimal('0.01'), chain_addrs[1]: node0_balance / 2 - Decimal('0.01')})
         signedtx = self.nodes[0].signrawtransactionwithwallet(rawtx)
         singletxid = self.nodes[0].sendrawtransaction(hexstring=signedtx["hex"], maxfeerate=0)
-        self.generate(self.nodes[0], 1)
+        self.generate(self.nodes[0], 1, sync_fun=self.no_op)
 
         # Make a long chain of unconfirmed payments without hitting mempool limit
         # Each tx we make leaves only one output of change on a chain 1 longer
@@ -667,7 +649,7 @@ class WalletTest(BGLTestFramework):
         assert not address_info["ischange"]
 
         # Test getaddressinfo 'ischange' field on change address.
-        self.generate(self.nodes[0], 1)
+        self.generate(self.nodes[0], 1, sync_fun=self.no_op)
         destination = self.nodes[1].getnewaddress()
         txid = self.nodes[0].sendtoaddress(destination, 0.123)
         tx = self.nodes[0].gettransaction(txid=txid, verbose=True)['decoded']
