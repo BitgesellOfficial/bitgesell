@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\common.init.vcxproj" />
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{B53A5535-EE9D-4C6F-9A26-F79EE3BC3754}</ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\clientversion.cpp" />
+    <ClCompile Include="..\..\src\support\lockedpool.cpp">
+      <ObjectFileName>$(IntDir)support_lockedpool.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\chainparamsbase.cpp">
+      <ObjectFileName>$(IntDir)chainparamsbase.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\compat\glibc_sanity_fdelt.cpp">
+      <ObjectFileName>$(IntDir)compat_glibc_sanity_fdelt.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\compat\glibc_sanity.cpp">
+      <ObjectFileName>$(IntDir)compat_glibc_sanity.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\compat\glibcxx_sanity.cpp">
+      <ObjectFileName>$(IntDir)compat_glibcxx_sanity.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\compat\strnlen.cpp">
+      <ObjectFileName>$(IntDir)compat_strnlen.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\fs.cpp">
+      <ObjectFileName>$(IntDir)fs.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\interfaces\handler.cpp">
+      <ObjectFileName>$(IntDir)interfaces_handler.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\logging.cpp">
+      <ObjectFileName>$(IntDir)logging.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\random.cpp">
+      <ObjectFileName>$(IntDir)random.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\randomenv.cpp">
+      <ObjectFileName>$(IntDir)randomenv.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\rpc\request.cpp">
+      <ObjectFileName>$(IntDir)rpc_request.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\support\cleanse.cpp">
+      <ObjectFileName>$(IntDir)support_cleanse.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sync.cpp">
+      <ObjectFileName>$(IntDir)sync.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\threadinterrupt.cpp">
+      <ObjectFileName>$(IntDir)threadinterrupt.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\bip32.cpp">
+      <ObjectFileName>$(IntDir)util_bip32.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\bytevectorhash.cpp">
+      <ObjectFileName>$(IntDir)util_bytevectorhash.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\error.cpp">
+      <ObjectFileName>$(IntDir)util_error.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\fees.cpp">
+      <ObjectFileName>$(IntDir)util_fees.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\system.cpp">
+      <ObjectFileName>$(IntDir)util_system.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\moneystr.cpp">
+      <ObjectFileName>$(IntDir)util_moneystr.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\rbf.cpp">
+      <ObjectFileName>$(IntDir)util_rbf.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\settings.cpp">
+      <ObjectFileName>$(IntDir)util_settings.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\threadnames.cpp">
+      <ObjectFileName>$(IntDir)util_threadnames.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\spanparsing.cpp">
+      <ObjectFileName>$(IntDir)util_spanparsing.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\strencodings.cpp">
+      <ObjectFileName>$(IntDir)util_strencodings.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\string.cpp">
+      <ObjectFileName>$(IntDir)util_string.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\time.cpp">
+      <ObjectFileName>$(IntDir)util_time.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\url.cpp">
+      <ObjectFileName>$(IntDir)util_url.obj</ObjectFileName>
+    </ClCompile>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="..\common.vcxproj" />
+</Project>
