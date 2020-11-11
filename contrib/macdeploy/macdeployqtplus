@@ -517,6 +517,7 @@ verbose = config.verbose
 # ------------------------------------------------
 
 app_bundle = config.app_bundle[0]
+appname = config.appname[0]
 
 if not os.path.exists(app_bundle):
     sys.stderr.write(f"Error: Could not find app bundle \"{app_bundle}\"\n")
@@ -584,13 +585,12 @@ else:
 # ------------------------------------------------
 
 if os.path.exists("dist"):
-    print("+ Removing old dist folder +")
-    
+    print("+ Removing existing dist folder +")
     shutil.rmtree("dist")
 
-# ------------------------------------------------
-
-appname = config.appname[0]
+if os.path.exists(appname + ".dmg"):
+    print("+ Removing existing DMG +")
+    os.unlink(appname + ".dmg")
 
 # ------------------------------------------------
 
