@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\common.init.vcxproj" />
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{6190199C-6CF4-4DAD-BFBD-93FA72A760C1}</ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\crypto\aes.cpp">
+      <ObjectFileName>$(IntDir)crypto_aes.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\crypto\chacha_poly_aead.cpp">
+      <ObjectFileName>$(IntDir)crypto_chacha_poly_aead.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\crypto\chacha20.cpp">
+      <ObjectFileName>$(IntDir)crypto_chacha20.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\crypto\hkdf_sha256_32.cpp">
+      <ObjectFileName>$(IntDir)crypto_hkdf_sha256_32.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\crypto\hmac_sha256.cpp">
+      <ObjectFileName>$(IntDir)crypto_hmac_sha256.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\crypto\hmac_sha512.cpp">
+      <ObjectFileName>$(IntDir)crypto_hmac_sha512.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\crypto\poly1305.cpp">
+      <ObjectFileName>$(IntDir)crypto_poly1305.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\crypto\ripemd160.cpp">
+      <ObjectFileName>$(IntDir)crypto_ripemd160.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\crypto\sha1.cpp">
+      <ObjectFileName>$(IntDir)crypto_sha1.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\crypto\sha256.cpp">
+      <ObjectFileName>$(IntDir)crypto_sha256.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\crypto\sha512.cpp">
+      <ObjectFileName>$(IntDir)crypto_sha512.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\crypto\siphash.cpp">
+      <ObjectFileName>$(IntDir)crypto_siphash.obj</ObjectFileName>
+    </ClCompile>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="..\common.vcxproj" />
+</Project>
