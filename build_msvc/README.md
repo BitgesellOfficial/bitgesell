@@ -43,7 +43,7 @@ In order to build the BGL Core a static build of Qt is required. The runtime lib
 
 A prebuilt version of Qt can be downloaded from [here](https://github.com/sipsorcery/qt_win_binary/releases). Please be aware this download is NOT an officially sanctioned BGL Core distribution and is provided for developer convenience. It should NOT be used for builds that will be used in a production environment or with real funds.
 
-To build BGL Core without Qt unload or disable the `BGL-qt`, `libBGL_qt` and `test_BGL-qt` projects.
+To build BGL Core without Qt unload or disable the `BGL-qt`, `libBGL_qt` and `test_BGL-qt` projects or any other library dependencies that is needed it for.
 
 Building
 ---------------------
