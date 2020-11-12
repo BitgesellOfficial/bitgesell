@@ -190,17 +190,17 @@ class PSBTTest(BGLTestFramework):
         assert_approx(res1["fee"], 0.055, 0.005)
         res2 = self.nodes[1].walletcreatefundedpsbt(inputs, outputs, 0, {"feeRate": 0.1, "add_inputs": True})
         assert_approx(res2["fee"], 0.055, 0.005)
+        self.log.info("Test min fee rate checks with walletcreatefundedpsbt are bypassed, e.g. a fee_rate under 1 sat/vB is allowed")
+        res3 = self.nodes[1].walletcreatefundedpsbt(inputs, outputs, 0, {"fee_rate": 0.99999999, "add_inputs": True})
+        assert_approx(res3["fee"], 0.00000381, 0.0000001)
+        res4 = self.nodes[1].walletcreatefundedpsbt(inputs, outputs, 0, {"feeRate": 0.00000999, "add_inputs": True})
+        assert_approx(res4["fee"], 0.00000381, 0.0000001)
 
         self.log.info("Test invalid fee rate settings")
-<<<<<<< HEAD
-        assert_raises_rpc_error(-4, "Fee rate (0.00000000 BGL/kB) is lower than the minimum fee rate setting (0.00001000 BGL/kB)",
-            self.nodes[1].walletcreatefundedpsbt, inputs, outputs, 0, {"fee_rate": 0, "add_inputs": True})
-        assert_raises_rpc_error(-8, "Invalid feeRate 0.00000000 BGL/kB (must be greater than 0)",
-=======
         assert_raises_rpc_error(-4, "Fee rate (0.000 sat/vB) is lower than the minimum fee rate setting (1.000 sat/vB)",
+        assert_raises_rpc_error(-8, "Invalid fee_rate 0.000 sat/vB (must be greater than 0)",
             self.nodes[1].walletcreatefundedpsbt, inputs, outputs, 0, {"fee_rate": 0, "add_inputs": True})
         assert_raises_rpc_error(-8, "Invalid feeRate 0.00000000 BTC/kvB (must be greater than 0)",
->>>>>>> 173b5b5fe... wallet: update fee rate units, use sat/vB for fee_rate error messages
             self.nodes[1].walletcreatefundedpsbt, inputs, outputs, 0, {"feeRate": 0, "add_inputs": True})
         for param, value in {("fee_rate", 100000), ("feeRate", 1)}:
             assert_raises_rpc_error(-4, "Fee exceeds maximum configured by user (e.g. -maxtxfee, maxfeerate)",
@@ -247,11 +247,6 @@ class PSBTTest(BGLTestFramework):
             for n in [-1, 0, 1009]:
                 assert_raises_rpc_error(-8, "Invalid conf_target, must be between 1 and 1008",  # max value of 1008 per src/policy/fees.h
                     self.nodes[1].walletcreatefundedpsbt, inputs, outputs, 0, {"estimate_mode": mode, "conf_target": n, "add_inputs": True})
-
-        # Test setting explicit fee rate just below the minimum.
-        self.log.info("- raises RPC error 'fee rate too low' if feerate_sat_vb of 0.99999999 is passed")
-        assert_raises_rpc_error(-4, "Fee rate (0.999 sat/vB) is lower than the minimum fee rate setting (1.000 sat/vB)",
-            self.nodes[1].walletcreatefundedpsbt, inputs, outputs, 0, {"fee_rate": 0.99999999, "add_inputs": True})
 
         self.log.info("Test walletcreatefundedpsbt with too-high fee rate produces total fee well above -maxtxfee and raises RPC error")
         # previously this was silently capped at -maxtxfee
