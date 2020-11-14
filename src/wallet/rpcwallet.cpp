@@ -3602,7 +3602,8 @@ static RPCHelpMan rescanblockchain()
     }
 
     int start_height = 0;
-    uint256 start_block, stop_block;
+    Optional<int> stop_height = MakeOptional(false, int());
+    uint256 start_block;
     {
         auto locked_chain = pwallet->chain().lock();
         Optional<int> tip_height = locked_chain->getHeight();
