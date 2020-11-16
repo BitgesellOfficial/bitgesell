@@ -23,7 +23,7 @@
     </message>
     <message>
         <source>C&amp;lose</source>
-        <translation>&amp;Tanca</translation>
+        <translation>T&amp;anca</translation>
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
@@ -484,6 +484,22 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
         <translation>Actualitzat</translation>
     </message>
     <message>
+        <source>&amp;Load PSBT from file...</source>
+        <translation>&amp;Carrega el PSBT des del fitxer ...</translation>
+    </message>
+    <message>
+        <source>Load Partially Signed BGL Transaction</source>
+        <translation>Carrega la transacció BGL signada parcialment</translation>
+    </message>
+    <message>
+        <source>Load PSBT from clipboard...</source>
+        <translation>Carrega PSBT des del porta-retalls ...</translation>
+    </message>
+    <message>
+        <source>Load Partially Signed BGL Transaction from clipboard</source>
+        <translation>Carrega la transacció de BGL signada parcialment des del porta-retalls</translation>
+    </message>
+    <message>
         <source>Node window</source>
         <translation>Finestra node</translation>
     </message>
@@ -520,8 +536,24 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
         <translation>Tanca la cartera</translation>
     </message>
     <message>
+        <source>Close All Wallets...</source>
+        <translation>Tanca totes les carteres ...</translation>
+    </message>
+    <message>
+        <source>Close all wallets</source>
+        <translation>Tanqueu totes les carteres</translation>
+    </message>
+    <message>
         <source>Show the %1 help message to get a list with possible BGL command-line options</source>
         <translation>Mostra el missatge d'ajuda del %1 per obtenir una llista amb les possibles opcions de línia d'ordres de BGL</translation>
+    </message>
+    <message>
+        <source>&amp;Mask values</source>
+        <translation>&amp;Emmascara els valors</translation>
+    </message>
+    <message>
+        <source>Mask the values in the Overview tab</source>
+        <translation>Emmascara els valors en la pestanya Visió general</translation>
     </message>
     <message>
         <source>default wallet</source>
@@ -632,8 +664,12 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
         <translation>La cartera està &lt;b&gt;encriptada&lt;/b&gt; i actualment &lt;b&gt;blocada&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>A fatal error occurred. BGL can no longer continue safely and will quit.</source>
-        <translation>S'ha produït un error fatal. BGL no pot continuar amb seguretat i finalitzarà.</translation>
+        <source>Original message:</source>
+        <translation>Missatge original:</translation>
+    </message>
+    <message>
+        <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
+        <translation>S'ha produït un error fatal. %1 ja no pot continuar amb seguretat i sortirà.</translation>
     </message>
 </context>
 <context>
@@ -836,6 +872,14 @@ Això és ideal per a carteres de mode només lectura.</translation>
     <message>
         <source>Make Blank Wallet</source>
         <translation>Fes cartera en blanc</translation>
+    </message>
+    <message>
+        <source>Use descriptors for scriptPubKey management</source>
+        <translation>Utilitzeu descriptors per a la gestió de scriptPubKey</translation>
+    </message>
+    <message>
+        <source>Descriptor Wallet</source>
+        <translation>Cartera del descriptor</translation>
     </message>
     <message>
         <source>Create</source>
@@ -1318,6 +1362,14 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <translation>Si voleu mostrar les funcions de control de monedes o no.</translation>
     </message>
     <message>
+        <source>Connect to the BGL network through a separate SOCKS5 proxy for Tor onion services.</source>
+        <translation>Connecteu-vos a la xarxa BGL mitjançant un servidor intermediari SOCKS5 separat per als serveis de ceba Tor.</translation>
+    </message>
+    <message>
+        <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
+        <translation>Utilitzeu el servidor intermediari SOCKS&amp;5 per arribar als peers mitjançant els serveis d'onion de Tor:</translation>
+    </message>
+    <message>
         <source>&amp;Third party transaction URLs</source>
         <translation>URL de transaccions de tercers</translation>
     </message>
@@ -1452,9 +1504,33 @@ Això és ideal per a carteres de mode només lectura.</translation>
         <source>Current total balance in watch-only addresses</source>
         <translation>Balanç total actual en adreces de només lectura</translation>
     </message>
-    </context>
+    <message>
+        <source>Privacy mode activated for the Overview tab. To unmask the values, uncheck Settings-&gt;Mask values.</source>
+        <translation>El mode de privadesa està activat a la pestanya d'Overview. Per desenmascarar els valors, desmarqueu Configuració-&gt; Valors de màscara.</translation>
+    </message>
+</context>
 <context>
     <name>PSBTOperationsDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation>Diàleg</translation>
+    </message>
+    <message>
+        <source>Sign Tx</source>
+        <translation>Signa Tx</translation>
+    </message>
+    <message>
+        <source>Broadcast Tx</source>
+        <translation>Emet Tx</translation>
+    </message>
+    <message>
+        <source>Copy to Clipboard</source>
+        <translation>Còpia al Clipboard</translation>
+    </message>
+    <message>
+        <source>Save...</source>
+        <translation>Desa...</translation>
+    </message>
     <message>
         <source>Total Amount</source>
         <translation>Import total</translation>
@@ -3180,6 +3256,10 @@ Nota: Com que la comissió es calcula en funció dels bytes, una comissió de "1
     <message>
         <source>Closing the wallet for too long can result in having to resync the entire chain if pruning is enabled.</source>
         <translation>Si tanqueu la cartera durant massa temps, es pot haver de tornar a sincronitzar tota la cadena si teniu el sistema de poda habilitat.</translation>
+    </message>
+    <message>
+        <source>Close all wallets</source>
+        <translation>Tanqueu totes les carteres</translation>
     </message>
     </context>
 <context>
