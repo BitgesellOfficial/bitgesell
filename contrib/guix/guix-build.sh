@@ -64,6 +64,52 @@ else
     GIT_COMMIT=$(git rev-parse --short=12 HEAD)
 fi
 
+################
+# Check 4: Make sure that build directories do no exist
+################
+
+# Default to building for all supported HOSTs (overridable by environment)
+export HOSTS="${HOSTS:-x86_64-linux-gnu arm-linux-gnueabihf aarch64-linux-gnu riscv64-linux-gnu
+                       x86_64-w64-mingw32
+                       x86_64-apple-darwin18}"
+
+DISTSRC_BASE="${DISTSRC_BASE:-${PWD}}"
+
+# Usage: distsrc_for_host HOST
+#
+#   HOST: The current platform triple we're building for
+#
+distsrc_for_host() {
+    echo "${DISTSRC_BASE}/distsrc-${GIT_COMMIT}-${1}"
+}
+
+# Accumulate a list of build directories that already exist...
+hosts_distsrc_exists=""
+for host in $HOSTS; do
+    if [ -e "$(distsrc_for_host "$host")" ]; then
+        hosts_distsrc_exists+=" ${host}"
+    fi
+done
+
+if [ -n "$hosts_distsrc_exists" ]; then
+# ...so that we can print them out nicely in an error message
+cat << EOF
+ERR: Build directories for this commit already exist for the following platform
+     triples you're attempting to build, probably because of previous builds.
+     Please remove, or otherwise deal with them prior to starting another build.
+
+     Aborting...
+
+EOF
+for host in $hosts_distsrc_exists; do
+    echo "     ${host} '$(distsrc_for_host "$host")'"
+done
+exit 1
+else
+
+    mkdir -p "$DISTSRC_BASE"
+fi
+
 #########
 # Setup #
 #########
@@ -130,7 +176,7 @@ INFO: Building commit ${GIT_COMMIT:?not set} for platform triple ${HOST:?not set
       ...using reference timestamp: ${SOURCE_DATE_EPOCH:?not set}
       ...running at most ${MAX_JOBS:?not set} jobs
       ...from worktree directory: '${PWD}'
-          ...bind-mounted in container to: '/bitcoin'
+          ...bind-mounted in container to: '/BGL'
       ...in build directory: '$(distsrc_for_host "$HOST")'
           ...bind-mounted in container to: '$(DISTSRC_BASE=/distsrc-base && distsrc_for_host "$HOST")'
       ...outputting in: '${OUTDIR:?not set}'
