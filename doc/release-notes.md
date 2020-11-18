@@ -45,18 +45,14 @@ wallet versions of BGL Core are generally supported.
 Compatibility
 ==============
 
-During this release cycle, work has been done to ensure that the codebase is fully
-compatible with C++17. The intention is to begin using C++17 features starting
-with the 0.22.0 release. This means that a compiler that supports C++17 will be
-required to compile 0.22.0.
-
 BGL Core is supported and extensively tested on operating systems
-using the Linux kernel, macOS 10.12+, and Windows 7 and newer.  BGL
+using the Linux kernel, macOS 10.14+, and Windows 7 and newer.  BGL
 Core should also work on most other Unix-like systems but is not as
 frequently tested on them.  It is not recommended to use BGL Core on
 unsupported systems.
 
-From BGL Core 0.20.0 onwards, macOS versions earlier than 10.12 are no
+
+From BGL Core 0.22.0 onwards, macOS versions earlier than 10.14 are no
 longer supported. Additionally, BGL Core does not yet change appearance
 when macOS "dark mode" is activated.
 
