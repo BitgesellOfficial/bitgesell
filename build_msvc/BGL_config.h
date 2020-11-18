@@ -18,7 +18,7 @@
 #define CLIENT_VERSION_MAJOR 0
 
 /* Minor version */
-#define CLIENT_VERSION_MINOR 20
+#define CLIENT_VERSION_MINOR 21
 
 /* Build revision */
 #define CLIENT_VERSION_REVISION 1
@@ -253,7 +253,7 @@
 #define PACKAGE_NAME "BGL Core"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "BGL Core 0.19.99"
+#define PACKAGE_STRING "BGL Core 0.29.99"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "BGL"
@@ -262,7 +262,7 @@
 #define PACKAGE_URL "https://BGLcore.org/"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.19.99"
+#define PACKAGE_VERSION "0.21.99"
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
