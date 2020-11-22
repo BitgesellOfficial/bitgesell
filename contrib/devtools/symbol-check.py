@@ -192,28 +192,38 @@ def elf_read_libraries(filename) -> List[str]:
 
 def check_imported_symbols(filename) -> bool:
     cppfilt = CPPFilt()
-    ok = True
-    for sym, version, arch in read_symbols(filename, True):
-        if version and not check_version(MAX_VERSIONS, version, arch):
+    ok: bool = True
+
+    for symbol in elf.dyn_symbols:
+        if not symbol.is_import:
+            continue
+        sym = symbol.name.decode()
+        version = symbol.version.decode() if symbol.version is not None else None
+        if version and not check_version(MAX_VERSIONS, version, elf.hdr.e_machine):
             print('{}: symbol {} from unsupported version {}'.format(filename, cppfilt(sym), version))
             ok = False
     return ok
 
 def check_exported_symbols(filename) -> bool:
     cppfilt = CPPFilt()
-    ok = True
-    for sym,version,arch in read_symbols(filename, False):
-        if arch == 'RISC-V' or sym in IGNORE_EXPORTS:
+    ok: bool = True
+    for symbol in elf.dyn_symbols:
+        if not symbol.is_export:
+            continue
+        sym = symbol.name.decode()
+        if elf.hdr.e_machine == pixie.EM_RISCV or sym in IGNORE_EXPORTS:
             continue
         print('{}: export of symbol {} not allowed'.format(filename, cppfilt(sym)))
         ok = False
     return ok
 
 def check_ELF_libraries(filename) -> bool:
-    ok = True
-    for library_name in elf_read_libraries(filename):
-        if library_name not in ELF_ALLOWED_LIBRARIES:
-            print('{}: NEEDED library {} is not allowed'.format(filename, library_name))
+    ok: bool = True
+    elf = pixie.load(filename)
+    for library_name in elf.query_dyn_tags(pixie.DT_NEEDED):
+        assert(isinstance(library_name, bytes))
+        if library_name.decode() not in ELF_ALLOWED_LIBRARIES:
+            print('{}: NEEDED library {} is not allowed'.format(filename, library_name.decode()))
             ok = False
     return ok
 
@@ -231,7 +241,7 @@ def macho_read_libraries(filename) -> List[str]:
     return libraries
 
 def check_MACHO_libraries(filename) -> bool:
-    ok = True
+    ok: bool = True
     for dylib in macho_read_libraries(filename):
         if dylib not in MACHO_ALLOWED_LIBRARIES:
             print('{} is not in ALLOWED_LIBRARIES!'.format(dylib))
@@ -251,7 +261,7 @@ def pe_read_libraries(filename) -> List[str]:
     return libraries
 
 def check_PE_libraries(filename) -> bool:
-    ok = True
+    ok: bool = True
     for dylib in pe_read_libraries(filename):
         if dylib not in PE_ALLOWED_LIBRARIES:
             print('{} is not in ALLOWED_LIBRARIES!'.format(dylib))
@@ -284,7 +294,7 @@ def identify_executable(executable) -> Optional[str]:
     return None
 
 if __name__ == '__main__':
-    retval = 0
+    retval: int = 0
     for filename in sys.argv[1:]:
         try:
             etype = identify_executable(filename)
@@ -293,7 +303,7 @@ if __name__ == '__main__':
                 retval = 1
                 continue
 
-            failed = []
+            failed: List[str] = []
             for (name, func) in CHECKS[etype]:
                 if not func(filename):
                     failed.append(name)
