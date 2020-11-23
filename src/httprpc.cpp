@@ -259,6 +259,9 @@ static bool InitRPCAuthentication()
                 fields.pop_back();
                 fields.insert(fields.end(), salt_hmac.begin(), salt_hmac.end());
                 g_rpcauth.push_back(fields);
+            } else {
+                LogPrintf("Invalid -rpcauth argument.\n");
+                return false;
             }
         }
     }
