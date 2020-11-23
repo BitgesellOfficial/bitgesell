@@ -20,9 +20,8 @@ else
 LIBUNIVALUE = $(UNIVALUE_LIBS)
 endif
 
-BGL_INCLUDES=-I$(builddir) $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
+BGL_INCLUDES=-I$(builddir) -I$(srcdir)/secp256k1/include $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
 
-BGL_INCLUDES += -I$(srcdir)/secp256k1/include
 BGL_INCLUDES += $(UNIVALUE_CFLAGS)
 
 LIBBGL_SERVER=libBGL_server.a
@@ -361,9 +360,9 @@ endif
 
 # wallet: shared between BGLd and BGL-qt, but only linked
 # when wallet enabled
-libbitcoin_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(SQLITE_CFLAGS)
-libbitcoin_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libbitcoin_wallet_a_SOURCES = \
+libBGL_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(SQLITE_CFLAGS)
+libBGL_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libBGL_wallet_a_SOURCES = \
   interfaces/wallet.cpp \
   wallet/coincontrol.cpp \
   wallet/context.cpp \
@@ -385,7 +384,7 @@ if USE_SQLITE
 libBGL_wallet_a_SOURCES += wallet/sqlite.cpp
 endif
 if USE_BDB
-libbitcoin_wallet_a_SOURCES += wallet/bdb.cpp wallet/salvage.cpp
+libBGL_wallet_a_SOURCES += wallet/bdb.cpp wallet/salvage.cpp
 endif
 
 libBGL_wallet_tool_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
