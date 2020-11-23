@@ -112,14 +112,9 @@ class P2PFingerprintTest(BGLTestFramework):
 
         # Longest chain is extended so stale is much older than chain tip
         self.nodes[0].setmocktime(0)
-        tip = self.nodes[0].generatetoaddress(1, self.nodes[0].get_deterministic_priv_key().address)[0]
+        block_hash = int(self.nodes[0].generatetoaddress(1, self.nodes[0].get_deterministic_priv_key().address)[-1], 16)
         assert_equal(self.nodes[0].getblockcount(), 14)
-
-        # Send getdata & getheaders to refresh last received getheader message
-        block_hash = int(tip, 16)
-        self.send_block_request(block_hash, node0)
-        self.send_header_request(block_hash, node0)
-        node0.sync_with_ping()
+        node0.wait_for_block(block_hash, timeout=3)
 
         # Request for very old stale block should now fail
         self.send_block_request(stale_hash, node0)
@@ -144,6 +139,7 @@ class P2PFingerprintTest(BGLTestFramework):
         self.send_header_request(block_hash, node0)
         test_function = lambda: self.last_header_equals(block_hash, node0)
         self.wait_until(test_function, timeout=3)
+
 
 if __name__ == '__main__':
     P2PFingerprintTest().main()
