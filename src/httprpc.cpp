@@ -259,6 +259,16 @@ static bool InitRPCAuthentication()
     if (gArgs.GetArg("-rpcauth","") != "")
     {
         LogPrintf("Using rpcauth authentication.\n");
+        for (const std::string& rpcauth : gArgs.GetArgs("-rpcauth")) {
+            std::vector<std::string> fields;
+            boost::split(fields, rpcauth, boost::is_any_of(":$"));
+            if (fields.size() == 3) {
+                g_rpcauth.push_back(fields);
+            } else {
+                LogPrintf("Invalid -rpcauth argument.\n");
+                return false;
+            }
+        }
     }
 
     g_rpc_whitelist_default = gArgs.GetBoolArg("-rpcwhitelistdefault", gArgs.IsArgSet("-rpcwhitelist"));
