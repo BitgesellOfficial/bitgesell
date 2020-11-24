@@ -369,6 +369,7 @@ libBGL_wallet_a_SOURCES = \
   wallet/db.cpp \
   wallet/feebumper.cpp \
   wallet/fees.cpp \
+  wallet/interfaces.cpp \
   wallet/load.cpp \
   wallet/rpcdump.cpp \
   wallet/rpcwallet.cpp \
