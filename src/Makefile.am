@@ -162,6 +162,7 @@ BGL_CORE_H = \
   init.h \
   init/common.h \
   interfaces/chain.h \
+  interfaces/echo.h \
   interfaces/handler.h \
   interfaces/init.h \
   interfaces/ipc.h \
@@ -571,6 +572,7 @@ libBGL_util_a_SOURCES = \
   compat/glibcxx_sanity.cpp \
   compat/strnlen.cpp \
   fs.cpp \
+  interfaces/echo.cpp \
   interfaces/handler.cpp \
   interfaces/init.cpp \
   logging.cpp \
@@ -822,6 +824,7 @@ if HARDEN
 endif
 
 libBGL_ipc_mpgen_input = \
+  ipc/capnp/echo.capnp \
   ipc/capnp/init.capnp
 EXTRA_DIST += $(libBGL_ipc_mpgen_input)
 %.capnp:
