@@ -304,13 +304,13 @@ libBGL_server_a_SOURCES = \
   index/txindex.cpp \
   init.cpp \
   interfaces/chain.cpp \
-  interfaces/node.cpp \
   miner.cpp \
   net.cpp \
   net_processing.cpp \
   node/coin.cpp \
   node/coinstats.cpp \
   node/context.cpp \
+  node/interfaces.cpp \
   node/psbt.cpp \
   node/transaction.cpp \
   node/ui_interface.cpp \
