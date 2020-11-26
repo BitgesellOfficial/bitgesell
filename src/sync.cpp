@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The BGL Core developers
+// Copyright (c) 2011-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -135,7 +135,28 @@ static void potential_deadlock_detected(const LockPair& mismatch, const LockStac
     throw std::logic_error(strprintf("potential deadlock detected: %s -> %s -> %s", mutex_b, mutex_a, mutex_b));
 }
 
-static void push_lock(void* c, const CLockLocation& locklocation)
+
+static void double_lock_detected(const void* mutex, LockStack& lock_stack)
+{
+    LogPrintf("DOUBLE LOCK DETECTED\n");
+    LogPrintf("Lock order:\n");
+    for (const LockStackItem& i : lock_stack) {
+        if (i.first == mutex) {
+            LogPrintf(" (*)"); /* Continued */
+        }
+        LogPrintf(" %s\n", i.second.ToString());
+    }
+    if (g_debug_lockorder_abort) {
+        tfm::format(std::cerr,
+                    "Assertion failed: detected double lock for %s, details in debug log.\n",
+                    lock_stack.back().second.ToString());
+        abort();
+    }
+    throw std::logic_error("double lock detected");
+}
+
+template <typename MutexType>
+static void push_lock(MutexType* c, const CLockLocation& locklocation)
 {
     LockData& lockdata = GetLockData();
     std::lock_guard<std::mutex> lock(lockdata.dd_mutex);
