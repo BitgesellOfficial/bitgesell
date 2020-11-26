@@ -28,8 +28,8 @@ Drag BGL Core to your applications folder, and then run BGL Core.
 
 ### Need Help?
 
-* See the documentation at the [BGL Wiki](https://en.BGL.it/wiki/Main_Page)
-for help and more information.
+* See the documentation at the [BGL Wiki](https://bitgesell.ca)
+for help and more information. The compatibility is largely maintained with BTC code base, so it's wiki and developer documentation stays relevant to BGL.
 * Ask for help on [#BGL](http://webchat.freenode.net?channels=BGL) on Freenode. If you don't have an IRC client, use [webchat here](http://webchat.freenode.net?channels=BGL).
 * Ask for help on the [BGLTalk](https://BGLtalk.org/) forums, in the [Technical Support board](https://BGLtalk.org/index.php?board=4.0).
 

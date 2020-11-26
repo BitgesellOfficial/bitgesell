@@ -46,13 +46,13 @@ Var StartMenuGroup
 !insertmacro MUI_LANGUAGE English
 
 # Installer attributes
-OutFile ..\BGL-0.1.1-win64-setup-unsigned.exe
+OutFile ..\BGL-0.1.2.2-win64-setup.exe
 InstallDir $PROGRAMFILES64\BGL
 CRCCheck on
 XPStyle on
 BrandingText " "
 ShowInstDetails show
-VIProductVersion 0.1.1.0
+VIProductVersion 0.1.2.2
 VIAddVersionKey ProductName "BGL Core"
 VIAddVersionKey ProductVersion "0.1.1"
 VIAddVersionKey CompanyName "${COMPANY}"
