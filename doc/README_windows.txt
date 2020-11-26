@@ -18,6 +18,6 @@ However, it downloads and stores the entire history of BGL transactions;
 depending on the speed of your computer and network connection, the synchronization
 process can take anywhere from a few hours to a day or more.
 
-See the BGL wiki at:
-  https://en.BGL.it/wiki/Main_Page
+See the BGL website at:
+  https://bitgesell.ca
 for more help and information.
