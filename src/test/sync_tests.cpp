@@ -29,6 +29,36 @@ void TestPotentialDeadLockDetected(MutexType& mutex1, MutexType& mutex2)
     BOOST_CHECK(!error_thrown);
     #endif
 }
+
+#ifdef DEBUG_LOCKORDER
+template <typename MutexType>
+void TestDoubleLock2(MutexType& m)
+{
+    ENTER_CRITICAL_SECTION(m);
+    LEAVE_CRITICAL_SECTION(m);
+}
+
+template <typename MutexType>
+void TestDoubleLock(bool should_throw)
+{
+    const bool prev = g_debug_lockorder_abort;
+    g_debug_lockorder_abort = false;
+
+    MutexType m;
+    ENTER_CRITICAL_SECTION(m);
+    if (should_throw) {
+        BOOST_CHECK_EXCEPTION(TestDoubleLock2(m), std::logic_error,
+                              HasReason("double lock detected"));
+    } else {
+        BOOST_CHECK_NO_THROW(TestDoubleLock2(m));
+    }
+    LEAVE_CRITICAL_SECTION(m);
+
+    BOOST_CHECK(LockStackEmpty());
+
+    g_debug_lockorder_abort = prev;
+}
+#endif /* DEBUG_LOCKORDER */
 } // namespace
 
 BOOST_FIXTURE_TEST_SUITE(sync_tests, BasicTestingSetup)
