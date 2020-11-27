@@ -151,6 +151,7 @@ BGL_CORE_H = \
   fs.h \
   httprpc.h \
   httpserver.h \
+  i2p.h \
   index/base.h \
   index/blockfilterindex.h \
   index/disktxpos.h \
@@ -317,6 +318,7 @@ libBGL_server_a_SOURCES = \
   flatfile.cpp \
   httprpc.cpp \
   httpserver.cpp \
+  i2p.cpp \
   index/base.cpp \
   index/blockfilterindex.cpp \
   index/txindex.cpp \
