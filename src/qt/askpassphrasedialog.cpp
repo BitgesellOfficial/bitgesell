@@ -221,7 +221,6 @@ void AskPassphraseDialog::textChanged()
         acceptable = !ui->passEdit2->text().isEmpty() && !ui->passEdit3->text().isEmpty();
         break;
     case Unlock: // Old passphrase x1
-    case Decrypt:
         acceptable = !ui->passEdit1->text().isEmpty();
         break;
     case ChangePass: // Old passphrase x1, new passphrase x2
