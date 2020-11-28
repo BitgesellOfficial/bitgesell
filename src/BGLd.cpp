@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The BGL Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -56,13 +56,11 @@ static bool AppInit(int argc, char* argv[])
     if (HelpRequested(args) || args.IsArgSet("-version")) {
         std::string strUsage = PACKAGE_NAME " version " + FormatFullVersion() + "\n";
 
-        if (args.IsArgSet("-version")) {
-            strUsage += FormatParagraph(LicenseInfo()) + "\n";
-        }
-        else
-        {
-            strUsage += "\nUsage:  BGLd [options]                     Start " PACKAGE_NAME "\n";
-            strUsage += "\n" + gArgs.GetHelpMessage();
+        if (!args.IsArgSet("-version")) {
+            strUsage += FormatParagraph(LicenseInfo()) + "\n"
+                "\nUsage:  BGLd [options]                     Start " PACKAGE_NAME "\n"
+                "\n";
+            strUsage += args.GetHelpMessage();
         }
 
         tfm::format(std::cout, "%s", strUsage);
@@ -97,7 +95,7 @@ static bool AppInit(int argc, char* argv[])
             return false;
         }
 
-        // -server defaults to true for bitcoind but not for the GUI so do this here
+        // -server defaults to true for BGLd but not for the GUI so do this here
         args.SoftSetBoolArg("-server", true);
         // Set this early so that parameter interactions go to console
         InitLogging(args);
