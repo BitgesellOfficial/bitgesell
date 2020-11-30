@@ -87,8 +87,8 @@ std::string CRPCTable::help(const std::string& strCommand, const JSONRPCRequest&
         vCommands.push_back(make_pair(entry.second.front()->category + entry.first, entry.second.front()));
     sort(vCommands.begin(), vCommands.end());
 
-    JSONRPCRequest jreq(helpreq);
-    jreq.fHelp = true;
+    JSONRPCRequest jreq = helpreq;
+    jreq.mode = JSONRPCRequest::GET_HELP;
     jreq.params = UniValue();
 
     for (const std::pair<std::string, const CRPCCommand*>& command : vCommands)
@@ -486,6 +486,10 @@ std::vector<std::string> CRPCTable::listCommands() const
 
 UniValue CRPCTable::dumpArgMap() const
 {
+
+    JSONRPCRequest request = args_request;
+    request.mode = JSONRPCRequest::GET_ARGS;
+
     UniValue ret{UniValue::VARR};
     for (const auto& cmd : mapCommands) {
         for (const auto& c : cmd.second) {

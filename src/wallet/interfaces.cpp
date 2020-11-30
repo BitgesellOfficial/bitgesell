@@ -15,7 +15,6 @@
 #include <sync.h>
 #include <uint256.h>
 #include <util/check.h>
-#include <util/ref.h>
 #include <util/system.h>
 #include <util/ui_change_type.h>
 #include <wallet/context.h>
@@ -524,7 +523,10 @@ public:
     {
         g_rpc_chain = &m_chain;
         for (const CRPCCommand& command : GetWalletRPCCommands()) {
-            m_rpc_handlers.emplace_back(m_chain.handleRpc(command));
+            m_rpc_commands.emplace_back(command.category, command.name, [this, &command](const JSONRPCRequest& request, UniValue& result, bool last_handler) {
+                return command.actor({request, &m_context}, result, last_handler);
+            }, command.argNames, command.unique_id);
+            m_rpc_handlers.emplace_back(m_context.chain->handleRpc(m_rpc_commands.back()));
         }
 
 #ifdef ENABLE_EXTERNAL_SIGNER
