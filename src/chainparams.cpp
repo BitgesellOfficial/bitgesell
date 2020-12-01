@@ -146,7 +146,7 @@ public:
  
             }};
 
-        chainTxData = ChainTxData{ / block 35849 000000000000055e5a25481d6b90bc943f36d5f2b3ca0ecf4f4b4ea3241a3168
+        chainTxData = ChainTxData{ // block 35849 000000000000055e5a25481d6b90bc943f36d5f2b3ca0ecf4f4b4ea3241a3168
             1606835311,
             398448,
             0.01914877420317247
