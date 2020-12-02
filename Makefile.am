@@ -26,6 +26,8 @@ BGL_QT_BIN=$(top_builddir)/src/qt/$(BGL_GUI_NAME)$(EXEEXT)
 BGL_CLI_BIN=$(top_builddir)/src/$(BGL_CLI_NAME)$(EXEEXT)
 BGL_TX_BIN=$(top_builddir)/src/$(BGL_TX_NAME)$(EXEEXT)
 BGL_WALLET_BIN=$(top_builddir)/src/$(BGL_WALLET_TOOL_NAME)$(EXEEXT)
+BGL_NODE_BIN=$(top_builddir)/src/$(BGL_MP_NODE_NAME)$(EXEEXT)
+BGL_GUI_BIN=$(top_builddir)/src/$(BGL_MP_GUI_NAME)$(EXEEXT)
 BGL_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win64-setup$(EXEEXT)
 
 empty :=
@@ -186,6 +188,12 @@ $(BGL_TX_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
 $(BGL_WALLET_BIN): FORCE
+	$(MAKE) -C src $(@F)
+
+$(BGL_NODE_BIN): FORCE
+	$(MAKE) -C src $(@F)
+
+$(BGL_GUI_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
 if USE_LCOV
