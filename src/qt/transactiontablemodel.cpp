@@ -434,6 +434,25 @@ QString TransactionTableModel::formatTxAmount(const TransactionRecord *wtx, bool
     return QString(str);
 }
 
+QIcon IconWithShiftedColor(const QString& filename, bool shift)
+{
+    if (!shift)
+        return QIcon(filename);
+
+    QImage img(filename);
+    img = img.convertToFormat(QImage::Format_ARGB32);
+    for (int x = img.width(); x--; )
+    {
+        for (int y = img.height(); y--; )
+        {
+            const QRgb rgb = img.pixel(x, y);
+            img.setPixel(x, y, qRgba(qRed(rgb), qGreen(rgb), qBlue(rgb)+128, qAlpha(rgb)));
+        }
+    }
+    return QIcon(QPixmap::fromImage(img));
+}
+
+
 QVariant TransactionTableModel::txStatusDecoration(const TransactionRecord *wtx) const
 {
     switch(wtx->status.status)
