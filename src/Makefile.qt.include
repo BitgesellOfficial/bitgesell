@@ -155,12 +155,15 @@ BGL_QT_H = \
   qt/winshutdownmonitor.h
 
 RES_ICONS = \
+  qt/res/icons/about_qt.png \
   qt/res/icons/add.png \
   qt/res/icons/address-book.png \
+  qt/res/icons/BGL16.png \
   qt/res/icons/BGL.ico \
   qt/res/icons/BGL_testnet.ico \
   qt/res/icons/BGL.png \
   qt/res/icons/chevron.png \
+  qt/res/icons/configure.png \
   qt/res/icons/clock1.png \
   qt/res/icons/clock2.png \
   qt/res/icons/clock3.png \
@@ -178,16 +181,20 @@ RES_ICONS = \
   qt/res/icons/eye.png \
   qt/res/icons/eye_minus.png \
   qt/res/icons/eye_plus.png \
+  qt/res/icons/filesave.png \
   qt/res/icons/fontbigger.png \
   qt/res/icons/fontsmaller.png \
   qt/res/icons/hd_disabled.png \
   qt/res/icons/hd_enabled.png \
   qt/res/icons/history.png \
+  qt/res/icons/key.png \
   qt/res/icons/lock_closed.png \
   qt/res/icons/lock_open.png \
   qt/res/icons/network_disabled.png \
+  qt/res/icons/open.png \
   qt/res/icons/overview.png \
   qt/res/icons/proxy.png \
+  qt/res/icons/quit.png \
   qt/res/icons/receive.png \
   qt/res/icons/remove.png \
   qt/res/icons/send.png \
