@@ -1,4 +1,4 @@
-BGL Core integration/staging tree
+BGL Core integration/staging tree        ![](share/pixmaps/BGL64.png)
 =====================================
 
 What is BGL?
