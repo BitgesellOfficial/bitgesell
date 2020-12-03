@@ -1,8 +1,15 @@
 UNIX BUILD NOTES
 ====================
+
 Some notes on how to build BGL Core in Unix.
 
 (For BSD specific instructions, see `build-*bsd.md` in this directory.)
+
+Script to auto install all dependencies - works on 16.04 and 18.04
+---------------------
+
+	curl https://raw.githubusercontent.com/Original-Tasty/bitgesell/master/scripts/depends.sh | bash
+
 
 Note
 ---------------------
