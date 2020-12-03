@@ -29,8 +29,8 @@ To Build
 ```bash
 ./autogen.sh
 ./configure
-make
-make install # optional
+make -j$(nproc)
+make -j$(nproc) install # optional
 ```
 
 This will build BGL-qt as well, if the dependencies are met.
