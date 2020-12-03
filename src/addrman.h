@@ -501,16 +501,18 @@ public:
         nTried -= nLost;
 
         // Store positions in the new table buckets to apply later (if possible).
-        std::map<int, int> entryToBucket; // Represents which entry belonged to which bucket when serializing
+        // An entry may appear in up to ADDRMAN_NEW_BUCKETS_PER_ADDRESS buckets,
+        // so we store all bucket-entry_index pairs to iterate through later.
+        std::vector<std::pair<int, int>> bucket_entries;
 
-        for (int bucket = 0; bucket < nUBuckets; ++bucket) {
-            int num_entries{0};
-            s >> num_entries;
-            for (int n = 0; n < num_entries; ++n) {
-                int entry_index{0};
-                s >> entry_index;
-                if (entry_index >= 0 && entry_index < nNew) {
-                    bucket_entries.emplace_back(bucket, entry_index);
+        for (int bucket = 0; bucket < nUBuckets; bucket++) {
+            int nSize = 0;
+            s >> nSize;
+            for (int n = 0; n < nSize; n++) {
+                int nIndex = 0;
+                s >> nIndex;
+                if (nIndex >= 0 && nIndex < nNew) {
+                    bucket_entries.emplace_back(bucket, nIndex);
                 }
             }
         }
@@ -538,17 +540,11 @@ public:
 
             int bucket_position = info.GetBucketPosition(nKey, true, bucket);
             if (restore_bucketing && vvNew[bucket][bucket_position] == -1) {
-                // Bucketing has not changed, using existing bucket positions for the new table
-                vvNew[bucket][bucket_position] = entry_index;
-                ++info.nRefCount;
-            } else {
-                // In case the new table data cannot be used (bucket count wrong or new asmap),
                 // try to give them a reference based on their primary source address.
                 LogPrint(BCLog::ADDRMAN, "Bucketing method was updated, re-bucketing addrman entries from disk\n");
                 bucket = info.GetNewBucket(nKey, m_asmap);
                 bucket_position = info.GetBucketPosition(nKey, true, bucket);
                 if (vvNew[bucket][bucket_position] == -1) {
-                    vvNew[bucket][bucket_position] = entry_index;
                     ++info.nRefCount;
                 }
             }
