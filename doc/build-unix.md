@@ -298,4 +298,19 @@ To build executables for ARM:
     make
 
 
+Errors and Fixes
+-------------------
+If error is:
+
+- libstdc++.so.6: version `GLIBCXX_3.4.22’ not found
+
+Then do: 
+```
+sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test && sudo apt-get update && sudo apt-get install gcc-4.9 -y && sudo apt-get upgrade libstdc++6 -y && sudo apt-get dist-upgrade -y && clear
+```
+
+
+
+
+
 For further documentation on the depends system see [README.md](../depends/README.md) in the depends directory.
