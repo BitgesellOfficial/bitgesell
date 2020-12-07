@@ -91,7 +91,7 @@ for normal IPv4/IPv6 communication, use:
 
 	./BGLd -onion=127.0.0.1:9050 -externalip=57qr3yd1nyntf5k.onion -discover
 
-## 3. Automatically listen on Tor
+## 3. Automatically create a BGL Core onion service
 
 Starting with Tor version 0.2.7.1 it is possible, through Tor's control socket
 API, to create and destroy 'ephemeral' hidden services programmatically.
