@@ -273,10 +273,6 @@ enum ServiceFlags : uint64_t {
     // NODE_NETWORK means that the node is capable of serving the complete block chain. It is currently
     // set by all BGL Core non pruned nodes, and is unset by SPV clients or other light clients.
     NODE_NETWORK = (1 << 0),
-    // NODE_GETUTXO means the node is capable of responding to the getutxo protocol request.
-    // BGL Core does not support this but a patch set called BGL XT does.
-    // See BIP 64 for details on how this is implemented.
-    NODE_GETUTXO = (1 << 1),
     // NODE_BLOOM means the node is capable and willing to handle bloom-filtered connections.
     // BGL Core nodes used to support this by default, without advertising this bit,
     // but no longer do as of protocol version 70011 (= NO_BLOOM_VERSION)
