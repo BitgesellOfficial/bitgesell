@@ -2,10 +2,6 @@
 export LC_ALL=C
 set -e -o pipefail
 
-###################
-## Sanity Checks ##
-###################
-
 # GUIX_BUILD_OPTIONS is an environment variable recognized by guix commands that
 # can perform builds. This seems like what we want instead of
 # ADDITIONAL_GUIX_COMMON_FLAGS, but the value of GUIX_BUILD_OPTIONS is actually
@@ -30,10 +26,6 @@ EOF
 exit 1
 fi
 
-#########
-# Setup #
-#########
-
 # Determine the maximum number of jobs to run simultaneously (overridable by
 # environment)
 MAX_JOBS="${MAX_JOBS:-$(nproc)}"
@@ -52,6 +44,8 @@ time-machine() {
     guix time-machine --url=https://github.com/dongcarl/guix.git \
                       --commit=b066c25026f21fb57677aa34692a5034338e7ee3 \
                       --max-jobs="$MAX_JOBS" \
+                      ${SUBSTITUTE_URLS:+--substitute-urls="$SUBSTITUTE_URLS"} \
+                      ${ADDITIONAL_GUIX_COMMON_FLAGS} ${ADDITIONAL_GUIX_TIMEMACHINE_FLAGS} \
                       -- "$@"
 }
 
@@ -157,8 +151,9 @@ for host in $HOSTS; do
                                  --share="$OUTDIR"=/outdir \
                                  --expose="$(git rev-parse --git-common-dir)" \
                                  ${SOURCES_PATH:+--share="$SOURCES_PATH"} \
-                                 ${ADDITIONAL_GUIX_ENVIRONMENT_FLAGS} \
                                  --max-jobs="$MAX_JOBS" \
+                                 ${SUBSTITUTE_URLS:+--substitute-urls="$SUBSTITUTE_URLS"} \
+                                 ${ADDITIONAL_GUIX_COMMON_FLAGS} ${ADDITIONAL_GUIX_ENVIRONMENT_FLAGS} \
                                  -- env HOST="$host" \
                                         MAX_JOBS="$MAX_JOBS" \
                                         SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:?unable to determine value}" \
