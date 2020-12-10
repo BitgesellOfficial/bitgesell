@@ -130,7 +130,6 @@ time-machine() {
     guix time-machine --url=https://github.com/dongcarl/guix.git \
                       --commit=b066c25026f21fb57677aa34692a5034338e7ee3 \
                       --max-jobs="$MAX_JOBS" \
-                      ${SUBSTITUTE_URLS:+--substitute-urls="$SUBSTITUTE_URLS"} \
                       -- "$@"
 }
 
@@ -242,7 +241,6 @@ for host in $HOSTS; do
                                  ${SOURCES_PATH:+--share="$SOURCES_PATH"} \
                                  ${ADDITIONAL_GUIX_ENVIRONMENT_FLAGS} \
                                  --max-jobs="$MAX_JOBS" \
-                                 ${SUBSTITUTE_URLS:+--substitute-urls="$SUBSTITUTE_URLS"} \
                                  -- env HOST="$host" \
                                         MAX_JOBS="$MAX_JOBS" \
                                         SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:?unable to determine value}" \
