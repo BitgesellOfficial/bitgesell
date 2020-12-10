@@ -482,11 +482,8 @@ class TestNode():
              tempfile.NamedTemporaryFile(dir=self.stdout_dir, delete=False) as log_stdout:
             try:
                 self.start(extra_args, stdout=log_stdout, stderr=log_stderr, *args, **kwargs)
-                self.wait_for_rpc_connection()
-                self.stop_node()
-                self.wait_until_stopped()
-            except FailedToStartError as e:
-                self.log.debug('BGLd failed to start: %s', e)
+                ret = self.process.wait(timeout=self.rpc_timeout)
+                self.log.debug(self._node_msg(f'BGLd exited with status {ret} during initialization'))
                 self.running = False
                 self.process = None
                 # Check stderr for expected message
@@ -505,7 +502,11 @@ class TestNode():
                         if expected_msg != stderr:
                             self._raise_assertion_error(
                                 'Expected message "{}" does not fully match stderr:\n"{}"'.format(expected_msg, stderr))
-            else:
+            except subprocess.TimeoutExpired:
+                self.process.kill()
+                self.running = False
+                self.process = None
+                assert_msg = f'BGLd should have exited within {self.rpc_timeout}s '
                 if expected_msg is None:
                     assert_msg = "BGLd should have exited with an error"
                 else:
