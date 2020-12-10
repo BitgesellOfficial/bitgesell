@@ -288,63 +288,63 @@ void BGLGUI::createActions()
     connect(historyAction, &QAction::triggered, this, &BGLGUI::gotoHistoryPage);
 #endif // ENABLE_WALLET
 
-    quitAction = new QAction(tr("E&xit"), this);
+    quitAction = new QAction(QIcon(":/icons/quit"), tr("E&xit"), this);
     quitAction->setStatusTip(tr("Quit application"));
     quitAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
     quitAction->setMenuRole(QAction::QuitRole);
-    aboutAction = new QAction(tr("&About %1").arg(PACKAGE_NAME), this);
+    aboutAction = new QAction(QIcon(":/icons/BGL16"), tr("&About %1").arg(PACKAGE_NAME), this);
     aboutAction->setStatusTip(tr("Show information about %1").arg(PACKAGE_NAME));
     aboutAction->setMenuRole(QAction::AboutRole);
     aboutAction->setEnabled(false);
-    aboutQtAction = new QAction(tr("About &Qt"), this);
+    aboutQtAction = new QAction(QIcon(":/icons/about_qt"), tr("About &Qt"), this);
     aboutQtAction->setStatusTip(tr("Show information about Qt"));
     aboutQtAction->setMenuRole(QAction::AboutQtRole);
-    optionsAction = new QAction(tr("&Options..."), this);
+    optionsAction = new QAction(QIcon(":/icons/configure"), tr("&Options..."), this);
     optionsAction->setStatusTip(tr("Modify configuration options for %1").arg(PACKAGE_NAME));
     optionsAction->setMenuRole(QAction::PreferencesRole);
     optionsAction->setEnabled(false);
-    toggleHideAction = new QAction(tr("&Show / Hide"), this);
+    toggleHideAction = new QAction(QIcon(":/icons/add"), tr("&Show / Hide"), this);
     toggleHideAction->setStatusTip(tr("Show or hide the main Window"));
 
-    encryptWalletAction = new QAction(tr("&Encrypt Wallet..."), this);
+    encryptWalletAction = new QAction(QIcon(":/icons/lock_closed"), tr("&Encrypt Wallet..."), this);
     encryptWalletAction->setStatusTip(tr("Encrypt the private keys that belong to your wallet"));
     encryptWalletAction->setCheckable(true);
-    backupWalletAction = new QAction(tr("&Backup Wallet..."), this);
+    backupWalletAction = new QAction(QIcon(":/icons/filesave"), tr("&Backup Wallet..."), this);
     backupWalletAction->setStatusTip(tr("Backup wallet to another location"));
-    changePassphraseAction = new QAction(tr("&Change Passphrase..."), this);
+    changePassphraseAction = new QAction(QIcon(":/icons/key"), tr("&Change Passphrase..."), this);
     changePassphraseAction->setStatusTip(tr("Change the passphrase used for wallet encryption"));
-    signMessageAction = new QAction(tr("Sign &message..."), this);
+    signMessageAction = new QAction(QIcon(":/icons/edit"), tr("Sign &message..."), this);
     signMessageAction->setStatusTip(tr("Sign messages with your BGL addresses to prove you own them"));
-    verifyMessageAction = new QAction(tr("&Verify message..."), this);
+    verifyMessageAction = new QAction(QIcon(":/icons/transaction_0"), tr("&Verify message..."), this);
     verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified BGL addresses"));
 
-    openRPCConsoleAction = new QAction(tr("&Debug window"), this);
+    openRPCConsoleAction = new QAction(QIcon(":/icons/debug_window"), tr("&Debug window"), this);
     openRPCConsoleAction->setStatusTip(tr("Open debugging and diagnostic console"));
     // initially disable the debug window menu item
     openRPCConsoleAction->setEnabled(false);
     openRPCConsoleAction->setObjectName("openRPCConsoleAction");
 
-    usedSendingAddressesAction = new QAction(tr("&Sending addresses"), this);
+    usedSendingAddressesAction = new QAction(QIcon(":/icons/address-book"), tr("&Sending addresses"), this);
     usedSendingAddressesAction->setStatusTip(tr("Show the list of used sending addresses and labels"));
-    usedReceivingAddressesAction = new QAction(tr("&Receiving addresses"), this);
+    usedReceivingAddressesAction = new QAction(QIcon(":/icons/address-book"), tr("&Receiving addresses"), this);
     usedReceivingAddressesAction->setStatusTip(tr("Show the list of used receiving addresses and labels"));
 
-    openAction = new QAction(tr("Open &URI..."), this);
+    openAction = new QAction(QIcon(":/icons/open"), tr("Open &URI..."), this);
     openAction->setStatusTip(tr("Open a BGL: URI"));
 
-    m_open_wallet_action = new QAction(tr("Open Wallet"), this);
+    m_open_wallet_action = new QAction(QIcon(":/icons/open"), tr("Open Wallet"), this);
     m_open_wallet_action->setEnabled(false);
     m_open_wallet_action->setStatusTip(tr("Open a wallet"));
     m_open_wallet_menu = new QMenu(this);
 
-    m_close_wallet_action = new QAction(tr("Close Wallet..."), this);
+    m_close_wallet_action = new QAction(QIcon(":/icons/remove"), tr("Close Wallet..."), this);
     m_close_wallet_action->setStatusTip(tr("Close wallet"));
 
-    m_create_wallet_action = new QAction(tr("Create Wallet..."), this);
+    m_create_wallet_action = new QAction(QIcon(":/icons/add"), tr("Create Wallet..."), this);
     m_create_wallet_action->setEnabled(false);
     m_create_wallet_action->setStatusTip(tr("Create a new wallet"));
 
-    showHelpMessageAction = new QAction(tr("&Command-line options"), this);
+    showHelpMessageAction = new QAction(QIcon(":/icons/info"), tr("&Command-line options"), this);
     showHelpMessageAction->setMenuRole(QAction::NoRole);
     showHelpMessageAction->setStatusTip(tr("Show the %1 help message to get a list with possible BGL command-line options").arg(PACKAGE_NAME));
 

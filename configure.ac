@@ -1,7 +1,7 @@
 AC_PREREQ([2.69])
 define(_CLIENT_VERSION_MAJOR, 0)
 define(_CLIENT_VERSION_MINOR, 1)
-define(_CLIENT_VERSION_REVISION, 1)
+define(_CLIENT_VERSION_REVISION, 4)
 define(_CLIENT_VERSION_BUILD, 0)
 define(_CLIENT_VERSION_RC, 0)
 define(_CLIENT_VERSION_IS_RELEASE, true)
@@ -134,7 +134,7 @@ AC_ARG_ENABLE([upnp-default],
 AC_ARG_ENABLE(tests,
     AS_HELP_STRING([--disable-tests],[do not compile tests (default is to compile)]),
     [use_tests=$enableval],
-    [use_tests=yes])
+    [use_tests=no])
 
 AC_ARG_ENABLE(gui-tests,
     AS_HELP_STRING([--disable-gui-tests],[do not compile GUI tests (default is to compile if GUI and tests enabled)]),
@@ -150,7 +150,7 @@ AC_ARG_WITH([rapidcheck],
 AC_ARG_ENABLE(bench,
     AS_HELP_STRING([--disable-bench],[do not compile benchmarks (default is to compile)]),
     [use_bench=$enableval],
-    [use_bench=yes])
+    [use_bench=no])
 
 AC_ARG_ENABLE([extended-functional-tests],
     AS_HELP_STRING([--enable-extended-functional-tests],[enable expensive functional tests when using lcov (default no)]),
@@ -173,7 +173,7 @@ AC_ARG_ENABLE([hardening],
   [AS_HELP_STRING([--disable-hardening],
   [do not attempt to harden the resulting executables (default is to harden when possible)])],
   [use_hardening=$enableval],
-  [use_hardening=auto])
+  [use_hardening=no])
 
 AC_ARG_ENABLE([reduce-exports],
   [AS_HELP_STRING([--enable-reduce-exports],

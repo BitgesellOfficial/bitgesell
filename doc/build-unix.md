@@ -1,8 +1,10 @@
-UNIX BUILD NOTES
+﻿UNIX BUILD NOTES
 ====================
+
 Some notes on how to build BGL Core in Unix.
 
 (For BSD specific instructions, see `build-*bsd.md` in this directory.)
+
 
 Note
 ---------------------
@@ -20,8 +22,8 @@ To Build
 ```bash
 ./autogen.sh
 ./configure
-make
-make install # optional
+make -j$(nproc)
+make -j$(nproc) install # optional
 ```
 
 This will build BGL-qt as well, if the dependencies are met.
@@ -287,6 +289,21 @@ To build executables for ARM:
     ./autogen.sh
     ./configure --prefix=$PWD/depends/arm-linux-gnueabihf --enable-glibc-back-compat --enable-reduce-exports LDFLAGS=-static-libstdc++
     make
+
+
+Errors and Fixes
+-------------------
+If error is:
+
+- libstdc++.so.6: version `GLIBCXX_3.4.22’ not found
+
+Then do: 
+```
+sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test && sudo apt-get update && sudo apt-get install gcc-4.9 -y && sudo apt-get upgrade libstdc++6 -y && sudo apt-get dist-upgrade -y && clear
+```
+
+
+
 
 
 For further documentation on the depends system see [README.md](../depends/README.md) in the depends directory.

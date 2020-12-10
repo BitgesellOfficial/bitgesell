@@ -49,7 +49,30 @@ with the "Cross-compilation" section. Compiling the 64-bit version is
 recommended, but it is possible to compile the 32-bit version.
 
 Cross-compilation for Ubuntu and Windows Subsystem for Linux
+===
+
+The dependencies for cross-compile for Windows x64 + x32 on Linux are already compiled at:   */bitgesell/depends/*    folder, see codes below to now compile Windows wallets on Linux 18.04:
+
+
+To compile for Windows on Linux 18.04:
 ------------------------------------------------------------
+
+   - x64:
+```
+./autogen.sh && ./configure --prefix=`pwd`/depends/x86_64-w64-mingw32 && make -j$(nproc)
+```
+   - x32:
+```
+./autogen.sh && ./configure --prefix=`pwd`/depends/i686-w64-mingw32 && make -j$(nproc)
+```
+
+
+--
+
+
+Or follow the steps below:
+------------------------------------------------------------
+
 
 The steps below can be performed on Ubuntu (including in a VM) or WSL. The depends system
 will also work on other Linux distributions, however the commands for
@@ -72,8 +95,8 @@ If you want to build the windows installer with `make deploy` you need [NSIS](ht
 
 Acquire the source in the usual way:
 
-    git clone https://github.com/BGL/BGL.git
-    cd BGL
+    git clone https://github.com/Original-Tasty/bitgesell.git
+    cd bitgesell
 
 ## Building for 64-bit Windows
 
