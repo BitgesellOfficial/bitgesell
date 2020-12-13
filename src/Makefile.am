@@ -20,8 +20,9 @@ else
 LIBUNIVALUE = $(UNIVALUE_LIBS)
 endif
 
-BGL_INCLUDES=-I$(builddir) -I$(srcdir)/secp256k1/include $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
+BGL_INCLUDES=-I$(builddir) $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
 
+BGL_INCLUDES += -I$(srcdir)/secp256k1/include
 BGL_INCLUDES += $(UNIVALUE_CFLAGS)
 
 LIBBGL_SERVER=libBGL_server.a
@@ -57,10 +58,6 @@ if ENABLE_SHANI
 LIBBGL_CRYPTO_SHANI = crypto/libBGL_crypto_shani.a
 LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_SHANI)
 endif
-
-# Add SHA3 support
-LIBBGL_CRYPTO_SHA3 = crypto/sha3/libBGL_crypto_sha3.a
-LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_SHA3)
 
 $(LIBSECP256K1): $(wildcard secp256k1/src/*.h) $(wildcard secp256k1/src/*.c) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
@@ -242,7 +239,6 @@ BGL_CORE_H = \
   util/translation.h \
   util/ui_change_type.h \
   util/url.h \
-  util/validation.h \
   util/vector.h \
   validation.h \
   validationinterface.h \
@@ -362,7 +358,6 @@ endif
 libBGL_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(SQLITE_CFLAGS)
 libBGL_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_wallet_a_SOURCES = \
-  interfaces/wallet.cpp \
   wallet/coincontrol.cpp \
   wallet/context.cpp \
   wallet/crypter.cpp \
@@ -392,13 +387,6 @@ libBGL_wallet_tool_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_wallet_tool_a_SOURCES = \
   wallet/wallettool.cpp \
   $(BGL_CORE_H)
-
-# SHA3 extension library
-crypto_sha3_libBGL_crypto_sha3_a_CPPFLAGS = $(AM_CPPFLAGS)
-crypto_sha3_libBGL_crypto_sha3_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-crypto_sha3_libBGL_crypto_sha3_a_SOURCES = \
-  crypto/sha3/sha3.c \
-  crypto/sha3/sha3.h
 
 # crypto primitives library
 crypto_libBGL_crypto_base_a_CPPFLAGS = $(AM_CPPFLAGS)
@@ -561,7 +549,6 @@ libBGL_util_a_SOURCES = \
   util/strencodings.cpp \
   util/string.cpp \
   util/time.cpp \
-  util/url.cpp \
   $(BGL_CORE_H)
 
 if USE_LIBEVENT
@@ -592,11 +579,10 @@ BGL_bin_cxxflags = $(AM_CXXFLAGS) $(PIE_FLAGS)
 BGL_bin_ldflags = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
 
 if TARGET_WINDOWS
-b_common_sources += BGLd-res.rc
+BGL_daemon_sources += BGLd-res.rc
 endif
 
-BGL_common_ldadd = \
-  $(LIBBGL_SERVER) \
+BGL_bin_ldadd = \
   $(LIBBGL_WALLET) \
   $(LIBBGL_COMMON) \
   $(LIBBGL_UTIL) \
@@ -609,20 +595,19 @@ BGL_common_ldadd = \
   $(LIBMEMENV) \
   $(LIBSECP256K1)
 
-BGL_common_ldadd += $(BOOST_LIBS) $(BDB_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
+BGL_bin_ldadd += $(BOOST_LIBS) $(BDB_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS) $(SQLITE_LIBS)
 
-BGLd_SOURCES = $(BGL_common_sources)
-BGLd_CPPFLAGS = $(BGL_common_cppflags)
-BGLd_CXXFLAGS = $(BGL_common_cxxflags)
-BGLd_LDFLAGS = $(BGL_common_ldflags)
-BGLd_LDADD = $(BGL_common_ldadd)
+BGLd_SOURCES = $(BGL_daemon_sources)
+BGLd_CPPFLAGS = $(BGL_bin_cppflags)
+BGLd_CXXFLAGS = $(BGL_bin_cxxflags)
+BGLd_LDFLAGS = $(BGL_bin_ldflags)
+BGLd_LDADD = $(LIBBGL_SERVER) $(BGL_bin_ldadd)
 
-BGL_node_SOURCES = $(BGL_common_sources)
-BGL_node_CPPFLAGS = $(BGL_common_cppflags)
-BGL_node_CXXFLAGS = $(BGL_common_cxxflags)
-BGL_node_LDFLAGS = $(BGL_common_ldflags)
-BGL_node_LDADD = $(BGL_common_ldadd)
-BGLd_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
+BGL_node_SOURCES = $(BGL_daemon_sources)
+BGL_node_CPPFLAGS = $(BGL_bin_cppflags)
+BGL_node_CXXFLAGS = $(BGL_bin_cxxflags)
+BGL_node_LDFLAGS = $(BGL_bin_ldflags)
+BGL_node_LDADD = $(LIBBGL_SERVER) $(BGL_bin_ldadd)
 
 # BGL-cli binary #
 BGL_cli_SOURCES = BGL-cli.cpp
@@ -666,36 +651,20 @@ BGL_tx_LDADD += $(BOOST_LIBS)
 
 # BGL-wallet binary #
 BGL_wallet_SOURCES = BGL-wallet.cpp
-BGL_wallet_CPPFLAGS = $(BGL_common_cppflags)
-BGL_wallet_CXXFLAGS = $(BGL_common_cxxflags)
-BGL_wallet_LDFLAGS = $(BGL_common_ldflags)
-BGL_wallet_LDADD = $(LIBBGL_WALLET_TOOL) $(BGL_common_ldadd)
+BGL_wallet_CPPFLAGS = $(BGL_bin_cppflags)
+BGL_wallet_CXXFLAGS = $(BGL_bin_cxxflags)
+BGL_wallet_LDFLAGS = $(BGL_bin_ldflags)
+BGL_wallet_LDADD = $(LIBBGL_WALLET_TOOL) $(BGL_bin_ldadd)
 
 if TARGET_WINDOWS
 BGL_wallet_SOURCES += BGL-wallet-res.rc
 endif
-
-BGL_wallet_LDADD = \
-  $(LIBBGL_WALLET_TOOL) \
-  $(LIBBGL_WALLET) \
-  $(LIBBGL_COMMON) \
-  $(LIBBGL_CONSENSUS) \
-  $(LIBBGL_UTIL) \
-  $(LIBBGL_CRYPTO) \
-  $(LIBBGL_ZMQ) \
-  $(LIBLEVELDB) \
-  $(LIBLEVELDB_SSE42) \
-  $(LIBMEMENV) \
-  $(LIBSECP256K1) \
-  $(LIBUNIVALUE)
-
-BGL_wallet_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(MINIUPNPC_LIBS) $(ZMQ_LIBS)
 #
 
 # BGLconsensus library #
 if BUILD_BGL_LIBS
 include_HEADERS = script/BGLconsensus.h
-libBGLconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libBGL_crypto_base_a_SOURCES) $(crypto_sha3_libBGL_crypto_sha3_a_SOURCES) $(libBGL_consensus_a_SOURCES)
+libBGLconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libBGL_crypto_base_a_SOURCES) $(libBGL_consensus_a_SOURCES)
 
 if GLIBC_BACK_COMPAT
   libBGLconsensus_la_SOURCES += compat/glibc_compat.cpp

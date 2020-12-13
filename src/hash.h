@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2018 The BGL Core developers
+// Copyright (c) 2009-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,10 +15,7 @@
 #include <uint256.h>
 #include <version.h>
 
-<<<<<<< HEAD
 #include <iostream>
-=======
->>>>>>> 9eb590894... Add TaggedHash function (BIP 340)
 #include <string>
 #include <vector>
 

@@ -7,7 +7,7 @@
 #define BGL_ADDRMAN_H
 
 #include <clientversion.h>
-#include <config/bitcoin-config.h>
+#include <config/BGL-config.h>
 #include <netaddress.h>
 #include <protocol.h>
 #include <random.h>

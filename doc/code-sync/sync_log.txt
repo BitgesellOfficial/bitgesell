@@ -3931,6 +3931,1293 @@ cr 2020-10-13 01:18:24 +0100 72422ce396b8eba7b1a72c171c2f07dae691d1b5 Implement 
 cr 2020-10-13 01:18:47 +0100 0e2a5e448f426219a6464b9aaadcc715534114e6 tests: dumping and minimizing of script assets data
 v  2020-10-13 01:18:47 +0100 206fb180ec6ee5f916afc6f574000d716daf79b7 --- [TAPROOT] Tests ---
 cr 2020-10-13 01:18:47 +0100 3c226639eb134314a0640d34e4ccb6148dbde22f tests: add BIP340 Schnorr signature support to test framework
+cr 2020-10-13 01:18:47 +0100 4567ba034c5ae6e6cc161360f7425c9e844738f0 tests: add generic qa-asset-based script verification unit test
+v  2020-10-13 01:18:47 +0100 865d2c37e2e44678498b7f425b65e01b1e231cde --- [TAPROOT] Regtest activation and policy ---
+v  2020-10-13 01:18:47 +0100 d7ff237f2996a4c11fdf9399187c2d2b26bf9809 Activate Taproot/Tapscript on regtest (BIP 341, BIP 342)
+cr 2020-10-13 01:18:47 +0100 e9a021d7e6a454d610a45cb9b3995f0d96a5fbb6 Make Taproot spends standard + policy limits
+cr 2020-10-13 01:18:47 +0100 f06e6d03452cf5e0b1a0863afb08c9e6d3ef452e tests: functional tests for Schnorr/Taproot/Tapscript
+v  2020-10-13 03:50:16 +0100 d1292f25f272401da0c58580521c74b1fa03a9ad Avoid the use of abs64 in timedata
+v  2020-10-13 12:42:59 +0100 135afa749c6e835ea33b8678cdb35da9640eede8 wallet: remove db mode string
+pr 2020-10-13 13:00:39 +0100 ad90dd9f313aa4a2f87675b4392b85c0b06a5a83 Merge #20141: Avoid the use of abs64 in timedata
+pr 2020-10-13 13:27:30 +0100 cd6e193d4c85b94b1281f270754c2a22d1537876 Merge #20126: test: p2p_leak_tx.py improvements (use MiniWallet, add p2p_lock acquires)
+pr 2020-10-13 13:42:12 +0100 ec0453cd57736df33e9f50c004d88bea10428ad5 Merge bitcoin-core/gui#102: Fix SplashScreen crash when run with -disablewallet
+v  2020-10-13 13:57:52 +0100 33330778230961cfbf2a24de36b5877e395cc596 rpc: Adjust witness-tx deserialize error message
+cr 2020-10-13 14:38:18 +0100 fa299ac27364bd7a59e6fb7e0c4ce476f2deec40 test: Speed up wallet_resendwallettransactions test with mockscheduler RPC
+v  2020-10-13 22:38:38 +0100 9c47cb29f9f525ee58acc629825a97075156d764 [Rename only] Rename orphan_work_set to m_orphan_work_set.
+pr 2020-10-14 05:19:42 +0100 e21b824386bf9befdab44a60c9f58a450147739e Merge #20109: Release notes and followups from 19339
+v  2020-10-14 09:09:50 +0100 fa1f6f237d02265af616129402fa2b8a3019dda5 net: Send post-verack handshake messages at most once
+pr 2020-10-14 09:33:55 +0100 3750f664b349c759e715ba0b9e1a64e1ea07c782 Merge #20129: tests: don't export in6addr_loopback
+pr 2020-10-14 13:50:22 +0100 9efa55c715c0179b2bd079348ef67b624411b11b Merge #20130: Wallet: remove db mode string
+v  2020-10-14 13:55:55 +0100 6df7882029854f0427d84b22081018ae77e27e66 net: add peer network to CNodeStats
+cr 2020-10-14 13:56:03 +0100 4938a109adf13f2c60a50f08d4cc9ddb8d7ded96 rpc, test: expose CNodeStats network in RPC getpeerinfo
+v  2020-10-14 13:56:05 +0100 5133fab37e8679e1d0d08ead4f5cccf4979dc15b cli: simplify -netinfo using getpeerinfo network field
+v  2020-10-14 13:56:07 +0100 82fd40216c70037480150d2b62e2b58c57784546 refactor: promote some -netinfo localvars to class members
+pr 2020-10-14 13:57:15 +0100 99a1d572eabca89790216b3919a237e07063a376 Merge #18750: build: optionally skip external warnings
+v  2020-10-14 15:08:37 +0100 8803aee66813d27ddbdfce937ab9c35f8f7c35bc Move m_orphan_work_set to net_processing
+cr 2020-10-14 15:08:44 +0100 2d9f2fca43aadcdda4d644cddab36dca88b40b97 Move vRecvGetData to net processing
+cr 2020-10-14 15:08:44 +0100 673247b58cd1252ab7e99f7d63ead05cc100cef2 Lock before checking if orphan_work_set is empty; indicate it is guarded
+cr 2020-10-14 15:08:44 +0100 ba951812ec0cc8ebee5911a582f188525b76ff0a Guard vRecvGetData (now in net processing) with its own mutex
+v  2020-10-14 15:08:44 +0100 da0988daf1d665a4644ad3f1ddf3f8a8bdd88cde scripted-diff: rename vRecvGetData
+v  2020-10-14 15:16:42 +0100 d681a28219d3876a2b6e3cd2fb0d92963674903e RPC: getpeerinfo: Deprecate "whitelisted" field (replaced by "permissions")
+v  2020-10-14 15:16:43 +0100 5b57dc5458800e56b4dddfeb32a1813804a62b0f RPC: getpeerinfo: Wrap long help line for bytesrecv_per_msg
+v  2020-10-14 15:29:37 +0100 6272604bef3b409455b010d134b4b62c8f6ff49f refactor: enable -netinfo to add future networks (i2p, cjdns)
+cr 2020-10-14 16:18:12 +0100 54729f3f4e6765dfded590af5fb28c88331685f8 Add libsqlite3
+cr 2020-10-14 16:18:13 +0100 e87df8258090138d5c22ac46b8602b618620e8a1 Add sqlite to travis and depends
+v  2020-10-14 16:27:37 +0100 7577b6e1c88a1a7b45ecf5c7f1735bae6f5a82bf Add SQLiteDatabase and SQLiteBatch dummy classes
+v  2020-10-14 16:27:40 +0100 ca8b7e04ab89f99075b093fa248919fd10acbdf7 Implement SQLiteDatabaseVersion
+v  2020-10-14 16:28:17 +0100 5a488b3d77326a0d957c1233493061da1b6ec207 Constructors, destructors, and relevant private fields for SQLiteDatabase/Batch
+v  2020-10-14 16:28:18 +0100 010e3659069e6f97dd7b24483f50ed71042b84b0 Implement SQLiteDatabase::TxnBegin, TxnCommit, and TxnAbort
+v  2020-10-14 16:28:18 +0100 310b0fde04639b7446efd5c1d2701caa4b991b86 Run dumpwallet for legacy wallets only in  wallet_backup.py
+v  2020-10-14 16:28:18 +0100 3bfa0fe1259280f8c32b41a798c9453b73f89b02 Initialize and Shutdown sqlite3 globals
+v  2020-10-14 16:28:18 +0100 6045f77003f167bee9a85e2d53f8fc6ff2e297d8 Implement SQLiteDatabase::MakeBatch
+cr 2020-10-14 16:28:18 +0100 6173269866306058fcb1cc825b9eb681838678ca Set and check the sqlite user version
+v  2020-10-14 16:28:18 +0100 6636a2608a4e5906ee8092d5731595542261e0ad Implement SQLiteBatch::Close
+cr 2020-10-14 16:28:18 +0100 6c6639ac9f6e1677da066cf809f9e3fa4d2e7c32 Include sqlite3 in documentation
+cr 2020-10-14 16:28:18 +0100 727e6b2a4ee5abb7f2dcbc9f7778291908dc28ad Implement SQLiteDatabase::Verify
+cr 2020-10-14 16:28:18 +0100 7aa45620e2f2178145a2eca58ccbab3cecff08fb Add SetupSQLStatements
+v  2020-10-14 16:28:18 +0100 93825352a36456283bf87e39b5888363ee242f21 Implement SQLiteDatabase::Close
+cr 2020-10-14 16:28:18 +0100 9af5de3798c49f86f27bb79396e075fb8c1b2381 Use SQLite for descriptor wallets
+cr 2020-10-14 16:28:18 +0100 9b78f3ce8ed1867c37f6b9fff98f74582d44b789 walletutil: Wallets can also be sqlite
+cr 2020-10-14 16:28:18 +0100 9d3d2d263c331e3c77b8f0d01ecc9fea0407dd17 Use network magic as sqlite wallet application ID
+cr 2020-10-14 16:28:18 +0100 a0de83372be83f59015cd3d61af2303b74fb64b5 Implement SQLiteDatabase::Open
+cr 2020-10-14 16:28:18 +0100 ac38a87225be0f1103ff9629d63980550d2f372b Determine wallet file type based on file magic
+v  2020-10-14 16:28:18 +0100 ac5c1617e7f4273daf24c24da1f6bc5ef5ab2d2b Implement SQLiteDatabase::Backup
+v  2020-10-14 16:28:18 +0100 b4df8fdb19fcded7e6d491ecf0b705cac0ec76a1 Implement SQLiteDatabase::Rewrite
+v  2020-10-14 16:28:18 +0100 bf90e033f4fe86cfb90492c7e0962278ea3a146d Implement SQLiteBatch::ReadKey, WriteKey, EraseKey, and HasKey
+cr 2020-10-14 16:28:18 +0100 c4a29d0a90b821c443c10891d9326c534d15cf97 Update wallet_multiwallet.py for descriptor and sqlite wallets
+v  2020-10-14 16:28:18 +0100 f023b7cac0eb16d3c1bf40f1f7898b290de4cc73 wallet: Enforce sqlite serialized threading mode
+v  2020-10-14 16:28:18 +0100 f6f9cd6a64842ef23777312f2465e826ca04b886 Implement SQLiteBatch::StartCursor, ReadAtCursor, and CloseCursor
+pr 2020-10-14 17:36:59 +0100 c2c4dbaebd955ad2829364f7fa5b8169ca1ba6b9 Merge #19988: Overhaul transaction request logic
+cr 2020-10-14 19:41:15 +0100 52380bf304b1c02dda23f1e2fad0159e29b2f7a2 Squashed 'src/secp256k1/' changes from 8ab24e8dad..c6b6b8f1bb
+ff 2020-10-14 19:41:15 +0100 9e5626d2a8ddbbd7640ff53f89f3a7021d747633 Update libsecp256k1 subtree to latest master
+v  2020-10-14 21:47:42 +0100 5e737a009234cbd7cf53748d3d28a2da5221192f rpc, wallet: Expose database format in getwalletinfo
+pr 2020-10-15 00:59:19 +0100 661fe5d65cc6516439f9d6e0f1a5e2db0e129059 Merge #20146: net: Send post-verack handshake messages at most once
+pr 2020-10-15 04:27:47 +0100 f2e6d14430137a271d153348d207df6ab8086bc6 Merge #20147: Update libsecp256k1 (endomorphism, test improvements)
+pr 2020-10-15 08:12:29 +0100 8ed37f6c8497c8ec9e919dab35f63201e5f75f11 Merge #19077: wallet: Add sqlite as an alternative wallet database and use it for new descriptor wallets
+pr 2020-10-15 09:22:35 +0100 3caee16946575e71e90ead9ac531f5a3a1259307 Merge #19953: Implement BIP 340-342 validation (Schnorr/taproot/tapscript)
+v  2020-10-15 09:32:26 +0100 defe48a51f4315f8cc607875a099981593c8cc39 doc: Update wallet files in files.md
+pr 2020-10-15 09:55:44 +0100 3956165903cf2fce3acd61ed6f2625f769ac7e2f Merge #17775: DecodeHexTx: Try case where txn has inputs first
+v  2020-10-15 10:27:43 +0100 fa64892b8296208380341c2c1d8c3f6c1a915475 signet: Fix uninitialized read in validation
+v  2020-10-15 10:28:13 +0100 fa729cdb2cee26850663746517e136e5317b121f doc: Move assumed-values doxygen comments to header
+pr 2020-10-15 10:44:36 +0100 e3b474c548668b653a4868c7be67e09f58e2382f Merge #20140: Restore compatibility with old CSubNet serialization
+pr 2020-10-15 10:49:34 +0100 560dea9b26f7f27b851b2d426140a98bd78796fe Merge #19770: RPC: getpeerinfo: Deprecate "whitelisted" field (replaced by "permissions")
+pr 2020-10-15 11:01:11 +0100 711ddce94377aea38ce30fa93b3ee8ea1d96ba98 Merge #20131: test: Remove unused nVersion=1 in p2p tests
+v  2020-10-15 15:46:34 +0100 624bab00dd2cc8e2ebd77dc0a669bc8d507c3721 test: add coverage for getwalletinfo format field
+pr 2020-10-15 16:44:38 +0100 0d22482353752ebfb11aa29f4b26113b817a448a Merge #20002: net, rpc, cli: expose peer network in getpeerinfo; simplify/improve -netinfo
+pr 2020-10-15 19:19:55 +0100 9855422e65ca74691129114b8ae534c31596c34b Merge #17428: p2p: Try to preserve outbound block-relay-only connections during restart
+pr 2020-10-15 19:45:56 +0100 9ad7cd2887abf5f91495337a2458560de10b4f69 Merge #20090: [doc] Tiny followups to new getpeerinfo connection type field
+v  2020-10-15 22:20:20 +0100 5669642a0bbac60b746e9301de2cefd6358ca0c0 docs: mention BIPs 340-342 in doc/bips.md
+v  2020-10-15 23:39:09 +0100 1d22300b99cda0504bb1f457d94468fa2c33c4e2 Address functional test nits
+pr 2020-10-16 05:05:26 +0100 cbb5f3a2d584f487278e0da1db23d3fcb42e4dc6 Merge #19836: rpc: Properly deserialize txs with witness before signing
+v  2020-10-16 05:29:23 +0100 fa723e3d43e63e8424d97d21d8f2cc8136aba206 Initialize default-initialized uint256 consensus params to zero explicitly
+v  2020-10-16 07:26:46 +0100 51365674e828ae95477570019738ab32aa572241 script: Make ComputeEntrySchnorr and ComputeEntryECDSA const to clarify contract
+pr 2020-10-16 08:01:42 +0100 82d3596dfe4ef4fd2c582d05540f93450b49d092 Merge #20161: Minor Taproot follow-ups
+pr 2020-10-16 10:12:08 +0100 2947ae6f85d40baa8ac0d2180b181c60708ad0ba Merge #20035: signet: Fix uninitialized read in validation
+pr 2020-10-16 10:43:21 +0100 cb21d864c52b7858000ff6c8727240f1721132a9 Merge #19401: QA: Use GBT to get block versions correct
+v  2020-10-16 12:01:07 +0100 fa2b778d0cf723925af8710d52cae211d4f036df test: Remove unused -blockversion from tests
+cr 2020-10-16 12:05:31 +0100 fddce7e199308d96e366d700dca982ef088ba98b test: use MiniWallet for mining_getblocktemplate_longpoll.py
+v  2020-10-16 12:28:17 +0100 fa7fb0e44241982a6e5cd560c06ac0c9d8f47f88 test: Default blockversion to 4 in feature_block
+v  2020-10-16 12:48:17 +0100 fa68755364473e48cf039e8cc2d08036fe58c1f6 contrib: Fix gen_key_io_test_vectors.py imports
+pr 2020-10-16 13:08:35 +0100 9e8d2bd076d78ba59abceb80106f44fe26246b14 Merge bitcoin-core/gui#97: Relax GUI freezes during IBD (when using wallets)
+v  2020-10-16 14:40:54 +0100 8ee3536b2b77aeb3a48df5b34effbc7345ef34d8 test: remove unused helpers random_transaction(), make_change() and gather_inputs()
+v  2020-10-16 14:41:00 +0100 b128b566725a5037fdaea99940d1b9de5553d198 test: add logging for mining_getblocktemplate_longpoll.py
+v  2020-10-16 22:33:44 +0100 c8abbc9d1fd8f77b5dcf31cf7a6dd6aac5d1c75c p2p: declare Announcement::m_state as uint8_t, add getter/setter
+pr 2020-10-17 03:37:01 +0100 b3527fd2e9be5a94b84433ae229cdf0aaa2d3e7d Merge #20168: contrib: Fix gen_key_io_test_vectors.py imports
+pr 2020-10-17 15:46:56 +0100 5d644778da48cb461c923235826a7db4a2946f00 Merge #20169: Taproot follow-up: Make ComputeEntrySchnorr and ComputeEntryECDSA const to clarify contract
+v  2020-10-17 16:48:03 +0100 fa3af2c0d3b3ed185fb8c6105dc2d26dc66632af test: Fix intermittent issue in p2p_feefilter
+pr 2020-10-17 16:57:23 +0100 80c8a02f1b4f6ad2b5c02595d66a74db22373ed4 Merge #20159: test: mining_getblocktemplate_longpoll.py improvements (use MiniWallet, add logging)
+v  2020-10-18 09:10:20 +0100 faca3734c00ffaf2be7bd555fbfa2887ba28c811 test: Fix intermittent issue in wallet_import_rescan
+v  2020-10-18 10:02:59 +0100 faab86f6c8367178a068b298eda4ae3986ac2147 test: Fix intermittent issue in wallet_send
+cr 2020-10-18 17:06:01 +0100 76bbcc414f3001b16ac0101f738ed0b3e6f1a372 test: Fix -Wunused-function warning if configured --without-libs
+pr 2020-10-19 03:25:38 +0100 c92aa8357c36a63b7a97d8a1bc09036a0d2661b3 Merge #19911: net: guard vRecvGetData with cs_vRecv and orphan_work_set with g_cs_orphans
+pr 2020-10-19 04:07:11 +0100 a1e0359618e3a66d0156d2b0a4702bc55f957a3f Merge #19986: refactor: clean up -Wlogical-op warning in wallet/scriptpubkeyman.cp
+pr 2020-10-19 07:04:10 +0100 62af467ff03941f3cf73c9727dd8cdb11ce20b3d Merge #20082: [bugfix] random: fixes read buffer to use min rather than max
+pr 2020-10-19 08:18:16 +0100 152ddb31975875b8801043ea8342a7354357e282 Merge #20180: test: Fix -Wunused-function warnings if configured --without-libs
+pr 2020-10-19 08:27:32 +0100 d9d9a293520d26ca8fec8caebab46db103b29903 Merge #20179: test: Fix intermittent issue in wallet_import_rescan
+v  2020-10-19 08:42:40 +0100 fa5a91a352364fe615930f1e7d991671a54ddf2c test: Fix typo (one tx is enough) in p2p_feefilter
+pr 2020-10-19 10:30:49 +0100 4769942d901a6095dc8715b6008d608e62d10b3c Merge #19624: Warn on unknown rw_settings
+v  2020-10-19 11:00:16 +0100 fa38093beec89db97be9c61b78f3c5de127edbc8 doc: Merge release notes
+pr 2020-10-19 11:47:55 +0100 4f807348af58759e330ab17a2bbc61c5dfb98081 Merge #20185: doc: Merge release notes
+pr 2020-10-19 12:09:32 +0100 45385018e13e167521e655c36128d8ee4f2a3e0b Merge #20162: p2p: declare Announcement::m_state as uint8_t, add getter/setter
+pr 2020-10-20 00:35:33 +0100 f5bd46a4cc6d395ce71ecb99852c1774235a249c Merge #20125: rpc, wallet: Expose database format in getwalletinfo
+v  2020-10-20 08:27:45 +0100 be386840d4a394a1b6221fb7d0fa2b0bc4b1d413 test: Replace use of (dis)?connect_nodes globals
+cr 2020-10-20 08:42:00 +0100 4b16c614616c1ff09e5b1dcd58516bcb9a88e5e8 scripted-diff: test: Replace uses of (dis)?connect_nodes global
+v  2020-10-20 08:43:00 +0100 3c7d9ab8c8ec5284cdad1a53ee310b79b931f12f test: Move (dis)?connect_nodes globals into TestFramework as helpers
+v  2020-10-20 14:32:23 +0100 2d5793c0161902730cde384dbdf3e3ba3e55c9e0 Bugfix: chainparams: Add missing (disabled) Taproot deployment for Signet
+v  2020-10-20 14:44:43 +0100 6608fec332eac4dfd91138bc4fe2e1b5c7bb758f GUI: Create Wallet: Nicely disable descriptor wallet checkbox if sqlite support not compiled in
+cr 2020-10-20 14:44:43 +0100 7b54d768e1514b328e1ac108d3db2f1bac3ba7ff Make sqlite support optional (compile-time)
+v  2020-10-20 14:44:43 +0100 bbb42a68961a8ae1e4ef3221ffb1d5ff7272b075 RPC: createwallet: Nicer error message if descriptor wallet requested and sqlite support not compiled in
+v  2020-10-21 12:28:15 +0100 fa4074b395a47c54069bd9f598244701505ff11d Show name, format and if uses descriptors in bitcoin-wallet tool
+pr 2020-10-21 13:19:33 +0100 0f86e7f1285c6de697d144a0e68bbd67f4900e19 Merge #20157: Bugfix: chainparams: Add missing (always enabled) Taproot deployment for Signet
+pr 2020-10-21 13:43:12 +0100 47fc883106fb939db0212751c2edb3d5f7430689 Merge #19967: test: Replace (dis)?connect_nodes globals with TestFramework methods
+cr 2020-10-21 13:48:43 +0100 01476a88a6095fd3af71cb9bf1eadef920a1197b wallet: Make -wallet setting not create wallets
+pr 2020-10-21 13:48:43 +0100 b46f37ba5ec4fbd2e4c82343fc4f353d7f34837a Merge #20198: Show name, format and if uses descriptors in bitcoin-wallet tool
+v  2020-10-21 16:51:39 +0100 5aadd4be1883386a04bef6a04e9a1142601ef7a7 Convert amounts from float to decimal
+v  2020-10-21 20:07:28 +0100 fa5f46600fb98f1b35346bedc1a66c9019d01114 test: Fix rpc_net intermittent issue
+pr 2020-10-22 01:40:38 +0100 dda18e7310a202a8aa46c95279446131659f91c5 Merge #20214: test: Fix rpc_net intermittent issue
+cr 2020-10-22 02:39:55 +0100 56a461f72796ca60de28e78f144741eb1a4f5213 wallet: fix buffer over-read in SQLite file magic check
+pr 2020-10-22 09:13:44 +0100 1cb4e339f978bfbde7e0159879fe06913bdeae20 Merge #20039: test: Convert amounts from float to decimal
+pr 2020-10-22 10:02:33 +0100 7012db2a6bcd38cc820771fc9fd7fef13772ea32 Merge #20176: test: Fix intermittent issue in p2p_feefilter
+pr 2020-10-22 13:18:06 +0100 88271184e82222f556d67511cc64230b0532f40d Merge #20112: test: Speed up wallet_resendwallettransactions with mockscheduler RPC
+pr 2020-10-22 20:26:00 +0100 9453fbf5a022803b621a4a93bfe91d421beab296 Merge #20: Wrap tooltips in the intro window
+pr 2020-10-23 03:10:54 +0100 9af7c1993b3512a7230f723b1923abd496989c59 Merge #20216: wallet: fix buffer over-read in SQLite file magic check
+pr 2020-10-23 10:54:47 +0100 49984b44cfcd3fd0cef16c8ce97197973afc3c04 Merge bitcoin-core/gui#71: Fix visual quality of text in QR image
+pr 2020-10-24 08:01:37 +0100 d67883d01e507dd22d1281f4a4860e79d6a46a47 Merge bitcoin-core/gui#43: bugfix: Call setWalletActionsEnabled(true) only for the first wallet
+v  2020-10-25 16:15:56 +0100 f8a1c4d9469cb496fdafaf6f4d94977687df9190 cli -netinfo: various quick updates and fixes
+v  2020-10-25 16:22:55 +0100 33e987452f869c279f2491499939e51e0af8364c cli -netinfo: make age column variable-width
+v  2020-10-25 16:51:18 +0100 773f4c99c00c0b1d8c1b53cb99ba571337100953 cli -netinfo: handle longer tor v3 local addresses
+v  2020-10-25 16:51:21 +0100 398045ba8b3694931069f88ec95553b3207dd1a6 cli -netinfo: print oversized/extreme ping times as "-"
+cr 2020-10-25 20:17:18 +0100 7b2e42ecc4bddb5504665d6932dc5ffdbd3b593e qt: Add WalletFrame::sizeHint
+v  2020-10-26 09:17:25 +0100 fa56d56d4e9b69fdd02e631b9a2380cfd3095144 fuzz: Properly initialize PrecomputedTransactionData
+v  2020-10-26 16:31:25 +0100 fa9b48549ca39b862a10bcfd90e3eac2a0e8ad2e test: Add test for -blockversion
+v  2020-10-26 17:37:35 +0100 903f3d06275312aa4000b765d2287339210c61c1 fuzz: Check for addrv1 compatibility before using addrv1 serializer
+pr 2020-10-27 08:07:23 +0100 fa463f11637739eced87ce892b59aa22e28a71d5 Merge #20247: fuzz: Check for addrv1 compatibility before using addrv1 serializer. Fuzz addrv2 serialization.
+pr 2020-10-27 08:43:53 +0100 67d4643a1a763b893ee69f6bbbf59ef1f2cb0d51 Merge #20152: doc: Update wallet files in files.md
+pr 2020-10-27 10:17:14 +0100 c1564baf3b5e1e069e5fc573c7cbe875e9d84e87 Merge #19124: doc: Document ALLOW_HOST_PACKAGES dependency option
+pr 2020-10-27 10:57:57 +0100 83363f7b62f97e34c863161447a7647f4f72b131 Merge #20167: test: Add test for -blockversion
+v  2020-10-27 11:07:41 +0100 d419fdedbe34c7ea19c0473660cc1b486b4e70d8 [net processing] Don't add AlreadyHave txs to recentRejects
+v  2020-10-27 14:30:12 +0100 d0a829e9632379e42f0be5c554e3b692f0d14a95 build: fix mutex detection when building bdb on macOS
+pr 2020-10-27 14:51:30 +0100 55b1ffcd259cc64139dad646a52fab5c597c95c2 Merge bitcoin-core/gui#116: Fix unreasonable default size of the main window without loaded wallets
+cr 2020-10-27 19:40:44 +0100 a193f969eef4a0e656d26bb7e7bba1c04d90b777 qt: Pre-splitoff translations update
+v  2020-10-27 21:45:25 +0100 0672522aedd3760c30b8740c7e9487f00bf9dfeb [move-only, test]: Match test order with run order
+v  2020-10-28 03:23:02 +0100 47ff5098ad5ea2c20ea387f99940a7cde6c80789 [test] Clarify setup of node topology.
+ff 2020-10-28 07:08:48 +0100 5803f5f5f6030e69b46a46f0511b8173bf89de0d Update secp256k1 subtree to latest master
+cr 2020-10-28 07:08:48 +0100 6c0259fc2f8bd34ba83ad10a6a11d6d99e8d1fc7 Squashed 'src/secp256k1/' changes from c6b6b8f1bb..3967d96bf1
+pr 2020-10-28 08:50:12 +0100 488b77f72e8fcca63db0dd46780c3940b101ec25 Merge #20256: qt: Pre-splitoff translations update
+pr 2020-10-28 10:25:34 +0100 db26eeba71fb07caae8c4c8a59a80c4ebe0b5797 Merge #19877: [test] clarify rpc_net & p2p_disconnect_ban functional tests
+v  2020-10-28 11:18:09 +0100 778cd0d88d8d6dd22d7f0fb740f3ca3dbb2280a1 [tests] Remove getnettotals/getpeerinfo consistency test
+pr 2020-10-28 16:27:33 +0100 3f512f3d563954547061ee743648b57a900cbe04 Merge #20258: tests: Remove getnettotals/getpeerinfo consistency test
+pr 2020-10-29 11:40:15 +0100 6196cf77e57499c678df275c2707bda37873868e Merge #19753: p2p: don't add AlreadyHave transactions to recentRejects
+pr 2020-10-29 11:50:28 +0100 924a4ff7eb626185684a4524bb0acea7e2904db8 Merge #20242: fuzz: Properly initialize PrecomputedTransactionData
+pr 2020-10-29 12:03:36 +0100 f3727fd73538b3a097559cc1005c08caa2bdf1dd Merge #20156: build: Make sqlite support optional (compile-time)
+pr 2020-10-29 12:07:31 +0100 2e24197117027c927a45d3c1832326e5bd9b10d0 Merge #20115: cli: -netinfo quick updates/fixups for 0.21
+pr 2020-10-29 12:31:54 +0100 5b82f253b69f3b3d7b5bafb9089ec36c14d1162c Merge #20195: build: fix mutex detection when building bdb on macOS
+pr 2020-10-29 12:38:21 +0100 8e9e190ea5ce157f1bb977cca6168e7c82275ac3 Merge #20257: Update secp256k1 subtree to latest master
+pr 2020-10-29 15:01:39 +0100 42b66a6b814bca130a9ccf0a3f747cf33d628232 Merge #20186: wallet: Make -wallet setting not create wallets
+cr 2020-10-29 17:34:16 +0100 586640381a2c379ce3d6366b1b4534ccc4e8ccf2 Skip --descriptor tests if sqlite is not compiled
+v  2020-10-29 19:59:29 +0100 7411876c75471a45ad40c38c668db3a4b9413fb9 Ensure a legacy wallet for BDB format check
+v  2020-10-29 22:55:13 +0100 bd93fc9945bfd4be117990c5d861f61ddd451f96 Fix change detection of imported internal descriptors
+v  2020-10-30 11:15:05 +0100 5bff82540b90d899ceac6390c008d653e6b665c3 [gui] create wallet: smarter checkbox toggling
+v  2020-10-30 13:53:28 +0100 fab94534b64593be1620c989bf69eb02e1be9b1b doc: Document that wallet salvage is experimental
+v  2020-10-30 23:52:19 +0100 525cbd425e2f6a1dbd0febc53d7ada22cec4661f Only relay Taproot spends if next block has it active
+v  2020-10-30 23:52:38 +0100 3d0556d41087f945ed0a47a5d770076ad42ce432 Increase feature_taproot inactive test coverage
+v  2020-10-31 16:02:49 +0100 ecc6cf1a3b097b9b5b047282063a0b6779631b83 test: fix creation of std::string objects with \0s
+v  2020-10-31 17:02:52 +0100 89836a82eec63f93bbe6c3bd6a52be26e71ab54d style: minor improvements as a followup to #19845
+v  2020-11-01 13:56:10 +0100 241434200ec2067673d8522fee4f1228abfd8247 refactor: qt: Use vQueueNotifications.clear()
+v  2020-11-01 18:23:05 +0100 5d9917464a7987ebe82e1355015d1c6f4cb91657 docs: Correct getblockstats documentation for (sw)total_weight
+cr 2020-11-01 22:19:24 +0100 e5f3e95a8e277acc54bc377a6b116d60d8c4eb5c doc: fix getchaintxstats fields in release-process.md
+pr 2020-11-01 23:41:38 +0100 5a6f3c5a01eaf904c42bd77dbed931b49a8fec74 Merge #20080: Strip any trailing `/` in -datadir and -blocksdir paths
+pr 2020-11-01 23:48:22 +0100 0c2eb7f8deaada74d816889eddd4df9b92e4a29b Merge #20262: tests: Skip --descriptor tests if sqlite is not compiled
+pr 2020-11-01 23:52:49 +0100 f1fcbdea25558d0562e975f79fc11c614d15bad6 Merge #20271: doc: Document that wallet salvage is experimental
+v  2020-11-01 23:54:19 +0100 08067aebfd7e838e6ce6b030c31a69422260fc6f Add script equivalent of functions in address.py
+cr 2020-11-01 23:54:19 +0100 0bd1860300b13b12a25d330ba3a93ff2d13aa379 Avoid dumpprivkey and watchonly behavior in rpc_signrawtransaction.py
+v  2020-11-01 23:54:19 +0100 242aed7cc1d003e8fed574bbebd19c7e54e23402 tests: Add a --legacy-wallet that is mutually exclusive with --descriptors
+cr 2020-11-01 23:54:19 +0100 25bc5dccbfd52691adca6edd418dd54290300c28 Use importdescriptors when in descriptor wallet mode in wallet_createwallet.py
+v  2020-11-01 23:54:19 +0100 3457679870e8eff2a7d14fe59a479692738c48b6 Use separate watchonly wallet for multisig in feature_nulldummy.py
+v  2020-11-01 23:54:19 +0100 388053e1722632c2e485c56a444bc75cf0152188 Disable some tests for tool_wallet when descriptors
+v  2020-11-01 23:54:19 +0100 47d3243160fdec7e464cfb8f869be7f5d4ee25fe Make raw multisig tests legacy wallet only in rpc_rawtransaction.py
+v  2020-11-01 23:54:19 +0100 4b871909d6e4a51888e062d322bf53263deda15e Use importdescriptors for descriptor wallets in wallet_bumpfee.py
+v  2020-11-01 23:54:19 +0100 553dbf9af4dea96e6a3e79bba9607003342029bd Make import tests in wallet_listtransactions.py legacy wallet only
+v  2020-11-01 23:54:19 +0100 59d3da5bce4ebd9c2291d8f201a53ee087938b21 Do addmultisigaddress tests in legacy wallet mode in wallet_address_types.py
+v  2020-11-01 23:54:19 +0100 6c9c12bf87f95066acc28ea2270a00196eb77703 Update feature_backwards_compatibility for descriptor wallets
+v  2020-11-01 23:54:19 +0100 86968882a8a26312a7af29c572313c4aff488c11 Add descriptor wallet output to tool_wallet.py
+v  2020-11-01 23:54:19 +0100 9a4c631e1c00eb1661c000978b133d7aa0226290 Update wallet_labels.py to not require descriptors=False
+cr 2020-11-01 23:54:19 +0100 a357111047411f18c156cd34a002a38430f2901c Update wallet_importprunedfunds to avoid dumpprivkey
+v  2020-11-01 23:54:19 +0100 a42652ec10c733a5bf37e418e45d4841f54331b4 Move import and watchonly tests to be legacy wallet only in wallet_balance.py
+cr 2020-11-01 23:54:19 +0100 c2711e4230d9a423ead24f6609691fb338b1d26b Avoid dumpprivkey in wallet_listsinceblock.py
+v  2020-11-01 23:54:19 +0100 c7b7e0a69265946aecc885be911c7650911ba2e3 tests: Make only desc wallets for wallet_multwallet.py --descriptors
+v  2020-11-01 23:54:19 +0100 d4b67ad214ada7645c4ce2d5ec336fe5c3f7f7ca Avoid creating legacy wallets in wallet_importdescriptors.py
+cr 2020-11-01 23:54:19 +0100 dc81418fd01021070f3f66bab5fee1484456691a Use a separate watchonly wallet in rpc_fundrawtransaction.py
+pr 2020-11-01 23:58:19 +0100 26d7941224bcfe4f6ce9d4462610f300c9bd029a Merge #20230: wallet: Fix bug when just created encrypted wallet cannot get address
+pr 2020-11-02 08:44:59 +0100 867dbeba5f91be15ca0d4a7303a71957ff9a37ad Merge #20281: docs: Correct getblockstats documentation for (sw)total_weight
+cr 2020-11-02 09:22:08 +0100 fa90ba36d3f640ef2d559b69ae1ea99a73da6ac8 Update assumed chain params
+v  2020-11-02 09:38:38 +0100 2ead31fb1b17c9b183a4b81f0ae4f48e5cf67d64 [wallet] Return object from upgradewallet RPC
+pr 2020-11-02 10:12:06 +0100 c5ec0367d718544caa3a1578d6c730fc92ee4e94 Merge #20165: Only relay Taproot spends if next block has it active
+v  2020-11-02 14:19:44 +0100 fae45c34d13330442d5135cb9ac5a56dc697497b test: Only try witness deserialize when checking for witness deserialize failure
+pr 2020-11-02 15:58:25 +0100 b6a00e76ab6f9efa1c30b65aa33f8faaf4b50b5b Merge #20279: doc: release process updates/fixups
+pr 2020-11-02 18:50:37 +0100 ef4c7c4e0bf26d2cde5a85a60c7d865d50fd37ec Merge #18788: tests: Update more tests to work with descriptor wallets
+pr 2020-11-02 18:53:23 +0100 ca18860563259d2b42d1a102ab6bc2802ce99b1d Merge #20263: Update assumed chain params
+v  2020-11-02 20:54:57 +0100 dd7b5f46d85401254630abf6976f59b5b8eed181 script: fix deprecation warning in makeseeds.py
+v  2020-11-02 20:54:59 +0100 961f148cb1b4caab86b4354357999e03433b04b1 doc: update contrib/seeds/README dnspython installation info
+v  2020-11-02 22:45:40 +0100 c2cf8a18c25bf19ade51fedfa5c352bd7145edb0 fuzz: Check for addrv1 compatibility before using addrv1 serializer on CService
+v  2020-11-02 23:21:03 +0100 28f8cb13d4d5a3d6aefa6e192e55f9aa87579e52 fuzz: Fix DecodeHexTx fuzzing harness issue
+pr 2020-11-03 02:38:35 +0100 8387f832d6932d72adb86eaa4aecfd0c35341acc Merge #20187: Addrman: test-before-evict bugfix and improvements for block-relay-only peers
+pr 2020-11-03 09:14:22 +0100 5174b534da57066dca2e82a617c62919b6d638fd Merge #20289: fuzz: Check for addrv1 compatibility before using addrv1 serializer/deserializer on CService
+pr 2020-11-03 09:48:15 +0100 218fe60d91a9190aa0ee561479044df368214766 Merge #20290: fuzz: Fix DecodeHexTx fuzzing harness issue
+cr 2020-11-03 10:15:20 +0100 eefe19471868ef0cdc9d32473d0b57015e7647ee [net] Consolidate logic around calling CAddrMan::Connected()
+v  2020-11-03 12:06:32 +0100 58cfbc38e040925b51cb8d35d23b50e9cf06fb2a Ignoring (but warn) on duplicate -wallet parameters
+v  2020-11-03 12:23:21 +0100 fa762a3fd43e49f8572be69e9129cd9170855f76 test: Remove unused unnamed parameter from block.serialize call
+v  2020-11-03 12:25:55 +0100 fa1dea19fc50db449386c9f969adc5ad327a0f0d test: Fix deser issue in create_block
+v  2020-11-03 12:26:17 +0100 50eb0c2512842b96a0128a7d592a357665f6e006 Small improvements to the Taproot functional tests
+v  2020-11-03 12:26:17 +0100 fac865b72d5c0e01fce74b84ab21e5ebbf069327 test: Fix intermittent feature_taproot issue
+v  2020-11-03 14:01:40 +0100 fa62304c9760f0de9838e56150008816e7a9bacb Remove dead CheckForkWarningConditionsOnNewFork
+v  2020-11-03 14:02:02 +0100 fa7eed5be704ccdbdce5c9aedb953dd9c8b30446 doc: Clarify that vpindexToConnect is in reverse order
+pr 2020-11-03 15:04:07 +0100 95bde34a7186edb559efeeea7f2fbc0fbdd06273 Merge #20237: net: Hardcoded seeds update for 0.21
+v  2020-11-03 19:44:57 +0100 fab900802d74799ac1004265951be1b66e70cf76 ci: Bump timeout factor
+v  2020-11-03 20:26:58 +0100 fa8e494554d0f5f8f48bb33ce96a8d7de9b95e31 ci: Run ci configs on cirrus
+pr 2020-11-04 02:51:42 +0100 17c6fb176a07d86f96f7cf41164c4b71cd1b3765 Merge #20282: wallet: change upgradewallet return type to be an object
+pr 2020-11-04 04:35:23 +0100 5d32009f1a3b091299ff4a9345195b2359125f98 Merge #20220: wallet, rpc: explicit fee rate follow-ups/fixes for 0.21
+pr 2020-11-04 08:51:14 +0100 88776c2926061482ab551b0cf5c408fc1bc39ac3 Merge #20245: test: Run script_assets_test even if built --with-libs=no
+v  2020-11-04 10:28:02 +0100 04a69c200e0d18ae63c7e47898f85d1b4cb5c23d macOS deploy: use the new plistlib API
+v  2020-11-04 12:41:17 +0100 0bfce9dc46234b196a8b3679c21d6f8455962495 [addrman] Fix Connected() comment
+v  2020-11-04 13:21:54 +0100 fa2ecadd0d3283a89d27772dc0275e76277ae17e test: Fix intermittent rpc_net issue
+v  2020-11-04 13:22:06 +0100 f1f433e8ca014f69925e8d5487877e06ca784ec8 Make it easier to reason about node eviction by removing unused NodeEvictionCandidate::addr (CAddress)
+pr 2020-11-04 13:41:52 +0100 1209b6c692c14dc1435d653f3c032ae22a98af8e Merge #20212: net: fix output of peer address in version message
+v  2020-11-04 16:55:03 +0100 5cafe2b25c1d2f6825b3c8103c280020929dd645 fuzz: Add missing ECC_Start to descriptor_parse test
+pr 2020-11-04 17:16:41 +0100 ed9f5477502e5856eba742656e8fc0fcf7bb053b Merge #20299: test: Fix intermittent rpc_net issue
+v  2020-11-04 18:10:23 +0100 bd7398cc6258c258e9f4411c50630ec4a552341b wallet: have ScriptPubKeyMan::Upgrade check against the new version
+cr 2020-11-04 18:15:12 +0100 8e32e1c41c995e832e643f605d35a7aa112837e6 wallet: remove nWalletMaxVersion
+v  2020-11-04 18:15:14 +0100 0bd995aa19be65b0dd23df1df571c71428c2bc32 wallet: upgrade the CHDChain version number when upgrading to split hd
+v  2020-11-04 18:15:25 +0100 092fc434854f881330771a93a1280ac67b1d3549 tests: Add a sha256sum_file function to util
+v  2020-11-04 18:15:29 +0100 4b418a9decc3e855ee4b0bbf9e61121c8e9904e5 test: Add test_framework/bdb.py module for inspecting bdb files
+v  2020-11-04 18:16:54 +0100 bf7635963c03203e7189ddaa56c6b086a0108cbf tests: Test specific upgradewallet scenarios and that upgrades work
+v  2020-11-04 18:16:57 +0100 5f9c0b6360215636cfa62a70d3a70f1feb3977ab wallet: Remove -upgradewallet from dummywallet
+cr 2020-11-04 18:16:57 +0100 a314271f08215feba53ead27096ac7fda34acb3c test: Remove unused wallet.dat
+pr 2020-11-04 20:13:08 +0100 deb2b27c0d9910a4e522c0f9d500d863468e8ee2 Merge #20294: ci: Run more ci configs on cirrus
+pr 2020-11-04 20:38:18 +0100 67600880159a8a00393ea4969288393a7dfc514d Merge #20300: fuzz: Add missing ECC_Start to descriptor_parse test
+v  2020-11-05 00:11:50 +0100 d7901ab8d2fdd2f6e68c4fa48078111bf5f0fa73 fuzz: Assert expected DecodeHexTx behaviour when using legacy decoding
+pr 2020-11-05 07:51:07 +0100 83650e4df5caac2dbe734f9021430e525d5cc6a5 Merge #20199: wallet: ignore (but warn) on duplicate -wallet parameters
+pr 2020-11-05 07:56:02 +0100 6954e4d16c1c14142c400e561224fcc98bf6a519 Merge #20283: test: Only try witness deser when checking for witness deser failure
+pr 2020-11-05 07:57:28 +0100 f33e3325417988711476fd4703ac013d13a5de46 Merge #20303: fuzz: Assert expected DecodeHexTx behaviour when using legacy decoding
+v  2020-11-05 10:28:37 +0100 090b8385af818e1df122aacdd6d71bd37c8fffa7 Set bilingual error completely
+v  2020-11-05 12:00:18 +0100 fac05178366a1c9100b1d19d66fb669d7266f306 travis: Remove s390x build
+v  2020-11-05 12:54:51 +0100 fa2c3c0d96b48bc1685d84186552f72e3609a331 ci: Set LC_ALL=C to allow running the s390x tests in qemu
+pr 2020-11-05 13:00:13 +0100 d94777bd525a06abac74cd1508ddb845faf1d118 Merge #20302: net: Make it easier to reason about node eviction by removing unused NodeEvictionCandidate::addr (CAddress)
+v  2020-11-05 13:50:15 +0100 fa00ff0399fe54f42d80daa04140d19bcfe0e2d8 test: Fix wallet_multiwallet test issue on Windows
+pr 2020-11-05 14:51:37 +0100 9bb078351b09862a263e936bb612dca82305a6fe Merge #20308: wallet: Set bilingual error completely
+v  2020-11-05 17:31:24 +0100 faa2f06f5eaf8578873495f44603ee74d7a1abf4 scripted-diff: [build] Ensure source tarball has leading directory name
+pr 2020-11-05 18:45:05 +0100 f5cdc290d5a41895d2bbaf474c3a951e5141b8a9 Merge #20316: test: Fix wallet_multiwallet test issue on Windows
+v  2020-11-05 19:51:57 +0100 444412821e5349ce0e0b039d884583edb70c4399 test: Fix intermittent issue in wallet_listsinceblock
+v  2020-11-05 20:48:41 +0100 faf5fa74136b0117f02c5aa525bfff86654786ea wallet: Set DatabaseStatus::SUCCESS in MakeSQLiteDatabase
+v  2020-11-05 23:16:55 +0100 568a1d72619371a45b14a8356d3f80bd0c0efabc fix ecdsa verify in test framework
+cr 2020-11-06 05:17:54 +0100 69f59af54d15ee9800d5df86bcdb0e962c71e7c3 Bugfix: Wallet: Soft-fail exceptions within ListWalletDir file checks
+v  2020-11-06 05:35:33 +0100 24d2d3341d07509ad3f37bb6f130446ad20ac807 QA: wallet_multiwallet: Check that recursive symlink directory and wallet.dat loops are ignored
+pr 2020-11-06 08:02:00 +0100 65460c207c0b92122b8abf87495403d3a396da2b Merge #20324: wallet: Set DatabaseStatus::SUCCESS in MakeSQLiteDatabase
+pr 2020-11-06 08:08:27 +0100 c51c2753a4ff34413f7369e9cf0282f64a5e38de Merge #20326: tests: Fix ecdsa_verify in test framework
+pr 2020-11-06 08:34:55 +0100 a0c00ff7c04524f838e927173af41ccfc2ac7217 Merge #20298: macOS deploy: use the new plistlib API
+v  2020-11-06 10:05:30 +0100 66667acc53cdfe224b36a74be4ba046b28282d15 cirrus: Skip tasks on the gui repo main branch
+v  2020-11-06 10:27:47 +0100 dc80a7d0b0817b43d41af3a08b5800c425ebd5d8 docs/descriptors.md: Remove hardened marker in the path after xpub
+pr 2020-11-06 18:03:49 +0100 4727c1ca2493f5e5f333ea92aa963aaf6a43057c Merge #20328: cirrus: Skip tasks on the gui repo main branch
+pr 2020-11-06 18:08:32 +0100 7e373294a5ae819099c39d9d03d1f5a311d63cfc Merge #20315: travis: Remove s390x build
+v  2020-11-07 07:50:59 +0100 fa4234d877ea3193bfd0e18ff68dcb8fb84b47b5 test: Mock IBD in net_processing fuzzers
+v  2020-11-07 12:35:20 +0100 021feb3187b207d511561c1f0ffd7f9e5e0c9c1d refactor: Drop redudant CWallet::GetDBHandle
+v  2020-11-07 12:40:27 +0100 9b74461fa293453a9eb0b1717b30b3f7fa778d91 refactor: Assert before dereference in CWallet::GetDatabase
+cr 2020-11-09 08:53:47 +0100 8ae9d314e9af7bcce1e8bc52f0317b9d565109bf Bump minimum python version to 3.6
+v  2020-11-09 08:53:50 +0100 97c738ff1b592270491551cc0a43472d244ffbb0 [tests] Recommend f-strings for formatting, update feature_block to use them
+v  2020-11-09 10:15:13 +0100 fafce1a13a65cc3ae0cd5351648bb0290f9bfe8c ci: Move documentation to correct config file
+cr 2020-11-09 10:15:48 +0100 fa0795f54dc5268bacc6acdfdbe23f9952a0e7d8 ci: Replace TRAVIS_OS_NAME with CI_OS_NAME
+v  2020-11-09 10:15:50 +0100 fa8b1114e60100f503673ccc7ef5618851c0c9e3 ci: Run arm ci config on cirrus
+cr 2020-11-09 10:15:59 +0100 3333d6942e8c5d823b97ea51ef88c8a0791742c6 ci: Run macos ci config on cirrus
+cr 2020-11-09 10:16:45 +0100 77777c8b5e3d0edbe1178d982a778b7cc9964b70 ci: Run windows ci config on cirrus
+pr 2020-11-09 15:06:20 +0100 f70eb51b05dee30b31f576a69bf110e9ac49c8b8 Merge #20318: build: Ensure source tarball has leading directory name
+pr 2020-11-09 15:14:45 +0100 663fd92b28c355cafbc67efb91ad8ec0f41e31d6 Merge #20266: wallet: fix change detection of imported internal descriptors
+pr 2020-11-09 15:31:20 +0100 05aeeee34f1552ea9be553a55f927110393927bf Merge #20339: ci: Run more ci configs on cirrus
+pr 2020-11-09 15:47:04 +0100 4fd37d0a104ff1b05a3c8e374af9b2c92a0078c2 Merge #20292: test: Fix intermittent feature_taproot issue
+v  2020-11-09 16:21:51 +0100 b6121edf70a8d50fd16ddbba0c3168e5e49bfc2e swapped "is" for "==" in literal comparison
+v  2020-11-09 16:27:41 +0100 0e3a78a8ab7ab5da71bd5e2f428ec3a2c9ad0901 fuzz: Check for addrv1 compatibility before using addrv1 serializer/deserializer on CSubNet
+v  2020-11-09 16:29:15 +0100 79b8f8d5749fc676d9eeca0296172b7cdbbf2238 fuzz: Assert roundtrip equality for both addrv1 and addrv2 versions of CService
+pr 2020-11-09 17:07:23 +0100 79a3b59cc70622fbadc43ade5fce31fcf94d852d Merge #20120: net, rpc, test, bugfix: update GetNetworkName, GetNetworksInfo, regression tests
+pr 2020-11-09 20:19:00 +0100 1dfe19e2840b16c014674a890ba58a43fe039687 Merge #20153: wallet: do not import a descriptor with hardened derivations into a watch-only wallet
+v  2020-11-09 21:21:30 +0100 330cb33985d0ce97c20f4a0f0bbda0fbffe098d4 src/randomenv.cpp: fix build on uclibc
+v  2020-11-09 22:58:26 +0100 6c7e8f067dcf4c5d793d162aeb84f074f9a14664 depends: Allow relative CONFIG_SITE path env var
+v  2020-11-09 22:58:27 +0100 618cbd2c1a630a60bed9212718dce78fe5f50108 lint: Also lint files with shellcheck directive
+v  2020-11-09 22:58:28 +0100 46756a69877ab7d56f3b05f8c5a8899eb24d9ffd depends: Fix PYTHONPATH setting in config.site.in
+pr 2020-11-10 07:57:02 +0100 0b69bb90eed33bdafaf74fb3d97b9561372e4bbd Merge #20355: fuzz: Check for addrv1 compatibility before using addrv1 serializer/deserializer on CSubNet
+pr 2020-11-10 09:20:51 +0100 42f950cb27b732782d55282cdcd934396fcd7071 Merge #20322: test: Fix intermittent issue in wallet_listsinceblock
+pr 2020-11-10 19:51:11 +0100 fa8dd34e918cd80db215df8937aaf6bb1552fcd9 Merge #20332: test: Mock IBD in net_processing fuzzers
+v  2020-11-11 01:01:02 +0100 7087440894a9daa7de806c5aa42d83ad60759c65 depends: native_ds_store 1.3.0
+v  2020-11-11 09:03:11 +0100 fa92cf29d971811ff8dd844ee1a1e2e12b79e389 ci: Remove redundant valgrind fuzz task
+v  2020-11-11 10:10:31 +0100 fa949b3c1325693ea7ecc5556b2de50d2a6c9ead test: Suppress epoll_ctl data race
+cr 2020-11-11 13:15:00 +0100 5e146022daa4336de94447e5b8e5418296286927 wallet: fix scanning progress calculation for single block range
+pr 2020-11-11 14:21:37 +0100 155bf91c3b66e3ec9f870d8161e1a3c9a5c23251 Merge #20368: ci: Remove redundant valgrind fuzz task
+v  2020-11-11 15:45:16 +0100 ee11a412a537f62aa46e8862678ce2069a2df5b7 Avoid signed integer overflow when loading a mempool.dat file with a malformed time field
+pr 2020-11-11 15:45:19 +0100 179ece42734a126ee0b9b7b62feedb4011995eff Merge #20218: test: Suppress epoll_ctl data race
+cr 2020-11-11 15:55:46 +0100 3f7279161347543ce4e997d78ea89a4043491145 wallet: fix bug in RPC send options
+v  2020-11-11 15:55:53 +0100 6112cf20d43b0be34fe0edce2ac3e6b27cae1bbe wallet: add CFeeRate ctor doxygen documentation
+v  2020-11-11 15:55:56 +0100 e21212f01b7c41eba13b0479b252053cf482bc1f wallet: remove unneeded WALLET_BTC_KB_TO_SAT_B constant
+cr 2020-11-11 15:55:59 +0100 a0d495747320c79b27a83c216dcc526ac8df8f24 wallet: introduce fee_rate (sat/vB) param/option
+cr 2020-11-11 15:56:01 +0100 410e471fa42d3db04e8879c71f8c824dcc151a83 wallet: remove redundant bumpfee fee_rate checks
+v  2020-11-11 15:56:03 +0100 b7994c01e9a3251536fe6538a22f614774eec82d wallet: add fee_rate unit warnings to bumpfee
+cr 2020-11-11 15:56:05 +0100 7f9835a05abf3e168ad93e7195cbaa4bf61b9b07 wallet: remove fee rates from conf_target helps
+v  2020-11-11 16:05:15 +0100 38ada892ed0ed9aaa46b1791db12a371a3c0c419 addrman: ensure old versions don't parse peers.dat
+pr 2020-11-11 16:11:01 +0100 d9f5132736f34f31f6e7d009015f917c9dcfec00 Merge #20344: wallet: fix scanning progress calculation for single block range
+v  2020-11-11 23:31:40 +0100 3c77b8009de9457c356c0bf4362d11bb99a17bb7 fuzz: Improve coverage for CPartialMerkleTree fuzzing harness
+pr 2020-11-12 01:26:38 +0100 c2d8ba6265a4375b039daf9cb36c0e0edad57eef Merge #19502: Bugfix: Wallet: Soft-fail exceptions within ListWalletDir file checks
+v  2020-11-11 23:31:40 +0100 3c77b8009de9457c356c0bf4362d11bb99a17bb7 fuzz: Improve coverage for CPartialMerkleTree fuzzing harness
+pr 2020-11-12 01:26:38 +0100 c2d8ba6265a4375b039daf9cb36c0e0edad57eef Merge #19502: Bugfix: Wallet: Soft-fail exceptions within ListWalletDir file checks
+v  2020-11-12 06:12:29 +0100 c82336c493b112160d781974d4066fcb956b85f6 Remove references to CreateWalletFromFile
+pr 2020-11-12 09:32:56 +0100 bcd142e479fa2917ba4987dc94b0ef6a4a2ac378 Merge #20285: Remove references to CreateWalletFromFile
+pr 2020-11-12 09:34:48 +0100 027e51f715173d61c59514fd8deeea72f0c42ee8 Merge #20372: Avoid signed integer overflow when loading a mempool.dat file with a malformed time field
+pr 2020-11-12 09:57:35 +0100 af8ec1d3e5766cac4960ef0e68db865d85a272b3 Merge #20375: fuzz: Improve coverage for CPartialMerkleTree fuzzing harness
+pr 2020-11-12 10:06:42 +0100 8a486158cbc3f18adf12d2d3b737f7f4e7399e7d Merge #20188: tests: Add fuzzing harness for CConnman
+cr 2020-11-12 11:43:03 +0100 173b5b5fe07d45be5a1e5bc7a5df996f20ab1e85 wallet: update fee rate units, use sat/vB for fee_rate error messages
+v  2020-11-12 11:43:14 +0100 6da3afbaee5809ebf6d88efaa3958c505c2d71c7 wallet: update remaining rpcwallet fee rate units to BTC/kvB
+cr 2020-11-12 11:43:17 +0100 449b730579566459e350703611629e63e54657ed wallet: provide valid values if invalid estimate mode passed
+v  2020-11-12 11:43:19 +0100 be481b72e24fb6834bd674cd8daee67c6938b42d wallet: use MIN_RELAY_TX_FEE in bumpfee help
+v  2020-11-12 11:43:22 +0100 9a670b4f07a6140de809d73cbd7f3e614eb6ea74 wallet: update sendtoaddress, send RPC examples with fee_rate
+cr 2020-11-12 11:44:15 +0100 05e82d86b09d914ebce05dbc92a7299cb026847b wallet: override minfee checks (fOverrideFeeRate) for fee_rate
+pr 2020-11-12 12:23:55 +0100 9bd1316697292251ed5690390794fc64517fc86b Merge bitcoin-core/gui#120: Fix multiwallet transaction notifications
+cr 2020-11-12 15:23:17 +0100 e6bb9fde851422808f5d9870782c394f74a1f400 tests: Add fuzzing harness for CAddrMan
+cr 2020-11-12 16:33:43 +0100 d04a17a7907c57f7b570e1b9743fd63489bdad68 fuzz: Use ConsumeRandomLengthBitVector(...) in src/test/fuzz/connman and src/test/fuzz/net
+pr 2020-11-12 17:05:51 +0100 0bd4929cd00e91bf4137f43b097cd62f72f503e4 Merge #20284: addrman: ensure old versions don't parse peers.dat
+v  2020-11-12 17:11:18 +0100 440f8d3abe97b96f434dad5216d417a08fc10253 fix potential devision by 0
+v  2020-11-12 19:58:59 +0100 0ccb3addf68067200892963521a92713c4667a63 tests: Remove no longer needed UBSan suppression (float-divide-by-zero in validation.cpp)
+pr 2020-11-13 07:19:23 +0100 99fcc2b4778fa5e534f4cc5d6487bcaf3e840ac2 Merge #20379: tests: Remove no longer needed UBSan suppression (float divide-by-zero in validation.cpp)
+pr 2020-11-13 07:40:35 +0100 28cb61646b29178dbdc0687670b685c30367347f Merge #19065: tests: Add fuzzing harness for CAddrMan
+pr 2020-11-13 08:26:57 +0100 543693b92b954d186cb466a2f14b480f3bcf8c0b Merge #20378: wallet: fix potential division by 0 in WalletLogPrintf
+v  2020-11-14 01:54:17 +0100 49473ef211343a25658d7c2de17c92e3123ab33b build: convert "echo" usage into a patch in qt package
+v  2020-11-14 01:54:24 +0100 498fa16beabcbba0ef66acd4162e0f77de064268 build: document preprocessing steps in qt package
+cr 2020-11-14 01:54:24 +0100 498fa16beabcbba0ef66acd4162e0f77de064268 build: document preprocessing steps in qt package
+v  2020-11-14 01:54:24 +0100 bd5d9336d9e1c2345d72531adf2027bc4d099d1b build: don't copy Info.plist.* into mkspec for macOS qt build
+v  2020-11-14 01:54:24 +0100 bfd7e33b4b255c3a5ba14993665e04349c6bdf0a build: remove plugin_no_soname from mac qt qmake.conf
+v  2020-11-14 01:54:24 +0100 e1f2553e1148de9bd57818b40b5fe9da7ff5e246 build: remove global_init_link_order from mac qt qmake.conf
+v  2020-11-14 01:54:24 +0100 fdde4c7ce624d4dbf72d38e9783c304d70430386 build: pass XCODE_VERSION through to qt macOS cross compile conf
+cr 2020-11-14 02:20:07 +0100 29c66ace5c777b56cd9e19756a1ab0801d15a5ae Silence false positive GCC warning
+v  2020-11-14 09:56:38 +0100 049feabf289ace817a3da62fe84942d0200b8f0b Add missing optional.h include
+v  2020-11-14 13:07:49 +0100 ac64cec4ce35cb7e6fbf3678c1ffeac0137791ae gui: create wallet: add advanced section
+v  2020-11-14 13:07:49 +0100 c99d6f644aa45d1bd929790f23a36d0dd7c29004 gui: create wallet: name placeholder
+v  2020-11-14 18:51:59 +0100 20e491ddcb2617472c15294067768e8ce122499a CI/Cirrus: Skip merge_base step for non-PRs
+v  2020-11-15 08:12:06 +0100 406097c8102d903759dabcbaf94c39831580139b ci: Use the previous build worker image in AppVeyor
+pr 2020-11-15 09:44:05 +0100 fb7726e56d0f0617076c89cbc279547cc9d07341 Merge #20395: ci: Use the previous build worker image in AppVeyor
+pr 2020-11-15 18:33:59 +0100 0ede354367c478cbbed0ec40a9d3cf1efe74cf33 Merge #20386: Silence false positive GCC warning in wallet/rpcwallet.cpp
+pr 2020-11-16 07:57:34 +0100 2fa085a5d7522f9a045f6dab1cf0a4768b35715a Merge #20033: refactor: minor whitespace fixups, s/const/constexpr/ and remove template (followup to #19845)
+pr 2020-11-16 07:59:43 +0100 37a463481176b1e2d8f562892ca5732aa7fe09c1 Merge #20390: CI/Cirrus: Skip merge_base step for non-PRs
+pr 2020-11-16 10:40:56 +0100 1e17114917f29da114cb90f52579ddb911a1a856 Merge #20238: doc: Missing comments for signet parameters
+pr 2020-11-16 11:03:25 +0100 c48e788246fcced78cb4eb1d4bd09cb41a9ff09b Merge #18836: wallet: upgradewallet fixes and additional tests
+cr 2020-11-16 11:15:11 +0100 bb6441b7a4619dd11029e27126c0d727a8bdf2d2 qt: Pre-splitoff translations update
+cr 2020-11-16 16:05:34 +0100 21f24336019d438e225c7bd6653871119883a4ee test: run mempool_spend_coinbase.py even with wallet disabled
+v  2020-11-16 19:54:24 +0100 d355a302d9b7e4aaac04edaa0671ced3b3eaef45 Break circuit earlier
+v  2020-11-16 22:22:42 +0100 963696288955dc31b3a4fd136bfb791a9d99755b [upgradewallet] removed unused warning param
+pr 2020-11-17 06:56:22 +0100 7c0d412a74ba8d791e6b83b6aca82406f2158fc3 Merge #20405: p2p: avoid calculating onion address checksum when version is not 3
+pr 2020-11-17 06:57:40 +0100 3457054c61d5b74800797e2c26a8126a21352382 Merge #20346: script: modify security-check.py to use "==" instead of "is" for literal comparison
+pr 2020-11-17 12:43:43 +0100 c463f70fb05ed45cfcc609324078a0ccb08c7f06 Merge #20139: Wallet: do not return warnings from UpgradeWallet()
+pr 2020-11-17 13:03:59 +0100 e7986c51bc7afeca8f79f286fb5d950f469a8866 Merge bitcoin-core/gui#96: Slight improve create wallet dialog
+pr 2020-11-17 13:49:12 +0100 80e32e120ee4ba7e5b458338682cf1130964218f Merge #20305: wallet: introduce fee_rate sat/vB param/option
+pr 2020-11-17 13:57:36 +0100 831675c8dccfa6525ffe751da3cc60709c380953 Merge #20401: qt: Pre-splitoff translations update
+v  2020-11-17 17:29:33 +0100 9d09132be4ff99f98ca905c342347d5f35f13350 CConnman: initialise at declaration rather than in Start()
+v  2020-11-18 08:33:26 +0100 fac4e136fa3d0fab7fde900a6be921313e16e7a6 refactor: Change pointer to reference because it can not be null
+cr 2020-11-18 10:06:03 +0100 132e1d897f131537713c8314632022e073f4d4e1 build: Bump master version to 0.21.99
+pr 2020-11-18 10:24:22 +0100 4b24c3962fd95ec5dca7de4a7c1228b8c570336d Merge #19504: Bump minimum python version to 3.6
+cr 2020-11-18 11:12:46 +0100 daf1ebf0b1c2020169d75fc52c3be87207693a04 doc: Remove generated manual pages from master branch
+pr 2020-11-18 11:18:02 +0100 4ae04090bb1dc53074f2562b88df27e762fbdf14 Merge bitcoin-core/gui#118: Remove BDB version from the Information tab
+pr 2020-11-18 11:19:42 +0100 54532f46c4e257cde682d492de72cde261998d3f Merge bitcoin-core/gui#109: wallet: Remove unused AskPassphraseDialog::Decrypt
+pr 2020-11-18 11:23:56 +0100 a64ff1c4d32c0458660426e4f40b45b8b7c13a87 Merge #19905: Remove dead CheckForkWarningConditionsOnNewFork
+pr 2020-11-18 13:45:46 +0100 5bcae7967f73353aff5e6d2f696bbf47ec6fdbb3 Merge #20408: CConnman: move initialization to declaration
+cr 2020-11-18 13:52:38 +0100 dc5a35a5072b273ce2be5b2110bacf298150a725 doc: clean out release notes post branch-off
+cr 2020-11-18 13:52:44 +0100 8a715a6b17a8c10369dcfad735b4362bef0c326c build: Bump gitian descriptors to 0.22
+pr 2020-11-18 14:02:25 +0100 d020e8839fa590f5c3553458de2f979af7663084 Merge #20418: doc: clean out release notes post branch-off
+pr 2020-11-18 14:42:37 +0100 50e019a97a5b49caee867ec7d630fca908caed9d Merge #20414: doc: Remove generated manual pages from master branch
+cr 2020-11-18 14:46:09 +0100 a52ecc936a267cae97c2f313743bf75d5af07700 build: set minimum supported macOS to 10.14
+cr 2020-11-18 15:15:04 +0100 faaee810e62d796d66bfb2bc4e53c8b4c8104d13 build: Require C++17 compiler
+v  2020-11-18 15:15:37 +0100 fac71987281077aed7f79dce99f4eb3e8a91916a Use std::make_unique
+cr 2020-11-18 16:11:47 +0100 c46c18b788cb0862aafbb116fd37936cbed6a431 wallet: refactor GetClosestWalletFeature()
+v  2020-11-18 17:55:43 +0100 b33af48210c117a734fc3e1bebeb1c2057645775 Include wallet/bdb.h where it is actually being used
+cr 2020-11-18 17:56:08 +0100 a58b719cf75e2d97205ec260bcff0d4780fe4fb8 Do not compile BDB things when USE_BDB is defined
+v  2020-11-18 17:56:12 +0100 6ebc41bf9cb0184554923e84e1935195d356f2b3 Enforce salvage is only for BDB wallets
+v  2020-11-18 17:56:12 +0100 71e40b33bd1e72ccf5d82e1d3f8b481f8e965492 RPC: Require descriptors=True for createwallet when BDB is not compiled
+cr 2020-11-18 17:56:12 +0100 99309ab3e96a290359b84f9b657c5115aa3470dd Allow disabling BDB in configure with --without-bdb
+v  2020-11-18 17:56:12 +0100 d52f502b1ea1cafa7d58c5517f01dba26ecb7269 Fix mock SQLiteDatabases
+v  2020-11-18 17:56:12 +0100 ee47f11f7399ec3a4330ea1f2fc388c7e32959d6 GUI: Force descriptor wallets when BDB is not compiled
+cr 2020-11-18 18:00:57 +0100 8f7b93047581c67f2133cdb8c7845471de66c30f Drop the leading 0 from the version number
+pr 2020-11-19 03:29:05 +0100 ea7926527ce36c05cacb99602b2b59579ff646e8 Merge #20413: build: Require C++17 compiler
+v  2020-11-19 08:04:05 +0100 2498b04ce88696a3216fc38b7d393906b733e8b1 Don't upgrade to HD split if it is already supported
+pr 2020-11-19 10:40:46 +0100 cddcd22ab326428b461f1937f1db4d1329e46faf Merge #20288: script, doc: contrib/seeds updates
+pr 2020-11-19 11:32:16 +0100 888c22e0dd352a0c307d1af2d7f6b10402f361af Merge #20359: depends: Various config.site.in improvements and linting
+pr 2020-11-19 11:39:00 +0100 47b6ad837c07da6c6eb35fabbb45d5666f712ea0 Merge #20333: build: remove native_biplist dependency
+pr 2020-11-19 11:44:29 +0100 e12ad7f383462c51af3d41a83f37c5e5a4c4dabc Merge #19968: doc: clarify CRollingBloomFilter size estimate
+pr 2020-11-19 11:50:53 +0100 fbb2bee82d83f10f0365388579ab063ad39ecd28 Merge #20067: refactor: remove use of boost::algorithm::replace_first
+pr 2020-11-19 12:00:10 +0100 1cc5e693c1863fc758edcf43e68cdd256193b411 Merge #20358: src/randomenv.cpp: fix build on uclibc
+pr 2020-11-19 12:09:19 +0100 d9180c50b689d2fc05662579d2e742e4cc49ac5e Merge #20145: contrib: add getcoins.py script to get coins from (signet) faucet
+pr 2020-11-19 12:32:48 +0100 9ab9665c74dd27d80f44f0713daf3694bbe700e4 Merge #15710: wallet: Catch ios_base::failure specifically
+v  2020-11-19 13:48:38 +0100 fa69c2c78455fd0dc436018fece9ff7fc83a180d wallet: Do not treat default constructed types as None-type
+pr 2020-11-19 14:19:05 +0100 71d068db405883d35f3800aedd4e3a2d4e854762 Merge #18531: rpc: remove deprecated CRPCCommand constructor
+pr 2020-11-19 15:33:02 +0100 7aa94569ce1a748a00dab475c02448255613d7db Merge #20024: init: Fix incorrect warning "Reducing -maxconnections from N to N-1, because of system limitations"
+pr 2020-11-19 15:38:17 +0100 c4d1e24f54805e2c8d28cd793d2f2f2a220fdf55 Merge #20047: test: use wait_for_{block,header} helpers in p2p_fingerprint.py
+v  2020-11-19 15:47:07 +0100 2a55a0ed3055a2ce0a33b58a3a7bbf6e30df3dfd Squashed 'src/univalue/' changes from 98261b1e7b..98fadc0909
+ff 2020-11-19 15:48:24 +0100 fa17eef6274811be5348149443e563bca95d54a3 Update univalue subtree
+pr 2020-11-19 16:30:54 +0100 884bde510e2db59ee44604e2cccabb0bf1ef6ada Merge #20291: [net] Consolidate logic around calling CAddrMan::Connected()
+pr 2020-11-19 16:39:31 +0100 848d66519c392093dbc1bbd5689f84be5ecd9bc8 Merge #20054: Remove confusing and useless "unexpected version" warning
+pr 2020-11-19 16:40:02 +0100 04670ef81ea2300fcba4e1a492c4c6b0e0752848 Merge #20385: test: run mempool_spend_coinbase.py even with wallet disabled
+pr 2020-11-19 17:59:20 +0100 db58b857f77ae14aa4927c4aa03ddc7d41a12d9e Merge #20329: docs/descriptors.md: Remove hardened marker in the path after xpub
+v  2020-11-19 18:21:55 +0100 17a5f172fa9ec509b1c3f950ee8dfb6f025534d2 fuzz: Make addrman fuzzing harness deterministic
+pr 2020-11-19 19:04:22 +0100 0a267f4eb88597f9e3dbd4614c70427e6e41df20 Merge bitcoin-core/gui#46: refactor: Fix deprecation warnings when building against Qt 5.15
+v  2020-11-19 20:00:50 +0100 99d56e357159c7154f69f28cb5587c5ca20d6594 wallet: fix and improve upgradewallet result responses
+v  2020-11-19 20:00:53 +0100 ca8cd893bb56bf5d455154b0498b1f58f77d20ed wallet: fix and improve upgradewallet error responses
+v  2020-11-19 20:00:56 +0100 3eb6f8b2e61c24a22ea9396d86672307845f35eb wallet (not for backport): improve upgradewallet error messages
+v  2020-11-19 22:29:42 +0100 7ffac12545328cadd92a3caec4f1c6ca7c127493 tests: shrink feature_taproot transfer of funds tx
+pr 2020-11-20 04:39:37 +0100 2878167c18eee9ad440ab3f663d74bf2db254f17 Merge #20000: test: fix creation of "std::string"s with \0s
+pr 2020-11-20 05:36:01 +0100 46f0b2f97601e9d13277fd73bed9b0219bcdee5b Merge #19851: refactor: Extract ParseOpCode from ParseScript
+pr 2020-11-20 06:10:58 +0100 fdd068507d2694137d72638d87ea961e6f16a753 Merge #20056: net: Use Span in ReceiveMsgBytes
+v  2020-11-20 08:40:50 +0100 0f020cdf0a8c3c88499c96522470e2e5e79f27fa sanitizers: Add suppression for unsigned-integer-overflow in libstdc++ basic_string.tcc
+pr 2020-11-20 09:30:12 +0100 3d632c3f49300e1e0c573b36d1200f16f2729d38 Merge #20428: tests: shrink feature_taproot transfer of funds tx
+pr 2020-11-20 09:35:00 +0100 c45e1d9aa7f0fececf02f9b481ae6dd87578c666 Merge bitcoin-core/gui#21: Update pruning tooltip, original author BitcoinErrorLog
+pr 2020-11-20 09:38:05 +0100 094663842d0b342183d494b6f97e049ba2a5701b Merge bitcoin-core/gui#13: Hide peer detail view if multiple are selected
+cr 2020-11-20 09:40:44 +0100 1b3d7009280595108eb22ac1188bc4367804fc5d Allow zero-fee fundrawtxn and walletcreatefundedpsbt calls
+v  2020-11-20 09:40:47 +0100 3f1e10b2b1cd11f7112fbad6355464bd4adbbc5c Update feeRate (BTC/kvB) to fee_rate (sat/vB) in wallet_bumpfee
+v  2020-11-20 09:43:52 +0100 9f08780dd7946b63476e9736745131db8e7f4e93 Use the correct incremental fee constant in bumpfee help
+pr 2020-11-20 10:53:34 +0100 4c2ee5c855899fc05bd0ee34a96eaae325628ca3 Merge #20424: build: Update univalue subtree
+pr 2020-11-20 10:56:03 +0100 ea460291f97d4c22aaec9f66b84078942afa3a08 Merge #20430: sanitizers: Add suppression for unsigned-integer-overflow in libstdc++
+cr 2020-11-20 15:11:21 +0100 fabecce71909c984504c21fa05f91d5f1b471e8c net: Treat raw message bytes as uint8_t
+pr 2020-11-20 15:42:07 +0100 d4159984c360001d9469fd54512bf0da4b02c4fd Merge #20223: build: Drop the leading 0 from the version number
+pr 2020-11-21 07:47:40 +0100 816132e6eb23c06287c1e820cc0990d2317c2f10 Merge #20426: wallet: allow zero-fee fundrawtransaction/walletcreatefundedpsbt and other fixes
+v  2020-11-21 20:12:08 +0100 68c2ef13e953f142f818a84be9e2c09ef8636ccc Fix version string in Windows and Mac installers
+pr 2020-11-22 07:30:16 +0100 e9a1c9fbdea977edbb4d10d0368cc7c3199bc469 Merge #19867: build: document and cleanup Qt hacks
+v  2020-11-23 09:27:36 +0100 fa05d19bd6ba619bb3f9aabc05c439cd18d34544 test: Fix intermittent issue in mempool_compatibility
+pr 2020-11-23 10:26:25 +0100 1b75f2542d154ba6f9f75bc2c9d7a0ca54de784c Merge #20432: net: Treat raw message bytes as uint8_t
+pr 2020-11-23 10:30:01 +0100 86bf3ae3b57eea4361452d19e3e62c8847d23714 Merge #20202: wallet: Make BDB support optional
+cr 2020-11-23 11:30:55 +0100 b87caf10b57fbab148949727f4004805be2bbc1d test: add is_bdb_compiled helper
+pr 2020-11-23 13:36:41 +0100 b0c9024a7cf62a5b8510e8aa5a52563f311d91b2 Merge #20449: build: Fix Windows installer build
+pr 2020-11-23 14:24:58 +0100 555b5d1bf940646a728499cfa1005bcb61383c20 Merge #20419: build: set minimum supported macOS to 10.14
+pr 2020-11-23 15:53:40 +0100 2ee954daaee5758d04935492139808cb6fd95233 Merge #20458: test: add is_bdb_compiled helper
+v  2020-11-23 17:08:48 +0100 fa1f949a4dc2568456f3ba30bbd8ecbc78a423ca ci: Run nowallet ci config on cirrus
+v  2020-11-23 17:09:12 +0100 fa73674738b0b5a271ae387e2ebd76d747e02d91 ci: Run i686 centos ci config on cirrus
+v  2020-11-23 17:11:05 +0100 fa7a4385d08797876de9a05ae8a6fde18e36bd67 ci: Fix doc typos in .cirrus.yml
+v  2020-11-23 18:08:18 +0100 8f7d1b39efbe65ab2747c593cc3560d4a449a333 Fix QPainter non-determinism on macOS
+cr 2020-11-23 20:58:50 +0100 fad7be584ffaf8099cc099d9378ba831c9483260 test: Fix intermittent p2p_finerprint issue
+pr 2020-11-23 21:02:17 +0100 cb89e18845852c005ba8ab94acc6544d7c876a42 Merge #19179: ci: Run ci configs on cirrus
+v  2020-11-23 21:50:52 +0100 800655ff3199782b803e671f5baa77ff90a5591d depends: boost: Refer to version in URL
+v  2020-11-23 21:50:53 +0100 a57b49856033f3de4a861367b70aba85aec58cf8 depends: boost: Bump to 1.71.0
+v  2020-11-23 21:50:54 +0100 9cf2ee54d366c3f5fcfce96244988858599e7e95 depends: boost: Split into non-/native packages
+v  2020-11-23 21:50:55 +0100 d7048fa73fafaf0d89d891d98e51a251a64a1495 depends: boost: Disable all compression
+v  2020-11-23 21:50:56 +0100 86002e7e90d7c78d5a76a159bf17db48aec94f94 depends: boost: Cleanup architecture/address-model
+v  2020-11-23 21:50:57 +0100 ab9e047cc2226198d22384c286cb30c4c7d51e83 depends: boost: Cleanup toolset selection
+v  2020-11-23 21:50:58 +0100 b2328b7989997652af52295a4b2e988e68b8428b depends: boost: Remove unnecessary _archiver_
+v  2020-11-23 21:50:59 +0100 f190343c96520db254d6689f8f24c9eb36bead6b depends: boost: Specify cflags+compileflags
+v  2020-11-23 22:02:54 +0100 053b4fbad8729308774d5e7b53f53c12627fa88b doc: Release note regarding -rpcauth validation
+cr 2020-11-23 22:02:54 +0100 46001323b1f4a57d8d6805f1bc39a5b8d401f0c5 rpc: Validate -rpcauth arguments
+cr 2020-11-23 22:02:54 +0100 d37c813a43166f559a4e2d1c22e7243f70301291 rpc: Refactor to process -rpcauth once
+cr 2020-11-23 23:33:53 +0100 e95aaefe2540cb76969818fcc2ff77d33448ed5a build: Avoid secp256k1.h include from system
+v  2020-11-24 00:29:28 +0100 2dde55702da30ea568cac8a1d1cbddd652d6958e depends: build bdb with -std=c++17
+v  2020-11-24 03:17:35 +0100 2374f2fbef4359476fe3184e2402a2cc741cefad depends: build Boost with -std=c++17
+v  2020-11-24 03:18:06 +0100 e2c500636cb767347ae2b913345788ad3c3e8279 depends: build zeromq with -std=c++17
+v  2020-11-24 03:18:21 +0100 104e859c9755aee5708ea1934454d88b10c266ff builds: don't pass -silent to qt when building in debug mode
+v  2020-11-24 03:18:24 +0100 2f5dfe4a7ff12b6b57427374142cdf7e266b73bc depends: build qt in c++17 mode
+v  2020-11-24 06:31:58 +0100 b1f59d55d920d2b35269b474762f94fec87bfb16 RPC/Wallet: unloadwallet: Clarify docs/error when both the RPC endpoint and wallet_name parameter specify a wallet
+v  2020-11-24 06:33:18 +0100 89bdad5b25ae4ac03a486f729a5b58ae6f21946d RPC/Wallet: unloadwallet: Allow specifying wallet_name param matching RPC endpoint
+v  2020-11-24 09:36:48 +0100 05c10953887bd78af2e21ef6d3c07f90dd885572 test: Add testing of ParseInt/ParseUInt edge cases with leading +/-/0:s
+v  2020-11-24 09:46:49 +0100 fa861569dcfff9e72686dc5f30b1faa645b4d54e util: Allow Assert(...) to be used in all contexts
+cr 2020-11-24 09:47:29 +0100 fac5efe730ab5b8694920547203deefc5252d294 util: Add Assume() identity function
+v  2020-11-24 10:09:48 +0100 faa05854f832405231c9198787a4eafe2cd4c5f0 util: Remove probably misleading TODO
+pr 2020-11-24 10:33:08 +0100 7ebbee551d78830770f8cb42b1983acbf97c2706 Merge #19764: depends: Split boost into build/host packages + bump + cleanup
+v  2020-11-24 10:36:07 +0100 0918eb49d5afabdf811da5eeb89f4f2c22d12de2 doc: Document current boost dependency as 1.71.0
+pr 2020-11-24 12:04:22 +0100 6f9dac5ede133ab12349335696a891c3bf959234 Merge #20473: doc: Document current boost dependency as 1.71.0
+pr 2020-11-24 12:07:09 +0100 3a32b62fa715238313e4818894d58962fa90de89 Merge #20462: RPC/Wallet: unloadwallet: Clarify docs/error when both the RPC request and wallet_name parameter specify a wallet
+pr 2020-11-24 12:10:23 +0100 9402159b9bfade4417ee32721ab0d8c877aac9c6 Merge #20472: test: Add testing of ParseInt/ParseUInt edge cases with leading +/-/0:s
+pr 2020-11-24 14:12:02 +0100 31c9987976af8ac5ad40091256ac41a2ccb078cd Merge #20447: depends: Patch qt_intersect_spans to avoid non-deterministic behavior in LLVM 8
+cr 2020-11-24 15:08:28 +0100 982e548a9a78b1b0abad59b54c780b6b06570452 Don't set BDB flags when configuring without
+v  2020-11-24 16:13:23 +0100 12bd0fc9d70333c54c83ebb08c734272dbd330c2 Move NodeImpl from interfaces/node.cpp to node/interfaces.cpp
+cr 2020-11-24 16:13:23 +0100 2a26771d8161d30be1853a35acfee588cce03634 Move ChainImpl from interfaces/chain.cpp to node/interfaces.cpp
+cr 2020-11-24 16:20:16 +0100 629a9299b2a7241a3fa7d597cb34abcbe1af9255 Move WalletImpl from interfaces/wallet.cpp to wallet/interfaces.cpp
+v  2020-11-24 21:00:34 +0100 c23f6f84efa2fe7e7168a5d41341f3a7c5598f70 Add depends qt fix for ARM macs
+pr 2020-11-25 08:02:19 +0100 ca4a7849420ebb60f2bfb5ef628d5ffa51de15ee Merge #20410: wallet: Do not treat default constructed types as None-type
+pr 2020-11-25 08:19:59 +0100 efd4cdb81fc7ded5dc93a2ad9d20d67c823a7a76 Merge #20456: test: Fix intermittent issue in mempool_compatibility
+pr 2020-11-25 09:48:47 +0100 1e9e4b68f3cbd1af3de5806aeff952e9bf0ab8fc Merge #20469: build: Avoid secp256k1.h include from system
+v  2020-11-25 12:07:10 +0100 fa18e7cbc5ea6aaba94dca4ebdc850c9db141f89 This change to the appveyor CI config for msvc builds reverses a change introduced in #19960. It re-applies a setting to inform vcpkg to only build release vesions of the dependencies rather than the default of debug and release.
+pr 2020-11-25 12:46:27 +0100 afdfd3c8c1ce96adae11809e3989de381137fee9 Merge #20403: wallet: upgradewallet fixes, improvements, test coverage
+v  2020-11-25 13:38:33 +0100 830ddf413934226d0b6ca99165916790cc52ca18 Drop noop gcc version checks
+cr 2020-11-25 15:12:23 +0100 5659e73493fcdfb5d0cb9d686c24c4fbe1c217ed qt: Add ObjectInvoke template function
+v  2020-11-25 15:12:32 +0100 5fcfee68af47d4a891ae9c9964d73886f0f01d7d qt: Call setParent() in the parent's context
+v  2020-11-25 15:12:33 +0100 8963b2c71f120b2746396c4987392f0105c8dd60 qt: Improve comments in WalletController::getOrCreateWallet()
+pr 2020-11-25 15:18:33 +0100 5c0aebfcd42a3effe2496ecef623302da64cd9a3 Merge #19387: span: update constructors to match c++20 draft spec and add lifetimebound attribute
+pr 2020-11-25 16:31:43 +0100 19b8071eaeb32dbe39ccc771dbe6095dd9285779 Merge #20489: CI msvc: only build vcpkg dependencies for release (not debug) to reduce build times
+pr 2020-11-25 17:02:20 +0100 50091592dd875a1c94030dbed74112b003732d68 Merge #19337: sync: detect double lock from the same thread
+cr 2020-11-25 17:18:36 +0100 65afe4cb69e80278de0f584b6eeb6741f02a31eb build: Drop unneeded ApplicationServices framework dependency
+cr 2020-11-25 17:25:52 +0100 ec4a46dd9c158e1a0de144e9abb260da941aa702 build: Drop unneeded IOKit framework dependency
+v  2020-11-25 21:04:39 +0100 e416cfc92bf51f6fd088ab61c2306c5e73877dd0 Add MAX_STANDARD_SCRIPTSIG_SIZE to policy
+cr 2020-11-26 10:05:59 +0100 4848e711076c6ebc5d841feb83baeb6d2bc76c94 scripted-diff: Use [[nodiscard]] (C++17) instead of NODISCARD
+cr 2020-11-26 10:07:33 +0100 79bff8e48aca961ec271b0d592aca9278b981e2f Remove NODISCARD
+cr 2020-11-26 14:41:53 +0100 6d3689fcf6cff397187028344570489db3e6ecf4 sync: print proper lock order location when double lock is detected
+cr 2020-11-26 14:42:00 +0100 a21dc469ccf076ca3b07b1adbd8bf667145f1c44 sync: const-qualify the argument of double_lock_detected()
+cr 2020-11-26 14:42:06 +0100 db058efeb0821cb5022e3b29e0aff3627d7aaf83 sync: use HasReason() in double lock tests
+v  2020-11-26 21:34:25 +0100 1d578c078f0ce00cb032d3c6c689fd199b8d2f35 doc: Add bash as an OpenBSD dependency
+v  2020-11-26 23:56:25 +0100 18246ed5f09dd078fa1410b7ec2ba4379cc5e032 Fix and improve taproot_construct comments
+v  2020-11-26 23:56:25 +0100 2d8099c713dfd4b546150fd53c2e4f364b9009f4 Mention units of MAX_STANDARD_ policy constants
+v  2020-11-26 23:56:25 +0100 6040de9a46725826330cd63cdf76e2121a18e728 Add comments on CPubKey::IsValid
+v  2020-11-26 23:56:25 +0100 84e29c7c0141b52044020ec0c5dfa8a462b7e97f Mention in validation that IsWitnessStandard tests for P2TR
+v  2020-11-26 23:56:25 +0100 8dbb7de67ce0a71f5fc54289c0ff048ac8dd0acc Add comments to VerifyTaprootCommitment
+v  2020-11-26 23:56:25 +0100 cdf900cbf26db05c7edb398ea645f1d23049d810 Document need_vin_vout_mismatch argument to make_spender
+v  2020-11-26 23:56:25 +0100 ea0e78677bdbe3313f594118c500cf7784c56970 Document additional IsWitnessStandard behavior
+v  2020-11-26 23:56:25 +0100 f867cbcc268a3bfaeef5510a7e40e6d3c0818b6d Clean up assets test minimizer LDFLAGS
+v  2020-11-27 09:04:13 +0100 86b1ab64b1a5b56518787ef16ea54ddbbc97d83e refactor: Replace deprecated Qt::SystemLocale{Short,Long}Date
+pr 2020-11-27 10:59:24 +0100 e2ff5e7b35d71195278d2a2ed9485f141de33d7a Merge #20497: [Refactor] Add MAX_STANDARD_SCRIPTSIG_SIZE to policy
+v  2020-11-27 13:41:07 +0100 9429a398e291a1b5edcfc657b94fcaf52cd1d8f9 Handle rename failure in DumpMempool(...) by using RenameOver(...) return value
+v  2020-11-27 13:41:26 +0100 ce9dd45422e1f4ecce6df68da086b8bfc2100756 Add [[nodiscard]] to RenameOver(...)
+cr 2020-11-27 21:18:50 +0100 8008ef770f3d0b14d03e22371314500373732143 qt: unlock wallet "OK" button bugfix
+v  2020-11-27 23:54:55 +0100 3ebde2143aa98af213872b98b474d904e55056f7 [test] Fix wait condition in disconnect_p2ps
+pr 2020-11-28 10:14:45 +0100 1ae5758981de15a8c0713bfdae216bf91d607c57 Merge #20448: RPC/Wallet: unloadwallet: Allow specifying wallet_name param matching RPC endpoint wallet
+pr 2020-11-28 10:39:32 +0100 854b36cfa2ef017567dcf1e7d0304107a8700f2b Merge bitcoin-core/gui#138: unlock encrypted wallet "OK" button bugfix
+pr 2020-11-28 18:06:43 +0100 7ae86b3c6845873ca96650fc69beb4ae5285c801 Merge #20522: [test] Fix sync issue in disconnect_p2ps
+cr 2020-11-29 00:43:55 +0100 6690adba08006739da0060eb4937126bdfa1181a Warn when binaries are built from a dirty branch.
+pr 2020-11-30 05:23:23 +0100 2e1336dbfe8af43e2960a74c8c7c9aa4650aef0e Merge #20471: build: use C++17 in depends
+cr 2020-11-30 07:54:18 +0100 4d70d3d7fe29db38a1f9c84a3a6167ca57b38479 build: automatically determine macOS translations
+v  2020-11-30 07:54:19 +0100 0ab4018c1217f82dffd65e973d9cccf13af2ef50 macdeploy: have a single level of logging output
+v  2020-11-30 07:54:19 +0100 32347cd56aaae95f3f4c78be9270565285280d72 macdeploy: assume plistlib is available
+v  2020-11-30 07:54:19 +0100 464b34d4c328d5109b8dd197da9e7f00d1b843c2 macdeploy: remove codesigning argument
+cr 2020-11-30 07:54:19 +0100 6390a04862c043cd2bdf3610f3bcf9cb5526659f macdeploy: consolidate .DS_Store generation
+cr 2020-11-30 07:54:19 +0100 827d382aa79d503470cc7abb0000cc365db06f12 macdeploy: remove add-resources argument
+cr 2020-11-30 07:54:20 +0100 5d2cbdf772030b203ab1b32c65481ce3fc524b22 macdeploy: use Python 3.6
+cr 2020-11-30 07:54:20 +0100 a42aa94c54699833723076f3bfaeeac668523a69 macdeploy: remove runHDIUtil in favor of directly calling subprocess.run
+v  2020-11-30 07:54:20 +0100 adaa26202b965346566b5adff2fc5cee65955dfe macdeploy: remove existing Bitcoin-Core.dmg if present
+v  2020-11-30 07:54:20 +0100 ccb0325b1bd1cee5a76382a16901dc80ea8f50d8 macdeploy: move qt_conf to where it's used
+v  2020-11-30 08:39:09 +0100 b685f60a08007e0ae8a5564ee68cd94f9015d899 build: mac_alias 2.1.1
+pr 2020-11-30 09:10:41 +0100 817aeca57a4cc3c8b4b321dbc653bfc4a8d61b0c Merge #20491: refactor: Drop noop gcc version checks
+pr 2020-11-30 15:42:36 +0100 81d5af42f4dba5b68a597536cad7f61894dc22a3 Merge #20499: Remove obsolete NODISCARD ifdef forest. Use [[nodiscard]] (C++17).
+v  2020-11-30 19:53:50 +0100 86e6add5ca7d425faa314103df6617044a910ab3 doc: rename CODEOWNERS to REVIEWERS
+v  2020-11-30 20:45:09 +0100 fa275e1539941b49fe206ff0bf110e3362bec6bb test: Fix intermittent feature_taproot issue
+pr 2020-12-01 08:28:34 +0100 ffd5e7a8567d666a2e9233a6a52b0fc8dfe6a035 Merge #20519: Handle rename failure in DumpMempool(...) by using the RenameOver(...) return value. Add [[nodiscard]] to RenameOver(...).
+pr 2020-12-01 09:39:56 +0100 24e4857b29b33c72755384057463506d99b08871 Merge #20494: refactor: Move node and wallet code out of src/interfaces
+pr 2020-12-01 10:02:56 +0100 cd720337fe9c27422fe8d507726ca8c79f52b4ba Merge #20222: refactor: CTxMempool constructor clean up
+pr 2020-12-01 10:59:09 +0100 f2a673f15b51bb1ca9e57db7a4bc883540fde65d Merge bitcoin-core/gui#137: refactor: Replace deprecated Qt::SystemLocale{Short,Long}Date
+pr 2020-12-01 11:23:23 +0100 335d27d08141b02eff91209d21dfe4650a66a30e Merge #20512: doc: Add bash as an OpenBSD dependency
+pr 2020-12-01 11:27:06 +0100 dcb7518067cd3e05dbdad1390057962b2dfc883a Merge #20496: build: Drop unneeded macOS framework dependencies
+pr 2020-12-01 11:28:27 +0100 277c225b842168c132e4ca1efe360f811dade5d3 Merge #20478: Don't set BDB flags when configuring without
+v  2020-12-01 13:38:23 +0100 fada2dfcac1c4b47ee76b877d91d515cf1d36410 test: Fix wallet_multiwallet issue on windows
+pr 2020-12-01 14:04:10 +0100 dfd0b700886cab7cd2fcf4958a214b098fe18152 Merge #20425: fuzz: Make CAddrMan fuzzing harness deterministic
+pr 2020-12-01 15:11:51 +0100 f17e8ba3a17b6516a1b1fb7f45d506a339e99f90 Merge #20207: Follow-up extra comments on taproot code and tests
+v  2020-12-01 18:32:26 +0100 c502a6dbfb854ca827a5a3925394f9e09d29b898 lint: Use c++17 std in cppcheck linter
+v  2020-12-01 18:36:39 +0100 1e62350ca20898189904a88dfef9ea11ddcd8626 refactor: Improve use of explicit keyword
+pr 2020-12-02 01:23:00 +0100 80d4231e1638969b01c999028eaf3419bf3af23b Merge #19980: refactor: Some wallet cleanups
+pr 2020-12-02 08:31:02 +0100 607c844f3720f51bb011f302a7ce742fcb6b8ae3 Merge #20540: test: Fix wallet_multiwallet issue on windows
+pr 2020-12-02 09:37:37 +0100 283f22cabb9afcb159cb1a9793b5249e55975636 Merge #20461: rpc: Validate -rpcauth arguments
+v  2020-12-02 09:42:07 +0100 2b356117e94f9ef27b67a8e98663f5d676f58c11 ci: no-longer exclude feature_block in TSAN job
+pr 2020-12-02 09:44:55 +0100 7f0f01f0ab4521d05fb5fd6e0b7d19470b342e77 Merge #20507: sync: print proper lock order location when double lock is detected
+pr 2020-12-02 10:52:09 +0100 c33662a0eaff7811922a4635b80f165b4c31396b Merge #18948: qt: Call setParent() in the parent's context
+pr 2020-12-02 10:56:14 +0100 3693fccc3acd25dad29879605bfa1fa5d55a7c3a Merge #20543: ci: no-longer exclude feature_block in TSAN job
+v  2020-12-02 11:52:03 +0100 fa5c4f12f5d017d8dbe7700ca9688189eacbf32b ci: Adjust cirrus ci task names
+cr 2020-12-02 12:39:01 +0100 8b99e609e7da5dd3601e9214d8f869e96108fffe Adjusted msvc compiler and linker settings to remove optimisations that are causing sporadic ABI issues on Visual Studio updates.
+v  2020-12-02 12:49:25 +0100 c82d15b6d189983ebf82f35ade33d830870f25c6 depends: Do not force Precompiled Headers (PCH) for building Qt on Linux
+pr 2020-12-02 13:52:19 +0100 0a13d15c143906bb6fd5d30c25df03ce5e20418d Merge #20530: lint, refactor: Update cppcheck linter to c++17 and improve explicit usage
+pr 2020-12-02 17:22:00 +0100 a35b948836db20fab9b48d3b77cf9f23ffee109a Merge #20545: ci: Adjust cirrus ci task names
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,5 +1,5 @@
 // Copyright (c) 2010 Satoshi Nakamoto
-// Copyright (c) 2012-2020 The BGL Core developers
+// Copyright (c) 2012-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -93,9 +93,6 @@ public:
      */
     ADD_SIGNALS_DECL_WRAPPER(NotifyAlertChanged, void, );
 
-    /** A wallet has been loaded. */
-    ADD_SIGNALS_DECL_WRAPPER(LoadWallet, void, std::unique_ptr<interfaces::Wallet>& wallet);
-
     /**
      * Show progress e.g. for verifychain.
      * resume_possible indicates shutting down now will result in the current progress action resuming upon restart.
@@ -121,4 +118,4 @@ constexpr auto AbortError = InitError;
 
 extern CClientUIInterface uiInterface;
 
-#endif // BGL_UI_INTERFACE_H
+#endif // BGL_NODE_UI_INTERFACE_H

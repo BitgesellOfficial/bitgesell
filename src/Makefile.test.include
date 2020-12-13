@@ -5,6 +5,7 @@
 FUZZ_TARGETS = \
   test/fuzz/addition_overflow \
   test/fuzz/addr_info_deserialize \
+  test/fuzz/addrdb \
   test/fuzz/address_deserialize \
   test/fuzz/addrman \
   test/fuzz/addrman_deserialize \
@@ -35,12 +36,14 @@ FUZZ_TARGETS = \
   test/fuzz/checkqueue \
   test/fuzz/coins_deserialize \
   test/fuzz/coins_view \
+  test/fuzz/connman \
   test/fuzz/crypto \
   test/fuzz/crypto_aes256 \
   test/fuzz/crypto_aes256cbc \
   test/fuzz/crypto_chacha20 \
   test/fuzz/crypto_chacha20_poly1305_aead \
   test/fuzz/crypto_common \
+  test/fuzz/crypto_hkdf_hmac_sha256_l32 \
   test/fuzz/crypto_poly1305 \
   test/fuzz/cuckoocache \
   test/fuzz/decode_tx \
@@ -190,10 +193,10 @@ FUZZ_SUITE_LD_COMMON = \
  $(LIBBGL_COMMON) \
  $(LIBBGL_UTIL) \
  $(LIBTEST_UTIL) \
+ $(LIBTEST_FUZZ) \
  $(LIBBGL_CONSENSUS) \
  $(LIBBGL_CRYPTO) \
  $(LIBBGL_CLI) \
- $(LIBTEST_FUZZ) \
  $(LIBUNIVALUE) \
  $(LIBLEVELDB) \
  $(LIBLEVELDB_SSE42) \
@@ -287,18 +290,8 @@ BGL_TESTS =\
   test/validationinterface_tests.cpp \
   test/versionbits_tests.cpp
 
-if ENABLE_PROPERTY_TESTS
-BGL_TESTS += \
-  test/key_properties.cpp
-
-BGL_TEST_SUITE += \
-  test/gen/crypto_gen.cpp \
-  test/gen/crypto_gen.h
-endif
-
 if ENABLE_WALLET
 BGL_TESTS += \
-  wallet/test/db_tests.cpp \
   wallet/test/psbt_wallet_tests.cpp \
   wallet/test/wallet_tests.cpp \
   wallet/test/wallet_crypto_tests.cpp \
@@ -537,6 +530,12 @@ test_fuzz_coins_view_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 test_fuzz_coins_view_LDADD = $(FUZZ_SUITE_LD_COMMON)
 test_fuzz_coins_view_LDFLAGS = $(FUZZ_SUITE_LDFLAGS_COMMON)
 test_fuzz_coins_view_SOURCES = test/fuzz/coins_view.cpp
+
+test_fuzz_connman_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
+test_fuzz_connman_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+test_fuzz_connman_LDADD = $(FUZZ_SUITE_LD_COMMON)
+test_fuzz_connman_LDFLAGS = $(FUZZ_SUITE_LDFLAGS_COMMON)
+test_fuzz_connman_SOURCES = test/fuzz/connman.cpp
 
 test_fuzz_crypto_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
 test_fuzz_crypto_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -1075,7 +1074,7 @@ test_fuzz_script_SOURCES = test/fuzz/script.cpp
 test_fuzz_script_BGL_consensus_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
 test_fuzz_script_BGL_consensus_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 test_fuzz_script_BGL_consensus_LDADD = $(FUZZ_SUITE_LD_COMMON)
-test_fuzz_script_BGL_consensus_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+test_fuzz_script_BGL_consensus_LDFLAGS = $(FUZZ_SUITE_LDFLAGS_COMMON)
 test_fuzz_script_BGL_consensus_SOURCES = test/fuzz/script_BGL_consensus.cpp
 
 test_fuzz_script_descriptor_cache_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
@@ -1105,7 +1104,7 @@ test_fuzz_script_interpreter_SOURCES = test/fuzz/script_interpreter.cpp
 test_fuzz_script_assets_test_minimizer_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
 test_fuzz_script_assets_test_minimizer_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 test_fuzz_script_assets_test_minimizer_LDADD = $(FUZZ_SUITE_LD_COMMON)
-test_fuzz_script_assets_test_minimizer_LDFLAGS = $(FUZZ_SUITE_LDFLAGS_COMMON)
+test_fuzz_script_assets_test_minimizer_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 test_fuzz_script_assets_test_minimizer_SOURCES = test/fuzz/script_assets_test_minimizer.cpp
 
 test_fuzz_script_ops_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)

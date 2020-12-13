@@ -3,11 +3,11 @@ define(_CLIENT_VERSION_MAJOR, 21)
 define(_CLIENT_VERSION_MINOR, 99)
 define(_CLIENT_VERSION_BUILD, 0)
 define(_CLIENT_VERSION_RC, 0)
-define(_CLIENT_VERSION_IS_RELEASE, true)
-define(_COPYRIGHT_YEAR, 2012)
+define(_CLIENT_VERSION_IS_RELEASE, false)
+define(_COPYRIGHT_YEAR, 2020)
 define(_COPYRIGHT_HOLDERS,[The %s developers])
 define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[BGL Core]])
-AC_INIT([BGL Core],m4_join([.], _CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MINOR, _CLIENT_VERSION_BUILD)m4_if(_CLIENT_VERSION_RC, [0], [], [rc]_CLIENT_VERSION_RC),[https://github.com/bitcoin/bitcoin/issues],[BGL],[https://bitcoincore.org/])
+AC_INIT([BGL Core],m4_join([.], _CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MINOR, _CLIENT_VERSION_BUILD)m4_if(_CLIENT_VERSION_RC, [0], [], [rc]_CLIENT_VERSION_RC),[https://github.com/BGL/BGL/issues],[BGL],[https://BGLcore.org/])
 AC_CONFIG_SRCDIR([src/validation.cpp])
 AC_CONFIG_HEADERS([src/config/BGL-config.h])
 AC_CONFIG_AUX_DIR([build-aux])
@@ -46,16 +46,6 @@ AM_INIT_AUTOMAKE([1.13 no-define subdir-objects foreign])
 dnl faketime messes with timestamps and causes configure to be re-run.
 dnl --disable-maintainer-mode can be used to bypass this.
 AM_MAINTAINER_MODE([enable])
-AH_TOP([#ifndef LIBSECP256K1_CONFIG_H])
-AH_TOP([#define LIBSECP256K1_CONFIG_H])
-AH_BOTTOM([#endif /*LIBSECP256K1_CONFIG_H*/])
-AM_INIT_AUTOMAKE([foreign subdir-objects])
-
-# Set -g if CFLAGS are not already set, which matches the default autoconf
-# behavior (see PROG_CC in the Autoconf manual) with the exception that we don't
-# set -O2 here because we set it in any case (see further down).
-: ${CFLAGS="-g"}
-LT_INIT
 
 dnl make the compilation flags quiet unless V=1 is used
 AM_SILENT_RULES([yes])
@@ -144,13 +134,6 @@ AC_ARG_WITH([miniupnpc],
   [enable UPNP (default is yes if libminiupnpc is found)])],
   [use_upnp=$withval],
   [use_upnp=auto])
-
-AC_ARG_ENABLE(libevent,
-    [AS_HELP_STRING([--disable-libevent],
-                    [Disable using EVENT package (used for Debian packages)])],,
-    [enable_libevent=$enableval],
-    [enable_libevent=yes])
-
 
 AC_ARG_ENABLE([upnp-default],
   [AS_HELP_STRING([--enable-upnp-default],
@@ -365,7 +348,6 @@ if test "x$enable_debug" = xyes; then
 
   AX_CHECK_PREPROC_FLAG([-DDEBUG],[[DEBUG_CPPFLAGS="$DEBUG_CPPFLAGS -DDEBUG"]],,[[$CXXFLAG_WERROR]])
   AX_CHECK_PREPROC_FLAG([-DDEBUG_LOCKORDER],[[DEBUG_CPPFLAGS="$DEBUG_CPPFLAGS -DDEBUG_LOCKORDER"]],,[[$CXXFLAG_WERROR]])
-  AX_CHECK_PREPROC_FLAG([-DABORT_ON_FAILED_ASSUME],[[DEBUG_CPPFLAGS="$DEBUG_CPPFLAGS -DABORT_ON_FAILED_ASSUME"]],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-ftrapv],[DEBUG_CXXFLAGS="$DEBUG_CXXFLAGS -ftrapv"],,[[$CXXFLAG_WERROR]])
 fi
 
@@ -666,13 +648,6 @@ case $host in
            BDB_CFLAGS="-I$bdb_prefix/include"
            BDB_LIBS="-L$bdb_prefix/lib -ldb_cxx-4.8"
          fi
-         openssl_prefix=`$BREW --prefix openssl 2>/dev/null`
-         gmp_prefix=`$BREW --prefix gmp 2>/dev/null`
-         if test x$openssl_prefix != x; then
-           PKG_CONFIG_PATH="$openssl_prefix/lib/pkgconfig:$PKG_CONFIG_PATH"
-           export PKG_CONFIG_PATH
-           CRYPTO_CPPFLAGS="-I$openssl_prefix/include"
-         fi
          if test x$qt5_prefix != x; then
            PKG_CONFIG_PATH="$qt5_prefix/lib/pkgconfig:$PKG_CONFIG_PATH"
            export PKG_CONFIG_PATH
@@ -718,15 +693,16 @@ if test x$use_extended_functional_tests != xno; then
   AC_SUBST(EXTENDED_FUNCTIONAL_TESTS, --extended)
 fi
 
-warn_CFLAGS="-std=c89 -pedantic -Wall -Wextra -Wcast-align -Wnested-externs -Wshadow -Wstrict-prototypes -Wundef -Wno-unused-function -Wno-long-long -Wno-overlength-strings"
-saved_CFLAGS="$CFLAGS"
-CFLAGS="$warn_CFLAGS $CFLAGS"
-AC_MSG_CHECKING([if ${CC} supports ${warn_CFLAGS}])
-AC_COMPILE_IFELSE([AC_LANG_SOURCE([[char foo;]])],
-    [ AC_MSG_RESULT([yes]) ],
-    [ AC_MSG_RESULT([no])
-      CFLAGS="$saved_CFLAGS"
-    ])
+if test x$use_lcov = xyes; then
+  if test x$LCOV = x; then
+    AC_MSG_ERROR("lcov testing requested but lcov not found")
+  fi
+  if test x$PYTHON = x; then
+    AC_MSG_ERROR("lcov testing requested but python not found")
+  fi
+  if test x$GENHTML = x; then
+    AC_MSG_ERROR("lcov testing requested but genhtml not found")
+  fi
 
   AC_MSG_CHECKING([whether compiler is Clang])
   AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
@@ -781,124 +757,6 @@ if test x$ac_cv_sys_file_offset_bits != x &&
    test x$ac_cv_sys_file_offset_bits != xunknown; then
   CPPFLAGS="$CPPFLAGS -D_FILE_OFFSET_BITS=$ac_cv_sys_file_offset_bits"
 fi
-AC_ARG_ENABLE(openssl_tests,
-    AS_HELP_STRING([--enable-openssl-tests],[enable OpenSSL tests [default=auto]]),
-    [enable_openssl_tests=$enableval],
-    [enable_openssl_tests=auto])
-
-AC_ARG_ENABLE(experimental,
-    AS_HELP_STRING([--enable-experimental],[allow experimental configure options [default=no]]),
-    [use_experimental=$enableval],
-    [use_experimental=no])
-
-AC_ARG_ENABLE(exhaustive_tests,
-    AS_HELP_STRING([--enable-exhaustive-tests],[compile exhaustive tests [default=yes]]),
-    [use_exhaustive_tests=$enableval],
-    [use_exhaustive_tests=yes])
-
-AC_ARG_ENABLE(ecmult_static_precomputation,
-    AS_HELP_STRING([--enable-ecmult-static-precomputation],[enable precomputed ecmult table for signing [default=auto]]),
-    [use_ecmult_static_precomputation=$enableval],
-    [use_ecmult_static_precomputation=auto])
-
-AC_ARG_ENABLE(module_ecdh,
-    AS_HELP_STRING([--enable-module-ecdh],[enable ECDH shared secret computation]),
-    [enable_module_ecdh=$enableval],
-    [enable_module_ecdh=no])
-
-AC_ARG_ENABLE(module_recovery,
-    AS_HELP_STRING([--enable-module-recovery],[enable ECDSA pubkey recovery module [default=no]]),
-    [enable_module_recovery=$enableval],
-    [enable_module_recovery=no])
-
-AC_ARG_ENABLE(module_extrakeys,
-    AS_HELP_STRING([--enable-module-extrakeys],[enable extrakeys module (experimental)]),
-    [enable_module_extrakeys=$enableval],
-    [enable_module_extrakeys=no])
-
-AC_ARG_ENABLE(module_schnorrsig,
-    AS_HELP_STRING([--enable-module-schnorrsig],[enable schnorrsig module (experimental)]),
-    [enable_module_schnorrsig=$enableval],
-    [enable_module_schnorrsig=no])
-
-AC_ARG_ENABLE(external_default_callbacks,
-    AS_HELP_STRING([--enable-external-default-callbacks],[enable external default callback functions [default=no]]),
-    [use_external_default_callbacks=$enableval],
-    [use_external_default_callbacks=no])
-
-dnl Test-only override of the (autodetected by the C code) "widemul" setting.
-dnl Legal values are int64 (for [u]int64_t), int128 (for [unsigned] __int128), and auto (the default).
-AC_ARG_WITH([test-override-wide-multiply], [] ,[set_widemul=$withval], [set_widemul=auto])
-
-AC_ARG_WITH([bignum], [AS_HELP_STRING([--with-bignum=gmp|no|auto],
-[bignum implementation to use [default=auto]])],[req_bignum=$withval], [req_bignum=auto])
-
-AC_ARG_WITH([asm], [AS_HELP_STRING([--with-asm=x86_64|arm|no|auto],
-[assembly optimizations to use (experimental: arm) [default=auto]])],[req_asm=$withval], [req_asm=auto])
-
-AC_ARG_WITH([ecmult-window], [AS_HELP_STRING([--with-ecmult-window=SIZE|auto],
-[window size for ecmult precomputation for verification, specified as integer in range [2..24].]
-[Larger values result in possibly better performance at the cost of an exponentially larger precomputed table.]
-[The table will store 2^(SIZE-1) * 64 bytes of data but can be larger in memory due to platform-specific padding and alignment.]
-["auto" is a reasonable setting for desktop machines (currently 15). [default=auto]]
-)],
-[req_ecmult_window=$withval], [req_ecmult_window=auto])
-
-AC_ARG_WITH([ecmult-gen-precision], [AS_HELP_STRING([--with-ecmult-gen-precision=2|4|8|auto],
-[Precision bits to tune the precomputed table size for signing.]
-[The size of the table is 32kB for 2 bits, 64kB for 4 bits, 512kB for 8 bits of precision.]
-[A larger table size usually results in possible faster signing.]
-["auto" is a reasonable setting for desktop machines (currently 4). [default=auto]]
-)],
-[req_ecmult_gen_precision=$withval], [req_ecmult_gen_precision=auto])
-
-AC_ARG_WITH([valgrind], [AS_HELP_STRING([--with-valgrind=yes|no|auto],
-[Build with extra checks for running inside Valgrind [default=auto]]
-)],
-[req_valgrind=$withval], [req_valgrind=auto])
-
-if test x"$req_valgrind" = x"no"; then
-  enable_valgrind=no
-else
-  AC_CHECK_HEADER([valgrind/memcheck.h], [enable_valgrind=yes], [
-    if test x"$req_valgrind" = x"yes"; then
-      AC_MSG_ERROR([Valgrind support explicitly requested but valgrind/memcheck.h header not available])
-    fi
-    enable_valgrind=no
-  ], [])
-fi
-AM_CONDITIONAL([VALGRIND_ENABLED],[test "$enable_valgrind" = "yes"])
-
-if test x"$enable_coverage" = x"yes"; then
-    AC_DEFINE(COVERAGE, 1, [Define this symbol to compile out all VERIFY code])
-    CFLAGS="-O0 --coverage $CFLAGS"
-    LDFLAGS="--coverage $LDFLAGS"
-else
-    CFLAGS="-O2 $CFLAGS"
-fi
-
-if test x"$use_ecmult_static_precomputation" != x"no"; then
-  # Temporarily switch to an environment for the native compiler
-  save_cross_compiling=$cross_compiling
-  cross_compiling=no
-  SAVE_CC="$CC"
-  CC="$CC_FOR_BUILD"
-  SAVE_CFLAGS="$CFLAGS"
-  CFLAGS="$CFLAGS_FOR_BUILD"
-  SAVE_CPPFLAGS="$CPPFLAGS"
-  CPPFLAGS="$CPPFLAGS_FOR_BUILD"
-  SAVE_LDFLAGS="$LDFLAGS"
-  LDFLAGS="$LDFLAGS_FOR_BUILD"
-
-  warn_CFLAGS_FOR_BUILD="-Wall -Wextra -Wno-unused-function"
-  saved_CFLAGS="$CFLAGS"
-  CFLAGS="$warn_CFLAGS_FOR_BUILD $CFLAGS"
-  AC_MSG_CHECKING([if native ${CC_FOR_BUILD} supports ${warn_CFLAGS_FOR_BUILD}])
-  AC_COMPILE_IFELSE([AC_LANG_SOURCE([[char foo;]])],
-      [ AC_MSG_RESULT([yes]) ],
-      [ AC_MSG_RESULT([no])
-        CFLAGS="$saved_CFLAGS"
-      ])
 
 if test x$ac_cv_sys_large_files != x &&
    test x$ac_cv_sys_large_files != xno &&
@@ -1331,8 +1189,6 @@ if test "x$enable_fuzz" = "xyes"; then
   use_upnp=no
   use_zmq=no
 
-  AX_CHECK_PREPROC_FLAG([-DABORT_ON_FAILED_ASSUME],[[DEBUG_CPPFLAGS="$DEBUG_CPPFLAGS -DABORT_ON_FAILED_ASSUME"]],,[[$CXXFLAG_WERROR]])
-
   AC_MSG_CHECKING([whether main function is needed])
   AX_CHECK_LINK_FLAG(
     [[-fsanitize=$use_sanitizers]],
@@ -1554,10 +1410,6 @@ else
   if test x$need_bundled_univalue = xyes; then
     UNIVALUE_CFLAGS='-I$(srcdir)/univalue/include'
     UNIVALUE_LIBS='univalue/libunivalue.la'
-if test x"$req_bignum" = x"auto"; then
-  SECP_GMP_CHECK
-  if test x"$has_gmp" = x"yes"; then
-    set_bignum=gmp
   fi
 fi
 
@@ -1606,42 +1458,45 @@ if test x$build_multiprocess != xno; then
   fi
   AC_SUBST(MPGEN_PREFIX)
 fi
-# select wide multiplication implementation
-case $set_widemul in
-int128)
-  AC_DEFINE(USE_FORCE_WIDEMUL_INT128, 1, [Define this symbol to force the use of the (unsigned) __int128 based wide multiplication implementation])
-  ;;
-int64)
-  AC_DEFINE(USE_FORCE_WIDEMUL_INT64, 1, [Define this symbol to force the use of the (u)int64_t based wide multiplication implementation])
-  ;;
-auto)
-  ;;
-*)
-  AC_MSG_ERROR([invalid wide multiplication implementation])
-  ;;
-esac
 
 AC_MSG_CHECKING([whether to build BGLd])
 AM_CONDITIONAL([BUILD_BGLD], [test x$build_BGLd = xyes])
 AC_MSG_RESULT($build_BGLd)
 
-#set ecmult window size
-if test x"$req_ecmult_window" = x"auto"; then
-  set_ecmult_window=15
-else
-  set_ecmult_window=$req_ecmult_window
-fi
+AC_MSG_CHECKING([whether to build BGL-cli])
+AM_CONDITIONAL([BUILD_BGL_CLI], [test x$build_BGL_cli = xyes])
+AC_MSG_RESULT($build_BGL_cli)
 
-error_window_size=['window size for ecmult precomputation not an integer in range [2..24] or "auto"']
-case $set_ecmult_window in
-''|*[[!0-9]]*)
-  # no valid integer
-  AC_MSG_ERROR($error_window_size)
-  ;;
-*)
-  if test "$set_ecmult_window" -lt 2 -o "$set_ecmult_window" -gt 24 ; then
-    # not in range
-    AC_MSG_ERROR($error_window_size)
+AC_MSG_CHECKING([whether to build BGL-tx])
+AM_CONDITIONAL([BUILD_BGL_TX], [test x$build_BGL_tx = xyes])
+AC_MSG_RESULT($build_BGL_tx)
+
+AC_MSG_CHECKING([whether to build BGL-wallet])
+AM_CONDITIONAL([BUILD_BGL_WALLET], [test x$build_BGL_wallet = xyes])
+AC_MSG_RESULT($build_BGL_wallet)
+
+AC_MSG_CHECKING([whether to build libraries])
+AM_CONDITIONAL([BUILD_BGL_LIBS], [test x$build_BGL_libs = xyes])
+if test x$build_BGL_libs = xyes; then
+  AC_DEFINE(HAVE_CONSENSUS_LIB, 1, [Define this symbol if the consensus lib has been built])
+  AC_CONFIG_FILES([libBGLconsensus.pc:libBGLconsensus.pc.in])
+fi
+AC_MSG_RESULT($build_BGL_libs)
+
+AC_LANG_POP
+
+if test "x$use_ccache" != "xno"; then
+  AC_MSG_CHECKING(if ccache should be used)
+  if test x$CCACHE = x; then
+    if test "x$use_ccache" = "xyes"; then
+      AC_MSG_ERROR([ccache not found.]);
+    else
+      use_ccache=no
+    fi
+  else
+    use_ccache=yes
+    CC="$ac_cv_path_CCACHE $CC"
+    CXX="$ac_cv_path_CCACHE $CXX"
   fi
   AC_MSG_RESULT($use_ccache)
 fi
@@ -1653,40 +1508,15 @@ if test x$enable_wallet != xno; then
   AC_DEFINE_UNQUOTED([ENABLE_WALLET],[1],[Define to 1 to enable wallet functions])
   enable_wallet=yes
 
-#set ecmult gen precision
-if test x"$req_ecmult_gen_precision" = x"auto"; then
-  set_ecmult_gen_precision=4
 else
-  set_ecmult_gen_precision=$req_ecmult_gen_precision
+  AC_MSG_RESULT(no)
 fi
 
-case $set_ecmult_gen_precision in
-2|4|8)
-  AC_DEFINE_UNQUOTED(ECMULT_GEN_PREC_BITS, $set_ecmult_gen_precision, [Set ecmult gen precision bits])
-  ;;
-*)
-  AC_MSG_ERROR(['ecmult gen precision not 2, 4, 8 or "auto"'])
-  ;;
-esac
-
-if test x"$use_tests" = x"yes"; then
-  SECP_OPENSSL_CHECK
-  if test x"$enable_openssl_tests" != x"no" && test x"$has_openssl_ec" = x"yes"; then
-      enable_openssl_tests=yes
-      AC_DEFINE(ENABLE_OPENSSL_TESTS, 1, [Define this symbol if OpenSSL EC functions are available])
-      SECP_TEST_INCLUDES="$SSL_CFLAGS $CRYPTO_CFLAGS $CRYPTO_CPPFLAGS"
-      SECP_TEST_LIBS="$CRYPTO_LIBS"
-
-      case $host in
-      *mingw*)
-        SECP_TEST_LIBS="$SECP_TEST_LIBS -lgdi32"
-        ;;
-      esac
-  else
-    if test x"$enable_openssl_tests" = x"yes"; then
-      AC_MSG_ERROR([OpenSSL tests requested but OpenSSL with EC support is not available])
-    fi
-    enable_openssl_tests=no
+dnl enable upnp support
+AC_MSG_CHECKING([whether to build with support for UPnP])
+if test x$have_miniupnpc = xno; then
+  if test x$use_upnp = xyes; then
+     AC_MSG_ERROR("UPnP requested but cannot be built. Use --without-miniupnpc.")
   fi
   AC_MSG_RESULT(no)
   use_upnp=no
@@ -1708,7 +1538,6 @@ else
   else
     AC_MSG_RESULT(no)
   fi
-  enable_openssl_tests=no
 fi
 
 dnl these are only used when qt is enabled
@@ -1720,14 +1549,25 @@ if test x$BGL_enable_qt != xno; then
     AC_DEFINE([USE_DBUS],[1],[Define if dbus support should be compiled in])
   fi
   AC_MSG_RESULT($BGL_enable_qt_dbus)
-if test x"$set_bignum" = x"gmp"; then
-  SECP_LIBS="$SECP_LIBS $GMP_LIBS"
-  SECP_INCLUDES="$SECP_INCLUDES $GMP_CPPFLAGS"
-fi
 
-if test x"$set_precomp" = x"yes"; then
-  AC_DEFINE(USE_ECMULT_STATIC_PRECOMPUTATION, 1, [Define this symbol to use a statically generated ecmult table])
-fi
+  dnl enable qr support
+  AC_MSG_CHECKING([whether to build GUI with support for QR codes])
+  if test x$have_qrencode = xno; then
+    if test x$use_qr = xyes; then
+      AC_MSG_ERROR([QR support requested but cannot be built. Use --without-qrencode])
+    fi
+    use_qr=no
+  else
+    if test x$use_qr != xno; then
+      AC_DEFINE([USE_QRCODE],[1],[Define if QR support should be compiled in])
+      use_qr=yes
+    fi
+  fi
+  AC_MSG_RESULT([$use_qr])
+
+  if test x$XGETTEXT = x; then
+    AC_MSG_WARN("xgettext is required to update qt translations")
+  fi
 
   AC_MSG_CHECKING([whether to build test_BGL-qt])
   if test x$use_gui_tests$BGL_enable_qt_test = xyesyes; then
@@ -1749,15 +1589,11 @@ else
   BUILD_TEST=""
 fi
 
-if test x"$enable_module_schnorrsig" = x"yes"; then
-  AC_DEFINE(ENABLE_MODULE_SCHNORRSIG, 1, [Define this symbol to enable the schnorrsig module])
-  enable_module_extrakeys=yes
-fi
-
-# Test if extrakeys is set after the schnorrsig module to allow the schnorrsig
-# module to set enable_module_extrakeys=yes
-if test x"$enable_module_extrakeys" = x"yes"; then
-  AC_DEFINE(ENABLE_MODULE_EXTRAKEYS, 1, [Define this symbol to enable the extrakeys module])
+AC_MSG_CHECKING([whether to reduce exports])
+if test x$use_reduce_exports = xyes; then
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_RESULT([no])
 fi
 
 if test x$build_BGL_wallet$build_BGL_cli$build_BGL_tx$build_BGL_libs$build_BGLd$BGL_enable_qt$use_bench$use_tests = xnononononononono; then
@@ -1881,48 +1717,6 @@ LIBS_TEMP="$LIBS"
 unset LIBS
 LIBS="$LIBS_TEMP"
 
-if test x"$use_external_default_callbacks" = x"yes"; then
-  AC_DEFINE(USE_EXTERNAL_DEFAULT_CALLBACKS, 1, [Define this symbol if an external implementation of the default callbacks is used])
-fi
-
-if test x"$enable_experimental" = x"yes"; then
-  AC_MSG_NOTICE([******])
-  AC_MSG_NOTICE([WARNING: experimental build])
-  AC_MSG_NOTICE([Experimental features do not have stable APIs or properties, and may not be safe for production use.])
-  AC_MSG_NOTICE([Building extrakeys module: $enable_module_extrakeys])
-  AC_MSG_NOTICE([Building schnorrsig module: $enable_module_schnorrsig])
-  AC_MSG_NOTICE([******])
-else
-  if test x"$enable_module_extrakeys" = x"yes"; then
-    AC_MSG_ERROR([extrakeys module is experimental. Use --enable-experimental to allow.])
-  fi
-  if test x"$enable_module_schnorrsig" = x"yes"; then
-    AC_MSG_ERROR([schnorrsig module is experimental. Use --enable-experimental to allow.])
-  fi
-  if test x"$set_asm" = x"arm"; then
-    AC_MSG_ERROR([ARM assembly optimization is experimental. Use --enable-experimental to allow.])
-  fi
-fi
-
-AC_CONFIG_HEADERS([src/libsecp256k1-config.h])
-AC_CONFIG_FILES([Makefile libsecp256k1.pc])
-AC_SUBST(SECP_INCLUDES)
-AC_SUBST(SECP_LIBS)
-AC_SUBST(SECP_TEST_LIBS)
-AC_SUBST(SECP_TEST_INCLUDES)
-AM_CONDITIONAL([ENABLE_COVERAGE], [test x"$enable_coverage" = x"yes"])
-AM_CONDITIONAL([USE_TESTS], [test x"$use_tests" != x"no"])
-AM_CONDITIONAL([USE_EXHAUSTIVE_TESTS], [test x"$use_exhaustive_tests" != x"no"])
-AM_CONDITIONAL([USE_BENCHMARK], [test x"$use_benchmark" = x"yes"])
-AM_CONDITIONAL([USE_ECMULT_STATIC_PRECOMPUTATION], [test x"$set_precomp" = x"yes"])
-AM_CONDITIONAL([ENABLE_MODULE_ECDH], [test x"$enable_module_ecdh" = x"yes"])
-AM_CONDITIONAL([ENABLE_MODULE_RECOVERY], [test x"$enable_module_recovery" = x"yes"])
-AM_CONDITIONAL([ENABLE_MODULE_EXTRAKEYS], [test x"$enable_module_extrakeys" = x"yes"])
-AM_CONDITIONAL([ENABLE_MODULE_SCHNORRSIG], [test x"$enable_module_schnorrsig" = x"yes"])
-AM_CONDITIONAL([USE_EXTERNAL_ASM], [test x"$use_external_asm" = x"yes"])
-AM_CONDITIONAL([USE_ASM_ARM], [test x"$set_asm" = x"arm"])
-
-dnl make sure nothing new is exported so that we don't break the cache
 PKGCONFIG_PATH_TEMP="$PKG_CONFIG_PATH"
 unset PKG_CONFIG_PATH
 PKG_CONFIG_PATH="$PKGCONFIG_PATH_TEMP"
@@ -1974,14 +1768,8 @@ echo "  debug enabled = $enable_debug"
 echo "  gprof enabled = $enable_gprof"
 echo "  werror        = $enable_werror"
 echo
-echo "  asm                     = $set_asm"
-echo "  bignum                  = $set_bignum"
-echo "  ecmult window size      = $set_ecmult_window"
-echo "  ecmult gen prec. bits   = $set_ecmult_gen_precision"
-dnl Hide test-only options unless they're used.
-if test x"$set_widemul" != xauto; then
-echo "  wide multiplication     = $set_widemul"
-fi
+echo "  target os     = $TARGET_OS"
+echo "  build os      = $build_os"
 echo
 echo "  CC            = $CC"
 echo "  CFLAGS        = $PTHREAD_CFLAGS $CFLAGS"
