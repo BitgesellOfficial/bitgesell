@@ -519,13 +519,12 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
     def stop_node(self, i, expected_stderr='', wait=0):
         """Stop a BGLd test node"""
         self.nodes[i].stop_node(expected_stderr, wait=wait)
-        self.nodes[i].wait_until_stopped()
 
     def stop_nodes(self, wait=0):
         """Stop multiple BGLd test nodes"""
         for node in self.nodes:
             # Issue RPC to stop nodes
-            node.stop_node(wait=wait)
+            node.stop_node(wait=wait, wait_until_stopped=False)
 
         for node in self.nodes:
             # Wait for nodes to stop
