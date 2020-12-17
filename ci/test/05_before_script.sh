@@ -36,3 +36,6 @@ if [ -z "$NO_DEPENDS" ]; then
   fi
   DOCKER_EXEC $SHELL_OPTS make $MAKEJOBS -C depends HOST=$HOST $DEP_OPTS
 fi
+if [ -n "$PREVIOUS_RELEASES_TO_DOWNLOAD" ]; then
+  DOCKER_EXEC test/get_previous_releases.py -b -t "$PREVIOUS_RELEASES_DIR" "${PREVIOUS_RELEASES_TO_DOWNLOAD}"
+fi
