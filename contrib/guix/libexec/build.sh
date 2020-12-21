@@ -23,10 +23,6 @@ echo "At most ${MAX_JOBS:?not set} jobs will run at once..."
 # $HOSTs after successfully building.
 BASEPREFIX="${PWD}/depends"
 
-# Setup an output directory for our build
-OUTDIR="${OUTDIR:-${PWD}/output}"
-[ -e "$OUTDIR" ] || mkdir -p "$OUTDIR"
-
 # Setup the directory where our BGL Core build for HOST will occur
 DISTSRC="${DISTSRC:-${PWD}/distsrc-${HOST}}"
 if [ -e "$DISTSRC" ]; then
@@ -242,7 +238,7 @@ export PATH="${BASEPREFIX}/${HOST}/native/bin:${PATH}"
     # Make the os-specific installers
     case "$HOST" in
         *mingw*)
-            make deploy ${V:+V=1} BITCOIN_WIN_INSTALLER="${OUTDIR}/${DISTNAME}-win64-setup-unsigned.exe"
+            make deploy ${V:+V=1} BGL_WIN_INSTALLER="${OUTDIR}/${DISTNAME}-win64-setup-unsigned.exe"
             ;;
     esac
 
