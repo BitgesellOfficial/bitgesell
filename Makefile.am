@@ -77,6 +77,7 @@ COVERAGE_INFO = $(COV_TOOL_WRAPPER) baseline.info \
 dist-hook:
 	-$(GIT) archive --format=tar HEAD -- src/clientversion.cpp | $(AMTAR) -C $(top_distdir) -xf -
 
+if TARGET_WINDOWS
 $(BGL_WIN_INSTALLER): all-recursive
 	$(MKDIR_P) $(top_builddir)/release
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGLD_BIN) $(top_builddir)/release
@@ -88,6 +89,9 @@ $(BGL_WIN_INSTALLER): all-recursive
 	@test -f $(MAKENSIS) && echo 'OutFile "$@"' | cat $(top_builddir)/share/setup.nsi - | $(MAKENSIS) -V2 - || \
 	  echo error: could not build $@
 	@echo built $@
+
+deploy: $(BGL_WIN_INSTALLER)
+endif
 
 if TARGET_DARWIN
 $(OSX_APP)/Contents/PkgInfo:
