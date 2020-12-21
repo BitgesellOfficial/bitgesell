@@ -6,20 +6,6 @@ set -e -o pipefail
 ## Sanity Checks ##
 ###################
 
-################
-# Check 1: Make sure that we can invoke required tools
-################
-for cmd in git make guix cat mkdir; do
-    if ! command -v "$cmd" > /dev/null 2>&1; then
-        echo "ERR: This script requires that '$cmd' is installed and available in your \$PATH"
-        exit 1
-    fi
-done
-
-################
-# Check 2: Make sure GUIX_BUILD_OPTIONS is empty
-################
-#
 # GUIX_BUILD_OPTIONS is an environment variable recognized by guix commands that
 # can perform builds. This seems like what we want instead of
 # ADDITIONAL_GUIX_COMMON_FLAGS, but the value of GUIX_BUILD_OPTIONS is actually
@@ -42,70 +28,6 @@ specific guix command.
 See contrib/guix/README.md for more details.
 EOF
 exit 1
-fi
-
-################
-# Check 3: Make sure that we're not in a dirty worktree
-################
-if ! git diff-index --quiet HEAD -- && [ -z "$FORCE_DIRTY_WORKTREE" ]; then
-cat << EOF
-ERR: The current git worktree is dirty, which may lead to broken builds.
-
-     Aborting...
-
-Hint: To make your git worktree clean, You may want to:
-      1. Commit your changes,
-      2. Stash your changes, or
-      3. Set the 'FORCE_DIRTY_WORKTREE' environment variable if you insist on
-         using a dirty worktree
-EOF
-exit 1
-else
-    GIT_COMMIT=$(git rev-parse --short=12 HEAD)
-fi
-
-################
-# Check 4: Make sure that build directories do no exist
-################
-
-# Default to building for all supported HOSTs (overridable by environment)
-export HOSTS="${HOSTS:-x86_64-linux-gnu arm-linux-gnueabihf aarch64-linux-gnu riscv64-linux-gnu
-                       x86_64-w64-mingw32}"
-
-DISTSRC_BASE="${DISTSRC_BASE:-${PWD}}"
-
-# Usage: distsrc_for_host HOST
-#
-#   HOST: The current platform triple we're building for
-#
-distsrc_for_host() {
-    echo "${DISTSRC_BASE}/distsrc-${GIT_COMMIT}-${1}"
-}
-
-# Accumulate a list of build directories that already exist...
-hosts_distsrc_exists=""
-for host in $HOSTS; do
-    if [ -e "$(distsrc_for_host "$host")" ]; then
-        hosts_distsrc_exists+=" ${host}"
-    fi
-done
-
-if [ -n "$hosts_distsrc_exists" ]; then
-# ...so that we can print them out nicely in an error message
-cat << EOF
-ERR: Build directories for this commit already exist for the following platform
-     triples you're attempting to build, probably because of previous builds.
-     Please remove, or otherwise deal with them prior to starting another build.
-
-     Aborting...
-
-EOF
-for host in $hosts_distsrc_exists; do
-    echo "     ${host} '$(distsrc_for_host "$host")'"
-done
-exit 1
-else
-    mkdir -p "$DISTSRC_BASE"
 fi
 
 #########
@@ -132,10 +54,6 @@ time-machine() {
                       --max-jobs="$MAX_JOBS" \
                       -- "$@"
 }
-
-# Make sure an output directory exists for our builds
-OUTDIR="${OUTDIR:-${PWD}/output}"
-[ -e "$OUTDIR" ] || mkdir -p "$OUTDIR"
 
 #########
 # Build #
