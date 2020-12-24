@@ -7,7 +7,6 @@
 
 #include <amount.h>
 #include <fs.h>
-#include <net.h>
 #include <netaddress.h>
 
 #include <QEvent>
@@ -232,10 +231,7 @@ namespace GUIUtil
     /** Convert enum Network to QString */
     QString NetworkToQString(Network net);
 
-    /** Convert enum ConnectionType to QString */
-    QString ConnectionTypeToQString(ConnectionType conn_type, bool relay_txes);
-
-    /** Convert seconds into a QString with days, hours, mins, secs */
+    /* Convert seconds into a QString with days, hours, mins, secs */
     QString formatDurationStr(int secs);
 
     /** Format CNodeStats.nServices bitmask into a user-readable string */
