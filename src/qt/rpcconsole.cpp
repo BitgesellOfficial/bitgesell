@@ -1041,11 +1041,9 @@ void RPCConsole::peerSelected(const QItemSelection &selected, const QItemSelecti
 
 void RPCConsole::peerLayoutAboutToChange()
 {
-    QModelIndexList selected = ui->peerWidget->selectionModel()->selectedIndexes();
     cachedNodeids.clear();
-    for(int i = 0; i < selected.size(); i++)
-    {
-        const CNodeCombinedStats *stats = clientModel->getPeerTableModel()->getNodeStats(selected.at(i).row());
+    for (const QModelIndex& peer : GUIUtil::getEntryData(ui->peerWidget, PeerTableModel::NetNodeId)) {
+        const auto stats = peer.data(PeerTableModel::StatsRole).value<CNodeCombinedStats*>();
         cachedNodeids.append(stats->nodeStats.nodeid);
     }
 }
@@ -1109,6 +1107,13 @@ void RPCConsole::peerLayoutChanged()
 
 void RPCConsole::updateNodeDetail(const CNodeCombinedStats *stats)
 {
+    const QList<QModelIndex> selected_peers = GUIUtil::getEntryData(ui->peerWidget, PeerTableModel::NetNodeId);
+    if (!clientModel || !clientModel->getPeerTableModel() || selected_peers.size() != 1) {
+        ui->detailWidget->hide();
+        ui->peerHeading->setText(tr("Select a peer to view detailed information."));
+        return;
+    }
+    const auto stats = selected_peers.first().data(PeerTableModel::StatsRole).value<CNodeCombinedStats*>();
     // update the detail ui with latest node information
     QString peerAddrDetails(QString::fromStdString(stats->nodeStats.addrName) + " ");
     peerAddrDetails += tr("(peer id: %1)").arg(QString::number(stats->nodeStats.nodeid));
@@ -1221,19 +1226,9 @@ void RPCConsole::banSelectedNode(int bantime)
     if (!clientModel)
         return;
 
-    // Get selected peer addresses
-    QList<QModelIndex> nodes = GUIUtil::getEntryData(ui->peerWidget, PeerTableModel::NetNodeId);
-    for(int i = 0; i < nodes.count(); i++)
-    {
-        // Get currently selected peer address
-        NodeId id = nodes.at(i).data().toLongLong();
-
-        // Get currently selected peer address
-        int detailNodeRow = clientModel->getPeerTableModel()->getRowByNodeId(id);
-        if (detailNodeRow < 0) return;
-
+    for (const QModelIndex& peer : GUIUtil::getEntryData(ui->peerWidget, PeerTableModel::NetNodeId)) {
         // Find possible nodes, ban it and clear the selected node
-        const CNodeCombinedStats *stats = clientModel->getPeerTableModel()->getNodeStats(detailNodeRow);
+        const auto stats = peer.data(PeerTableModel::StatsRole).value<CNodeCombinedStats*>();
         if (stats) {
             m_node.ban(stats->nodeStats.addr, bantime);
             m_node.disconnectByAddress(stats->nodeStats.addr);
