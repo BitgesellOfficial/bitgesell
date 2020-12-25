@@ -79,11 +79,11 @@ std::optional<ChainstateLoadingError> LoadChainstate(bool fReset,
         return ChainstateLoadingError::ERROR_BAD_GENESIS_BLOCK;
     }
 
-        for (CChainState* chainstate : chainman.GetAll()) {
-            chainstate->InitCoinsDB(
-                /* cache_size_bytes */ nCoinDBCache,
-                /* in_memory */ coins_db_in_memory,
-                /* should_wipe */ fReset || fReindexChainState);
+    // Check for changed -prune state.  What we are concerned about is a user who has pruned blocks
+    // in the past, but is now trying to run unpruned.
+    if (chainman.m_blockman.fHavePruned && !fPruneMode) {
+        return ChainstateLoadingError::ERROR_PRUNED_NEEDS_REINDEX;
+    }
 
     // At this point blocktree args are consistent with what's on disk.
     // If we're not mid-reindex (based on disk + args), add a genesis block on disk
