@@ -231,7 +231,7 @@ namespace GUIUtil
     /** Convert enum Network to QString */
     QString NetworkToQString(Network net);
 
-    /* Convert seconds into a QString with days, hours, mins, secs */
+    /** Convert seconds into a QString with days, hours, mins, secs */
     QString formatDurationStr(int secs);
 
     /** Format CNodeStats.nServices bitmask into a user-readable string */
