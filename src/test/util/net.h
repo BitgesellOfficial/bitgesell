@@ -30,5 +30,13 @@ struct ConnmanTestMsg : public CConnman {
     bool ReceiveMsgFrom(CNode& node, CSerializedNetMsg& ser_msg) const;
 };
 
-#endif // BGL_TEST_UTIL_NET_H
+constexpr ConnectionType ALL_CONNECTION_TYPES[]{
+    ConnectionType::INBOUND,
+    ConnectionType::OUTBOUND_FULL_RELAY,
+    ConnectionType::MANUAL,
+    ConnectionType::FEELER,
+    ConnectionType::BLOCK_RELAY,
+    ConnectionType::ADDR_FETCH,
+};
 
+#endif // BGL_TEST_UTIL_NET_H
