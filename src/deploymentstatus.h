@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_DEPLOYMENTSTATUS_H
-#define BITCOIN_DEPLOYMENTSTATUS_H
+#ifndef BGL_DEPLOYMENTSTATUS_H
+#define BGL_DEPLOYMENTSTATUS_H
 
 #include <chain.h>
 #include <versionbits.h>
@@ -23,7 +23,7 @@ inline bool DeploymentActiveAfter(const CBlockIndex* pindexPrev, const Consensus
 inline bool DeploymentActiveAfter(const CBlockIndex* pindexPrev, const Consensus::Params& params, Consensus::DeploymentPos dep)
 {
     assert(Consensus::ValidDeployment(dep));
-    return ThresholdState::ACTIVE == VersionBitsState(pindexPrev, params, dep, versionbitscache);
+    return ThresholdState::ACTIVE == g_versionbitscache.State(pindexPrev, params, dep);
 }
 
 /** Determine if a deployment is active for this block */
@@ -52,4 +52,4 @@ inline bool DeploymentEnabled(const Consensus::Params& params, Consensus::Deploy
     return params.vDeployments[dep].nTimeout != 0;
 }
 
-#endif // BITCOIN_DEPLOYMENTSTATUS_H
+#endif // BGL_DEPLOYMENTSTATUS_H

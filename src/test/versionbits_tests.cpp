@@ -290,7 +290,7 @@ static void check_computeblockversion(const Consensus::Params& params, Consensus
     // The current value of min_activation_height is a constant from chainparams which is different from Bitcoin
     // BGL has a different params.nMinerConfirmationWindow value
 
-    const uint32_t bitmask{VersionBitsMask(params, dep)};
+    const uint32_t bitmask{g_versionbitscache.Mask(params, dep)};
     BOOST_CHECK_EQUAL(bitmask, uint32_t{1} << bit);
 
     // In the first chain, test that the bit is set by CBV until it has failed.
@@ -452,9 +452,8 @@ BOOST_AUTO_TEST_CASE(versionbits_computeblockversion)
             // not take precedence over STARTED/LOCKED_IN. So all softforks on
             // the same bit might overlap, even when non-overlapping start-end
             // times are picked.
-            const uint32_t dep_mask{VersionBitsMask(chainParams->GetConsensus(), dep)};
-           // BOOST_CHECK(!(chain_all_vbits & dep_mask));
-           // BGL chain params are not same as Bitcoin
+            const uint32_t dep_mask{g_versionbitscache.Mask(chainParams->GetConsensus(), dep)};
+            BOOST_CHECK(!(chain_all_vbits & dep_mask));
             chain_all_vbits |= dep_mask;
             check_computeblockversion(chainParams->GetConsensus(), dep);
         }
