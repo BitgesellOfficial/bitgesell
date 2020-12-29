@@ -846,7 +846,7 @@ void BGLGUI::showDebugWindowActivateConsole()
 
 void BGLGUI::showHelpMessageClicked()
 {
-    helpMessageDialog->show();
+    GUIUtil::bringToFront(helpMessageDialog);
 }
 
 #ifdef ENABLE_WALLET
