@@ -1,11 +1,11 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: BGL
+Upstream-Name: Bitcoin
 Upstream-Contact: Satoshi Nakamoto <satoshin@gmx.com>
- irc://#BGL@freenode.net
-Source: https://github.com/BGL/BGL
+ irc://#Bitcoin@freenode.net
+Source: https://github.com/BitgesellOfficial/bitgesell
 
 Files: *
-Copyright: 2009-2020, BGL Core Developers
+Copyright: 2009-2021, Bitcoin Core Developers
 License: Expat
 Comment: The BGL Core Developers encompasses the current developers listed on BGL.org,
          as well as the numerous contributors to the project.
