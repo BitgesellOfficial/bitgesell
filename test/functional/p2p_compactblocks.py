@@ -185,7 +185,8 @@ class CompactBlocksTest(BGLTestFramework):
 
     # Test "sendcmpct" (between peers preferring the same version):
     # - No compact block announcements unless sendcmpct is sent.
-    # - If sendcmpct is sent with version > preferred_version, the message is ignored.
+    # - If sendcmpct is sent with version = 1, the message is ignored.
+    # - If sendcmpct is sent with version > 2, the message is ignored.
     # - If sendcmpct is sent with boolean 0, then block announcements are not
     #   made with compact blocks.
     # - If sendcmpct is then sent with boolean 1, then new block announcements
@@ -228,6 +229,13 @@ class CompactBlocksTest(BGLTestFramework):
         # Test a few ways of using sendcmpct that should NOT
         # result in compact block announcements.
         # Before each test, sync the headers chain.
+        test_node.request_headers_and_sync(locator=[tip])
+
+        # Now try a SENDCMPCT message with too-low version
+        test_node.send_and_ping(msg_sendcmpct(announce=True, version=1))
+        check_announcement_of_new_block(node, test_node, lambda p: "cmpctblock" not in p.last_message)
+
+        # Headers sync before next test.
         test_node.request_headers_and_sync(locator=[tip])
 
         # Now try a SENDCMPCT message with too-high version
