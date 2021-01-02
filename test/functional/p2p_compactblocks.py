@@ -201,10 +201,8 @@ class CompactBlocksTest(BGLTestFramework):
             return (len(test_node.last_sendcmpct) > 0)
         test_node.wait_until(received_sendcmpct, timeout=30)
         with p2p_lock:
-            # Check that the first version received is the preferred one
-            assert_equal(test_node.last_sendcmpct[0].version, preferred_version)
-            # And that we receive versions down to 1.
-            assert_equal(test_node.last_sendcmpct[-1].version, 1)
+            # Check that version 2 is received.
+            assert_equal(test_node.last_sendcmpct[0].version, 2)
             test_node.last_sendcmpct = []
 
         tip = int(node.getbestblockhash(), 16)
