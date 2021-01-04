@@ -13,6 +13,7 @@
 #include <netbase.h>
 #include <util/strencodings.h>
 #include <util/system.h>
+#include <util/time.h>
 
 #include <deque>
 #include <functional>
