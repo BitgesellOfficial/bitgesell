@@ -468,6 +468,13 @@ int GuiMain(int argc, char* argv[])
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 
+#if (QT_VERSION <= QT_VERSION_CHECK(5, 9, 8)) && defined(Q_OS_MACOS)
+    const auto os_name = QSysInfo::prettyProductName();
+    if (os_name.startsWith("macOS 11") || os_name.startsWith("macOS 10.16")) {
+        QApplication::setStyle("fusion");
+    }
+#endif
+
     BGLApplication app;
 
     /// 2. Parse command-line options. We do this after qt in order to show an error if there are problems parsing these
