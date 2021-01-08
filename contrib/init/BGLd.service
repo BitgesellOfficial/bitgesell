@@ -11,6 +11,7 @@
 
 [Unit]
 Description=BGL daemon
+Documentation=https://github.com/BitgesellOfficial/bitgesell/blob/master/doc/init.md
 
 # https://www.freedesktop.org/wiki/Software/systemd/NetworkTarget/
 After=network-online.target
