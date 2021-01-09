@@ -533,11 +533,6 @@ public:
      */
     Network ConnectedThroughNetwork() const;
 
-protected:
-    mapMsgCmdSize mapSendBytesPerMsgCmd GUARDED_BY(cs_vSend);
-    mapMsgCmdSize mapRecvBytesPerMsgCmd GUARDED_BY(cs_vRecv);
-
-public:
     // We selected peer as (compact blocks) high-bandwidth peer (BIP152)
     std::atomic<bool> m_bip152_highbandwidth_to{false};
     // Peer selected us as (compact blocks) high-bandwidth peer (BIP152)
@@ -609,8 +604,6 @@ public:
     CNode(const CNode&) = delete;
     CNode& operator=(const CNode&) = delete;
 
-public:
-
     NodeId GetId() const {
         return id;
     }
@@ -661,8 +654,6 @@ public:
         nRefCount--;
     }
 
-
-
     void AddAddressKnown(const CAddress& _addr)
     {
         assert(m_addr_known);
@@ -693,7 +684,6 @@ public:
             }
         }
     }
-
 
     void AddKnownTx(const uint256& hash)
     {
@@ -764,6 +754,9 @@ private:
 
     //! Whether this peer is an inbound onion, e.g. connected via our Tor onion service.
     const bool m_inbound_onion{false};
+
+    mapMsgCmdSize mapSendBytesPerMsgCmd GUARDED_BY(cs_vSend);
+    mapMsgCmdSize mapRecvBytesPerMsgCmd GUARDED_BY(cs_vRecv);
 };
 
 /**
