@@ -16,6 +16,10 @@ if BUILD_BGL_TX
   dist_man1_MANS+=BGL-tx.1
 endif
 
+if BUILD_BITCOIN_UTIL
+  dist_man1_MANS+=bitcoin-util.1
+endif
+
 if ENABLE_WALLET
 if BUILD_BGL_WALLET
   dist_man1_MANS+=BGL-wallet.1
