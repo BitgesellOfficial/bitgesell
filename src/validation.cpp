@@ -457,9 +457,7 @@ public:
     // around easier.
     struct ATMPArgs {
         const CChainParams& m_chainparams;
-        TxValidationState &m_state;
         const int64_t m_accept_time;
-        std::list<CTransactionRef>* m_replaced_transactions;
         const bool m_bypass_limits;
         /*
          * Return any outpoints which were not previously present in the coins
@@ -470,7 +468,6 @@ public:
          */
         std::vector<COutPoint>& m_coins_to_uncache;
         const bool m_test_accept;
-        CAmount* m_fee_out;
     };
 
     // Single transaction acceptance
@@ -485,14 +482,17 @@ private:
         CTxMemPool::setEntries m_all_conflicting;
         CTxMemPool::setEntries m_ancestors;
         std::unique_ptr<CTxMemPoolEntry> m_entry;
+        std::list<CTransactionRef> m_replaced_transactions;
 
         bool m_replacement_transaction;
+        CAmount m_fee_out;
         CAmount m_modified_fees;
         CAmount m_conflicting_fees;
         size_t m_conflicting_size;
 
         const CTransactionRef& m_ptx;
         const uint256& m_hash;
+        TxValidationState m_state;
     };
 
     // Run the policy checks on a given transaction, excluding any script checks.
@@ -503,18 +503,18 @@ private:
 
     // Run the script checks using our policy flags. As this can be slow, we should
     // only invoke this on transactions that have otherwise passed policy checks.
-    bool PolicyScriptChecks(ATMPArgs& args, const Workspace& ws, PrecomputedTransactionData& txdata) EXCLUSIVE_LOCKS_REQUIRED(cs_main, m_pool.cs);
+    bool PolicyScriptChecks(const ATMPArgs& args, Workspace& ws, PrecomputedTransactionData& txdata) EXCLUSIVE_LOCKS_REQUIRED(cs_main, m_pool.cs);
 
     // Re-run the script checks, using consensus flags, and try to cache the
     // result in the scriptcache. This should be done after
     // PolicyScriptChecks(). This requires that all inputs either be in our
     // utxo set or in the mempool.
-    bool ConsensusScriptChecks(ATMPArgs& args, const Workspace& ws, PrecomputedTransactionData &txdata) EXCLUSIVE_LOCKS_REQUIRED(cs_main, m_pool.cs);
+    bool ConsensusScriptChecks(const ATMPArgs& args, Workspace& ws, PrecomputedTransactionData &txdata) EXCLUSIVE_LOCKS_REQUIRED(cs_main, m_pool.cs);
 
     // Try to add the transaction to the mempool, removing any conflicts first.
     // Returns true if the transaction is in the mempool after any size
     // limiting is performed, false otherwise.
-    bool Finalize(ATMPArgs& args, Workspace& ws) EXCLUSIVE_LOCKS_REQUIRED(cs_main, m_pool.cs);
+    bool Finalize(const ATMPArgs& args, Workspace& ws) EXCLUSIVE_LOCKS_REQUIRED(cs_main, m_pool.cs);
 
     // Compare a package's feerate against minimum allowed.
     bool CheckFeeRate(size_t package_size, CAmount package_fee, TxValidationState& state) EXCLUSIVE_LOCKS_REQUIRED(cs_main, m_pool.cs)
@@ -552,12 +552,12 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
     const uint256& hash = ws.m_hash;
 
     // Copy/alias what we need out of args
-    TxValidationState &state = args.m_state;
     const int64_t nAcceptTime = args.m_accept_time;
     const bool bypass_limits = args.m_bypass_limits;
     std::vector<COutPoint>& coins_to_uncache = args.m_coins_to_uncache;
 
     // Alias what we need out of ws
+    TxValidationState &state = ws.m_state;
     std::set<uint256>& setConflicts = ws.m_conflicts;
     CTxMemPool::setEntries& allConflicting = ws.m_all_conflicting;
     CTxMemPool::setEntries& setAncestors = ws.m_ancestors;
@@ -677,14 +677,8 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
     if (!CheckSequenceLocks(m_pool, tx, STANDARD_LOCKTIME_VERIFY_FLAGS, &lp))
         return state.Invalid(TxValidationResult::TX_PREMATURE_SPEND, "non-BIP68-final");
 
-    CAmount nFees = 0;
-    if (!Consensus::CheckTxInputs(tx, state, m_view, g_chainman.m_blockman.GetSpendHeight(m_view), nFees)) {
+    if (!Consensus::CheckTxInputs(tx, state, m_view, g_chainman.m_blockman.GetSpendHeight(m_view), ws.m_fee_out)) {
         return false; // state filled in by CheckTxInputs
-    }
-
-    // If fee_out is passed, return the fee to the caller
-    if (args.m_fee_out) {
-        *args.m_fee_out = nFees;
     }
 
     // Check for non-standard pay-to-script-hash in inputs
@@ -701,7 +695,7 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
     int64_t nSigOpsCost = GetTransactionSigOpCost(tx, m_view, STANDARD_SCRIPT_VERIFY_FLAGS);
 
     // nModifiedFees includes any fee deltas from PrioritiseTransaction
-    nModifiedFees = nFees;
+    nModifiedFees = ws.m_fee_out;
     m_pool.ApplyDelta(hash, nModifiedFees);
 
     // Keep track of transactions that spend a coinbase, which we re-scan
@@ -715,7 +709,7 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
         }
     }
 
-    entry.reset(new CTxMemPoolEntry(ptx, nFees, nAcceptTime, ::ChainActive().Height(),
+    entry.reset(new CTxMemPoolEntry(ptx, ws.m_fee_out, nAcceptTime, ::ChainActive().Height(),
             fSpendsCoinbase, nSigOpsCost, lp));
     unsigned int nSize = entry->GetTxSize();
 
@@ -919,11 +913,10 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
     return true;
 }
 
-bool MemPoolAccept::PolicyScriptChecks(ATMPArgs& args, const Workspace& ws, PrecomputedTransactionData& txdata)
+bool MemPoolAccept::PolicyScriptChecks(const ATMPArgs& args, Workspace& ws, PrecomputedTransactionData& txdata)
 {
     const CTransaction& tx = *ws.m_ptx;
-
-    TxValidationState &state = args.m_state;
+    TxValidationState &state = ws.m_state;
 
     constexpr unsigned int scriptVerifyFlags = STANDARD_SCRIPT_VERIFY_FLAGS;
 
@@ -946,12 +939,11 @@ bool MemPoolAccept::PolicyScriptChecks(ATMPArgs& args, const Workspace& ws, Prec
     return true;
 }
 
-bool MemPoolAccept::ConsensusScriptChecks(ATMPArgs& args, const Workspace& ws, PrecomputedTransactionData& txdata)
+bool MemPoolAccept::ConsensusScriptChecks(const ATMPArgs& args, Workspace& ws, PrecomputedTransactionData& txdata)
 {
     const CTransaction& tx = *ws.m_ptx;
     const uint256& hash = ws.m_hash;
-
-    TxValidationState &state = args.m_state;
+    TxValidationState &state = ws.m_state;
     const CChainParams& chainparams = args.m_chainparams;
 
     // Check again against the current block tip's script verification
@@ -978,11 +970,11 @@ bool MemPoolAccept::ConsensusScriptChecks(ATMPArgs& args, const Workspace& ws, P
     return true;
 }
 
-bool MemPoolAccept::Finalize(ATMPArgs& args, Workspace& ws)
+bool MemPoolAccept::Finalize(const ATMPArgs& args, Workspace& ws)
 {
     const CTransaction& tx = *ws.m_ptx;
     const uint256& hash = ws.m_hash;
-    TxValidationState &state = args.m_state;
+    TxValidationState &state = ws.m_state;
     const bool bypass_limits = args.m_bypass_limits;
 
     CTxMemPool::setEntries& allConflicting = ws.m_all_conflicting;
@@ -1001,8 +993,7 @@ bool MemPoolAccept::Finalize(ATMPArgs& args, Workspace& ws)
                 hash.ToString(),
                 FormatMoney(nModifiedFees - nConflictingFees),
                 (int)entry->GetTxSize() - (int)nConflictingSize);
-        if (args.m_replaced_transactions)
-            args.m_replaced_transactions->push_back(it->GetSharedTx());
+        ws.m_replaced_transactions.push_back(it->GetSharedTx());
     }
     m_pool.RemoveStaged(allConflicting, false, MemPoolRemovalReason::REPLACED);
 
@@ -1032,7 +1023,7 @@ bool MemPoolAccept::AcceptSingleTransaction(const CTransactionRef& ptx, ATMPArgs
 
     Workspace workspace(ptx);
 
-    if (!PreChecks(args, workspace)) return false;
+    if (!PreChecks(args, workspace)) return MempoolAcceptResult(workspace.m_state);
 
     // Only compute the precomputed transaction data if we need to verify
     // scripts (ie, other policy checks pass). We perform the inexpensive
@@ -1040,31 +1031,33 @@ bool MemPoolAccept::AcceptSingleTransaction(const CTransactionRef& ptx, ATMPArgs
     // checks pass, to mitigate CPU exhaustion denial-of-service attacks.
     PrecomputedTransactionData txdata;
 
+<<<<<<< HEAD
     if (!PolicyScriptChecks(args, workspace, txdata)) return false;
 
     if (!ConsensusScriptChecks(args, workspace, txdata)) return false;
-
     // Tx was accepted, but not added
-    if (args.m_test_accept) return true;
+    if (args.m_test_accept) {
+        return MempoolAcceptResult(std::move(workspace.m_replaced_transactions), workspace.m_fee_out);
+    }
 
-    if (!Finalize(args, workspace)) return false;
+    if (!Finalize(args, workspace)) return MempoolAcceptResult(workspace.m_state);
 
     GetMainSignals().TransactionAddedToMempool(ptx, m_pool.GetAndIncrementSequence());
 
-    return true;
+    return MempoolAcceptResult(std::move(workspace.m_replaced_transactions), workspace.m_fee_out);
 }
 
 } // anon namespace
-
 /** (try to) add transaction to memory pool with a specified acceptance time **/
 static bool AcceptToMemoryPoolWithTime(const CChainParams& chainparams, CTxMemPool& pool, TxValidationState &state, const CTransactionRef &tx,
                         int64_t nAcceptTime, std::list<CTransactionRef>* plTxnReplaced,
                         bool bypass_limits, bool test_accept, CAmount* fee_out=nullptr) EXCLUSIVE_LOCKS_REQUIRED(cs_main)
 {
     std::vector<COutPoint> coins_to_uncache;
-    MemPoolAccept::ATMPArgs args { chainparams, state, nAcceptTime, plTxnReplaced, bypass_limits, coins_to_uncache, test_accept, fee_out };
-    bool res = MemPoolAccept(pool).AcceptSingleTransaction(tx, args);
-    if (!res) {
+    MemPoolAccept::ATMPArgs args { chainparams, nAcceptTime, bypass_limits, coins_to_uncache, test_accept };
+
+    const MempoolAcceptResult result = MemPoolAccept(pool).AcceptSingleTransaction(tx, args);
+    if (result.m_result_type != MempoolAcceptResult::ResultType::VALID) {
         // Remove coins that were not present in the coins cache before calling ATMPW;
         // this is to prevent memory DoS in case we receive a large number of
         // invalid transactions that attempt to overrun the in-memory coins cache
