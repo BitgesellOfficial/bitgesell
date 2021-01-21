@@ -30,50 +30,35 @@ QList<BGLUnit> BGLUnits::availableUnits()
 
 bool BGLUnits::valid(Unit unit)
 {
-    switch(unit)
-    {
-    case Unit::BGL:
-    case Unit::mBGL:
-    case Unit::uBGL:
-    case Unit::SAT:
-        return true;
-    default:
-        return false;
-    }
-}
-
-QString BGLUnits::longName(Unit unit)
-{
-    switch(unit)
-    {
+    switch (unit) {
     case Unit::BGL: return QString("BGL");
     case Unit::mBGL: return QString("mBGL");
     case Unit::uBGL: return QString::fromUtf8("µBGL (bits)");
     case Unit::SAT: return QString("Satoshi (sat)");
-    default: return QString("???");
-    }
+    } // no default case, so the compiler can warn about missing cases
+    assert(false);
 }
 
 QString BGLUnits::shortName(Unit unit)
 {
-    switch(unit)
-    {
-    case Unit::uBGL: return QString::fromUtf8("bits");
+    switch (unit) {
+    case Unit::BGL: return longName(unit);
+    case Unit::mBGL: return longName(unit);
+    case Unit::uBGL: return QString("bits");
     case Unit::SAT: return QString("sat");
-    default: return longName(unit);
-    }
+    } // no default case, so the compiler can warn about missing cases
+    assert(false);
 }
 
 QString BGLUnits::description(Unit unit)
 {
-    switch(unit)
-    {
+    switch (unit) {
     case Unit::BGL: return QString("BGLs");
     case Unit::mBGL: return QString("Milli-BGLs (1 / 1" THIN_SP_UTF8 "000)");
     case Unit::uBGL: return QString("Micro-BGLs (bits) (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
     case Unit::SAT: return QString("Satoshi (sat) (1 / 100" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
-    default: return QString("???");
-    }
+    } // no default case, so the compiler can warn about missing cases
+    assert(false);
 }
 
 qint64 BGLUnits::factor(Unit unit)
@@ -84,20 +69,19 @@ qint64 BGLUnits::factor(Unit unit)
     case Unit::mBGL: return 100'000;
     case Unit::uBGL: return 100;
     case Unit::SAT: return 1;
-    default: return 100'000'000;
-    }
+    } // no default case, so the compiler can warn about missing cases
+    assert(false);
 }
 
 int BGLUnits::decimals(Unit unit)
 {
-    switch(unit)
-    {
+    switch (unit) {
     case Unit::BGL: return 8;
     case Unit::mBGL: return 5;
     case Unit::uBGL: return 2;
     case Unit::SAT: return 0;
-    default: return 0;
-    }
+    } // no default case, so the compiler can warn about missing cases
+    assert(false);
 }
 
 QString BGLUnits::format(Unit unit, const CAmount& nIn, bool fPlus, SeparatorStyle separators, bool justify)
