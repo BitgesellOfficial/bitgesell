@@ -24,6 +24,7 @@
 #include <QLatin1Char>
 #include <QSettings>
 #include <QStringList>
+#include <QVariant>
 
 const char *DEFAULT_GUI_PROXY_HOST = "127.0.0.1";
 
@@ -71,9 +72,16 @@ void OptionsModel::Init(bool resetSettings)
     fMinimizeOnClose = settings.value("fMinimizeOnClose").toBool();
 
     // Display
-    if (!settings.contains("nDisplayUnit"))
-        settings.setValue("nDisplayUnit", BGLUnits::BGL);
-    nDisplayUnit = settings.value("nDisplayUnit").toInt();
+    if (!settings.contains("DisplayBGLUnit")) {
+        settings.setValue("DisplayBGLUnit", QVariant::fromValue(BGLUnit::BGL));
+    }
+    QVariant unit = settings.value("DisplayBGLUnit");
+    if (unit.canConvert<BGLUnit>()) {
+        m_display_BGL_unit = unit.value<BGLUnit>();
+    } else {
+        m_display_BGL_unit = BGLUnit::BGL;
+        settings.setValue("DisplayBGLUnit", QVariant::fromValue(m_display_BGL_unit));
+    }
 
     if (!settings.contains("strThirdPartyTxUrls"))
         settings.setValue("strThirdPartyTxUrls", "");
@@ -351,7 +359,7 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return m_sub_fee_from_amount;
 #endif
         case DisplayUnit:
-            return nDisplayUnit;
+            return QVariant::fromValue(m_display_BGL_unit);
         case ThirdPartyTxUrls:
             return strThirdPartyTxUrls;
         case Language:
@@ -555,11 +563,12 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
 
 void OptionsModel::setDisplayUnit(const QVariant& new_unit)
 {
-    if (new_unit.isNull() || new_unit.value<BGLUnit>() == m_display_BGL_unit) return;
-    m_display_BGL_unit = new_unit.value<BGLUnit>();
-    QSettings settings;
-    settings.setValue("DisplayBGLUnit", QVariant::fromValue(m_display_BGL_unit));
-    Q_EMIT displayUnitChanged(m_display_BGL_unit);
+    if (!value.isNull()) {
+        QSettings settings;
+        m_display_BGL_unit = value.value<BGLUnit>();
+        settings.setValue("DisplayBGLUnit", QVariant::fromValue(m_display_BGL_unit));
+        Q_EMIT displayUnitChanged(static_cast<int>(m_display_BGL_unit));
+    }
 }
 
 void OptionsModel::setRestartRequired(bool fRequired)

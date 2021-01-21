@@ -8,6 +8,7 @@
 #include <consensus/amount.h>
 
 #include <QAbstractListModel>
+#include <QDataStream>
 #include <QString>
 
 // U+2009 THIN SPACE = UTF-8 E2 80 89
@@ -45,6 +46,7 @@ public:
         uBGL,
         SAT
     };
+    Q_ENUM(Unit)
 
     enum class SeparatorStyle
     {
@@ -108,5 +110,8 @@ private:
     QList<BGLUnits::Unit> unitlist;
 };
 typedef BGLUnits::Unit BGLUnit;
+
+QDataStream& operator<<(QDataStream& out, const BGLUnit& unit);
+QDataStream& operator>>(QDataStream& in, BGLUnit& unit);
 
 #endif // BGL_QT_BGLUNITS_H
