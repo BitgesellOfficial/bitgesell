@@ -18,75 +18,89 @@ BGLUnits::BGLUnits(QObject *parent):
 {
 }
 
-QList<BGLUnits::Unit> BGLUnits::availableUnits()
+QList<BGLUnit> BGLUnits::availableUnits()
 {
-    QList<BGLUnits::Unit> unitlist;
-    unitlist.append(BGL);
-    unitlist.append(mBGL);
-    unitlist.append(uBGL);
-    unitlist.append(SAT);
+    QList<BGLUnit> unitlist;
+    unitlist.append(Unit::BGL);
+    unitlist.append(Unit::mBGL);
+    unitlist.append(Unit::uBGL);
+    unitlist.append(Unit::SAT);
     return unitlist;
+}
+
+bool BGLUnits::valid(Unit unit)
+{
+    switch(unit)
+    {
+    case Unit::BGL:
+    case Unit::mBGL:
+    case Unit::uBGL:
+    case Unit::SAT:
+        return true;
+    default:
+        return false;
+    }
 }
 
 QString BGLUnits::longName(Unit unit)
 {
     switch(unit)
     {
-    case BGL: return QString("BGL");
-    case mBGL: return QString("mBGL");
-    case uBGL: return QString::fromUtf8("µBGL (bits)");
-    case SAT: return QString("Satoshi (sat)");
+    case Unit::BGL: return QString("BGL");
+    case Unit::mBGL: return QString("mBGL");
+    case Unit::uBGL: return QString::fromUtf8("µBGL (bits)");
+    case Unit::SAT: return QString("Satoshi (sat)");
     default: return QString("???");
     }
 }
 
-QString BGLUnits::shortName(int unit)
+QString BGLUnits::shortName(Unit unit)
 {
     switch(unit)
     {
-    case uBGL: return QString::fromUtf8("bits");
-    case SAT: return QString("sat");
+    case Unit::uBGL: return QString::fromUtf8("bits");
+    case Unit::SAT: return QString("sat");
     default: return longName(unit);
     }
 }
 
-QString BGLUnits::description(int unit)
+QString BGLUnits::description(Unit unit)
 {
     switch(unit)
     {
-    case BGL: return QString("BGLs");
-    case mBGL: return QString("Milli-BGLs (1 / 1" THIN_SP_UTF8 "000)");
-    case uBGL: return QString("Micro-BGLs (bits) (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
-    case SAT: return QString("Satoshi (sat) (1 / 100" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
+    case Unit::BGL: return QString("BGLs");
+    case Unit::mBGL: return QString("Milli-BGLs (1 / 1" THIN_SP_UTF8 "000)");
+    case Unit::uBGL: return QString("Micro-BGLs (bits) (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
+    case Unit::SAT: return QString("Satoshi (sat) (1 / 100" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
     default: return QString("???");
     }
 }
 
-qint64 BGLUnits::factor(int unit)
+qint64 BGLUnits::factor(Unit unit)
 {
     switch(unit)
     {
-    case BGL: return 100000000;
-    case mBGL: return 100000;
-    case uBGL: return 100;
-    case SAT: return 1;
-    default: return 100000000;
+    case Unit::BGL: return 100'000'000;
+    case Unit::mBGL: return 100'000;
+    case Unit::uBGL: return 100;
+    case Unit::SAT: return 1;
+    default: return 100'000'000;
     }
 }
 
-int BGLUnits::decimals(int unit)
+int BGLUnits::decimals(Unit unit)
 {
     switch(unit)
     {
-    case BGL: return 8;
-    case mBGL: return 5;
-    case uBGL: return 2;
-    case SAT: return 0;
+    case Unit::BGL: return 8;
+    case Unit::mBGL: return 5;
+    case Unit::uBGL: return 2;
+    case Unit::SAT: return 0;
     default: return 0;
     }
 }
 
-QString BGLUnits::format(int unit, const CAmount& nIn, bool fPlus, SeparatorStyle separators, bool justify)
+QString BGLUnits::format(Unit unit, const CAmount& nIn, bool fPlus, SeparatorStyle separators, bool justify)
 {
     // Note: not using straight sprintf here because we do NOT want
     // localized number formatting.
@@ -130,19 +144,19 @@ QString BGLUnits::format(int unit, const CAmount& nIn, bool fPlus, SeparatorStyl
 // Please take care to use formatHtmlWithUnit instead, when
 // appropriate.
 
-QString BGLUnits::formatWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
+QString BGLUnits::formatWithUnit(Unit unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
 {
     return format(unit, amount, plussign, separators) + QString(" ") + shortName(unit);
 }
 
-QString BGLUnits::formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
+QString BGLUnits::formatHtmlWithUnit(Unit unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
 {
     QString str(formatWithUnit(unit, amount, plussign, separators));
     str.replace(QChar(THIN_SP_CP), QString(THIN_SP_HTML));
     return QString("<span style='white-space: nowrap;'>%1</span>").arg(str);
 }
 
-QString BGLUnits::formatWithPrivacy(int unit, const CAmount& amount, SeparatorStyle separators, bool privacy)
+QString BGLUnits::formatWithPrivacy(Unit unit, const CAmount& amount, SeparatorStyle separators, bool privacy)
 {
     assert(amount >= 0);
     QString value;
@@ -154,7 +168,7 @@ QString BGLUnits::formatWithPrivacy(int unit, const CAmount& amount, SeparatorSt
     return value + QString(" ") + shortName(unit);
 }
 
-bool BGLUnits::parse(int unit, const QString &value, CAmount *val_out)
+bool BGLUnits::parse(Unit unit, const QString& value, CAmount* val_out)
 {
     if (value.isEmpty()) {
         return false; // Refuse to parse invalid unit or empty string
@@ -194,7 +208,7 @@ bool BGLUnits::parse(int unit, const QString &value, CAmount *val_out)
     return ok;
 }
 
-QString BGLUnits::getAmountColumnTitle(int unit)
+QString BGLUnits::getAmountColumnTitle(Unit unit)
 {
     return QObject::tr("Amount") + " (" + shortName(unit) + ")";
 }
@@ -219,7 +233,7 @@ QVariant BGLUnits::data(const QModelIndex &index, int role) const
         case Qt::ToolTipRole:
             return QVariant(description(unit));
         case UnitRole:
-            return QVariant(static_cast<int>(unit));
+            return QVariant::fromValue(unit);
         }
     }
     return QVariant();
@@ -231,35 +245,35 @@ CAmount BGLUnits::maxMoney()
 }
 
 namespace {
-qint8 ToQint8(BitcoinUnit unit)
+qint8 ToQint8(BGLUnit unit)
 {
     switch (unit) {
-    case BitcoinUnits::BTC: return 0;
-    case BitcoinUnits::mBTC: return 1;
-    case BitcoinUnits::uBTC: return 2;
-    case BitcoinUnits::SAT: return 3;
+    case BGLUnit::BGL: return 0;
+    case BGLUnit::mBGL: return 1;
+    case BGLUnit::uBGL: return 2;
+    case BGLUnit::SAT: return 3;
     } // no default case, so the compiler can warn about missing cases
     assert(false);
 }
 
-BitcoinUnit FromQint8(qint8 num)
+BGLUnit FromQint8(qint8 num)
 {
     switch (num) {
-    case 0: return BitcoinUnits::BTC;
-    case 1: return BitcoinUnits::mBTC;
-    case 2: return BitcoinUnits::uBTC;
-    case 3: return BitcoinUnits::SAT;
+    case 0: return BGLUnit::BGL;
+    case 1: return BGLUnit::mBGL;
+    case 2: return BGLUnit::uBGL;
+    case 3: return BGLUnit::SAT;
     }
     assert(false);
 }
 } // namespace
 
-QDataStream& operator<<(QDataStream& out, const BitcoinUnit& unit)
+QDataStream& operator<<(QDataStream& out, const BGLUnit& unit)
 {
     return out << ToQint8(unit);
 }
 
-QDataStream& operator>>(QDataStream& in, BitcoinUnit& unit)
+QDataStream& operator>>(QDataStream& in, BGLUnit& unit)
 {
     qint8 input;
     in >> input;

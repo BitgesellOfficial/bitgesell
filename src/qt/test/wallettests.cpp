@@ -7,7 +7,6 @@
 
 #include <interfaces/chain.h>
 #include <interfaces/node.h>
-#include <key_io.h>
 #include <qt/BGLamountfield.h>
 #include <qt/BGLunits.h>
 #include <qt/clientmodel.h>
@@ -197,7 +196,7 @@ void TestGUI(interfaces::Node& node)
         // Check balance in send dialog
         QLabel* balanceLabel = sendCoinsDialog.findChild<QLabel*>("labelBalance");
         QString balanceText = balanceLabel->text();
-        int unit = walletModel.getOptionsModel()->getDisplayUnit();
+        BGLUnit unit = walletModel.getOptionsModel()->getDisplayUnit();
         CAmount balance = walletModel.wallet().getBalance();
         QString balanceComparison = BGLUnits::formatWithUnit(unit, balance, false, BGLUnits::SeparatorStyle::NEVER);
         QCOMPARE(balanceText, balanceComparison);
@@ -223,7 +222,7 @@ void TestGUI(interfaces::Node& node)
     overviewPage.setWalletModel(&walletModel);
     QLabel* balanceLabel = overviewPage.findChild<QLabel*>("labelBalance");
     QString balanceText = balanceLabel->text().trimmed();
-    int unit = walletModel.getOptionsModel()->getDisplayUnit();
+    BGLUnit unit = walletModel.getOptionsModel()->getDisplayUnit();
     CAmount balance = walletModel.wallet().getBalance();
     QString balanceComparison = BGLUnits::formatWithUnit(unit, balance, false, BGLUnits::SeparatorStyle::ALWAYS);
     QCOMPARE(balanceText, balanceComparison);

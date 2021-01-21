@@ -173,8 +173,7 @@ bool parseBGLURI(const QUrl &uri, SendCoinsRecipient *out)
         {
             if(!i->second.isEmpty())
             {
-                if(!BGLUnits::parse(BGLUnits::BGL, i->second, &rv.amount))
-                {
+                if (!BGLUnits::parse(BGLUnit::BGL, i->second, &rv.amount)) {
                     return false;
                 }
             }
@@ -206,7 +205,7 @@ QString formatBGLURI(const SendCoinsRecipient &info)
 
     if (info.amount)
     {
-        ret += QString("?amount=%1").arg(BGLUnits::format(BGLUnits::BGL, info.amount, false, BGLUnits::SeparatorStyle::NEVER));
+        ret += QString("?amount=%1").arg(BGLUnits::format(BGLUnit::BGL, info.amount, false, BGLUnits::SeparatorStyle::NEVER));
         paramCount++;
     }
 

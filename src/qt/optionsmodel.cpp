@@ -567,7 +567,7 @@ void OptionsModel::setDisplayUnit(const QVariant& new_unit)
         QSettings settings;
         m_display_BGL_unit = value.value<BGLUnit>();
         settings.setValue("DisplayBGLUnit", QVariant::fromValue(m_display_BGL_unit));
-        Q_EMIT displayUnitChanged(static_cast<int>(m_display_BGL_unit));
+        Q_EMIT displayUnitChanged(m_display_BGL_unit);
     }
 }
 

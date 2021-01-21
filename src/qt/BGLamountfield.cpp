@@ -14,6 +14,9 @@
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLineEdit>
+#include <QVariant>
+
+#include <cassert>
 
 /** QSpinBox that uses fixed-point numbers internally and uses our own
  * formatting/parsing functions.
@@ -96,7 +99,7 @@ public:
         setValue(val);
     }
 
-    void setDisplayUnit(int unit)
+    void setDisplayUnit(BGLUnit unit)
     {
         bool valid = false;
         CAmount val = value(&valid);
@@ -122,7 +125,7 @@ public:
 
             const QFontMetrics fm(fontMetrics());
             int h = lineEdit()->minimumSizeHint().height();
-            int w = GUIUtil::TextWidth(fm, BGLUnits::format(BGLUnits::BGL, BGLUnits::maxMoney(), false, BGLUnits::SeparatorStyle::ALWAYS));
+            int w = GUIUtil::TextWidth(fm, BGLUnits::format(BGLUnit::BGL, BGLUnits::maxMoney(), false, BGLUnits::SeparatorStyle::ALWAYS));
             w += 2; // cursor blinking space
 
             QStyleOptionSpinBox opt;
@@ -148,7 +151,7 @@ public:
     }
 
 private:
-    int currentUnit{BGLUnits::BGL};
+    BGLUnit currentUnit{BGLUnit::BGL};
     CAmount singleStep{CAmount(100000)}; // satoshis
     mutable QSize cachedMinimumSizeHint;
     bool m_allow_empty{true};
@@ -326,14 +329,14 @@ void BGLAmountField::unitChanged(int idx)
     unit->setToolTip(unit->itemData(idx, Qt::ToolTipRole).toString());
 
     // Determine new unit ID
-    int newUnit = unit->itemData(idx, BGLUnits::UnitRole).toInt();
-
-    amount->setDisplayUnit(newUnit);
+    QVariant new_unit = unit->currentData(BGLUnits::UnitRole);
+    assert(new_unit.isValid());
+    amount->setDisplayUnit(new_unit.value<BGLUnit>());
 }
 
-void BGLAmountField::setDisplayUnit(int newUnit)
+void BGLAmountField::setDisplayUnit(BGLUnit new_unit)
 {
-    unit->setValue(newUnit);
+    unit->setValue(QVariant::fromValue(new_unit));
 }
 
 void BGLAmountField::setSingleStep(const CAmount& step)
