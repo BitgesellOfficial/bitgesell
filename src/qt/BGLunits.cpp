@@ -28,21 +28,7 @@ QList<BGLUnits::Unit> BGLUnits::availableUnits()
     return unitlist;
 }
 
-bool BGLUnits::valid(int unit)
-{
-    switch(unit)
-    {
-    case BGL:
-    case mBGL:
-    case uBGL:
-    case SAT:
-        return true;
-    default:
-        return false;
-    }
-}
-
-QString BGLUnits::longName(int unit)
+QString BGLUnits::longName(Unit unit)
 {
     switch(unit)
     {
@@ -104,8 +90,6 @@ QString BGLUnits::format(int unit, const CAmount& nIn, bool fPlus, SeparatorStyl
 {
     // Note: not using straight sprintf here because we do NOT want
     // localized number formatting.
-    if(!valid(unit))
-        return QString(); // Refuse to format invalid unit
     qint64 n = (qint64)nIn;
     qint64 coin = factor(unit);
     int num_decimals = decimals(unit);
@@ -172,8 +156,9 @@ QString BGLUnits::formatWithPrivacy(int unit, const CAmount& amount, SeparatorSt
 
 bool BGLUnits::parse(int unit, const QString &value, CAmount *val_out)
 {
-    if(!valid(unit) || value.isEmpty())
+    if (value.isEmpty()) {
         return false; // Refuse to parse invalid unit or empty string
+    }
     int num_decimals = decimals(unit);
 
     // Ignore spaces and thin spaces when parsing
@@ -211,12 +196,7 @@ bool BGLUnits::parse(int unit, const QString &value, CAmount *val_out)
 
 QString BGLUnits::getAmountColumnTitle(int unit)
 {
-    QString amountTitle = QObject::tr("Amount");
-    if (BGLUnits::valid(unit))
-    {
-        amountTitle += " ("+BGLUnits::shortName(unit) + ")";
-    }
-    return amountTitle;
+    return QObject::tr("Amount") + " (" + shortName(unit) + ")";
 }
 
 int BGLUnits::rowCount(const QModelIndex &parent) const

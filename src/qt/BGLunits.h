@@ -59,8 +59,6 @@ public:
 
     //! Get list of units, for drop-down box
     static QList<Unit> availableUnits();
-    //! Is unit ID valid?
-    static bool valid(int unit);
     //! Long name
     static QString longName(int unit);
     //! Short name
