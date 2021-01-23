@@ -326,6 +326,18 @@ BGL.org (see below for BGL.org update instructions).
 
   - BGLcore.org RPC documentation update
 
+      - Install [golang](https://golang.org/doc/install)
+
+      - Install the new Bitcoin Core release
+
+      - Run bitcoind on regtest
+
+      - Clone the [bitcoincore.org repository](https://github.com/bitcoin-core/bitcoincore.org)
+
+      - Run: `go run generate.go` while being in `contrib/doc-gen` folder, and with bitcoin-cli in PATH
+
+      - Add the generated files to git
+
   - Update packaging repo
 
       - Push the flatpak to flathub, e.g. https://github.com/flathub/org.BGLcore.BGL-qt/pull/2
