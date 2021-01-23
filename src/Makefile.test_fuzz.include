@@ -16,6 +16,7 @@ libtest_fuzz_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(MINIUPNPC_CPPFLAGS) $
 libtest_fuzz_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libtest_fuzz_a_SOURCES = \
   test/fuzz/fuzz.cpp \
+  test/fuzz/util.cpp \
   $(TEST_FUZZ_H)
 
 LIBTEST_FUZZ += $(LIBBGL_SERVER)
