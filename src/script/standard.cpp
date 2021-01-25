@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2019 The BGL Core developers
+// Copyright (c) 2009-2019 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -22,11 +22,8 @@ CScriptID::CScriptID(const ScriptHash& in) : BaseHash(static_cast<uint160>(in)) 
 ScriptHash::ScriptHash(const CScript& in) : BaseHash(Hash160(in)) {}
 ScriptHash::ScriptHash(const CScriptID& in) : BaseHash(static_cast<uint160>(in)) {}
 
-PKHash::PKHash(const CPubKey& pubkey) : uint160(pubkey.GetID()) {}
-PKHash::PKHash(const CKeyID& pubkey_id) : uint160(pubkey_id) {}
-
-WitnessV0KeyHash::WitnessV0KeyHash(const CPubKey& pubkey) : uint160(pubkey.GetID()) {}
-WitnessV0KeyHash::WitnessV0KeyHash(const PKHash& pubkey_hash) : uint160(static_cast<uint160>(pubkey_hash)) {}
+PKHash::PKHash(const CPubKey& pubkey) : BaseHash(pubkey.GetID()) {}
+PKHash::PKHash(const CKeyID& pubkey_id) : BaseHash(pubkey_id) {}
 
 WitnessV0KeyHash::WitnessV0KeyHash(const CPubKey& pubkey) : BaseHash(pubkey.GetID()) {}
 WitnessV0KeyHash::WitnessV0KeyHash(const PKHash& pubkey_hash) : BaseHash(static_cast<uint160>(pubkey_hash)) {}

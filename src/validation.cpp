@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The BGL Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -52,7 +52,7 @@
 #include <string>
 
 #include <boost/algorithm/string/replace.hpp>
- 
+
 #define MICRO 0.000001
 #define MILLI 0.001
 
@@ -101,20 +101,19 @@ bool CBlockIndexWorkComparator::operator()(const CBlockIndex *pa, const CBlockIn
     return false;
 }
 
-namespace {
-BlockManager g_blockman;
-} // anon namespace
+ChainstateManager g_chainman;
 
-std::unique_ptr<CChainState> g_chainstate;
-
-CChainState& ChainstateActive() {
-    assert(g_chainstate);
-    return *g_chainstate;
+CChainState& ChainstateActive()
+{
+    LOCK(::cs_main);
+    assert(g_chainman.m_active_chainstate);
+    return *g_chainman.m_active_chainstate;
 }
 
-CChain& ChainActive() {
-    assert(g_chainstate);
-    return g_chainstate->m_chain;
+CChain& ChainActive()
+{
+    LOCK(::cs_main);
+    return ::ChainstateActive().m_chain;
 }
 
 /**
@@ -174,8 +173,8 @@ namespace {
 CBlockIndex* LookupBlockIndex(const uint256& hash)
 {
     AssertLockHeld(cs_main);
-    BlockMap::const_iterator it = g_blockman.m_block_index.find(hash);
-    return it == g_blockman.m_block_index.end() ? nullptr : it->second;
+    BlockMap::const_iterator it = g_chainman.BlockIndex().find(hash);
+    return it == g_chainman.BlockIndex().end() ? nullptr : it->second;
 }
 
 CBlockIndex* FindForkInGlobalIndex(const CChain& chain, const CBlockLocator& locator)
@@ -450,7 +449,7 @@ namespace {
 class MemPoolAccept
 {
 public:
-    explicit MemPoolAccept(CTxMemPool& mempool) : m_pool(mempool), m_view(&m_dummy), m_viewmempool(&::ChainstateActive().CoinsTip(), m_pool),
+    MemPoolAccept(CTxMemPool& mempool) : m_pool(mempool), m_view(&m_dummy), m_viewmempool(&::ChainstateActive().CoinsTip(), m_pool),
         m_limit_ancestors(gArgs.GetArg("-limitancestorcount", DEFAULT_ANCESTOR_LIMIT)),
         m_limit_ancestor_size(gArgs.GetArg("-limitancestorsize", DEFAULT_ANCESTOR_SIZE_LIMIT)*1000),
         m_limit_descendants(gArgs.GetArg("-limitdescendantcount", DEFAULT_DESCENDANT_LIMIT)),
@@ -483,7 +482,7 @@ private:
     // All the intermediate state that gets passed between the various levels
     // of checking a given transaction.
     struct Workspace {
-        explicit Workspace(const CTransactionRef& ptx) : m_ptx(ptx), m_hash(ptx->GetHash()) {}
+        Workspace(const CTransactionRef& ptx) : m_ptx(ptx), m_hash(ptx->GetHash()) {}
         std::set<uint256> m_conflicts;
         CTxMemPool::setEntries m_all_conflicting;
         CTxMemPool::setEntries m_ancestors;
@@ -697,7 +696,7 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
         return state.Invalid(TxValidationResult::TX_INPUTS_NOT_STANDARD, "bad-txns-nonstandard-inputs");
     }
 
-    // Check for non-standard witnesses.
+    // Check for non-standard witness in P2WSH
     if (tx.HasWitness() && fRequireStandard && !IsWitnessStandard(tx, m_view))
         return state.Invalid(TxValidationResult::TX_WITNESS_MUTATED, "bad-witness-nonstandard");
 
@@ -1162,7 +1161,7 @@ bool ReadBlockFromDisk(CBlock& block, const FlatFilePos& pos, const Consensus::P
 
     // Check the header
     if (!CheckProofOfWork(block.GetHash(), block.nBits, consensusParams))
-        return error("ReadBlockFromDisk: Errors in block header at %s", pos.ToString());
+        return error("ReadBlockFromDisk: Errors in block header at %s hash %s", pos.ToString(), block.GetHash().ToString());
 
     // Signet only: check block solution
     if (consensusParams.signet_blocks && !CheckSignetBlockSolution(block, consensusParams)) {
@@ -1260,7 +1259,6 @@ void CoinsViews::InitCache()
     m_cacheview = MakeUnique<CCoinsViewCache>(&m_catcherview);
 }
 
-
 CChainState::CChainState(CTxMemPool& mempool, BlockManager& blockman, uint256 from_snapshot_blockhash)
     : m_blockman(blockman),
       m_mempool(mempool),
@@ -1272,6 +1270,10 @@ void CChainState::InitCoinsDB(
     bool should_wipe,
     std::string leveldb_name)
 {
+    if (!m_from_snapshot_blockhash.IsNull()) {
+        leveldb_name += "_" + m_from_snapshot_blockhash.ToString();
+    }
+
     m_coins_views = MakeUnique<CoinsViews>(
         leveldb_name, cache_size_bytes, in_memory, should_wipe);
 }
@@ -1708,19 +1710,24 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
     return fClean ? DISCONNECT_OK : DISCONNECT_UNCLEAN;
 }
 
-void static FlushBlockFile(bool fFinalize = false)
+static void FlushUndoFile(int block_file, bool finalize = false)
+{
+    FlatFilePos undo_pos_old(block_file, vinfoBlockFile[block_file].nUndoSize);
+    if (!UndoFileSeq().Flush(undo_pos_old, finalize)) {
+        AbortNode("Flushing undo file to disk failed. This is likely the result of an I/O error.");
+    }
+}
+
+static void FlushBlockFile(bool fFinalize = false, bool finalize_undo = false)
 {
     LOCK(cs_LastBlockFile);
-
     FlatFilePos block_pos_old(nLastBlockFile, vinfoBlockFile[nLastBlockFile].nSize);
-    FlatFilePos undo_pos_old(nLastBlockFile, vinfoBlockFile[nLastBlockFile].nUndoSize);
-
-    bool status = true;
-    status &= BlockFileSeq().Flush(block_pos_old, fFinalize);
-    status &= UndoFileSeq().Flush(undo_pos_old, fFinalize);
-    if (!status) {
+    if (!BlockFileSeq().Flush(block_pos_old, fFinalize)) {
         AbortNode("Flushing block file to disk failed. This is likely the result of an I/O error.");
     }
+    // we do not always flush the undo file, as the chain tip may be lagging behind the incoming blocks,
+    // e.g. during IBD or a sync after a node going offline
+    if (!fFinalize || finalize_undo) FlushUndoFile(nLastBlockFile, finalize_undo);
 }
 
 static bool FindUndoPos(BlockValidationState &state, int nFile, FlatFilePos &pos, unsigned int nAddSize);
@@ -1734,6 +1741,14 @@ static bool WriteUndoDataForBlock(const CBlockUndo& blockundo, BlockValidationSt
             return error("ConnectBlock(): FindUndoPos failed");
         if (!UndoWriteToDisk(blockundo, _pos, pindex->pprev->GetBlockHash(), chainparams.MessageStart()))
             return AbortNode(state, "Failed to write undo data");
+        // rev files are written in block height order, whereas blk files are written as blocks come in (often out of order)
+        // we want to flush the rev (undo) file once we've written the last block, which is indicated by the last height
+        // in the block file info as below; note that this does not catch the case where the undo writes are keeping up
+        // with the block writes (usually when a synced up node is getting newly mined blocks) -- this case is caught in
+        // the FindBlockPos function
+        if (_pos.nFile < nLastBlockFile && static_cast<uint32_t>(pindex->nHeight) == vinfoBlockFile[_pos.nFile].nHeightLast) {
+            FlushUndoFile(_pos.nFile, true);
+        }
 
         // update nUndoPos in block index
         pindex->nUndoPos = _pos.nPos;
@@ -2383,9 +2398,7 @@ static void UpdateTip(CTxMemPool& mempool, const CBlockIndex* pindexNew, const C
     }
 
     bilingual_str warning_messages;
-    int num_unexpected_version = 0;
-    if (!::ChainstateActive().IsInitialBlockDownload())
-    {
+    if (!::ChainstateActive().IsInitialBlockDownload()) {
         const CBlockIndex* pindex = pindexNew;
         for (int bit = 0; bit < VERSIONBITS_NUM_BITS; bit++) {
             WarningBitsConditionChecker checker(bit);
@@ -2399,14 +2412,6 @@ static void UpdateTip(CTxMemPool& mempool, const CBlockIndex* pindexNew, const C
                 }
             }
         }
-        // Check the version of the last 100 blocks to see if we need to upgrade:
-        for (int i = 0; i < 100 && pindex != nullptr; i++)
-        {
-            int32_t nExpectedVersion = ComputeBlockVersion(pindex->pprev, chainParams.GetConsensus());
-            if (pindex->nVersion > VERSIONBITS_LAST_OLD_BLOCK_VERSION && (pindex->nVersion & ~nExpectedVersion) != 0)
-                ++num_unexpected_version;
-            pindex = pindex->pprev;
-        }
     }
     LogPrintf("%s: new best=%s height=%d version=0x%08x log2_work=%f tx=%lu date='%s' progress=%f cache=%.1fMiB(%utxo)%s\n", __func__,
       pindexNew->GetBlockHash().ToString(), pindexNew->nHeight, pindexNew->nVersion,
@@ -2414,10 +2419,6 @@ static void UpdateTip(CTxMemPool& mempool, const CBlockIndex* pindexNew, const C
       FormatISO8601DateTime(pindexNew->GetBlockTime()),
       GuessVerificationProgress(chainParams.TxData(), pindexNew), ::ChainstateActive().CoinsTip().DynamicMemoryUsage() * (1.0 / (1<<20)), ::ChainstateActive().CoinsTip().GetCacheSize(),
       !warning_messages.empty() ? strprintf(" warning='%s'", warning_messages.original) : "");
-
-    if (num_unexpected_version > 0) {
-        LogPrint(BCLog::VALIDATION, "%d of last 100 blocks have unexpected version\n", num_unexpected_version);
-    }
 }
 
 /** Disconnect m_chain's tip.
@@ -3193,8 +3194,13 @@ static bool FindBlockPos(FlatFilePos &pos, unsigned int nAddSize, unsigned int n
         vinfoBlockFile.resize(nFile + 1);
     }
 
+    bool finalize_undo = false;
     if (!fKnown) {
         while (vinfoBlockFile[nFile].nSize + nAddSize >= MAX_BLOCKFILE_SIZE) {
+            // when the undo file is keeping up with the block file, we want to flush it explicitly
+            // when it is lagging behind (more blocks arrive than are being connected), we let the
+            // undo block write case handle it
+            finalize_undo = (vinfoBlockFile[nFile].nHeightLast == (unsigned int)ChainActive().Tip()->nHeight);
             nFile++;
             if (vinfoBlockFile.size() <= nFile) {
                 vinfoBlockFile.resize(nFile + 1);
@@ -3208,7 +3214,7 @@ static bool FindBlockPos(FlatFilePos &pos, unsigned int nAddSize, unsigned int n
         if (!fKnown) {
             LogPrintf("Leaving block file %i: %s\n", nLastBlockFile, vinfoBlockFile[nLastBlockFile].ToString());
         }
-        FlushBlockFile(!fKnown);
+        FlushBlockFile(!fKnown, finalize_undo);
         nLastBlockFile = nFile;
     }
 
@@ -3424,7 +3430,7 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, BlockValidatio
     if (fCheckpointsEnabled) {
         // Don't accept any forks from the main chain prior to last checkpoint.
         // GetLastCheckpoint finds the last checkpoint in MapCheckpoints that's in our
-        // g_blockman.m_block_index.
+        // BlockIndex().
         CBlockIndex* pcheckpoint = GetLastCheckpoint(params.Checkpoints());
         if (pcheckpoint && nHeight < pcheckpoint->nHeight) {
             LogPrintf("ERROR: %s: forked chain older than last checkpoint (height %d)\n", __func__, nHeight);
@@ -4087,6 +4093,7 @@ bool static LoadBlockIndexDB(ChainstateManager& chainman, const CChainParams& ch
             chainparams.GetConsensus(), *pblocktree,
             ::ChainstateActive().setBlockIndexCandidates)) {
         return false;
+    }
 
     // Load block file info
     pblocktree->ReadLastBlockFile(nLastBlockFile);
@@ -4491,26 +4498,15 @@ bool CChainState::RewindBlockIndex(const CChainParams& params)
             PruneBlockIndexCandidates();
 
             CheckBlockIndex(params.GetConsensus());
-        }
-    }
 
-    return true;
-}
-
-bool RewindBlockIndex(const CChainParams& params) {
-    if (!::ChainstateActive().RewindBlockIndex(params)) {
-        return false;
-    }
-
-    LOCK(cs_main);
-    if (::ChainActive().Tip() != nullptr) {
-        // FlushStateToDisk can possibly read ::ChainActive(). Be conservative
-        // and skip it here, we're about to -reindex-chainstate anyway, so
-        // it'll get called a bunch real soon.
-        BlockValidationState state;
-        if (!::ChainstateActive().FlushStateToDisk(params, state, FlushStateMode::ALWAYS)) {
-            LogPrintf("RewindBlockIndex: unable to flush state to disk (%s)\n", state.ToString());
-            return false;
+            // FlushStateToDisk can possibly read ::ChainActive(). Be conservative
+            // and skip it here, we're about to -reindex-chainstate anyway, so
+            // it'll get called a bunch real soon.
+            BlockValidationState state;
+            if (!FlushStateToDisk(params, state, FlushStateMode::ALWAYS)) {
+                LogPrintf("RewindBlockIndex: unable to flush state to disk (%s)\n", state.ToString());
+                return false;
+            }
         }
     }
 
@@ -4541,8 +4537,6 @@ void UnloadBlockIndex(CTxMemPool* mempool, ChainstateManager& chainman)
         warningcache[b].clear();
     }
     fHavePruned = false;
-
-    ::ChainstateActive().UnloadBlockIndex();
 }
 
 bool ChainstateManager::LoadBlockIndex(const CChainParams& chainparams)
@@ -4673,7 +4667,7 @@ void LoadExternalBlockFile(const CChainParams& chainparams, FILE* fileIn, FlatFi
                 // Activate the genesis block so normal node progress can continue
                 if (hash == chainparams.GetConsensus().hashGenesisBlock) {
                     BlockValidationState state;
-                    if (!ActivateBestChain(state, chainparams)) {
+                    if (!ActivateBestChain(state, chainparams, nullptr)) {
                         break;
                     }
                 }
@@ -5116,9 +5110,7 @@ bool DumpMempool(const CTxMemPool& pool)
         if (!FileCommit(file.Get()))
             throw std::runtime_error("FileCommit failed");
         file.fclose();
-        if (!RenameOver(GetDataDir() / "mempool.dat.new", GetDataDir() / "mempool.dat")) {
-            throw std::runtime_error("Rename failed");
-        }
+        RenameOver(GetDataDir() / "mempool.dat.new", GetDataDir() / "mempool.dat");
         int64_t last = GetTimeMicros();
         LogPrintf("Dumped mempool: %gs to copy, %gs to dump\n", (mid-start)*MICRO, (last-mid)*MICRO);
     } catch (const std::exception& e) {

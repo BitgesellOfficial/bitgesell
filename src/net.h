@@ -154,7 +154,7 @@ enum class ConnectionType {
      *   evict only if this longer-known peer is offline.
      * - move node addresses from New to Tried table, so that we have more
      *   connectable addresses in our AddrMan.
-     * Note that in the literature ("Eclipse Attacks on Bitcoin’s Peer-to-Peer Network")
+     * Note that in the literature ("Eclipse Attacks on BGL’s Peer-to-Peer Network")
      * only the latter feature is referred to as "feeler connections",
      * although in our codebase feeler connections encompass test-before-evict as well.
      * We make these connections approximately every FEELER_INTERVAL:
@@ -256,16 +256,13 @@ public:
     ~CConnman();
     bool Start(CScheduler& scheduler, const Options& options);
 
-    // TODO: Remove NO_THREAD_SAFETY_ANALYSIS. Lock cs_vNodes before reading the variable vNodes.
-    //
-    // When removing NO_THREAD_SAFETY_ANALYSIS be aware of the following lock order requirements:
-    // * CheckForStaleTipAndEvictPeers locks cs_main before indirectly calling GetExtraOutboundCount
-    //   which locks cs_vNodes.
-    // * ProcessMessage locks cs_main and g_cs_orphans before indirectly calling ForEachNode which
-    //   locks cs_vNodes.
-    //
-    // Thus the implicit locking order requirement is: (1) cs_main, (2) g_cs_orphans, (3) cs_vNodes.
-    void Stop() NO_THREAD_SAFETY_ANALYSIS;
+    void StopThreads();
+    void StopNodes();
+    void Stop()
+    {
+        StopThreads();
+        StopNodes();
+    };
 
     void Interrupt();
     bool GetNetworkActive() const { return fNetworkActive; };
@@ -445,6 +442,12 @@ private:
     CNode* FindNode(const std::string& addrName);
     CNode* FindNode(const CService& addr);
 
+    /**
+     * Determine whether we're already connected to a given address, in order to
+     * avoid initiating duplicate connections.
+     */
+    bool AlreadyConnectedToAddress(const CAddress& addr);
+
     bool AttemptToEvictConnection();
     CNode* ConnectNode(CAddress addrConnect, const char *pszDest, bool fCountFailure, ConnectionType conn_type);
     void AddWhitelistPermissionFlags(NetPermissionFlags& flags, const CNetAddr &addr) const;
@@ -621,7 +624,7 @@ public:
     virtual bool ProcessMessages(CNode* pnode, std::atomic<bool>& interrupt) = 0;
     virtual bool SendMessages(CNode* pnode) = 0;
     virtual void InitializeNode(CNode* pnode) = 0;
-    virtual void FinalizeNode(NodeId id, bool& update_connection_time) = 0;
+    virtual void FinalizeNode(const CNode& node, bool& update_connection_time) = 0;
 
 protected:
     /**
@@ -757,7 +760,7 @@ public:
     /** read and deserialize data, advances msg_bytes data pointer */
     virtual int Read(Span<const uint8_t>& msg_bytes) = 0;
     // decomposes a message from the context
-    virtual Optional<CNetMessage> GetMessage(const CMessageHeader::MessageStartChars& message_start, std::chrono::microseconds time, uint32_t& out_err) = 0;
+    virtual Optional<CNetMessage> GetMessage(std::chrono::microseconds time, uint32_t& out_err) = 0;
     virtual ~TransportDeserializer() {}
 };
 
@@ -791,8 +794,9 @@ private:
     }
 
 public:
-    V1TransportDeserializer(const NodeId node_id, int nTypeIn, int nVersionIn)
-        : m_node_id(node_id),
+    V1TransportDeserializer(const CChainParams& chain_params, const NodeId node_id, int nTypeIn, int nVersionIn)
+        : m_chain_params(chain_params),
+          m_node_id(node_id),
           hdrbuf(nTypeIn, nVersionIn),
           vRecv(nTypeIn, nVersionIn)
     {
@@ -820,12 +824,16 @@ public:
         }
         return ret;
     }
-    Optional<CNetMessage> GetMessage(const CMessageHeader::MessageStartChars& message_start, std::chrono::microseconds time, uint32_t& out_err_raw_size) override;
+    Optional<CNetMessage> GetMessage(std::chrono::microseconds time, uint32_t& out_err_raw_size) override;
 };
 
 /** The TransportSerializer prepares messages for the network transport
  */
+class TransportSerializer {
+public:
+    // prepare message for transport (header construction, error-correction computation, payload encryption, etc.)
     virtual void prepareForTransport(CSerializedNetMsg& msg, std::vector<unsigned char>& header) = 0;
+    virtual ~TransportSerializer() {}
 };
 
 class V1TransportSerializer  : public TransportSerializer {
@@ -841,7 +849,7 @@ class CNode
 
 public:
     std::unique_ptr<TransportDeserializer> m_deserializer;
-    std::unique_ptr<V1TransportSerializer> m_serializer;
+    std::unique_ptr<TransportSerializer> m_serializer;
 
     // socket
     std::atomic<ServiceFlags> nServices{NODE_NONE};
@@ -986,8 +994,8 @@ public:
     std::vector<CAddress> vAddrToSend;
     std::unique_ptr<CRollingBloomFilter> m_addr_known{nullptr};
     bool fGetAddr{false};
-    int64_t nNextAddrSend GUARDED_BY(cs_sendProcessing){0};
-    int64_t nNextLocalAddrSend GUARDED_BY(cs_sendProcessing){0};
+    std::chrono::microseconds m_next_addr_send GUARDED_BY(cs_sendProcessing){0};
+    std::chrono::microseconds m_next_local_addr_send GUARDED_BY(cs_sendProcessing){0};
 
     // List of block ids we still have announce.
     // There is no final sorting before sending, as they are always sent immediately

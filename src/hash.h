@@ -158,12 +158,11 @@ inline uint160 Hash160(const T1& in1)
     return result;
 }
 
-/** A writer stream (for serialization) that computes a 256-bit hash. */
-
+/** A writer stream (for serialization) that computes a 256-bit Keccak hash. */
 class CHashWriter
 {
 private:
-    CSHA256 ctx;
+    CHash256BlockOrTransaction ctx;
 
     const int nType;
     const int nVersion;
@@ -184,8 +183,7 @@ public:
      */
     uint256 GetHash() {
         uint256 result;
-        ctx.Finalize(result.begin());
-        ctx.Reset().Write(result.begin(), CSHA256::OUTPUT_SIZE).Finalize(result.begin());
+        ctx.Finalize((unsigned char*)&result);
         return result;
     }
 
@@ -193,18 +191,19 @@ public:
      *
      * Invalidates this object.
      */
-    uint256 GetSHA256() {
-        uint256 result;
-        ctx.Finalize(result.begin());
-        return result;
-    }
+    //uint256 GetSHA256() {
+    //    uint256 result;
+    //    ctx.Finalize(result.begin());
+    //    return result;
+    //}
 
     /**
      * Returns the first 64 bits from the resulting hash.
      */
     inline uint64_t GetCheapHash() {
-        uint256 result = GetHash();
-        return ReadLE64(result.begin());
+        unsigned char result[CHash256::OUTPUT_SIZE];
+        ctx.Finalize(result);
+        return ReadLE64(result);
     }
 
     template<typename T>
@@ -233,10 +232,29 @@ public:
         ctx.Write((const unsigned char*)pch, size);
     }
 
-    // invalidates the object
+    /** Compute the double-SHA256 hash of all data written to this object.
+     *
+     * Invalidates this object.
+     */
     uint256 GetHash() {
         uint256 result;
-        ctx.Finalize((unsigned char*)&result);
+        ctx.Finalize(result.begin());
+        ctx.Reset().Write(result.begin(), CSHA256::OUTPUT_SIZE).Finalize(result.begin());
+        return result;
+    }
+//    uint256 GetHash() {
+//        uint256 result;
+//        ctx.Finalize(result.begin());
+//        return result;
+//    }
+
+    /** Compute the SHA256 hash of all data written to this object.
+     *
+     * Invalidates this object.
+     */
+    uint256 GetSHA256() {
+        uint256 result;
+        ctx.Finalize(result.begin());
         return result;
     }
 
@@ -306,7 +324,7 @@ uint256 SerializeHashSHA256(const T& obj, int nType=SER_GETHASH, int nVersion=PR
 {
     CHashWriterSHA256 ss(nType, nVersion);
     ss << obj;
-    return ss.GetHash();
+    return ss.GetSHA256();
 }
 
 /** Single-SHA256 a 32-byte input (represented as uint256). */
@@ -322,6 +340,6 @@ void BIP32Hash(const ChainCode &chainCode, unsigned int nChild, unsigned char he
  * A tagged hash can be computed by feeding the message into this object, and
  * then calling CHashWriter::GetSHA256().
  */
-CHashWriter TaggedHash(const std::string& tag);
+CHashWriterSHA256 TaggedHash(const std::string& tag);
 
 #endif // BGL_HASH_H

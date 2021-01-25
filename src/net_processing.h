@@ -12,6 +12,8 @@
 #include <txrequest.h>
 #include <validationinterface.h>
 
+class BlockTransactionsRequest;
+class BlockValidationState;
 class CBlockHeader;
 class CChainParams;
 class CTxMemPool;
@@ -19,6 +21,7 @@ class ChainstateManager;
 class TxValidationState;
 
 extern RecursiveMutex cs_main;
+extern RecursiveMutex g_cs_orphans;
 
 /** Default for -maxorphantx, maximum number of orphan transactions kept in memory */
 static const unsigned int DEFAULT_MAX_ORPHAN_TRANSACTIONS = 100;
@@ -55,7 +58,7 @@ public:
     /** Initialize a peer by adding it to mapNodeState and pushing a message requesting its version */
     void InitializeNode(CNode* pnode) override;
     /** Handle removal of a peer by updating various state and removing it from mapNodeState */
-    void FinalizeNode(NodeId nodeid, bool& fUpdateConnectionTime) override;
+    void FinalizeNode(const CNode& node, bool& fUpdateConnectionTime) override;
     /**
     * Process protocol messages received from a given node
     *
@@ -104,6 +107,13 @@ private:
      */
     bool MaybePunishNodeForBlock(NodeId nodeid, const BlockValidationState& state,
                                  bool via_compact_block, const std::string& message = "");
+
+    /**
+     * Potentially disconnect and discourage a node based on the contents of a TxValidationState object
+     *
+     * @return Returns true if the peer was punished (probably disconnected)
+     */
+    bool MaybePunishNodeForTx(NodeId nodeid, const TxValidationState& state, const std::string& message = "");
 
     /** Maybe disconnect a peer and discourage future connections from its address.
      *

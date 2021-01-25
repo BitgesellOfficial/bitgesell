@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 The BGL Core developers
+// Copyright (c) 2019-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -172,7 +172,7 @@ protected:
     WalletStorage& m_storage;
 
 public:
-    explicit ScriptPubKeyMan(WalletStorage& storage) : m_storage(storage) {}
+    ScriptPubKeyMan(WalletStorage& storage) : m_storage(storage) {}
     virtual ~ScriptPubKeyMan() {};
     virtual bool GetNewDestination(const OutputType type, CTxDestination& dest, std::string& error) { return false; }
     virtual isminetype IsMine(const CScript& script) const { return ISMINE_NO; }
@@ -258,7 +258,7 @@ class LegacyScriptPubKeyMan : public ScriptPubKeyMan, public FillableSigningProv
 {
 private:
     //! keeps track of whether Unlock has run a thorough check before
-    bool fDecryptionThoroughlyChecked = false;
+    bool fDecryptionThoroughlyChecked = true;
 
     using WatchOnlySet = std::set<CScript>;
     using WatchKeyMap = std::map<CKeyID, CPubKey>;
@@ -413,7 +413,7 @@ public:
     //! Adds an encrypted key to the store, and saves it to disk.
     bool AddCryptedKey(const CPubKey &vchPubKey, const std::vector<unsigned char> &vchCryptedSecret);
     //! Adds an encrypted key to the store, without saving it to disk (used by LoadWallet)
-    bool LoadCryptedKey(const CPubKey &vchPubKey, const std::vector<unsigned char> &vchCryptedSecret);
+    bool LoadCryptedKey(const CPubKey &vchPubKey, const std::vector<unsigned char> &vchCryptedSecret, bool checksum_valid);
     void UpdateTimeFirstKey(int64_t nCreateTime) EXCLUSIVE_LOCKS_REQUIRED(cs_KeyStore);
     //! Adds a CScript to the store
     bool LoadCScript(const CScript& redeemScript);
@@ -504,7 +504,7 @@ class LegacySigningProvider : public SigningProvider
 private:
     const LegacyScriptPubKeyMan& m_spk_man;
 public:
-    explicit LegacySigningProvider(const LegacyScriptPubKeyMan& spk_man) : m_spk_man(spk_man) {}
+    LegacySigningProvider(const LegacyScriptPubKeyMan& spk_man) : m_spk_man(spk_man) {}
 
     bool GetCScript(const CScriptID &scriptid, CScript& script) const override { return m_spk_man.GetCScript(scriptid, script); }
     bool HaveCScript(const CScriptID &scriptid) const override { return m_spk_man.HaveCScript(scriptid); }
@@ -520,10 +520,12 @@ private:
     WalletDescriptor m_wallet_descriptor GUARDED_BY(cs_desc_man);
 
     using ScriptPubKeyMap = std::map<CScript, int32_t>; // Map of scripts to descriptor range index
+    using PubKeyMap = std::map<CPubKey, int32_t>; // Map of pubkeys involved in scripts to descriptor range index
     using CryptedKeyMap = std::map<CKeyID, std::pair<CPubKey, std::vector<unsigned char>>>;
     using KeyMap = std::map<CKeyID, CKey>;
 
     ScriptPubKeyMap m_map_script_pub_keys GUARDED_BY(cs_desc_man);
+    PubKeyMap m_map_pubkeys GUARDED_BY(cs_desc_man);
     int32_t m_max_cached_index = -1;
 
     bool m_internal = false;
@@ -537,18 +539,23 @@ private:
     bool AddDescriptorKeyWithDB(WalletBatch& batch, const CKey& key, const CPubKey &pubkey) EXCLUSIVE_LOCKS_REQUIRED(cs_desc_man);
 
     KeyMap GetKeys() const EXCLUSIVE_LOCKS_REQUIRED(cs_desc_man);
+
+    // Fetch the SigningProvider for the given script and optionally include private keys
+    std::unique_ptr<FlatSigningProvider> GetSigningProvider(const CScript& script, bool include_private = false) const;
+    // Fetch the SigningProvider for the given pubkey and always include private keys. This should only be called by signing code.
+    std::unique_ptr<FlatSigningProvider> GetSigningProvider(const CPubKey& pubkey) const;
+    // Fetch the SigningProvider for a given index and optionally include private keys. Called by the above functions.
+    std::unique_ptr<FlatSigningProvider> GetSigningProvider(int32_t index, bool include_private = false) const EXCLUSIVE_LOCKS_REQUIRED(cs_desc_man);
+
 public:
     DescriptorScriptPubKeyMan(WalletStorage& storage, WalletDescriptor& descriptor)
         :   ScriptPubKeyMan(storage),
             m_wallet_descriptor(descriptor)
         {}
-        
     DescriptorScriptPubKeyMan(WalletStorage& storage, bool internal)
         :   ScriptPubKeyMan(storage),
             m_internal(internal)
         {}
-
-    mutable RecursiveMutex cs_desc_man;
 
     mutable RecursiveMutex cs_desc_man;
 

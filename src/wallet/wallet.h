@@ -54,7 +54,6 @@ bool RemoveWallet(const std::shared_ptr<CWallet>& wallet, Optional<bool> load_on
 bool RemoveWallet(const std::shared_ptr<CWallet>& wallet, Optional<bool> load_on_start);
 std::vector<std::shared_ptr<CWallet>> GetWallets();
 std::shared_ptr<CWallet> GetWallet(const std::string& name);
-
 std::shared_ptr<CWallet> LoadWallet(interfaces::Chain& chain, const std::string& name, Optional<bool> load_on_start, const DatabaseOptions& options, DatabaseStatus& status, bilingual_str& error, std::vector<bilingual_str>& warnings);
 std::shared_ptr<CWallet> CreateWallet(interfaces::Chain& chain, const std::string& name, Optional<bool> load_on_start, DatabaseOptions& options, DatabaseStatus& status, bilingual_str& error, std::vector<bilingual_str>& warnings);
 std::unique_ptr<interfaces::Handler> HandleLoadWallet(LoadWalletFn load_wallet);
@@ -620,7 +619,7 @@ class WalletRescanReserver; //forward declarations for ScanForWalletTransactions
 /**
  * A CWallet maintains a set of transactions and balances, and provides the ability to create new transactions.
  */
-class CWallet final : public WalletStorage, private interfaces::Chain::Notifications
+class CWallet final : public WalletStorage, public interfaces::Chain::Notifications
 {
 private:
     CKeyingMaterial vMasterKey GUARDED_BY(cs_wallet);
@@ -696,7 +695,7 @@ private:
     std::string m_name;
 
     /** Internal database handle. */
-    std::unique_ptr<WalletDatabase> const m_database;
+    std::unique_ptr<WalletDatabase> database;
 
     /**
      * The following is used to keep track of how far behind the wallet is
@@ -730,11 +729,14 @@ public:
      */
     mutable RecursiveMutex cs_wallet;
 
-    WalletDatabase& GetDatabase() const override
+    /** Get database handle used by this wallet. Ideally this function would
+     * not be necessary.
+     */
+    WalletDatabase& GetDBHandle()
     {
-        assert(static_cast<bool>(m_database));
-        return *m_database;
+        return *database;
     }
+    WalletDatabase& GetDatabase() const override { return *database; }
 
     /**
      * Select a set of coins such that nValueRet >= nTargetValue and at least
@@ -756,7 +758,7 @@ public:
     CWallet(interfaces::Chain* chain, const std::string& name, std::unique_ptr<WalletDatabase> database)
         : m_chain(chain),
           m_name(name),
-          m_database(std::move(database))
+          database(std::move(database))
     {
     }
 
@@ -788,9 +790,6 @@ public:
 
     /** Registered interfaces::Chain::Notifications handler. */
     std::unique_ptr<interfaces::Handler> m_chain_notifications_handler;
-
-    /** Register the wallet for chain notifications */
-    void handleNotifications();
 
     /** Interface for accessing chain state. */
     interfaces::Chain& chain() const { assert(m_chain); return *m_chain; }
@@ -919,7 +918,6 @@ public:
         //! USER_ABORT.
         uint256 last_failed_block;
     };
-    
     ScanResult ScanForWalletTransactions(const uint256& start_block, int start_height, Optional<int> max_height, const WalletRescanReserver& reserver, bool fUpdate);
     void transactionRemovedFromMempool(const CTransactionRef& tx, MemPoolRemovalReason reason, uint64_t mempool_sequence) override;
     void ReacceptWalletTransactions() EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
@@ -1237,6 +1235,12 @@ public:
         assert(m_last_block_processed_height >= 0);
         return m_last_block_processed_height;
     };
+    uint256 GetLastBlockHash() const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet)
+    {
+        AssertLockHeld(cs_wallet);
+        assert(m_last_block_processed_height >= 0);
+        return m_last_block_processed;
+    }
     /** Set last block processed height, currently only use in unit test */
     void SetLastBlockProcessed(int block_height, uint256 block_hash) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet)
     {

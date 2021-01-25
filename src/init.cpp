@@ -1342,6 +1342,7 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
     assert(!node.scheduler);
     node.scheduler = MakeUnique<CScheduler>();
 
+
     // Start the lightweight task scheduler thread
     threadGroup.create_thread([&] { TraceThread("scheduler", [&] { node.scheduler->serviceQueue(); }); });
 
@@ -1355,13 +1356,15 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
     /* Register RPC commands regardless of -server setting so they will be
      * available in the GUI RPC console even if external calls are disabled.
      */
-    RegisterAllCoreRPCCommands(tableRPC);
-    for (const auto& client : node.chain_clients) {
-        client->registerRpcs();
-    }
+//    RegisterAllCoreRPCCommands(tableRPC);
+//    for (const auto& client : node.chain_clients) {
+//        client->registerRpcs();
+//    }
 #if ENABLE_ZMQ
     RegisterZMQRPCCommands(tableRPC);
 #endif
+
+    LogPrintf("We got here!\n");
 
     /* Start the RPC server already.  It will be started in "warmup" mode
      * and not really process calls already (but it will signify connections
@@ -1373,6 +1376,7 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
         if (!AppInitServers(context, node))
             return InitError(_("Unable to start HTTP server. See debug log for details."));
     }
+
 
     // ********************************************************* Step 5: verify wallet database integrity
     for (const auto& client : node.chain_clients) {
@@ -1584,7 +1588,6 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
 
         do {
             const int64_t load_block_index_start_time = GetTimeMillis();
-            bool is_coinsview_empty;
             try {
                 LOCK(cs_main);
                 chainman.InitializeChainstate(*Assert(node.mempool));
@@ -1644,6 +1647,7 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
                 // block tree into BlockIndex()!
                 bool failed_chainstate_init = false;
 
+
                 for (CChainState* chainstate : chainman.GetAll()) {
                     chainstate->InitCoinsDB(
                         /* cache_size_bytes */ nCoinDBCache,
@@ -1664,25 +1668,30 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
                         break;
                     }
 
-                // ReplayBlocks is a no-op if we cleared the coinsviewdb with -reindex or -reindex-chainstate
-                if (!::ChainstateActive().ReplayBlocks(chainparams)) {
-                    strLoadError = _("Unable to replay blocks. You will need to rebuild the database using -reindex-chainstate.").translated;
-                    break;
-                }
+                    // ReplayBlocks is a no-op if we cleared the coinsviewdb with -reindex or -reindex-chainstate
+                    if (!chainstate->ReplayBlocks(chainparams)) {
+                        strLoadError = _("Unable to replay blocks. You will need to rebuild the database using -reindex-chainstate.");
+                        failed_chainstate_init = true;
+                        break;
+                    }
 
                     // The on-disk coinsdb is now in a good state, create the cache
                     chainstate->InitCoinsCache(nCoinCacheUsage);
                     assert(chainstate->CanFlushToDisk());
 
-                is_coinsview_empty = fReset || fReindexChainState ||
-                    ::ChainstateActive().CoinsTip().GetBestBlock().IsNull();
-                if (!is_coinsview_empty) {
-                    // LoadChainTip initializes the chain based on CoinsTip()'s best block
-                    if (!::ChainstateActive().LoadChainTip(chainparams)) {
-                        strLoadError = _("Error initializing block database").translated;
-                        break;
+                    if (!is_coinsview_empty(chainstate)) {
+                        // LoadChainTip initializes the chain based on CoinsTip()'s best block
+                        if (!chainstate->LoadChainTip(chainparams)) {
+                            strLoadError = _("Error initializing block database");
+                            failed_chainstate_init = true;
+                            break; // out of the per-chainstate loop
+                        }
+                        assert(chainstate->m_chain.Tip() != nullptr);
                     }
-                    assert(::ChainActive().Tip() != nullptr);
+                }
+
+                if (failed_chainstate_init) {
+                    break; // out of the chainstate activation do-while
                 }
             } catch (const std::exception& e) {
                 LogPrintf("%s\n", e.what());
@@ -1709,23 +1718,10 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
                 }
             }
 
+            bool failed_verification = false;
+
             try {
                 LOCK(cs_main);
-                if (!is_coinsview_empty) {
-                    uiInterface.InitMessage(_("Verifying blocks...").translated);
-                    if (fHavePruned && gArgs.GetArg("-checkblocks", DEFAULT_CHECKBLOCKS) > MIN_BLOCKS_TO_KEEP) {
-                        LogPrintf("Prune: pruned datadir may not have more than %d blocks; only checking available blocks\n",
-                            MIN_BLOCKS_TO_KEEP);
-                    }
-
-                    CBlockIndex* tip = ::ChainActive().Tip();
-                    RPCNotifyBlockChange(true, tip);
-                    if (tip && tip->nTime > GetAdjustedTime() + 2 * 60 * 60) {
-                        strLoadError = _("The block database contains a block which appears to be from the future. "
-                                "This may be due to your computer's date and time being set incorrectly. "
-                                "Only rebuild the block database if you are sure that your computer's date and time are correct").translated;
-                        break;
-                    }
 
                 for (CChainState* chainstate : chainman.GetAll()) {
                     if (!is_coinsview_empty(chainstate)) {

@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The BGL Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,6 +14,7 @@
 #include <coins.h>
 #include <crypto/common.h> // for ReadLE64
 #include <fs.h>
+#include <optional.h>
 #include <policy/feerate.h>
 #include <protocol.h> // For CMessageHeader::MessageStartChars
 #include <script/script_error.h>
@@ -572,6 +573,13 @@ public:
     CChain m_chain;
 
     /**
+     * The blockhash which is the base of the snapshot this chainstate was created from.
+     *
+     * IsNull() if this chainstate was not created from a snapshot.
+     */
+    const uint256 m_from_snapshot_blockhash{};
+
+    /**
      * The set of all CBlockIndex entries with BLOCK_VALID_TRANSACTIONS (for itself and all ancestors) and
      * as good as our current tip or better. Entries may be failed, though, and pruning nodes may be
      * missing the data for the block.
@@ -706,6 +714,8 @@ public:
         size_t max_coins_cache_size_bytes,
         size_t max_mempool_size_bytes) EXCLUSIVE_LOCKS_REQUIRED(::cs_main);
 
+    std::string ToString() EXCLUSIVE_LOCKS_REQUIRED(::cs_main);
+
 private:
     bool ActivateBestChainStep(BlockValidationState& state, const CChainParams& chainparams, CBlockIndex* pindexMostWork, const std::shared_ptr<const CBlock>& pblock, bool& fInvalidFound, ConnectTrace& connectTrace) EXCLUSIVE_LOCKS_REQUIRED(cs_main, m_mempool.cs);
     bool ConnectTip(BlockValidationState& state, const CChainParams& chainparams, CBlockIndex* pindexNew, const std::shared_ptr<const CBlock>& pblock, ConnectTrace& connectTrace, DisconnectedBlockTransactions& disconnectpool) EXCLUSIVE_LOCKS_REQUIRED(cs_main, m_mempool.cs);
@@ -718,6 +728,8 @@ private:
 
     //! Mark a block as not having block data
     void EraseBlockData(CBlockIndex* index) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+
+    friend ChainstateManager;
 };
 
 /** Mark a block as precious and reorganize.
@@ -878,7 +890,9 @@ public:
 
     CChain& ValidatedChain() const { return ValidatedChainstate().m_chain; }
     CBlockIndex* ValidatedTip() const { return ValidatedChain().Tip(); }
+
     /**
+     * Process an incoming block. This only returns after the best known valid
      * block is made active. Note that it does not, however, guarantee that the
      * specific block passed to it has been checked for validity!
      *
@@ -914,6 +928,7 @@ public:
 
     //! Load the block tree and coins database from disk, initializing state if we're running with -reindex
     bool LoadBlockIndex(const CChainParams& chainparams) EXCLUSIVE_LOCKS_REQUIRED(cs_main);
+
     //! Unload block index and chain data before shutdown.
     void Unload() EXCLUSIVE_LOCKS_REQUIRED(::cs_main);
 

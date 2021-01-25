@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The BGL Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -364,7 +364,7 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             {
                 ssValue >> hash;
             }
-            catch (...) {}
+            catch (const std::ios_base::failure&) {}
 
             bool fSkipCheck = false;
 
@@ -420,7 +420,6 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
             std::vector<unsigned char> vchPrivKey;
             ssValue >> vchPrivKey;
 
-
             // Get the checksum and check it
             bool checksum_valid = false;
             if (!ssValue.eof()) {
@@ -434,7 +433,7 @@ ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue,
 
             wss.nCKeys++;
 
-            if (!pwallet->GetOrCreateLegacyScriptPubKeyMan()->LoadCryptedKey(vchPubKey, vchPrivKey))
+            if (!pwallet->GetOrCreateLegacyScriptPubKeyMan()->LoadCryptedKey(vchPubKey, vchPrivKey, checksum_valid))
             {
                 strErr = "Error reading wallet database: LegacyScriptPubKeyMan::LoadCryptedKey failed";
                 return false;
@@ -946,7 +945,7 @@ void MaybeCompactWalletDB()
     }
 
     for (const std::shared_ptr<CWallet>& pwallet : GetWallets()) {
-        WalletDatabase& dbh = pwallet->GetDatabase();
+        WalletDatabase& dbh = pwallet->GetDBHandle();
 
         unsigned int nUpdateCounter = dbh.nUpdateCounter;
 
@@ -1082,43 +1081,6 @@ std::unique_ptr<WalletDatabase> MakeDatabase(const fs::path& path, const Databas
     error = Untranslated(strprintf("Failed to open database path '%s'. Build does not support Berkeley DB database format.", path.string()));
     status = DatabaseStatus::FAILED_BAD_FORMAT;
     return nullptr;
-}
-
-bool IsWalletLoaded(const fs::path& wallet_path)
-{
-    bool exists;
-    try {
-        exists = fs::symlink_status(path).type() != fs::file_not_found;
-    } catch (const fs::filesystem_error& e) {
-        error = Untranslated(strprintf("Failed to access database path '%s': %s", path.string(), fsbridge::get_filesystem_error_message(e)));
-        status = DatabaseStatus::FAILED_BAD_PATH;
-        return nullptr;
-    }
-
-    Optional<DatabaseFormat> format;
-    if (exists) {
-        if (ExistsBerkeleyDatabase(path)) {
-            format = DatabaseFormat::BERKELEY;
-        }
-    } else if (options.require_existing) {
-        error = Untranslated(strprintf("Failed to load database path '%s'. Path does not exist.", path.string()));
-        status = DatabaseStatus::FAILED_NOT_FOUND;
-        return nullptr;
-    }
-
-    if (!format && options.require_existing) {
-        error = Untranslated(strprintf("Failed to load database path '%s'. Data is not in recognized format.", path.string()));
-        status = DatabaseStatus::FAILED_BAD_FORMAT;
-        return nullptr;
-    }
-
-    if (format && options.require_create) {
-        error = Untranslated(strprintf("Failed to create database path '%s'. Database already exists.", path.string()));
-        status = DatabaseStatus::FAILED_ALREADY_EXISTS;
-        return nullptr;
-    }
-
-    return MakeBerkeleyDatabase(path, options, status, error);
 }
 
 /** Return object for accessing dummy database with no read/write capabilities. */
