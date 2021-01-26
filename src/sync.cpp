@@ -199,6 +199,10 @@ void EnterCritical(const char* pszName, const char* pszFile, int nLine, void* cs
 {
     push_lock(cs, CLockLocation(pszName, pszFile, nLine, fTry, util::ThreadGetInternalName()));
 }
+template void EnterCritical(const char*, const char*, int, Mutex*, bool);
+template void EnterCritical(const char*, const char*, int, RecursiveMutex*, bool);
+template void EnterCritical(const char*, const char*, int, std::mutex*, bool);
+template void EnterCritical(const char*, const char*, int, std::recursive_mutex*, bool);
 
 void CheckLastCritical(void* cs, std::string& lockname, const char* guardname, const char* file, int line)
 {

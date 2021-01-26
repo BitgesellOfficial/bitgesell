@@ -7,6 +7,8 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <mutex>
+
 namespace {
 template <typename MutexType>
 void TestPotentialDeadLockDetected(MutexType& mutex1, MutexType& mutex2)
@@ -105,11 +107,6 @@ BOOST_AUTO_TEST_CASE(potential_deadlock_detected)
 BOOST_AUTO_TEST_CASE(double_lock_mutex)
 {
     TestDoubleLock<Mutex>(true /* should throw */);
-}
-
-BOOST_AUTO_TEST_CASE(double_lock_boost_mutex)
-{
-    TestDoubleLock<boost::mutex>(true /* should throw */);
 }
 
 BOOST_AUTO_TEST_CASE(double_lock_recursive_mutex)
