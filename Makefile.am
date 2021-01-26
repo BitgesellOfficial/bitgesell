@@ -44,18 +44,11 @@ OSX_BACKGROUND_IMAGE_DPIS=36 72
 OSX_DEPLOY_SCRIPT=$(top_srcdir)/contrib/macdeploy/macdeployqtplus
 OSX_INSTALLER_ICONS=$(top_srcdir)/src/qt/res/icons/BGL.icns
 OSX_PLIST=$(top_builddir)/share/qt/Info.plist #not installed
-OSX_QT_TRANSLATIONS = ar,bg,ca,cs,da,de,es,fa,fi,fr,gd,gl,he,hu,it,ja,ko,lt,lv,pl,pt,ru,sk,sl,sv,uk,zh_CN,zh_TW
 
-DIST_DOCS = \
-  README.md \
-  $(wildcard doc/*.md) \
-  $(wildcard doc/release-notes/*.md)
-DIST_CONTRIB = $(top_srcdir)/contrib/BGL-cli.bash-completion \
-	       $(top_srcdir)/contrib/BGL-tx.bash-completion \
-	       $(top_srcdir)/contrib/BGLd.bash-completion \
-	       $(top_srcdir)/contrib/debian/copyright \
-	       $(top_srcdir)/contrib/init \
-	       $(top_srcdir)/contrib/install_db4.sh \
+DIST_CONTRIB = \
+	       $(top_srcdir)/test/sanitizer_suppressions/lsan \
+	       $(top_srcdir)/test/sanitizer_suppressions/tsan \
+	       $(top_srcdir)/test/sanitizer_suppressions/ubsan \
 	       $(top_srcdir)/contrib/linearize/linearize-data.py \
 	       $(top_srcdir)/contrib/linearize/linearize-hashes.py
 
