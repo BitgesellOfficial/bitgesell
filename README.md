@@ -1,6 +1,4 @@
-<<<<<<< HEAD
 BGL Core integration/staging tree
-=====================================
 
 What is BGL?
 ----------------
@@ -141,4 +139,3 @@ Reporting a vulnerability
 ------------
 
 See [SECURITY.md](SECURITY.md)
->>>>>>> 67f232b5d... Squashed 'src/secp256k1/' changes from b19c000063..2ed54da18a
