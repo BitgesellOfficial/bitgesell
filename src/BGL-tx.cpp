@@ -40,7 +40,6 @@ static void SetupBGLTxArgs(ArgsManager &argsman)
 {
     SetupHelpOptions(argsman);
 
-    argsman.AddArg("-version", "Print version and exit", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     argsman.AddArg("-create", "Create new, empty TX.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     argsman.AddArg("-json", "Select JSON output", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     argsman.AddArg("-txid", "Output only the hex-encoded transaction id of the resultant transaction.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
@@ -79,10 +78,6 @@ static void SetupBGLTxArgs(ArgsManager &argsman)
 //
 static int AppInitRawTx(int argc, char* argv[])
 {
-<<<<<<< HEAD:src/BGL-tx.cpp
-    //
-    // Parameters
-    //
     SetupBGLTxArgs(gArgs);
     std::string error;
     if (!gArgs.ParseParameters(argc, argv, error)) {
@@ -100,16 +95,13 @@ static int AppInitRawTx(int argc, char* argv[])
 
     fCreateBlank = gArgs.GetBoolArg("-create", false);
 
-    if (argc < 2 || HelpRequested(gArgs) || gArgs.IsArgSet("-version")) {
+    if (argc < 2 || HelpRequested(gArgs)) {
         // First part of help message is specific to this utility
-        std::string strUsage = PACKAGE_NAME " BGL-tx utility version " + FormatFullVersion() + "\n";
-        if (!gArgs.IsArgSet("-version")) {
-            strUsage += "\n"
-                "Usage:  BGL-tx [options] <hex-tx> [commands]  Update hex-encoded BGL transaction\n"
-                "or:     BGL-tx [options] -create [commands]   Create hex-encoded BGL transaction\n"
-                "\n";
-            strUsage += gArgs.GetHelpMessage();
-        }
+        std::string strUsage = PACKAGE_NAME " BGL-tx utility version " + FormatFullVersion() + "\n\n" +
+            "Usage:  BGL-tx [options] <hex-tx> [commands]  Update hex-encoded BGL transaction\n" +
+            "or:     BGL-tx [options] -create [commands]   Create hex-encoded BGL transaction\n" +
+            "\n";
+        strUsage += gArgs.GetHelpMessage();
 
         tfm::format(std::cout, "%s", strUsage);
 

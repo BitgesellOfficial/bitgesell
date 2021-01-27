@@ -21,8 +21,6 @@
 #include <iterator>
 #include <tuple>
 
-// 0xFD + sha256("BGL")[0:5]
-static const unsigned char g_internal_prefix[] = { 0xFD, 0x6B, 0x88, 0xC0, 0x87, 0x24 };
 constexpr size_t CNetAddr::V1_SERIALIZATION_SIZE;
 constexpr size_t CNetAddr::MAX_ADDRV2_SIZE;
 
@@ -179,15 +177,6 @@ void CNetAddr::SetLegacyIPv6(Span<const uint8_t> ipv6)
 }
 
 /**
- * Try to make this a dummy address that maps the specified name into IPv6 like
- * so: (0xFD + %sha256("BGL")[0:5]) + %sha256(name)[0:10]. Such dummy
- * addresses have a prefix of fd6b:88c0:8724::/48 and are guaranteed to not be
- * publicly routable as it falls under RFC4193's fc00::/7 subnet allocated to
- * unique-local addresses.
- *
- * CAddrMan uses these fake addresses to keep track of which DNS seeds were
- * used.
- *
  * Create an "internal" address that represents a name or FQDN. CAddrMan uses
  * these fake addresses to keep track of which DNS seeds were used.
  * @returns Whether or not the operation was successful.
@@ -1041,13 +1030,16 @@ static inline int NetmaskBits(uint8_t x)
     }
 }
 
-CSubNet::CSubNet(const CNetAddr &addr, const CNetAddr &mask)
+CSubNet::CSubNet(const CNetAddr& addr, const CNetAddr& mask) : CSubNet()
 {
-    valid = true;
+    valid = (addr.IsIPv4() || addr.IsIPv6()) && addr.m_net == mask.m_net;
+    if (!valid) {
+        return;
+    }
     // Check if `mask` contains 1-bits after 0-bits (which is an invalid netmask).
     bool zeros_found = false;
-    for (size_t i = mask.IsIPv4() ? 12 : 0; i < sizeof(mask.ip); ++i) {
-        const int num_bits = NetmaskBits(mask.ip[i]);
+    for (auto b : mask.m_addr) {
+        const int num_bits = NetmaskBits(b);
         if (num_bits == -1 || (zeros_found && num_bits != 0)) {
             valid = false;
             return;
@@ -1058,6 +1050,7 @@ CSubNet::CSubNet(const CNetAddr &addr, const CNetAddr &mask)
     }
 
     assert(mask.m_addr.size() <= sizeof(netmask));
+
     memcpy(netmask, mask.m_addr.data(), mask.m_addr.size());
 
     network = addr;
@@ -1101,9 +1094,11 @@ bool CSubNet::Match(const CNetAddr &addr) const
 
 std::string CSubNet::ToString() const
 {
+    assert(network.m_addr.size() <= sizeof(netmask));
+
     uint8_t cidr = 0;
 
-    for (size_t i = network.IsIPv4() ? 12 : 0; i < sizeof(netmask); ++i) {
+    for (size_t i = 0; i < network.m_addr.size(); ++i) {
         if (netmask[i] == 0x00) {
             break;
         }

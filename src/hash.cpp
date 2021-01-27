@@ -86,9 +86,9 @@ uint256 SHA256Uint256(const uint256& input)
     return result;
 }
 
-CHashWriter TaggedHash(const std::string& tag)
+CHashWriterSHA256 TaggedHash(const std::string& tag)
 {
-    CHashWriter writer(SER_GETHASH, 0);
+    CHashWriterSHA256 writer(SER_GETHASH, 0);
     uint256 taghash;
     CSHA256().Write((const unsigned char*)tag.data(), tag.size()).Finalize(taghash.begin());
     writer << taghash << taghash;

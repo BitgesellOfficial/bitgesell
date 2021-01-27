@@ -70,12 +70,6 @@ bool IsStandard(const CScript& scriptPubKey, TxoutType& whichType)
           return false;
     }
 
-    // Old (non-witness) transaction types are not supported
-    if (whichType == TX_PUBKEY || whichType == TX_PUBKEYHASH || whichType == TX_SCRIPTHASH)
-    {
-        return false;
-    }
-
     return true;
 }
 

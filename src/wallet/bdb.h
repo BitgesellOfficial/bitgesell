@@ -56,7 +56,7 @@ public:
     std::unordered_map<std::string, WalletDatabaseFileId> m_fileids;
     std::condition_variable_any m_db_in_use;
 
-    explicit BerkeleyEnvironment(const fs::path& env_directory);
+    BerkeleyEnvironment(const fs::path& env_directory);
     BerkeleyEnvironment();
     ~BerkeleyEnvironment();
     void Reset();
@@ -88,9 +88,6 @@ std::shared_ptr<BerkeleyEnvironment> GetWalletEnv(const fs::path& wallet_path, s
 
 /** Check format of database file */
 bool IsBDBFile(const fs::path& path);
-
-/** Check format of database file */
-bool IsBerkeleyBtree(const fs::path& path);
 
 class BerkeleyBatch;
 

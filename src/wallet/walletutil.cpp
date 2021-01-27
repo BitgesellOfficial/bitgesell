@@ -7,7 +7,6 @@
 #include <logging.h>
 #include <util/system.h>
 
-
 #ifdef USE_BDB
 bool ExistsBerkeleyDatabase(const fs::path& path);
 #else
@@ -69,7 +68,7 @@ std::vector<fs::path> ListWalletDir()
                     // as a wallet.
                     paths.emplace_back();
                 } else {
-                    // Found top-level btree file not called wallet.dat. Current bitcoin
+                    // Found top-level btree file not called wallet.dat. Current BGL
                     // software will never create these files but will allow them to be
                     // opened in a shared database environment for backwards compatibility.
                     // Add it to the list of available wallets.
@@ -85,7 +84,6 @@ std::vector<fs::path> ListWalletDir()
     return paths;
 }
 
-
 bool IsFeatureSupported(int wallet_version, int feature_version)
 {
     return wallet_version >= feature_version;
@@ -99,4 +97,3 @@ WalletFeature GetClosestWalletFeature(int version)
     }
     return static_cast<WalletFeature>(0);
 }
-

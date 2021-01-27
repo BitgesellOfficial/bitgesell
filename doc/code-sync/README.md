@@ -82,6 +82,7 @@ Important files:
 - chainparams.cpp
 - validation.cpp
 - hash.cpp
+- consensus.h (block size)
 
 ### Useful tools
 

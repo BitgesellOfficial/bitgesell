@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The BGL Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -272,14 +272,16 @@ bool BerkeleyDatabase::Verify(bilingual_str& errorStr)
 
     if (fs::exists(file_path))
     {
-        LOCK(cs_db);
-        assert(env->mapFileUseCount.count(strFile) == 0);
+        assert(m_refcount == 0);
 
         Db db(env->dbenv.get(), 0);
         int result = db.verify(strFile.c_str(), nullptr, nullptr, 0);
         if (result != 0) {
             errorStr = strprintf(_("%s corrupt. Try using the wallet tool BGL-wallet to salvage or restoring a backup."), file_path);
+            return false;
+        }
     }
+    // also return true if files does not exists
     return true;
 }
 
@@ -357,21 +359,7 @@ void BerkeleyDatabase::Open()
             // Call CheckUniqueFileid on the containing BDB environment to
             // avoid BDB data consistency bugs that happen when different data
             // files in the same environment have the same fileid.
-            //
-            // Also call CheckUniqueFileid on all the other g_dbenvs to prevent
-            // BGL from opening the same data file through another
-            // environment when the file is referenced through equivalent but
-            // not obviously identical symlinked or hard linked or bind mounted
-            // paths. In the future a more relaxed check for equal inode and
-            // device ids could be done instead, which would allow opening
-            // different backup copies of a wallet at the same time. Maybe even
-            // more ideally, an exclusive lock for accessing the database could
-            // be implemented, so no equality checks are needed at all. (Newer
-            // versions of BDB have an set_lk_exclusive method for this
-            // purpose, but the older version we use does not.)
-            for (const auto& env : g_dbenvs) {
-                CheckUniqueFileid(*env.second.lock().get(), strFile, *pdb_temp, this->env->m_fileids[strFile]);
-            }
+            CheckUniqueFileid(*env, strFile, *pdb_temp, this->env->m_fileids[strFile]);
 
             m_db.reset(pdb_temp.release());
 
