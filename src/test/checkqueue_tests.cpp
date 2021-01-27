@@ -10,7 +10,6 @@
 #include <util/time.h>
 
 #include <boost/test/unit_test.hpp>
-#include <boost/thread/thread.hpp>
 
 #include <atomic>
 #include <condition_variable>
@@ -389,11 +388,11 @@ BOOST_AUTO_TEST_CASE(test_CheckQueueControl_Locks)
 {
     auto queue = MakeUnique<Standard_Queue>(QUEUE_BATCH_SIZE);
     {
-        boost::thread_group tg;
+        std::vector<std::thread> tg;
         std::atomic<int> nThreads {0};
         std::atomic<int> fails {0};
         for (size_t i = 0; i < 3; ++i) {
-            tg.create_thread(
+            tg.emplace_back(
                     [&]{
                     CCheckQueueControl<FakeCheck> control(queue.get());
                     // While sleeping, no other thread should execute to this point
@@ -402,11 +401,13 @@ BOOST_AUTO_TEST_CASE(test_CheckQueueControl_Locks)
                     fails += observed  != nThreads;
                     });
         }
-        tg.join_all();
+        for (auto& thread: tg) {
+            if (thread.joinable()) thread.join();
+        }
         BOOST_REQUIRE_EQUAL(fails, 0);
     }
     {
-        boost::thread_group tg;
+        std::vector<std::thread> tg;
         std::mutex m;
         std::condition_variable cv;
         bool has_lock{false};
@@ -415,7 +416,7 @@ BOOST_AUTO_TEST_CASE(test_CheckQueueControl_Locks)
         bool done_ack{false};
         {
             std::unique_lock<std::mutex> l(m);
-            tg.create_thread([&]{
+            tg.emplace_back([&]{
                     CCheckQueueControl<FakeCheck> control(queue.get());
                     std::unique_lock<std::mutex> ll(m);
                     has_lock = true;
@@ -441,7 +442,9 @@ BOOST_AUTO_TEST_CASE(test_CheckQueueControl_Locks)
             cv.notify_one();
             BOOST_REQUIRE(!fails);
         }
-        tg.join_all();
+        for (auto& thread: tg) {
+            if (thread.joinable()) thread.join();
+        }
     }
 }
 BOOST_AUTO_TEST_SUITE_END()
