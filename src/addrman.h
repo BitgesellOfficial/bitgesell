@@ -525,6 +525,10 @@ public:
         const bool restore_bucketing{nUBuckets == ADDRMAN_NEW_BUCKET_COUNT &&
                                      serialized_asmap_checksum == supplied_asmap_checksum};
 
+        if (!restore_bucketing) {
+            LogPrint(BCLog::ADDRMAN, "Bucketing method was updated, re-bucketing addrman entries from disk\n");
+        }
+
         for (auto bucket_entry : bucket_entries) {
             int bucket{bucket_entry.first};
             const int entry_index{bucket_entry.second};
@@ -538,7 +542,6 @@ public:
             int bucket_position = info.GetBucketPosition(nKey, true, bucket);
             if (restore_bucketing && vvNew[bucket][bucket_position] == -1) {
                 // try to give them a reference based on their primary source address.
-                LogPrint(BCLog::ADDRMAN, "Bucketing method was updated, re-bucketing addrman entries from disk\n");
                 bucket = info.GetNewBucket(nKey, m_asmap);
                 bucket_position = info.GetBucketPosition(nKey, true, bucket);
                 if (vvNew[bucket][bucket_position] == -1) {
