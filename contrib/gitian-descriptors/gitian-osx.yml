@@ -3,7 +3,7 @@ name: "BGL-core-osx-0.22"
 enable_cache: true
 distro: "ubuntu"
 suites:
-- "bionic"
+- "focal"
 architectures:
 - "linux64"
 packages:
@@ -29,6 +29,7 @@ packages:
 - "python3-setuptools"
 - "fonts-tuffy"
 - "xorriso"
+- "libtinfo5"
 remotes:
 - "url": "https://github.com/BGL/BGL.git"
   "dir": "BGL"

@@ -3,7 +3,7 @@ name: "BGL-core-win-22"
 enable_cache: true
 distro: "ubuntu"
 suites:
-- "bionic"
+- "focal"
 architectures:
 - "linux64"
 packages:
