@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2020 The BGL Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -396,15 +396,15 @@ private:
             "* The local addresses table lists each local address broadcast by the node, the port, and the score.\n\n"
             "Examples:\n\n"
             "Connection counts and local addresses only\n"
-            "> bitcoin-cli -netinfo\n\n"
+            "> BGL-cli -netinfo\n\n"
             "Compact peers listing\n"
-            "> bitcoin-cli -netinfo 1\n\n"
+            "> BGL-cli -netinfo 1\n\n"
             "Full dashboard\n"
-            "> bitcoin-cli -netinfo 4\n\n"
+            "> BGL-cli -netinfo 4\n\n"
             "Full live dashboard, adjust --interval or --no-title as needed (Linux)\n"
-            "> watch --interval 1 --no-title bitcoin-cli -netinfo 4\n\n"
+            "> watch --interval 1 --no-title BGL-cli -netinfo 4\n\n"
             "See this help\n"
-            "> bitcoin-cli -netinfo help\n"};
+            "> BGL-cli -netinfo help\n"};
     }
     const int64_t m_time_now{GetSystemTimeInSeconds()};
 
@@ -441,7 +441,7 @@ public:
 
         const UniValue& networkinfo{batch[ID_NETWORKINFO]["result"]};
         if (networkinfo["version"].get_int() < 209900) {
-            throw std::runtime_error("-netinfo requires bitcoind server to be running v0.21.0 and up");
+            throw std::runtime_error("-netinfo requires BGLd server to be running v0.21.0 and up");
         }
 
         // Count peer connection totals, and if DetailsRequested(), store peer data in a vector of structs.
