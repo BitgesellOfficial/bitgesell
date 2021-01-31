@@ -10,7 +10,6 @@
 #include <consensus/merkle.h>
 #include <hash.h> // for signet block challenge hash
 #include <tinyformat.h>
-#include <util/strencodings.h>
 #include <util/system.h>
 #include <versionbitsinfo.h>
 
@@ -145,7 +144,7 @@ public:
 
         bech32_hrp = "bgl";
 
-        vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
+        vFixedSeeds = std::vector<SeedSpec6>(std::begin(pnSeed6_main), std::end(pnSeed6_main));
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;
@@ -243,7 +242,7 @@ public:
 
         bech32_hrp = "tbgl";
 
-        vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_test, pnSeed6_test + ARRAYLEN(pnSeed6_test));
+        vFixedSeeds = std::vector<SeedSpec6>(std::begin(pnSeed6_test), std::end(pnSeed6_test));
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = false;
