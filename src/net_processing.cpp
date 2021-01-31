@@ -2518,6 +2518,9 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         bool fRelay = true;
 
         vRecv >> nVersion >> nServiceInt >> nTime >> addrMe;
+        if (nTime < 0) {
+            nTime = 0;
+        }
         nServices = ServiceFlags(nServiceInt);
         if (!pfrom.IsInboundConn())
         {
