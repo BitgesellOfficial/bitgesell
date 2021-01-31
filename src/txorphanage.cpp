@@ -156,3 +156,22 @@ void AddChildrenToWorkSet(const CTransaction& tx, std::set<uint256>& orphan_work
         }
     }
 }
+
+bool HaveOrphanTx(const GenTxid& gtxid)
+{
+    LOCK(g_cs_orphans);
+    if (gtxid.IsWtxid()) {
+        return g_orphans_by_wtxid.count(gtxid.GetHash());
+    } else {
+        return mapOrphanTransactions.count(gtxid.GetHash());
+    }
+}
+
+std::pair<CTransactionRef, NodeId> GetOrphanTx(const uint256& txid)
+{
+    AssertLockHeld(g_cs_orphans);
+
+    const auto it = mapOrphanTransactions.find(txid);
+    if (it == mapOrphanTransactions.end()) return {nullptr, -1};
+    return {it->second.tx, it->second.fromPeer};
+}
