@@ -68,16 +68,11 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWid
     tableView->setAlternatingRowColors(true);
     tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
-
-    QSettings settings;
-    if (!tableView->horizontalHeader()->restoreState(settings.value("RecentRequestsViewHeaderState").toByteArray())) {
-        tableView->setColumnWidth(RecentRequestsTableModel::Date, DATE_COLUMN_WIDTH);
-        tableView->setColumnWidth(RecentRequestsTableModel::Label, LABEL_COLUMN_WIDTH);
-        tableView->setColumnWidth(RecentRequestsTableModel::Amount, AMOUNT_MINIMUM_COLUMN_WIDTH);
-        tableView->horizontalHeader()->setMinimumSectionSize(MINIMUM_COLUMN_WIDTH);
-        tableView->horizontalHeader()->setStretchLastSection(true);
-    }
-    tableView->horizontalHeader()->setSortIndicator(RecentRequestsTableModel::Date, Qt::DescendingOrder);
+    tableView->setColumnWidth(RecentRequestsTableModel::Date, DATE_COLUMN_WIDTH);
+    tableView->setColumnWidth(RecentRequestsTableModel::Label, LABEL_COLUMN_WIDTH);
+    tableView->setColumnWidth(RecentRequestsTableModel::Amount, AMOUNT_MINIMUM_COLUMN_WIDTH);
+    tableView->horizontalHeader()->setMinimumSectionSize(MINIMUM_COLUMN_WIDTH);
+    tableView->horizontalHeader()->setStretchLastSection(true);
 }
 
 void ReceiveCoinsDialog::setModel(WalletModel *_model)
@@ -91,18 +86,7 @@ void ReceiveCoinsDialog::setModel(WalletModel *_model)
         updateDisplayUnit();
 
         QTableView* tableView = ui->recentRequestsView;
-
-        tableView->verticalHeader()->hide();
         tableView->setModel(_model->getRecentRequestsTableModel());
-        tableView->setAlternatingRowColors(true);
-        tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
-        tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
-        tableView->setColumnWidth(RecentRequestsTableModel::Date, DATE_COLUMN_WIDTH);
-        tableView->setColumnWidth(RecentRequestsTableModel::Label, LABEL_COLUMN_WIDTH);
-        tableView->setColumnWidth(RecentRequestsTableModel::Amount, AMOUNT_MINIMUM_COLUMN_WIDTH);
-        tableView->horizontalHeader()->setMinimumSectionSize(MINIMUM_COLUMN_WIDTH);
-        tableView->horizontalHeader()->setStretchLastSection(true);
-
         connect(tableView->selectionModel(),
             &QItemSelectionModel::selectionChanged, this,
             &ReceiveCoinsDialog::recentRequestsView_selectionChanged);
