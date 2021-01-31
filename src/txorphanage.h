@@ -2,15 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_TXORPHANAGE_H
-#define BITCOIN_TXORPHANAGE_H
+#ifndef BGL_TXORPHANAGE_H
+#define BGL_TXORPHANAGE_H
 
 #include <net.h>
 #include <primitives/transaction.h>
 #include <sync.h>
-
-/** Expiration time for orphan transactions in seconds */
-static constexpr int64_t ORPHAN_TX_EXPIRE_TIME = 20 * 60;
 
 /** Guards orphan transactions and extra txs for compact blocks */
 extern RecursiveMutex g_cs_orphans;
@@ -24,8 +21,12 @@ struct COrphanTx {
 };
 
 int EraseOrphanTx(const uint256& txid) EXCLUSIVE_LOCKS_REQUIRED(g_cs_orphans);
-void EraseOrphansFor(NodeId peer);
-unsigned int LimitOrphanTxSize(unsigned int nMaxOrphans);
+void EraseOrphansFor(NodeId peer) EXCLUSIVE_LOCKS_REQUIRED(g_cs_orphans);
+unsigned int LimitOrphanTxSize(unsigned int nMaxOrphans) EXCLUSIVE_LOCKS_REQUIRED(g_cs_orphans);
+void AddChildrenToWorkSet(const CTransaction& tx, std::set<uint256>& orphan_work_set) EXCLUSIVE_LOCKS_REQUIRED(g_cs_orphans);
+bool HaveOrphanTx(const GenTxid& gtxid) EXCLUSIVE_LOCKS_REQUIRED(!g_cs_orphans);
+std::pair<CTransactionRef, NodeId> GetOrphanTx(const uint256& txid) EXCLUSIVE_LOCKS_REQUIRED(g_cs_orphans);
+bool OrphanageAddTx(const CTransactionRef& tx, NodeId peer) EXCLUSIVE_LOCKS_REQUIRED(g_cs_orphans);
 
 /** Map from txid to orphan transaction record. Limited by
  *  -maxorphantx/DEFAULT_MAX_ORPHAN_TRANSACTIONS */
@@ -51,4 +52,4 @@ extern std::map<uint256, std::map<uint256, COrphanTx>::iterator> g_orphans_by_wt
     /** Orphan transactions in vector for quick random eviction */
     extern std::vector<std::map<uint256, COrphanTx>::iterator> g_orphan_list GUARDED_BY(g_cs_orphans);
 
-#endif // BITCOIN_TXORPHANAGE_H
+#endif // BGL_TXORPHANAGE_H
