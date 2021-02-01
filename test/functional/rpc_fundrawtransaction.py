@@ -247,7 +247,7 @@ class RawTransactionsTest(BGLTestFramework):
         rawtxfund = self.nodes[2].fundrawtransaction(rawtx, {'changeAddress': change, 'changePosition': 0})
         dec_tx  = self.nodes[2].decoderawtransaction(rawtxfund['hex'])
         out = dec_tx['vout'][0]
-        assert_equal(change, out['scriptPubKey']['addresses'][0])
+        assert_equal(change, out['scriptPubKey']['address'])
 
     def test_change_type(self):
         self.log.info("Test fundrawtxn with a provided change type")
@@ -287,7 +287,7 @@ class RawTransactionsTest(BGLTestFramework):
         matchingOuts = 0
         for i, out in enumerate(dec_tx['vout']):
             totalOut += out['value']
-            if out['scriptPubKey']['addresses'][0] in outputs:
+            if out['scriptPubKey']['address'] in outputs:
                 matchingOuts+=1
             else:
                 assert_equal(i, rawtxfund['changepos'])
@@ -318,7 +318,7 @@ class RawTransactionsTest(BGLTestFramework):
         matchingOuts = 0
         for out in dec_tx['vout']:
             totalOut += out['value']
-            if out['scriptPubKey']['addresses'][0] in outputs:
+            if out['scriptPubKey']['address'] in outputs:
                 matchingOuts+=1
 
         assert_equal(matchingOuts, 1)
@@ -352,7 +352,7 @@ class RawTransactionsTest(BGLTestFramework):
         matchingOuts = 0
         for out in dec_tx['vout']:
             totalOut += out['value']
-            if out['scriptPubKey']['addresses'][0] in outputs:
+            if out['scriptPubKey']['address'] in outputs:
                 matchingOuts+=1
 
         assert_equal(matchingOuts, 2)
@@ -801,7 +801,7 @@ class RawTransactionsTest(BGLTestFramework):
         changeaddress = ""
         for out in res_dec['vout']:
             if out['value'] > 1.0:
-                changeaddress += out['scriptPubKey']['addresses'][0]
+                changeaddress += out['scriptPubKey']['address']
         assert changeaddress != ""
         nextaddr = self.nodes[3].getnewaddress()
         # Now the change address key should be removed from the keypool.
