@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The BGL Core developers
+// Copyright (c) 2011-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -325,6 +325,8 @@ void BGLGUI::createActions()
     verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified BGL addresses"));
     m_load_psbt_action = new QAction(tr("&Load PSBT from file..."), this);
     m_load_psbt_action->setStatusTip(tr("Load Partially Signed BGL Transaction"));
+    m_load_psbt_clipboard_action = new QAction(tr("Load PSBT from clipboard..."), this);
+    m_load_psbt_clipboard_action->setStatusTip(tr("Load Partially Signed BGL Transaction from clipboard"));
 
     openRPCConsoleAction = new QAction(tr("Node window"), this);
     openRPCConsoleAction->setStatusTip(tr("Open node debugging and diagnostic console"));
@@ -658,24 +660,18 @@ void BGLGUI::setWalletController(WalletController* wallet_controller)
     }
 }
 
-WalletController* BGLGUI::getWalletController()
-{
-    return m_wallet_controller;
-}
-
 void BGLGUI::addWallet(WalletModel* walletModel)
 {
     if (!walletFrame) return;
     if (!walletFrame->addWallet(walletModel)) return;
+    const QString display_name = walletModel->getDisplayName();
+    setWalletActionsEnabled(true);
     rpcConsole->addWallet(walletModel);
-    if (m_wallet_selector->count() == 0) {
-        setWalletActionsEnabled(true);
-    } else if (m_wallet_selector->count() == 1) {
+    m_wallet_selector->addItem(display_name, QVariant::fromValue(walletModel));
+    if (m_wallet_selector->count() == 2) {
         m_wallet_selector_label_action->setVisible(true);
         m_wallet_selector_action->setVisible(true);
     }
-    const QString display_name = walletModel->getDisplayName();
-    m_wallet_selector->addItem(display_name, QVariant::fromValue(walletModel));
 }
 
 void BGLGUI::removeWallet(WalletModel* walletModel)
@@ -889,7 +885,6 @@ void BGLGUI::gotoVerifyMessageTab(QString addr)
 {
     if (walletFrame) walletFrame->gotoVerifyMessageTab(addr);
 }
-
 void BGLGUI::gotoLoadPSBT(bool from_clipboard)
 {
     if (walletFrame) walletFrame->gotoLoadPSBT(from_clipboard);
@@ -1400,7 +1395,7 @@ void BGLGUI::showModalOverlay()
         modalOverlay->toggleVisibility();
 }
 
-static bool ThreadSafeMessageBox(BGLGUI* gui, const std::string& message, const std::string& caption, unsigned int style)
+static bool ThreadSafeMessageBox(BGLGUI* gui, const bilingual_str& message, const std::string& caption, unsigned int style)
 {
     bool modal = (style & CClientUIInterface::MODAL);
     // The SECURE flag has no effect in the Qt GUI.

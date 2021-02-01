@@ -184,7 +184,7 @@ QString formatBGLURI(const SendCoinsRecipient &info)
 
     if (info.amount)
     {
-        ret += QString("?amount=%1").arg(BGLUnits::format(BGLUnits::BTC, info.amount, false, BGLUnits::SeparatorStyle::NEVER));
+        ret += QString("?amount=%1").arg(BGLUnits::format(BGLUnits::BGL, info.amount, false, BGLUnits::SeparatorStyle::NEVER));
         paramCount++;
     }
 

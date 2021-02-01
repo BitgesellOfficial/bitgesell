@@ -562,6 +562,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
             <numerusform>%n active connection to BGL network</numerusform>
             <numerusform>%n active connections to BGL network</numerusform>
         </translation>
+    </message>
     <message>
         <location line="+80"/>
         <source>Indexing blocks on disk...</source>

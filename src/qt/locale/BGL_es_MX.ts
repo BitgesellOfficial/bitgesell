@@ -669,8 +669,10 @@ Solicitar pagos (genera códigos QR y BGL: URI)
     <message>
         <source>A fatal error occurred. BGL can no longer continue safely and will quit.</source>
         <translation>Se produjo un error fatal. BGL ya no puede continuar de forma segura y va a renunciar.</translation>
+    </message>
 </context>
 <context>
+    <message>
         <translation>Selección de moneda</translation>
     </message>
     <message>

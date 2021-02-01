@@ -51,6 +51,7 @@
 #include <QThread>
 #include <QTimer>
 #include <QTranslator>
+#include <QtGlobal>
 
 #if defined(QT_STATICPLUGIN)
 #include <QtPlugin>

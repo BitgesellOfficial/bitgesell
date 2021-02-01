@@ -99,7 +99,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Exporting Failed</source>
         <translation>لقد فشل التصدير</translation>
     </message>
-    </context>
+</context>
 <context>
     <name>AddressTableModel</name>
     <message>
@@ -311,10 +311,9 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>&amp;Encrypt Wallet...</source>
         <translation>&amp;تشفير المحفظة</translation>
     </message>
-    </context>
+</context>
 <context>
     <name>BGL-core</name>
-    </context>
     <message>
         <source>&amp;Backup Wallet...</source>
         <translation>&amp;نسخ احتياط للمحفظة</translation>
@@ -596,41 +595,28 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation>تحذير:  %1</translation>
     </message>
     <message>
-        <source>Date: %1
-</source>
-        <translation>التاريخ %1
-
-
-</translation>
+        <source>Date: %1</source>
+        <translation>التاريخ %1</translation>
     </message>
     <message>
-        <source>Amount: %1
-</source>
-        <translation>الكمية %1
-</translation>
+        <source>Amount: %1</source>
+        <translation>الكمية %1</translation>
     </message>
     <message>
-        <source>Wallet: %1
-</source>
+        <source>Wallet: %1</source>
         <translation>المحفظة:  %1</translation>
     </message>
     <message>
-        <source>Type: %1
-</source>
-        <translation>نوع %1
-</translation>
+        <source>Type: %1</source>
+        <translation>نوع %1</translation>
     </message>
     <message>
-        <source>Label: %1
-</source>
-        <translation>علامه: %1
-</translation>
+        <source>Label: %1</source>
+        <translation>علامه: %1</translation>
     </message>
     <message>
-        <source>Address: %1
-</source>
-        <translation>عنوان %1
-</translation>
+        <source>Address: %1</source>
+        <translation>عنوان %1</translation>
     </message>
     <message>
         <source>Sent transaction</source>
@@ -1045,7 +1031,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Error</source>
         <translation>خطأ</translation>
     </message>
-    </context>
+</context>
 <context>
     <name>ModalOverlay</name>
     <message>
@@ -1555,7 +1541,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>or</source>
         <translation>أو</translation>
     </message>
-    </context>
+</context>
 <context>
     <name>PaymentServer</name>
     <message>
@@ -2077,7 +2063,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Could not unlock wallet.</source>
         <translation> يمكن فتح المحفظة.</translation>
     </message>
-    </context>
+</context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>

@@ -443,17 +443,15 @@
     </message>
     <message numerus="yes">
         <source>%n active connection(s) to BGL network</source>
-        <translation><numerusform>BGL şebekesine %n faal bağlantı</numerusform><numerusform>BGL ağına %n etkin bağlantı var</numerusform></translation>
-        <source>%n active connection(s) to BGL network</source>
-        <source>Indexing blocks on disk...</source>
-        <translation>Indexando bloques no disco...</translation>
+        <translation><numerusform>BGL şebekesine %n faal bağlantı</numerusform></translation>
+    </message>
     <message>
         <source>Processing blocks on disk...</source>
         <translation>Procesando bloques no disco...</translation>
     </message>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
-        <translation><numerusform>Processed %n block of transaction history.</numerusform><numerusform>Procesando %n bloques do historial de transaccións.</numerusform></translation>
+        <translation><numerusform>Procesando %n bloques do historial de transaccións.</numerusform></translation>
     </message>
     <message>
         <source>%1 behind</source>

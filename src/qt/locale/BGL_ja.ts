@@ -654,11 +654,11 @@
         <source>A fatal error occurred. BGL can no longer continue safely and will quit.</source>
         <translation>致命的なエラーが発生しました。BGL を安全に動作し続けることができないため終了します。</translation>
     </message>
-</context>
+    <message>
         <source>Original message:</source>
         <translation>オリジナルメッセージ：</translation>
     </message>
-    </context>
+</context>
 <context>
     <name>CoinControlDialog</name>
     <message>

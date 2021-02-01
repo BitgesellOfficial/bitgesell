@@ -449,7 +449,7 @@
         <source>Up to date</source>
         <translation>Актуално</translation>
     </message>
-    <message
+    <message>
         <source>Close Wallet...</source>
         <translation>Затвори Портфейла</translation>
     </message>

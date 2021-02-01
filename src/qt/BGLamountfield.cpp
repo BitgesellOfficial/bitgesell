@@ -122,7 +122,7 @@ public:
 
             const QFontMetrics fm(fontMetrics());
             int h = lineEdit()->minimumSizeHint().height();
-            int w = GUIUtil::TextWidth(fm, BGLUnits::format(BGLUnits::BTC, BGLUnits::maxMoney(), false, BGLUnits::SeparatorStyle::ALWAYS));
+            int w = GUIUtil::TextWidth(fm, BGLUnits::format(BGLUnits::BGL, BGLUnits::maxMoney(), false, BGLUnits::SeparatorStyle::ALWAYS));
             w += 2; // cursor blinking space
 
             QStyleOptionSpinBox opt;

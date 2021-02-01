@@ -629,12 +629,12 @@
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
         <translation>Wallet குறியாக்கப்பட்டு தற்போது திறக்கப்பட்டது</translation>
     </message>
-<<<<<<< HEAD:src/qt/locale/BGL_ta.ts
+    <message>
         <source>A fatal error occurred. BGL can no longer continue safely and will quit.</source>
         <translation>Wallet குறியாக்கப்பட்டு தற்போது பூட்டப்பட்டுள்ளது</translation>
     </message>
 </context>
-=======
+<context>
     <name>CoinControlDialog</name>
     <message>
         <source>Coin Selection</source>
@@ -1255,13 +1255,6 @@
         <translation>Tor</translation>
     </message>
     <message>
-<<<<<<< HEAD:src/qt/locale/BGL_ta.ts
-        <source>Connect to the BGL network through a separate SOCKS5 proxy for Tor hidden services.</source>
-        <translation>டார் மறைக்கப்பட்ட சேவைகளை தனித்த SOCKS5 ப்ராக்ஸி மூலம் பிட்கோடு நெட்வொர்க்குடன் இணைக்கவும்.</translation>
-    </message>
-    <message>
-=======
->>>>>>> a193f969e... qt: Pre-splitoff translations update:src/qt/locale/BGL_ta.ts
         <source>&amp;Window</source>
         <translation>&amp;சாளரம்</translation>
     </message>

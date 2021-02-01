@@ -544,10 +544,6 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
         <translation>Portemonnee Sluiten</translation>
     </message>
     <message>
-<<<<<<< HEAD:src/qt/locale/BGL_nl.ts
-        <source>Show the %1 help message to get a list with possible BGL command-line options</source>
-        <translation>Toon het %1 hulpbericht om een lijst te krijgen met mogelijke BGL commandoregelopties</translation>
-=======
         <source>Close All Wallets...</source>
         <translation>Sluit Alle Portemonnees...</translation>
     </message>
@@ -558,7 +554,6 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
     <message>
         <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
         <translation>Toon het %1 hulpbericht om een lijst te krijgen met mogelijke Bitcoin commandoregelopties</translation>
->>>>>>> bb6441b7a... qt: Pre-splitoff translations update:src/qt/locale/bitcoin_nl.ts
     </message>
     <message>
         <source>&amp;Mask values</source>
@@ -676,10 +671,6 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
         <source>A fatal error occurred. BGL can no longer continue safely and will quit.</source>
         <translation>Een fatale fout heeft zich voorgedaan. BGL kan niet veilig worden verdergezet en wordt afgesloten.</translation>
     </message>
-<<<<<<< HEAD:src/qt/locale/BGL_nl.ts
-</context>
-
-=======
     <message>
         <source>Original message:</source>
         <translation>Origineel bericht:</translation>
@@ -689,7 +680,6 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
         <translation>Er is een fatale fout opgetreden. %1 kan niet langer veilig doorgaan en wordt afgesloten.</translation>
     </message>
 </context>
->>>>>>> bb6441b7a... qt: Pre-splitoff translations update:src/qt/locale/bitcoin_nl.ts
 <context>
     <name>CoinControlDialog</name>
     <message>

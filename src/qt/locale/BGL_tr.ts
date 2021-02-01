@@ -643,8 +643,6 @@
     <message>
         <source>Coin Selection</source>
         <translation>BGL Seçimi</translation>
-    <message>
-    <message>
         <source>Bytes:</source>
         <translation>Bytes:</translation>
     </message>
@@ -1031,7 +1029,6 @@
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the BGL network, as detailed below.</source>
         <translation>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the BGL network, as detailed below.</translation>
     </message>
-    <message>
     <message>
         <source>Unknown...</source>
         <translation>Unknown...</translation>

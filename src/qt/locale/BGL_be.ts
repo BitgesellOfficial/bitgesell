@@ -70,13 +70,6 @@
         <translation>Тут знаходзяцца Біткойн-адрасы для высылання плацяжоў. Заўсёды спраўджвайце колькасць і адрас прызначэння перад здзяйсненнем транзакцыі.</translation>
     </message>
     <message>
-<<<<<<< HEAD:src/qt/locale/BGL_be_BY.ts
-        <source>These are your BGL addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
-        <translation>Тут знаходзяцца Біткойн-адрасы для прымання плацяжоў. Пажадана выкарыстоўваць новы адрас для кожнай транзакцыі.</translation>
-    </message>
-    <message>
-=======
->>>>>>> 740614e3c... qt: Translations update pre-branch:src/qt/locale/BGL_be.ts
         <source>&amp;Copy Address</source>
         <translation>Капіяваць адрас</translation>
     </message>
