@@ -1483,10 +1483,9 @@ template void PrecomputedTransactionData::Init(const CMutableTransaction& txTo, 
 template PrecomputedTransactionData::PrecomputedTransactionData(const CTransaction& txTo);
 template PrecomputedTransactionData::PrecomputedTransactionData(const CMutableTransaction& txTo);
 
-static const CHashWriterSHA256 HASHER_TAPSIGHASH = TaggedHash("TapSighash");
-static const CHashWriterSHA256 HASHER_TAPLEAF = TaggedHash("TapLeaf");
-static const CHashWriterSHA256 HASHER_TAPBRANCH = TaggedHash("TapBranch");
-static const CHashWriterSHA256 HASHER_TAPTWEAK = TaggedHash("TapTweak");
+static const CHashWriter HASHER_TAPSIGHASH = TaggedHash("TapSighash");
+static const CHashWriter HASHER_TAPLEAF = TaggedHash("TapLeaf");
+static const CHashWriter HASHER_TAPBRANCH = TaggedHash("TapBranch");
 
 static bool HandleMissingData(MissingDataBehavior mdb)
 {
@@ -1869,10 +1868,8 @@ static bool VerifyTaprootCommitment(const std::vector<unsigned char>& control, c
         }
         k = ss_branch.GetSHA256();
     }
-    // Compute the tweak from the Merkle root and the internal pubkey.
-    k = (CHashWriterSHA256(HASHER_TAPTWEAK) << MakeSpan(p) << k).GetSHA256();
     // Verify that the output pubkey matches the tweaked internal pubkey, after correcting for parity.
-    return q.CheckPayToContract(p, k, control[0] & 1);
+    return q.CheckTapTweak(p, k, control[0] & 1);
 }
 
 static bool VerifyWitnessProgram(const CScriptWitness& witness, int witversion, const std::vector<unsigned char>& program, unsigned int flags, const BaseSignatureChecker& checker, ScriptError* serror, bool is_p2sh)
