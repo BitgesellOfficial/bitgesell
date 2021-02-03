@@ -53,11 +53,12 @@ Paths
 
 All three configurations assume several paths that might need to be adjusted.
 
-Binary:              `/usr/bin/BGLd`
-Configuration file:  `/etc/BGL/BGL.conf`
-Data directory:      `/var/lib/BGLd`
-PID file:            `/var/run/BGLd/BGLd.pid` (OpenRC and Upstart) or `/run/BGLd/BGLd.pid` (systemd)
-Lock file:           `/var/lock/subsys/BGLd` (CentOS)
+	Binary:              /usr/bin/BGLd
+	Configuration file:  /etc/BGL/BGL.conf
+	Data directory:      /var/lib/BGLd
+	PID file:            /var/run/BGLd/BGLd.pid (OpenRC and Upstart) or
+                         /run/BGLd/BGLd.pid (systemd)
+	Lock file:           /var/lock/subsys/BGLd (CentOS)
 
 The PID directory (if applicable) and data directory should both be owned by the
 BGL user and group. It is advised for security reasons to make the
