@@ -7,16 +7,18 @@
 
 #include <amount.h>
 #include <fs.h>
+#include <net.h>
+#include <netaddress.h>
 
 #include <QEvent>
 #include <QHeaderView>
 #include <QItemDelegate>
+#include <QLabel>
 #include <QMessageBox>
 #include <QObject>
 #include <QProgressBar>
 #include <QString>
 #include <QTableView>
-#include <QLabel>
 
 class QValidatedLineEdit;
 class SendCoinsRecipient;
@@ -39,10 +41,13 @@ class QUrl;
 class QWidget;
 QT_END_NAMESPACE
 
-/** Utility functions used by the BGL Qt UI.
+/** Utility functions used by the Bitcoin Qt UI.
  */
 namespace GUIUtil
 {
+    // Use this flags to prevent a "What's This" button in the title bar of the dialog on Windows.
+    constexpr auto dialog_flags = Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint;
+
     // Create human-readable string from date
     QString dateTimeStr(const QDateTime &datetime);
     QString dateTimeStr(qint64 nTime);
@@ -53,7 +58,7 @@ namespace GUIUtil
     // Set up widget for address
     void setupAddressWidget(QValidatedLineEdit *widget, QWidget *parent);
 
-    // Parse "BGL:" URI into recipient object, return true on successful parsing
+    // Parse "bitcoin:" URI into recipient object, return true on successful parsing
     bool parseBGLURI(const QUrl &uri, SendCoinsRecipient *out);
     bool parseBGLURI(QString uri, SendCoinsRecipient *out);
     QString formatBGLURI(const SendCoinsRecipient &info);
@@ -218,22 +223,28 @@ namespace GUIUtil
     bool GetStartOnSystemStartup();
     bool SetStartOnSystemStartup(bool fAutoStart);
 
-    /* Convert QString to OS specific boost path through UTF-8 */
+    /** Convert QString to OS specific boost path through UTF-8 */
     fs::path qstringToBoostPath(const QString &path);
 
-    /* Convert OS specific boost path to QString through UTF-8 */
+    /** Convert OS specific boost path to QString through UTF-8 */
     QString boostPathToQString(const fs::path &path);
 
-    /* Convert seconds into a QString with days, hours, mins, secs */
+    /** Convert enum Network to QString */
+    QString NetworkToQString(Network net);
+
+    /** Convert enum ConnectionType to QString */
+    QString ConnectionTypeToQString(ConnectionType conn_type, bool relay_txes);
+
+    /** Convert seconds into a QString with days, hours, mins, secs */
     QString formatDurationStr(int secs);
 
-    /* Format CNodeStats.nServices bitmask into a user-readable string */
+    /** Format CNodeStats.nServices bitmask into a user-readable string */
     QString formatServicesStr(quint64 mask);
 
-    /* Format a CNodeStats.m_ping_usec into a user-readable string or display N/A, if 0*/
+    /** Format a CNodeStats.m_ping_usec into a user-readable string or display N/A, if 0 */
     QString formatPingTime(int64_t ping_usec);
 
-    /* Format a CNodeCombinedStats.nTimeOffset into a user-readable string. */
+    /** Format a CNodeCombinedStats.nTimeOffset into a user-readable string */
     QString formatTimeOffset(int64_t nTimeOffset);
 
     QString formatNiceTimeOffset(qint64 secs);
@@ -289,7 +300,7 @@ namespace GUIUtil
     /**
      * Returns the distance in pixels appropriate for drawing a subsequent character after text.
      *
-     * In Qt 5.12 and before the QFontMetrics::width() is used and it is deprecated since Qt 13.0.
+     * In Qt 5.12 and before the QFontMetrics::width() is used and it is deprecated since Qt 5.13.
      * In Qt 5.11 the QFontMetrics::horizontalAdvance() was introduced.
      */
     int TextWidth(const QFontMetrics& fm, const QString& text);

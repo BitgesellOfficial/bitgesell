@@ -19,7 +19,7 @@
 #endif
 
 ReceiveRequestDialog::ReceiveRequestDialog(QWidget *parent) :
-    QDialog(parent),
+    QDialog(parent, GUIUtil::dialog_flags),
     ui(new Ui::ReceiveRequestDialog),
     model(nullptr)
 {
@@ -47,7 +47,7 @@ void ReceiveRequestDialog::setInfo(const SendCoinsRecipient &_info)
 {
     this->info = _info;
     setWindowTitle(tr("Request payment to %1").arg(info.label.isEmpty() ? info.address : info.label));
-    QString uri = GUIUtil::formatBitcoinURI(info);
+    QString uri = GUIUtil::formatBGLURI(info);
 
 #ifdef USE_QRCODE
     if (ui->qr_code->setQR(uri, info.address)) {
@@ -76,22 +76,11 @@ void ReceiveRequestDialog::setInfo(const SendCoinsRecipient &_info)
         ui->label_content->hide();
     }
 
-    QString uri = GUIUtil::formatBGLURI(info);
-    ui->btnSaveAs->setEnabled(false);
-    QString html;
-    html += "<html><font face='verdana, arial, helvetica, sans-serif'>";
-    html += "<b>"+tr("Payment information")+"</b><br>";
-    html += "<b>"+tr("URI")+"</b>: ";
-    html += "<a href=\""+uri+"\">" + GUIUtil::HtmlEscape(uri) + "</a><br>";
-    html += "<b>"+tr("Address")+"</b>: " + GUIUtil::HtmlEscape(info.address) + "<br>";
-    if(info.amount)
-        html += "<b>"+tr("Amount")+"</b>: " + BGLUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), info.amount) + "<br>";
-    if(!info.label.isEmpty())
-        html += "<b>"+tr("Label")+"</b>: " + GUIUtil::HtmlEscape(info.label) + "<br>";
-    if(!info.message.isEmpty())
-        html += "<b>"+tr("Message")+"</b>: " + GUIUtil::HtmlEscape(info.message) + "<br>";
-    if(model->isMultiwallet()) {
-        html += "<b>"+tr("Wallet")+"</b>: " + GUIUtil::HtmlEscape(model->getWalletName()) + "<br>";
+    if (!info.message.isEmpty()) {
+        ui->message_content->setText(info.message);
+    } else {
+        ui->message_tag->hide();
+        ui->message_content->hide();
     }
 
     if (!model->getWalletName().isEmpty()) {
@@ -105,7 +94,7 @@ void ReceiveRequestDialog::setInfo(const SendCoinsRecipient &_info)
 void ReceiveRequestDialog::updateDisplayUnit()
 {
     if (!model) return;
-    ui->amount_content->setText(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), info.amount));
+    ui->amount_content->setText(BGLUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), info.amount));
 }
 
 void ReceiveRequestDialog::on_btnCopyURI_clicked()

@@ -44,7 +44,7 @@ public:
     void setClientModel(ClientModel *clientModel);
     WalletModel *getWalletModel() { return walletModel; }
     /** Set the wallet model.
-        The wallet model represents a BGL wallet, and offers access to the list of transactions, address book and sending
+        The wallet model represents a bitcoin wallet, and offers access to the list of transactions, address book and sending
         functionality.
     */
     void setWalletModel(WalletModel *walletModel);
@@ -92,7 +92,7 @@ public Q_SLOTS:
     */
     void processNewTransaction(const QModelIndex& parent, int start, int /*end*/);
     /** Encrypt the wallet */
-    void encryptWallet(bool status);
+    void encryptWallet();
     /** Backup the wallet */
     void backupWallet();
     /** Change encrypted wallet passphrase */

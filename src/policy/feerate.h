@@ -11,7 +11,7 @@
 
 #include <string>
 
-const std::string CURRENCY_UNIT = "BTC"; // One formatted unit
+const std::string CURRENCY_UNIT = "BGL"; // One formatted unit
 const std::string CURRENCY_ATOM = "sat"; // One indivisible minimum value unit
 
 /* Used to determine type of fee estimation requested */
@@ -19,7 +19,7 @@ enum class FeeEstimateMode {
     UNSET,        //!< Use default settings based on other criteria
     ECONOMICAL,   //!< Force estimateSmartFee to use non-conservative estimates
     CONSERVATIVE, //!< Force estimateSmartFee to use conservative estimates
-    BTC_KVB,      //!< Use BTC/kvB fee rate unit
+    BGL_KVB,      //!< Use BTC/kvB fee rate unit
     SAT_VB,       //!< Use sat/vB fee rate unit
 };
 
@@ -65,7 +65,7 @@ public:
     friend bool operator>=(const CFeeRate& a, const CFeeRate& b) { return a.nSatoshisPerK >= b.nSatoshisPerK; }
     friend bool operator!=(const CFeeRate& a, const CFeeRate& b) { return a.nSatoshisPerK != b.nSatoshisPerK; }
     CFeeRate& operator+=(const CFeeRate& a) { nSatoshisPerK += a.nSatoshisPerK; return *this; }
-    std::string ToString(const FeeEstimateMode& fee_estimate_mode = FeeEstimateMode::BTC_KVB) const;
+    std::string ToString(const FeeEstimateMode& fee_estimate_mode = FeeEstimateMode::BGL_KVB) const;
 
     SERIALIZE_METHODS(CFeeRate, obj) { READWRITE(obj.nSatoshisPerK); }
 };

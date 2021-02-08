@@ -66,11 +66,11 @@ void WalletFrame::setClientModel(ClientModel *_clientModel)
     }
 }
 
-void WalletFrame::addWallet(WalletModel *walletModel)
+bool WalletFrame::addWallet(WalletModel *walletModel)
 {
-    if (!gui || !clientModel || !walletModel) return;
+    if (!gui || !clientModel || !walletModel) return false;
 
-    if (mapWalletViews.count(walletModel) > 0) return;
+    if (mapWalletViews.count(walletModel) > 0) return false;
 
     WalletView *walletView = new WalletView(platformStyle, this);
     walletView->setClientModel(clientModel);
@@ -196,11 +196,11 @@ void WalletFrame::gotoLoadPSBT(bool from_clipboard)
     }
 }
 
-void WalletFrame::encryptWallet(bool status)
+void WalletFrame::encryptWallet()
 {
     WalletView *walletView = currentWalletView();
     if (walletView)
-        walletView->encryptWallet(status);
+        walletView->encryptWallet();
 }
 
 void WalletFrame::backupWallet()

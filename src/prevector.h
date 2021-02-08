@@ -1,4 +1,4 @@
-// Copyright (c) 2015-2020 The BGL Core developers
+// Copyright (c) 2015-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,7 +15,6 @@
 #include <type_traits>
 #include <utility>
 
-#pragma pack(push, 1)
 /** Implements a drop-in replacement for std::vector<T> which stores up to N
  *  elements directly (without heap allocation). The types Size and Diff are
  *  used to store element counts, and can be any unsigned + signed type.
@@ -147,18 +146,17 @@ public:
     };
 
 private:
-    size_type _size = 0;
+#pragma pack(push, 1)
     union direct_or_indirect {
         char direct[sizeof(T) * N];
         struct {
-            size_type capacity;
             char* indirect;
+            size_type capacity;
         } indirect_contents;
     };
-
 #pragma pack(pop)
     alignas(char*) direct_or_indirect _union = {};
-    //size_type _size = 0;
+    size_type _size = 0;
 
     static_assert(alignof(char*) % alignof(size_type) == 0 && sizeof(char*) % alignof(size_type) == 0, "size_type cannot have more restrictive alignment requirement than pointer");
     static_assert(alignof(char*) % alignof(T) == 0, "value_type T cannot have more restrictive alignment requirement than pointer");
@@ -535,6 +533,5 @@ public:
         return item_ptr(0);
     }
 };
-#pragma pack(pop)
 
 #endif // BGL_PREVECTOR_H

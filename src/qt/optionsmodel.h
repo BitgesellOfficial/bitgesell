@@ -30,7 +30,7 @@ static inline int PruneMiBtoGB(int64_t mib) { return (mib * 1024 * 1024 + GB_BYT
  */
 static inline int64_t PruneGBtoMiB(int gb) { return gb * GB_BYTES / 1024 / 1024; }
 
-/** Interface from Qt to configuration data structure for BGL client.
+/** Interface from Qt to configuration data structure for Bitcoin client.
    To Qt, the options are presented as a list with the different options
    laid out vertically.
    This can be changed to a tree once the settings become sufficiently
@@ -45,7 +45,7 @@ public:
 
     enum OptionID {
         StartAtStartup,         // bool
-        HideTrayIcon,           // bool
+        ShowTrayIcon,           // bool
         MinimizeToTray,         // bool
         MapPortUPnP,            // bool
         MinimizeOnClose,        // bool
@@ -55,7 +55,7 @@ public:
         ProxyUseTor,            // bool
         ProxyIPTor,             // QString
         ProxyPortTor,           // int
-        DisplayUnit,            // BGLUnits::Unit
+        DisplayUnit,            // BitcoinUnits::Unit
         ThirdPartyTxUrls,       // QString
         Language,               // QString
         CoinControlFeatures,    // bool
@@ -78,7 +78,7 @@ public:
     void setDisplayUnit(const QVariant &value);
 
     /* Explicit getters */
-    bool getHideTrayIcon() const { return fHideTrayIcon; }
+    bool getShowTrayIcon() const { return m_show_tray_icon; }
     bool getMinimizeToTray() const { return fMinimizeToTray; }
     bool getMinimizeOnClose() const { return fMinimizeOnClose; }
     int getDisplayUnit() const { return nDisplayUnit; }
@@ -100,7 +100,7 @@ public:
 private:
     interfaces::Node* m_node = nullptr;
     /* Qt-only settings */
-    bool fHideTrayIcon;
+    bool m_show_tray_icon;
     bool fMinimizeToTray;
     bool fMinimizeOnClose;
     QString language;
@@ -118,7 +118,7 @@ private:
 Q_SIGNALS:
     void displayUnitChanged(int unit);
     void coinControlFeaturesChanged(bool);
-    void hideTrayIconChanged(bool);
+    void showTrayIconChanged(bool);
 };
 
 #endif // BGL_QT_OPTIONSMODEL_H

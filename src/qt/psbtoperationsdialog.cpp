@@ -9,7 +9,7 @@
 #include <key_io.h>
 #include <node/psbt.h>
 #include <policy/policy.h>
-#include <qt/bitcoinunits.h>
+#include <qt/BGLunits.h>
 #include <qt/forms/ui_psbtoperationsdialog.h>
 #include <qt/guiutil.h>
 #include <qt/optionsmodel.h>
@@ -18,8 +18,14 @@
 #include <iostream>
 
 
+/** Maximum fee rate for sendrawtransaction and testmempoolaccept.
+ * By default, a transaction with a fee rate higher than this will be rejected
+ * by the RPCs. This can be overridden with the maxfeerate argument.
+ */
+static const CFeeRate DEFAULT_MAX_RAW_TX_FEE_RATE{COIN / 10};
+
 PSBTOperationsDialog::PSBTOperationsDialog(
-    QWidget* parent, WalletModel* wallet_model, ClientModel* client_model) : QDialog(parent),
+    QWidget* parent, WalletModel* wallet_model, ClientModel* client_model) : QDialog(parent, GUIUtil::dialog_flags),
                                                                              m_ui(new Ui::PSBTOperationsDialog),
                                                                              m_wallet_model(wallet_model),
                                                                              m_client_model(client_model)
@@ -133,7 +139,7 @@ void PSBTOperationsDialog::saveTransaction() {
         }
         CTxDestination address;
         ExtractDestination(out.scriptPubKey, address);
-        QString amount = BitcoinUnits::format(m_wallet_model->getOptionsModel()->getDisplayUnit(), out.nValue);
+        QString amount = BGLUnits::format(m_wallet_model->getOptionsModel()->getDisplayUnit(), out.nValue);
         QString address_str = QString::fromStdString(EncodeDestination(address));
         filename_suggestion.append(address_str + "-" + amount);
         first = false;
@@ -165,7 +171,7 @@ std::string PSBTOperationsDialog::renderTransaction(const PartiallySignedTransac
         ExtractDestination(out.scriptPubKey, address);
         totalAmount += out.nValue;
         tx_description.append(tr(" * Sends %1 to %2")
-            .arg(BitcoinUnits::formatWithUnit(BitcoinUnits::BTC, out.nValue))
+            .arg(BGLUnits::formatWithUnit(BGLUnits::BGL, out.nValue))
             .arg(QString::fromStdString(EncodeDestination(address))));
         tx_description.append("<br>");
     }
@@ -177,19 +183,19 @@ std::string PSBTOperationsDialog::renderTransaction(const PartiallySignedTransac
         tx_description.append(tr("Unable to calculate transaction fee or total transaction amount."));
     } else {
         tx_description.append(tr("Pays transaction fee: "));
-        tx_description.append(BitcoinUnits::formatWithUnit(BitcoinUnits::BTC, *analysis.fee));
+        tx_description.append(BGLUnits::formatWithUnit(BGLUnits::BGL, *analysis.fee));
 
         // add total amount in all subdivision units
         tx_description.append("<hr />");
         QStringList alternativeUnits;
-        for (const BitcoinUnits::Unit u : BitcoinUnits::availableUnits())
+        for (const BGLUnits::Unit u : BGLUnits::availableUnits())
         {
             if(u != m_client_model->getOptionsModel()->getDisplayUnit()) {
-                alternativeUnits.append(BitcoinUnits::formatHtmlWithUnit(u, totalAmount));
+                alternativeUnits.append(BGLUnits::formatHtmlWithUnit(u, totalAmount));
             }
         }
         tx_description.append(QString("<b>%1</b>: <b>%2</b>").arg(tr("Total Amount"))
-            .arg(BitcoinUnits::formatHtmlWithUnit(m_client_model->getOptionsModel()->getDisplayUnit(), totalAmount)));
+            .arg(BGLUnits::formatHtmlWithUnit(m_client_model->getOptionsModel()->getDisplayUnit(), totalAmount)));
         tx_description.append(QString("<br /><span style='font-size:10pt; font-weight:normal;'>(=%1)</span>")
             .arg(alternativeUnits.join(" " + tr("or") + " ")));
     }
