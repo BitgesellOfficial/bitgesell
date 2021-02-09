@@ -166,10 +166,10 @@ task:
     FILE_ENV: "./ci/test/00_setup_env_native_nowallet.sh"
 
 task:
-  name: "x86_64 Linux [qt]"
+  name: 'macOS 10.14 [gui, no tests] [focal]'
   << : *GLOBAL_TASK_TEMPLATE
   container:
-    image: ubuntu:bionic
+    image: ubuntu:focal
   env:
     FILE_ENV: "./ci/test/00_setup_env_native_qt5.sh"
 
