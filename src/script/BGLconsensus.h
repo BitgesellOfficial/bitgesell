@@ -31,7 +31,7 @@
 extern "C" {
 #endif
 
-#define BGLCONSENSUS_API_VER 1
+#define BGLCONSENSUS_API_VER 2
 
 typedef enum BGLconsensus_error_t
 {
@@ -41,6 +41,8 @@ typedef enum BGLconsensus_error_t
     BGLconsensus_ERR_TX_DESERIALIZE,
     BGLconsensus_ERR_AMOUNT_REQUIRED,
     BGLconsensus_ERR_INVALID_FLAGS,
+    BGLconsensus_ERR_SPENT_OUTPUTS_REQUIRED,
+    BGLconsensus_ERR_SPENT_OUTPUTS_MISMATCH
 } BGLconsensus_error;
 
 /** Script verification flags */
@@ -53,10 +55,18 @@ enum
     BGLconsensus_SCRIPT_FLAGS_VERIFY_CHECKLOCKTIMEVERIFY = (1U << 9), // enable CHECKLOCKTIMEVERIFY (BIP65)
     BGLconsensus_SCRIPT_FLAGS_VERIFY_CHECKSEQUENCEVERIFY = (1U << 10), // enable CHECKSEQUENCEVERIFY (BIP112)
     BGLconsensus_SCRIPT_FLAGS_VERIFY_WITNESS             = (1U << 11), // enable WITNESS (BIP141)
+    BGLconsensus_SCRIPT_FLAGS_VERIFY_TAPROOT             = (1U << 17), // enable TAPROOT (BIPs 341 & 342)
     BGLconsensus_SCRIPT_FLAGS_VERIFY_ALL                 = BGLconsensus_SCRIPT_FLAGS_VERIFY_P2SH | BGLconsensus_SCRIPT_FLAGS_VERIFY_DERSIG |
                                                                BGLconsensus_SCRIPT_FLAGS_VERIFY_NULLDUMMY | BGLconsensus_SCRIPT_FLAGS_VERIFY_CHECKLOCKTIMEVERIFY |
-                                                               BGLconsensus_SCRIPT_FLAGS_VERIFY_CHECKSEQUENCEVERIFY | BGLconsensus_SCRIPT_FLAGS_VERIFY_WITNESS
+                                                               BGLconsensus_SCRIPT_FLAGS_VERIFY_CHECKSEQUENCEVERIFY | BGLconsensus_SCRIPT_FLAGS_VERIFY_WITNESS |
+                                                               BGLconsensus_SCRIPT_FLAGS_VERIFY_TAPROOT
 };
+
+typedef struct {
+    const unsigned char *scriptPubKey;
+    unsigned int scriptPubKeySize;
+    int64_t value;
+} UTXO;
 
 /// Returns 1 if the input nIn of the serialized transaction pointed to by
 /// txTo correctly spends the scriptPubKey pointed to by scriptPubKey under
@@ -70,6 +80,11 @@ EXPORT_SYMBOL int BGLconsensus_verify_script_with_amount(const unsigned char *sc
                                     const unsigned char *txTo        , unsigned int txToLen,
                                     unsigned int nIn, unsigned int flags, BGLconsensus_error* err);
 
+EXPORT_SYMBOL int BGLconsensus_verify_script_with_spent_outputs(const unsigned char *scriptPubKey, unsigned int scriptPubKeyLen, int64_t amount,
+                                    const unsigned char *txTo        , unsigned int txToLen,
+                                    const UTXO *spentOutputs, unsigned int spentOutputsLen,
+                                    unsigned int nIn, unsigned int flags, BGLconsensus_error* err);
+
 EXPORT_SYMBOL unsigned int BGLconsensus_version();
 
 #ifdef __cplusplus
@@ -78,4 +93,4 @@ EXPORT_SYMBOL unsigned int BGLconsensus_version();
 
 #undef EXPORT_SYMBOL
 
-#endif // BGL_SCRIPT_BITCOINCONSENSUS_H
+#endif // BGL_SCRIPT_BGLCONSENSUS_H
