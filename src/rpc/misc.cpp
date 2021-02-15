@@ -31,7 +31,7 @@
 
 static RPCHelpMan validateaddress()
 {
-            RPCHelpMan{"validateaddress",
+    return RPCHelpMan{"validateaddress",
                 "\nReturn information about the given BGL address.\n",
                 {
                     {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The BGL address to validate"},

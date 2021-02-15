@@ -360,11 +360,12 @@ static bool EvalChecksigPreTapscript(const valtype& vchSig, const valtype& vchPu
         //serror is set
         return false;
     }
-    fSuccess = checker.CheckECDSASignature(vchSig, vchPubKey, scriptCode, sigversion);
-    return true;
 
-    if (!fSuccess && (flags & SCRIPT_VERIFY_NULLFAIL) && vchSig.size())
+    fSuccess = checker.CheckECDSASignature(vchSig, vchPubKey, scriptCode, sigversion);
+
+    if (!fSuccess && (flags & SCRIPT_VERIFY_NULLFAIL) && vchSig.size()) {
         return set_error(serror, SCRIPT_ERR_SIG_NULLFAIL);
+    }
 
     return true;
 }
@@ -1092,7 +1093,9 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                     valtype& vchPubKey = stacktop(-1);
 
                     bool fSuccess = true;
-                    if (!EvalChecksig(vchSig, vchPubKey, pbegincodehash, pend, execdata, flags, checker, sigversion, serror, fSuccess)) return false;
+                    if (!EvalChecksig(vchSig, vchPubKey, pbegincodehash, pend, execdata, flags, checker, sigversion, serror, fSuccess)) {
+                        return false;
+                    }
                     popstack(stack);
                     popstack(stack);
                     stack.push_back(fSuccess ? vchTrue : vchFalse);
@@ -1100,8 +1103,9 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                     {
                         if (fSuccess)
                             popstack(stack);
-                        else
+                        else {
                             return set_error(serror, SCRIPT_ERR_CHECKSIGVERIFY);
+                        }
                     }
                 }
                 break;
@@ -1585,17 +1589,17 @@ uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn
         uint256 hashOutputs;
         const bool cacheready = cache && cache->m_bip143_segwit_ready;
 
+
         if (!(nHashType & SIGHASH_ANYONECANPAY)) {
-            hashPrevouts = cacheready ? cache->hashPrevouts : SHA256Uint256(GetPrevoutsSHA256(txTo));
+            hashPrevouts = cacheready ? cache->hashPrevouts : GetPrevoutsSHA256(txTo); //SHA256Uint256(GetPrevoutsSHA256(txTo));
         }
 
         if (!(nHashType & SIGHASH_ANYONECANPAY) && (nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
-            hashSequence = cacheready ? cache->hashSequence : SHA256Uint256(GetSequencesSHA256(txTo));
+            hashSequence = cacheready ? cache->hashSequence : GetSequencesSHA256(txTo); //SHA256Uint256(GetSequencesSHA256(txTo));
         }
 
-
         if ((nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
-            hashOutputs = cacheready ? cache->hashOutputs : SHA256Uint256(GetOutputsSHA256(txTo));
+            hashOutputs = cacheready ? cache->hashOutputs : GetOutputsSHA256(txTo); //SHA256Uint256(GetOutputsSHA256(txTo));
         } else if ((nHashType & 0x1f) == SIGHASH_SINGLE && nIn < txTo.vout.size()) {
             CHashWriter ss(SER_GETHASH, 0);
             ss << txTo.vout[nIn];
@@ -1827,8 +1831,13 @@ static bool ExecuteWitnessScript(const Span<const valtype>& stack_span, const CS
     if (!EvalScript(stack, scriptPubKey, flags, checker, sigversion, execdata, serror)) return false;
 
     // Scripts inside witness implicitly require cleanstack behaviour
-    if (stack.size() != 1) return set_error(serror, SCRIPT_ERR_CLEANSTACK);
-    if (!CastToBool(stack.back())) return set_error(serror, SCRIPT_ERR_EVAL_FALSE);
+    if (stack.size() != 1) {
+        return set_error(serror, SCRIPT_ERR_CLEANSTACK);
+    }
+
+    if (!CastToBool(stack.back())) {
+        return set_error(serror, SCRIPT_ERR_EVAL_FALSE);
+    }
     return true;
 }
 

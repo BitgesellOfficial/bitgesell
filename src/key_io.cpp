@@ -90,6 +90,7 @@ CTxDestination DecodeDestination(const std::string& str, const CChainParams& par
             return ScriptHash(hash);
         }
     }
+
     data.clear();
     auto bech = bech32::Decode(str);
     if (bech.second.size() > 0 && bech.first == params.Bech32HRP()) {

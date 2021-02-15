@@ -1356,10 +1356,10 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
     /* Register RPC commands regardless of -server setting so they will be
      * available in the GUI RPC console even if external calls are disabled.
      */
-//    RegisterAllCoreRPCCommands(tableRPC);
-//    for (const auto& client : node.chain_clients) {
-//        client->registerRpcs();
-//    }
+    RegisterAllCoreRPCCommands(tableRPC);
+    for (const auto& client : node.chain_clients) {
+        client->registerRpcs();
+    }
 #if ENABLE_ZMQ
     RegisterZMQRPCCommands(tableRPC);
 #endif
