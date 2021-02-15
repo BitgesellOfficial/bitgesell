@@ -11,7 +11,6 @@
 #include <node/context.h>
 #include <pubkey.h>
 #include <random.h>
-#include <stdexcept>
 #include <txmempool.h>
 #include <util/check.h>
 #include <util/string.h>
@@ -149,27 +148,9 @@ struct TestMemPoolEntryHelper
     TestMemPoolEntryHelper &SigOpsCost(unsigned int _sigopsCost) { sigOpCost = _sigopsCost; return *this; }
 };
 
-CBlock getBlock6548();
+CBlock getBlock13b8a();
 
 // define an implicit conversion here so that uint256 may be used directly in BOOST_CHECK_*
 std::ostream& operator<<(std::ostream& os, const uint256& num);
-
-/**
- * BOOST_CHECK_EXCEPTION predicates to check the specific validation error.
- * Use as
- * BOOST_CHECK_EXCEPTION(code that throws, exception type, HasReason("foo"));
- */
-class HasReason
-{
-public:
-    explicit HasReason(const std::string& reason) : m_reason(reason) {}
-    bool operator()(const std::exception& e) const
-    {
-        return std::string(e.what()).find(m_reason) != std::string::npos;
-    };
-
-private:
-    const std::string m_reason;
-};
 
 #endif
