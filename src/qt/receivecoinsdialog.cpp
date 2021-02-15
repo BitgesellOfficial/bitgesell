@@ -92,11 +92,9 @@ void ReceiveCoinsDialog::setModel(WalletModel *_model)
         // Last 2 columns are set by the columnResizingFixer, when the table geometry is ready.
         columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(tableView, AMOUNT_MINIMUM_COLUMN_WIDTH, DATE_COLUMN_WIDTH, this);
 
-        if (model->wallet().getDefaultAddressType() == OutputType::BECH32) {
-            ui->useBech32->setCheckState(Qt::Checked);
-        } else {
-            ui->useBech32->setCheckState(Qt::Unchecked);
-        }
+        // always generate segwit address and hide it
+        ui->useBech32->setCheckState(Qt::Checked);
+        ui->useBech32->setVisible(false);
 
         // Set the button to be enabled or disabled based on whether the wallet can give out new addresses.
         ui->receiveButton->setEnabled(model->wallet().canGetAddresses());
