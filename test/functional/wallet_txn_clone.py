@@ -13,7 +13,7 @@ from test_framework.messages import CTransaction, COIN
 
 class TxnMallTest(BGLTestFramework):
     def set_test_params(self):
-        self.num_nodes = 4
+        self.num_nodes = 3
         self.supports_cli = False
 
     def skip_test_if_missing_module(self):
@@ -38,7 +38,7 @@ class TxnMallTest(BGLTestFramework):
 
         # All nodes should start with 1,250 BTC:
         starting_balance = 1250
-        for i in range(4):
+        for i in range(3):
             assert_equal(self.nodes[i].getbalance(), starting_balance)
             self.nodes[i].getnewaddress()  # bug workaround, coins generated assigned to first getnewaddress!
 
@@ -138,6 +138,7 @@ class TxnMallTest(BGLTestFramework):
         if (self.options.mine_block):
             expected -= 50
         assert_equal(self.nodes[0].getbalance(), expected)
+
 
 if __name__ == '__main__':
     TxnMallTest().main()
