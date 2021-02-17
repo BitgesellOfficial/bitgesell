@@ -9,7 +9,10 @@ with no central authority: managing transactions and issuing money are carried
 out collectively by the network. BGL Core is the name of open source
 software which enables the use of this currency.
 
-Specifications
+For more information read the original BGL whitepaper.
+
+License
+-------
 
 Essentially this is a full BGL fork, but:
 * Block Reward = nFees*0.1 + GetBlockSubsidy()    // Burn rate is 90% of tx fees
@@ -45,7 +48,7 @@ submit new unit tests for old code. Unit tests can be compiled and run
 and extending unit tests can be found in [/src/test/README.md](/src/test/README.md).
 
 There are also [regression and integration tests](/test), written
-in Python, that are run automatically on the build server.
+in Python.
 These tests can be run (if the [test dependencies](/test) are installed) with: `test/functional/test_runner.py`
 
 The CI (Continuous Integration) systems make sure that every pull request is built for Windows, Linux, and macOS,
@@ -69,5 +72,3 @@ Translations are periodically pulled from Transifex and merged into the git repo
 
 **Important**: We do not accept translation changes as GitHub pull requests because the next
 pull from Transifex would automatically overwrite them again.
-
-Translators should also subscribe to the [mailing list](https://groups.google.com/forum/#!forum/bitcoin-translators).
