@@ -31,3 +31,4 @@ struct ConnmanTestMsg : public CConnman {
 };
 
 #endif // BGL_TEST_UTIL_NET_H
+

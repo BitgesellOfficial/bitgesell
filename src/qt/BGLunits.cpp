@@ -117,7 +117,6 @@ QString BGLUnits::format(int unit, const CAmount& nIn, bool fPlus, SeparatorStyl
     if (separators == SeparatorStyle::ALWAYS || (separators == SeparatorStyle::STANDARD && q_size > 4))
         for (int i = 3; i < q_size; i += 3)
             quotient_str.insert(q_size - i, thin_sp);
-
     if (n < 0)
         quotient_str.insert(0, '-');
     else if (fPlus && n > 0)

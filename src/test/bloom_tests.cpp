@@ -4,6 +4,7 @@
 
 #include <bloom.h>
 
+#include <iostream>
 #include <clientversion.h>
 #include <key.h>
 #include <key_io.h>
@@ -119,6 +120,7 @@ BOOST_AUTO_TEST_CASE(bloom_match)
 
     CBloomFilter filter(10, 0.000001, 0, BLOOM_UPDATE_ALL);
     filter.insert(uint256S("0xb4749f017444b051c44dfd2720e88f314ff94f3dd6d56d40ef65854fcd7fff6b"));
+    printf("%s\n", tx.ToString().c_str());
     BOOST_CHECK_MESSAGE(filter.IsRelevantAndUpdate(tx), "Simple Bloom filter didn't match tx hash");
 
     filter = CBloomFilter(10, 0.000001, 0, BLOOM_UPDATE_ALL);
@@ -176,8 +178,7 @@ BOOST_AUTO_TEST_CASE(bloom_match)
 
 BOOST_AUTO_TEST_CASE(merkle_block_1)
 {
-    //CBlock block = getBlock13b8a();
-    CBlock block = getBlock6548(); //Added to attempt to compile
+    CBlock block = getBlock13b8a();
     CBloomFilter filter(10, 0.000001, 0, BLOOM_UPDATE_ALL);
     // Match the last transaction
     filter.insert(uint256S("0x74d681e0e03bafa802c8aa084379aa98d9fcd632ddc2ed9782b586ec87451f20"));
@@ -532,3 +533,4 @@ BOOST_AUTO_TEST_CASE(rolling_bloom)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+

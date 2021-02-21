@@ -17,15 +17,15 @@ BOOST_FIXTURE_TEST_SUITE(merkleblock_tests, BasicTestingSetup)
  */
 BOOST_AUTO_TEST_CASE(merkleblock_construct_from_txids_found)
 {
-    CBlock block = getBlock6548();
+    CBlock block = getBlock13b8a();
 
     std::set<uint256> txids;
 
-    // Second txn in block.
-    uint256 txhash1 = uint256S("0xb57b1fb45e11de2c4a3f425faa26878d5f94ed649b2ae065f0e23eb3be996ec4");
+    // Last txn in block.
+    uint256 txhash1 = uint256S("0x74d681e0e03bafa802c8aa084379aa98d9fcd632ddc2ed9782b586ec87451f20");
 
-    // First txn in block.
-    uint256 txhash2 = uint256S("0x79d16ad2c6be62a454771f7bdda732c524c7850d6fea66b1d3cac944ea40d37d");
+    // Second txn in block.
+    uint256 txhash2 = uint256S("0xf9fc751cb7dc372406a9f8d738d5e6f8f63bab71986a39cf36ee70ee17036d07");
 
     txids.insert(txhash1);
     txids.insert(txhash2);
@@ -44,11 +44,11 @@ BOOST_AUTO_TEST_CASE(merkleblock_construct_from_txids_found)
     BOOST_CHECK_EQUAL(vMatched.size(), 2U);
 
     // Ordered by occurrence in depth-first tree traversal.
-    BOOST_CHECK_EQUAL(vMatched[0].ToString(), txhash1.ToString());
-    BOOST_CHECK_EQUAL(vIndex[0], 0U);
+    BOOST_CHECK_EQUAL(vMatched[0].ToString(), txhash2.ToString());
+    BOOST_CHECK_EQUAL(vIndex[0], 1U);
 
-    BOOST_CHECK_EQUAL(vMatched[1].ToString(), txhash2.ToString());
-    BOOST_CHECK_EQUAL(vIndex[1], 1U);
+    BOOST_CHECK_EQUAL(vMatched[1].ToString(), txhash1.ToString());
+    BOOST_CHECK_EQUAL(vIndex[1], 8U);
 }
 
 
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(merkleblock_construct_from_txids_found)
  */
 BOOST_AUTO_TEST_CASE(merkleblock_construct_from_txids_not_found)
 {
-    CBlock block = getBlock6548();
+    CBlock block = getBlock13b8a();
 
     std::set<uint256> txids2;
     txids2.insert(uint256S("0xc0ffee00003bafa802c8aa084379aa98d9fcd632ddc2ed9782b586ec87451f20"));
@@ -76,3 +76,4 @@ BOOST_AUTO_TEST_CASE(merkleblock_construct_from_txids_not_found)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+

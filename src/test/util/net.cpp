@@ -9,7 +9,7 @@
 
 void ConnmanTestMsg::NodeReceiveMsgBytes(CNode& node, Span<const uint8_t> msg_bytes, bool& complete) const
 {
-    assert(node.ReceiveMsgBytes(pch, nBytes, complete));
+    assert(node.ReceiveMsgBytes(msg_bytes, complete));
     if (complete) {
         size_t nSizeAdded = 0;
         auto it(node.vRecvMsg.begin());
@@ -37,3 +37,4 @@ bool ConnmanTestMsg::ReceiveMsgFrom(CNode& node, CSerializedNetMsg& ser_msg) con
     NodeReceiveMsgBytes(node, ser_msg.data, complete);
     return complete;
 }
+
