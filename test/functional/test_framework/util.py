@@ -359,6 +359,7 @@ def initialize_datadir(dirname, n, chain):
         f.write("keypool=1\n")
         f.write("discover=0\n")
         f.write("dnsseed=0\n")
+        f.write("fixedseeds=0\n")
         f.write("listenonion=0\n")
         f.write("printtoconsole=0\n")
         f.write("upnp=0\n")

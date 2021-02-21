@@ -149,6 +149,10 @@ class ConfArgsTest(BGLTestFramework):
     def test_seed_peers(self):
         self.log.info('Test seed peers')
         default_data_dir = self.nodes[0].datadir
+        # Only regtest has no fixed seeds. To avoid connections to random
+        # nodes, regtest is the only network where it is safe to enable
+        # -fixedseeds in tests
+        util.assert_equal(self.nodes[0].getblockchaininfo()['chain'],'regtest')
         self.stop_node(0)
 
         # No peers.dat exists and -dnsseed=1
@@ -158,10 +162,12 @@ class ConfArgsTest(BGLTestFramework):
         start = int(time.time())
         with self.nodes[0].assert_debug_log(expected_msgs=[
                 "Loaded 0 addresses from peers.dat",
-                "0 addresses found from DNS seeds"]):
-            self.start_node(0, extra_args=['-dnsseed=1 -mocktime={}'.format(start)])
+                "0 addresses found from DNS seeds",
+        ]):
+            self.start_node(0, extra_args=['-dnsseed=1', '-fixedseeds=1', f'-mocktime={start}'])
         with self.nodes[0].assert_debug_log(expected_msgs=[
-                "Adding fixed seeds as 60 seconds have passed and addrman is empty"]):
+                "Adding fixed seeds as 60 seconds have passed and addrman is empty",
+        ]):
             self.nodes[0].setmocktime(start + 65)
         self.stop_node(0)
 
@@ -172,8 +178,9 @@ class ConfArgsTest(BGLTestFramework):
         with self.nodes[0].assert_debug_log(expected_msgs=[
                 "Loaded 0 addresses from peers.dat",
                 "DNS seeding disabled",
-                "Adding fixed seeds as -dnsseed=0, -addnode is not provided and all -seednode(s) attempted\n"]):
-            self.start_node(0, extra_args=['-dnsseed=0'])
+                "Adding fixed seeds as -dnsseed=0, -addnode is not provided and all -seednode(s) attempted\n",
+        ]):
+            self.start_node(0, extra_args=['-dnsseed=0', '-fixedseeds=1'])
         assert time.time() - start < 60
         self.stop_node(0)
 
@@ -184,7 +191,8 @@ class ConfArgsTest(BGLTestFramework):
         with self.nodes[0].assert_debug_log(expected_msgs=[
                 "Loaded 0 addresses from peers.dat",
                 "DNS seeding disabled",
-                "Fixed seeds are disabled"]):
+                "Fixed seeds are disabled",
+        ]):
             self.start_node(0, extra_args=['-dnsseed=0', '-fixedseeds=0'])
         assert time.time() - start < 60
         self.stop_node(0)
@@ -195,12 +203,13 @@ class ConfArgsTest(BGLTestFramework):
         start = int(time.time())
         with self.nodes[0].assert_debug_log(expected_msgs=[
                 "Loaded 0 addresses from peers.dat",
-                "DNS seeding disabled"]):
-            self.start_node(0, extra_args=['-dnsseed=0', '-addnode=fakenodeaddr -mocktime={}'.format(start)])
+                "DNS seeding disabled",
+        ]):
+            self.start_node(0, extra_args=['-dnsseed=0', '-fixedseeds=1', '-addnode=fakenodeaddr', f'-mocktime={start}'])
         with self.nodes[0].assert_debug_log(expected_msgs=[
-                "Adding fixed seeds as 60 seconds have passed and addrman is empty"]):
+                "Adding fixed seeds as 60 seconds have passed and addrman is empty",
+        ]):
             self.nodes[0].setmocktime(start + 65)
-
 
     def run_test(self):
         self.test_log_buffer()
