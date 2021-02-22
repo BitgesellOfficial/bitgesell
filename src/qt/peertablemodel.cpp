@@ -132,7 +132,7 @@ void PeerTableModel::stopAutoRefresh()
     timer->stop();
 }
 
-int PeerTableModel::rowCount(const QModelIndex &parent) const
+int PeerTableModel::rowCount(const QModelIndex& parent) const
 {
     if (parent.isValid()) {
         return 0;
@@ -140,7 +140,7 @@ int PeerTableModel::rowCount(const QModelIndex &parent) const
     return priv->size();
 }
 
-int PeerTableModel::columnCount(const QModelIndex &parent) const
+int PeerTableModel::columnCount(const QModelIndex& parent) const
 {
     if (parent.isValid()) {
         return 0;
@@ -148,7 +148,7 @@ int PeerTableModel::columnCount(const QModelIndex &parent) const
     return columns.length();
 }
 
-QVariant PeerTableModel::data(const QModelIndex &index, int role) const
+QVariant PeerTableModel::data(const QModelIndex& index, int role) const
 {
     if(!index.isValid())
         return QVariant();
@@ -230,7 +230,7 @@ Qt::ItemFlags PeerTableModel::flags(const QModelIndex &index) const
     return retval;
 }
 
-QModelIndex PeerTableModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex PeerTableModel::index(int row, int column, const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
     CNodeCombinedStats *data = priv->index(row);
