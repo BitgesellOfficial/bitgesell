@@ -96,7 +96,7 @@ std::string FormatScriptFlags(unsigned int flags)
 }
 
 BOOST_FIXTURE_TEST_SUITE(transaction_tests, BasicTestingSetup)
-/*
+
 BOOST_AUTO_TEST_CASE(tx_valid)
 {
     // Read tests from test/data/tx_valid.json
@@ -180,7 +180,6 @@ BOOST_AUTO_TEST_CASE(tx_valid)
         }
     }
 }
-*/
 
 BOOST_AUTO_TEST_CASE(tx_invalid)
 {
@@ -668,7 +667,7 @@ BOOST_AUTO_TEST_CASE(test_IsStandard)
     t.vout[0].nValue = 90*CENT;
     CKey key;
     key.MakeNewKey(true);
-    t.vout[0].scriptPubKey = GetScriptForWitness(GetScriptForDestination(PKHash(key.GetPubKey())));
+    t.vout[0].scriptPubKey = GetScriptForDestination(PKHash(key.GetPubKey()));
 
     std::string reason;
     BOOST_CHECK(IsStandardTx(CTransaction(t), reason));
@@ -677,7 +676,7 @@ BOOST_AUTO_TEST_CASE(test_IsStandard)
     CAmount nDustThreshold = 182 * dustRelayFee.GetFeePerK()/1000;
     BOOST_CHECK_EQUAL(nDustThreshold, 546);
     // dust:
-    t.vout[0].nValue = nDustThreshold / 4 - 1; //take witness discount into account
+    t.vout[0].nValue = nDustThreshold - 1;
     reason.clear();
     BOOST_CHECK(!IsStandardTx(CTransaction(t), reason));
     BOOST_CHECK_EQUAL(reason, "dust");
@@ -712,7 +711,7 @@ BOOST_AUTO_TEST_CASE(test_IsStandard)
     // nDustThreshold = 182 * 3702 / 1000
     dustRelayFee = CFeeRate(3702);
     // dust:
-    t.vout[0].nValue = 673 / 4 - 1; //take witness discount into account
+    t.vout[0].nValue = 673 - 1;
     reason.clear();
     BOOST_CHECK(!IsStandardTx(CTransaction(t), reason));
     BOOST_CHECK_EQUAL(reason, "dust");
@@ -783,7 +782,7 @@ BOOST_AUTO_TEST_CASE(test_IsStandard)
     // Check large scriptSig (non-standard if size is >1650 bytes)
     t.vout.resize(1);
     t.vout[0].nValue = MAX_MONEY;
-    t.vout[0].scriptPubKey = GetScriptForWitness(GetScriptForDestination(PKHash(key.GetPubKey())));
+    t.vout[0].scriptPubKey = GetScriptForDestination(PKHash(key.GetPubKey()));
     // OP_PUSHDATA2 with len (3 bytes) + data (1647 bytes) = 1650 bytes
     t.vin[0].scriptSig = CScript() << std::vector<unsigned char>(1647, 0); // 1650
     BOOST_CHECK(IsStandardTx(CTransaction(t), reason));
@@ -861,3 +860,4 @@ BOOST_AUTO_TEST_CASE(test_IsStandard)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+

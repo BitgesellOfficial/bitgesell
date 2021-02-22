@@ -1,7 +1,6 @@
 // Copyright (c) 2011-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-
 #include <qt/guiutil.h>
 
 #include <qt/BGLaddressvalidator.h>
@@ -115,7 +114,7 @@ void setupAddressWidget(QValidatedLineEdit *widget, QWidget *parent)
 bool parseBGLURI(const QUrl &uri, SendCoinsRecipient *out)
 {
     // return if URI is not valid or is no BGL: URI
-    if(!uri.isValid() || uri.scheme() != QString("BGL"))
+    if(!uri.isValid() || uri.scheme() != QString("bgl"))
         return false;
 
     SendCoinsRecipient rv;
