@@ -8,10 +8,11 @@
 #include <net_processing.h> // For CNodeStateStats
 #include <net.h>
 
-#include <memory>
-
 #include <QAbstractTableModel>
+#include <QList>
+#include <QModelIndex>
 #include <QStringList>
+#include <QVariant>
 
 class PeerTablePriv;
 
@@ -88,6 +89,8 @@ public Q_SLOTS:
     void refresh();
 
 private:
+    //! Internal peer data structure.
+    QList<CNodeCombinedStats> m_peers_data{};
     interfaces::Node& m_node;
     const QStringList columns{
         /*: Title of Peers Table column which contains a
@@ -117,7 +120,6 @@ private:
         /*: Title of Peers Table column which contains the peer's
             User Agent string. */
         tr("User Agent")};
-    std::unique_ptr<PeerTablePriv> priv;
     QTimer *timer;
 };
 
