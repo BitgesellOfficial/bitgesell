@@ -44,8 +44,8 @@ The interface is defined in the C header `BGLconsensus.h` located in `src/script
 - `BGLconsensus_ERR_INVALID_FLAGS` - Script verification `flags` are invalid (i.e. not part of the libconsensus interface)
 
 ### Example Implementations
-- [NBGL](https://github.com/NicolasDorier/NBGL/blob/master/NBGL/Script.cs#L814) (.NET Bindings)
-- [node-libBGLconsensus](https://github.com/bitpay/node-libBGLconsensus) (Node.js Bindings)
-- [java-libBGLconsensus](https://github.com/dexX7/java-libBGLconsensus) (Java Bindings)
-- [BGLconsensus-php](https://github.com/Bit-Wasp/BGLconsensus-php) (PHP Bindings)
-
+- [NBitcoin](https://github.com/MetacoSA/NBitcoin/blob/5e1055cd7c4186dee4227c344af8892aea54faec/NBitcoin/Script.cs#L979-#L1031) (.NET Bindings)
+- [node-libbitcoinconsensus](https://github.com/bitpay/node-libbitcoinconsensus) (Node.js Bindings)
+- [java-libbitcoinconsensus](https://github.com/dexX7/java-libbitcoinconsensus) (Java Bindings)
+- [bitcoinconsensus-php](https://github.com/Bit-Wasp/bitcoinconsensus-php) (PHP Bindings)
+- [rust-bitcoinconsensus](https://github.com/rust-bitcoin/rust-bitcoinconsensus) (Rust Bindings)
