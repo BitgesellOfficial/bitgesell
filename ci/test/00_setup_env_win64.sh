@@ -5,9 +5,28 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 export LC_ALL=C.UTF-8
+#export PACKAGE_MANAGER_INSTALL #default
+#export MAKEJOBS #default
+#export DANGER_RUN_CI_ON_HOST #default
+#export TEST_RUNNER_PORT_MIN #default
+#export CCACHE_SIZE #default
+#export CCACHE_DIR #default
+
 
 export HOST=x86_64-w64-mingw32
-export PACKAGES="python3 nsis g++-mingw-w64-x86-64 wine-binfmt wine64"
-export RUN_FUNCTIONAL_TESTS=false
+#export CONTAINER_NAME #?????
+#export DOCKER_NAME_TAG #?????
+
+
+#export NO_DEPENDS #default
+export DEP_OPTS #default
 export GOAL="deploy"
 export BGL_CONFIG="--enable-reduce-exports --disable-gui-tests"
+export PACKAGES="python3 nsis g++-mingw-w64-x86-64 wine-binfmt wine64"
+#export PIP_PACKAGES #no relevant
+
+
+export TEST_RUNNER_EXTRA #no relevant
+export RUN_UNIT_TESTS="false"
+export RUN_FUNCTIONAL_TESTS="false"
+export EVENT_LIBS="/usr/lib/x86_64-linux-gnu/libevent.a /usr/lib/x86_64-linux-gnu/libevent_pthreads.a"
