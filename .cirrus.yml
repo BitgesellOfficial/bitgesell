@@ -42,7 +42,7 @@ global_task_template: &GLOBAL_TASK_TEMPLATE
 
 
 task:
-  name: 'macOS 10.15 native [qt] [deploy]'
+  name: 'macOS 10.15 native [qt]'
   macos_brew_addon_script:
     - brew install boost libevent berkeley-db4 qt miniupnpc libnatpmp ccache zeromq qrencode sqlite libtool automake pkg-config gnu-getopt librsvg
   << : *GLOBAL_TASK_TEMPLATE
