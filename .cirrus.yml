@@ -60,7 +60,7 @@ task:
   container:
     image: ubuntu:bionic
   env:
-    FILE_ENV: "./ci/test/00_setup_env_native.sh"
+    FILE_ENV: "./ci/test/00_setup_env_native_nowallet.sh"
 
 task:
   name: "x86_64 Linux [qt]"
