@@ -42,7 +42,7 @@ global_task_template: &GLOBAL_TASK_TEMPLATE
 
 
 task:
-  name: 'macOS 10.15 native [qt]'
+  name: 'macOS 10.15 native [qt] [deploy]'
   macos_brew_addon_script:
     - brew install boost libevent berkeley-db4 qt miniupnpc libnatpmp ccache zeromq qrencode sqlite libtool automake pkg-config gnu-getopt librsvg
   << : *GLOBAL_TASK_TEMPLATE
@@ -69,3 +69,18 @@ task:
     image: ubuntu:bionic
   env:
     FILE_ENV: "./ci/test/00_setup_env_native_qt5.sh"
+
+task:
+  name: "debian [deploy]"
+  << : *BASE_TEMPLATE
+  compute_engine_instance:
+    image_project: cirrus-images
+    image: family/docker-kvm
+    platform: linux
+    cpu: 2
+    memory: 8G
+    nested_virtualization: true
+  ci_script:
+    - ./ci/debian_deploy.sh
+  deb_artifacts:
+    path: "/*.deb"
