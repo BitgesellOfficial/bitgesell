@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2018 The Bitcoin Core developers
+# Copyright (c) 2018-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #
@@ -13,11 +13,7 @@ EXPECTED_CIRCULAR_DEPENDENCIES=(
     "index/txindex -> validation -> index/txindex"
     "policy/fees -> txmempool -> policy/fees"
     "qt/addresstablemodel -> qt/walletmodel -> qt/addresstablemodel"
-    "qt/bantablemodel -> qt/clientmodel -> qt/bantablemodel"
-    "qt/BGLgui -> qt/utilitydialog -> qt/BGLgui"
     "qt/BGLgui -> qt/walletframe -> qt/BGLgui"
-    "qt/BGLgui -> qt/walletview -> qt/BGLgui"
-    "qt/clientmodel -> qt/peertablemodel -> qt/clientmodel"
     "qt/recentrequeststablemodel -> qt/walletmodel -> qt/recentrequeststablemodel"
     "qt/sendcoinsdialog -> qt/walletmodel -> qt/sendcoinsdialog"
     "qt/transactiontablemodel -> qt/walletmodel -> qt/transactiontablemodel"
@@ -25,7 +21,6 @@ EXPECTED_CIRCULAR_DEPENDENCIES=(
     "wallet/fees -> wallet/wallet -> wallet/fees"
     "wallet/wallet -> wallet/walletdb -> wallet/wallet"
     "policy/fees -> txmempool -> validation -> policy/fees"
-    "wallet/scriptpubkeyman -> wallet/wallet -> wallet/scriptpubkeyman"
 )
 
 EXIT_CODE=0

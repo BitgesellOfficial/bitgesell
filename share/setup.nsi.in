@@ -2,6 +2,11 @@ Name "@PACKAGE_NAME@ (64-bit)"
 
 RequestExecutionLevel highest
 SetCompressor /SOLID lzma
+SetDateSave off
+
+# Uncomment these lines when investigating reproducibility errors
+#SetCompress off
+#SetDatablockOptimize off
 
 # General Symbol Definitions
 !define REGKEY "SOFTWARE\$(^Name)"
@@ -52,14 +57,14 @@ CRCCheck on
 XPStyle on
 BrandingText " "
 ShowInstDetails show
-VIProductVersion @CLIENT_VERSION_MAJOR@.@CLIENT_VERSION_MINOR@.@CLIENT_VERSION_REVISION@.@CLIENT_VERSION_BUILD@
+VIProductVersion @CLIENT_VERSION_MAJOR@.@CLIENT_VERSION_MINOR@.@CLIENT_VERSION_BUILD@.0
 VIAddVersionKey ProductName "@PACKAGE_NAME@"
 VIAddVersionKey ProductVersion "@PACKAGE_VERSION@"
 VIAddVersionKey CompanyName "${COMPANY}"
 VIAddVersionKey CompanyWebsite "${URL}"
 VIAddVersionKey FileVersion "@PACKAGE_VERSION@"
-VIAddVersionKey FileDescription ""
-VIAddVersionKey LegalCopyright ""
+VIAddVersionKey FileDescription "Installer for @PACKAGE_NAME@"
+VIAddVersionKey LegalCopyright "Copyright (C) 2009-@COPYRIGHT_YEAR@ @COPYRIGHT_HOLDERS_FINAL@"
 InstallDirRegKey HKCU "${REGKEY}" Path
 ShowUninstDetails show
 

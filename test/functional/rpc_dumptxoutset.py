@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2019 The Bitcoin Core developers
+# Copyright (c) 2019-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the generation of UTXO snapshots using `dumptxoutset`.
@@ -25,7 +25,7 @@ class DumptxoutsetTest(BGLTestFramework):
 
         FILENAME = 'txoutset.dat'
         out = node.dumptxoutset(FILENAME)
-        expected_path = Path(node.datadir) / 'regtest' / FILENAME
+        expected_path = Path(node.datadir) / self.chain / FILENAME
 
         assert expected_path.is_file()
 

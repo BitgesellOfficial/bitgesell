@@ -33,10 +33,15 @@ the `src/qt/test/test_main.cpp` file.
 
 ### Running individual tests
 
-test_BGL has some built-in command-line arguments; for
-example, to run just the getarg_tests verbosely:
+`test_BGL` has some built-in command-line arguments; for
+example, to run just the `getarg_tests` verbosely:
 
-    test_BGL --log_level=all --run_test=getarg_tests
+    test_BGL --log_level=all --run_test=getarg_tests -- DEBUG_LOG_OUT
+
+`log_level` controls the verbosity of the test framework, which logs when a
+test case is entered, for example. The `DEBUG_LOG_OUT` after the two dashes
+redirects the debug log, which would normally go to a file in the test datadir
+(`BasicTestingSetup::m_path_root`), to the standard terminal output.
 
 ... or to run just the doubledash test:
 
@@ -55,6 +60,10 @@ called `<source_filename>_tests`. For an example of this pattern,
 see `uint256_tests.cpp`.
 
 ### Logging and debugging in unit tests
+
+`make check` will write to a log file `foo_tests.cpp.log` and display this file
+on failure. For running individual tests verbosely, refer to the section
+[above](#running-individual-tests).
 
 To write to logs from unit tests you need to use specific message methods
 provided by Boost. The simplest is `BOOST_TEST_MESSAGE`.

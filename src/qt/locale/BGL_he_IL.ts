@@ -1,75 +1,103 @@
-<TS language="he_IL" version="2.1">
+<TS language="bs" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation>קליל ימני כדי לערוך כתובת או תווית</translation>
+        <translation>Desni klik za uređivanje adrese ili oznake</translation>
     </message>
     <message>
         <source>Create a new address</source>
-        <translation>צור כתובת חדשה</translation>
+        <translation>Napravite novu adresu</translation>
     </message>
     <message>
         <source>&amp;New</source>
-        <translation>וחדש</translation>
+        <translation>&amp;Nova</translation>
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
-        <translation>העתק את הכתובת הנבחרת ללוח</translation>
+        <translation>Kopirajte trenutno odabranu adresu u sistemski meduspremnik</translation>
     </message>
     <message>
         <source>&amp;Copy</source>
-        <translation>והעתק</translation>
+        <translation>&amp;Kopirajte</translation>
     </message>
     <message>
         <source>C&amp;lose</source>
-        <translation>וסגור</translation>
+        <translation>&amp;Zatvorite</translation>
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
-        <translation>מחק את הכתובת הנבחרת מהרשימה</translation>
+        <translation>Izbrišite trenutno odabranu odresu sa liste</translation>
+    </message>
+    <message>
+        <source>Enter address or label to search</source>
+        <translation>Unesite adresu ili oznaku za pretragu</translation>
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
-        <translation>יצא את המידע בעמוד הנוכחי לקובץ</translation>
+        <translation>Izvezite podatke trenutne kartice u datoteku</translation>
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation>ייצוא</translation>
+        <translation>&amp;Izvezite</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation>מחק</translation>
+        <translation>Iz&amp;brišite</translation>
     </message>
     <message>
         <source>Choose the address to send coins to</source>
-        <translation>בחר את הכתובת כדי לשלוח אליה מטבעות</translation>
+        <translation>Izaberite adresu na koju ćete poslati novac</translation>
     </message>
     <message>
         <source>Choose the address to receive coins with</source>
-        <translation>בחר את הכתובת כדי לקבל אליה מטבעות</translation>
+        <translation>Izaberite adresu na koju ćete primiti novac</translation>
     </message>
     <message>
         <source>C&amp;hoose</source>
-        <translation>בחר</translation>
+        <translation>&amp;Izaberite</translation>
     </message>
     <message>
         <source>Sending addresses</source>
-        <translation>שולח כתובות</translation>
+        <translation>Adrese pošiljalaca</translation>
     </message>
     <message>
         <source>Receiving addresses</source>
-        <translation>מקבל כתובות</translation>
+        <translation>Adrese primalaca</translation>
     </message>
     <message>
         <source>These are your BGL addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>אלו הן כתובות הביטקוין שלך לשליחת תשלומים. תמיד בדוק את כתובת הארנק המקבל לפני שליחת מטבעות</translation>
+        <translation>Ovo su vaše BGL adrese za slanje novca. Uvijek provjerite iznos i adresu primaoca prije slanja novca.</translation>
     </message>
     <message>
-        <source>These are your BGL addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
-        <translation>אלו הן כתובות הביטקוין שלך לקבלת תשלומים. מומלץ להשתמש בכתובת חדשה בכל העברת מטבעות</translation>
+        <source>&amp;Copy Address</source>
+        <translation>&amp;Kopirajte adresu</translation>
     </message>
-    </context>
+    <message>
+        <source>Copy &amp;Label</source>
+        <translation>Kopirajte &amp;ozanku</translation>
+    </message>
+    <message>
+        <source>&amp;Edit</source>
+        <translation>&amp;Uredite</translation>
+    </message>
+    <message>
+        <source>Export Address List</source>
+        <translation>Izvezite listu adresa</translation>
+    </message>
+    <message>
+        <source>Comma separated file (*.csv)</source>
+        <translation>Datoteka podataka odvojenih zarezima (*.csv)</translation>
+    </message>
+    <message>
+        <source>Exporting Failed</source>
+        <translation>Izvoz neuspješan</translation>
+    </message>
+    <message>
+        <source>There was an error trying to save the address list to %1. Please try again.</source>
+        <translation>Došlo je do greške kod spašavanja liste adresa na %1. Molimo pokušajte ponovo.</translation>
+    </message>
+</context>
 <context>
     <name>AddressTableModel</name>
     </context>
@@ -81,25 +109,15 @@
     </context>
 <context>
     <name>BGLGUI</name>
-    <message>
-        <source>BGL</source>
-        <translation>ביטקוין</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>ארנק</translation>
-    </message>
     </context>
 <context>
     <name>CoinControlDialog</name>
-    <message>
-        <source>Copy amount</source>
-        <translation>העתק סכום</translation>
-    </message>
-    <message>
-        <source>Copy quantity</source>
-        <translation>העתק כמות</translation>
-    </message>
+    </context>
+<context>
+    <name>CreateWalletActivity</name>
+    </context>
+<context>
+    <name>CreateWalletDialog</name>
     </context>
 <context>
     <name>EditAddressDialog</name>
@@ -114,7 +132,7 @@
     <name>Intro</name>
     <message>
         <source>BGL</source>
-        <translation>ביטקוין</translation>
+        <translation>BGL</translation>
     </message>
     </context>
 <context>
@@ -124,10 +142,16 @@
     <name>OpenURIDialog</name>
     </context>
 <context>
+    <name>OpenWalletActivity</name>
+    </context>
+<context>
     <name>OptionsDialog</name>
     </context>
 <context>
     <name>OverviewPage</name>
+    </context>
+<context>
+    <name>PSBTOperationsDialog</name>
     </context>
 <context>
     <name>PaymentServer</name>
@@ -139,9 +163,6 @@
     <name>QObject</name>
     </context>
 <context>
-    <name>QObject::QObject</name>
-    </context>
-<context>
     <name>QRImageWidget</name>
     </context>
 <context>
@@ -149,46 +170,40 @@
     </context>
 <context>
     <name>ReceiveCoinsDialog</name>
-    <message>
-        <source>Copy amount</source>
-        <translation>העתק סכום</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
-    <message>
-        <source>Wallet</source>
-        <translation>ארנק</translation>
-    </message>
     </context>
 <context>
     <name>RecentRequestsTableModel</name>
     </context>
 <context>
     <name>SendCoinsDialog</name>
-    <message>
-        <source>Copy quantity</source>
-        <translation>העתק כמות</translation>
-    </message>
-    <message>
-        <source>Copy amount</source>
-        <translation>העתק סכום</translation>
-    </message>
     </context>
 <context>
     <name>SendCoinsEntry</name>
-    </context>
-<context>
-    <name>SendConfirmationDialog</name>
+    <message>
+        <source>Alt+A</source>
+        <translation>Alt+A</translation>
+    </message>
+    <message>
+        <source>Alt+P</source>
+        <translation>Alt+P</translation>
+    </message>
     </context>
 <context>
     <name>ShutdownWindow</name>
     </context>
 <context>
     <name>SignVerifyMessageDialog</name>
-    </context>
-<context>
-    <name>SplashScreen</name>
+    <message>
+        <source>Alt+A</source>
+        <translation>Alt+A</translation>
+    </message>
+    <message>
+        <source>Alt+P</source>
+        <translation>Alt+P</translation>
+    </message>
     </context>
 <context>
     <name>TrafficGraphWidget</name>
@@ -205,12 +220,39 @@
 <context>
     <name>TransactionView</name>
     <message>
-        <source>Copy amount</source>
-        <translation>העתק סכום</translation>
+        <source>All</source>
+        <translation>Sve</translation>
+    </message>
+    <message>
+        <source>Today</source>
+        <translation>Danas</translation>
+    </message>
+    <message>
+        <source>This month</source>
+        <translation>Ovaj mjesec</translation>
+    </message>
+    <message>
+        <source>Last month</source>
+        <translation>Prošli mjesec</translation>
+    </message>
+    <message>
+        <source>This year</source>
+        <translation>Ove godine</translation>
+    </message>
+    <message>
+        <source>Comma separated file (*.csv)</source>
+        <translation>Datoteka podataka odvojenih zarezima (*.csv)</translation>
+    </message>
+    <message>
+        <source>Exporting Failed</source>
+        <translation>Izvoz neuspješan</translation>
     </message>
     </context>
 <context>
     <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletController</name>
     </context>
 <context>
     <name>WalletFrame</name>
@@ -222,11 +264,11 @@
     <name>WalletView</name>
     <message>
         <source>&amp;Export</source>
-        <translation>ייצוא</translation>
+        <translation>&amp;Izvezite</translation>
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
-        <translation>יצא את המידע בעמוד הנוכחי לקובץ</translation>
+        <translation>Izvezite podatke trenutne kartice u datoteku</translation>
     </message>
     </context>
 <context>

@@ -17,7 +17,7 @@ class BGLAddressEntryValidator : public QValidator
 public:
     explicit BGLAddressEntryValidator(QObject *parent);
 
-    State validate(QString &input, int &pos) const;
+    State validate(QString &input, int &pos) const override;
 };
 
 /** BGL address widget validator, checks for a valid BGL address.
@@ -29,7 +29,7 @@ class BGLAddressCheckValidator : public QValidator
 public:
     explicit BGLAddressCheckValidator(QObject *parent);
 
-    State validate(QString &input, int &pos) const;
+    State validate(QString &input, int &pos) const override;
 };
 
 #endif // BGL_QT_BGLADDRESSVALIDATOR_H

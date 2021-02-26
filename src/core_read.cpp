@@ -1,4 +1,4 @@
-// Copyright (c) 2009-2018 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -19,6 +19,7 @@
 #include <boost/algorithm/string/split.hpp>
 
 #include <algorithm>
+#include <string>
 
 CScript ParseScript(const std::string& s)
 {
@@ -34,10 +35,9 @@ CScript ParseScript(const std::string& s)
             if (op < OP_NOP && op != OP_RESERVED)
                 continue;
 
-            const char* name = GetOpName(static_cast<opcodetype>(op));
-            if (strcmp(name, "OP_UNKNOWN") == 0)
+            std::string strName = GetOpName(static_cast<opcodetype>(op));
+            if (strName == "OP_UNKNOWN")
                 continue;
-            std::string strName(name);
             mapOpNames[strName] = static_cast<opcodetype>(op);
             // Convenience: OP_ADD and just ADD are both recognized:
             boost::algorithm::replace_first(strName, "OP_", "");
@@ -59,6 +59,14 @@ CScript ParseScript(const std::string& s)
         {
             // Number
             int64_t n = atoi64(*w);
+
+            //limit the range of numbers ParseScript accepts in decimal
+            //since numbers outside -0xFFFFFFFF...0xFFFFFFFF are illegal in scripts
+            if (n > int64_t{0xffffffff} || n < -1 * int64_t{0xffffffff}) {
+                throw std::runtime_error("script parse error: decimal numeric value only allowed in the "
+                                         "range -0xFFFFFFFF...0xFFFFFFFF");
+            }
+
             result << n;
         }
         else if (w->substr(0,2) == "0x" && w->size() > 2 && IsHex(std::string(w->begin()+2, w->end())))
@@ -117,11 +125,12 @@ bool DecodeHexTx(CMutableTransaction& tx, const std::string& hex_tx, bool try_no
 
     std::vector<unsigned char> txData(ParseHex(hex_tx));
 
-    if (try_no_witness) {
-        CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS);
+    if (try_witness) {
+        CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
         try {
             ssData >> tx;
-            if (ssData.eof() && (!try_witness || CheckTxScriptsSanity(tx))) {
+            // If transaction looks sane, we don't try other mode even if requested
+            if (ssData.empty() && (!try_no_witness || CheckTxScriptsSanity(tx))) {
                 return true;
             }
         } catch (const std::exception&) {
@@ -129,8 +138,8 @@ bool DecodeHexTx(CMutableTransaction& tx, const std::string& hex_tx, bool try_no
         }
     }
 
-    if (try_witness) {
-        CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION);
+    if (try_no_witness) {
+        CDataStream ssData(txData, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS);
         try {
             ssData >> tx;
             if (ssData.empty()) {
