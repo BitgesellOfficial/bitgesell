@@ -50,6 +50,31 @@ namespace BCLog {
 
 BOOST_FIXTURE_TEST_SUITE(util_tests, BasicTestingSetup)
 
+BOOST_AUTO_TEST_CASE(util_datadir)
+{
+    // Use local args variable instead of m_args to avoid making assumptions about test setup
+    ArgsManager args;
+    args.ForceSetArg("-datadir", m_path_root.string());
+
+    const fs::path dd_norm = args.GetDataDirPath();
+
+    args.ForceSetArg("-datadir", dd_norm.string() + "/");
+    ClearDatadirCache();
+    BOOST_CHECK_EQUAL(dd_norm, args.GetDataDirPath());
+
+    args.ForceSetArg("-datadir", dd_norm.string() + "/.");
+    ClearDatadirCache();
+    BOOST_CHECK_EQUAL(dd_norm, args.GetDataDirPath());
+
+    args.ForceSetArg("-datadir", dd_norm.string() + "/./");
+    ClearDatadirCache();
+    BOOST_CHECK_EQUAL(dd_norm, args.GetDataDirPath());
+
+    args.ForceSetArg("-datadir", dd_norm.string() + "/.//");
+    ClearDatadirCache();
+    BOOST_CHECK_EQUAL(dd_norm, args.GetDataDirPath());
+}
+
 BOOST_AUTO_TEST_CASE(util_check)
 {
     // Check that Assert can forward
