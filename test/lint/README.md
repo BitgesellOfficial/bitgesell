@@ -18,9 +18,16 @@ the commit it claims to have been updated to.
 To use, make sure that you have fetched the upstream repository branch in which the subtree is
 maintained:
 * for `src/secp256k1`: https://github.com/BGL-core/secp256k1.git (branch master)
-* for `src/leveldb`: https://github.com/BGL-core/leveldb.git (branch BGL-fork)
+* for `src/leveldb`: https://github.com/BGL-core/leveldb.git (branch bitcoin-fork)
 * for `src/univalue`: https://github.com/BGL-core/univalue.git (branch master)
 * for `src/crypto/ctaes`: https://github.com/BGL-core/ctaes.git (branch master)
+* for `src/crc32c`: https://github.com/google/crc32c.git (branch master)
+
+To do so, add the upstream repository as remote:
+
+```
+git remote add --fetch secp256k1 https://github.com/bitcoin-core/secp256k1.git
+```
 
 Usage: `git-subtree-check.sh DIR (COMMIT)`
 

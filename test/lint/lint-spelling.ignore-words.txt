@@ -12,3 +12,6 @@ keyserver
 homogenous
 setban
 hist
+ser
+unselect
+lowercased

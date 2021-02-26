@@ -9,6 +9,7 @@ Developer Notes
     - [Coding Style (C++)](#coding-style-c)
     - [Coding Style (Python)](#coding-style-python)
     - [Coding Style (Doxygen-compatible comments)](#coding-style-doxygen-compatible-comments)
+      - [Generating Documentation](#generating-documentation)
     - [Development tips and tricks](#development-tips-and-tricks)
         - [Compiling for debugging](#compiling-for-debugging)
         - [Compiling for gprof profiling](#compiling-for-gprof-profiling)
@@ -35,10 +36,14 @@ Developer Notes
     - [Source code organization](#source-code-organization)
     - [GUI](#gui)
     - [Subtrees](#subtrees)
+    - [Upgrading LevelDB](#upgrading-leveldb)
+      - [File Descriptor Counts](#file-descriptor-counts)
+      - [Consensus Compatibility](#consensus-compatibility)
     - [Scripted diffs](#scripted-diffs)
         - [Suggestions and examples](#suggestions-and-examples)
     - [Release notes](#release-notes)
     - [RPC interface guidelines](#rpc-interface-guidelines)
+    - [Internal interface guidelines](#internal-interface-guidelines)
 
 <!-- markdown-toc end -->
 
@@ -138,12 +143,17 @@ For example, to describe a function use:
 
 ```c++
 /**
- * ... text ...
- * @param[in] arg1    A description
- * @param[in] arg2    Another argument description
- * @pre Precondition for function...
+ * ... Description ...
+ *
+ * @param[in]  arg1 input description...
+ * @param[in]  arg2 input description...
+ * @param[out] arg3 output description...
+ * @return Return cases...
+ * @throws Error type and cases...
+ * @pre  Pre-condition for function...
+ * @post Post-condition for function...
  */
-bool function(int arg1, const char *arg2)
+bool function(int arg1, const char *arg2, std::string& arg3)
 ```
 
 A complete list of `@xxx` commands can be found at http://www.doxygen.nl/manual/commands.html.
@@ -158,44 +168,73 @@ To describe a class, use the same construct above the class definition:
  * @see GetWarnings()
  */
 class CAlert
-{
 ```
 
 To describe a member or variable use:
-```c++
-int var; //!< Detailed description after the member
-```
-
-or
 ```c++
 //! Description before the member
 int var;
 ```
 
+or
+```c++
+int var; //!< Description after the member
+```
+
 Also OK:
 ```c++
 ///
-/// ... text ...
+/// ... Description ...
 ///
 bool function2(int arg1, const char *arg2)
 ```
 
-Not OK (used plenty in the current source, but not picked up):
+Not picked up by Doxygen:
 ```c++
 //
-// ... text ...
+// ... Description ...
 //
+```
+
+Also not picked up by Doxygen:
+```c++
+/*
+ * ... Description ...
+ */
 ```
 
 A full list of comment syntaxes picked up by Doxygen can be found at http://www.doxygen.nl/manual/docblocks.html,
 but the above styles are favored.
 
-Documentation can be generated with `make docs` and cleaned up with `make clean-docs`. The resulting files are located in `doc/doxygen/html`; open `index.html` to view the homepage.
+Recommendations:
 
-Before running `make docs`, you will need to install dependencies `doxygen` and `dot`. For example, on macOS via Homebrew:
-```
-brew install graphviz doxygen
-```
+- Avoiding duplicating type and input/output information in function
+  descriptions.
+
+- Use backticks (&#96;&#96;) to refer to `argument` names in function and
+  parameter descriptions.
+
+- Backticks aren't required when referring to functions Doxygen already knows
+  about; it will build hyperlinks for these automatically. See
+  http://www.doxygen.nl/manual/autolink.html for complete info.
+
+- Avoid linking to external documentation; links can break.
+
+- Javadoc and all valid Doxygen comments are stripped from Doxygen source code
+  previews (`STRIP_CODE_COMMENTS = YES` in [Doxyfile.in](doc/Doxyfile.in)). If
+  you want a comment to be preserved, it must instead use `//` or `/* */`.
+
+### Generating Documentation
+
+The documentation can be generated with `make docs` and cleaned up with `make
+clean-docs`. The resulting files are located in `doc/doxygen/html`; open
+`index.html` in that directory to view the homepage.
+
+Before running `make docs`, you'll need to install these dependencies:
+
+Linux: `sudo apt install doxygen graphviz`
+
+MacOS: `brew install doxygen graphviz`
 
 Development tips and tricks
 ---------------------------
@@ -237,6 +276,33 @@ configure option adds `-DDEBUG_LOCKORDER` to the compiler flags. This inserts
 run-time checks to keep track of which locks are held and adds warnings to the
 `debug.log` file if inconsistencies are detected.
 
+### Assertions and Checks
+
+The util file `src/util/check.h` offers helpers to protect against coding and
+internal logic bugs. They must never be used to validate user, network or any
+other input.
+
+* `assert` or `Assert` should be used to document assumptions when any
+  violation would mean that it is not safe to continue program execution. The
+  code is always compiled with assertions enabled.
+   - For example, a nullptr dereference or any other logic bug in validation
+     code means the program code is faulty and must terminate immediately.
+* `CHECK_NONFATAL` should be used for recoverable internal logic bugs. On
+  failure, it will throw an exception, which can be caught to recover from the
+  error.
+   - For example, a nullptr dereference or any other logic bug in RPC code
+     means that the RPC code is faulty and can not be executed. However, the
+     logic bug can be shown to the user and the program can continue to run.
+* `Assume` should be used to document assumptions when program execution can
+  safely continue even if the assumption is violated. In debug builds it
+  behaves like `Assert`/`assert` to notify developers and testers about
+  nonfatal errors. In production it doesn't warn or log anything, though the
+  expression is always evaluated.
+   - For example it can be assumed that a variable is only initialized once,
+     but a failed assumption does not result in a fatal bug. A failed
+     assumption may or may not result in a slightly degraded user experience,
+     but it is safe to continue program execution.
+
 ### Valgrind suppressions file
 
 Valgrind is a programming tool for memory debugging, memory leak detection, and
@@ -250,6 +316,7 @@ $ valgrind --suppressions=contrib/valgrind.supp src/test/test_BGL
 $ valgrind --suppressions=contrib/valgrind.supp --leak-check=full \
       --show-leak-kinds=all src/test/test_BGL --log_level=test_suite
 $ valgrind -v --leak-check=full src/BGLd -printtoconsole
+$ ./test/functional/test_runner.py --valgrind
 ```
 
 ### Compiling for test coverage
@@ -383,27 +450,52 @@ and its `cs_KeyStore` lock for example).
 Threads
 -------
 
-- ThreadScriptCheck : Verifies block scripts.
+- [Main thread (`bitcoind`)](https://doxygen.bitcoincore.org/bitcoind_8cpp.html#a0ddf1224851353fc92bfbff6f499fa97)
+  : Started from `main()` in `bitcoind.cpp`. Responsible for starting up and
+  shutting down the application.
 
-- ThreadImport : Loads blocks from `blk*.dat` files or `-loadblock=<file>`.
+- [ThreadImport (`b-loadblk`)](https://doxygen.bitcoincore.org/init_8cpp.html#ae9e290a0e829ec0198518de2eda579d1)
+  : Loads blocks from `blk*.dat` files or `-loadblock=<file>` on startup.
 
-- ThreadDNSAddressSeed : Loads addresses of peers from the DNS.
+- [ThreadScriptCheck (`b-scriptch.x`)](https://doxygen.bitcoincore.org/validation_8cpp.html#a925a33e7952a157922b0bbb8dab29a20)
+  : Parallel script validation threads for transactions in blocks.
 
-- ThreadMapPort : Universal plug-and-play startup/shutdown.
+- [ThreadHTTP (`b-http`)](https://doxygen.bitcoincore.org/httpserver_8cpp.html#abb9f6ea8819672bd9a62d3695070709c)
+  : Libevent thread to listen for RPC and REST connections.
 
-- ThreadSocketHandler : Sends/Receives data from peers on port 8333.
+- [HTTP worker threads(`b-httpworker.x`)](https://doxygen.bitcoincore.org/httpserver_8cpp.html#aa6a7bc27265043bc0193220c5ae3a55f)
+  : Threads to service RPC and REST requests.
 
-- ThreadOpenAddedConnections : Opens network connections to added nodes.
+- [Indexer threads (`b-txindex`, etc)](https://doxygen.bitcoincore.org/class_base_index.html#a96a7407421fbf877509248bbe64f8d87)
+  : One thread per indexer.
 
-- ThreadOpenConnections : Initiates new connections to peers.
+- [SchedulerThread (`b-scheduler`)](https://doxygen.bitcoincore.org/class_c_scheduler.html#a14d2800815da93577858ea078aed1fba)
+  : Does asynchronous background tasks like dumping wallet contents, dumping
+  addrman and running asynchronous validationinterface callbacks.
 
-- ThreadMessageHandler : Higher-level message handling (sending and receiving).
+- [TorControlThread (`b-torcontrol`)](https://doxygen.bitcoincore.org/torcontrol_8cpp.html#a4faed3692d57a0d7bdbecf3b37f72de0)
+  : Libevent thread for tor connections.
 
-- DumpAddresses : Dumps IP addresses of nodes to `peers.dat`.
+- Net threads:
 
-- ThreadRPCServer : Remote procedure call handler, listens on port 8332 for connections and services them.
+  - [ThreadMessageHandler (`b-msghand`)](https://doxygen.bitcoincore.org/class_c_connman.html#aacdbb7148575a31bb33bc345e2bf22a9)
+    : Application level message handling (sending and receiving). Almost
+    all net_processing and validation logic runs on this thread.
 
-- Shutdown : Does an orderly shutdown of everything.
+  - [ThreadDNSAddressSeed (`b-dnsseed`)](https://doxygen.bitcoincore.org/class_c_connman.html#aa7c6970ed98a4a7bafbc071d24897d13)
+    : Loads addresses of peers from the DNS.
+
+  - [ThreadMapPort (`b-upnp`)](https://doxygen.bitcoincore.org/net_8cpp.html#a63f82a71c4169290c2db1651a9bbe249)
+    : Universal plug-and-play startup/shutdown.
+
+  - [ThreadSocketHandler (`b-net`)](https://doxygen.bitcoincore.org/class_c_connman.html#a765597cbfe99c083d8fa3d61bb464e34)
+    : Sends/Receives data from peers on port 8333.
+
+  - [ThreadOpenAddedConnections (`b-addcon`)](https://doxygen.bitcoincore.org/class_c_connman.html#a0b787caf95e52a346a2b31a580d60a62)
+    : Opens network connections to added nodes.
+
+  - [ThreadOpenConnections (`b-opencon`)](https://doxygen.bitcoincore.org/class_c_connman.html#a55e9feafc3bab78e5c9d408c207faa45)
+    : Initiates new connections to peers.
 
 Ignoring IDE/editor files
 --------------------------
@@ -555,6 +647,19 @@ class A
   - *Rationale*: Easier to understand what is happening, thus easier to spot mistakes, even for those
   that are not language lawyers.
 
+- Use `Span` as function argument when it can operate on any range-like container.
+
+  - *Rationale*: Compared to `Foo(const vector<int>&)` this avoids the need for a (potentially expensive)
+    conversion to vector if the caller happens to have the input stored in another type of container.
+    However, be aware of the pitfalls documented in [span.h](../src/span.h).
+
+```cpp
+void Foo(Span<const int> data);
+
+std::vector<int> vec{1,2,3};
+Foo(vec);
+```
+
 - Prefer `enum class` (scoped enumerations) over `enum` (traditional enumerations) where possible.
 
   - *Rationale*: Scoped enumerations avoid two potential pitfalls/problems with traditional C++ enumerations: implicit conversions to `int`, and name clashes due to enumerators being exported to the surrounding scope.
@@ -667,6 +772,53 @@ the upper cycle, etc.
 
 Threads and synchronization
 ----------------------------
+
+- Prefer `Mutex` type to `RecursiveMutex` one
+
+- Consistently use [Clang Thread Safety Analysis](https://clang.llvm.org/docs/ThreadSafetyAnalysis.html) annotations to
+  get compile-time warnings about potential race conditions in code. Combine annotations in function declarations with
+  run-time asserts in function definitions:
+
+```C++
+// txmempool.h
+class CTxMemPool
+{
+public:
+    ...
+    mutable RecursiveMutex cs;
+    ...
+    void UpdateTransactionsFromBlock(...) EXCLUSIVE_LOCKS_REQUIRED(::cs_main, cs);
+    ...
+}
+
+// txmempool.cpp
+void CTxMemPool::UpdateTransactionsFromBlock(...)
+{
+    AssertLockHeld(::cs_main);
+    AssertLockHeld(cs);
+    ...
+}
+```
+
+```C++
+// validation.h
+class ChainstateManager
+{
+public:
+    ...
+    bool ProcessNewBlock(...) EXCLUSIVE_LOCKS_REQUIRED(!::cs_main);
+    ...
+}
+
+// validation.cpp
+bool ChainstateManager::ProcessNewBlock(...)
+{
+    AssertLockNotHeld(::cs_main);
+    ...
+    LOCK(::cs_main);
+    ...
+}
+```
 
 - Build and run tests with `-DDEBUG_LOCKORDER` to verify that no potential
   deadlocks are introduced. As of 0.12, this is defined by default when
@@ -809,7 +961,7 @@ Others are external projects without a tight relationship with our project. Chan
 be sent upstream, but bugfixes may also be prudent to PR against BGL Core so that they can be integrated
 quickly. Cosmetic changes should be purely taken upstream.
 
-There is a tool in `test/lint/git-subtree-check.sh` to check a subtree directory for consistency with
+There is a tool in `test/lint/git-subtree-check.sh` ([instructions](../test/lint#git-subtree-checksh)) to check a subtree directory for consistency with
 its upstream repository.
 
 Current subtrees include:
@@ -819,6 +971,10 @@ Current subtrees include:
     open important PRs to Core to avoid delay.
   - **Note**: Follow the instructions in [Upgrading LevelDB](#upgrading-leveldb) when
     merging upstream changes to the LevelDB subtree.
+
+- src/crc32c
+  - Used by leveldb for hardware acceleration of CRC32C checksums for data integrity.
+  - Upstream at https://github.com/google/crc32c ; Maintained by Google.
 
 - src/secp256k1
   - Upstream at https://github.com/BGL-core/secp256k1/ ; actively maintained by Core contributors.
@@ -919,7 +1075,7 @@ introduce accidental changes.
 Some good examples of scripted-diff:
 
 - [scripted-diff: Rename InitInterfaces to NodeContext](https://github.com/BGL/BGL/commit/301bd41a2e6765b185bd55f4c541f9e27aeea29d)
-uses an elegant script to replace occurences of multiple terms in all source files.
+uses an elegant script to replace occurrences of multiple terms in all source files.
 
 - [scripted-diff: Remove g_connman, g_banman globals](https://github.com/BGL/BGL/commit/301bd41a2e6765b185bd55f4c541f9e27aeea29d)
 replaces specific terms in a list of specific source files.
@@ -1047,7 +1203,134 @@ A few guidelines for introducing and reviewing new RPC interfaces:
     new RPC is replacing a deprecated RPC, to avoid both RPCs confusingly
     showing up in the command list.
 
+- Use *invalid* bech32 addresses (e.g. in the constant array `EXAMPLE_ADDRESS`) for
+  `RPCExamples` help documentation.
+
+  - *Rationale*: Prevent accidental transactions by users and encourage the use
+    of bech32 addresses by default.
+
 - Use the `UNIX_EPOCH_TIME` constant when describing UNIX epoch time or
   timestamps in the documentation.
 
   - *Rationale*: User-facing consistency.
+
+Internal interface guidelines
+-----------------------------
+
+Internal interfaces between parts of the codebase that are meant to be
+independent (node, wallet, GUI), are defined in
+[`src/interfaces/`](../src/interfaces/). The main interface classes defined
+there are [`interfaces::Chain`](../src/interfaces/chain.h), used by wallet to
+access the node's latest chain state,
+[`interfaces::Node`](../src/interfaces/node.h), used by the GUI to control the
+node, and [`interfaces::Wallet`](../src/interfaces/wallet.h), used by the GUI
+to control an individual wallet. There are also more specialized interface
+types like [`interfaces::Handler`](../src/interfaces/handler.h)
+[`interfaces::ChainClient`](../src/interfaces/chain.h) passed to and from
+various interface methods.
+
+Interface classes are written in a particular style so node, wallet, and GUI
+code doesn't need to run in the same process, and so the class declarations
+work more easily with tools and libraries supporting interprocess
+communication:
+
+- Interface classes should be abstract and have methods that are [pure
+  virtual](https://en.cppreference.com/w/cpp/language/abstract_class). This
+  allows multiple implementations to inherit from the same interface class,
+  particularly so one implementation can execute functionality in the local
+  process, and other implementations can forward calls to remote processes.
+
+- Interface method definitions should wrap existing functionality instead of
+  implementing new functionality. Any substantial new node or wallet
+  functionality should be implemented in [`src/node/`](../src/node/) or
+  [`src/wallet/`](../src/wallet/) and just exposed in
+  [`src/interfaces/`](../src/interfaces/) instead of being implemented there,
+  so it can be more modular and accessible to unit tests.
+
+- Interface method parameter and return types should either be serializable or
+  be other interface classes. Interface methods shouldn't pass references to
+  objects that can't be serialized or accessed from another process.
+
+  Examples:
+
+  ```c++
+  // Good: takes string argument and returns interface class pointer
+  virtual unique_ptr<interfaces::Wallet> loadWallet(std::string filename) = 0;
+
+  // Bad: returns CWallet reference that can't be used from another process
+  virtual CWallet& loadWallet(std::string filename) = 0;
+  ```
+
+  ```c++
+  // Good: accepts and returns primitive types
+  virtual bool findBlock(const uint256& hash, int& out_height, int64_t& out_time) = 0;
+
+  // Bad: returns pointer to internal node in a linked list inaccessible to
+  // other processes
+  virtual const CBlockIndex* findBlock(const uint256& hash) = 0;
+  ```
+
+  ```c++
+  // Good: takes plain callback type and returns interface pointer
+  using TipChangedFn = std::function<void(int block_height, int64_t block_time)>;
+  virtual std::unique_ptr<interfaces::Handler> handleTipChanged(TipChangedFn fn) = 0;
+
+  // Bad: returns boost connection specific to local process
+  using TipChangedFn = std::function<void(int block_height, int64_t block_time)>;
+  virtual boost::signals2::scoped_connection connectTipChanged(TipChangedFn fn) = 0;
+  ```
+
+- For consistency and friendliness to code generation tools, interface method
+  input and inout parameters should be ordered first and output parameters
+  should come last.
+
+  Example:
+
+  ```c++
+  // Good: error output param is last
+  virtual bool broadcastTransaction(const CTransactionRef& tx, CAmount max_fee, std::string& error) = 0;
+
+  // Bad: error output param is between input params
+  virtual bool broadcastTransaction(const CTransactionRef& tx, std::string& error, CAmount max_fee) = 0;
+  ```
+
+- For friendliness to code generation tools, interface methods should not be
+  overloaded:
+
+  Example:
+
+  ```c++
+  // Good: method names are unique
+  virtual bool disconnectByAddress(const CNetAddr& net_addr) = 0;
+  virtual bool disconnectById(NodeId id) = 0;
+
+  // Bad: methods are overloaded by type
+  virtual bool disconnect(const CNetAddr& net_addr) = 0;
+  virtual bool disconnect(NodeId id) = 0;
+  ```
+
+- For consistency and friendliness to code generation tools, interface method
+  names should be `lowerCamelCase` and standalone function names should be
+  `UpperCamelCase`.
+
+  Examples:
+
+  ```c++
+  // Good: lowerCamelCase method name
+  virtual void blockConnected(const CBlock& block, int height) = 0;
+
+  // Bad: uppercase class method
+  virtual void BlockConnected(const CBlock& block, int height) = 0;
+  ```
+
+  ```c++
+  // Good: UpperCamelCase standalone function name
+  std::unique_ptr<Node> MakeNode(LocalInit& init);
+
+  // Bad: lowercase standalone function
+  std::unique_ptr<Node> makeNode(LocalInit& init);
+  ```
+
+  Note: This last convention isn't generally followed outside of
+  [`src/interfaces/`](../src/interfaces/), though it did come up for discussion
+  before in [#14635](https://github.com/BGL/BGL/pull/14635).

@@ -31,11 +31,11 @@
     </message>
     <message>
         <source>Enter address or label to search</source>
-        <translation>చిరునామా లేదా ఏదైనా పేరును వెతకండి </translation>
+        <translation>చిరునామా లేదా ఏదైనా పేరును వెతకండి</translation>
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
-        <translation>ప్రస్తుతం ఉన్న సమాచారాన్ని ఫైల్ లోనికి ఎగుమతి చేసుకోండి </translation>
+        <translation>ప్రస్తుతం ఉన్న సమాచారాన్ని ఫైల్ లోనికి ఎగుమతి చేసుకోండి</translation>
     </message>
     <message>
         <source>&amp;Export</source>
@@ -51,7 +51,7 @@
     </message>
     <message>
         <source>Choose the address to receive coins with</source>
-        <translation>నాణెం అందుకోవటానికి చిరునామాను ఎంచుకోండి </translation>
+        <translation>నాణెం అందుకోవటానికి చిరునామాను ఎంచుకోండి</translation>
     </message>
     <message>
         <source>C&amp;hoose</source>
@@ -68,6 +68,10 @@
     <message>
         <source>These are your BGL addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation>ఇవి మీరు పంపే చెల్లింపుల బిట్‌కాయిన్ చిరునామాలు. నాణేలు పంపే ముందు ప్రతిసారి అందుకునే చిరునామా మరియు చెల్లింపు మొత్తం సరిచూసుకోండి.</translation>
+    </message>
+    <message>
+        <source>These are your BGL addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
+        <translation>చెల్లింపులు స్వీకరించడానికి ఇవి మీ బిట్‌కాయిన్ చిరునామాలు. క్రొత్త చిరునామాలను సృష్టించడానికి స్వీకరించు ట్యాబ్‌లోని 'క్రొత్త స్వీకరించే చిరునామాను సృష్టించండి' బటన్‌ను ఉపయోగించండి.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -132,8 +136,36 @@
         <translation>క్రొత్త సంకేతపదము మరలా ఇవ్వండి</translation>
     </message>
     <message>
+        <source>Show passphrase</source>
+        <translation>సంకేతపదమును చూపించు</translation>
+    </message>
+    <message>
+        <source>Encrypt wallet</source>
+        <translation>వాలెట్‌ను గుప్తీకరించండి</translation>
+    </message>
+    <message>
+        <source>This operation needs your wallet passphrase to unlock the wallet.</source>
+        <translation>ఈ ఆపరేషన్‌కు వాలెట్‌ను అన్‌లాక్ చేయడానికి మీ వాలెట్ పాస్‌ఫ్రేజ్ అవసరం.</translation>
+    </message>
+    <message>
         <source>Unlock wallet</source>
         <translation>వాలెట్ అన్లాక్</translation>
+    </message>
+    <message>
+        <source>This operation needs your wallet passphrase to decrypt the wallet.</source>
+        <translation>ఈ ఆపరేషన్‌కు వాలెట్‌ను డీక్రిప్ట్ చేయడానికి మీ వాలెట్ పాస్‌ఫ్రేజ్ అవసరం.</translation>
+    </message>
+    <message>
+        <source>Decrypt wallet</source>
+        <translation>డీక్రిప్ట్ వాలెట్</translation>
+    </message>
+    <message>
+        <source>Change passphrase</source>
+        <translation>పాస్‌ఫ్రేజ్‌ని మార్చండి</translation>
+    </message>
+    <message>
+        <source>Confirm wallet encryption</source>
+        <translation>వాలెట్ గుప్తీకరణను నిర్ధారించండి</translation>
     </message>
     <message>
         <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BGLS&lt;/b&gt;!</source>
@@ -146,6 +178,26 @@
     <message>
         <source>Wallet encrypted</source>
         <translation>జోలె సంకేతపరబడింది</translation>
+    </message>
+    <message>
+        <source>Enter the new passphrase for the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
+        <translation>వాలెట్ కోసం క్రొత్త పాస్‌ఫ్రేజ్‌ని నమోదు చేయండి.&lt;br/&gt; దయచేసి &lt;b&gt;పది లేదా అంతకంటే ఎక్కువ యాదృచ్ఛిక అక్షరాల&lt;/b&gt; పాస్‌ఫ్రేజ్‌ని లేదా &lt;b&gt;ఎనిమిది లేదా అంతకంటే ఎక్కువ పదాలను ఉపయోగించండి.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Enter the old passphrase and new passphrase for the wallet.</source>
+        <translation>Enter the old passphrase and new passphrase for the wallet.</translation>
+    </message>
+    <message>
+        <source>Remember that encrypting your wallet cannot fully protect your BGLs from being stolen by malware infecting your computer.</source>
+        <translation>మీ వాలెట్‌ను గుప్తీకరించడం వల్ల మీ కంప్యూటర్‌కు హాని కలిగించే మాల్వేర్ దొంగిలించకుండా మీ బిట్‌కాయిన్‌లను పూర్తిగా రక్షించలేమని గుర్తుంచుకోండి.</translation>
+    </message>
+    <message>
+        <source>Wallet to be encrypted</source>
+        <translation>ఎన్క్రిప్ట్ చేయవలసిన వాలెట్</translation>
+    </message>
+    <message>
+        <source>Your wallet is about to be encrypted. </source>
+        <translation>మీ వాలెట్ గుప్తీకరించబోతోంది.</translation>
     </message>
     <message>
         <source>Wallet encryption failed</source>
@@ -251,6 +303,9 @@
     <name>OverviewPage</name>
     </context>
 <context>
+    <name>PSBTOperationsDialog</name>
+    </context>
+<context>
     <name>PaymentServer</name>
     </context>
 <context>
@@ -274,23 +329,7 @@
     </context>
 <context>
     <name>ReceiveRequestDialog</name>
-    <message>
-        <source>Address</source>
-        <translation>చిరునామా</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>ఉల్లాకు</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>సందేశం</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>వాలెట్</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>RecentRequestsTableModel</name>
     <message>
@@ -323,9 +362,6 @@
 </context>
 <context>
     <name>SendCoinsEntry</name>
-    </context>
-<context>
-    <name>SendConfirmationDialog</name>
     </context>
 <context>
     <name>ShutdownWindow</name>
@@ -432,7 +468,11 @@
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
-        <translation>ప్రస్తుతం ఉన్న సమాచారాన్ని ఫైల్ లోనికి ఎగుమతి చేసుకోండి </translation>
+        <translation>ప్రస్తుతం ఉన్న సమాచారాన్ని ఫైల్ లోనికి ఎగుమతి చేసుకోండి</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>లోపం</translation>
     </message>
     </context>
 <context>

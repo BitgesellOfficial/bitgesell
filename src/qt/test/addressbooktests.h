@@ -1,3 +1,7 @@
+// Copyright (c) 2018-2019 The Bitcoin Core developers
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 #ifndef BGL_QT_TEST_ADDRESSBOOKTESTS_H
 #define BGL_QT_TEST_ADDRESSBOOKTESTS_H
 
@@ -11,7 +15,7 @@ class Node;
 class AddressBookTests : public QObject
 {
 public:
-    AddressBookTests(interfaces::Node& node) : m_node(node) {}
+    explicit AddressBookTests(interfaces::Node& node) : m_node(node) {}
     interfaces::Node& m_node;
 
     Q_OBJECT

@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2018 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -18,7 +18,7 @@
  * JSON but use AmountFromValue and ValueFromAmount for that.
  */
 std::string FormatMoney(const CAmount& n);
-NODISCARD bool ParseMoney(const std::string& str, CAmount& nRet);
-NODISCARD bool ParseMoney(const char* pszIn, CAmount& nRet);
+/** Parse an amount denoted in full coins. E.g. "0.0034" supplied on the command line. **/
+[[nodiscard]] bool ParseMoney(const std::string& str, CAmount& nRet);
 
 #endif // BGL_UTIL_MONEYSTR_H

@@ -1,20 +1,52 @@
+
+
 *.tar.gz
 
+bench_inv
+bench_ecdh
+bench_ecmult
+bench_schnorrsig
+bench_sign
+bench_verify
+bench_recover
+bench_internal
+tests
+exhaustive_tests
+gen_context
+valgrind_ctime_test
 *.exe
 *.pdb
 src/BGL
 src/BGLd
 src/BGL-cli
+src/BGL-gui
+src/BGL-node
 src/BGL-tx
 src/BGL-wallet
+src/test/fuzz/*
+!src/test/fuzz/*.*
 src/test/test_BGL
-src/test/test_BGL_fuzzy
 src/qt/test/test_BGL-qt
 
 # autoreconf
 Makefile.in
 aclocal.m4
 autom4te.cache/
+config.log
+config.status
+*.tar.gz
+*.la
+libtool
+.deps/
+.dirstamp
+*.lo
+*.o
+*~
+*.log
+*.trs
+src/libsecp256k1-config.h
+src/libsecp256k1-config.h.in
+src/ecmult_static_context.h
 build-aux/config.guess
 build-aux/config.sub
 build-aux/depcomp
@@ -28,6 +60,7 @@ build-aux/m4/ltversion.m4
 build-aux/missing
 build-aux/compile
 build-aux/test-driver
+config.cache
 config.log
 config.status
 configure
@@ -88,7 +121,7 @@ src/qt/BGL-qt.includes
 *.qm
 Makefile
 !depends/Makefile
-BGL-qt
+src/qt/BGL-qt
 BGL-Qt.app
 background.tiff*
 
@@ -106,13 +139,19 @@ qrc_*.cpp
 .DS_Store
 build
 
+# Previous releases
+releases
+
 #lcov
 *.gcno
 *.gcda
 /*.info
 test_BGL.coverage/
 total.coverage/
+fuzz.coverage/
 coverage_percent.txt
+/cov_tool_wrapper.sh
+qa-assets/
 
 #build tests
 linux-coverage-build
@@ -120,6 +159,7 @@ linux-build
 win32-build
 test/config.ini
 test/cache/*
+test/.mypy_cache/
 
 !src/leveldb*/Makefile
 
