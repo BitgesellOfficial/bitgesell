@@ -11,8 +11,8 @@ the node should pretend that it does not have it to avoid fingerprinting.
 import time
 
 from test_framework.blocktools import (create_block, create_coinbase)
-from test_framework.messages import CInv
-from test_framework.mininode import (
+from test_framework.messages import CInv, MSG_BLOCK
+from test_framework.p2p import (
     P2PInterface,
     msg_headers,
     msg_block,
@@ -22,10 +22,11 @@ from test_framework.mininode import (
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
-    wait_until,
 )
 
+
 class P2PFingerprintTest(BGLTestFramework):
+
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1
@@ -48,7 +49,7 @@ class P2PFingerprintTest(BGLTestFramework):
     # Send a getdata request for a given block hash
     def send_block_request(self, block_hash, node):
         msg = msg_getdata()
-        msg.inv.append(CInv(2, block_hash))  # 2 == "Block"
+        msg.inv.append(CInv(MSG_BLOCK, block_hash))
         node.send_message(msg)
 
     # Send a getheaders request for a given single block hash
@@ -90,7 +91,7 @@ class P2PFingerprintTest(BGLTestFramework):
 
         # Force reorg to a longer chain
         node0.send_message(msg_headers(new_blocks))
-        node0.wait_for_getdata()
+        node0.wait_for_getdata([x.sha256 for x in new_blocks])
         for block in new_blocks:
             node0.send_and_ping(msg_block(block))
 
@@ -102,23 +103,18 @@ class P2PFingerprintTest(BGLTestFramework):
         # Check that getdata request for stale block succeeds
         self.send_block_request(stale_hash, node0)
         test_function = lambda: self.last_block_equals(stale_hash, node0)
-        wait_until(test_function, timeout=3)
+        self.wait_until(test_function, timeout=3)
 
         # Check that getheader request for stale block header succeeds
         self.send_header_request(stale_hash, node0)
         test_function = lambda: self.last_header_equals(stale_hash, node0)
-        wait_until(test_function, timeout=3)
+        self.wait_until(test_function, timeout=3)
 
         # Longest chain is extended so stale is much older than chain tip
         self.nodes[0].setmocktime(0)
-        tip = self.nodes[0].generatetoaddress(1, self.nodes[0].get_deterministic_priv_key().address)[0]
+        block_hash = int(self.nodes[0].generatetoaddress(1, self.nodes[0].get_deterministic_priv_key().address)[-1], 16)
         assert_equal(self.nodes[0].getblockcount(), 14)
-
-        # Send getdata & getheaders to refresh last received getheader message
-        block_hash = int(tip, 16)
-        self.send_block_request(block_hash, node0)
-        self.send_header_request(block_hash, node0)
-        node0.sync_with_ping()
+        node0.wait_for_block(block_hash, timeout=3)
 
         # Request for very old stale block should now fail
         self.send_block_request(stale_hash, node0)
@@ -138,11 +134,12 @@ class P2PFingerprintTest(BGLTestFramework):
 
         self.send_block_request(block_hash, node0)
         test_function = lambda: self.last_block_equals(block_hash, node0)
-        wait_until(test_function, timeout=3)
+        self.wait_until(test_function, timeout=3)
 
         self.send_header_request(block_hash, node0)
         test_function = lambda: self.last_header_equals(block_hash, node0)
-        wait_until(test_function, timeout=3)
+        self.wait_until(test_function, timeout=3)
+
 
 if __name__ == '__main__':
     P2PFingerprintTest().main()

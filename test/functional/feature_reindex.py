@@ -10,10 +10,10 @@
 """
 
 from test_framework.test_framework import BGLTestFramework
-from test_framework.util import wait_until
+from test_framework.util import assert_equal
+
 
 class ReindexTest(BGLTestFramework):
-
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1
@@ -24,7 +24,7 @@ class ReindexTest(BGLTestFramework):
         self.stop_nodes()
         extra_args = [["-reindex-chainstate" if justchainstate else "-reindex"]]
         self.start_nodes(extra_args)
-        wait_until(lambda: self.nodes[0].getblockcount() == blockcount)
+        assert_equal(self.nodes[0].getblockcount(), blockcount)  # start_node is blocking on reindex
         self.log.info("Success")
 
     def run_test(self):

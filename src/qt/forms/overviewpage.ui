@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>596</width>
-    <height>342</height>
+    <width>798</width>
+    <height>318</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -118,6 +118,7 @@
              <widget class="QLabel" name="labelWatchPending">
               <property name="font">
                <font>
+                <family>Monospace</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -143,6 +144,7 @@
              <widget class="QLabel" name="labelUnconfirmed">
               <property name="font">
                <font>
+                <family>Monospace</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -168,6 +170,7 @@
              <widget class="QLabel" name="labelWatchImmature">
               <property name="font">
                <font>
+                <family>Monospace</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -226,6 +229,7 @@
              <widget class="QLabel" name="labelImmature">
               <property name="font">
                <font>
+                <family>Monospace</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -271,6 +275,7 @@
              <widget class="QLabel" name="labelTotal">
               <property name="font">
                <font>
+                <family>Monospace</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -296,6 +301,7 @@
              <widget class="QLabel" name="labelWatchTotal">
               <property name="font">
                <font>
+                <family>Monospace</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -338,6 +344,7 @@
              <widget class="QLabel" name="labelBalance">
               <property name="font">
                <font>
+                <family>Monospace</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
@@ -363,6 +370,7 @@
              <widget class="QLabel" name="labelWatchAvailable">
               <property name="font">
                <font>
+                <family>Monospace</family>
                 <weight>75</weight>
                 <bold>true</bold>
                </font>

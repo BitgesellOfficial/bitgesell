@@ -5,7 +5,7 @@ Upstream-Contact: Satoshi Nakamoto <satoshin@gmx.com>
 Source: https://github.com/BGL/BGL
 
 Files: *
-Copyright: 2009-2019, BGL Core Developers
+Copyright: 2009-2020, BGL Core Developers
 License: Expat
 Comment: The BGL Core Developers encompasses the current developers listed on BGL.org,
          as well as the numerous contributors to the project.

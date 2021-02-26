@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+# Copyright (c) 2013-2020 The Bitcoin Core developers
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #
 # Generate seeds.txt from Pieter's DNS seeder
 #
@@ -11,18 +14,23 @@ MIN_BLOCKS = 400000
 
 # These are hosts that have been observed to be behaving strangely (e.g.
 # aggressively connecting to every node).
-SUSPICIOUS_HOSTS = set([
-])
+with open("suspicious_hosts.txt", mode="r", encoding="utf-8") as f:
+    SUSPICIOUS_HOSTS = {s.strip() for s in f if s.strip()}
 
-import re
-import sys
-# import dns.resolver
-import collections
 
 PATTERN_IPV4 = re.compile(r"^((\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})):(\d+)$")
 PATTERN_IPV6 = re.compile(r"^\[([0-9a-z:]+)\]:(\d+)$")
 PATTERN_ONION = re.compile(r"^([abcdefghijklmnopqrstuvwxyz234567]{16}\.onion):(\d+)$")
-PATTERN_AGENT = re.compile(r"^(\/Satoshi:0\.8\.6\/|\/Satoshi:0\.9\.(2|3|4|5)\/|\/Core:0.1(0|1|2).\d{1,2}.\d{1,2}\/)$")
+PATTERN_AGENT = re.compile(
+    r"^/Satoshi:("
+    r"0.14.(0|1|2|3|99)|"
+    r"0.15.(0|1|2|99)|"
+    r"0.16.(0|1|2|3|99)|"
+    r"0.17.(0|0.1|1|2|99)|"
+    r"0.18.(0|1|99)|"
+    r"0.19.(0|1|99)|"
+    r"0.20.99"
+    r")")
 
 def parseline(line):
     sline = line.split()
@@ -96,7 +104,32 @@ def filtermultiport(ips):
     hist = collections.defaultdict(list)
     for ip in ips:
         hist[ip['sortkey']].append(ip)
-    return [value[0] for (key,value) in hist.items() if len(value)==1]
+    return [value[0] for (key,value) in list(hist.items()) if len(value)==1]
+
+def lookup_asn(net, ip):
+    '''
+    Look up the asn for an IP (4 or 6) address by querying cymru.com, or None
+    if it could not be found.
+    '''
+    try:
+        if net == 'ipv4':
+            ipaddr = ip
+            prefix = '.origin'
+        else:                  # http://www.team-cymru.com/IP-ASN-mapping.html
+            res = str()                         # 2001:4860:b002:23::68
+            for nb in ip.split(':')[:4]:  # pick the first 4 nibbles
+                for c in nb.zfill(4):           # right padded with '0'
+                    res += c + '.'              # 2001 4860 b002 0023
+            ipaddr = res.rstrip('.')            # 2.0.0.1.4.8.6.0.b.0.0.2.0.0.2.3
+            prefix = '.origin6'
+
+        asn = int([x.to_text() for x in dns.resolver.resolve('.'.join(
+                   reversed(ipaddr.split('.'))) + prefix + '.asn.cymru.com',
+                   'TXT').response.answer][0].split('\"')[1].split(' ')[0])
+        return asn
+    except Exception:
+        sys.stderr.write('ERR: Could not resolve ASN for "' + ip + '"\n')
+        return None
 
 # Based on Greg Maxwell's seed_filter.py
 def filterbyasn(ips, max_per_asn, max_total):

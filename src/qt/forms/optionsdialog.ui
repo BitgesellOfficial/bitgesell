@@ -462,7 +462,7 @@
           <string>Connect to the BGL network through a separate SOCKS5 proxy for Tor hidden services.</string>
          </property>
          <property name="text">
-          <string>Use separate SOCKS&amp;5 proxy to reach peers via Tor hidden services:</string>
+          <string>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</string>
          </property>
         </widget>
        </item>
@@ -568,12 +568,15 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_Window">
        <item>
-        <widget class="QCheckBox" name="hideTrayIcon">
+        <widget class="QCheckBox" name="showTrayIcon">
          <property name="toolTip">
-          <string>Hide the icon from the system tray.</string>
+          <string>Show the icon in the system tray.</string>
          </property>
          <property name="text">
-          <string>&amp;Hide tray icon</string>
+            <string>&amp;Show tray icon</string>
+         </property>
+         <property name="checked">
+           <bool>true</bool>
          </property>
         </widget>
        </item>

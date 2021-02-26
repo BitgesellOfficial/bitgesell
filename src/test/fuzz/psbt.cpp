@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Bitcoin Core developers
+// Copyright (c) 2019-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -19,7 +19,7 @@
 
 void initialize()
 {
-    static const auto verify_handle = MakeUnique<ECCVerifyHandle>();
+    static const ECCVerifyHandle verify_handle;
 }
 
 void test_one_input(const std::vector<uint8_t>& buffer)
@@ -39,7 +39,6 @@ void test_one_input(const std::vector<uint8_t>& buffer)
     }
 
     (void)psbt.IsNull();
-    (void)psbt.IsSane();
 
     Optional<CMutableTransaction> tx = psbt.tx;
     if (tx) {
@@ -50,7 +49,6 @@ void test_one_input(const std::vector<uint8_t>& buffer)
     for (const PSBTInput& input : psbt.inputs) {
         (void)PSBTInputSigned(input);
         (void)input.IsNull();
-        (void)input.IsSane();
     }
 
     for (const PSBTOutput& output : psbt.outputs) {
