@@ -59,19 +59,19 @@ BOOST_AUTO_TEST_CASE(util_datadir)
     const fs::path dd_norm = args.GetDataDirPath();
 
     args.ForceSetArg("-datadir", dd_norm.string() + "/");
-    ClearDatadirCache();
+    args.ClearPathCache();
     BOOST_CHECK_EQUAL(dd_norm, args.GetDataDirPath());
 
     args.ForceSetArg("-datadir", dd_norm.string() + "/.");
-    ClearDatadirCache();
+    args.ClearPathCache();
     BOOST_CHECK_EQUAL(dd_norm, args.GetDataDirPath());
 
     args.ForceSetArg("-datadir", dd_norm.string() + "/./");
-    ClearDatadirCache();
+    args.ClearPathCache();
     BOOST_CHECK_EQUAL(dd_norm, args.GetDataDirPath());
 
     args.ForceSetArg("-datadir", dd_norm.string() + "/.//");
-    ClearDatadirCache();
+    args.ClearPathCache();
     BOOST_CHECK_EQUAL(dd_norm, args.GetDataDirPath());
 }
 
