@@ -42,7 +42,7 @@ global_task_template: &GLOBAL_TASK_TEMPLATE
 
 
 task:
-  name: 'macOS 10.15 native [qt]'
+  name: 'macOS 10.15 [qt deploy]'
   macos_brew_addon_script:
     - brew install boost libevent berkeley-db4 qt miniupnpc libnatpmp ccache zeromq qrencode sqlite libtool automake pkg-config gnu-getopt librsvg
   << : *GLOBAL_TASK_TEMPLATE
@@ -54,21 +54,21 @@ task:
   dmg_artifacts:
     path: "*.dmg"
 
-#task:
-#  name: "x86_64 Linux"
-#  << : *GLOBAL_TASK_TEMPLATE
-#  container:
-#    image: ubuntu:bionic
-#  env:
-#    FILE_ENV: "./ci/test/00_setup_env_native_nowallet.sh"
-#
-#task:
-#  name: "x86_64 Linux [qt]"
-#  << : *GLOBAL_TASK_TEMPLATE
-#  container:
-#    image: ubuntu:bionic
-#  env:
-#    FILE_ENV: "./ci/test/00_setup_env_native_qt5.sh"
+task:
+  name: "x86_64 Linux"
+  << : *GLOBAL_TASK_TEMPLATE
+  container:
+    image: ubuntu:bionic
+  env:
+    FILE_ENV: "./ci/test/00_setup_env_native_nowallet.sh"
+
+task:
+  name: "x86_64 Linux [qt]"
+  << : *GLOBAL_TASK_TEMPLATE
+  container:
+    image: ubuntu:bionic
+  env:
+    FILE_ENV: "./ci/test/00_setup_env_native_qt5.sh"
 
 task:
   name: "debian [deploy]"
