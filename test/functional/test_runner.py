@@ -261,6 +261,7 @@ BASE_SCRIPTS = [
     'wallet_create_tx.py --legacy-wallet',
     'wallet_send.py',
     'wallet_create_tx.py --descriptors',
+    'wallet_taproot.py',
     'p2p_fingerprint.py',
     'feature_uacomment.py',
     'wallet_coinbase_category.py --legacy-wallet',
