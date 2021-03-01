@@ -15,8 +15,8 @@ base_template: &BASE_TEMPLATE
     - if [ "$CIRRUS_PR" = "" ]; then exit 0; fi
     - bash -c "$PACKAGE_MANAGER_INSTALL git"
     - git fetch $CIRRUS_REPO_CLONE_URL $CIRRUS_BASE_BRANCH
-    - git config --system --global user.email "ci@ci.ci"
-    - git config --system --global user.name "ci"
+    - git config --system user.email "ci@ci.ci"
+    - git config --system user.name "ci"
     - git merge FETCH_HEAD  # Merge base to detect silent merge conflicts
   stateful: false  # https://cirrus-ci.org/guide/writing-tasks/#stateful-tasks
 
