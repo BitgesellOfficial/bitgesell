@@ -5,10 +5,29 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 export LC_ALL=C.UTF-8
+#export PACKAGE_MANAGER_INSTALL #default
+#export MAKEJOBS #default
+#export DANGER_RUN_CI_ON_HOST #default
+#export TEST_RUNNER_PORT_MIN #default
+#export CCACHE_SIZE #default
+#export CCACHE_DIR #default
 
-export CONTAINER_NAME=ci_native_nowallet
-export DOCKER_NAME_TAG=ubuntu:18.04  # Use bionic to have one config run the tests in python3.6, see doc/dependencies.md
-export PACKAGES="python3-zmq clang-5.0 llvm-5.0"  # Use clang-5 to test C++17 compatibility, see doc/dependencies.md
-export DEP_OPTS="NO_WALLET=1"
+
+#export HOST #default
+export CONTAINER_NAME=ci_native
+export DOCKER_NAME_TAG=ubuntu:18.04  # Check that bionic gcc-7 can compile our c++17 and run our functional tests in python3, see doc/dependencies.md
+
+
+#export NO_DEPENDS #default
+#export DEP_OPTS #no relevant
 export GOAL="install"
-export BGL_CONFIG="--enable-glibc-back-compat --enable-reduce-exports CC=clang-5.0 CXX=clang++-5.0 --with-boost-process"
+export BGL_CONFIG="--with-gui=no --disable-wallet --disable-bench"
+export PACKAGES="libevent-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-test-dev libboost-thread-dev"
+#export PIP_PACKAGES #no relevant
+
+
+export TEST_RUNNER_EXTRA="--coverage --extended --exclude feature_dbcrash"  # Run extended tests so that coverage does not fail, but exclude the very slow dbcrash
+export RUN_UNIT_TESTS="false"
+export RUN_FUNCTIONAL_TESTS="false"
+export EVENT_LIBS="/usr/lib/x86_64-linux-gnu/libevent.a /usr/lib/x86_64-linux-gnu/libevent_pthreads.a"
+
