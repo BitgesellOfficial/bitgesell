@@ -51,6 +51,7 @@ task:
     image: catalina-xcode-12.1  # https://cirrus-ci.org/guide/macOS
   env:
     FILE_ENV: "./ci/test/00_setup_env_mac_host.sh"
+    PACKAGE_MANAGER_INSTALL: "echo" # Override earlier for merge script to work
   dmg_artifacts:
     path: "*.dmg"
 
