@@ -8,6 +8,7 @@ env:
   TEST_RUNNER_PORT_MIN: "14000"  # Must be larger than 12321, which is used for the http cache. See https://cirrus-ci.org/guide/writing-tasks/#http-cache
   CCACHE_SIZE: "200M"
   CCACHE_DIR: "/tmp/ccache_dir"
+  GIT_CONFIG_FLAG: "--global"
 
 # https://cirrus-ci.org/guide/tips-and-tricks/#sharing-configuration-between-tasks
 base_template: &BASE_TEMPLATE
@@ -15,8 +16,8 @@ base_template: &BASE_TEMPLATE
     - if [ "$CIRRUS_PR" = "" ]; then exit 0; fi
     - bash -c "$PACKAGE_MANAGER_INSTALL git"
     - git fetch $CIRRUS_REPO_CLONE_URL $CIRRUS_BASE_BRANCH
-    - git config --global user.email "ci@ci.ci"
-    - git config --global user.name "ci"
+    - git config $GIT_CONFIG_FLAG user.email "ci@ci.ci"
+    - git config $GIT_CONFIG_FLAG user.name "ci"
     - git merge FETCH_HEAD  # Merge base to detect silent merge conflicts
   stateful: false  # https://cirrus-ci.org/guide/writing-tasks/#stateful-tasks
 
@@ -81,6 +82,8 @@ task:
     cpu: 2
     memory: 8G
     nested_virtualization: true
+  env:
+    GIT_CONFIG_FLAG: "--system"
   ci_script:
     - ./ci/debian_deploy.sh
   deb_artifacts:
