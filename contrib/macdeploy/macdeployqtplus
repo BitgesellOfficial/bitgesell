@@ -701,14 +701,6 @@ ds['BGL-Qt.app']['Iloc'] = (128, 156)
 ds.flush()
 ds.close()
 
-    if verbose:
-        print("Determining size of \"dist\"...")
-    size = 0
-    for path, dirs, files in os.walk("dist"):
-        for file in files:
-            size += os.path.getsize(os.path.join(path, file))
-    size += int(size * 0.15)
-
 if config.dmg is not None:
 
     print("+ Preparing .dmg disk image +")
