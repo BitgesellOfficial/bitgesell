@@ -96,3 +96,5 @@ task:
     image: ubuntu:focal
   env:
     FILE_ENV: "./ci/test/00_setup_env_win64.sh"
+    DEBIAN_FRONTEND: "noninteractive"
+    TZ: "Europe/London"
