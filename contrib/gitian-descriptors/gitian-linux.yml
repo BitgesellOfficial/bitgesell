@@ -12,6 +12,7 @@ packages:
 - "autoconf"
 - "automake"
 - "binutils"
+- "bison"
 - "bsdmainutils"
 - "ca-certificates"
 - "curl"
