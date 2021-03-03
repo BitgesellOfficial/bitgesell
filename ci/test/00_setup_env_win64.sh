@@ -24,7 +24,7 @@ export HOST=x86_64-w64-mingw32
 export DEP_OPTS #default
 export GOAL="deploy"
 export BGL_CONFIG="--enable-reduce-exports --disable-gui-tests"
-export PACKAGES="python3 nsis g++-mingw-w64-x86-64 wine-binfmt wine64"
+export PACKAGES="libevent-dev python3 nsis g++-mingw-w64-x86-64 wine-binfmt wine64"
 #export PIP_PACKAGES #no relevant
 
 
