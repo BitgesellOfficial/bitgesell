@@ -88,3 +88,11 @@ task:
     - ./ci/debian_deploy.sh
   deb_artifacts:
     path: "/*.deb"
+
+task:
+  name: 'Win64 [unit tests, no gui tests, no boost::process, no functional tests] [focal]'
+  << : *GLOBAL_TASK_TEMPLATE
+  container:
+    image: ubuntu:focal
+  env:
+    FILE_ENV: "./ci/test/00_setup_env_win64.sh"
