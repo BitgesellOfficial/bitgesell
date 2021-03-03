@@ -304,7 +304,7 @@ libBGL_util_a-clientversion.$(OBJEXT): obj/build.h
 # Contains code accessing mempool and chain state that is meant to be separated
 # from wallet and gui code (see node/README.md). Shared code should go in
 # libBGL_common or libBGL_util libraries, instead.
-libBGL_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
+libBGL_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(NATPMP_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
 libBGL_server_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_server_a_SOURCES = \
   addrdb.cpp \
