@@ -122,7 +122,18 @@ AC_DEFUN([BGL_QT_CONFIGURE],[
   CXXFLAGS="$PIC_FLAGS $CXXFLAGS"
   _BGL_QT_IS_STATIC
   if test "x$BGL_cv_static_qt" = xyes; then
-    _BGL_QT_FIND_STATIC_PLUGINS
+    _BGL_QT_CHECK_STATIC_LIBS
+
+    if test "x$qt_plugin_path" != x; then
+      QT_LIBS="$QT_LIBS -L$qt_plugin_path/platforms -L$qt_plugin_path/styles"
+      if test -d "$qt_plugin_path/accessible"; then
+        QT_LIBS="$QT_LIBS -L$qt_plugin_path/accessible"
+      fi
+      if test -d "$qt_plugin_path/platforms/android"; then
+        QT_LIBS="$QT_LIBS -L$qt_plugin_path/platforms/android -lqtfreetype -lEGL"
+      fi
+    fi
+
     AC_DEFINE(QT_STATICPLUGIN, 1, [Define this symbol if qt plugins are static])
     if test "x$TARGET_OS" != xandroid; then
       _BGL_QT_CHECK_STATIC_PLUGINS([Q_IMPORT_PLUGIN(QMinimalIntegrationPlugin)],[-lqminimal])
@@ -145,6 +156,7 @@ AC_DEFUN([BGL_QT_CONFIGURE],[
       AX_CHECK_LINK_FLAG([[-framework Metal]],[QT_LIBS="$QT_LIBS -framework Metal"],[AC_MSG_ERROR(could not link against Metal framework)])
       AX_CHECK_LINK_FLAG([[-framework QuartzCore]],[QT_LIBS="$QT_LIBS -framework QuartzCore"],[AC_MSG_ERROR(could not link against QuartzCore framework)])
       _BGL_QT_CHECK_STATIC_PLUGIN([QCocoaIntegrationPlugin], [-lqcocoa])
+      _BGL_QT_CHECK_STATIC_PLUGIN([QMacStylePlugin], [-lqmacstyle])
       AC_DEFINE(QT_QPA_PLATFORM_COCOA, 1, [Define this symbol if the qt platform is cocoa])
     elif test "x$TARGET_OS" = xandroid; then
       QT_LIBS="-Wl,--export-dynamic,--undefined=JNI_OnLoad -lqtforandroid -ljnigraphics -landroid -lqtfreetype -lQt5EglSupport $QT_LIBS"
