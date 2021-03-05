@@ -11,11 +11,11 @@ software which enables the use of this currency.
 
 Specifications
 
-Essentially this is a full BGL fork, but:
+Essentially this is a full Bitcoin fork, but:
 * Block Reward = nFees*0.1 + GetBlockSubsidy()    // Burn rate is 90% of tx fees
-* Block Weight <= 400,000;                        // 10 times smaller than BGL
+* Block Weight <= 400,000;                        // 10 times smaller than Bitcoin
 * 100% Segwit                                     // Eliminates problems with legacy types of transactions
-* Halving Interval = 210000 blocks / 4;           // Halving is every year (BGL halving is every 4 years)
+* Halving Interval = 210000 blocks / 4;           // Halving is every year (Bitcoin halving is every 4 years)
 * Block Subsidy = 50 * 4;                         // 21 000 000 coins max
 * Hashing algorithm for blocks is Keccak (sha-3).
 The `master` branch is regularly built (see doc/build-*.md for instructions) and tested, but is not guaranteed to be
