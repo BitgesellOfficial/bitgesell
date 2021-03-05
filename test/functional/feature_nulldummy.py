@@ -29,6 +29,7 @@ from test_framework.util import (
     assert_raises_rpc_error,
 )
 
+COINBASE_MATURITY = 427
 NULLDUMMY_ERROR = "non-mandatory-script-verify-flag (Dummy CHECKMULTISIG argument must be zero)"
 
 
@@ -52,7 +53,7 @@ class NULLDUMMYTest(BGLTestFramework):
         # This script tests NULLDUMMY activation, which is part of the 'segwit' deployment, so we go through
         # normal segwit activation here (and don't use the default always-on behaviour).
         self.extra_args = [[
-            f'-testactivationheight=segwit@{COINBASE_MATURITY + 5}',
+            f'-segwitheight={COINBASE_MATURITY + 5}',
             '-addresstype=legacy',
             '-par=1',  # Use only one script thread to get the exact reject reason for testing
         ]]
@@ -74,11 +75,11 @@ class NULLDUMMYTest(BGLTestFramework):
             wmulti.importaddress(self.ms_address)
             wmulti.importaddress(self.wit_ms_address)
 
-        self.coinbase_blocks = self.generate(self.nodes[0], 2)  # block height = 2
+        self.coinbase_blocks = self.nodes[0].generate(2)  # block height = 2
         coinbase_txid = []
         for i in self.coinbase_blocks:
             coinbase_txid.append(self.nodes[0].getblock(i)['tx'][0])
-        self.generate(self.nodes[0], COINBASE_MATURITY)  # block height = COINBASE_MATURITY + 2
+        self.nodes[0].generate(COINBASE_MATURITY)  # block height = COINBASE_MATURITY + 2
         self.lastblockhash = self.nodes[0].getbestblockhash()
         self.lastblockheight = COINBASE_MATURITY + 2
         self.lastblocktime = int(time.time()) + self.lastblockheight
