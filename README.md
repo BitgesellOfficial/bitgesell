@@ -19,7 +19,7 @@ Essentially this is a full BGL fork, but:
 * Block Subsidy = 50 * 4;                         // 21 000 000 coins max
 * Hashing algorithm for blocks is Keccak (sha-3).
 The `master` branch is regularly built (see doc/build-*.md for instructions) and tested, but is not guaranteed to be
-completely stable. [Tags](https://github.com/BGL/BGL/tags) are created
+completely stable. [Tags](https://github.com/BitgesellOfficial/bitgesell/tags) are created
 regularly to indicate new official, stable release versions of BGL Core.
 
 The https://github.com/BGL-core/gui repository is used exclusively for the
@@ -27,7 +27,7 @@ development of the GUI. Its master branch is identical in all monotree
 repositories. Release branches and tags do not exist, so please do not fork
 that repository unless it is for development reasons.
 
-Official thread: https://BGLtalk.org/index.php?topic=5238559.0
+Official thread: https://bitcointalk.org/index.php?topic=5238559.0
 
 License
 -------
