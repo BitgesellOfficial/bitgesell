@@ -294,12 +294,11 @@ AC_DEFUN([_BGL_QT_CHECK_STATIC_PLUGINS],[
   CHECK_STATIC_PLUGINS_TEMP_LIBS="$LIBS"
   LIBS="$2${qt_lib_suffix} $QT_LIBS $LIBS"
   AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-    #define QT_STATICPLUGIN
-    #include <QtPlugin>
-    $1]],
-    [[return 0;]])],
-    [AC_MSG_RESULT(yes); QT_LIBS="$2 $QT_LIBS"],
-    [AC_MSG_RESULT(no); BGL_QT_FAIL(Could not resolve: $2)])
+      #include <QtPlugin>
+      Q_IMPORT_PLUGIN($1)
+    ]])],
+    [AC_MSG_RESULT([yes]); QT_LIBS="$2${qt_lib_suffix} $QT_LIBS"],
+    [AC_MSG_RESULT([no]); BGL_QT_FAIL([$1 not found.])])
   LIBS="$CHECK_STATIC_PLUGINS_TEMP_LIBS"
 ])
 
