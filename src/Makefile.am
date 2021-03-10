@@ -242,7 +242,6 @@ BGL_CORE_H = \
   util/getuniquepath.h \
   util/golombrice.h \
   util/macros.h \
-  util/memory.h \
   util/message.h \
   util/moneystr.h \
   util/rbf.h \
