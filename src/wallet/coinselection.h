@@ -59,6 +59,7 @@ public:
 struct CoinEligibilityFilter
 {
     const int conf_mine;
+    /** Minimum number of confirmations for outputs received from a different wallet. */
     const int conf_theirs;
     const uint64_t max_ancestors;
     const uint64_t max_descendants;
