@@ -149,6 +149,7 @@ BGL_CORE_H = \
   core_memusage.h \
   cuckoocache.h \
   dbwrapper.h \
+  deploymentinfo.h \
   deploymentstatus.h \
   external_signer.h \
   flatfile.h \
@@ -277,7 +278,6 @@ BGL_CORE_H = \
   validation.h \
   validationinterface.h \
   versionbits.h \
-  versionbitsinfo.h \
   wallet/bdb.h \
   wallet/coincontrol.h \
   wallet/coinselection.h \
@@ -553,6 +553,7 @@ libBGL_common_a_SOURCES = \
   compressor.cpp \
   core_read.cpp \
   core_write.cpp \
+  deploymentinfo.cpp \
   external_signer.cpp \
   init/common.cpp \
   key.cpp \
@@ -574,7 +575,6 @@ libBGL_common_a_SOURCES = \
   script/sign.cpp \
   script/signingprovider.cpp \
   script/standard.cpp \
-  versionbitsinfo.cpp \
   warnings.cpp \
   $(BGL_CORE_H)
 

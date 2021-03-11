@@ -2,12 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BGL_VERSIONBITSINFO_H
-#define BGL_VERSIONBITSINFO_H
-
-#include <consensus/params.h>
-
-#include <string>
+#ifndef BGL_DEPLOYMENTINFO_H
+#define Bgl_DEPLOYMENTINFO_H
 
 struct VBDeploymentInfo {
     /** Deployment name */
