@@ -10,7 +10,6 @@
 #include <net.h>
 #include <netaddress.h>
 #include <netbase.h>
-#include <optional>
 #include <serialize.h>
 #include <span.h>
 #include <streams.h>
@@ -25,6 +24,7 @@
 #include <algorithm>
 #include <ios>
 #include <memory>
+#include <optional>
 #include <string>
 
 using namespace std::literals;
