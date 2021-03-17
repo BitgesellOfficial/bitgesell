@@ -330,7 +330,6 @@ EOF
                                  ${SDK_PATH:+--share="$SDK_PATH"} \
                                  --cores="$JOBS" \
                                  --keep-failed \
-                                 --fallback \
                                  --link-profile \
                                  ${SUBSTITUTE_URLS:+--substitute-urls="$SUBSTITUTE_URLS"} \
                                  ${ADDITIONAL_GUIX_COMMON_FLAGS} ${ADDITIONAL_GUIX_ENVIRONMENT_FLAGS} \
