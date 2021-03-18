@@ -3,8 +3,9 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test external signer.
-
-Verify that a BGLd node can use an external signer command
+Verify that a bitcoind node can use an external signer command
+See also rpc_signer.py for tests without wallet context.
+>>>>>>> b54b2e7b1... Move external signer out of wallet module
 """
 import os
 import platform
@@ -16,7 +17,7 @@ from test_framework.util import (
 )
 
 
-class SignerTest(BGLTestFramework):
+class WalletSignerTest(BGLTestFramework):
     def mock_signer_path(self):
         path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'mocks', 'signer.py')
         if platform.system() == "Windows":
@@ -25,18 +26,16 @@ class SignerTest(BGLTestFramework):
             return path
 
     def set_test_params(self):
-        self.num_nodes = 4
+        self.num_nodes = 2
 
         self.extra_args = [
             [],
             [f"-signer={self.mock_signer_path()}", '-keypool=10'],
-            [f"-signer={self.mock_signer_path()}", '-keypool=10'],
-            ["-signer=fake.py"],
         ]
 
     def skip_test_if_missing_module(self):
-        self.skip_if_no_wallet()
         self.skip_if_no_external_signer()
+        self.skip_if_no_wallet()
 
     def set_mock_result(self, node, res):
         with open(os.path.join(node.cwd, "mock_result"), "w", encoding="utf8") as f:
@@ -48,36 +47,16 @@ class SignerTest(BGLTestFramework):
     def run_test(self):
         self.log.debug(f"-signer={self.mock_signer_path()}")
 
-        assert_raises_rpc_error(-4, 'Error: restart BGLd with -signer=<cmd>',
-            self.nodes[0].enumeratesigners
-        )
+        # Create new wallets for an external signer.
+        # disable_private_keys and descriptors must be true:
+        assert_raises_rpc_error(-4, "Private keys must be disabled when using an external signer", self.nodes[1].createwallet, wallet_name='not_hww', disable_private_keys=False, descriptors=True, external_signer=True)
+        if self.is_bdb_compiled():
+            assert_raises_rpc_error(-4, "Descriptor support must be enabled when using an external signer", self.nodes[1].createwallet, wallet_name='not_hww', disable_private_keys=True, descriptors=False, external_signer=True)
+        else:
+            assert_raises_rpc_error(-4, "Compiled without bdb support (required for legacy wallets)", self.nodes[1].createwallet, wallet_name='not_hww', disable_private_keys=True, descriptors=False, external_signer=True)
 
-        # Handle script missing:
-        assert_raises_rpc_error(-1, 'execve failed: No such file or directory',
-            self.nodes[3].enumeratesigners
-        )
-
-        # Handle error thrown by script
-        self.set_mock_result(self.nodes[1], "2")
-        assert_raises_rpc_error(-1, 'RunCommandParseJSON error',
-            self.nodes[1].enumeratesigners
-        )
-        self.clear_mock_result(self.nodes[1])
-
-        self.set_mock_result(self.nodes[1], '0 [{"type": "trezor", "model": "trezor_t", "error": "fingerprint not found"}]')
-        assert_raises_rpc_error(-4, 'fingerprint not found',
-            self.nodes[1].enumeratesigners
-        )
-        self.clear_mock_result(self.nodes[1])
-
-        # Create new wallets with private keys disabled:
-        self.nodes[1].createwallet(wallet_name='hww', disable_private_keys=True, descriptors=True)
+        self.nodes[1].createwallet(wallet_name='hww', disable_private_keys=True, descriptors=True, external_signer=True)
         hww = self.nodes[1].get_wallet_rpc('hww')
-
-        result = hww.enumeratesigners()
-        assert_equal(len(result['signers']), 2)
-        assert_equal(result['signers'][0]["fingerprint"], "00000001")
-        assert_equal(result['signers'][0]["name"], "trezor_t")
 
         # Flag can't be set afterwards (could be added later for non-blank descriptor based watch-only wallets)
         self.nodes[1].createwallet(wallet_name='not_hww', disable_private_keys=True, descriptors=True, external_signer=False)
@@ -116,14 +95,14 @@ class SignerTest(BGLTestFramework):
         assert_equal(address_info['ismine'], True)
         assert_equal(address_info['hdkeypath'], "m/44'/1'/0'/0/0")
 
-        self.log.info('Test signerdisplayaddress')
-        result = hww.signerdisplayaddress(address1)
+        self.log.info('Test walletdisplayaddress')
+        result = hww.walletdisplayaddress(address1)
         assert_equal(result, {"address": address1})
 
         # Handle error thrown by script
         self.set_mock_result(self.nodes[1], "2")
         assert_raises_rpc_error(-1, 'RunCommandParseJSON error',
-            hww.signerdisplayaddress, address1
+            hww.walletdisplayaddress, address1
         )
         self.clear_mock_result(self.nodes[1])
 
@@ -207,4 +186,4 @@ class SignerTest(BGLTestFramework):
         # self.clear_mock_result(self.nodes[4])
 
 if __name__ == '__main__':
-    SignerTest().main()
+    WalletSignerTest().main()
