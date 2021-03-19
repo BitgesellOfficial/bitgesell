@@ -56,21 +56,21 @@ task:
   dmg_artifacts:
     path: "*.dmg"
 
-task:
-  name: "x86_64 Linux"
-  << : *GLOBAL_TASK_TEMPLATE
-  container:
-    image: ubuntu:bionic
-  env:
-    FILE_ENV: "./ci/test/00_setup_env_native_nowallet.sh"
+#task:
+#  name: "x86_64 Linux"
+#  << : *GLOBAL_TASK_TEMPLATE
+#  container:
+#    image: ubuntu:bionic
+#  env:
+#    FILE_ENV: "./ci/test/00_setup_env_native_nowallet.sh"
 
-task:
-  name: "x86_64 Linux [qt]"
-  << : *GLOBAL_TASK_TEMPLATE
-  container:
-    image: ubuntu:bionic
-  env:
-    FILE_ENV: "./ci/test/00_setup_env_native_qt5.sh"
+#task:
+#  name: "x86_64 Linux [qt]"
+#  << : *GLOBAL_TASK_TEMPLATE
+#  container:
+#    image: ubuntu:bionic
+#  env:
+#    FILE_ENV: "./ci/test/00_setup_env_native_qt5.sh"
 
 task:
   name: "debian [deploy]"
@@ -88,3 +88,13 @@ task:
     - ./ci/debian_deploy.sh
   deb_artifacts:
     path: "/*.deb"
+
+task:
+  name: 'Win64 [unit tests, no gui tests, no boost::process, no functional tests] [focal]'
+  << : *GLOBAL_TASK_TEMPLATE
+  container:
+    image: ubuntu:focal
+  env:
+    FILE_ENV: "./ci/test/00_setup_env_win64.sh"
+    DEBIAN_FRONTEND: "noninteractive"
+    TZ: "Europe/London"
