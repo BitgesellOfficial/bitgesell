@@ -9,6 +9,7 @@ env:
   CCACHE_SIZE: "200M"
   CCACHE_DIR: "/tmp/ccache_dir"
   GIT_CONFIG_FLAG: "--global"
+  GITHUB_TOKEN: ENCRYPTED[4b3398c0684d6780e8247b0bb8af32697c90e41f09f64553e63cee666f80d7afdecd4e96a10a4f44bdf5b0b14407c5a6]
 
 # https://cirrus-ci.org/guide/tips-and-tricks/#sharing-configuration-between-tasks
 base_template: &BASE_TEMPLATE

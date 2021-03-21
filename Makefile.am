@@ -32,7 +32,7 @@ empty :=
 space := $(empty) $(empty)
 
 OSX_APP=BGL-Qt.app
-OSX_VOLNAME = $(subst $(space),-,$(PACKAGE_NAME))
+OSX_VOLNAME = $(PACKAGE)-Qt
 OSX_DMG = $(OSX_VOLNAME).dmg
 OSX_TEMP_ISO = $(OSX_DMG:.dmg=).temp.iso
 OSX_BACKGROUND_SVG=background.svg
