@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_UTIL_GOLOMBRICE_H
-#define BITCOIN_UTIL_GOLOMBRICE_H
+#ifndef BGL_UTIL_GOLOMBRICE_H
+#define BGL_UTIL_GOLOMBRICE_H
 
 #include <streams.h>
 
@@ -40,4 +40,4 @@ uint64_t GolombRiceDecode(BitStreamReader<IStream>& bitreader, uint8_t P)
     return (q << P) + r;
 }
 
-#endif // BITCOIN_UTIL_GOLOMBRICE_H
+#endif // BGL_UTIL_GOLOMBRICE_H

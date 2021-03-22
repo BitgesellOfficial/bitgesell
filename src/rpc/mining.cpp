@@ -242,12 +242,7 @@ static RPCHelpMan generatetodescriptor()
 static RPCHelpMan generate()
 {
     return RPCHelpMan{"generate", "has been replaced by the -generate cli option. Refer to -help for more information.", {}, {}, RPCExamples{""}, [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue {
-
-    if (request.fHelp) {
-        throw std::runtime_error(self.ToString());
-    } else {
         throw JSONRPCError(RPC_METHOD_NOT_FOUND, self.ToString());
-    }
     }};
 }
 
@@ -380,7 +375,7 @@ static RPCHelpMan generateblock()
         LOCK(cs_main);
 
         BlockValidationState state;
-        if (!TestBlockValidity(state, chainparams, block, g_chainman.m_blockman.LookupBlockIndex(block.hashPrevBlock), false, false)) {
+        if (!TestBlockValidity(state, chainparams, ::ChainstateActive(), block, g_chainman.m_blockman.LookupBlockIndex(block.hashPrevBlock), false, false)) {
             throw JSONRPCError(RPC_VERIFY_ERROR, strprintf("TestBlockValidity failed: %s", state.ToString()));
         }
     }

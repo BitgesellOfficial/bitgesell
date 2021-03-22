@@ -749,7 +749,7 @@ public:
     {
         return *database;
     }
-    WalletDatabase& GetDatabase() override { return *database; }
+    WalletDatabase& GetDatabase() { return *database; }
 
     /**
      * Select a set of coins such that nValueRet >= nTargetValue and at least
@@ -848,12 +848,6 @@ public:
 #ifdef ENABLE_EXTERNAL_SIGNER
     ExternalSigner GetExternalSigner() EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
 #endif
-<<<<<<< HEAD
-    /** Display address on an external signer. Returns false if external signer support is not compiled */
-    bool DisplayAddress(const CTxDestination& dest) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
-
-=======
->>>>>>> fc5da520f... wallet: add GetExternalSigner()
     bool IsLockedCoin(uint256 hash, unsigned int n) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     void LockCoin(const COutPoint& output) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     void UnlockCoin(const COutPoint& output) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
@@ -1096,7 +1090,7 @@ public:
     unsigned int GetKeyPoolSize() const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
 
     //! signify that a particular wallet feature is now used. this may change nWalletVersion and nWalletMaxVersion if those are lower
-    void SetMinVersion(enum WalletFeature, WalletBatch* batch_in = nullptr, bool fExplicit = false) override;
+    void SetMinVersion(enum WalletFeature, WalletBatch* batch_in = nullptr, bool fExplicit = false);
 
     //! change which version we're allowed to upgrade to (note that this does not immediately imply upgrading to that format)
     bool SetMaxVersion(int nVersion);

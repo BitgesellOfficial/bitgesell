@@ -56,8 +56,6 @@ public:
     {
         return (int64_t)nTime;
     }
-
-    std::string ToString() const;
 };
 
 

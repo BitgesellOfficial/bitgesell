@@ -828,7 +828,7 @@ cr 2020-03-15 17:25:29 7726f3bc4671fbc23e5bc31d0eb9fe381e2f07ef tests: Add fuzzi
 cr 2020-03-15 17:25:29 d69145acb76ff12b7c5c1e55ce89e14bc6453904 tests: Add fuzzing harness for MultiplicationOverflow(...)
 cr 2020-03-15 17:34:27 e4d366788bc2e8dce8e6ca572fce08d913d15d6b build: Drop needless EXTRA_DIST content
 v  2020-03-15 23:43:39 686c5456f2fcf7e301907223d16a85f7eb378c6c Fix missing header in sync.h
-cr 2020-03-16 10:08:07 ddbb41931019ed4226af3df37874c7eb7cf570f1 build: Use pkg-config in BITCOIN_QT_CONFIGURE for all hosts
+cr 2020-03-16 10:08:07 ddbb41931019ed4226af3df37874c7eb7cf570f1 build: Use pkg-config in BGL_QT_CONFIGURE for all hosts
 cr 2020-03-16 10:09:22 05a93d5d96101b45d87571af5b772c7a1e82fd27 build: Fix indentation in bitcoin_qt.m4
 cr 2020-03-16 10:09:22 9123ec15db104397998f5084afc69403d2f9e4b8 build: Remove extra tokens warning
 v  2020-03-16 10:09:22 fded4f48c33742d7c790335c8de59c15b80d94e6 build: Remove duplicated QT_STATICPLUGIN define
@@ -928,7 +928,7 @@ pr 2020-03-25 08:40:54 5b4a9f4bdf9d90f29921425e13e50a0076edffab Merge #18342: do
 v  2020-03-25 09:06:48 332f373a9dece71717f75eb06e6a1fc957f2952b [scripts] previous_release: improve failed download error message
 v  2020-03-25 11:45:43 fa156999695ddaeb016d8320bee62f8d96679d55 test: Add basic test for BIP 37
 pr 2020-03-25 12:35:03 3f5107d008e15efa364c53bd3ed4e819cd2c6712 Merge #18423: tests: Add fuzzing harness for classes/functions in blockfilter.h. Add integer {de,}serialization fuzzing.
-cr 2020-03-25 13:33:44 1f97b69ba27deb645bf5dd229d0cb97d2baf8f49 build: remove double LIBBITCOIN_SERVER from bench-Makefile
+cr 2020-03-25 13:33:44 1f97b69ba27deb645bf5dd229d0cb97d2baf8f49 build: remove double LIBBGL_SERVER from bench-Makefile
 pr 2020-03-25 14:48:44 baa72cd9a2fd1c7213f726e5354f87591ddd895f Merge #18331: build: Use git archive as source tarball
 pr 2020-03-25 15:11:10 244e88e6b580f94434d16b2cea2e5690db24f0d4 Merge #18402: gui: display mapped AS in peers info window
 pr 2020-03-25 15:35:36 3e50fdbe4e5bb98194e88023468bd77dee78b26e Merge #18395: scripts: add PE dylib checking to symbol-check.py
@@ -940,7 +940,7 @@ v  2020-03-26 04:39:34 1a4e9f32efcc5f6a74290446dc58784fd85c7b31 scripts: add MAC
 pr 2020-03-26 04:39:34 7142d50ac33e0ad7d24e49e04c1fc7e3e769ed46 scripts: rename test_64bit_PE to test_PE
 v  2020-03-26 04:39:34 edaca2dd123cef958699c07ab248cf0ffc71af07 scripts: add MACHO NX check to security-check.py
 pr 2020-03-26 09:22:24 d8ce27ff9f806efaf95cb4aeb11b9d5a3f106e88 Merge #18397: build: Fix libevent linking for bench_bitcoin binary
-pr 2020-03-26 10:20:28 e99ca783cd2d064734dfe7920bcfa438355b5aab Merge #18429: build: remove double LIBBITCOIN_SERVER from bench-Makefile
+pr 2020-03-26 10:20:28 e99ca783cd2d064734dfe7920bcfa438355b5aab Merge #18429: build: remove double LIBBGL_SERVER from bench-Makefile
 v  2020-03-26 13:56:43 596c627a1eb2b32e2755ae5b9bf32235cf8ce72b ci: Fix brew in Travis
 v  2020-03-26 13:57:14 25c8b73656c90f7b78a90f25c5bcc308f8b7c598 ci: Use Homebrew addon on native macOS
 pr 2020-03-26 14:10:31 f3a91ab0edc70e1bcb7e770f0878f03459c399e1 Merge #18438: ci: Use Homebrew addon on native macOS
@@ -2187,7 +2187,7 @@ pr 2020-06-12 19:48:20 +0100 5af16a4db76f8c00b6c9598147ab49d79be1f149 Merge #167
 pr 2020-06-12 20:29:53 +0100 f154071ec81760ffdb552d5768243a62e1e9eceb Merge #19177: test: Fix and clean p2p_invalid_messages functional tests
 c  2020-06-13 01:09:15 +0100 ccf1f6ea24905876f35e685204cb2293cf083e97 refactor: Drop ::HasWallets()
 pr 2020-06-13 02:50:29 +0100 8c97780db8c9dd33efed134385573ba97e9cd165 Merge #19228: Update libsecp256k1 subtree
-pr 2020-06-13 08:41:39 +0100 265492723a6874abc542361e4693840240e7d2ef Merge #18297: build: Use pkg-config in BITCOIN_QT_CONFIGURE for all hosts including Windows
+pr 2020-06-13 08:41:39 +0100 265492723a6874abc542361e4693840240e7d2ef Merge #18297: build: Use pkg-config in BGL_QT_CONFIGURE for all hosts including Windows
 cr 2020-06-13 11:24:18 +0100 78c312c983255e15fc274de2368a2ec13ce81cbf Replace current benchmarking framework with nanobench
 pr 2020-06-13 15:30:31 +0100 eac65d99ddb27061e6ae0f9448887db86e2c0734 Merge #19261: refactor: Drop ::HasWallets()
 c  2020-06-13 15:49:31 +0100 49236be099c5e8b3cadbc98d5216313e7e1a5a45 [tests] Don't import asyncio to test magic bytes

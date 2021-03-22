@@ -41,18 +41,12 @@
 
 #include <univalue.h>
 
-/** Maximum fee rate for sendrawtransaction and testmempoolaccept.
- * By default, a transaction with a fee rate higher than this will be rejected
- * by the RPCs. This can be overridden with the maxfeerate argument.
- */
-static const CFeeRate DEFAULT_MAX_RAW_TX_FEE_RATE{COIN / 10};
-
 static void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
 {
-    // Call into TxToUniv() in BGL-common to decode the transaction hex.
+    // Call into TxToUniv() in bitcoin-common to decode the transaction hex.
     //
     // Blockchain contextual information (confirmations and blocktime) is not
-    // available to code in BGL-common, so we query them here and push the
+    // available to code in bitcoin-common, so we query them here and push the
     // data into the returned UniValue.
     TxToUniv(tx, uint256(), entry, true, RPCSerializationFlags());
 
@@ -1342,7 +1336,7 @@ static RPCHelpMan combinepsbt()
 
     CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
     ssTx << merged_psbt;
-    return EncodeBase64(ssTx);
+    return EncodeBase64(ssTx.str());
 },
     };
 }
@@ -1481,7 +1475,7 @@ static RPCHelpMan createpsbt()
     CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
     ssTx << psbtx;
 
-    return EncodeBase64(ssTx);
+    return EncodeBase64(ssTx.str());
 },
     };
 }
@@ -1550,7 +1544,7 @@ static RPCHelpMan converttopsbt()
     CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
     ssTx << psbtx;
 
-    return EncodeBase64(ssTx);
+    return EncodeBase64(ssTx.str());
 },
     };
 }
@@ -1641,7 +1635,7 @@ static RPCHelpMan utxoupdatepsbt()
 
     CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
     ssTx << psbtx;
-    return EncodeBase64(ssTx);
+    return EncodeBase64(ssTx.str());
 },
     };
 }
@@ -1737,7 +1731,7 @@ static RPCHelpMan joinpsbts()
 
     CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
     ssTx << shuffled_psbt;
-    return EncodeBase64(ssTx);
+    return EncodeBase64(ssTx.str());
 },
     };
 }

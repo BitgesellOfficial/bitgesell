@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_I2P_H
-#define BITCOIN_I2P_H
+#ifndef BGL_I2P_H
+#define BGL_I2P_H
 
 #include <compat.h>
 #include <fs.h>
@@ -257,4 +257,4 @@ private:
 } // namespace sam
 } // namespace i2p
 
-#endif /* BITCOIN_I2P_H */
+#endif /* BGL_I2P_H */

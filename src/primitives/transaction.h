@@ -299,9 +299,7 @@ public:
         return vin.empty() && vout.empty();
     }
 
-    // txId
     const uint256& GetHash() const { return hash; }
-    // txHash
     const uint256& GetWitnessHash() const { return m_witness_hash; };
 
     // Return sum of txouts.

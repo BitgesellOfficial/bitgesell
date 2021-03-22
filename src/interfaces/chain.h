@@ -67,13 +67,13 @@ public:
 //! estimate fees, and submit transactions.
 //!
 //! TODO: Current chain methods are too low level, exposing too much of the
-//! internal workings of the BGL node, and not being very convenient to use.
+//! internal workings of the bitcoin node, and not being very convenient to use.
 //! Chain methods should be cleaned up and simplified over time. Examples:
 //!
 //! * The initMessages() and showProgress() methods which the wallet uses to send
 //!   notifications to the GUI should go away when GUI and wallet can directly
 //!   communicate with each other without going through the node
-//!   (https://github.com/BGL/BGL/pull/15288#discussion_r253321096).
+//!   (https://github.com/bitcoin/bitcoin/pull/15288#discussion_r253321096).
 //!
 //! * The handleRpc, registerRpcs, rpcEnableDeprecated methods and other RPC
 //!   methods can go away if wallets listen for HTTP requests on their own
@@ -158,6 +158,9 @@ public:
 
     //! Check if transaction is RBF opt in.
     virtual RBFTransactionState isRBFOptIn(const CTransaction& tx) = 0;
+
+    //! Check if transaction is in mempool.
+    virtual bool isInMempool(const uint256& txid) = 0;
 
     //! Check if transaction has descendants in mempool.
     virtual bool hasDescendantsInMempool(const uint256& txid) = 0;

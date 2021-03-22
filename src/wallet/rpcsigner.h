@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_WALLET_RPCSIGNER_H
-#define BITCOIN_WALLET_RPCSIGNER_H
+#ifndef BGL_WALLET_RPCSIGNER_H
+#define BGL_WALLET_RPCSIGNER_H
 
 #include <span.h>
 #include <util/system.h>
@@ -22,4 +22,4 @@ Span<const CRPCCommand> GetSignerRPCCommands();
 
 #endif // ENABLE_EXTERNAL_SIGNER
 
-#endif //BITCOIN_WALLET_RPCSIGNER_H
+#endif //BGL_WALLET_RPCSIGNER_H

@@ -110,7 +110,7 @@ static const char* BGL_PID_FILENAME = "BGLd.pid";
 
 static fs::path GetPidFile(const ArgsManager& args)
 {
-    return AbsPathForConfigVal(fs::path(gArgs.GetArg("-pid", BGL_PID_FILENAME)));
+    return AbsPathForConfigVal(fs::path(args.GetArg("-pid", BGL_PID_FILENAME)));
 }
 
 [[nodiscard]] static bool CreatePidFile(const ArgsManager& args)
@@ -266,7 +266,6 @@ void Shutdown(NodeContext& node)
 
     if (node.chainman) {
         LOCK(cs_main);
-
         for (CChainState* chainstate : node.chainman->GetAll()) {
             if (chainstate->CanFlushToDisk()) {
                 chainstate->ForceFlushStateToDisk();
@@ -419,7 +418,6 @@ void SetupServerArgs(NodeContext& node)
 #if HAVE_SYSTEM
     argsman.AddArg("-startupnotify=<cmd>", "Execute command on startup.", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
 #endif
-
 #ifndef WIN32
     argsman.AddArg("-sysperms", "Create new files with system default permissions, instead of umask 077 (only effective with disabled wallet functionality)", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
 #else
@@ -450,9 +448,7 @@ void SetupServerArgs(NodeContext& node)
     argsman.AddArg("-maxtimeadjustment", strprintf("Maximum allowed median peer time offset adjustment. Local perspective of time may be influenced by peers forward or backward by this amount. (default: %u seconds)", DEFAULT_MAX_TIME_ADJUSTMENT), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
     argsman.AddArg("-maxuploadtarget=<n>", strprintf("Tries to keep outbound traffic under the given target (in MiB per 24h). Limit does not apply to peers with 'download' permission. 0 = no limit (default: %d)", DEFAULT_MAX_UPLOAD_TARGET), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
     argsman.AddArg("-onion=<ip:port>", "Use separate SOCKS5 proxy to reach peers via Tor onion services, set -noonion to disable (default: -proxy)", ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
-    argsman.AddArg("-i2psam=<ip:port>", "I2P SAM proxy to reach I2P peers and accept I2P connections (default: none)", ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
-    argsman.AddArg("-i2pacceptincoming", "If set and -i2psam is also set then incoming I2P connections are accepted via the SAM proxy. If this is not set but -i2psam is set then only outgoing connections will be made to the I2P network. Ignored if -i2psam is not set. Listening for incoming I2P connections is done through the SAM proxy, not by binding to a local address and port (default: 1)", ArgsManager::ALLOW_BOOL, OptionsCategory::CONNECTION);
-    argsman.AddArg("-onlynet=<net>", "Make outgoing connections only through network <net> (" + Join(GetNetworkNames(), ", ") + "). Incoming connections are not affected by this option. This option can be specified multiple times to allow multiple networks. Warning: if it is used with non-onion networks and the -onion or -proxy option is set, then outbound onion connections will still be made; use -noonion or -onion=0 to disable outbound onion connections in this case.", ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
+    argsman.AddArg("-onlynet=<net>", "Make outgoing connections only through network <net> (" + Join(GetNetworkNames(), ", ") + "). Incoming connections are not affected by this option. This option can be specified multiple times to allow multiple networks. Warning: if it is used with ipv4 or ipv6 but not onion and the -onion or -proxy option is set, then outbound onion connections will still be made; use -noonion or -onion=0 to disable outbound onion connections in this case.", ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
     argsman.AddArg("-peerbloomfilters", strprintf("Support filtering of blocks and transaction with bloom filters (default: %u)", DEFAULT_PEERBLOOMFILTERS), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
     argsman.AddArg("-peerblockfilters", strprintf("Serve compact block filters to peers per BIP 157 (default: %u)", DEFAULT_PEERBLOCKFILTERS), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
     argsman.AddArg("-permitbaremultisig", strprintf("Relay non-P2SH multisig (default: %u)", DEFAULT_PERMIT_BAREMULTISIG), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
@@ -582,8 +578,9 @@ void SetupServerArgs(NodeContext& node)
     argsman.AddArg("-rpcworkqueue=<n>", strprintf("Set the depth of the work queue to service RPC calls (default: %d)", DEFAULT_HTTP_WORKQUEUE), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::RPC);
     argsman.AddArg("-server", "Accept command line and JSON-RPC commands", ArgsManager::ALLOW_ANY, OptionsCategory::RPC);
 
-#if HAVE_DECL_DAEMON
-    argsman.AddArg("-daemon", "Run in the background as a daemon and accept commands", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+#if HAVE_DECL_FORK
+    argsman.AddArg("-daemon", strprintf("Run in the background as a daemon and accept commands (default: %d)", DEFAULT_DAEMON), ArgsManager::ALLOW_BOOL, OptionsCategory::OPTIONS);
+    argsman.AddArg("-daemonwait", strprintf("Wait for initialization to be finished before exiting. This implies -daemon (default: %d)", DEFAULT_DAEMONWAIT), ArgsManager::ALLOW_BOOL, OptionsCategory::OPTIONS);
 #else
     hidden_args.emplace_back("-daemon");
 #endif
@@ -594,8 +591,7 @@ void SetupServerArgs(NodeContext& node)
 
 std::string LicenseInfo()
 {
-    const std::string URL_SOURCE_CODE = "<https://github.com/BGL/BGL>";
-    const std::string URL_WEBSITE = "<https://BGLcore.org>";
+    const std::string URL_SOURCE_CODE = "<https://github.com/BitgesellOfficial/bitgesell>";
 
     return CopyrightHolders(strprintf(_("Copyright (C) %i-%i").translated, 2009, COPYRIGHT_YEAR) + " ") + "\n" +
            "\n" +
@@ -723,7 +719,7 @@ static void ThreadImport(ChainstateManager& chainman, std::vector<fs::path> vImp
         fReindex = false;
         LogPrintf("Reindexing finished\n");
         // To avoid ending up in a situation without genesis block, re-try initializing (no-op if reindexing worked):
-        ::ChainstateActive().LoadGenesisBlock(chainparams);
+        LoadGenesisBlock(chainparams);
     }
 
     // -loadblock=
@@ -742,6 +738,7 @@ static void ThreadImport(ChainstateManager& chainman, std::vector<fs::path> vImp
     }
 
     // scan for better chains in the block chain database, that are not yet connected in the active best chain
+
     // We can't hold cs_main during ActivateBestChain even though we're accessing
     // the chainman unique_ptrs since ABC requires us not to be holding cs_main, so retrieve
     // the relevant pointers before the ABC call.
@@ -752,7 +749,6 @@ static void ThreadImport(ChainstateManager& chainman, std::vector<fs::path> vImp
             StartShutdown();
             return;
         }
-
     }
 
     if (args.GetBoolArg("-stopafterblockimport", DEFAULT_STOPAFTERBLOCKIMPORT)) {
@@ -765,7 +761,7 @@ static void ThreadImport(ChainstateManager& chainman, std::vector<fs::path> vImp
 }
 
 /** Sanity checks
- *  Ensure that BGL is running in a usable environment with all
+ *  Ensure that Bitcoin is running in a usable environment with all
  *  necessary library support.
  */
 static bool InitSanityCheck()
@@ -853,9 +849,6 @@ void InitParameterInteraction(ArgsManager& args)
             LogPrintf("%s: parameter interaction: -listen=0 -> setting -discover=0\n", __func__);
         if (args.SoftSetBoolArg("-listenonion", false))
             LogPrintf("%s: parameter interaction: -listen=0 -> setting -listenonion=0\n", __func__);
-        if (args.SoftSetBoolArg("-i2pacceptincoming", false)) {
-            LogPrintf("%s: parameter interaction: -listen=0 -> setting -i2pacceptincoming=0\n", __func__);
-        }
     }
 
     if (args.IsArgSet("-externalip")) {
@@ -1222,7 +1215,7 @@ bool AppInitParameterInteraction(const ArgsManager& args)
 
 static bool LockDataDirectory(bool probeOnly)
 {
-    // Make sure only a single BGL process is using the data directory.
+    // Make sure only a single Bitcoin process is using the data directory.
     fs::path datadir = GetDataDir();
     if (!DirIsWritable(datadir)) {
         return InitError(strprintf(_("Cannot write to data directory '%s'; check permissions."), datadir.string()));
@@ -1304,7 +1297,7 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
     LogPrintf("Using data directory %s\n", GetDataDir().string());
 
     // Only log conf file usage message if conf file actually exists.
-    fs::path config_file_path = GetConfigFile(gArgs.GetArg("-conf", BGL_CONF_FILENAME));
+    fs::path config_file_path = GetConfigFile(args.GetArg("-conf", BGL_CONF_FILENAME));
     if (fs::exists(config_file_path)) {
         LogPrintf("Config file: %s\n", config_file_path.string());
     } else if (args.IsArgSet("-conf")) {
@@ -1326,7 +1319,7 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
                   "current working directory '%s'. This is fragile, because if BGL is started in the future "
                   "from a different location, it will be unable to locate the current data files. There could "
                   "also be data loss if BGL is started while in a temporary directory.\n",
-            gArgs.GetArg("-datadir", ""), fs::current_path().string());
+                  args.GetArg("-datadir", ""), fs::current_path().string());
     }
 
     InitSignatureCache();
@@ -1348,14 +1341,11 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
     LogPrintf("Script verification uses %d additional threads\n", script_threads);
     if (script_threads >= 1) {
         g_parallel_script_checks = true;
-        for (int i = 0; i < script_threads; ++i) {
-            threadGroup.create_thread([i]() { return ThreadScriptCheck(i); });
-        }
+        StartScriptCheckWorkerThreads(script_threads);
     }
 
     assert(!node.scheduler);
     node.scheduler = MakeUnique<CScheduler>();
-
 
     // Start the lightweight task scheduler thread
     node.scheduler->m_service_thread = std::thread([&] { TraceThread("scheduler", [&] { node.scheduler->serviceQueue(); }); });
@@ -1378,8 +1368,6 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
     RegisterZMQRPCCommands(tableRPC);
 #endif
 
-    LogPrintf("We got here!\n");
-
     /* Start the RPC server already.  It will be started in "warmup" mode
      * and not really process calls already (but it will signify connections
      * that the server is there and will be ready later).  Warmup mode will
@@ -1390,7 +1378,6 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
         if (!AppInitServers(context, node))
             return InitError(_("Unable to start HTTP server. See debug log for details."));
     }
-
 
     // ********************************************************* Step 5: verify wallet database integrity
     for (const auto& client : node.chain_clients) {
@@ -1531,7 +1518,7 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
             InitError(strprintf(_("Could not parse asmap file %s"), asmap_path));
             return false;
         }
-        const uint256 asmap_version = SerializeHashSHA256(asmap);
+        const uint256 asmap_version = SerializeHash(asmap);
         node.connman->SetAsmap(std::move(asmap));
         LogPrintf("Using asmap version %s for IP bucketing\n", asmap_version.ToString());
     } else {
@@ -1645,15 +1632,15 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
                 // If we're not mid-reindex (based on disk + args), add a genesis block on disk
                 // (otherwise we use the one already on disk).
                 // This is called again in ThreadImport after the reindex completes.
-                if (!fReindex && !::ChainstateActive().LoadGenesisBlock(chainparams)) {
+                if (!fReindex && !LoadGenesisBlock(chainparams)) {
                     strLoadError = _("Error initializing block database");
                     break;
                 }
 
                 // At this point we're either in reindex or we've loaded a useful
                 // block tree into BlockIndex()!
-                bool failed_chainstate_init = false;
 
+                bool failed_chainstate_init = false;
 
                 for (CChainState* chainstate : chainman.GetAll()) {
                     chainstate->InitCoinsDB(
@@ -1725,6 +1712,10 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
                 }
             }
 
+            if (failed_rewind) {
+                break; // out of the chainstate activation do-while
+            }
+
             bool failed_verification = false;
 
             try {
@@ -1768,8 +1759,10 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
                 break;
             }
 
-            fLoaded = true;
-            LogPrintf(" block index %15dms\n", GetTimeMillis() - load_block_index_start_time);
+            if (!failed_verification) {
+                fLoaded = true;
+                LogPrintf(" block index %15dms\n", GetTimeMillis() - load_block_index_start_time);
+            }
         } while(false);
 
         if (!fLoaded && !ShutdownRequested()) {
@@ -1999,21 +1992,6 @@ bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockA
             connOptions.m_specified_outgoing = connect;
         }
     }
-
-    const std::string& i2psam_arg = args.GetArg("-i2psam", "");
-    if (!i2psam_arg.empty()) {
-        CService addr;
-        if (!Lookup(i2psam_arg, addr, 7656, fNameLookup) || !addr.IsValid()) {
-            return InitError(strprintf(_("Invalid -i2psam address or hostname: '%s'"), i2psam_arg));
-        }
-        SetReachable(NET_I2P, true);
-        SetProxy(NET_I2P, proxyType{addr});
-    } else {
-        SetReachable(NET_I2P, false);
-    }
-
-    connOptions.m_i2p_accept_incoming = args.GetBoolArg("-i2pacceptincoming", true);
-
     if (!node.connman->Start(*node.scheduler, connOptions)) {
         return false;
     }

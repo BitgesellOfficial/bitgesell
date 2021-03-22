@@ -23,7 +23,7 @@ CTxMemPoolEntry::CTxMemPoolEntry(const CTransactionRef& _tx, const CAmount& _nFe
                                  int64_t _nTime, unsigned int _entryHeight,
                                  bool _spendsCoinbase, int64_t _sigOpsCost, LockPoints lp)
     : tx(_tx), nFee(_nFee), nTxWeight(GetTransactionWeight(*tx)), nUsageSize(RecursiveDynamicUsage(tx)), nTime(_nTime), entryHeight(_entryHeight),
-    spendsCoinbase(_spendsCoinbase), sigOpCost(_sigOpsCost), lockPoints(lp)
+    spendsCoinbase(_spendsCoinbase), sigOpCost(_sigOpsCost), lockPoints(lp), m_epoch(0)
 {
     nCountWithDescendants = 1;
     nSizeWithDescendants = GetTxSize();
@@ -132,7 +132,7 @@ void CTxMemPool::UpdateTransactionsFromBlock(const std::vector<uint256> &vHashes
         // include them, and update their CTxMemPoolEntry::m_parents to include this tx.
         // we cache the in-mempool children to avoid duplicate updates
         {
-            WITH_FRESH_EPOCH(m_epoch);
+            const auto epoch = GetFreshEpoch();
             for (; iter != mapNextTx.end() && iter->first->hash == hash; ++iter) {
                 const uint256 &childHash = iter->second->GetHash();
                 txiter childIter = mapTx.find(childHash);
@@ -331,15 +331,10 @@ void CTxMemPoolEntry::UpdateAncestorState(int64_t modifySize, CAmount modifyFee,
     assert(int(nSigOpCostWithAncestors) >= 0);
 }
 
-CTxMemPool::CTxMemPool(CBlockPolicyEstimator* estimator)
-    : nTransactionsUpdated(0), minerPolicyEstimator(estimator), m_epoch(0), m_has_epoch_guard(false)
+CTxMemPool::CTxMemPool(CBlockPolicyEstimator* estimator, int check_ratio)
+    : m_check_ratio(check_ratio), minerPolicyEstimator(estimator)
 {
     _clear(); //lock free clear
-
-    // Sanity checks off by default for performance, because otherwise
-    // accepting transactions becomes O(N^2) where N is the number
-    // of transactions in the pool
-    nCheckFrequency = 0;
 }
 
 bool CTxMemPool::isSpent(const COutPoint& outpoint) const
@@ -516,8 +511,9 @@ void CTxMemPool::removeForReorg(CChainState& active_chainstate, int flags)
     for (indexed_transaction_set::const_iterator it = mapTx.begin(); it != mapTx.end(); it++) {
         const CTransaction& tx = it->GetTx();
         LockPoints lp = it->GetLockPoints();
-        bool validLP =  TestLockPointValidity(::ChainActive(), &lp);
-        if (!CheckFinalTx(::ChainActive().Tip(), tx, flags) || !CheckSequenceLocks(::ChainstateActive(), *this, tx, flags, &lp, validLP)) {
+        assert(std::addressof(::ChainstateActive()) == std::addressof(active_chainstate));
+        bool validLP =  TestLockPointValidity(active_chainstate.m_chain, &lp);
+        if (!CheckFinalTx(active_chainstate.m_chain.Tip(), tx, flags) || !CheckSequenceLocks(active_chainstate, *this, tx, flags, &lp, validLP)) {
             // Note if CheckSequenceLocks fails the LockPoints may still be invalid
             // So it's critical that we remove the tx and not depend on the LockPoints.
             txToRemove.insert(it);
@@ -625,12 +621,9 @@ static void CheckInputsAndUpdateCoins(const CTransaction& tx, CCoinsViewCache& m
 
 void CTxMemPool::check(CChainState& active_chainstate) const
 {
-    LOCK(cs);
-    if (nCheckFrequency == 0)
-        return;
+    if (m_check_ratio == 0) return;
 
-    if (GetRand(std::numeric_limits<uint32_t>::max()) >= nCheckFrequency)
-        return;
+    if (GetRand(m_check_ratio) >= 1) return;
 
     AssertLockHeld(::cs_main);
     LOCK(cs);
@@ -1011,18 +1004,6 @@ void CTxMemPool::UpdateParent(txiter entry, txiter parent, bool add)
     }
 }
 
-const CTxMemPoolEntry::Parents & CTxMemPool::GetMemPoolParents(txiter entry) const
-{
-    assert(entry != mapTx.end());
-    return entry->GetMemPoolParentsConst();
-}
-
-const CTxMemPoolEntry::Children & CTxMemPool::GetMemPoolChildren(txiter entry) const
-{
-    assert(entry != mapTx.end());
-    return entry->GetMemPoolChildrenConst();
-}
-
 CFeeRate CTxMemPool::GetMinFee(size_t sizelimit) const {
     LOCK(cs);
     if (!blockSinceLastRollingFeeBump || rollingMinimumFeeRate == 0)
@@ -1140,4 +1121,23 @@ void CTxMemPool::SetIsLoaded(bool loaded)
 {
     LOCK(cs);
     m_is_loaded = loaded;
+}
+
+
+CTxMemPool::EpochGuard CTxMemPool::GetFreshEpoch() const
+{
+    return EpochGuard(*this);
+}
+CTxMemPool::EpochGuard::EpochGuard(const CTxMemPool& in) : pool(in)
+{
+    assert(!pool.m_has_epoch_guard);
+    ++pool.m_epoch;
+    pool.m_has_epoch_guard = true;
+}
+
+CTxMemPool::EpochGuard::~EpochGuard()
+{
+    // prevents stale results being used
+    ++pool.m_epoch;
+    pool.m_has_epoch_guard = false;
 }

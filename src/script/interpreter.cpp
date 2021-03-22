@@ -100,7 +100,7 @@ bool static IsCompressedPubKey(const valtype &vchPubKey) {
  * excessively padded (do not start with a 0 byte, unless an otherwise negative number follows,
  * in which case a single 0 byte is necessary and even required).
  *
- * See https://BGLtalk.org/index.php?topic=8392.msg127623#msg127623
+ * See https://bitcointalk.org/index.php?topic=8392.msg127623#msg127623
  *
  * This function is consensus-critical since BIP66.
  */
@@ -173,7 +173,7 @@ bool static IsLowDERSignature(const valtype &vchSig, ScriptError* serror) {
     if (!IsValidSignatureEncoding(vchSig)) {
         return set_error(serror, SCRIPT_ERR_SIG_DER);
     }
-    // https://BGL.stackexchange.com/a/12556:
+    // https://bitcoin.stackexchange.com/a/12556:
     //     Also note that inside transaction signatures, an extra hashtype byte
     //     follows the actual signature data.
     std::vector<unsigned char> vchSigCopy(vchSig.begin(), vchSig.begin() + vchSig.size() - 1);
@@ -360,12 +360,10 @@ static bool EvalChecksigPreTapscript(const valtype& vchSig, const valtype& vchPu
         //serror is set
         return false;
     }
-
     fSuccess = checker.CheckECDSASignature(vchSig, vchPubKey, scriptCode, sigversion);
 
-    if (!fSuccess && (flags & SCRIPT_VERIFY_NULLFAIL) && vchSig.size()) {
+    if (!fSuccess && (flags & SCRIPT_VERIFY_NULLFAIL) && vchSig.size())
         return set_error(serror, SCRIPT_ERR_SIG_NULLFAIL);
-    }
 
     return true;
 }
@@ -1093,9 +1091,7 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                     valtype& vchPubKey = stacktop(-1);
 
                     bool fSuccess = true;
-                    if (!EvalChecksig(vchSig, vchPubKey, pbegincodehash, pend, execdata, flags, checker, sigversion, serror, fSuccess)) {
-                        return false;
-                    }
+                    if (!EvalChecksig(vchSig, vchPubKey, pbegincodehash, pend, execdata, flags, checker, sigversion, serror, fSuccess)) return false;
                     popstack(stack);
                     popstack(stack);
                     stack.push_back(fSuccess ? vchTrue : vchFalse);
@@ -1103,9 +1099,8 @@ bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& 
                     {
                         if (fSuccess)
                             popstack(stack);
-                        else {
+                        else
                             return set_error(serror, SCRIPT_ERR_CHECKSIGVERIFY);
-                        }
                     }
                 }
                 break;
@@ -1376,7 +1371,7 @@ uint256 GetPrevoutsSHA256(const T& txTo)
     for (const auto& txin : txTo.vin) {
         ss << txin.prevout;
     }
-    return ss.GetHash();
+    return ss.GetSHA256();
 }
 
 /** Compute the (single) SHA256 of the concatenation of all nSequences of a tx. */
@@ -1387,7 +1382,7 @@ uint256 GetSequencesSHA256(const T& txTo)
     for (const auto& txin : txTo.vin) {
         ss << txin.nSequence;
     }
-    return ss.GetHash();
+    return ss.GetSHA256();
 }
 
 /** Compute the (single) SHA256 of the concatenation of all txouts of a tx. */
@@ -1398,7 +1393,7 @@ uint256 GetOutputsSHA256(const T& txTo)
     for (const auto& txout : txTo.vout) {
         ss << txout;
     }
-    return ss.GetHash();
+    return ss.GetSHA256();
 }
 
 /** Compute the (single) SHA256 of the concatenation of all amounts spent by a tx. */
@@ -1408,7 +1403,7 @@ uint256 GetSpentAmountsSHA256(const std::vector<CTxOut>& outputs_spent)
     for (const auto& txout : outputs_spent) {
         ss << txout.nValue;
     }
-    return ss.GetHash();
+    return ss.GetSHA256();
 }
 
 /** Compute the (single) SHA256 of the concatenation of all scriptPubKeys spent by a tx. */
@@ -1418,7 +1413,7 @@ uint256 GetSpentScriptsSHA256(const std::vector<CTxOut>& outputs_spent)
     for (const auto& txout : outputs_spent) {
         ss << txout.scriptPubKey;
     }
-    return ss.GetHash();
+    return ss.GetSHA256();
 }
 
 
@@ -1464,9 +1459,9 @@ void PrecomputedTransactionData::Init(const T& txTo, std::vector<CTxOut>&& spent
         m_outputs_single_hash = GetOutputsSHA256(txTo);
     }
     if (uses_bip143_segwit) {
-        hashPrevouts = m_prevouts_single_hash; //SHA256Uint256(m_prevouts_single_hash);
-        hashSequence = m_sequences_single_hash; //SHA256Uint256(m_sequences_single_hash);
-        hashOutputs = m_outputs_single_hash; //SHA256Uint256(m_outputs_single_hash);
+        hashPrevouts = SHA256Uint256(m_prevouts_single_hash);
+        hashSequence = SHA256Uint256(m_sequences_single_hash);
+        hashOutputs = SHA256Uint256(m_outputs_single_hash);
         m_bip143_segwit_ready = true;
     }
     if (uses_bip341_taproot) {
@@ -1488,10 +1483,10 @@ template void PrecomputedTransactionData::Init(const CMutableTransaction& txTo, 
 template PrecomputedTransactionData::PrecomputedTransactionData(const CTransaction& txTo);
 template PrecomputedTransactionData::PrecomputedTransactionData(const CMutableTransaction& txTo);
 
-static const CHashWriterSHA256 HASHER_TAPSIGHASH = TaggedHash("TapSighash");
-static const CHashWriterSHA256 HASHER_TAPLEAF = TaggedHash("TapLeaf");
-static const CHashWriterSHA256 HASHER_TAPBRANCH = TaggedHash("TapBranch");
-static const CHashWriterSHA256 HASHER_TAPTWEAK = TaggedHash("TapTweak");
+static const CHashWriter HASHER_TAPSIGHASH = TaggedHash("TapSighash");
+static const CHashWriter HASHER_TAPLEAF = TaggedHash("TapLeaf");
+static const CHashWriter HASHER_TAPBRANCH = TaggedHash("TapBranch");
+static const CHashWriter HASHER_TAPTWEAK = TaggedHash("TapTweak");
 
 template<typename T>
 bool SignatureHashSchnorr(uint256& hash_out, const ScriptExecutionData& execdata, const T& tx_to, uint32_t in_pos, uint8_t hash_type, SigVersion sigversion, const PrecomputedTransactionData& cache)
@@ -1516,7 +1511,7 @@ bool SignatureHashSchnorr(uint256& hash_out, const ScriptExecutionData& execdata
     assert(in_pos < tx_to.vin.size());
     assert(cache.m_bip341_taproot_ready && cache.m_spent_outputs_ready);
 
-    CHashWriterSHA256 ss = HASHER_TAPSIGHASH;
+    CHashWriter ss = HASHER_TAPSIGHASH;
 
     // Epoch
     static constexpr uint8_t EPOCH = 0;
@@ -1560,7 +1555,7 @@ bool SignatureHashSchnorr(uint256& hash_out, const ScriptExecutionData& execdata
     // Data about the output (if only one).
     if (output_type == SIGHASH_SINGLE) {
         if (in_pos >= tx_to.vout.size()) return false;
-        CHashWriterSHA256 sha_single_output(SER_GETHASH, 0);
+        CHashWriter sha_single_output(SER_GETHASH, 0);
         sha_single_output << tx_to.vout[in_pos];
         ss << sha_single_output.GetSHA256();
     }
@@ -1589,17 +1584,17 @@ uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn
         uint256 hashOutputs;
         const bool cacheready = cache && cache->m_bip143_segwit_ready;
 
-
         if (!(nHashType & SIGHASH_ANYONECANPAY)) {
-            hashPrevouts = cacheready ? cache->hashPrevouts : GetPrevoutsSHA256(txTo); //SHA256Uint256(GetPrevoutsSHA256(txTo));
+            hashPrevouts = cacheready ? cache->hashPrevouts : SHA256Uint256(GetPrevoutsSHA256(txTo));
         }
 
         if (!(nHashType & SIGHASH_ANYONECANPAY) && (nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
-            hashSequence = cacheready ? cache->hashSequence : GetSequencesSHA256(txTo); //SHA256Uint256(GetSequencesSHA256(txTo));
+            hashSequence = cacheready ? cache->hashSequence : SHA256Uint256(GetSequencesSHA256(txTo));
         }
 
+
         if ((nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
-            hashOutputs = cacheready ? cache->hashOutputs : GetOutputsSHA256(txTo); //SHA256Uint256(GetOutputsSHA256(txTo));
+            hashOutputs = cacheready ? cache->hashOutputs : SHA256Uint256(GetOutputsSHA256(txTo));
         } else if ((nHashType & 0x1f) == SIGHASH_SINGLE && nIn < txTo.vout.size()) {
             CHashWriter ss(SER_GETHASH, 0);
             ss << txTo.vout[nIn];
@@ -1831,13 +1826,8 @@ static bool ExecuteWitnessScript(const Span<const valtype>& stack_span, const CS
     if (!EvalScript(stack, scriptPubKey, flags, checker, sigversion, execdata, serror)) return false;
 
     // Scripts inside witness implicitly require cleanstack behaviour
-    if (stack.size() != 1) {
-        return set_error(serror, SCRIPT_ERR_CLEANSTACK);
-    }
-
-    if (!CastToBool(stack.back())) {
-        return set_error(serror, SCRIPT_ERR_EVAL_FALSE);
-    }
+    if (stack.size() != 1) return set_error(serror, SCRIPT_ERR_CLEANSTACK);
+    if (!CastToBool(stack.back())) return set_error(serror, SCRIPT_ERR_EVAL_FALSE);
     return true;
 }
 
@@ -1849,11 +1839,11 @@ static bool VerifyTaprootCommitment(const std::vector<unsigned char>& control, c
     //! The output pubkey (taken from the scriptPubKey).
     const XOnlyPubKey q{uint256(program)};
     // Compute the tapleaf hash.
-    tapleaf_hash = (CHashWriterSHA256(HASHER_TAPLEAF) << uint8_t(control[0] & TAPROOT_LEAF_MASK) << script).GetSHA256();
+    tapleaf_hash = (CHashWriter(HASHER_TAPLEAF) << uint8_t(control[0] & TAPROOT_LEAF_MASK) << script).GetSHA256();
     // Compute the Merkle root from the leaf and the provided path.
     uint256 k = tapleaf_hash;
     for (int i = 0; i < path_len; ++i) {
-        CHashWriterSHA256 ss_branch{HASHER_TAPBRANCH};
+        CHashWriter ss_branch{HASHER_TAPBRANCH};
         Span<const unsigned char> node(control.data() + TAPROOT_CONTROL_BASE_SIZE + TAPROOT_CONTROL_NODE_SIZE * i, TAPROOT_CONTROL_NODE_SIZE);
         if (std::lexicographical_compare(k.begin(), k.end(), node.begin(), node.end())) {
             ss_branch << k << node;
@@ -1875,7 +1865,7 @@ static bool VerifyWitnessProgram(const CScriptWitness& witness, int witversion, 
     ScriptExecutionData execdata;
 
     if (witversion == 0) {
-       if (program.size() == WITNESS_V0_SCRIPTHASH_SIZE) {
+        if (program.size() == WITNESS_V0_SCRIPTHASH_SIZE) {
             // BIP141 P2WSH: 32-byte witness v0 program (which encodes SHA256(script))
             if (stack.size() == 0) {
                 return set_error(serror, SCRIPT_ERR_WITNESS_PROGRAM_WITNESS_EMPTY);
@@ -1905,7 +1895,7 @@ static bool VerifyWitnessProgram(const CScriptWitness& witness, int witversion, 
         if (stack.size() >= 2 && !stack.back().empty() && stack.back()[0] == ANNEX_TAG) {
             // Drop annex (this is non-standard; see IsWitnessStandard)
             const valtype& annex = SpanPopBack(stack);
-            execdata.m_annex_hash = (CHashWriterSHA256(SER_GETHASH, 0) << annex).GetSHA256();
+            execdata.m_annex_hash = (CHashWriter(SER_GETHASH, 0) << annex).GetSHA256();
             execdata.m_annex_present = true;
         } else {
             execdata.m_annex_present = false;
@@ -1952,8 +1942,6 @@ static bool VerifyWitnessProgram(const CScriptWitness& witness, int witversion, 
 
 bool VerifyScript(const CScript& scriptSig, const CScript& scriptPubKey, const CScriptWitness* witness, unsigned int flags, const BaseSignatureChecker& checker, ScriptError* serror)
 {
-    //return true;
-
     static const CScriptWitness emptyWitness;
     if (witness == nullptr) {
         witness = &emptyWitness;
@@ -2000,8 +1988,6 @@ bool VerifyScript(const CScript& scriptSig, const CScript& scriptPubKey, const C
             stack.resize(1);
         }
     }
-
-    return true;
 
     // Additional validation for spend-to-script-hash transactions:
     if ((flags & SCRIPT_VERIFY_P2SH) && scriptPubKey.IsPayToScriptHash())
