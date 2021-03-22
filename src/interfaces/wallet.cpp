@@ -25,6 +25,7 @@
 #include <wallet/load.h>
 #include <wallet/rpcwallet.h>
 #include <wallet/wallet.h>
+#include <wallet/walletutil.h>
 
 #include <memory>
 #include <string>
