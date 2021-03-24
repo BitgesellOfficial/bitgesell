@@ -31,9 +31,9 @@ BGL Core and how to run the unit tests, functional tests, and fuzz tests.
 
 There are many open issues of varying difficulty waiting to be fixed.
 If you're looking for somewhere to start contributing, check out the
-[good first issue](https://github.com/BGL/BGL/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
+[good first issue](https://github.com/BitgesellOfficial/bitgesell/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22)
 list or changes that are
-[up for grabs](https://github.com/BGL/BGL/issues?utf8=%E2%9C%93&q=label%3A%22Up+for+grabs%22).
+[up for grabs](https://github.com/BitgesellOfficial/bitgesell/issues?utf8=%E2%9C%93&q=label%3A%22Up+for+grabs%22).
 Some of them might no longer be applicable. So if you are interested, but
 unsure, you might want to leave a comment on the issue first.
 
@@ -86,7 +86,7 @@ To contribute a patch, the workflow is as follows:
   1. Commit patches
 
 For GUI-related issues or pull requests, the https://github.com/BGL-core/gui repository should be used.
-For all other issues and pull requests, the https://github.com/BGL/BGL node repository should be used.
+For all other issues and pull requests, the https://github.com/BitgesellOfficial/bitgesell node repository should be used.
 
 The master branch for all monotree repositories is identical.
 
@@ -176,7 +176,7 @@ subsequent comment to the PR.
 ### Translation changes
 
 Note that translations should not be submitted as pull requests. Please see
-[Translation Process](https://github.com/wu-emma/bitgesell/blob/master/doc/translation_process.md)
+[Translation Process](blob/master/doc/translation_process.md)
 for more information on helping with translations.
 
 ### Work in Progress Changes and Requests for Comments
