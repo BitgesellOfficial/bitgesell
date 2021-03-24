@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-# Copyright (c) 2016-2019 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 import os
 import re
@@ -36,7 +33,7 @@ def parse_makefile(makefile):
         for line in file.read().splitlines():
             if current_lib:
                 source = line.split()[0]
-                if source.endswith('.cpp') and not source.startswith('$') and source not in ignore_list:
+                if (source.endswith('.cpp') or source.endswith('.c')) and not source.startswith('$') and source not in ignore_list:
                     source_filename = source.replace('/', '\\')
                     object_filename = source.replace('/', '_')[:-4] + ".obj"
                     lib_sources[current_lib].append((source_filename, object_filename))
@@ -47,7 +44,8 @@ def parse_makefile(makefile):
                 _lib = lib.replace('-', '_')
                 if re.search(_lib + '.*_SOURCES \\= \\\\', line):
                     current_lib = lib
-                    lib_sources[current_lib] = []
+                    if not current_lib in lib_sources:
+                        lib_sources[current_lib] = []
                     break
 
 def set_common_properties(toolset):
