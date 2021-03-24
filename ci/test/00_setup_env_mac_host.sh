@@ -30,3 +30,6 @@ export PIP_PACKAGES="zmq ds_store mac_alias"
 export RUN_UNIT_TESTS="false"
 export RUN_FUNCTIONAL_TESTS="false"
 export EVENT_LIBS="/usr/local/Cellar/libevent/2.1.12/lib/libevent.a /usr/local/Cellar/libevent/2.1.12/lib/libevent_pthreads.a"
+
+export ARTIFACT_NAME="BGL-Qt.dmg"
+export RELEASE_ARTIFACT_NAME="BGL-Qt-${CIRRUS_TAG}.dmg"
