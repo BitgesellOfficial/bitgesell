@@ -135,5 +135,5 @@ task:
     - cp c:\bgl\build_msvc\x64\Debug\BGL-qt.exe c:\binaries_windows
     - cp c:\bgl\build_msvc\x64\Debug\BGL-cli.exe c:\binaries_windows
     - cp c:\bgl\build_msvc\x64\Debug\BGL-wallet.exe c:\binaries_windows
-    cd c:\\bitgesell\share
+    - cd c:\bitgesell\share
     - '"c:\Program Files (x86)\NSIS\makensis.exe" setup-BGL-win.nsi'
