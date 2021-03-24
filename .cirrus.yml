@@ -14,7 +14,7 @@ env:
 # https://cirrus-ci.org/guide/tips-and-tricks/#sharing-configuration-between-tasks
 base_template: &BASE_TEMPLATE
   merge_base_script:
-    *- if [ "$CIRRUS_PR" = "" ]; then exit 0; fi
+    - if [ "$CIRRUS_PR" = "" ]; then exit 0; fi
     - bash -c "$PACKAGE_MANAGER_INSTALL git"
     - git fetch $CIRRUS_REPO_CLONE_URL $CIRRUS_BASE_BRANCH
     - git config $GIT_CONFIG_FLAG user.email "ci@ci.ci"
