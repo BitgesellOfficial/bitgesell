@@ -97,13 +97,19 @@ task:
     image: cirrusci/windowsservercore:2019
     cpu: 8
     memory: 16G
+  clone_script:
+    - choco install -y git
+    - cd c:\
+    - git clone -b %CIRRUS_BASE_BRANCH% %CIRRUS_REPO_CLONE_URL%
+    - cd bitgesell
+    - cd build_msvc
+    - py msvc-autogen.py
   install_script: 
     # Install Vistual Studio build tools and other prerequisites
     - choco upgrade -y visualstudio2019-workload-vctools
     - choco install -y python3
   install_vcpkgs_script:
     # Add vcpkg packages
-    - choco install -y git
     - git clone https://github.com/microsoft/vcpkg
     - .\vcpkg\bootstrap-vcpkg.bat
     - .\vcpkg\vcpkg integrate install
@@ -117,12 +123,6 @@ task:
     - wget https://github.com/sipsorcery/qt_win_binary/releases/download/qt598x64_vs2019_v1681/qt598_x64_vs2019_1681.zip
     - mkdir c:\Qt
     - unzip qt598_x64_vs2019_1681.zip -d c:\Qt\Qt5.9.8_x64_static_vs2019
-  git_fetch_script:
-    - cd c:\
-    - git clone -b $CIRRUS_BASE_BRANCH $CIRRUS_REPO_CLONE_URL
-    - cd bitgesell
-    - cd build_msvc
-    - py msvc-autogen.py
   build_script:
     # Build BGL
     - '"c:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\msbuild" BGL.sln'
