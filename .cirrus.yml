@@ -94,7 +94,6 @@ task:
   name: 'Win64 [installer]'
   windows_container:
     image: cirrusci/windowsservercore:2019
-  container:
     cpu: 2
     memory: 12G
   install_script: 
