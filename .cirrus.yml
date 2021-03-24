@@ -14,7 +14,7 @@ env:
 # https://cirrus-ci.org/guide/tips-and-tricks/#sharing-configuration-between-tasks
 base_template: &BASE_TEMPLATE
   merge_base_script:
-    - if [ "$CIRRUS_PR" = "" ]; then exit 0; fi
+    *- if [ "$CIRRUS_PR" = "" ]; then exit 0; fi
     - bash -c "$PACKAGE_MANAGER_INSTALL git"
     - git fetch $CIRRUS_REPO_CLONE_URL $CIRRUS_BASE_BRANCH
     - git config $GIT_CONFIG_FLAG user.email "ci@ci.ci"
@@ -91,11 +91,49 @@ task:
     path: "/*.deb"
 
 task:
-  name: 'Win64 [unit tests, no gui tests, no boost::process, no functional tests] [focal]'
-  << : *GLOBAL_TASK_TEMPLATE
+  name: 'Win64 [installer]'
+  windows_container:
+    image: cirrusci/windowsservercore:2019
   container:
-    image: ubuntu:focal
-  env:
-    FILE_ENV: "./ci/test/00_setup_env_win64.sh"
-    DEBIAN_FRONTEND: "noninteractive"
-    TZ: "Europe/London"
+    cpu: 2
+    memory: 12G
+  install_script: 
+    # Install Vistual Studio build tools and other prerequisites
+    - choco upgrade -y visualstudio2019-workload-vctools
+    - choco install -y python3
+  install_vcpkgs_script:
+    # Add vcpkg packages
+    - choco install -y git
+    - git clone https://github.com/microsoft/vcpkg
+    - .\vcpkg\bootstrap-vcpkg.bat
+    - .\vcpkg\vcpkg integrate install
+    - .\vcpkg\vcpkg install boost-process:x64-windows-static boost-variant:x64-windows-static boost-signals2:x64-windows-static boost-multi-index:x64-windows-static boost-test:x64-windows-static
+    - .\vcpkg\vcpkg install libevent:x64-windows-static sqlite3:x64-windows-static
+    - .\vcpkg\vcpkg install berkeleydb:x64-windows-static curl:x64-windows-static
+    - .\vcpkg\vcpkg install zeromq:x64-windows-static rapidcheck:x64-windows-static
+  add_qt_script:
+    # Add Qt libraries
+    - choco install -y wget
+    - wget https://github.com/sipsorcery/qt_win_binary/releases/download/qt598x64_vs2019_v1681/qt598_x64_vs2019_1681.zip
+    - mkdir c:\Qt
+    - unzip qt598_x64_vs2019_1681.zip -d c:\Qt\Qt5.9.8_x64_static_vs2019
+  git_fetch_script:
+    - cd c:\
+    - git clone -b $CIRRUS_BASE_BRANCH $CIRRUS_REPO_CLONE_URL
+    - cd bitgesell
+    - cd build_msvc
+    - py msvc-autogen.py
+  build_script:
+    # Build BGL
+    - "c:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\msbuild" BGL.sln
+  prepare_installer_script:
+    # Install NSIS and prepare msi package
+    - choco install -y nsis
+    - mkdir c:\binaries_windows
+    - cp c:\bgl\build_msvc\x64\Debug\BGLd.exe c:\binaries_windows
+    - cp c:\bgl\build_msvc\x64\Debug\BGL-tx.exe c:\binaries_windows
+    - cp c:\bgl\build_msvc\x64\Debug\BGL-qt.exe c:\binaries_windows
+    - cp c:\bgl\build_msvc\x64\Debug\BGL-cli.exe c:\binaries_windows
+    - cp c:\bgl\build_msvc\x64\Debug\BGL-wallet.exe c:\binaries_windows
+    cd c:\\bitgesell\share
+    - "c:\Program Files (x86)\NSIS\makensis.exe" setup-BGL-win.nsi
