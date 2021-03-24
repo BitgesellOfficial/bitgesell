@@ -100,10 +100,7 @@ task:
   clone_script:
     - choco install -y git
     - cd c:\
-    - git clone -b %CIRRUS_BASE_BRANCH% %CIRRUS_REPO_CLONE_URL%
-    - cd bitgesell
-    - cd build_msvc
-    - py msvc-autogen.py
+    - git clone -b %CIRRUS_BRANCH% %CIRRUS_REPO_CLONE_URL%
   install_script: 
     # Install Vistual Studio build tools and other prerequisites
     - choco upgrade -y visualstudio2019-workload-vctools
@@ -125,6 +122,8 @@ task:
     - unzip qt598_x64_vs2019_1681.zip -d c:\Qt\Qt5.9.8_x64_static_vs2019
   build_script:
     # Build BGL
+    - cd c:\bitgesell\build_msvc
+    - py msvc-autogen.py
     - '"c:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\msbuild" BGL.sln'
   prepare_installer_script:
     # Install NSIS and prepare msi package
