@@ -92,10 +92,11 @@ task:
 
 task:
   name: 'Win64 [installer]'
+  timeout_in: 120m
   windows_container:
     image: cirrusci/windowsservercore:2019
-    cpu: 2
-    memory: 12G
+    cpu: 8
+    memory: 16G
   install_script: 
     # Install Vistual Studio build tools and other prerequisites
     - choco upgrade -y visualstudio2019-workload-vctools
