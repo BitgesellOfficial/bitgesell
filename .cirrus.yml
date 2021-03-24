@@ -125,7 +125,7 @@ task:
     - py msvc-autogen.py
   build_script:
     # Build BGL
-    - "c:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\msbuild" BGL.sln
+    - '"c:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\msbuild" BGL.sln'
   prepare_installer_script:
     # Install NSIS and prepare msi package
     - choco install -y nsis
@@ -136,4 +136,4 @@ task:
     - cp c:\bgl\build_msvc\x64\Debug\BGL-cli.exe c:\binaries_windows
     - cp c:\bgl\build_msvc\x64\Debug\BGL-wallet.exe c:\binaries_windows
     cd c:\\bitgesell\share
-    - "c:\Program Files (x86)\NSIS\makensis.exe" setup-BGL-win.nsi
+    - '"c:\Program Files (x86)\NSIS\makensis.exe" setup-BGL-win.nsi'
