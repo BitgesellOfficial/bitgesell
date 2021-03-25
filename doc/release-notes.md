@@ -52,9 +52,7 @@ frequently tested on them.  It is not recommended to use BGL Core on
 unsupported systems.
 
 
-From BGL Core 0.22.0 onwards, macOS versions earlier than 10.14 are no
-longer supported. Additionally, BGL Core does not yet change appearance
-when macOS "dark mode" is activated.
+From Bitcoin Core 22.0 onwards, macOS versions earlier than 10.14 are no longer supported.
 
 Notable changes
 ===============
