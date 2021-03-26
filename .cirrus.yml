@@ -136,8 +136,9 @@ task:
     - cp c:\bitgesell\build_msvc\x64\Debug\BGL-wallet.exe c:\binaries_windows
     - cd c:\bitgesell\share
     - '"c:\Program Files (x86)\NSIS\makensis.exe" setup-BGL-win.nsi'
+    - cp c:\bitgesell\BGL-win64-setup.exe %CIRRUS_WORKING_DIR%
   installer_binaries_artifacts:
-    path: "c:\\bitgesell\\BGL-win64-setup.exe"
+    path: "\\*.exe"
     type: application/octet-stream
   upload_installer_script:
     - choco install -y curl
