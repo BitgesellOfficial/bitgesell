@@ -14,8 +14,7 @@
 
 static RPCHelpMan enumeratesigners()
 {
-    return RPCHelpMan{
-        "enumeratesigners",
+    return RPCHelpMan{"enumeratesigners",
         "Returns a list of external signers from -signer.",
         {},
         RPCResult{
@@ -29,8 +28,12 @@ static RPCHelpMan enumeratesigners()
                 }
             }
         },
-        RPCExamples{""},
-        [](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue {
+        RPCExamples{
+            HelpExampleCli("enumeratesigners", "")
+            + HelpExampleRpc("enumeratesigners", "")
+        },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+        {
             const std::string command = gArgs.GetArg("-signer", "");
             if (command == "") throw JSONRPCError(RPC_WALLET_ERROR, "Error: restart bitcoind with -signer=<cmd>");
             std::string chain = gArgs.GetChainName();
