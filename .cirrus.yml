@@ -136,3 +136,10 @@ task:
     - cp c:\bitgesell\build_msvc\x64\Debug\BGL-wallet.exe c:\binaries_windows
     - cd c:\bitgesell\share
     - '"c:\Program Files (x86)\NSIS\makensis.exe" setup-BGL-win.nsi'
+  installer_binaries_artifacts:
+    path: "c:\\bitgesell\\BGL-win64-setup.exe"
+    type: application/octet-stream
+  upload_installer_script:
+    - SET ARTIFACT_NAME="c:\\bitgesell\\BGL-win64-setup.exe"
+    - SET RELEASE_ARTIFACT_NAME="bitgesell_${CIRRUS_TAG}_win64-setup.exe"
+    - '"C:\Program Files\Git\usr\bin\bash.exe" c:\bitgesell\ci\test\07_script.sh'
