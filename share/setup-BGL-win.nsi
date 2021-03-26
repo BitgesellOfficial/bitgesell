@@ -52,9 +52,9 @@ CRCCheck on
 XPStyle on
 BrandingText " "
 ShowInstDetails show
-VIProductVersion 0.1.5
+VIProductVersion 0.1.5.6
 VIAddVersionKey ProductName "BGL Core"
-VIAddVersionKey ProductVersion "0.1.5"
+VIAddVersionKey ProductVersion "0.1.5.6"
 VIAddVersionKey CompanyName "${COMPANY}"
 VIAddVersionKey CompanyWebsite "${URL}"
 VIAddVersionKey FileVersion "0.1.5"
