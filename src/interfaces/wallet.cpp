@@ -536,14 +536,6 @@ public:
     {
         return GetWalletDir().string();
     }
-    std::vector<std::string> listWalletDir() override
-    {
-        std::vector<std::string> paths;
-        for (auto& path : ListWalletDir()) {
-            paths.push_back(path.string());
-        }
-        return paths;
-    }
     std::vector<std::unique_ptr<Wallet>> getWallets() override
     {
         std::vector<std::unique_ptr<Wallet>> wallets;
