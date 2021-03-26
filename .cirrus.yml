@@ -124,16 +124,16 @@ task:
     # Build BGL
     - cd c:\bitgesell\build_msvc
     - py msvc-autogen.py
-    - '"c:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\msbuild" BGL.sln'
+    - '"c:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\msbuild" BGL.sln /p:Platform=x64'
   prepare_installer_script:
     # Install NSIS and prepare msi package
     - choco install -y nsis
     - mkdir c:\binaries_windows
-    - cp c:\bitgesell\build_msvc\x64\Debug\BGLd.exe c:\binaries_windows
-    - cp c:\bitgesell\build_msvc\x64\Debug\BGL-tx.exe c:\binaries_windows
-    - cp c:\bitgesell\build_msvc\x64\Debug\BGL-qt.exe c:\binaries_windows
-    - cp c:\bitgesell\build_msvc\x64\Debug\BGL-cli.exe c:\binaries_windows
-    - cp c:\bitgesell\build_msvc\x64\Debug\BGL-wallet.exe c:\binaries_windows
+    - cp c:\bitgesell\build_msvc\x64\Release\BGLd.exe c:\binaries_windows
+    - cp c:\bitgesell\build_msvc\x64\Release\BGL-tx.exe c:\binaries_windows
+    - cp c:\bitgesell\build_msvc\x64\Release\BGL-qt.exe c:\binaries_windows
+    - cp c:\bitgesell\build_msvc\x64\Release\BGL-cli.exe c:\binaries_windows
+    - cp c:\bitgesell\build_msvc\x64\Release\BGL-wallet.exe c:\binaries_windows
     - cd c:\bitgesell\share
     - '"c:\Program Files (x86)\NSIS\makensis.exe" setup-BGL-win.nsi'
     - cp c:\bitgesell\BGL-win64-setup.exe %CIRRUS_WORKING_DIR%
