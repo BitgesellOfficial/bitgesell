@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Mathias van Orton <it@bitgesell.ca>
 Build-Depends: debhelper (>=11~), g++-8, pkg-config, dh-autoreconf, libevent-dev, libssl-dev, fakeroot, wget
 Standards-Version: 4.1.4
-Homepage: https://github.com/wu-emma/bitgesell
+Homepage: https://github.com/BitgesellOfficial/bitgesell
 
 Package: bitgesell-qt
 Architecture: any
