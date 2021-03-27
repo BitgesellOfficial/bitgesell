@@ -660,7 +660,7 @@ if config.dmg is not None:
 
     tempname: str = appname + ".temp.dmg"
 
-    run(["hdiutil", "detach", tempname, "-force"], check=True, universal_newlines=True)
+    run(["hdiutil", "detach", tempname, "-force"], check=False, universal_newlines=True)
     run(["hdiutil", "create", tempname, "-srcfolder", "dist", "-format", "UDRW", "-size", str(size), "-volname", appname], check=True, universal_newlines=True)
 
     if verbose:
