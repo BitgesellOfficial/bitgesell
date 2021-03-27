@@ -426,6 +426,16 @@ void BGLApplication::handleRunawayException(const QString &message)
     ::exit(EXIT_FAILURE);
 }
 
+void BGLApplication::handleNonFatalException(const QString& message)
+{
+    assert(QThread::currentThread() == thread());
+    QMessageBox::warning(
+        nullptr, tr("Internal error"),
+        tr("An internal error occurred. %1 will attempt to continue safely. This is "
+           "an unexpected bug which can be reported as described below.").arg(PACKAGE_NAME) %
+        QLatin1String("<br><br>") % GUIUtil::MakeHtmlLink(message, PACKAGE_BUGREPORT));
+}
+
 WId BGLApplication::getMainWinId() const
 {
     if (!window)
