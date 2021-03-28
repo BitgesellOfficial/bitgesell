@@ -33,4 +33,4 @@ docker exec $container chmod a+rX /root
 docker exec $container chmod -R a+rX /root/repo
 docker exec -w /home/user/build $container sudo -u user apt-get -y source bitgesell-qt
 docker exec -w /home/user/build/bitgesell-qt-0.1.5 $container sudo -u user debuild -b
-docker cp $container:/home/user/build/bitgesell-qt_0.1.5_amd64.deb ../
+docker cp $container:/home/user/build/bitgesell-qt_0.1.5_amd64.deb bitgesell_amd64.deb
