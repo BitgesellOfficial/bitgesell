@@ -44,7 +44,7 @@ global_task_template: &GLOBAL_TASK_TEMPLATE
 
 
 task:
-  name: 'macOS 10.15 [qt package]'
+  name: 'MacOS 10.15 [qt package]'
   macos_brew_addon_script:
     - brew install boost libevent berkeley-db4 qt miniupnpc libnatpmp ccache zeromq qrencode sqlite libtool automake pkg-config gnu-getopt librsvg
   << : *GLOBAL_TASK_TEMPLATE
@@ -59,7 +59,7 @@ task:
 
 
 task:
-  name: "debian [qt package]"
+  name: "Debian/Ubuntu (64bit) [qt package]"
   << : *BASE_TEMPLATE
   compute_engine_instance:
     image_project: cirrus-images
@@ -94,7 +94,7 @@ task:
 
 
 task:
-  name: 'Win64 [qt installer]'
+  name: 'Windows (64-bit) [qt installer]'
   timeout_in: 120m
   windows_container:
     image: cirrusci/windowsservercore:2019
