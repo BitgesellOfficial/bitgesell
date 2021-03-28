@@ -111,7 +111,7 @@ QString BGLUnits::format(int unit, const CAmount& nIn, bool fPlus, SeparatorStyl
     qint64 quotient = n_abs / coin;
     QString quotient_str = QString::number(quotient);
     if (justify) {
-        quotient_str = quotient_str.rightJustified(MAX_DIGITS_BTC - num_decimals, ' ');
+        quotient_str = quotient_str.rightJustified(MAX_DIGITS_BGL - num_decimals, ' ');
     }
 
     // Use SI-style thin space separators as these are locale independent and can't be

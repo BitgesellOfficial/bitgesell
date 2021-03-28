@@ -536,6 +536,10 @@ public:
     {
         return GetWalletDir().string();
     }
+    std::vector<std::string> listWalletDir() override 
+    {
+        
+    }
     std::vector<std::unique_ptr<Wallet>> getWallets() override
     {
         std::vector<std::unique_ptr<Wallet>> wallets;
