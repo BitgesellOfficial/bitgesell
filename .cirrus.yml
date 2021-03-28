@@ -44,7 +44,7 @@ global_task_template: &GLOBAL_TASK_TEMPLATE
 
 
 task:
-  name: 'macOS 10.15 [qt deploy]'
+  name: 'MacOS 10.15 [qt package]'
   macos_brew_addon_script:
     - brew install boost libevent berkeley-db4 qt miniupnpc libnatpmp ccache zeromq qrencode sqlite libtool automake pkg-config gnu-getopt librsvg
   << : *GLOBAL_TASK_TEMPLATE
@@ -56,6 +56,25 @@ task:
     PACKAGE_MANAGER_INSTALL: "echo" # Override earlier for merge script to work
   dmg_artifacts:
     path: "*.dmg"
+
+
+task:
+  name: "Debian/Ubuntu (64bit) [qt package]"
+  << : *BASE_TEMPLATE
+  compute_engine_instance:
+    image_project: cirrus-images
+    image: family/docker-kvm
+    platform: linux
+    cpu: 2
+    memory: 8G
+    nested_virtualization: true
+  env:
+    GIT_CONFIG_FLAG: "--system"
+  ci_script:
+    - ./ci/debian_deploy.sh
+  deb_artifacts:
+    path: "/*.deb"
+
 
 #task:
 #  name: "x86_64 Linux"
@@ -73,25 +92,9 @@ task:
 #  env:
 #    FILE_ENV: "./ci/test/00_setup_env_native_qt5.sh"
 
-task:
-  name: "debian [deploy]"
-  << : *BASE_TEMPLATE
-  compute_engine_instance:
-    image_project: cirrus-images
-    image: family/docker-kvm
-    platform: linux
-    cpu: 2
-    memory: 8G
-    nested_virtualization: true
-  env:
-    GIT_CONFIG_FLAG: "--system"
-  ci_script:
-    - ./ci/debian_deploy.sh
-  deb_artifacts:
-    path: "/*.deb"
 
 task:
-  name: 'Win64 [installer]'
+  name: 'Windows (64-bit) [qt installer]'
   timeout_in: 120m
   windows_container:
     image: cirrusci/windowsservercore:2019
@@ -124,7 +127,7 @@ task:
     # Build BGL
     - cd c:\bitgesell\build_msvc
     - py msvc-autogen.py
-    - '"c:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\msbuild" BGL.sln'
+    - '"c:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\msbuild" BGL.sln /p:Platform=x64'
   prepare_installer_script:
     # Install NSIS and prepare msi package
     - choco install -y nsis
@@ -136,3 +139,12 @@ task:
     - cp c:\bitgesell\build_msvc\x64\Debug\BGL-wallet.exe c:\binaries_windows
     - cd c:\bitgesell\share
     - '"c:\Program Files (x86)\NSIS\makensis.exe" setup-BGL-win.nsi'
+    - cp c:\bitgesell\BGL-win64-setup.exe %CIRRUS_WORKING_DIR%
+  installer_binaries_artifacts:
+    path: "\\*.exe"
+    type: application/octet-stream
+  upload_installer_script:
+    - choco install -y curl
+    - SET ARTIFACT_NAME=c:\\bitgesell\\BGL-win64-setup.exe
+    - SET RELEASE_ARTIFACT_NAME=bitgesell_%CIRRUS_TAG%_win64-setup.exe
+    - '"C:\Program Files\Git\usr\bin\bash.exe" c:\bitgesell\ci\test\07_script.sh'

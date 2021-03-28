@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 builddir = $(shell pwd)
-destdir = $(builddir)/debian/bitgesell
+destdir = $(builddir)/debian/bitgesell-qt
 
 CC  = gcc-8
 CXX = g++-8
@@ -15,7 +15,7 @@ build: distrib
 
 distrib: unpack-distrib boost berkeleydb libevent miniupnpc
 
-download-distrib: distrib/boost_1_74_0.tar.gz distrib/db-4.8.30.tar.gz distrib/libevent-2.1.12-stable.tar.gz distrib/miniupnpc-2.1.orig.tar.gz
+download-distrib: distrib/boost_1_74_0.tar.gz distrib/db-4.8.30.tar.gz distrib/libevent-2.1.11-stable.tar.gz distrib/miniupnpc-2.1.orig.tar.gz
 
 unpack-distrib: download-distrib
 	cd distrib/ && for i in *.tar.gz; do tar -xzf $$i && rm "$$i"; done
@@ -28,9 +28,9 @@ distrib/db-4.8.30.tar.gz:
 	mkdir -p distrib/
 	wget -O$@ http://ftp.linuxfoundation.org/pub/lsb/app-battery/packages/db-4.8.30.tar.gz
 
-distrib/libevent-2.1.12-stable.tar.gz:
+distrib/libevent-2.1.11-stable.tar.gz:
 	mkdir -p distrib/
-	wget -O$@ https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz
+	wget -O$@ https://github.com/libevent/libevent/releases/download/release-2.1.11-stable/libevent-2.1.11-stable.tar.gz
 
 distrib/miniupnpc-2.1.orig.tar.gz:
 	mkdir -p distrib/
@@ -52,7 +52,7 @@ berkeleydb:
 		make install
 
 libevent:
-	cd distrib/libevent-2.1.12-stable && \
+	cd distrib/libevent-2.1.11-stable && \
 		./configure CC=$(CC) CXX=$(CXX) --disable-debug-mode --disable-samples --with-gnu-ld --disable-static \
 			--prefix=$(builddir)/distrib/tmp/libevent && \
 		make clean && \
@@ -74,19 +74,19 @@ override_dh_auto_configure:
 	dh_auto_configure -- \
 		CC=$(CC) CXX="$(CXX) -I$(builddir)/distrib/tmp/libboost/include -I$(builddir)/distrib/tmp/libdb/include -DHAVE_CXX_STDHEADERS -DBOOST_ERROR_CODE_HEADER_ONLY -L$(builddir)/distrib/tmp/libdb/lib -L$(builddir)/distrib/tmp/libboost/lib -L$(builddir)/distrib/tmp/libevent/lib -levent -levent_pthreads -L$(builddir)/distrib/tmp/miniupnpc/usr/lib -lminiupnpc -ldb -ldb_cxx" \
 		PKG_CONFIG_PATH="$(builddir)/distrib/tmp/libevent/lib/pkgconfig:$(builddir)/distrib/tmp/miniupnpc/usr/lib/pkgconfig" \
-		LDFLAGS="-Wl,-rpath=/usr/lib/bitgesell" \
+		LDFLAGS="-Wl,-rpath=/usr/lib/bitgesell-qt" \
 		BOOST_LDFLAGS="-L$(builddir)/distrib/tmp/libboost/lib" \
 		--disable-tests --disable-bench --disable-debug --with-gnu-ld \
-		--with-gui=no \
+		--with-qt-incdir=/usr/include/x86_64-linux-gnu/qt5 --with-qt-libdir=/usr/lib/x86_64-linux-gnu/qt5 --with-gui=qt5 \
 		--with-boost="$(builddir)/distrib/tmp/libboost"
 
 override_dh_install:
 	dh_install
-	mkdir -p $(destdir)/usr/lib/bitgesell
-	cp -a distrib/tmp/libboost/lib/* $(destdir)/usr/lib/bitgesell/
-	cp -a distrib/tmp/libdb/lib/* $(destdir)/usr/lib/bitgesell/
-	cp -a distrib/tmp/libevent/lib/* $(destdir)/usr/lib/bitgesell/
-	cp -a distrib/tmp/miniupnpc/usr/lib/* $(destdir)/usr/lib/bitgesell/
+	mkdir -p $(destdir)/usr/lib/bitgesell-qt
+	cp -a distrib/tmp/libboost/lib/* $(destdir)/usr/lib/bitgesell-qt/
+	cp -a distrib/tmp/libdb/lib/* $(destdir)/usr/lib/bitgesell-qt/
+	cp -a distrib/tmp/libevent/lib/* $(destdir)/usr/lib/bitgesell-qt/
+	cp -a distrib/tmp/miniupnpc/usr/lib/* $(destdir)/usr/lib/bitgesell-qt/
 
 override_dh_shlibdeps:
-	dh_shlibdeps -l/usr/lib/bitgesell
+	dh_shlibdeps -l/usr/lib/bitgesell-qt
