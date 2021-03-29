@@ -1475,11 +1475,8 @@ void UnitDisplayStatusBarControl::mousePressEvent(QMouseEvent *event)
 void UnitDisplayStatusBarControl::createContextMenu()
 {
     menu = new QMenu(this);
-    for (const BGLUnits::Unit u : BGLUnits::availableUnits())
-    {
-        QAction *menuAction = new QAction(QString(BGLUnits::longName(u)), this);
-        menuAction->setData(QVariant(u));
-        menu->addAction(menuAction);
+    for (const BGLUnits::Unit u : BGLUnits::availableUnits()) {
+        menu->addAction(BGLUnits::longName(u))->setData(QVariant(u));
     }
     connect(menu, &QMenu::triggered, this, &UnitDisplayStatusBarControl::onMenuSelection);
 }
