@@ -1154,7 +1154,7 @@ void RPCConsole::updateDetailWidget()
     if (stats->nodeStats.m_bip152_highbandwidth_from) bip152_hb_settings += (bip152_hb_settings == "" ? "From" : "/From");
     if (bip152_hb_settings == "") bip152_hb_settings = "No";
     ui->peerHighBandwidth->setText(bip152_hb_settings);
-    const int64_t time_now{GetSystemTimeInSeconds()};
+    const int64_t time_now{GetTimeSeconds()};
     ui->peerConnTime->setText(GUIUtil::formatDurationStr(time_now - stats->nodeStats.nTimeConnected));
     ui->peerLastBlock->setText(TimeDurationField(time_now, stats->nodeStats.nLastBlockTime));
     ui->peerLastTx->setText(TimeDurationField(time_now, stats->nodeStats.nLastTXTime));
