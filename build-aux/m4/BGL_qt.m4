@@ -108,13 +108,10 @@ AC_DEFUN([BGL_QT_CONFIGURE],[
   BGL_QT_CHECK([_BGL_QT_FIND_LIBS])
 
   dnl This is ugly and complicated. Yuck. Works as follows:
-  dnl For Qt5, we can check a header to find out whether Qt is build
-  dnl statically. When Qt is built statically, some plugins must be linked into
-  dnl the final binary as well.
-  dnl With Qt5, languages moved into core and the WindowsIntegration plugin was
-  dnl added.
-  dnl _BGL_QT_CHECK_STATIC_PLUGINS does a quick link-check and appends the
-  dnl results to QT_LIBS.
+  dnl We check a header to find out whether Qt is built statically.
+  dnl When Qt is built statically, some plugins must be linked into
+  dnl the final binary as well. _BGL_QT_CHECK_STATIC_PLUGIN does
+  dnl a quick link-check and appends the results to QT_LIBS.
   BGL_QT_CHECK([
   TEMP_CPPFLAGS=$CPPFLAGS
   TEMP_CXXFLAGS=$CXXFLAGS
@@ -284,12 +281,13 @@ AC_DEFUN([BGL_QT_CONFIGURE],[
   AC_SUBST(MOC_DEFS)
 ])
 
-dnl All macros below are internal and should _not_ be used from the main
-dnl configure.ac.
-dnl ----
+dnl All macros below are internal and should _not_ be used from configure.ac.
 
-dnl Internal. Check if the linked version of Qt was built as static libs.
-dnl Requires: Qt5.
+dnl Internal. Check if the linked version of Qt was built statically.
+dnl
+dnl _BGL_QT_IS_STATIC
+dnl ---------------------
+dnl
 dnl Requires: INCLUDES and LIBS must be populated as necessary.
 dnl Output: BGL_cv_static_qt=yes|no
 AC_DEFUN([_BGL_QT_IS_STATIC],[
@@ -333,7 +331,6 @@ dnl
 dnl _BGL_QT_CHECK_STATIC_LIBS
 dnl -----------------------------
 dnl
-dnl Inputs: no inputs.
 dnl Outputs: QT_LIBS is prepended.
 AC_DEFUN([_BGL_QT_CHECK_STATIC_LIBS], [
   PKG_CHECK_MODULES([QT_ACCESSIBILITY], [${qt_lib_prefix}AccessibilitySupport${qt_lib_suffix}], [QT_LIBS="$QT_ACCESSIBILITY_LIBS $QT_LIBS"])
@@ -355,6 +352,10 @@ AC_DEFUN([_BGL_QT_CHECK_STATIC_LIBS], [
 ])
 
 dnl Internal. Find Qt libraries using pkg-config.
+dnl
+dnl _BGL_QT_FIND_LIBS
+dnl ---------------------
+dnl
 dnl Outputs: All necessary QT_* variables are set.
 dnl Outputs: have_qt_test and have_qt_dbus are set (if applicable) to yes|no.
 AC_DEFUN([_BGL_QT_FIND_LIBS],[
