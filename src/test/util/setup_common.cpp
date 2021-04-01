@@ -144,9 +144,7 @@ ChainTestingSetup::ChainTestingSetup(const std::string& chainName, const std::ve
 
     // Start script-checking threads. Set g_parallel_script_checks to true so they are used.
     constexpr int script_check_threads = 2;
-    for (int i = 0; i < script_check_threads; ++i) {
-        threadGroup.create_thread([i]() { return ThreadScriptCheck(i); });
-    }
+    StartScriptCheckWorkerThreads(script_check_threads);
     g_parallel_script_checks = true;
 }
 
@@ -342,4 +340,3 @@ CBlock getBlock13b8a()
     stream >> block;
     return block;
 }
-

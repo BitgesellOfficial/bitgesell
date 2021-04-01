@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <qt/test/rpcnestedtests.h>
-#include<iostream>
+
 #include <interfaces/node.h>
 #include <rpc/server.h>
 #include <qt/rpcconsole.h>
@@ -14,12 +14,22 @@
 #include <QDir>
 #include <QtGlobal>
 
-static UniValue rpcNestedTest_rpc(const JSONRPCRequest& request)
+static RPCHelpMan rpcNestedTest_rpc()
 {
-    if (request.fHelp) {
-        return "help message";
-    }
-    return request.params.write(0, 0);
+    return RPCHelpMan{
+        "rpcNestedTest",
+        "echo the passed string(s)",
+        {
+            {"arg1", RPCArg::Type::STR, RPCArg::Optional::OMITTED, ""},
+            {"arg2", RPCArg::Type::STR, RPCArg::Optional::OMITTED, ""},
+            {"arg3", RPCArg::Type::STR, RPCArg::Optional::OMITTED, ""},
+        },
+        {},
+        RPCExamples{""},
+        [](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue {
+            return request.params.write(0, 0);
+        },
+    };
 }
 
 static const CRPCCommand vRPCCommands[] = {

@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE(vector_bool)
     std::vector<bool> vec2{1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1};
 
     BOOST_CHECK(vec1 == std::vector<uint8_t>(vec2.begin(), vec2.end()));
-    BOOST_CHECK(SerializeHashKeccak(vec1) == SerializeHashKeccak(vec2));
+    BOOST_CHECK(SerializeHash(vec1) == SerializeHash(vec2));
 }
 
 BOOST_AUTO_TEST_CASE(noncanonical)
@@ -320,7 +320,7 @@ BOOST_AUTO_TEST_CASE(insert_delete)
 
     ss.insert(ss.end(), c);
     BOOST_CHECK_EQUAL(ss.size(), 6U);
-    BOOST_CHECK_EQUAL(ss[4], (char)0xff);
+    BOOST_CHECK_EQUAL(ss[4], 0xff);
     BOOST_CHECK_EQUAL(ss[5], c);
 
     ss.insert(ss.begin()+2, c);
@@ -334,19 +334,14 @@ BOOST_AUTO_TEST_CASE(insert_delete)
 
     ss.erase(ss.begin()+ss.size()-1);
     BOOST_CHECK_EQUAL(ss.size(), 5U);
-    BOOST_CHECK_EQUAL(ss[4], (char)0xff);
+    BOOST_CHECK_EQUAL(ss[4], 0xff);
 
     ss.erase(ss.begin()+1);
     BOOST_CHECK_EQUAL(ss.size(), 4U);
     BOOST_CHECK_EQUAL(ss[0], 0);
     BOOST_CHECK_EQUAL(ss[1], 1);
     BOOST_CHECK_EQUAL(ss[2], 2);
-    BOOST_CHECK_EQUAL(ss[3], (char)0xff);
-
-    // Make sure GetAndClear does the right thing:
-    CSerializeData d;
-    ss.GetAndClear(d);
-    BOOST_CHECK_EQUAL(ss.size(), 0U);
+    BOOST_CHECK_EQUAL(ss[3], 0xff);
 }
 
 BOOST_AUTO_TEST_CASE(class_methods)

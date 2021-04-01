@@ -29,6 +29,7 @@ FUZZ_TARGET(buffered_file)
         }
     }
     if (opt_buffered_file && fuzzed_file != nullptr) {
+        bool setpos_fail = false;
         while (fuzzed_data_provider.ConsumeBool()) {
             CallOneOf(
                 fuzzed_data_provider,
@@ -61,5 +62,8 @@ FUZZ_TARGET(buffered_file)
                     ReadFromStream(fuzzed_data_provider, *opt_buffered_file);
                 });
         }
+        opt_buffered_file->GetPos();
+        opt_buffered_file->GetType();
+        opt_buffered_file->GetVersion();
     }
 }
