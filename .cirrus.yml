@@ -207,10 +207,10 @@ task:
     - python test\functional\test_runner.py --ci --quiet --combinedlogslen=4000 --jobs=4 --timeout-factor=8 --exclude %EXCLUDE_TESTS% --failfast
 
 task:
-  name: 'ARM [unit tests, no functional tests] [buster]'
+  name: 'ARM [unit tests, no functional tests] [bullseye]'
   << : *GLOBAL_TASK_TEMPLATE
   arm_container:
-    image: debian:buster
+    image: debian:bullseye
     cpu: 2
     memory: 8G
   env:
