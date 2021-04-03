@@ -194,7 +194,7 @@ class NetTest(BGLTestFramework):
         for i in range(10000):
             first_octet = i >> 8
             second_octet = i % 256
-            a = "{}.{}.1.1".format(first_octet, second_octet)
+            a = "{}.{}.1.1".format(first_octet, second_octet)  # IPV4
             imported_addrs.append(a)
             addr = CAddress()
             addr.time = 100000000
@@ -218,6 +218,7 @@ class NetTest(BGLTestFramework):
             assert_equal(a["services"], NODE_NETWORK | NODE_WITNESS)
             assert a["address"] in imported_addrs
             assert_equal(a["port"], 8333)
+            assert_equal(a["network"], "ipv4")
 
         node_addresses = self.nodes[0].getnodeaddresses(1)
         assert_equal(len(node_addresses), 1)
