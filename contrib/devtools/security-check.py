@@ -6,10 +6,19 @@
 Perform basic security checks on a series of executables.
 Exit status will be 0 if successful, and the program will be silent.
 Otherwise the exit status will be 1 and it will log which executables failed which checks.
+Needs `objdump` (for PE).
 '''
 import sys
 from typing import List, Optional
 
+import lief
+import pixie
+
+OBJDUMP_CMD = os.getenv('OBJDUMP', '/usr/bin/objdump')
+
+def run_command(command) -> str:
+    p = subprocess.run(command, stdout=subprocess.PIPE, check=True, universal_newlines=True)
+    return p.stdout
 
 def check_ELF_PIE(executable) -> bool:
     '''
@@ -203,71 +212,41 @@ def check_PE_NX(executable) -> bool:
     binary = lief.parse(executable)
     return binary.has_nx
 
-def get_MACHO_executable_flags(executable) -> List[str]:
-    stdout = run_command([OTOOL_CMD, '-vh', executable])
-
-    flags = []
-    for line in stdout.splitlines():
-        tokens = line.split()
-        # filter first two header lines
-        if 'magic' in tokens or 'Mach' in tokens:
-            continue
-        # filter ncmds and sizeofcmds values
-        flags += [t for t in tokens if not t.isdigit()]
-    return flags
-
 def check_MACHO_PIE(executable) -> bool:
     '''
     Check for position independent executable (PIE), allowing for address space randomization.
     '''
-    flags = get_MACHO_executable_flags(executable)
-    if 'PIE' in flags:
-        return True
-    return False
+    binary = lief.parse(executable)
+    return binary.is_pie
 
 def check_MACHO_NOUNDEFS(executable) -> bool:
     '''
     Check for no undefined references.
     '''
-    flags = get_MACHO_executable_flags(executable)
-    if 'NOUNDEFS' in flags:
-        return True
-    return False
+    binary = lief.parse(executable)
+    return binary.header.has(lief.MachO.HEADER_FLAGS.NOUNDEFS)
 
 def check_MACHO_NX(executable) -> bool:
     '''
     Check for no stack execution
     '''
-    flags = get_MACHO_executable_flags(executable)
-    if 'ALLOW_STACK_EXECUTION' in flags:
-        return False
-    return True
+    binary = lief.parse(executable)
+    return binary.has_nx
 
 def check_MACHO_LAZY_BINDINGS(executable) -> bool:
     '''
     Check for no lazy bindings.
     We don't use or check for MH_BINDATLOAD. See #18295.
     '''
-    stdout = run_command([OTOOL_CMD, '-l', executable])
-
-    for line in stdout.splitlines():
-        tokens = line.split()
-        if 'lazy_bind_off' in tokens or 'lazy_bind_size' in tokens:
-            if tokens[1] != '0':
-                return False
-    return True
+    binary = lief.parse(executable)
+    return binary.dyld_info.lazy_bind == (0,0)
 
 def check_MACHO_Canary(executable) -> bool:
     '''
     Check for use of stack canary
     '''
-    stdout = run_command([OTOOL_CMD, '-Iv', executable])
-
-    ok = False
-    for line in stdout.splitlines():
-        if '___stack_chk_fail' in line:
-            ok = True
-    return ok
+    binary = lief.parse(executable)
+    return binary.has_symbol('___stack_chk_fail')
 
 CHECKS = {
 'ELF': [
