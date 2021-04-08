@@ -3,8 +3,14 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #include <qt/guiutil.h>
 
+<<<<<<< HEAD
 #include <qt/BGLaddressvalidator.h>
 #include <qt/BGLunits.h>
+=======
+#include <qt/bitcoinaddressvalidator.h>
+#include <qt/bitcoinunits.h>
+#include <qt/platformstyle.h>
+>>>>>>> d99ef327a... qt: Add GUIUtil::ThemedLabel class
 #include <qt/qvalidatedlineedit.h>
 #include <qt/sendcoinsrecipient.h>
 
@@ -60,6 +66,7 @@
 #include <QUrlQuery>
 #include <QtGlobal>
 
+#include <cassert>
 #include <chrono>
 
 #if defined(Q_OS_MAC)
@@ -812,11 +819,6 @@ void ThemedLabel::changeEvent(QEvent* e)
 void ThemedLabel::updateThemedPixmap()
 {
     setPixmap(m_platform_style->SingleColorIcon(m_image_filename).pixmap(m_pixmap_width, m_pixmap_height));
-}
-
-ClickableLabel::ClickableLabel(const PlatformStyle* platform_style, QWidget* parent)
-    : ThemedLabel{platform_style, parent}
-{
 }
 
 void ClickableLabel::mouseReleaseEvent(QMouseEvent *event)
