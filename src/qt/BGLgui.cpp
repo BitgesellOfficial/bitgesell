@@ -150,11 +150,11 @@ BGLGUI::BGLGUI(interfaces::Node& node, const PlatformStyle *_platformStyle, cons
     frameBlocksLayout->setContentsMargins(3,0,3,0);
     frameBlocksLayout->setSpacing(3);
     unitDisplayControl = new UnitDisplayStatusBarControl(platformStyle);
-    labelWalletEncryptionIcon = new QLabel();
-    labelWalletHDStatusIcon = new QLabel();
-    labelProxyIcon = new GUIUtil::ClickableLabel();
-    connectionsControl = new GUIUtil::ClickableLabel();
-    labelBlocksIcon = new GUIUtil::ClickableLabel();
+    labelWalletEncryptionIcon = new GUIUtil::ThemedLabel(platformStyle);
+    labelWalletHDStatusIcon = new GUIUtil::ThemedLabel(platformStyle);
+    labelProxyIcon = new GUIUtil::ClickableLabel(platformStyle);
+    connectionsControl = new GUIUtil::ClickableLabel(platformStyle);
+    labelBlocksIcon = new GUIUtil::ClickableLabel(platformStyle);
     if(enableWallet)
     {
         frameBlocksLayout->addStretch();
@@ -925,7 +925,7 @@ void BGLGUI::updateNetworkState()
     tooltip = QString("<nobr>") + tooltip + QString("</nobr>");
     connectionsControl->setToolTip(tooltip);
 
-    connectionsControl->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+    connectionsControl->setThemedPixmap(icon, STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE);
 }
 
 void BGLGUI::setNumConnections(int count)
@@ -1021,7 +1021,7 @@ void BGLGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVerific
     // Set icon state: spinning if catching up, tick otherwise
     if (secs < MAX_BLOCK_TIME_GAP) {
         tooltip = tr("Up to date") + QString(".<br>") + tooltip;
-        labelBlocksIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/synced").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+        labelBlocksIcon->setThemedPixmap(QStringLiteral(":/icons/synced"), STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE);
 
 #ifdef ENABLE_WALLET
         if(walletFrame)
@@ -1047,9 +1047,9 @@ void BGLGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVerific
         tooltip = tr("Catching up...") + QString("<br>") + tooltip;
         if(count != prevBlocks)
         {
-            labelBlocksIcon->setPixmap(platformStyle->SingleColorIcon(QString(
-                ":/animation/spinner-%1").arg(spinnerFrame, 3, 10, QChar('0')))
-                .pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+            labelBlocksIcon->setThemedPixmap(
+                QString(":/animation/spinner-%1").arg(spinnerFrame, 3, 10, QChar('0')),
+                STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE);
             spinnerFrame = (spinnerFrame + 1) % SPINNER_FRAMES;
         }
         prevBlocks = count;
@@ -1325,7 +1325,7 @@ void BGLGUI::updateProxyIcon()
     if (proxy_enabled) {
         if (labelProxyIcon->pixmap() == nullptr) {
             QString ip_port_q = QString::fromStdString(ip_port);
-            labelProxyIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/proxy").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+            labelProxyIcon->setThemedPixmap((":/icons/proxy"), STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE);
             labelProxyIcon->setToolTip(tr("Proxy is <b>enabled</b>: %1").arg(ip_port_q));
         } else {
             labelProxyIcon->show();
