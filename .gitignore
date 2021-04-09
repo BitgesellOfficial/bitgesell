@@ -181,3 +181,4 @@ dist/
 .gdb_history
 
 .vscode/
+/guix-build-*
