@@ -14,14 +14,15 @@
 
 #ifdef ENABLE_EXTERNAL_SIGNER
 
-ExternalSigner::ExternalSigner(const std::string& command, const std::string& fingerprint, std::string chain, std::string name): m_command(command), m_fingerprint(fingerprint), m_chain(chain), m_name(name) {}
+ExternalSigner::ExternalSigner(const std::string& command, const std::string& fingerprint, const std::string chain, const std::string name): m_command(command), m_fingerprint(fingerprint), m_chain(chain), m_name(name) {}
 
 const std::string ExternalSigner::NetworkArg() const
 {
     return " --chain " + m_chain;
 }
 
-bool ExternalSigner::Enumerate(const std::string& command, std::vector<ExternalSigner>& signers, std::string chain, bool ignore_errors)
+
+bool ExternalSigner::Enumerate(const std::string& command, std::vector<ExternalSigner>& signers, const std::string chain)
 {
     // Call <command> enumerate
     const UniValue result = RunCommandParseJSON(command + " enumerate");
@@ -42,10 +43,10 @@ bool ExternalSigner::Enumerate(const std::string& command, std::vector<ExternalS
         if (fingerprint.isNull()) {
             throw ExternalSignerException(strprintf("'%s' received invalid response, missing signer fingerprint", command));
         }
-        std::string fingerprintStr = fingerprint.get_str();
+        const std::string fingerprintStr = fingerprint.get_str();
         // Skip duplicate signer
         bool duplicate = false;
-        for (ExternalSigner signer : signers) {
+        for (const ExternalSigner& signer : signers) {
             if (signer.m_fingerprint.compare(fingerprintStr) == 0) duplicate = true;
         }
         if (duplicate) break;
@@ -59,7 +60,13 @@ bool ExternalSigner::Enumerate(const std::string& command, std::vector<ExternalS
     return true;
 }
 
-UniValue ExternalSigner::GetDescriptors(int account)
+
+UniValue ExternalSigner::DisplayAddress(const std::string& descriptor) const
+{
+    return RunCommandParseJSON(m_command + " --fingerprint \"" + m_fingerprint + "\"" + NetworkArg() + " displayaddress --desc \"" + descriptor + "\"");
+}
+
+UniValue ExternalSigner::GetDescriptors(const int account)
 {
     return RunCommandParseJSON(m_command + " --fingerprint \"" + m_fingerprint + "\"" + NetworkArg() + " getdescriptors --account " + strprintf("%d", account));
 }
@@ -74,7 +81,7 @@ bool ExternalSigner::SignTransaction(PartiallySignedTransaction& psbtx, std::str
     bool match = false;
     for (unsigned int i = 0; i < psbtx.inputs.size(); ++i) {
         const PSBTInput& input = psbtx.inputs[i];
-        for (auto entry : input.hd_keypaths) {
+        for (const auto& entry : input.hd_keypaths) {
             if (m_fingerprint == strprintf("%08x", ReadBE32(entry.second.fingerprint))) match = true;
         }
     }
@@ -84,8 +91,8 @@ bool ExternalSigner::SignTransaction(PartiallySignedTransaction& psbtx, std::str
         return false;
     }
 
-    std::string command = m_command + " --stdin --fingerprint \"" + m_fingerprint + "\"" + NetworkArg();
-    std::string stdinStr = "signtx \"" + EncodeBase64(ssTx.str()) + "\"";
+    const std::string command = m_command + " --stdin --fingerprint \"" + m_fingerprint + "\"" + NetworkArg();
+    const std::string stdinStr = "signtx \"" + EncodeBase64(ssTx.str()) + "\"";
 
     const UniValue signer_result = RunCommandParseJSON(command, stdinStr);
 
