@@ -9,6 +9,8 @@
 #include <util/system.h>
 #include <external_signer.h>
 
+#ifdef ENABLE_EXTERNAL_SIGNER
+
 ExternalSigner::ExternalSigner(const std::string& command, const std::string& fingerprint, std::string chain, std::string name): m_command(command), m_fingerprint(fingerprint), m_chain(chain), m_name(name) {}
 
 const std::string ExternalSigner::NetworkArg() const
@@ -16,7 +18,7 @@ const std::string ExternalSigner::NetworkArg() const
     return " --chain " + m_chain;
 }
 
-bool ExternalSigner::Enumerate(const std::string& command, std::vector<ExternalSigner>& signers, std::string chain)
+bool ExternalSigner::Enumerate(const std::string& command, std::vector<ExternalSigner>& signers, std::string chain, bool ignore_errors)
 {
     // Call <command> enumerate
     const UniValue result = RunCommandParseJSON(command + " enumerate");
@@ -106,4 +108,4 @@ bool ExternalSigner::SignTransaction(PartiallySignedTransaction& psbtx, std::str
     return true;
 }
 
-#endif
+#endif // ENABLE_EXTERNAL_SIGNER
