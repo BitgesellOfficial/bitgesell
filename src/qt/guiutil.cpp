@@ -3,14 +3,9 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #include <qt/guiutil.h>
 
-<<<<<<< HEAD
 #include <qt/BGLaddressvalidator.h>
 #include <qt/BGLunits.h>
-=======
-#include <qt/bitcoinaddressvalidator.h>
-#include <qt/bitcoinunits.h>
 #include <qt/platformstyle.h>
->>>>>>> d99ef327a... qt: Add GUIUtil::ThemedLabel class
 #include <qt/qvalidatedlineedit.h>
 #include <qt/sendcoinsrecipient.h>
 
@@ -34,6 +29,7 @@
 #include <shlwapi.h>
 #endif
 
+#include <QAbstractButton>
 #include <QAbstractItemView>
 #include <QApplication>
 #include <QClipboard>
@@ -126,7 +122,12 @@ void setupAddressWidget(QValidatedLineEdit *widget, QWidget *parent)
     widget->setCheckValidator(new BGLAddressCheckValidator(parent));
 }
 
-bool parseBGLURI(const QUrl &uri, SendCoinsRecipient *out)
+void AddButtonShortcut(QAbstractButton* button, const QKeySequence& shortcut)
+{
+    QObject::connect(new QShortcut(shortcut, button), &QShortcut::activated, [button]() { button->animateClick(); });
+}
+
+bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out)
 {
     // return if URI is not valid or is no BGL: URI
     if(!uri.isValid() || uri.scheme() != QString("bgl"))
