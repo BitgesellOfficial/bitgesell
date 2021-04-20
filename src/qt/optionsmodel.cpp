@@ -553,16 +553,13 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
     return successful;
 }
 
-/** Updates current unit in memory, settings and emits displayUnitChanged(newUnit) signal */
-void OptionsModel::setDisplayUnit(const QVariant &value)
+void OptionsModel::setDisplayUnit(const QVariant& new_unit)
 {
-    if (!value.isNull())
-    {
-        QSettings settings;
-        nDisplayUnit = value.toInt();
-        settings.setValue("nDisplayUnit", nDisplayUnit);
-        Q_EMIT displayUnitChanged(nDisplayUnit);
-    }
+    if (new_unit.isNull() || new_unit.value<BGLUnit>() == m_display_BGL_unit) return;
+    m_display_BGL_unit = new_unit.value<BGLUnit>();
+    QSettings settings;
+    settings.setValue("DisplayBGLUnit", QVariant::fromValue(m_display_BGL_unit));
+    Q_EMIT displayUnitChanged(m_display_BGL_unit);
 }
 
 void OptionsModel::setRestartRequired(bool fRequired)
