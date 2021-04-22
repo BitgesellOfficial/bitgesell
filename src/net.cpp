@@ -2644,10 +2644,13 @@ void CConnman::StopNodes()
     }
 
     // Close listening sockets.
-    for (ListenSocket& hListenSocket : vhListenSocket)
-        if (hListenSocket.socket != INVALID_SOCKET)
-            if (!CloseSocket(hListenSocket.socket))
+    for (ListenSocket& hListenSocket : vhListenSocket) {
+        if (hListenSocket.socket != INVALID_SOCKET) {
+            if (!CloseSocket(hListenSocket.socket)) {
                 LogPrintf("CloseSocket(hListenSocket) failed with error %s\n", NetworkErrorString(WSAGetLastError()));
+            }
+        }
+    }
 
     // clean up some globals (to help leak detection)
     for (CNode* pnode : nodes) {
