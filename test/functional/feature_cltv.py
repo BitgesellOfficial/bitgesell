@@ -51,6 +51,7 @@ def cltv_modify_tx(node, tx, prepend_scriptsig, nsequence=None, nlocktime=None):
         tx.deserialize(BytesIO(hex_str_to_bytes(signed_result['hex'])))
 
     tx.vin[0].scriptSig = CScript(prepend_scriptsig + list(CScript(tx.vin[0].scriptSig)))
+    tx.rehash()
     return tx
 
 
@@ -144,7 +145,6 @@ class BIP65Test(BGLTestFramework):
             spendtx = create_transaction(self.nodes[0], self.coinbase_txids[i],
                                          self.nodeaddress, amount=1.0)
             spendtx = cltv_invalidate(self.nodes[0], spendtx, i)
-            spendtx.rehash()
             invalid_ctlv_txs.append(spendtx)
 
         tip = self.nodes[0].getbestblockhash()
@@ -181,7 +181,6 @@ class BIP65Test(BGLTestFramework):
             spendtx = create_transaction(self.nodes[0], self.coinbase_txids[10+i],
                                          self.nodeaddress, amount=1.0)
             spendtx = cltv_invalidate(self.nodes[0], spendtx, i)
-            spendtx.rehash()
 
             expected_cltv_reject_reason = [
                 "non-mandatory-script-verify-flag (Operation not valid with the current stack size)",
@@ -215,7 +214,6 @@ class BIP65Test(BGLTestFramework):
 
         self.log.info("Test that a version 4 block with a valid-according-to-CLTV transaction is accepted")
         spendtx = cltv_validate(self.nodes[0], spendtx, CLTV_HEIGHT - 1)
-        spendtx.rehash()
 
         block.vtx.pop(1)
         block.vtx.append(spendtx)
