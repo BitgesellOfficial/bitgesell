@@ -72,12 +72,19 @@ public:
      */
     QList<TransactionRecord> cachedWallet;
 
+    bool fQueueNotifications = false;
+    /** True when model finishes loading all wallet transactions on start */
+    bool m_loaded = false;
+    std::vector< TransactionNotification > vQueueNotifications;
+
+    void NotifyTransactionChanged(const uint256 &hash, ChangeType status);
+    void ShowProgress(const std::string &title, int nProgress);
+
     /* Query entire wallet anew from core.
      */
     void refreshWallet(interfaces::Wallet& wallet)
     {
-        qDebug() << "TransactionTablePriv::refreshWallet";
-        cachedWallet.clear();
+        assert(!m_loaded);
         {
             for (const auto& wtx : wallet.getWalletTxs()) {
                 if (TransactionRecord::showTransaction()) {
@@ -85,6 +92,7 @@ public:
                 }
             }
         }
+        m_loaded = true;
     }
 
     /* Update our model of the wallet incrementally, to synchronize our model of the wallet
