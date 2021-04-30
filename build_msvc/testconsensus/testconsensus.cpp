@@ -44,8 +44,13 @@ int main()
     CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);
     stream << vanillaSpendTx;
 
+<<<<<<< HEAD
     BGLconsensus_error err;
     auto op0Result = BGLconsensus_verify_script_with_amount(pubKeyScript.data(), pubKeyScript.size(), amount, (const unsigned char*)&stream[0], stream.size(), 0, BGLconsensus_SCRIPT_FLAGS_VERIFY_ALL, &err);
+=======
+    bitcoinconsensus_error err;
+    auto op0Result = bitcoinconsensus_verify_script_with_amount(pubKeyScript.data(), pubKeyScript.size(), amount, stream.data(), stream.size(), 0, bitcoinconsensus_SCRIPT_FLAGS_VERIFY_ALL, &err);
+>>>>>>> fac30eec4... refactor: Replace &foo[0] with foo.data()
     std::cout << "Op0 result: " << op0Result << ", error code " << err << std::endl;
 
     getchar();
