@@ -57,13 +57,14 @@ task:
   dmg_artifacts:
     path: "*.dmg"
 
-#task:
-#  name: "x86_64 Linux"
-#  << : *GLOBAL_TASK_TEMPLATE
-#  container:
-#    image: ubuntu:bionic
-#  env:
-#    FILE_ENV: "./ci/test/00_setup_env_native_nowallet.sh"
+task:
+  name: '[multiprocess, DEBUG] [focal]'
+  << : *GLOBAL_TASK_TEMPLATE
+  container:
+    image: ubuntu:focal
+  env:
+    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
+    FILE_ENV: "./ci/test/00_setup_env_native_multiprocess.sh"
 
 #task:
 #  name: "x86_64 Linux [qt]"
