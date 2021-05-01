@@ -3,9 +3,9 @@ Building BGL Core with Visual Studio
 
 Introduction
 ---------------------
-Solution and project files to build the BGL Core applications `msbuild` or Visual Studio can be found in the build_msvc directory. The build has been tested with Visual Studio 2017 and 2019.
+Solution and project files to build the BGL Core applications `msbuild` or Visual Studio can be found in the `build_msvc` directory. The build has been tested with Visual Studio 2019 (building with earlier versions of Visual Studio should not be expected to work).
 
-Building with Visual Studio is an alternative to the Linux based [cross-compiler build](https://github.com/BGL/BGL/blob/master/doc/build-windows.md).
+Building with Visual Studio is an alternative to the Linux based [cross-compiler build](https://github.com/BitgesellOfficial/bitgesell/blob/master/doc/build-windows.md).
 
 Quick Start
 ---------------------
@@ -57,19 +57,13 @@ PS >py -3 msvc-autogen.py
 
 - An optional step is to adjust the settings in the `build_msvc` directory and the `common.init.vcxproj` file. This project file contains settings that are common to all projects such as the runtime library version and target Windows SDK version. The Qt directories can also be set.
 
-- To build from the command line with the Visual Studio 2017 toolchain use:
-
-```
-msbuild /m BGL.sln /p:Platform=x64 /p:Configuration=Release /p:PlatformToolset=v141 /t:build
-```
-
 - To build from the command line with the Visual Studio 2019 toolchain use:
 
 ```
 msbuild /m BGL.sln /p:Platform=x64 /p:Configuration=Release /t:build
 ```
 
-- Alternatively open the `build_msvc\BGL.sln` file in Visual Studio.
+- Alternatively, open the `build_msvc/BGL.sln` file in Visual Studio 2019.
 
 AppVeyor
 ---------------------
