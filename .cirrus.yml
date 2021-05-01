@@ -42,6 +42,94 @@ global_task_template: &GLOBAL_TASK_TEMPLATE
   ci_script:
     - ./ci/test_run_all.sh
 
+depends_sdk_cache_template: &DEPENDS_SDK_CACHE_TEMPLATE
+  depends_sdk_cache:
+    folder: "depends/sdk-sources"
+
+compute_credits_template: &CREDITS_TEMPLATE
+  # https://cirrus-ci.org/pricing/#compute-credits
+  # Only use credits for pull requests to the main repo
+  use_compute_credits: $CIRRUS_REPO_FULL_NAME == 'BitgesellOfficial/bitgesell' && $CIRRUS_PR != ""
+
+#task:
+#  name: "Windows"
+#  windows_container:
+#    image: cirrusci/windowsservercore:2019
+#  env:
+#    CIRRUS_SHELL: powershell
+#    PATH: 'C:\Python37;C:\Python37\Scripts;%PATH%'
+#    PYTHONUTF8: 1
+#    QT_DOWNLOAD_URL: 'https://github.com/sipsorcery/qt_win_binary/releases/download/v1.6/Qt5.9.8_x64_static_vs2019.zip'
+#    QT_DOWNLOAD_HASH: '9a8c6eb20967873785057fdcd329a657c7f922b0af08c5fde105cc597dd37e21'
+#    QT_LOCAL_PATH: 'C:\Qt5.9.8_x64_static_vs2019'
+#    VCPKG_INSTALL_PATH: 'C:\tools\vcpkg\installed'
+#    VCPKG_COMMIT_ID: 'ed0df8ecc4ed7e755ea03e18aaf285fd9b4b4a74'
+#  install_script:
+#    - choco install python --version=3.7.7 -y
+
+task:
+  name: 'lint [bionic]'
+  << : *BASE_TEMPLATE
+  container:
+    image: ubuntu:bionic  # For python 3.6, oldest supported version according to doc/dependencies.md
+    cpu: 1
+    memory: 1G
+  # For faster CI feedback, immediately schedule the linters
+  << : *CREDITS_TEMPLATE
+  lint_script:
+    - ./ci/lint_run_all.sh
+  env:
+    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
+
+task:
+  name: 'ARM [unit tests, no functional tests] [buster]'
+  << : *GLOBAL_TASK_TEMPLATE
+  container:
+    image: debian:buster
+  env:
+    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
+    FILE_ENV: "./ci/test/00_setup_env_arm.sh"
+
+task:
+  name: 'Win64 [unit tests, no gui tests, no boost::process, no functional tests] [focal]'
+  << : *GLOBAL_TASK_TEMPLATE
+  container:
+    image: ubuntu:focal
+  env:
+    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
+    FILE_ENV: "./ci/test/00_setup_env_win64.sh"
+
+task:
+  name: '32-bit + dash [gui] [CentOS 8]'
+  << : *GLOBAL_TASK_TEMPLATE
+  container:
+    image: centos:8
+  env:
+    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
+    PACKAGE_MANAGER_INSTALL: "yum install -y"
+    FILE_ENV: "./ci/test/00_setup_env_i686_centos.sh"
+
+task:
+  name: '[previous releases, uses qt5 dev package and some depends packages, DEBUG] [unsigned char] [bionic]'
+  previous_releases_cache:
+    folder: "releases"
+  << : *GLOBAL_TASK_TEMPLATE
+  << : *PERSISTENT_WORKER_TEMPLATE
+  env:
+    << : *PERSISTENT_WORKER_TEMPLATE_ENV
+    FILE_ENV: "./ci/test/00_setup_env_native_qt5.sh"
+
+task:
+  name: '[depends, sanitizers: thread (TSan), no gui] [hirsute]'
+  << : *GLOBAL_TASK_TEMPLATE
+  container:
+    image: ubuntu:hirsute
+    cpu: 6  # Increase CPU and Memory to avoid timeout
+    memory: 24G
+  env:
+    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
+    MAKEJOBS: "-j8"
+    FILE_ENV: "./ci/test/00_setup_env_native_tsan.sh"
 
 task:
   name: 'macOS 10.15 [qt deploy]'
