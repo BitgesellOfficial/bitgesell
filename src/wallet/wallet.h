@@ -609,6 +609,11 @@ struct CoinSelectionParams
     bool use_bnb = true;
     size_t change_output_size = 0;
     size_t change_spend_size = 0;
+    /** Cost of creating the change output. */
+    CAmount m_change_fee{0};
+    /** Cost of creating the change output + cost of spending the change output in the future. */
+    CAmount m_cost_of_change{0};
+    /** The targeted feerate of the transaction being built. */
     CFeeRate m_effective_feerate;
     CFeeRate m_long_term_feerate;
     CFeeRate m_discard_feerate;
