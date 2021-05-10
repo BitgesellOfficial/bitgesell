@@ -138,7 +138,7 @@ AC_DEFUN([BGL_QT_CONFIGURE],[
 
     AC_DEFINE(QT_STATICPLUGIN, 1, [Define this symbol if qt plugins are static])
     if test "x$TARGET_OS" != xandroid; then
-      _BGL_QT_CHECK_STATIC_PLUGINS([Q_IMPORT_PLUGIN(QMinimalIntegrationPlugin)],[-lqminimal])
+      _BGL_QT_CHECK_STATIC_PLUGIN([Q_IMPORT_PLUGIN(QMinimalIntegrationPlugin)],[-lqminimal])
       AC_DEFINE(QT_QPA_PLATFORM_MINIMAL, 1, [Define this symbol if the minimal qt platform exists])
     fi
     if test "x$TARGET_OS" = xwindows; then
@@ -317,7 +317,7 @@ dnl Requires: INCLUDES and LIBS must be populated as necessary.
 dnl Inputs: $1: A series of Q_IMPORT_PLUGIN().
 dnl Inputs: $2: The libraries that resolve $1.
 dnl Output: QT_LIBS is prepended or configure exits.
-AC_DEFUN([_BGL_QT_CHECK_STATIC_PLUGINS],[
+AC_DEFUN([_BGL_QT_CHECK_STATIC_PLUGIN],[
   AC_MSG_CHECKING(for static Qt plugins: $2)
   CHECK_STATIC_PLUGINS_TEMP_LIBS="$LIBS"
   LIBS="$2${qt_lib_suffix} $QT_LIBS $LIBS"

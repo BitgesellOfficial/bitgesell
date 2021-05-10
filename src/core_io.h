@@ -18,6 +18,7 @@ class CTransaction;
 struct CMutableTransaction;
 class uint256;
 class UniValue;
+class CTxUndo;
 
 // core_read.cpp
 CScript ParseScript(const std::string& s);

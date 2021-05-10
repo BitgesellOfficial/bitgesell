@@ -31,7 +31,7 @@ public:
     UniValue id;
     std::string strMethod;
     UniValue params;
-    bool fHelp;
+    enum Mode { EXECUTE, GET_HELP, GET_ARGS } mode = EXECUTE;
     std::string URI;
     std::string authUser;
     std::string peerAddr;

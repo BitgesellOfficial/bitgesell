@@ -78,8 +78,12 @@ extern std::vector<unsigned char> ParseHexV(const UniValue& v, std::string strNa
 extern std::vector<unsigned char> ParseHexO(const UniValue& o, std::string strKey);
 
 extern CAmount AmountFromValue(const UniValue& value);
+
+using RPCArgList = std::vector<std::pair<std::string, UniValue>>;
 extern std::string HelpExampleCli(const std::string& methodname, const std::string& args);
+extern std::string HelpExampleCliNamed(const std::string& methodname, const RPCArgList& args);
 extern std::string HelpExampleRpc(const std::string& methodname, const std::string& args);
+extern std::string HelpExampleRpcNamed(const std::string& methodname, const RPCArgList& args);
 
 CPubKey HexToPubKey(const std::string& hex_in);
 CPubKey AddrToPubKey(const FillableSigningProvider& keystore, const std::string& addr_in);
@@ -340,25 +344,10 @@ public:
 
     UniValue HandleRequest(const JSONRPCRequest& request) const;
     std::string ToString() const;
-    /** Append the named args that need to be converted from string to another JSON type */
-    void AppendArgMap(UniValue& arr) const;
-    UniValue HandleRequest(const JSONRPCRequest& request)
-    {
-        Check(request);
-        return m_fun(*this, request);
-    }
+    /** Return the named args that need to be converted from string to another JSON type */
+    UniValue GetArgMap() const;
     /** If the supplied number of args is neither too small nor too high */
     bool IsValidNumArgs(size_t num_args) const;
-    /**
-     * Check if the given request is valid according to this command or if
-     * the user is asking for help information, and throw help when appropriate.
-     */
-    inline void Check(const JSONRPCRequest& request) const {
-        if (request.fHelp || !IsValidNumArgs(request.params.size())) {
-            throw std::runtime_error(ToString());
-        }
-    }
-
     std::vector<std::string> GetArgNames() const;
 
     const std::string m_name;

@@ -23,6 +23,7 @@ class CChainState;
 class CTxMemPool;
 class ChainstateManager;
 class UniValue;
+class CTxUndo;
 struct NodeContext;
 
 static constexpr int NUM_GETBLOCKSTATS_PERCENTILES = 5;

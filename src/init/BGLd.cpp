@@ -9,10 +9,10 @@
 
 namespace init {
 namespace {
-class BitcoindInit : public interfaces::Init
+class BGLdInit : public interfaces::Init
 {
 public:
-    BitcoindInit(NodeContext& node) : m_node(node)
+    BGLdInit(NodeContext& node) : m_node(node)
     {
         m_node.init = this;
     }
@@ -24,6 +24,6 @@ public:
 namespace interfaces {
 std::unique_ptr<Init> MakeNodeInit(NodeContext& node, int argc, char* argv[], int& exit_status)
 {
-    return std::make_unique<init::BitcoindInit>(node);
+    return std::make_unique<init::BGLdInit>(node);
 }
 } // namespace interfaces
