@@ -56,21 +56,6 @@ FUZZ_TARGET_INIT(script, initialize_script)
         assert(script == decompressed_script);
     }
 
-    CTxDestination address;
-    (void)ExtractDestination(script, address);
-
-    TxoutType type_ret;
-    std::vector<CTxDestination> addresses;
-    int required_ret;
-    (void)ExtractDestinations(script, type_ret, addresses, required_ret);
-
-    const FlatSigningProvider signing_provider;
-    (void)InferDescriptor(script, signing_provider);
-
-    (void)IsSegWitOutput(signing_provider, script);
-
-    (void)IsSolvable(signing_provider, script);
-
     TxoutType which_type;
     bool is_standard_ret = IsStandard(script, which_type);
     if (!is_standard_ret) {
@@ -89,6 +74,25 @@ FUZZ_TARGET_INIT(script, initialize_script)
                which_type == TxoutType::NONSTANDARD);
     }
 
+    CTxDestination address;
+    bool extract_destination_ret = ExtractDestination(script, address);
+    if (!extract_destination_ret) {
+        assert(which_type == TxoutType::PUBKEY ||
+               which_type == TxoutType::NONSTANDARD ||
+               which_type == TxoutType::NULL_DATA ||
+               which_type == TxoutType::MULTISIG);
+    }
+    if (which_type == TxoutType::NONSTANDARD ||
+        which_type == TxoutType::NULL_DATA ||
+        which_type == TxoutType::MULTISIG) {
+        assert(!extract_destination_ret);
+    }
+
+    const FlatSigningProvider signing_provider;
+    (void)InferDescriptor(script, signing_provider);
+    (void)IsSegWitOutput(signing_provider, script);
+    (void)IsSolvable(signing_provider, script);
+
     (void)RecursiveDynamicUsage(script);
 
     std::vector<std::vector<unsigned char>> solutions;
@@ -105,11 +109,9 @@ FUZZ_TARGET_INIT(script, initialize_script)
     (void)ScriptToAsmStr(script, true);
 
     UniValue o1(UniValue::VOBJ);
-    ScriptPubKeyToUniv(script, o1, true, true);
-    ScriptPubKeyToUniv(script, o1, true, false);
+    ScriptPubKeyToUniv(script, o1, true);
     UniValue o2(UniValue::VOBJ);
-    ScriptPubKeyToUniv(script, o2, false, true);
-    ScriptPubKeyToUniv(script, o2, false, false);
+    ScriptPubKeyToUniv(script, o2, false);
     UniValue o3(UniValue::VOBJ);
     ScriptToUniv(script, o3, true);
     UniValue o4(UniValue::VOBJ);
