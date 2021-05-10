@@ -140,12 +140,12 @@ std::string EncodeHexTx(const CTransaction& tx, const int serializeFlags)
     return HexStr(ssTx);
 }
 
-void ScriptToUniv(const CScript& script, UniValue& out, bool include_address)
+void ScriptToUniv(const CScript& script, UniValue& out)
 {
-    ScriptPubKeyToUniv(script, out, /* include_hex */ true, /* include_address */ false);
+    ScriptPubKeyToUniv(script, out, /* fIncludeHex */ true, /* include_address */ false);
 }
 
-void ScriptPubKeyToUniv(const CScript& scriptPubKey, UniValue& out, bool include_hex, bool include_address)
+void ScriptPubKeyToUniv(const CScript& scriptPubKey, UniValue& out, bool fIncludeHex, bool include_address)
 {
     CTxDestination address;
 
@@ -153,9 +153,9 @@ void ScriptPubKeyToUniv(const CScript& scriptPubKey, UniValue& out, bool include
     if (include_hex) out.pushKV("hex", HexStr(scriptPubKey));
 
     std::vector<std::vector<unsigned char>> solns;
-    TxoutType type = Solver(scriptPubKey, solns);
+    const TxoutType type{Solver(scriptPubKey, solns)};
 
-    if (ExtractDestination(scriptPubKey, address) && type != TxoutType::PUBKEY) {
+    if (include_address && ExtractDestination(scriptPubKey, address) && type != TxoutType::PUBKEY) {
         out.pushKV("address", EncodeDestination(address));
     }
     out.pushKV("type", GetTxnOutputType(type));
