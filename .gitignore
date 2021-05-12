@@ -89,7 +89,7 @@ src/qt/BGL-qt.includes
 .dirstamp
 .libs
 .*.swp
-*.*~*
+*~
 *.bak
 *.rej
 *.orig
