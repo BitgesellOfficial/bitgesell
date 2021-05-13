@@ -379,7 +379,7 @@ void CAddrMan::Attempt_(const CService& addr, bool fCountFailure, int64_t nTime)
     }
 }
 
-CAddrInfo CAddrMan::Select_(bool newOnly)
+CAddrInfo CAddrMan::Select_(bool newOnly) const
 {
     AssertLockHeld(cs);
 
@@ -402,8 +402,9 @@ CAddrInfo CAddrMan::Select_(bool newOnly)
                 nKBucketPos = (nKBucketPos + insecure_rand.randbits(ADDRMAN_BUCKET_SIZE_LOG2)) % ADDRMAN_BUCKET_SIZE;
             }
             int nId = vvTried[nKBucket][nKBucketPos];
-            assert(mapInfo.count(nId) == 1);
-            CAddrInfo& info = mapInfo[nId];
+            const auto it_found{mapInfo.find(nId)};
+            assert(it_found != mapInfo.end());
+            const CAddrInfo& info{it_found->second};
             if (insecure_rand.randbits(30) < fChanceFactor * info.GetChance() * (1 << 30))
                 return info;
             fChanceFactor *= 1.2;
@@ -419,8 +420,9 @@ CAddrInfo CAddrMan::Select_(bool newOnly)
                 nUBucketPos = (nUBucketPos + insecure_rand.randbits(ADDRMAN_BUCKET_SIZE_LOG2)) % ADDRMAN_BUCKET_SIZE;
             }
             int nId = vvNew[nUBucket][nUBucketPos];
-            assert(mapInfo.count(nId) == 1);
-            CAddrInfo& info = mapInfo[nId];
+            const auto it_found{mapInfo.find(nId)};
+            assert(it_found != mapInfo.end());
+            const CAddrInfo& info{it_found->second};
             if (insecure_rand.randbits(30) < fChanceFactor * info.GetChance() * (1 << 30))
                 return info;
             fChanceFactor *= 1.2;
