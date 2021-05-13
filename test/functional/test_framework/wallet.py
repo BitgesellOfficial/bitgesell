@@ -54,21 +54,21 @@ class MiniWalletMode(Enum):
     RAW_P2PK = 3
 
 class MiniWallet:
-    def __init__(self, test_node,mode=MiniWalletMode.ADDRESS_OP_TRUE):
+    def __init__(self, test_node, *, raw_script=False, use_p2pk=False):
         self._test_node = test_node
         self._utxos = []
         self._priv_key = None
         self._address = None
-        assert isinstance(mode, MiniWalletMode)
-        if mode == MiniWalletMode.RAW_OP_TRUE:
+
+        if raw_script:
             self._scriptPubKey = bytes(CScript([OP_TRUE]))
-        elif mode == MiniWalletMode.RAW_P2PK:
+        elif use_p2pk:
             # use simple deterministic private key (k=1)
             self._priv_key = ECKey()
             self._priv_key.set((1).to_bytes(32, 'big'), True)
             pub_key = self._priv_key.get_pubkey()
             self._scriptPubKey = bytes(CScript([pub_key.get_bytes(), OP_CHECKSIG]))
-        elif mode == MiniWalletMode.ADDRESS_OP_TRUE:
+        else:
             self._address = ADDRESS_BCRT1_P2WSH_OP_TRUE
             self._scriptPubKey = hex_str_to_bytes(self._test_node.validateaddress(self._address)['scriptPubKey'])
 
@@ -78,6 +78,19 @@ class MiniWallet:
             block = self._test_node.getblock(blockhash=self._test_node.getblockhash(i), verbosity=2)
             for tx in block['tx']:
                 self.scan_tx(tx)
+
+    def scan_tx(self, tx):
+        """Scan the tx for self._scriptPubKey outputs and add them to self._utxos"""
+        for out in tx['vout']:
+            if out['scriptPubKey']['hex'] == self._scriptPubKey.hex():
+                self._utxos.append({'txid': tx['txid'], 'vout': out['n'], 'value': out['value']})
+
+    def sign_tx(self, tx):
+        """Sign tx that has been created by MiniWallet in P2PK mode"""
+        assert self._priv_key is not None
+        (sighash, err) = LegacySignatureHash(CScript(self._scriptPubKey), tx, 0, SIGHASH_ALL)
+        assert err is None
+        tx.vin[0].scriptSig = CScript([self._priv_key.sign_ecdsa(sighash) + bytes(bytearray([SIGHASH_ALL]))])
 
     def generate(self, num_blocks):
         """Generate blocks with coinbase outputs to the internal address, and append the outputs to the internal list"""
