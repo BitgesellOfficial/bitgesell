@@ -71,11 +71,14 @@ brew install berkeley-db4
 
 1. Clone the BGL Core source code:
     ```shell
-    git clone https://github.com/BGL/BGL
-    cd BGL
+    git clone https://github.com/BitgesellOfficial/bitgesell
+    cd bitgesell
     ```
 
-2.  Build BGL Core:
+``` bash
+make        # use "-j N" here for N parallel jobs
+make check  # Run tests if Python 3 is available
+```
 
     Configure and build the headless BGL Core binaries as well as the GUI (if Qt is found).
 

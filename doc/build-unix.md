@@ -22,8 +22,8 @@ To Build
 ```bash
 ./autogen.sh
 ./configure
-make -j$(nproc)
-make -j$(nproc) install # optional
+make # use "-j N" for N parallel jobs
+make install # optional
 ```
 
 This will build BGL-qt as well, if the dependencies are met.
