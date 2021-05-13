@@ -111,7 +111,7 @@ CreateWalletDialog::~CreateWalletDialog()
     delete ui;
 }
 
-void CreateWalletDialog::setSigners(const std::vector<ExternalSigner>& signers)
+void CreateWalletDialog::setSigners(std::vector<ExternalSigner>& signers)
 {
     if (!signers.empty()) {
         ui->external_signer_checkbox->setEnabled(true);
@@ -130,7 +130,6 @@ void CreateWalletDialog::setSigners(const std::vector<ExternalSigner>& signers)
         ui->external_signer_checkbox->setEnabled(false);
     }
 }
-#endif
 
 QString CreateWalletDialog::walletName() const
 {
