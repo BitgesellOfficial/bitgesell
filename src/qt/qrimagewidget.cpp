@@ -119,7 +119,11 @@ void QRImageWidget::saveImage()
 {
     if(!pixmap())
         return;
-    QString fn = GUIUtil::getSaveFileName(this, tr("Save QR Code"), QString(), tr("PNG Image (*.png)"), nullptr);
+    QString fn = GUIUtil::getSaveFileName(
+        this, tr("Save QR Code"), QString(),
+        /*: Expanded name of the PNG file format.
+            See https://en.wikipedia.org/wiki/Portable_Network_Graphics */
+        tr("PNG Image") + QLatin1String(" (*.png)"), nullptr);
     if (!fn.isEmpty())
     {
         exportImage().save(fn);
