@@ -2,7 +2,7 @@
 
 The commands in this guide should be executed in a Terminal application.
 The built-in one is located in
-```
+```shell
 /Applications/Utilities/Terminal.app
 ```
 
@@ -27,6 +27,11 @@ See [dependencies.md](dependencies.md) for a complete overview.
 If you want to build the disk image with `make deploy` (.dmg / optional), you need RSVG:
 ```shell
 brew install librsvg
+```
+
+`make deploy` also depends on the following python packages:
+```shell
+pip3 install ds_store mac_alias
 ```
 
 ## Berkeley DB
@@ -58,8 +63,8 @@ from the root of the repository.
 
     You can disable the GUI build by passing `--without-gui` to configure.
     ```shell
-    ./autogen.sh --with-gui=no
-    ./configure
+    ./autogen.sh
+    ./configure --with-gui=no
     make
     ```
 
