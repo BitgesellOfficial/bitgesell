@@ -8,7 +8,7 @@
 #include <QFrame>
 #include <QMap>
 
-class BGLGUI;
+
 class ClientModel;
 class PlatformStyle;
 class SendCoinsRecipient;
@@ -31,7 +31,7 @@ class WalletFrame : public QFrame
     Q_OBJECT
 
 public:
-    explicit WalletFrame(const PlatformStyle *platformStyle, BGLGUI *_gui = nullptr);
+    explicit WalletFrame(const PlatformStyle* platformStyle, QWidget* parent);
     ~WalletFrame();
 
     void setClientModel(ClientModel *clientModel);
@@ -53,7 +53,6 @@ Q_SIGNALS:
 
 private:
     QStackedWidget *walletStack;
-    BGLGUI *gui;
     ClientModel *clientModel;
     QMap<WalletModel*, WalletView*> mapWalletViews;
 
