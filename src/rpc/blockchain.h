@@ -23,7 +23,6 @@ class CChainState;
 class CTxMemPool;
 class ChainstateManager;
 class UniValue;
-class CTxUndo;
 struct NodeContext;
 
 static constexpr int NUM_GETBLOCKSTATS_PERCENTILES = 5;
@@ -71,4 +70,4 @@ CBlockPolicyEstimator& EnsureAnyFeeEstimator(const std::any& context);
  */
 UniValue CreateUTXOSnapshot(NodeContext& node, CChainState& chainstate, CAutoFile& afile);
 
-#endif
+#endif // BGL_RPC_BLOCKCHAIN_H

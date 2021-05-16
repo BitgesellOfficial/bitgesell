@@ -62,10 +62,6 @@ LIBBGL_CRYPTO_SHANI = crypto/libBGL_crypto_shani.a
 LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_SHANI)
 endif
 
-# Add SHA3 support
-LIBBGL_CRYPTO_SHA3 = crypto/sha3/libBGL_crypto_sha3.a
-LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_SHA3)
-
 $(LIBSECP256K1): $(wildcard secp256k1/src/*.h) $(wildcard secp256k1/src/*.c) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
 
@@ -101,6 +97,7 @@ endif
 if BUILD_BGL_CLI
   bin_PROGRAMS += BGL-cli
 endif
+
 if BUILD_BGL_TX
   bin_PROGRAMS += BGL-tx
 endif
@@ -156,6 +153,7 @@ BGL_CORE_H = \
   i2p.h \
   index/base.h \
   index/blockfilterindex.h \
+  index/coinstatsindex.h \
   index/disktxpos.h \
   index/txindex.h \
   indirectmap.h \
@@ -248,6 +246,7 @@ BGL_CORE_H = \
   util/fees.h \
   util/getuniquepath.h \
   util/golombrice.h \
+  util/hasher.h \
   util/macros.h \
   util/message.h \
   util/moneystr.h \
@@ -258,8 +257,10 @@ BGL_CORE_H = \
   util/spanparsing.h \
   util/string.h \
   util/system.h \
+  util/thread.h \
   util/threadnames.h \
   util/time.h \
+  util/tokenpipe.h \
   util/trace.h \
   util/translation.h \
   util/ui_change_type.h \
@@ -327,6 +328,7 @@ libBGL_server_a_SOURCES = \
   i2p.cpp \
   index/base.cpp \
   index/blockfilterindex.cpp \
+  index/coinstatsindex.cpp \
   index/txindex.cpp \
   init.cpp \
   mapport.cpp \
@@ -422,13 +424,6 @@ libBGL_wallet_tool_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_wallet_tool_a_SOURCES = \
   wallet/wallettool.cpp \
   $(BGL_CORE_H)
-
-# SHA3 extension library
-crypto_sha3_libBGL_crypto_sha3_a_CPPFLAGS = $(AM_CPPFLAGS)
-crypto_sha3_libBGL_crypto_sha3_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-crypto_sha3_libBGL_crypto_sha3_a_SOURCES = \
-  crypto/sha3/sha3.c \
-  crypto/sha3/sha3.h
 
 # crypto primitives library
 crypto_libBGL_crypto_base_a_CPPFLAGS = $(AM_CPPFLAGS)
@@ -601,6 +596,8 @@ libBGL_util_a_SOURCES = \
   util/strencodings.cpp \
   util/string.cpp \
   util/time.cpp \
+  util/tokenpipe.cpp \
+  util/thread.cpp \
   $(BGL_CORE_H)
 
 if USE_LIBEVENT

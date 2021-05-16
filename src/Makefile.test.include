@@ -80,6 +80,7 @@ BGL_TESTS =\
   test/bswap_tests.cpp \
   test/checkqueue_tests.cpp \
   test/coins_tests.cpp \
+  test/coinstatsindex_tests.cpp \
   test/compilerbug_tests.cpp \
   test/compress_tests.cpp \
   test/crypto_tests.cpp \
@@ -90,6 +91,7 @@ BGL_TESTS =\
   test/fs_tests.cpp \
   test/getarg_tests.cpp \
   test/hash_tests.cpp \
+  test/i2p_tests.cpp \
   test/interfaces_tests.cpp \
   test/key_io_tests.cpp \
   test/key_tests.cpp \
@@ -149,6 +151,7 @@ if ENABLE_WALLET
 BGL_TESTS += \
   wallet/test/psbt_wallet_tests.cpp \
   wallet/test/wallet_tests.cpp \
+  wallet/test/walletdb_tests.cpp \
   wallet/test/wallet_crypto_tests.cpp \
   wallet/test/coinselector_tests.cpp \
   wallet/test/init_tests.cpp \
@@ -163,6 +166,7 @@ FUZZ_SUITE_LD_COMMON +=\
 if USE_BDB
 BGL_TESTS += wallet/test/db_tests.cpp
 endif
+
 
 BGL_TEST_SUITE += \
   wallet/test/wallet_test_fixture.cpp \
