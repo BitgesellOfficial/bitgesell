@@ -364,7 +364,7 @@ $(srcdir)/qt/BGLstrings.cpp: FORCE
 
 translate: $(srcdir)/qt/BGLstrings.cpp $(QT_FORMS_UI) $(QT_FORMS_UI) $(BGL_QT_BASE_CPP) qt/BGL.cpp $(BGL_QT_WINDOWS_CPP) $(BGL_QT_WALLET_CPP) $(BGL_QT_H) $(BGL_MM)
 	@test -n $(LUPDATE) || echo "lupdate is required for updating translations"
-	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(LUPDATE) $^ -locations relative -no-obsolete -ts $(srcdir)/qt/locale/BGL_en.ts
+	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(LUPDATE) -no-obsolete -I $(srcdir) -locations relative $^ -ts $(srcdir)/qt/locale/BGL_en.ts
 	@test -n $(LCONVERT) || echo "lconvert is required for updating translations"
 	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(LCONVERT) -o $(srcdir)/qt/locale/BGL_en.xlf -i $(srcdir)/qt/locale/BGL_en.ts
 
