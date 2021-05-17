@@ -15,58 +15,13 @@ from test_framework.blocktools import (
     add_witness_commitment,
     create_block,
 )
-from test_framework.messages import (
-    BlockTransactions,
-    BlockTransactionsRequest,
-    CBlock,
-    CBlockHeader,
-    CInv,
-    COutPoint,
-    CTransaction,
-    CTxIn,
-    CTxInWitness,
-    CTxOut,
-    from_hex,
-    HeaderAndShortIDs,
-    MSG_BLOCK,
-    MSG_CMPCT_BLOCK,
-    MSG_WITNESS_FLAG,
-    NODE_NETWORK,
-    P2PHeaderAndShortIDs,
-    PrefilledTransaction,
-    calculate_shortid,
-    msg_block,
-    msg_blocktxn,
-    msg_cmpctblock,
-    msg_getblocktxn,
-    msg_getdata,
-    msg_getheaders,
-    msg_headers,
-    msg_inv,
-    msg_no_witness_block,
-    msg_no_witness_blocktxn,
-    msg_sendcmpct,
-    msg_sendheaders,
-    msg_tx,
-    ser_uint256,
-    tx_from_hex,
-)
-from test_framework.p2p import (
-    P2PInterface,
-    p2p_lock,
-)
-from test_framework.script import (
-    CScript,
-    OP_DROP,
-    OP_TRUE,
-)
+from test_framework.messages import BlockTransactions, BlockTransactionsRequest, calculate_shortid, CBlock, CBlockHeader, CInv, COutPoint, CTransaction, CTxIn, CTxInWitness, CTxOut, FromHex, HeaderAndShortIDs, msg_no_witness_block, msg_no_witness_blocktxn, msg_cmpctblock, msg_getblocktxn, msg_getdata, msg_getheaders, msg_headers, msg_inv, msg_sendcmpct, msg_sendheaders, msg_tx, msg_block, msg_blocktxn, MSG_BLOCK, MSG_CMPCT_BLOCK, MSG_WITNESS_FLAG, NODE_NETWORK, P2PHeaderAndShortIDs, PrefilledTransaction, ser_uint256, ToHex
+from test_framework.p2p import p2p_lock, P2PInterface
+from test_framework.script import CScript, OP_TRUE, OP_DROP
 from test_framework.test_framework import BGLTestFramework
-from test_framework.util import (
-    assert_equal,
-    softfork_active,
-)
+from test_framework.util import assert_equal, softfork_active
 
-# TestP2PConn: A peer we use to send messages to BGLd, and store responses.
+# TestP2PConn: A peer we use to send messages to bitcoind, and store responses.
 class TestP2PConn(P2PInterface):
     def __init__(self, cmpct_version):
         super().__init__()

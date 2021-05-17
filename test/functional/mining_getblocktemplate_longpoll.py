@@ -8,7 +8,7 @@ from decimal import Decimal
 import random
 import threading
 
-
+from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import get_rpc_proxy
 from test_framework.wallet import MiniWallet
@@ -63,7 +63,7 @@ class GetBlockTemplateLPTest(BGLTestFramework):
         assert not thr.is_alive()
 
         # Add enough mature utxos to the wallets, so that all txs spend confirmed coins
-        self.nodes[0].generate(100)
+        self.nodes[0].generate(COINBASE_MATURITY)
         self.sync_blocks()
 
         self.log.info("Test that introducing a new transaction into the mempool will terminate the longpoll")

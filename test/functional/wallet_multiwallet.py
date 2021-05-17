@@ -13,6 +13,7 @@ import shutil
 import stat
 import time
 from test_framework.authproxy import JSONRPCException
+from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.test_framework import BGLTestFramework
 from test_framework.test_node import ErrorMatch
 from test_framework.util import (
@@ -228,8 +229,8 @@ class MultiWalletTest(BGLTestFramework):
         assert_raises_rpc_error(-19, "Wallet file not specified", node.getwalletinfo)
 
         w1, w2, w3, w4, *_ = wallets
-        node.generatetoaddress(nblocks=101, address=w1.getnewaddress())
-        assert_equal(w1.getbalance(), 400)
+        node.generatetoaddress(nblocks=COINBASE_MATURITY + 1, address=w1.getnewaddress())
+        assert_equal(w1.getbalance(), 100)
         assert_equal(w2.getbalance(), 0)
         assert_equal(w3.getbalance(), 0)
         assert_equal(w4.getbalance(), 0)
