@@ -5,7 +5,15 @@
 #ifndef BGL_TEST_UTIL_NET_H
 #define BGL_TEST_UTIL_NET_H
 
+#include <compat.h>
+#include <netaddress.h>
 #include <net.h>
+#include <util/sock.h>
+
+#include <array>
+#include <cassert>
+#include <cstring>
+#include <string>
 
 struct ConnmanTestMsg : public CConnman {
     using CConnman::CConnman;
@@ -61,6 +69,15 @@ constexpr ConnectionType ALL_CONNECTION_TYPES[]{
     ConnectionType::ADDR_FETCH,
 };
 
+constexpr auto ALL_NETWORKS = std::array{
+    Network::NET_UNROUTABLE,
+    Network::NET_IPV4,
+    Network::NET_IPV6,
+    Network::NET_ONION,
+    Network::NET_I2P,
+    Network::NET_CJDNS,
+    Network::NET_INTERNAL,
+};
 
 /**
  * A mocked Sock alternative that returns a statically contained data upon read and succeeds
