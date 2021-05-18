@@ -5,9 +5,11 @@
 #include <memusage.h>
 #include <test/fuzz/FuzzedDataProvider.h>
 #include <test/fuzz/fuzz.h>
+#include <util/serfloat.h>
 #include <version.h>
 
 #include <cassert>
+#include <cstdint>
 #include <cmath>
 #include <limits>
 
@@ -18,12 +20,17 @@ FUZZ_TARGET(float)
     {
         const double d = fuzzed_data_provider.ConsumeFloatingPoint<double>();
         (void)memusage::DynamicUsage(d);
-        assert(ser_uint64_to_double(ser_double_to_uint64(d)) == d);
 
-        CDataStream stream(SER_NETWORK, INIT_PROTO_VERSION);
-        stream << d;
-        double d_deserialized;
-        stream >> d_deserialized;
-        assert(d == d_deserialized);
+        uint64_t encoded = EncodeDouble(d);
+        if constexpr (std::numeric_limits<double>::is_iec559) {
+            if (!std::isnan(d)) {
+                uint64_t encoded_in_memory;
+                std::copy((const unsigned char*)&d, (const unsigned char*)(&d + 1), (unsigned char*)&encoded_in_memory);
+                assert(encoded_in_memory == encoded);
+            }
+        }
+        double d_deserialized = DecodeDouble(encoded);
+        assert(std::isnan(d) == std::isnan(d_deserialized));
+        assert(std::isnan(d) || d == d_deserialized);
     }
 }
