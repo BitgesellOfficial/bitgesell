@@ -62,6 +62,10 @@ LIBBGL_CRYPTO_SHANI = crypto/libBGL_crypto_shani.a
 LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_SHANI)
 endif
 
+# Add SHA3 support
+LIBBGL_CRYPTO_SHA3 = crypto/sha3/libBGL_crypto_sha3.a
+LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_SHA3)
+
 $(LIBSECP256K1): $(wildcard secp256k1/src/*.h) $(wildcard secp256k1/src/*.c) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
 
@@ -393,7 +397,6 @@ endif
 libBGL_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(SQLITE_CFLAGS)
 libBGL_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_wallet_a_SOURCES = \
-  interfaces/wallet.cpp \
   wallet/coincontrol.cpp \
   wallet/context.cpp \
   wallet/crypter.cpp \
@@ -402,6 +405,7 @@ libBGL_wallet_a_SOURCES = \
   wallet/external_signer_scriptpubkeyman.cpp \
   wallet/feebumper.cpp \
   wallet/fees.cpp \
+  wallet/interfaces.cpp \
   wallet/load.cpp \
   wallet/rpcdump.cpp \
   wallet/rpcwallet.cpp \
@@ -424,6 +428,13 @@ libBGL_wallet_tool_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_wallet_tool_a_SOURCES = \
   wallet/wallettool.cpp \
   $(BGL_CORE_H)
+
+# SHA3 extension library
+crypto_sha3_libBGL_crypto_sha3_a_CPPFLAGS = $(AM_CPPFLAGS)
+crypto_sha3_libBGL_crypto_sha3_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+crypto_sha3_libBGL_crypto_sha3_a_SOURCES = \
+  crypto/sha3/sha3.c \
+  crypto/sha3/sha3.h
 
 # crypto primitives library
 crypto_libBGL_crypto_base_a_CPPFLAGS = $(AM_CPPFLAGS)
@@ -591,13 +602,13 @@ libBGL_util_a_SOURCES = \
   util/rbf.cpp \
   util/readwritefile.cpp \
   util/settings.cpp \
+  util/thread.cpp \
   util/threadnames.cpp \
   util/spanparsing.cpp \
   util/strencodings.cpp \
   util/string.cpp \
   util/time.cpp \
   util/tokenpipe.cpp \
-  util/thread.cpp \
   $(BGL_CORE_H)
 
 if USE_LIBEVENT
@@ -734,7 +745,7 @@ BGL_util_LDADD += $(BOOST_LIBS)
 # BGLconsensus library #
 if BUILD_BGL_LIBS
 include_HEADERS = script/BGLconsensus.h
-libBGLconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libBGL_crypto_base_a_SOURCES) $(libBGL_consensus_a_SOURCES)
+libBGLconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libBGL_crypto_base_a_SOURCES) $(crypto_sha3_libBGL_crypto_sha3_a_SOURCES) $(libBGL_consensus_a_SOURCES)
 
 if GLIBC_BACK_COMPAT
   libBGLconsensus_la_SOURCES += compat/glibc_compat.cpp

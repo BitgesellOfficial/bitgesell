@@ -415,7 +415,7 @@ public:
         // can be ignored by older clients for backward compatibility.
         uint256 asmap_checksum;
         if (m_asmap.size() != 0) {
-            asmap_checksum = SerializeHash(m_asmap);
+            asmap_checksum = SerializeHashSHA256(m_asmap);
         }
         s << asmap_checksum;
     }
@@ -519,7 +519,7 @@ public:
         // serialization.
         uint256 supplied_asmap_checksum;
         if (m_asmap.size() != 0) {
-            supplied_asmap_checksum = SerializeHash(m_asmap);
+            supplied_asmap_checksum = SerializeHashSHA256(m_asmap);
         }
         uint256 serialized_asmap_checksum;
         if (format >= Format::V2_ASMAP) {

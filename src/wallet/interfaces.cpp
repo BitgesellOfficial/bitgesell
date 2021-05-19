@@ -79,7 +79,7 @@ WalletTx MakeWalletTx(CWallet& wallet, const CWalletTx& wtx)
 WalletTxStatus MakeWalletTxStatus(const CWallet& wallet, const CWalletTx& wtx)
 {
     WalletTxStatus result;
-    result.block_height = locked_chain.getBlockHeight(wtx.m_confirm.hashBlock).get_value_or(std::numeric_limits<int>::max());
+    result.block_height = wtx.m_confirm.block_height > 0 ? wtx.m_confirm.block_height : std::numeric_limits<int>::max();
     result.blocks_to_maturity = wtx.GetBlocksToMaturity();
     result.depth_in_main_chain = wtx.GetDepthInMainChain();
     result.time_received = wtx.nTimeReceived;
@@ -326,14 +326,6 @@ public:
         if (mi == m_wallet->mapWallet.end()) {
             return false;
         }
-        if (Optional<int> height = locked_chain->getHeight()) {
-            num_blocks = *height;
-            block_time = locked_chain->getBlockTime(*height);
-        } else {
-            num_blocks = -1;
-            block_time = -1;
-        }
-        tx_status = MakeWalletTxStatus(*locked_chain, mi->second);
         num_blocks = m_wallet->GetLastBlockHeight();
         block_time = -1;
         CHECK_NONFATAL(m_wallet->chain().findBlock(m_wallet->GetLastBlockHash(), FoundBlock().time(block_time)));
@@ -389,7 +381,6 @@ public:
         }
         block_hash = m_wallet->GetLastBlockHash();
         balances = getBalances();
-        num_blocks = locked_chain->getHeight().get_value_or(-1);
         return true;
     }
     CAmount getBalance() override { return m_wallet->GetBalance().m_mine_trusted; }
@@ -520,7 +511,6 @@ public:
     //! ChainClient methods
     void registerRpcs() override
     {
-        g_rpc_chain = &m_chain;
         for (const CRPCCommand& command : GetWalletRPCCommands()) {
             m_rpc_commands.emplace_back(command.category, command.name, [this, &command](const JSONRPCRequest& request, UniValue& result, bool last_handler) {
                 JSONRPCRequest wallet_request = request;
@@ -535,8 +525,6 @@ public:
     void start(CScheduler& scheduler) override { return StartWallets(scheduler, *Assert(m_context.args)); }
     void flush() override { return FlushWallets(); }
     void stop() override { return StopWallets(); }
-    ~WalletClientImpl() override { UnloadWallets(); }
-
     void setMockTime(int64_t time) override { return SetMockTime(time); }
 
     //! WalletClient methods
@@ -552,7 +540,10 @@ public:
     }
     std::unique_ptr<Wallet> loadWallet(const std::string& name, bilingual_str& error, std::vector<bilingual_str>& warnings) override
     {
-        return MakeWallet(LoadWallet(*m_context.chain, name, true /* load_on_start */, error, warnings));
+        DatabaseOptions options;
+        DatabaseStatus status;
+        options.require_existing = true;
+        return MakeWallet(LoadWallet(*m_context.chain, name, true /* load_on_start */, options, status, error, warnings));
     }
     std::string getWalletDir() override
     {
