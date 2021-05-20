@@ -73,6 +73,8 @@ static const CAmount DEFAULT_FALLBACK_FEE = 0;
 static const CAmount DEFAULT_DISCARD_FEE = 10000;
 //! -mintxfee default
 static const CAmount DEFAULT_TRANSACTION_MINFEE = 1000;
+//! -consolidatefeerate default
+static const CAmount DEFAULT_CONSOLIDATE_FEERATE{10000}; // 10 sat/vbyte
 /**
  * maximum fee increase allowed to do partial spend avoidance, even for nodes with this feature disabled by default
  *
@@ -625,6 +627,14 @@ public:
      */
     CFeeRate m_fallback_fee{DEFAULT_FALLBACK_FEE};
     CFeeRate m_discard_rate{DEFAULT_DISCARD_FEE};
+
+    /** When the actual feerate is less than the consolidate feerate, we will tend to make transactions which
+     * consolidate inputs. When the actual feerate is greater than the consolidate feerate, we will tend to make
+     * transactions which have the lowest fees.
+     */
+    CFeeRate m_consolidate_feerate{DEFAULT_CONSOLIDATE_FEERATE};
+
+    /** The maximum fee amount we're willing to pay to prioritize partial spend avoidance. */
     CAmount m_max_aps_fee{DEFAULT_MAX_AVOIDPARTIALSPEND_FEE}; //!< note: this is absolute fee, not fee rate
     OutputType m_default_address_type{DEFAULT_ADDRESS_TYPE};
     /**
