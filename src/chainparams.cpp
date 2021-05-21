@@ -81,7 +81,7 @@ public:
         consensus.nPowTargetSpacing = 10 * 60;
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
-        consensus.nRuleChangeActivationThreshold = 1815; // 90% of 2016
+        consensus.nRuleChangeActivationThreshold = 1614; // 80% of 2016
         consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
@@ -95,9 +95,9 @@ public:
 
         // Deployment of Taproot (BIPs 340-342)
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].bit = 2;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = 1619222400; // April 24th, 2021
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = 1628640000; // August 11th, 2021
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 709632; // Approximately November 12th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = 1621589357; // May 21th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = 1623715200; // June 15th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 66000; // Approximately July 1st, 2021
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.

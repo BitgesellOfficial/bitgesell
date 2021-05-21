@@ -19,6 +19,7 @@ from .messages import (
     CTransaction,
     CTxOut,
     hash256,
+    keccak256,
     ser_string,
     ser_uint256,
     sha256,
@@ -666,7 +667,7 @@ def LegacySignatureHash(script, txTo, inIdx, hashtype):
     s = txtmp.serialize_without_witness()
     s += struct.pack(b"<I", hashtype)
 
-    hash = hash256(s)
+    hash = keccak256(s)
 
     return (hash, None)
 
@@ -684,22 +685,22 @@ def SegwitV0SignatureHash(script, txTo, inIdx, hashtype, amount):
         serialize_prevouts = bytes()
         for i in txTo.vin:
             serialize_prevouts += i.prevout.serialize()
-        hashPrevouts = uint256_from_str(hash256(serialize_prevouts))
+        hashPrevouts = uint256_from_str(keccak256(serialize_prevouts))
 
     if (not (hashtype & SIGHASH_ANYONECANPAY) and (hashtype & 0x1f) != SIGHASH_SINGLE and (hashtype & 0x1f) != SIGHASH_NONE):
         serialize_sequence = bytes()
         for i in txTo.vin:
             serialize_sequence += struct.pack("<I", i.nSequence)
-        hashSequence = uint256_from_str(hash256(serialize_sequence))
+        hashSequence = uint256_from_str(keccak256(serialize_sequence))
 
     if ((hashtype & 0x1f) != SIGHASH_SINGLE and (hashtype & 0x1f) != SIGHASH_NONE):
         serialize_outputs = bytes()
         for o in txTo.vout:
             serialize_outputs += o.serialize()
-        hashOutputs = uint256_from_str(hash256(serialize_outputs))
+        hashOutputs = uint256_from_str(keccak256(serialize_outputs))
     elif ((hashtype & 0x1f) == SIGHASH_SINGLE and inIdx < len(txTo.vout)):
         serialize_outputs = txTo.vout[inIdx].serialize()
-        hashOutputs = uint256_from_str(hash256(serialize_outputs))
+        hashOutputs = uint256_from_str(keccak256(serialize_outputs))
 
     ss = bytes()
     ss += struct.pack("<i", txTo.nVersion)
@@ -713,7 +714,7 @@ def SegwitV0SignatureHash(script, txTo, inIdx, hashtype, amount):
     ss += struct.pack("<i", txTo.nLockTime)
     ss += struct.pack("<I", hashtype)
 
-    return hash256(ss)
+    return keccak256(ss)
 
 class TestFrameworkScript(unittest.TestCase):
     def test_bn2vch(self):
@@ -753,12 +754,12 @@ def TaprootSignatureHash(txTo, spent_utxos, hash_type, input_index = 0, scriptpa
     ss += struct.pack("<i", txTo.nVersion)
     ss += struct.pack("<I", txTo.nLockTime)
     if in_type != SIGHASH_ANYONECANPAY:
-        ss += sha256(b"".join(i.prevout.serialize() for i in txTo.vin))
-        ss += sha256(b"".join(struct.pack("<q", u.nValue) for u in spent_utxos))
-        ss += sha256(b"".join(ser_string(u.scriptPubKey) for u in spent_utxos))
-        ss += sha256(b"".join(struct.pack("<I", i.nSequence) for i in txTo.vin))
+        ss += keccak256(b"".join(i.prevout.serialize() for i in txTo.vin))
+        ss += keccak256(b"".join(struct.pack("<q", u.nValue) for u in spent_utxos))
+        ss += keccak256(b"".join(ser_string(u.scriptPubKey) for u in spent_utxos))
+        ss += keccak256(b"".join(struct.pack("<I", i.nSequence) for i in txTo.vin))
     if out_type == SIGHASH_ALL:
-        ss += sha256(b"".join(o.serialize() for o in txTo.vout))
+        ss += keccak256(b"".join(o.serialize() for o in txTo.vout))
     spend_type = 0
     if annex is not None:
         spend_type |= 1
@@ -788,7 +789,7 @@ def TaprootSignatureHash(txTo, spent_utxos, hash_type, input_index = 0, scriptpa
 
 def taproot_tree_helper(scripts):
     if len(scripts) == 0:
-        return ([], bytes(0 for _ in range(32)))
+        return ([], bytes())
     if len(scripts) == 1:
         # One entry: treat as a leaf
         script = scripts[0]

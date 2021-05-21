@@ -658,14 +658,14 @@ class CBlockHeader:
             r += struct.pack("<i", self.nVersion)
             r += ser_uint256(self.hashPrevBlock)
             r += ser_uint256(self.hashMerkleRoot)
-            print("MERKLE ROOT:", hex(self.hashMerkleRoot))
+            #print("MERKLE ROOT:", hex(self.hashMerkleRoot))
             r += struct.pack("<I", self.nTime)
             r += struct.pack("<I", self.nBits)
             r += struct.pack("<I", self.nNonce)
-            print("DATA TO HASH:", r.hex())
+            #print("DATA TO HASH:", r.hex())
             self.sha256 = uint256_from_str(keccak256(r))
             self.hash = encode(keccak256(r)[::-1], 'hex_codec').decode('ascii')
-            print("BLOCK HASH:", hex(self.sha256))
+            #print("BLOCK HASH:", hex(self.sha256))
 
     def rehash(self):
         self.sha256 = None

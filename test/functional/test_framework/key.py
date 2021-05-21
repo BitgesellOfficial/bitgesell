@@ -12,6 +12,8 @@ import os
 import random
 import unittest
 
+import sha3
+
 from .util import modinv
 
 def TaggedHash(tag, data):
@@ -19,6 +21,11 @@ def TaggedHash(tag, data):
     ss += ss
     ss += data
     return hashlib.sha256(ss).digest()
+    #h = sha3.keccak_256()
+    #h.update(ss)
+    #h.update(ss)
+    #h.update(data)
+    #return h.digest()
 
 def jacobi_symbol(n, k):
     """Compute the Jacobi symbol of n modulo k

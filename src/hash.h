@@ -276,13 +276,13 @@ public:
 
 /** Reads data from an underlying stream, while hashing the read data. */
 template<typename Source>
-class CHashVerifier : public CHashWriterSHA256
+class CHashVerifier : public CHashWriterKeccak
 {
 private:
     Source* source;
 
 public:
-    explicit CHashVerifier(Source* source_) : CHashWriterSHA256(source_->GetType(), source_->GetVersion()), source(source_) {}
+    explicit CHashVerifier(Source* source_) : CHashWriterKeccak(source_->GetType(), source_->GetVersion()), source(source_) {}
 
     void read(char* pch, size_t nSize)
     {
