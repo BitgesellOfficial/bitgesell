@@ -311,7 +311,7 @@ class P2PInterface(P2PConnection):
 
     Individual testcases should subclass this and override the on_* methods
     if they want to alter message handling behaviour."""
-    def __init__(self, support_addrv2=False):
+    def __init__(self, support_addrv2=False, wtxidrelay=True):
         super().__init__()
 
         # Track number of messages of each type received.
@@ -538,8 +538,16 @@ class P2PInterface(P2PConnection):
         self.send_message(message)
         self.sync_with_ping(timeout=timeout)
 
-    # Sync up with the node
+    def sync_send_with_ping(self, timeout=60):
+        """Ensure SendMessages is called on this connection"""
+        # Calling sync_with_ping twice requires that the node calls
+        # `ProcessMessage` twice, and thus ensures `SendMessages` must have
+        # been called at least once
+        self.sync_with_ping()
+        self.sync_with_ping()
+
     def sync_with_ping(self, timeout=60):
+        """Ensure ProcessMessages is called on this connection"""
         self.send_message(msg_ping(nonce=self.ping_counter))
 
         def test_function():
