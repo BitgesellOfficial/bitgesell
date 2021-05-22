@@ -401,7 +401,7 @@ const fs::path& ArgsManager::GetBlocksDirPath() const
             return path;
         }
     } else {
-        path = GetDataDirPath(false);
+        path = GetDataDirBase();
     }
 
     path /= BaseParams().DataDir();
@@ -509,8 +509,8 @@ bool ArgsManager::GetSettingsPath(fs::path* filepath, bool temp) const
         return false;
     }
     if (filepath) {
-        std::string settings = GetArg("-settings", BGL_SETTINGS_FILENAME);
-        *filepath = fsbridge::AbsPathJoin(GetDataDirPath(/* net_specific= */ true), temp ? settings + ".tmp" : settings);
+        std::string settings = GetArg("-settings", BITCOIN_SETTINGS_FILENAME);
+        *filepath = fsbridge::AbsPathJoin(GetDataDirNet(), temp ? settings + ".tmp" : settings);
     }
     return true;
 }
@@ -802,7 +802,7 @@ fs::path GetDefaultDataDir()
 
 const fs::path &GetDataDir(bool fNetSpecific)
 {
-    return gArgs.GetDataDirPath(fNetSpecific);
+    return fNetSpecific ? gArgs.GetDataDirNet() : gArgs.GetDataDirBase();
 }
 
 bool CheckDataDirOption()
@@ -1350,7 +1350,7 @@ fs::path AbsPathForConfigVal(const fs::path& path, bool net_specific)
     if (path.is_absolute()) {
         return path;
     }
-    return fsbridge::AbsPathJoin(GetDataDir(net_specific), path);
+    return fsbridge::AbsPathJoin(net_specific ? gArgs.GetDataDirNet() : gArgs.GetDataDirBase(), path);
 }
 
 void ScheduleBatchPriority()
