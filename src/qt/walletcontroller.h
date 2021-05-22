@@ -148,4 +148,14 @@ private:
     void finish();
 };
 
+class LoadWalletsActivity : public WalletControllerActivity
+{
+    Q_OBJECT
+
+public:
+    LoadWalletsActivity(WalletController* wallet_controller, QWidget* parent_widget);
+
+    void load();
+};
+
 #endif // BGL_QT_WALLETCONTROLLER_H
