@@ -107,7 +107,6 @@ BGLGUI::BGLGUI(interfaces::Node& node, const PlatformStyle *_platformStyle, cons
         walletFrame = new WalletFrame(_platformStyle, this);
         connect(walletFrame, &WalletFrame::createWalletButtonClicked, [this] {
             auto activity = new CreateWalletActivity(getWalletController(), this);
-            connect(activity, &CreateWalletActivity::finished, activity, &QObject::deleteLater);
             activity->create();
         });
         connect(walletFrame, &WalletFrame::message, [this](const QString& title, const QString& message, unsigned int style) {
@@ -415,8 +414,12 @@ void BGLGUI::createActions()
 
                 connect(action, &QAction::triggered, [this, path] {
                     auto activity = new OpenWalletActivity(m_wallet_controller, this);
+<<<<<<< HEAD:src/qt/BGLgui.cpp
                     connect(activity, &OpenWalletActivity::opened, this, &BGLGUI::setCurrentWallet);
                     connect(activity, &OpenWalletActivity::finished, activity, &QObject::deleteLater);
+=======
+                    connect(activity, &OpenWalletActivity::opened, this, &BitcoinGUI::setCurrentWallet);
+>>>>>>> 4a024fc31... qt, wallet, refactor: Move connection to QObject::deleteLater to ctor:src/qt/bitcoingui.cpp
                     activity->open(path);
                 });
             }
@@ -430,8 +433,7 @@ void BGLGUI::createActions()
         });
         connect(m_create_wallet_action, &QAction::triggered, [this] {
             auto activity = new CreateWalletActivity(m_wallet_controller, this);
-            connect(activity, &CreateWalletActivity::created, this, &BGLGUI::setCurrentWallet);
-            connect(activity, &CreateWalletActivity::finished, activity, &QObject::deleteLater);
+            connect(activity, &CreateWalletActivity::created, this, &BitcoinGUI::setCurrentWallet);
             activity->create();
         });
         connect(m_close_all_wallets_action, &QAction::triggered, [this] {
