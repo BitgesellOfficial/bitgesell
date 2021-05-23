@@ -28,6 +28,8 @@ import socket
 import struct
 import time
 
+import sha3
+
 from test_framework.siphash import siphash256
 from test_framework.util import hex_str_to_bytes, assert_equal
 
@@ -65,6 +67,11 @@ FILTER_TYPE_BASIC = 0
 WITNESS_SCALE_FACTOR = 4
 
 # Serialization/deserialization tools
+def keccak256(s):
+    h = sha3.keccak_256()
+    h.update(s)
+    return h.digest()
+
 def sha256(s):
     return hashlib.new('sha256', s).digest()
 
@@ -568,14 +575,15 @@ class CTransaction:
 
     # We will only cache the serialization without witness in
     # self.sha256 and self.hash -- those are expected to be the txid.
+    # BGL uses single SHA256 for tx
     def calc_sha256(self, with_witness=False):
         if with_witness:
             # Don't cache the result, just return it
-            return uint256_from_str(hash256(self.serialize_with_witness()))
+            return uint256_from_str(sha256(self.serialize_with_witness()))
 
         if self.sha256 is None:
-            self.sha256 = uint256_from_str(hash256(self.serialize_without_witness()))
-        self.hash = hash256(self.serialize_without_witness())[::-1].hex()
+            self.sha256 = uint256_from_str(sha256(self.serialize_without_witness()))
+        self.hash = sha256(self.serialize_without_witness())[::-1].hex()
 
     def is_valid(self):
         self.calc_sha256()
@@ -650,11 +658,14 @@ class CBlockHeader:
             r += struct.pack("<i", self.nVersion)
             r += ser_uint256(self.hashPrevBlock)
             r += ser_uint256(self.hashMerkleRoot)
+            #print("MERKLE ROOT:", hex(self.hashMerkleRoot))
             r += struct.pack("<I", self.nTime)
             r += struct.pack("<I", self.nBits)
             r += struct.pack("<I", self.nNonce)
-            self.sha256 = uint256_from_str(hash256(r))
-            self.hash = encode(hash256(r)[::-1], 'hex_codec').decode('ascii')
+            #print("DATA TO HASH:", r.hex())
+            self.sha256 = uint256_from_str(keccak256(r))
+            self.hash = encode(keccak256(r)[::-1], 'hex_codec').decode('ascii')
+            #print("BLOCK HASH:", hex(self.sha256))
 
     def rehash(self):
         self.sha256 = None
@@ -1045,13 +1056,11 @@ class msg_version:
 
         self.nStartingHeight = struct.unpack("<i", f.read(4))[0]
 
-        if self.nVersion >= 70001:
-            # Relay field is optional for version 70001 onwards
-            try:
-                self.relay = struct.unpack("<b", f.read(1))[0]
-            except:
-                self.relay = 0
-        else:
+        # Relay field is optional for version 70001 onwards
+        # But, unconditionally check it to match behaviour in bitcoind
+        try:
+            self.relay = struct.unpack("<b", f.read(1))[0]
+        except struct.error:
             self.relay = 0
 
     def serialize(self):

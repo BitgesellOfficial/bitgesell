@@ -4,7 +4,7 @@
 
 # Pattern rule to print variables, e.g. make print-top_srcdir
 print-%:
-	@echo '$*' = '$($*)'
+	@echo '$*'='$($*)'
 
 DIST_SUBDIRS = secp256k1 univalue
 
@@ -78,6 +78,7 @@ EXTRA_LIBRARIES += \
   $(LIBBGL_CONSENSUS) \
   $(LIBBGL_SERVER) \
   $(LIBBGL_CLI) \
+  $(LIBBGL_IPC) \
   $(LIBBGL_WALLET) \
   $(LIBBGL_WALLET_TOOL) \
   $(LIBBGL_ZMQ)
@@ -100,6 +101,7 @@ endif
 if BUILD_BGL_CLI
   bin_PROGRAMS += BGL-cli
 endif
+
 if BUILD_BGL_TX
   bin_PROGRAMS += BGL-tx
 endif
@@ -147,6 +149,7 @@ BGL_CORE_H = \
   core_memusage.h \
   cuckoocache.h \
   dbwrapper.h \
+  external_signer.h \
   flatfile.h \
   fs.h \
   httprpc.h \
@@ -154,12 +157,17 @@ BGL_CORE_H = \
   i2p.h \
   index/base.h \
   index/blockfilterindex.h \
+  index/coinstatsindex.h \
   index/disktxpos.h \
   index/txindex.h \
   indirectmap.h \
   init.h \
+  init/common.h \
   interfaces/chain.h \
+  interfaces/echo.h \
   interfaces/handler.h \
+  interfaces/init.h \
+  interfaces/ipc.h \
   interfaces/node.h \
   interfaces/wallet.h \
   key.h \
@@ -177,6 +185,7 @@ BGL_CORE_H = \
   netaddress.h \
   netbase.h \
   netmessagemaker.h \
+  node/blockstorage.h \
   node/coin.h \
   node/coinstats.h \
   node/context.h \
@@ -185,7 +194,6 @@ BGL_CORE_H = \
   node/ui_interface.h \
   node/utxo_snapshot.h \
   noui.h \
-  optional.h \
   outputtype.h \
   policy/feerate.h \
   policy/fees.h \
@@ -201,6 +209,7 @@ BGL_CORE_H = \
   rpc/blockchain.h \
   rpc/client.h \
   rpc/mining.h \
+  rpc/net.h \
   rpc/protocol.h \
   rpc/rawtransaction_util.h \
   rpc/register.h \
@@ -241,20 +250,21 @@ BGL_CORE_H = \
   util/fees.h \
   util/getuniquepath.h \
   util/golombrice.h \
+  util/hasher.h \
   util/macros.h \
-  util/memory.h \
   util/message.h \
   util/moneystr.h \
   util/rbf.h \
   util/readwritefile.h \
-  util/ref.h \
   util/settings.h \
   util/sock.h \
   util/spanparsing.h \
   util/string.h \
   util/system.h \
+  util/thread.h \
   util/threadnames.h \
   util/time.h \
+  util/tokenpipe.h \
   util/trace.h \
   util/translation.h \
   util/ui_change_type.h \
@@ -271,12 +281,11 @@ BGL_CORE_H = \
   wallet/crypter.h \
   wallet/db.h \
   wallet/dump.h \
-  wallet/external_signer.h \
+  wallet/external_signer_scriptpubkeyman.h \
   wallet/feebumper.h \
   wallet/fees.h \
   wallet/ismine.h \
   wallet/load.h \
-  wallet/rpcsigner.h \
   wallet/rpcwallet.h \
   wallet/salvage.h \
   wallet/scriptpubkeyman.h \
@@ -300,6 +309,8 @@ obj/build.h: FORCE
 	  "$(abs_top_srcdir)"
 libBGL_util_a-clientversion.$(OBJEXT): obj/build.h
 
+ipc/capnp/libBGL_ipc_a-ipc.$(OBJEXT): $(libBGL_ipc_mpgen_input:=.h)
+
 # server: shared between BGLd and BGL-qt
 # Contains code accessing mempool and chain state that is meant to be separated
 # from wallet and gui code (see node/README.md). Shared code should go in
@@ -321,12 +332,14 @@ libBGL_server_a_SOURCES = \
   i2p.cpp \
   index/base.cpp \
   index/blockfilterindex.cpp \
+  index/coinstatsindex.cpp \
   index/txindex.cpp \
   init.cpp \
   mapport.cpp \
   miner.cpp \
   net.cpp \
   net_processing.cpp \
+  node/blockstorage.cpp \
   node/coin.cpp \
   node/coinstats.cpp \
   node/context.cpp \
@@ -384,18 +397,17 @@ endif
 libBGL_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(SQLITE_CFLAGS)
 libBGL_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_wallet_a_SOURCES = \
-  interfaces/wallet.cpp \
   wallet/coincontrol.cpp \
   wallet/context.cpp \
   wallet/crypter.cpp \
   wallet/db.cpp \
   wallet/dump.cpp \
-  wallet/external_signer.cpp \
+  wallet/external_signer_scriptpubkeyman.cpp \
   wallet/feebumper.cpp \
   wallet/fees.cpp \
+  wallet/interfaces.cpp \
   wallet/load.cpp \
   wallet/rpcdump.cpp \
-  wallet/rpcsigner.cpp \
   wallet/rpcwallet.cpp \
   wallet/scriptpubkeyman.cpp \
   wallet/wallet.cpp \
@@ -529,6 +541,8 @@ libBGL_common_a_SOURCES = \
   compressor.cpp \
   core_read.cpp \
   core_write.cpp \
+  external_signer.cpp \
+  init/common.cpp \
   key.cpp \
   key_io.cpp \
   merkleblock.cpp \
@@ -541,6 +555,7 @@ libBGL_common_a_SOURCES = \
   protocol.cpp \
   psbt.cpp \
   rpc/rawtransaction_util.cpp \
+  rpc/external_signer.cpp \
   rpc/util.cpp \
   scheduler.cpp \
   script/descriptor.cpp \
@@ -563,7 +578,9 @@ libBGL_util_a_SOURCES = \
   compat/glibcxx_sanity.cpp \
   compat/strnlen.cpp \
   fs.cpp \
+  interfaces/echo.cpp \
   interfaces/handler.cpp \
+  interfaces/init.cpp \
   logging.cpp \
   random.cpp \
   randomenv.cpp \
@@ -585,11 +602,13 @@ libBGL_util_a_SOURCES = \
   util/rbf.cpp \
   util/readwritefile.cpp \
   util/settings.cpp \
+  util/thread.cpp \
   util/threadnames.cpp \
   util/spanparsing.cpp \
   util/strencodings.cpp \
   util/string.cpp \
   util/time.cpp \
+  util/tokenpipe.cpp \
   $(BGL_CORE_H)
 
 if USE_LIBEVENT
@@ -638,17 +657,17 @@ BGL_bin_ldadd = \
 
 BGL_bin_ldadd += $(BOOST_LIBS) $(BDB_LIBS) $(MINIUPNPC_LIBS) $(NATPMP_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS) $(SQLITE_LIBS)
 
-BGLd_SOURCES = $(BGL_daemon_sources)
+BGLd_SOURCES = $(BGL_daemon_sources) init/BGLd.cpp
 BGLd_CPPFLAGS = $(BGL_bin_cppflags)
 BGLd_CXXFLAGS = $(BGL_bin_cxxflags)
 BGLd_LDFLAGS = $(BGL_bin_ldflags)
 BGLd_LDADD = $(LIBBGL_SERVER) $(BGL_bin_ldadd)
 
-BGL_node_SOURCES = $(BGL_daemon_sources)
+BGL_node_SOURCES = $(BGL_daemon_sources) init/BGL-node.cpp
 BGL_node_CPPFLAGS = $(BGL_bin_cppflags)
 BGL_node_CXXFLAGS = $(BGL_bin_cxxflags)
 BGL_node_LDFLAGS = $(BGL_bin_ldflags)
-BGL_node_LDADD = $(LIBBGL_SERVER) $(BGL_bin_ldadd)
+BGL_node_LDADD = $(LIBBGL_SERVER) $(BGL_bin_ldadd) $(LIBBGL_IPC) $(LIBMULTIPROCESS_LIBS)
 
 # BGL-cli binary #
 BGL_cli_SOURCES = BGL-cli.cpp
@@ -726,7 +745,7 @@ BGL_util_LDADD += $(BOOST_LIBS)
 # BGLconsensus library #
 if BUILD_BGL_LIBS
 include_HEADERS = script/BGLconsensus.h
-libBGLconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libBGL_crypto_base_a_SOURCES) $(libBGL_consensus_a_SOURCES)
+libBGLconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libBGL_crypto_base_a_SOURCES) $(crypto_sha3_libBGL_crypto_sha3_a_SOURCES) $(libBGL_consensus_a_SOURCES)
 
 if GLIBC_BACK_COMPAT
   libBGLconsensus_la_SOURCES += compat/glibc_compat.cpp
@@ -810,6 +829,39 @@ check-security: $(bin_PROGRAMS)
 if HARDEN
 	@echo "Checking binary security..."
 	$(AM_V_at) READELF=$(READELF) OBJDUMP=$(OBJDUMP) OTOOL=$(OTOOL) $(PYTHON) $(top_srcdir)/contrib/devtools/security-check.py $(bin_PROGRAMS)
+endif
+
+libBGL_ipc_mpgen_input = \
+  ipc/capnp/echo.capnp \
+  ipc/capnp/init.capnp
+EXTRA_DIST += $(libBGL_ipc_mpgen_input)
+%.capnp:
+
+if BUILD_MULTIPROCESS
+LIBBGL_IPC=libBGL_ipc.a
+libBGL_ipc_a_SOURCES = \
+  ipc/capnp/init-types.h \
+  ipc/capnp/protocol.cpp \
+  ipc/capnp/protocol.h \
+  ipc/exception.h \
+  ipc/interfaces.cpp \
+  ipc/process.cpp \
+  ipc/process.h \
+  ipc/protocol.h
+libBGL_ipc_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
+libBGL_ipc_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(LIBMULTIPROCESS_CFLAGS)
+
+include $(MPGEN_PREFIX)/include/mpgen.mk
+libBGL_ipc_mpgen_output = \
+  $(libBGL_ipc_mpgen_input:=.c++) \
+  $(libBGL_ipc_mpgen_input:=.h) \
+  $(libBGL_ipc_mpgen_input:=.proxy-client.c++) \
+  $(libBGL_ipc_mpgen_input:=.proxy-server.c++) \
+  $(libBGL_ipc_mpgen_input:=.proxy-types.c++) \
+  $(libBGL_ipc_mpgen_input:=.proxy-types.h) \
+  $(libBGL_ipc_mpgen_input:=.proxy.h)
+nodist_libBGL_ipc_a_SOURCES = $(libBGL_ipc_mpgen_output)
+CLEANFILES += $(libBGL_ipc_mpgen_output)
 endif
 
 if EMBEDDED_LEVELDB

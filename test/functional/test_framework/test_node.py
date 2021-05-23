@@ -64,7 +64,7 @@ class TestNode():
     To make things easier for the test writer, any unrecognised messages will
     be dispatched to the RPC connection."""
 
-    def __init__(self, i, datadir, *, chain, rpchost, timewait, BGLd, BGL_cli, coverage_dir, cwd, extra_conf=None, extra_args=None, use_cli=False, start_perf=False, use_valgrind=False, version=None, descriptors=False):
+    def __init__(self, i, datadir, *, chain, rpchost, timewait, timeout_factor, BGLd, BGL_cli, coverage_dir, cwd, extra_conf=None, extra_args=None, use_cli=False, start_perf=False, use_valgrind=False, version=None, descriptors=False):
         """
         Kwargs:
             start_perf (bool): If True, begin profiling the node with `perf` as soon as
@@ -138,18 +138,30 @@ class TestNode():
     AddressKeyPair = collections.namedtuple('AddressKeyPair', ['address', 'key'])
     PRIV_KEYS = [
             # address , privkey
-            AddressKeyPair('mjTkW3DjgyZck4KbiRusZsqTgaYTxdSz6z', 'cVpF924EspNh8KjYsfhgY96mmxvT6DgdWiTYMtMjuM74hJaU5psW'),
-            AddressKeyPair('msX6jQXvxiNhx3Q62PKeLPrhrqZQdSimTg', 'cUxsWyKyZ9MAQTaAhUQWJmBbSvHMwSmuv59KgxQV7oZQU3PXN3KE'),
-            AddressKeyPair('mnonCMyH9TmAsSj3M59DsbH8H63U3RKoFP', 'cTrh7dkEAeJd6b3MRX9bZK8eRmNqVCMH3LSUkE3dSFDyzjU38QxK'),
-            AddressKeyPair('mqJupas8Dt2uestQDvV2NH3RU8uZh2dqQR', 'cVuKKa7gbehEQvVq717hYcbE9Dqmq7KEBKqWgWrYBa2CKKrhtRim'),
-            AddressKeyPair('msYac7Rvd5ywm6pEmkjyxhbCDKqWsVeYws', 'cQDCBuKcjanpXDpCqacNSjYfxeQj8G6CAtH1Dsk3cXyqLNC4RPuh'),
-            AddressKeyPair('n2rnuUnwLgXqf9kk2kjvVm8R5BZK1yxQBi', 'cQakmfPSLSqKHyMFGwAqKHgWUiofJCagVGhiB4KCainaeCSxeyYq'),
-            AddressKeyPair('myzuPxRwsf3vvGzEuzPfK9Nf2RfwauwYe6', 'cQMpDLJwA8DBe9NcQbdoSb1BhmFxVjWD5gRyrLZCtpuF9Zi3a9RK'),
-            AddressKeyPair('mumwTaMtbxEPUswmLBBN3vM9oGRtGBrys8', 'cSXmRKXVcoouhNNVpcNKFfxsTsToY5pvB9DVsFksF1ENunTzRKsy'),
-            AddressKeyPair('mpV7aGShMkJCZgbW7F6iZgrvuPHjZjH9qg', 'cSoXt6tm3pqy43UMabY6eUTmR3eSUYFtB2iNQDGgb3VUnRsQys2k'),
-            AddressKeyPair('mq4fBNdckGtvY2mijd9am7DRsbRB4KjUkf', 'cN55daf1HotwBAgAKWVgDcoppmUNDtQSfb7XLutTLeAgVc3u8hik'),
-            AddressKeyPair('mpFAHDjX7KregM3rVotdXzQmkbwtbQEnZ6', 'cT7qK7g1wkYEMvKowd2ZrX1E5f6JQ7TM246UfqbCiyF7kZhorpX3'),
-            AddressKeyPair('mzRe8QZMfGi58KyWCse2exxEFry2sfF2Y7', 'cPiRWE8KMjTRxH1MWkPerhfoHFn5iHPWVK5aPqjW8NxmdwenFinJ'),
+            AddressKeyPair('rbgl1qqpmtreykaj2jphmyf3358sn3wudm6thfypzzut', 'cQfJgqAebdKdvotPeJZBtkL3op7MrfwdR6yN2eKRdPQ4tphZEqzm'),
+            AddressKeyPair('rbgl1qqzhun7algln9jg3734me3ch679yzu06spda08r', 'cNoStWScBGeekoZGpCYeuAnArRst6ekM1JokweTG1NJ7b8DpL3Au'),
+            AddressKeyPair('rbgl1qqrzg6ct58k9yrelek8x4cxv7ln6pmnzzx7eu9a', 'cN5diaZ67x4NcQLcBPaPAAAs4aRRUemrd3if5VqEFaYjyzyj3MdL'),
+            AddressKeyPair('rbgl1qqr57ayfhgally8lgpvryvmg3utecvn9hn5s8l6', 'cV61wkHQnamb9Cggvh92b8vBgWher3wX9dPnfzRfx91LhFvsfdvU'),
+            AddressKeyPair('rbgl1qqyn74knqr7rpmutsy9t4zzdpmy67qft54qre6t', 'cV2ZFxhaEWQmTexzkL85vRKdJU9vYiWXca9Mo6BbhfKxrzvW6xP7'),
+            AddressKeyPair('rbgl1qqymf0uykeha35u2m9kaq384xmg53rfl3t46ccx', 'cVmyzAYcHgaiRfpdPwP5T2FAD9BqJ8UFMA5MA3yJ8zJYKCj8m22L'),
+            AddressKeyPair('rbgl1qqx0ln7fjhcdrvvc6u5uwz3nu7yy0cxwuku5srq', 'cQzQnmCp1hdiFTdCjaLvjL8FqSCmRj5PBpWzC9Xi74VaXLkAXg6w'),
+            AddressKeyPair('rbgl1qqxeet9lc0k8few2lmsd547as66ysj9k00e5ajl', 'cUCaGSuH2hRccxbT86KaeHWMUEc8XHK1w5D1Vt4tFj8TMECKN8DY'),
+            AddressKeyPair('rbgl1qqfzvpn0v3mc2xr3vu5ststv6nf8asm6ek285np', 'cNFc9Gw7Htr7JMCE2JAHCBR5qsBuiUmRjJ93iMp7eBz6woUfs36p'),
+            AddressKeyPair('rbgl1qqf8r73krwpa6w2sntk3sgwseu2wjztm8cfhmss', 'cSnBhbCNPzKjhYmLcFcwxgsAYjBuFj4DBg9fvdkWUi76a8aFeDtk'),
+            AddressKeyPair('rbgl1qq25gwuf9jqdjp0vq99ydqwdgnr223mwqr6q8dn', 'cVWZwGsZ5RGWAZHHnuh9LiUWp2B9FGSn918h2c3wFaMhyvWLKjZu'),
+            AddressKeyPair('rbgl1qq27hkf2zkwkxru4smxkwrtmsyumkpw84sx2x73', 'cQsgvU18kKJgQQBvmUmHpq4hUubnQHxfbzTJR5sP7YUMDvRioq3E'),
+            #AddressKeyPair('mjTkW3DjgyZck4KbiRusZsqTgaYTxdSz6z', 'cVpF924EspNh8KjYsfhgY96mmxvT6DgdWiTYMtMjuM74hJaU5psW'),
+            #AddressKeyPair('msX6jQXvxiNhx3Q62PKeLPrhrqZQdSimTg', 'cUxsWyKyZ9MAQTaAhUQWJmBbSvHMwSmuv59KgxQV7oZQU3PXN3KE'),
+            #AddressKeyPair('mnonCMyH9TmAsSj3M59DsbH8H63U3RKoFP', 'cTrh7dkEAeJd6b3MRX9bZK8eRmNqVCMH3LSUkE3dSFDyzjU38QxK'),
+            #AddressKeyPair('mqJupas8Dt2uestQDvV2NH3RU8uZh2dqQR', 'cVuKKa7gbehEQvVq717hYcbE9Dqmq7KEBKqWgWrYBa2CKKrhtRim'),
+            #AddressKeyPair('msYac7Rvd5ywm6pEmkjyxhbCDKqWsVeYws', 'cQDCBuKcjanpXDpCqacNSjYfxeQj8G6CAtH1Dsk3cXyqLNC4RPuh'),
+            #AddressKeyPair('n2rnuUnwLgXqf9kk2kjvVm8R5BZK1yxQBi', 'cQakmfPSLSqKHyMFGwAqKHgWUiofJCagVGhiB4KCainaeCSxeyYq'),
+            #AddressKeyPair('myzuPxRwsf3vvGzEuzPfK9Nf2RfwauwYe6', 'cQMpDLJwA8DBe9NcQbdoSb1BhmFxVjWD5gRyrLZCtpuF9Zi3a9RK'),
+            #AddressKeyPair('mumwTaMtbxEPUswmLBBN3vM9oGRtGBrys8', 'cSXmRKXVcoouhNNVpcNKFfxsTsToY5pvB9DVsFksF1ENunTzRKsy'),
+            #AddressKeyPair('mpV7aGShMkJCZgbW7F6iZgrvuPHjZjH9qg', 'cSoXt6tm3pqy43UMabY6eUTmR3eSUYFtB2iNQDGgb3VUnRsQys2k'),
+            #AddressKeyPair('mq4fBNdckGtvY2mijd9am7DRsbRB4KjUkf', 'cN55daf1HotwBAgAKWVgDcoppmUNDtQSfb7XLutTLeAgVc3u8hik'),
+            #AddressKeyPair('mpFAHDjX7KregM3rVotdXzQmkbwtbQEnZ6', 'cT7qK7g1wkYEMvKowd2ZrX1E5f6JQ7TM246UfqbCiyF7kZhorpX3'),
+            #AddressKeyPair('mzRe8QZMfGi58KyWCse2exxEFry2sfF2Y7', 'cPiRWE8KMjTRxH1MWkPerhfoHFn5iHPWVK5aPqjW8NxmdwenFinJ'),
     ]
 
     def get_deterministic_priv_key(self):
@@ -674,6 +686,8 @@ class RPCOverloadWrapper():
     def __init__(self, rpc, cli=False, descriptors=False):
         self.rpc = rpc
         self.is_cli = cli
+        self.descriptors = descriptors
+
     def __getattr__(self, name):
         return getattr(self.rpc, name)
 

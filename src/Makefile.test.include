@@ -80,6 +80,7 @@ BGL_TESTS =\
   test/bswap_tests.cpp \
   test/checkqueue_tests.cpp \
   test/coins_tests.cpp \
+  test/coinstatsindex_tests.cpp \
   test/compilerbug_tests.cpp \
   test/compress_tests.cpp \
   test/crypto_tests.cpp \
@@ -90,6 +91,7 @@ BGL_TESTS =\
   test/fs_tests.cpp \
   test/getarg_tests.cpp \
   test/hash_tests.cpp \
+  test/i2p_tests.cpp \
   test/interfaces_tests.cpp \
   test/key_io_tests.cpp \
   test/key_tests.cpp \
@@ -101,6 +103,7 @@ BGL_TESTS =\
   test/merkleblock_tests.cpp \
   test/miner_tests.cpp \
   test/multisig_tests.cpp \
+  test/net_peer_eviction_tests.cpp \
   test/net_tests.cpp \
   test/netbase_tests.cpp \
   test/pmt_tests.cpp \
@@ -110,7 +113,6 @@ BGL_TESTS =\
   test/prevector_tests.cpp \
   test/raii_event_tests.cpp \
   test/random_tests.cpp \
-  test/ref_tests.cpp \
   test/reverselock_tests.cpp \
   test/rpc_tests.cpp \
   test/sanity_tests.cpp \
@@ -149,6 +151,7 @@ if ENABLE_WALLET
 BGL_TESTS += \
   wallet/test/psbt_wallet_tests.cpp \
   wallet/test/wallet_tests.cpp \
+  wallet/test/walletdb_tests.cpp \
   wallet/test/wallet_crypto_tests.cpp \
   wallet/test/coinselector_tests.cpp \
   wallet/test/init_tests.cpp \
@@ -163,6 +166,7 @@ FUZZ_SUITE_LD_COMMON +=\
 if USE_BDB
 BGL_TESTS += wallet/test/db_tests.cpp
 endif
+
 
 BGL_TEST_SUITE += \
   wallet/test/wallet_test_fixture.cpp \
@@ -237,6 +241,7 @@ test_fuzz_fuzz_SOURCES = \
  test/fuzz/golomb_rice.cpp \
  test/fuzz/hex.cpp \
  test/fuzz/http_request.cpp \
+ test/fuzz/i2p.cpp \
  test/fuzz/integer.cpp \
  test/fuzz/key.cpp \
  test/fuzz/key_io.cpp \
@@ -250,6 +255,7 @@ test_fuzz_fuzz_SOURCES = \
  test/fuzz/net.cpp \
  test/fuzz/net_permissions.cpp \
  test/fuzz/netaddress.cpp \
+ test/fuzz/netbase_dns_lookup.cpp \
  test/fuzz/node_eviction.cpp \
  test/fuzz/p2p_transport_deserializer.cpp \
  test/fuzz/parse_hd_keypath.cpp \
@@ -269,6 +275,7 @@ test_fuzz_fuzz_SOURCES = \
  test/fuzz/random.cpp \
  test/fuzz/rbf.cpp \
  test/fuzz/rolling_bloom_filter.cpp \
+ test/fuzz/rpc.cpp \
  test/fuzz/script.cpp \
  test/fuzz/script_assets_test_minimizer.cpp \
  test/fuzz/script_BGL_consensus.cpp \
@@ -294,7 +301,10 @@ test_fuzz_fuzz_SOURCES = \
  test/fuzz/transaction.cpp \
  test/fuzz/tx_in.cpp \
  test/fuzz/tx_out.cpp \
- test/fuzz/txrequest.cpp
+ test/fuzz/tx_pool.cpp \
+ test/fuzz/txrequest.cpp \
+ test/fuzz/validation_load_mempool.cpp \
+ test/fuzz/versionbits.cpp
 endif # ENABLE_FUZZ_BINARY
 
 nodist_test_test_BGL_SOURCES = $(GENERATED_TEST_FILES)

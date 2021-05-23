@@ -48,6 +48,16 @@ void CallOneOf(FuzzedDataProvider& fuzzed_data_provider, Callables... callables)
     return ((i++ == call_index ? callables() : void()), ...);
 }
 
+template <typename Collection>
+auto& PickValue(FuzzedDataProvider& fuzzed_data_provider, Collection& col)
+{
+    const auto sz = col.size();
+    assert(sz >= 1);
+    auto it = col.begin();
+    std::advance(it, fuzzed_data_provider.ConsumeIntegralInRange<decltype(sz)>(0, sz - 1));
+    return *it;
+}
+
 [[nodiscard]] inline std::vector<uint8_t> ConsumeRandomLengthByteVector(FuzzedDataProvider& fuzzed_data_provider, const size_t max_length = 4096) noexcept
 {
     const std::string s = fuzzed_data_provider.ConsumeRandomLengthString(max_length);
@@ -125,11 +135,13 @@ template <typename WeakEnumType, size_t size>
     return fuzzed_data_provider.ConsumeIntegralInRange<int64_t>(time_min, time_max);
 }
 
-[[nodiscard]] inline CScript ConsumeScript(FuzzedDataProvider& fuzzed_data_provider) noexcept
-{
-    const std::vector<uint8_t> b = ConsumeRandomLengthByteVector(fuzzed_data_provider);
-    return {b.begin(), b.end()};
-}
+[[nodiscard]] CMutableTransaction ConsumeTransaction(FuzzedDataProvider& fuzzed_data_provider, const std::optional<std::vector<uint256>>& prevout_txids, const int max_num_in = 10, const int max_num_out = 10) noexcept;
+
+[[nodiscard]] CScriptWitness ConsumeScriptWitness(FuzzedDataProvider& fuzzed_data_provider, const size_t max_stack_elem_size = 32) noexcept;
+
+[[nodiscard]] CScript ConsumeScript(FuzzedDataProvider& fuzzed_data_provider, const size_t max_length = 4096, const bool maybe_p2wsh = false) noexcept;
+
+[[nodiscard]] uint32_t ConsumeSequence(FuzzedDataProvider& fuzzed_data_provider) noexcept;
 
 [[nodiscard]] inline CScriptNum ConsumeScriptNum(FuzzedDataProvider& fuzzed_data_provider) noexcept
 {
@@ -555,118 +567,33 @@ class FuzzedSock : public Sock
 {
     FuzzedDataProvider& m_fuzzed_data_provider;
 
+    /**
+     * Data to return when `MSG_PEEK` is used as a `Recv()` flag.
+     * If `MSG_PEEK` is used, then our `Recv()` returns some random data as usual, but on the next
+     * `Recv()` call we must return the same data, thus we remember it here.
+     */
+    mutable std::optional<uint8_t> m_peek_data;
+
 public:
-    explicit FuzzedSock(FuzzedDataProvider& fuzzed_data_provider) : m_fuzzed_data_provider{fuzzed_data_provider}
-    {
-    }
+    explicit FuzzedSock(FuzzedDataProvider& fuzzed_data_provider);
 
-    ~FuzzedSock() override
-    {
-    }
+    ~FuzzedSock() override;
 
-    FuzzedSock& operator=(Sock&& other) override
-    {
-        assert(false && "Not implemented yet.");
-        return *this;
-    }
+    FuzzedSock& operator=(Sock&& other) override;
 
-    SOCKET Get() const override
-    {
-        assert(false && "Not implemented yet.");
-        return INVALID_SOCKET;
-    }
+    void Reset() override;
 
-    SOCKET Release() override
-    {
-        assert(false && "Not implemented yet.");
-        return INVALID_SOCKET;
-    }
+    ssize_t Send(const void* data, size_t len, int flags) const override;
 
-    void Reset() override
-    {
-        assert(false && "Not implemented yet.");
-    }
+    ssize_t Recv(void* buf, size_t len, int flags) const override;
 
-    ssize_t Send(const void* data, size_t len, int flags) const override
-    {
-        constexpr std::array send_errnos{
-            EACCES,
-            EAGAIN,
-            EALREADY,
-            EBADF,
-            ECONNRESET,
-            EDESTADDRREQ,
-            EFAULT,
-            EINTR,
-            EINVAL,
-            EISCONN,
-            EMSGSIZE,
-            ENOBUFS,
-            ENOMEM,
-            ENOTCONN,
-            ENOTSOCK,
-            EOPNOTSUPP,
-            EPIPE,
-            EWOULDBLOCK,
-        };
-        if (m_fuzzed_data_provider.ConsumeBool()) {
-            return len;
-        }
-        const ssize_t r = m_fuzzed_data_provider.ConsumeIntegralInRange<ssize_t>(-1, len);
-        if (r == -1) {
-            SetFuzzedErrNo(m_fuzzed_data_provider, send_errnos);
-        }
-        return r;
-    }
+    int Connect(const sockaddr*, socklen_t) const override;
 
-    ssize_t Recv(void* buf, size_t len, int flags) const override
-    {
-        constexpr std::array recv_errnos{
-            EAGAIN,
-            EBADF,
-            ECONNREFUSED,
-            EFAULT,
-            EINTR,
-            EINVAL,
-            ENOMEM,
-            ENOTCONN,
-            ENOTSOCK,
-            EWOULDBLOCK,
-        };
-        assert(buf != nullptr || len == 0);
-        if (len == 0 || m_fuzzed_data_provider.ConsumeBool()) {
-            const ssize_t r = m_fuzzed_data_provider.ConsumeBool() ? 0 : -1;
-            if (r == -1) {
-                SetFuzzedErrNo(m_fuzzed_data_provider, recv_errnos);
-            }
-            return r;
-        }
-        const std::vector<uint8_t> random_bytes = m_fuzzed_data_provider.ConsumeBytes<uint8_t>(
-            m_fuzzed_data_provider.ConsumeIntegralInRange<size_t>(0, len));
-        if (random_bytes.empty()) {
-            const ssize_t r = m_fuzzed_data_provider.ConsumeBool() ? 0 : -1;
-            if (r == -1) {
-                SetFuzzedErrNo(m_fuzzed_data_provider, recv_errnos);
-            }
-            return r;
-        }
-        std::memcpy(buf, random_bytes.data(), random_bytes.size());
-        if (m_fuzzed_data_provider.ConsumeBool()) {
-            if (len > random_bytes.size()) {
-                std::memset((char*)buf + random_bytes.size(), 0, len - random_bytes.size());
-            }
-            return len;
-        }
-        if (m_fuzzed_data_provider.ConsumeBool() && std::getenv("FUZZED_SOCKET_FAKE_LATENCY") != nullptr) {
-            std::this_thread::sleep_for(std::chrono::milliseconds{2});
-        }
-        return random_bytes.size();
-    }
+    int GetSockOpt(int level, int opt_name, void* opt_val, socklen_t* opt_len) const override;
 
-    bool Wait(std::chrono::milliseconds timeout, Event requested, Event* occurred = nullptr) const override
-    {
-        return m_fuzzed_data_provider.ConsumeBool();
-    }
+    bool Wait(std::chrono::milliseconds timeout, Event requested, Event* occurred = nullptr) const override;
+
+    bool IsConnected(std::string& errmsg) const override;
 };
 
 [[nodiscard]] inline FuzzedSock ConsumeSock(FuzzedDataProvider& fuzzed_data_provider)

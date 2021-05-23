@@ -12,6 +12,7 @@
 
 class ArgsManager;
 class BanMan;
+class CAddrMan;
 class CBlockPolicyEstimator;
 class CConnman;
 class CScheduler;
@@ -21,6 +22,7 @@ class PeerManager;
 namespace interfaces {
 class Chain;
 class ChainClient;
+class Init;
 class WalletClient;
 } // namespace interfaces
 
@@ -35,6 +37,9 @@ class WalletClient;
 //! any member functions. It should just be a collection of references that can
 //! be used without pulling in unwanted dependencies or functionality.
 struct NodeContext {
+    //! Init interface for initializing current process and connecting to other processes.
+    interfaces::Init* init{nullptr};
+    std::unique_ptr<CAddrMan> addrman;
     std::unique_ptr<CConnman> connman;
     std::unique_ptr<CTxMemPool> mempool;
     std::unique_ptr<CBlockPolicyEstimator> fee_estimator;

@@ -33,6 +33,7 @@ ExecStartPre=/bin/chgrp BGL /etc/BGL
 Type=forking
 PIDFile=/run/BGLd/BGLd.pid
 Restart=on-failure
+TimeoutStartSec=infinity
 TimeoutStopSec=600
 
 # Directory creation and permissions
