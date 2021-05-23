@@ -22,7 +22,7 @@ unpack-distrib: download-distrib
 
 distrib/boost_1_74_0.tar.gz:
 	mkdir -p distrib/
-	wget -O$@ https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.gz
+	wget -O$@ https://boostorg.jfrog.io/artifactory/main/release/1.74.0/source/boost_1_74_0.tar.gz
 
 distrib/db-4.8.30.tar.gz:
 	mkdir -p distrib/
