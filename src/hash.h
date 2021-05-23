@@ -213,60 +213,6 @@ public:
     }
 };
 
-class CHashWriterSHA256
-{
-private:
-    CHash256Single ctx;
-
-    const int nType;
-    const int nVersion;
-public:
-
-    CHashWriterSHA256(int nTypeIn, int nVersionIn) : nType(nTypeIn), nVersion(nVersionIn) {}
-
-    int GetType() const { return nType; }
-    int GetVersion() const { return nVersion; }
-
-    void write(const char *pch, size_t size) {
-        ctx.Write((const unsigned char*)pch, size);
-    }
-
-    /** Compute the double-SHA256 hash of all data written to this object.
-     *
-     * Invalidates this object.
-     */
-    uint256 GetHash() {
-        uint256 result;
-        ctx.Finalize((unsigned char*)&result);
-        return result;
-    }
-
-    /** Compute the SHA256 hash of all data written to this object.
-     *
-     * Invalidates this object.
-     */
-    //uint256 GetSHA256() {
-    //    uint256 result;
-    //    ctx.Finalize(result.begin());
-    //    return result;
-    //}
-
-    /**
-     * Returns the first 64 bits from the resulting hash.
-     */
-    inline uint64_t GetCheapHash() {
-        unsigned char result[CHash256::OUTPUT_SIZE];
-        ctx.Finalize(result);
-        return ReadLE64(result);
-    }
-
-    template<typename T>
-    CHashWriter& operator<<(const T& obj) {
-        // Serialize to this stream
-        ::Serialize(*this, obj);
-        return (*this);
-    }
-};
 
 class CHashWriterSHA256
 {
