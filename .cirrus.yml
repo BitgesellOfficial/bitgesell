@@ -8,7 +8,16 @@ env:
   CCACHE_SIZE: "200M"
   CCACHE_DIR: "/tmp/ccache_dir"
   GIT_CONFIG_FLAG: "--global"
-  GITHUB_TOKEN: ENCRYPTED[4b3398c0684d6780e8247b0bb8af32697c90e41f09f64553e63cee666f80d7afdecd4e96a10a4f44bdf5b0b14407c5a6]
+  CCACHE_NOHASHDIR: "1"  # Debug info might contain a stale path if the build dir changes, but this is fine
+
+cirrus_ephemeral_worker_template_env: &CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
+  DANGER_RUN_CI_ON_HOST: "1"  # Containers will be discarded after the run, so there is no risk that the ci scripts modify the system
+
+persistent_worker_template_env: &PERSISTENT_WORKER_TEMPLATE_ENV
+  RESTART_CI_DOCKER_BEFORE_RUN: "1"
+
+persistent_worker_template: &PERSISTENT_WORKER_TEMPLATE
+  persistent_worker: {}  # https://cirrus-ci.org/guide/persistent-workers/
 
 # https://cirrus-ci.org/guide/tips-and-tricks/#sharing-configuration-between-tasks
 base_template: &BASE_TEMPLATE
