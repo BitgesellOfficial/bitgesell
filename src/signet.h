@@ -2,14 +2,14 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_SIGNET_H
-#define BITCOIN_SIGNET_H
+#ifndef BGL_SIGNET_H
+#define BGL_SIGNET_H
 
 #include <consensus/params.h>
 #include <primitives/block.h>
 #include <primitives/transaction.h>
 
-#include <optional.h>
+#include <optional>
 
 /**
  * Extract signature and check whether a block has a valid solution
@@ -28,10 +28,10 @@ class SignetTxs {
     SignetTxs(const T1& to_spend, const T2& to_sign) : m_to_spend{to_spend}, m_to_sign{to_sign} { }
 
 public:
-    static Optional<SignetTxs> Create(const CBlock& block, const CScript& challenge);
+    static std::optional<SignetTxs> Create(const CBlock& block, const CScript& challenge);
 
     const CTransaction m_to_spend;
     const CTransaction m_to_sign;
 };
 
-#endif // BITCOIN_SIGNET_H
+#endif // BGL_SIGNET_H

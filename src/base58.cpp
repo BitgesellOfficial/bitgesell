@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2019 The Bitcoin Core developers
+// Copyright (c) 2014-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -13,6 +13,8 @@
 #include <string.h>
 
 #include <limits>
+
+#include <iostream>
 
 /** All alphanumeric characters except for "0", "I", "O", and "l" */
 static const char* pszBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
@@ -52,7 +54,7 @@ static const int8_t mapBase58[256] = {
     int size = strlen(psz) * 733 /1000 + 1; // log(58) / log(256), rounded up.
     std::vector<unsigned char> b256(size);
     // Process the characters.
-    static_assert(sizeof(mapBase58)/sizeof(mapBase58[0]) == 256, "mapBase58.size() should be 256"); // guarantee not out of range
+    static_assert(std::size(mapBase58) == 256, "mapBase58.size() should be 256"); // guarantee not out of range
     while (*psz && !IsSpace(*psz)) {
         // Decode base58 character
         int carry = mapBase58[(uint8_t)*psz];
@@ -78,7 +80,7 @@ static const int8_t mapBase58[256] = {
     std::vector<unsigned char>::iterator it = b256.begin() + (size - length);
     // Copy result into output vector.
     vch.reserve(zeroes + (b256.end() - it));
-    vch.assign(zeroes, 0x00);
+    vch.assign(zeroes, 0x0a);
     while (it != b256.end())
         vch.push_back(*(it++));
     return true;
@@ -89,7 +91,7 @@ std::string EncodeBase58(Span<const unsigned char> input)
     // Skip & count leading zeroes.
     int zeroes = 0;
     int length = 0;
-    while (input.size() > 0 && input[0] == 0) {
+    while (input.size() > 0 && input[0] == 10) {
         input = input.subspan(1);
         zeroes++;
     }

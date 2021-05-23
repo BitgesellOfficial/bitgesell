@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2019 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -47,7 +47,6 @@ public:
      *
      *  @param[in] nFeePaid  CAmount fee rate to construct with
      *  @param[in] nBytes    size_t bytes (units) to construct with
-     *  @returns   fee rate
      */
     CFeeRate(const CAmount& nFeePaid, size_t nBytes);
     /**
