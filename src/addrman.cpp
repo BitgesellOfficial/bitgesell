@@ -112,6 +112,8 @@ void CAddrMan::RemoveInvalid()
 
 CAddrInfo* CAddrMan::Find(const CNetAddr& addr, int* pnId)
 {
+    AssertLockHeld(cs);
+
     const auto it = mapAddr.find(addr);
     if (it == mapAddr.end())
         return nullptr;
@@ -125,6 +127,8 @@ CAddrInfo* CAddrMan::Find(const CNetAddr& addr, int* pnId)
 
 CAddrInfo* CAddrMan::Create(const CAddress& addr, const CNetAddr& addrSource, int* pnId)
 {
+    AssertLockHeld(cs);
+
     int nId = nIdCount++;
     mapInfo[nId] = CAddrInfo(addr, addrSource);
     mapAddr[addr] = nId;
@@ -137,6 +141,8 @@ CAddrInfo* CAddrMan::Create(const CAddress& addr, const CNetAddr& addrSource, in
 
 void CAddrMan::SwapRandom(unsigned int nRndPos1, unsigned int nRndPos2)
 {
+    AssertLockHeld(cs);
+
     if (nRndPos1 == nRndPos2)
         return;
 
@@ -157,6 +163,8 @@ void CAddrMan::SwapRandom(unsigned int nRndPos1, unsigned int nRndPos2)
 
 void CAddrMan::Delete(int nId)
 {
+    AssertLockHeld(cs);
+
     assert(mapInfo.count(nId) != 0);
     CAddrInfo& info = mapInfo[nId];
     assert(!info.fInTried);
@@ -171,6 +179,8 @@ void CAddrMan::Delete(int nId)
 
 void CAddrMan::ClearNew(int nUBucket, int nUBucketPos)
 {
+    AssertLockHeld(cs);
+
     // if there is an entry in the specified bucket, delete it.
     if (vvNew[nUBucket][nUBucketPos] != -1) {
         int nIdDelete = vvNew[nUBucket][nUBucketPos];
@@ -186,6 +196,8 @@ void CAddrMan::ClearNew(int nUBucket, int nUBucketPos)
 
 void CAddrMan::MakeTried(CAddrInfo& info, int nId)
 {
+    AssertLockHeld(cs);
+
     // remove the entry from all new buckets
     for (int bucket = 0; bucket < ADDRMAN_NEW_BUCKET_COUNT; bucket++) {
         int pos = info.GetBucketPosition(nKey, true, bucket);
@@ -234,6 +246,8 @@ void CAddrMan::MakeTried(CAddrInfo& info, int nId)
 
 void CAddrMan::Good_(const CService& addr, bool test_before_evict, int64_t nTime)
 {
+    AssertLockHeld(cs);
+
     int nId;
 
     nLastGood = nTime;
@@ -300,6 +314,8 @@ void CAddrMan::Good_(const CService& addr, bool test_before_evict, int64_t nTime
 
 bool CAddrMan::Add_(const CAddress& addr, const CNetAddr& source, int64_t nTimePenalty)
 {
+    AssertLockHeld(cs);
+
     if (!addr.IsRoutable())
         return false;
 
@@ -373,6 +389,8 @@ bool CAddrMan::Add_(const CAddress& addr, const CNetAddr& source, int64_t nTimeP
 
 void CAddrMan::Attempt_(const CService& addr, bool fCountFailure, int64_t nTime)
 {
+    AssertLockHeld(cs);
+
     CAddrInfo* pinfo = Find(addr);
 
     // if not found, bail out
@@ -395,6 +413,8 @@ void CAddrMan::Attempt_(const CService& addr, bool fCountFailure, int64_t nTime)
 
 CAddrInfo CAddrMan::Select_(bool newOnly)
 {
+    AssertLockHeld(cs);
+
     if (vRandom.empty())
         return CAddrInfo();
 
@@ -443,6 +463,8 @@ CAddrInfo CAddrMan::Select_(bool newOnly)
 #ifdef DEBUG_ADDRMAN
 int CAddrMan::Check_()
 {
+    AssertLockHeld(cs);
+
     std::unordered_set<int> setTried;
     std::unordered_map<int, int> mapNew;
 
@@ -520,6 +542,8 @@ int CAddrMan::Check_()
 
 void CAddrMan::GetAddr_(std::vector<CAddress>& vAddr, size_t max_addresses, size_t max_pct, std::optional<Network> network)
 {
+    AssertLockHeld(cs);
+
     size_t nNodes = vRandom.size();
     if (max_pct != 0) {
         nNodes = max_pct * nNodes / 100;
@@ -552,6 +576,8 @@ void CAddrMan::GetAddr_(std::vector<CAddress>& vAddr, size_t max_addresses, size
 
 void CAddrMan::Connected_(const CService& addr, int64_t nTime)
 {
+    AssertLockHeld(cs);
+
     CAddrInfo* pinfo = Find(addr);
 
     // if not found, bail out
@@ -572,6 +598,8 @@ void CAddrMan::Connected_(const CService& addr, int64_t nTime)
 
 void CAddrMan::SetServices_(const CService& addr, ServiceFlags nServices)
 {
+    AssertLockHeld(cs);
+
     CAddrInfo* pinfo = Find(addr);
 
     // if not found, bail out
@@ -590,6 +618,8 @@ void CAddrMan::SetServices_(const CService& addr, ServiceFlags nServices)
 
 void CAddrMan::ResolveCollisions_()
 {
+    AssertLockHeld(cs);
+
     for (std::set<int>::iterator it = m_tried_collisions.begin(); it != m_tried_collisions.end();) {
         int id_new = *it;
 
@@ -649,6 +679,8 @@ void CAddrMan::ResolveCollisions_()
 
 CAddrInfo CAddrMan::SelectTriedCollision_()
 {
+    AssertLockHeld(cs);
+
     if (m_tried_collisions.size() == 0) return CAddrInfo();
 
     std::set<int>::iterator it = m_tried_collisions.begin();
