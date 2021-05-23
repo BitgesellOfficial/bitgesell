@@ -11,6 +11,5 @@ export DOCKER_NAME_TAG=ubuntu:20.04
 export PACKAGES="cmake python3"
 export DEP_OPTS="MULTIPROCESS=1"
 export GOAL="install"
-export BGL_CONFIG="--enable-external-signer"
-export TEST_RUNNER_ENV="BGLD=BGL-node"
-export RUN_SECURITY_TESTS="true"
+export BITCOIN_CONFIG="--with-boost-process"
+export TEST_RUNNER_ENV="BITCOIND=bitcoin-node"
