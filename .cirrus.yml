@@ -7,16 +7,8 @@ env:
   TEST_RUNNER_PORT_MIN: "14000"  # Must be larger than 12321, which is used for the http cache. See https://cirrus-ci.org/guide/writing-tasks/#http-cache
   CCACHE_SIZE: "200M"
   CCACHE_DIR: "/tmp/ccache_dir"
-  CCACHE_NOHASHDIR: "1"  # Debug info might contain a stale path if the build dir changes, but this is fine
-
-cirrus_ephemeral_worker_template_env: &CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-  DANGER_RUN_CI_ON_HOST: "1"  # Containers will be discarded after the run, so there is no risk that the ci scripts modify the system
-
-persistent_worker_template_env: &PERSISTENT_WORKER_TEMPLATE_ENV
-  RESTART_CI_DOCKER_BEFORE_RUN: "1"
-
-persistent_worker_template: &PERSISTENT_WORKER_TEMPLATE
-  persistent_worker: {}  # https://cirrus-ci.org/guide/persistent-workers/
+  GIT_CONFIG_FLAG: "--global"
+  GITHUB_TOKEN: ENCRYPTED[4b3398c0684d6780e8247b0bb8af32697c90e41f09f64553e63cee666f80d7afdecd4e96a10a4f44bdf5b0b14407c5a6]
 
 # https://cirrus-ci.org/guide/tips-and-tricks/#sharing-configuration-between-tasks
 base_template: &BASE_TEMPLATE
@@ -25,8 +17,8 @@ base_template: &BASE_TEMPLATE
     - if [ "$CIRRUS_PR" = "" ]; then exit 0; fi
     - bash -c "$PACKAGE_MANAGER_INSTALL git"
     - git fetch $CIRRUS_REPO_CLONE_URL $CIRRUS_BASE_BRANCH
-    - git config --global user.email "ci@ci.ci"
-    - git config --global user.name "ci"
+    - git config $GIT_CONFIG_FLAG user.email "ci@ci.ci"
+    - git config $GIT_CONFIG_FLAG user.name "ci"
     - git merge FETCH_HEAD  # Merge base to detect silent merge conflicts
   stateful: false  # https://cirrus-ci.org/guide/writing-tasks/#stateful-tasks
 
@@ -170,51 +162,87 @@ task:
     # Use latest image, but hardcode version to avoid silent upgrades (and breaks)
     image: catalina-xcode-12.1  # https://cirrus-ci.org/guide/macOS
   env:
-    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-    FILE_ENV: "./ci/test/00_setup_env_native_multiprocess.sh"
-
-task:
-  name: "x86_64 Linux"
-  << : *GLOBAL_TASK_TEMPLATE
-  container:
-    image: ubuntu:bionic
-  env:
-    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-    FILE_ENV: "./ci/test/00_setup_env_native_nowallet.sh"
-
-task:
-  name: 'macOS 10.14 [gui, no tests] [focal]'
-  << : *DEPENDS_SDK_CACHE_TEMPLATE
-  << : *GLOBAL_TASK_TEMPLATE
-  container:
-    image: ubuntu:focal
-  env:
-    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-    FILE_ENV: "./ci/test/00_setup_env_mac.sh"
-
-task:
-  name: 'macOS 11 native [gui] [no depends]'
-  brew_install_script:
-    - brew update
-    - brew install boost libevent berkeley-db4 qt@5 miniupnpc libnatpmp ccache zeromq qrencode sqlite libtool automake pkg-config gnu-getopt
-  << : *GLOBAL_TASK_TEMPLATE
-  osx_instance:
-    # Use latest image, but hardcode version to avoid silent upgrades (and breaks)
-    image: big-sur-xcode-12.4  # https://cirrus-ci.org/guide/macOS
-  env:
-    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-    CI_USE_APT_INSTALL: "no"
-    PACKAGE_MANAGER_INSTALL: "echo"  # Nothing to do
     FILE_ENV: "./ci/test/00_setup_env_mac_host.sh"
+    PACKAGE_MANAGER_INSTALL: "echo" # Override earlier for merge script to work
+  dmg_artifacts:
+    path: "*.dmg"
+
+#task:
+#  name: "x86_64 Linux"
+#  << : *GLOBAL_TASK_TEMPLATE
+#  container:
+#    image: ubuntu:bionic
+#  env:
+#    FILE_ENV: "./ci/test/00_setup_env_native_nowallet.sh"
+
+#task:
+#  name: "x86_64 Linux [qt]"
+#  << : *GLOBAL_TASK_TEMPLATE
+#  container:
+#    image: ubuntu:bionic
+#  env:
+#    FILE_ENV: "./ci/test/00_setup_env_native_qt5.sh"
 
 task:
-  name: 'ARM64 Android APK [focal]'
-  << : *DEPENDS_SDK_CACHE_TEMPLATE
-  depends_sources_cache:
-    folder: "depends/sources"
-  << : *GLOBAL_TASK_TEMPLATE
-  container:
-    image: ubuntu:focal
+  name: "debian [deploy]"
+  << : *BASE_TEMPLATE
+  compute_engine_instance:
+    image_project: cirrus-images
+    image: family/docker-kvm
+    platform: linux
+    cpu: 2
+    memory: 8G
+    nested_virtualization: true
   env:
-    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-    FILE_ENV: "./ci/test/00_setup_env_android.sh"
+    GIT_CONFIG_FLAG: "--system"
+  ci_script:
+    - ./ci/debian_deploy.sh
+  deb_artifacts:
+    path: "/*.deb"
+
+task:
+  name: 'Win64 [installer]'
+  timeout_in: 120m
+  windows_container:
+    image: cirrusci/windowsservercore:2019
+    cpu: 8
+    memory: 16G
+  clone_script:
+    - choco install -y git
+    - cd c:\
+    - git clone -b %CIRRUS_BRANCH% %CIRRUS_REPO_CLONE_URL%
+  install_script: 
+    # Install Vistual Studio build tools and other prerequisites
+    - choco upgrade -y visualstudio2019-workload-vctools
+    - choco install -y python3
+  install_vcpkgs_script:
+    # Add vcpkg packages
+    - git clone https://github.com/microsoft/vcpkg
+    - .\vcpkg\bootstrap-vcpkg.bat
+    - .\vcpkg\vcpkg integrate install
+    - .\vcpkg\vcpkg install boost-process:x64-windows-static boost-variant:x64-windows-static boost-signals2:x64-windows-static boost-multi-index:x64-windows-static boost-test:x64-windows-static
+    - .\vcpkg\vcpkg install libevent:x64-windows-static sqlite3:x64-windows-static
+    - .\vcpkg\vcpkg install berkeleydb:x64-windows-static curl:x64-windows-static
+    - .\vcpkg\vcpkg install zeromq:x64-windows-static rapidcheck:x64-windows-static
+  add_qt_script:
+    # Add Qt libraries
+    - choco install -y wget
+    - wget https://github.com/sipsorcery/qt_win_binary/releases/download/qt598x64_vs2019_v1681/qt598_x64_vs2019_1681.zip
+    - mkdir c:\Qt
+    - unzip qt598_x64_vs2019_1681.zip -d c:\Qt\Qt5.9.8_x64_static_vs2019
+  build_script:
+    # Build BGL
+    - cd c:\bitgesell\build_msvc
+    - py msvc-autogen.py
+    - '"c:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\msbuild" BGL.sln'
+  prepare_installer_script:
+    # Install NSIS and prepare msi package
+    - choco install -y nsis
+    - mkdir c:\binaries_windows
+    - cp c:\bitgesell\build_msvc\x64\Debug\BGLd.exe c:\binaries_windows
+    - cp c:\bitgesell\build_msvc\x64\Debug\BGL-tx.exe c:\binaries_windows
+    - cp c:\bitgesell\build_msvc\x64\Debug\BGL-qt.exe c:\binaries_windows
+    - cp c:\bitgesell\build_msvc\x64\Debug\BGL-cli.exe c:\binaries_windows
+    - cp c:\bitgesell\build_msvc\x64\Debug\BGL-wallet.exe c:\binaries_windows
+    - cd c:\bitgesell\share
+    - '"c:\Program Files (x86)\NSIS\makensis.exe" setup-BGL-win.nsi'

@@ -82,7 +82,7 @@ bool BanMan::IsDiscouraged(const CNetAddr& net_addr)
         CBanEntry ban_entry = it.second;
 
         if (current_time < ban_entry.nBanUntil && sub_net.Match(net_addr)) {
-            return 2;
+            return true;
         }
     }
     return m_discouraged.contains(net_addr.GetAddrBytes()) ? 1 : 0;
