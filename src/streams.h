@@ -263,7 +263,7 @@ public:
     value_type* data()                               { return vch.data() + nReadPos; }
     const value_type* data() const                   { return vch.data() + nReadPos; }
 
-    void insert(iterator it, std::vector<char>::const_iterator first, std::vector<char>::const_iterator last)
+    void insert(iterator it, std::vector<uint8_t>::const_iterator first, std::vector<uint8_t>::const_iterator last)
     {
         if (last == first) return;
         assert(last - first > 0);

@@ -7,7 +7,7 @@
 #include <util/translation.h>
 #include <wallet/wallet.h>
 
-static const std::string DUMP_MAGIC = "BITCOIN_CORE_WALLET_DUMP";
+static const std::string DUMP_MAGIC = "BGL_CORE_WALLET_DUMP";
 uint32_t DUMP_VERSION = 1;
 
 bool DumpWallet(CWallet& wallet, bilingual_str& error)
@@ -32,7 +32,7 @@ bool DumpWallet(CWallet& wallet, bilingual_str& error)
         return false;
     }
 
-    CHashWriter hasher(0, 0);
+    CHashWriterKeccak hasher(0, 0);
 
     WalletDatabase& db = wallet.GetDatabase();
     std::unique_ptr<DatabaseBatch> batch = db.MakeBatch();
@@ -123,7 +123,7 @@ bool CreateFromDump(const std::string& name, const fs::path& wallet_path, biling
     fsbridge::ifstream dump_file(dump_path);
 
     // Compute the checksum
-    CHashWriter hasher(0, 0);
+    CHashWriterKeccak hasher(0, 0);
     uint256 checksum;
 
     // Check the magic and version

@@ -221,25 +221,34 @@ static void Checksum(Span<const uint8_t> addr_pubkey, uint8_t (&checksum)[CHECKS
 
 }; // namespace torv3
 
-/**
- * Parse a TOR address and set this object to it.
- *
- * @returns Whether or not the operation was successful.
- *
- * @see CNetAddr::IsTor()
- */
-bool CNetAddr::SetSpecial(const std::string& str)
+bool CNetAddr::SetSpecial(const std::string& addr)
+{
+    if (!ValidAsCString(addr)) {
+        return false;
+    }
+
+    if (SetTor(addr)) {
+        return true;
+    }
+
+    if (SetI2P(addr)) {
+        return true;
+    }
+
+    return false;
+}
+
+bool CNetAddr::SetTor(const std::string& addr)
 {
     static const char* suffix{".onion"};
     static constexpr size_t suffix_len{6};
 
-    if (!ValidAsCString(str) || str.size() <= suffix_len ||
-        str.substr(str.size() - suffix_len) != suffix) {
+    if (addr.size() <= suffix_len || addr.substr(addr.size() - suffix_len) != suffix) {
         return false;
     }
 
     bool invalid;
-    const auto& input = DecodeBase32(str.substr(0, str.size() - suffix_len).c_str(), &invalid);
+    const auto& input = DecodeBase32(addr.substr(0, addr.size() - suffix_len).c_str(), &invalid);
 
     if (invalid) {
         return false;
@@ -273,6 +282,34 @@ bool CNetAddr::SetSpecial(const std::string& str)
     }
 
     return false;
+}
+
+bool CNetAddr::SetI2P(const std::string& addr)
+{
+    // I2P addresses that we support consist of 52 base32 characters + ".b32.i2p".
+    static constexpr size_t b32_len{52};
+    static const char* suffix{".b32.i2p"};
+    static constexpr size_t suffix_len{8};
+
+    if (addr.size() != b32_len + suffix_len || ToLower(addr.substr(b32_len)) != suffix) {
+        return false;
+    }
+
+    // Remove the ".b32.i2p" suffix and pad to a multiple of 8 chars, so DecodeBase32()
+    // can decode it.
+    const std::string b32_padded = addr.substr(0, b32_len) + "====";
+
+    bool invalid;
+    const auto& address_bytes = DecodeBase32(b32_padded.c_str(), &invalid);
+
+    if (invalid || address_bytes.size() != ADDR_I2P_SIZE) {
+        return false;
+    }
+
+    m_net = NET_I2P;
+    m_addr.assign(address_bytes.begin(), address_bytes.end());
+
+    return true;
 }
 
 CNetAddr::CNetAddr(const struct in_addr& ipv4Addr)
@@ -514,6 +551,11 @@ enum Network CNetAddr::GetNetwork() const
     return m_net;
 }
 
+static std::string IPv4ToString(Span<const uint8_t> a)
+{
+    return strprintf("%u.%u.%u.%u", a[0], a[1], a[2], a[3]);
+}
+
 static std::string IPv6ToString(Span<const uint8_t> a)
 {
     assert(a.size() == ADDR_IPV6_SIZE);
@@ -534,6 +576,7 @@ std::string CNetAddr::ToStringIP() const
 {
     switch (m_net) {
     case NET_IPV4:
+        return IPv4ToString(m_addr);
     case NET_IPV6: {
         CService serv(*this, 0);
         struct sockaddr_storage sockaddr;
@@ -543,9 +586,6 @@ std::string CNetAddr::ToStringIP() const
             if (!getnameinfo((const struct sockaddr*)&sockaddr, socklen, name,
                              sizeof(name), nullptr, 0, NI_NUMERICHOST))
                 return std::string(name);
-        }
-        if (m_net == NET_IPV4) {
-            return strprintf("%u.%u.%u.%u", m_addr[0], m_addr[1], m_addr[2], m_addr[3]);
         }
         return IPv6ToString(m_addr);
     }
@@ -840,6 +880,11 @@ int CNetAddr::GetReachabilityFrom(const CNetAddr *paddrPartner) const
         default:         return REACH_DEFAULT;
         case NET_IPV4:   return REACH_IPV4; // Tor users can connect to IPv4 as well
         case NET_ONION:    return REACH_PRIVATE;
+        }
+    case NET_I2P:
+        switch (ourNet) {
+        case NET_I2P: return REACH_PRIVATE;
+        default: return REACH_DEFAULT;
         }
     case NET_TEREDO:
         switch(ourNet) {

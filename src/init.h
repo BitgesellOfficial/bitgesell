@@ -6,8 +6,14 @@
 #ifndef BGL_INIT_H
 #define BGL_INIT_H
 
+#include <any>
 #include <memory>
 #include <string>
+
+//! Default value for -daemon option
+static constexpr bool DEFAULT_DAEMON = false;
+//! Default value for -daemonwait option
+static constexpr bool DEFAULT_DAEMONWAIT = false;
 
 class ArgsManager;
 struct NodeContext;
@@ -17,9 +23,6 @@ struct BlockAndHeaderTipInfo;
 namespace boost {
 class thread_group;
 } // namespace boost
-namespace util {
-class Ref;
-} // namespace util
 
 /** Interrupt threads */
 void Interrupt(NodeContext& node);
@@ -29,7 +32,7 @@ void InitLogging(const ArgsManager& args);
 //!Parameter interaction: change current parameters depending on various rules
 void InitParameterInteraction(ArgsManager& args);
 
-/** Initialize BGL core: Basic context setup.
+/** Initialize bitcoin core: Basic context setup.
  *  @note This can be done before daemonization. Do not call Shutdown() if this function fails.
  *  @pre Parameters should be parsed and config file should be read.
  */
@@ -47,22 +50,21 @@ bool AppInitParameterInteraction(const ArgsManager& args);
  */
 bool AppInitSanityChecks();
 /**
- * Lock BGL core data directory.
+ * Lock bitcoin core data directory.
  * @note This should only be done after daemonization. Do not call Shutdown() if this function fails.
  * @pre Parameters should be parsed and config file should be read, AppInitSanityChecks should have been called.
  */
 bool AppInitLockDataDirectory();
 /**
-
  * Initialize node and wallet interface pointers. Has no prerequisites or side effects besides allocating memory.
  */
 bool AppInitInterfaces(NodeContext& node);
 /**
- * BGL core main initialization.
+ * Bitcoin core main initialization.
  * @note This should only be done after daemonization. Call Shutdown() if this function fails.
  * @pre Parameters should be parsed and config file should be read, AppInitLockDataDirectory should have been called.
  */
-bool AppInitMain(const util::Ref& context, NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info = nullptr);
+bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info = nullptr);
 
 /**
  * Register all arguments with the ArgsManager

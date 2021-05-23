@@ -24,7 +24,6 @@ MAX_BIP125_RBF_SEQUENCE = 0xfffffffd
 class PSBTTest(BGLTestFramework):
 
     def set_test_params(self):
-        self.setup_clean_chain = False
         self.num_nodes = 3
         self.extra_args = [
             ["-walletrbf=1"],
@@ -160,17 +159,17 @@ class PSBTTest(BGLTestFramework):
         p2sh_p2wpkh_pos = -1
         decoded = self.nodes[0].decoderawtransaction(signed_tx)
         for out in decoded['vout']:
-            if out['scriptPubKey']['addresses'][0] == p2sh:
+            if out['scriptPubKey']['address'] == p2sh:
                 p2sh_pos = out['n']
-            elif out['scriptPubKey']['addresses'][0] == p2wsh:
+            elif out['scriptPubKey']['address'] == p2wsh:
                 p2wsh_pos = out['n']
-            elif out['scriptPubKey']['addresses'][0] == p2wpkh:
+            elif out['scriptPubKey']['address'] == p2wpkh:
                 p2wpkh_pos = out['n']
-            elif out['scriptPubKey']['addresses'][0] == p2sh_p2wsh:
+            elif out['scriptPubKey']['address'] == p2sh_p2wsh:
                 p2sh_p2wsh_pos = out['n']
-            elif out['scriptPubKey']['addresses'][0] == p2sh_p2wpkh:
+            elif out['scriptPubKey']['address'] == p2sh_p2wpkh:
                 p2sh_p2wpkh_pos = out['n']
-            elif out['scriptPubKey']['addresses'][0] == p2pkh:
+            elif out['scriptPubKey']['address'] == p2pkh:
                 p2pkh_pos = out['n']
 
         # spend single key from node 1

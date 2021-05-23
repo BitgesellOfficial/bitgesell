@@ -41,6 +41,7 @@
 #include <QGuiApplication>
 #include <QJsonObject>
 #include <QKeyEvent>
+#include <QLatin1String>
 #include <QLineEdit>
 #include <QList>
 #include <QLocale>
@@ -53,10 +54,13 @@
 #include <QShortcut>
 #include <QSize>
 #include <QString>
+#include <QStringBuilder>
 #include <QTextDocument> // for Qt::mightBeRichText
 #include <QThread>
 #include <QUrlQuery>
 #include <QtGlobal>
+
+#include <chrono>
 
 #if defined(Q_OS_MAC)
 
@@ -77,8 +81,11 @@ QString dateTimeStr(qint64 nTime)
     return dateTimeStr(QDateTime::fromTime_t((qint32)nTime));
 }
 
-QFont fixedPitchFont()
+QFont fixedPitchFont(bool use_embedded_font)
 {
+    if (use_embedded_font) {
+        return {"Roboto Mono"};
+    }
     return QFontDatabase::systemFont(QFontDatabase::FixedFont);
 }
 
@@ -622,8 +629,11 @@ bool SetStartOnSystemStartup(bool fAutoStart) { return false; }
 
 void setClipboard(const QString& str)
 {
-    QApplication::clipboard()->setText(str, QClipboard::Clipboard);
-    QApplication::clipboard()->setText(str, QClipboard::Selection);
+    QClipboard* clipboard = QApplication::clipboard();
+    clipboard->setText(str, QClipboard::Clipboard);
+    if (clipboard->supportsSelection()) {
+        clipboard->setText(str, QClipboard::Selection);
+    }
 }
 
 fs::path qstringToBoostPath(const QString &path)
@@ -651,15 +661,19 @@ QString NetworkToQString(Network net)
     assert(false);
 }
 
-QString ConnectionTypeToQString(ConnectionType conn_type)
+QString ConnectionTypeToQString(ConnectionType conn_type, bool prepend_direction)
 {
+    QString prefix;
+    if (prepend_direction) {
+        prefix = (conn_type == ConnectionType::INBOUND) ? QObject::tr("Inbound") : QObject::tr("Outbound") + " ";
+    }
     switch (conn_type) {
-    case ConnectionType::INBOUND: return QObject::tr("Inbound");
-    case ConnectionType::OUTBOUND_FULL_RELAY: return QObject::tr("Outbound Full Relay");
-    case ConnectionType::BLOCK_RELAY: return QObject::tr("Outbound Block Relay");
-    case ConnectionType::MANUAL: return QObject::tr("Outbound Manual");
-    case ConnectionType::FEELER: return QObject::tr("Outbound Feeler");
-    case ConnectionType::ADDR_FETCH: return QObject::tr("Outbound Address Fetch");
+    case ConnectionType::INBOUND: return prefix;
+    case ConnectionType::OUTBOUND_FULL_RELAY: return prefix + QObject::tr("Full Relay");
+    case ConnectionType::BLOCK_RELAY: return prefix + QObject::tr("Block Relay");
+    case ConnectionType::MANUAL: return prefix + QObject::tr("Manual");
+    case ConnectionType::FEELER: return prefix + QObject::tr("Feeler");
+    case ConnectionType::ADDR_FETCH: return prefix + QObject::tr("Address Fetch");
     } // no default case, so the compiler can warn about missing cases
     assert(false);
 }
@@ -673,13 +687,13 @@ QString formatDurationStr(int secs)
     int seconds = secs % 60;
 
     if (days)
-        strList.append(QString(QObject::tr("%1 d")).arg(days));
+        strList.append(QObject::tr("%1 d").arg(days));
     if (hours)
-        strList.append(QString(QObject::tr("%1 h")).arg(hours));
+        strList.append(QObject::tr("%1 h").arg(hours));
     if (mins)
-        strList.append(QString(QObject::tr("%1 m")).arg(mins));
+        strList.append(QObject::tr("%1 m").arg(mins));
     if (seconds || (!days && !hours && !mins))
-        strList.append(QString(QObject::tr("%1 s")).arg(seconds));
+        strList.append(QObject::tr("%1 s").arg(seconds));
 
     return strList.join(" ");
 }
@@ -698,14 +712,16 @@ QString formatServicesStr(quint64 mask)
         return QObject::tr("None");
 }
 
-QString formatPingTime(int64_t ping_usec)
+QString formatPingTime(std::chrono::microseconds ping_time)
 {
-    return (ping_usec == std::numeric_limits<int64_t>::max() || ping_usec == 0) ? QObject::tr("N/A") : QString(QObject::tr("%1 ms")).arg(QString::number((int)(ping_usec / 1000), 10));
+    return (ping_time == std::chrono::microseconds::max() || ping_time == 0us) ?
+        QObject::tr("N/A") :
+        QObject::tr("%1 ms").arg(QString::number((int)(count_microseconds(ping_time) / 1000), 10));
 }
 
 QString formatTimeOffset(int64_t nTimeOffset)
 {
-  return QString(QObject::tr("%1 s")).arg(QString::number((int)nTimeOffset, 10));
+  return QObject::tr("%1 s").arg(QString::number((int)nTimeOffset, 10));
 }
 
 QString formatNiceTimeOffset(qint64 secs)
@@ -747,14 +763,14 @@ QString formatNiceTimeOffset(qint64 secs)
 
 QString formatBytes(uint64_t bytes)
 {
-    if(bytes < 1024)
-        return QString(QObject::tr("%1 B")).arg(bytes);
-    if(bytes < 1024 * 1024)
-        return QString(QObject::tr("%1 KB")).arg(bytes / 1024);
-    if(bytes < 1024 * 1024 * 1024)
-        return QString(QObject::tr("%1 MB")).arg(bytes / 1024 / 1024);
+    if (bytes < 1'000)
+        return QObject::tr("%1 B").arg(bytes);
+    if (bytes < 1'000'000)
+        return QObject::tr("%1 kB").arg(bytes / 1'000);
+    if (bytes < 1'000'000'000)
+        return QObject::tr("%1 MB").arg(bytes / 1'000'000);
 
-    return QString(QObject::tr("%1 GB")).arg(bytes / 1024 / 1024 / 1024);
+    return QObject::tr("%1 GB").arg(bytes / 1'000'000'000);
 }
 
 qreal calculateIdealFontSize(int width, const QString& text, QFont font, qreal minPointSize, qreal font_size) {
@@ -848,6 +864,55 @@ void PopupMenu(QMenu* menu, const QPoint& point, QAction* at_action)
     // The qminimal plugin does not provide window system integration.
     if (QApplication::platformName() == "minimal") return;
     menu->popup(point, at_action);
+}
+
+QDateTime StartOfDay(const QDate& date)
+{
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+    return date.startOfDay();
+#else
+    return QDateTime(date);
+#endif
+}
+
+bool HasPixmap(const QLabel* label)
+{
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+    return !label->pixmap(Qt::ReturnByValue).isNull();
+#else
+    return label->pixmap() != nullptr;
+#endif
+}
+
+QImage GetImage(const QLabel* label)
+{
+    if (!HasPixmap(label)) {
+        return QImage();
+    }
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+    return label->pixmap(Qt::ReturnByValue).toImage();
+#else
+    return label->pixmap()->toImage();
+#endif
+}
+
+QString MakeHtmlLink(const QString& source, const QString& link)
+{
+    return QString(source).replace(
+        link,
+        QLatin1String("<a href=\"") % link % QLatin1String("\">") % link % QLatin1String("</a>"));
+}
+
+void PrintSlotException(
+    const std::exception* exception,
+    const QObject* sender,
+    const QObject* receiver)
+{
+    std::string description = sender->metaObject()->className();
+    description += "->";
+    description += receiver->metaObject()->className();
+    PrintExceptionContinue(exception, description.c_str());
 }
 
 } // namespace GUIUtil

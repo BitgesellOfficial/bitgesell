@@ -53,6 +53,9 @@ private:
     Ui::ReceiveCoinsDialog *ui;
     WalletModel *model;
     QMenu *contextMenu;
+    QAction* copyLabelAction;
+    QAction* copyMessageAction;
+    QAction* copyAmountAction;
     const PlatformStyle *platformStyle;
 
     QModelIndex selectedRow();
@@ -67,6 +70,7 @@ private Q_SLOTS:
     void updateDisplayUnit();
     void showMenu(const QPoint &point);
     void copyURI();
+    void copyAddress();
     void copyLabel();
     void copyMessage();
     void copyAmount();

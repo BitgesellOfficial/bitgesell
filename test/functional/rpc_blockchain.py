@@ -22,6 +22,7 @@ from decimal import Decimal
 import http.client
 import subprocess
 
+from test_framework.address import ADDRESS_BCRT1_P2WSH_OP_TRUE
 from test_framework.blocktools import (
     create_block,
     create_coinbase,
@@ -67,11 +68,10 @@ class BlockchainTest(BGLTestFramework):
 
     def mine_chain(self):
         self.log.info('Create some old blocks')
-        address = self.nodes[0].get_deterministic_priv_key().address
         for t in range(TIME_GENESIS_BLOCK, TIME_GENESIS_BLOCK + 200 * 600, 600):
             # ten-minute steps from genesis block time
             self.nodes[0].setmocktime(t)
-            self.nodes[0].generatetoaddress(1, address)
+            self.nodes[0].generatetoaddress(1, ADDRESS_BCRT1_P2WSH_OP_TRUE)
         assert_equal(self.nodes[0].getblockchaininfo()['blocks'], 200)
 
     def _test_getblockchaininfo(self):
@@ -145,6 +145,7 @@ class BlockchainTest(BGLTestFramework):
                         'count': 57,
                         'possible': True,
                     },
+                    'min_activation_height': 0,
                 },
                 'active': False
             },
@@ -154,7 +155,8 @@ class BlockchainTest(BGLTestFramework):
                     'status': 'active',
                     'start_time': -1,
                     'timeout': 9223372036854775807,
-                    'since': 0
+                    'since': 0,
+                    'min_activation_height': 0,
                 },
                 'height': 0,
                 'active': True
@@ -223,7 +225,7 @@ class BlockchainTest(BGLTestFramework):
         assert_equal(res['transactions'], 200)
         assert_equal(res['height'], 200)
         assert_equal(res['txouts'], 200)
-        assert_equal(res['bogosize'], 15000),
+        assert_equal(res['bogosize'], 16800),
         assert_equal(res['bestblock'], node.getblockhash(200))
         size = res['disk_size']
         assert size > 6400
@@ -328,12 +330,12 @@ class BlockchainTest(BGLTestFramework):
 
     def _test_stopatheight(self):
         assert_equal(self.nodes[0].getblockcount(), 200)
-        self.nodes[0].generatetoaddress(6, self.nodes[0].get_deterministic_priv_key().address)
+        self.nodes[0].generatetoaddress(6, ADDRESS_BCRT1_P2WSH_OP_TRUE)
         assert_equal(self.nodes[0].getblockcount(), 206)
         self.log.debug('Node should not stop at this height')
         assert_raises(subprocess.TimeoutExpired, lambda: self.nodes[0].process.wait(timeout=3))
         try:
-            self.nodes[0].generatetoaddress(1, self.nodes[0].get_deterministic_priv_key().address)
+            self.nodes[0].generatetoaddress(1, ADDRESS_BCRT1_P2WSH_OP_TRUE)
         except (ConnectionError, http.client.BadStatusLine):
             pass  # The node already shut down before response
         self.log.debug('Node should stop at this height...')
@@ -383,8 +385,7 @@ class BlockchainTest(BGLTestFramework):
         node = self.nodes[0]
 
         miniwallet = MiniWallet(node)
-        miniwallet.generate(5)
-        node.generate(100)
+        miniwallet.scan_blocks(num=5)
 
         fee_per_byte = Decimal('0.00000010')
         fee_per_kb = 1000 * fee_per_byte
@@ -404,6 +405,9 @@ class BlockchainTest(BGLTestFramework):
 
         self.log.info("Test that getblock with verbosity 2 still works with pruned Undo data")
         datadir = get_datadir_path(self.options.tmpdir, 0)
+
+        self.log.info("Test that getblock with invalid verbosity type returns proper error message")
+        assert_raises_rpc_error(-1, "JSON value is not an integer as expected", node.getblock, blockhash, "2")
 
         def move_block_file(old, new):
             old_path = os.path.join(datadir, self.chain, 'blocks', old)

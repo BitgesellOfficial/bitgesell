@@ -13,7 +13,7 @@
 namespace WalletTool {
 
 // The standard wallet deleter function blocks on the validation interface
-// queue, which doesn't exist for the BGL-wallet. Define our own
+// queue, which doesn't exist for the bitcoin-wallet. Define our own
 // deleter here.
 static void WalletToolReleaseWallet(CWallet* wallet)
 {
@@ -22,30 +22,27 @@ static void WalletToolReleaseWallet(CWallet* wallet)
     delete wallet;
 }
 
-static void WalletCreate(CWallet* wallet_instance)
+static void WalletCreate(CWallet* wallet_instance, uint64_t wallet_creation_flags)
 {
     LOCK(wallet_instance->cs_wallet);
 
     wallet_instance->SetMinVersion(FEATURE_HD_SPLIT);
+    wallet_instance->AddWalletFlags(wallet_creation_flags);
 
-    // generate a new HD seed
-    auto spk_man = wallet_instance->GetOrCreateLegacyScriptPubKeyMan();
-    CPubKey seed = spk_man->GenerateNewSeed();
-    spk_man->SetHDSeed(seed);
+    if (!wallet_instance->IsWalletFlagSet(WALLET_FLAG_DESCRIPTORS)) {
+        auto spk_man = wallet_instance->GetOrCreateLegacyScriptPubKeyMan();
+        spk_man->SetupGeneration(false);
+    } else {
+        wallet_instance->SetupDescriptorScriptPubKeyMans();
+    }
 
     tfm::format(std::cout, "Topping up keypool...\n");
     wallet_instance->TopUpKeyPool();
 }
 
-static std::shared_ptr<CWallet> MakeWallet(const std::string& name, const fs::path& path, bool create)
+static std::shared_ptr<CWallet> MakeWallet(const std::string& name, const fs::path& path, DatabaseOptions options)
 {
-    DatabaseOptions options;
     DatabaseStatus status;
-    if (create) {
-        options.require_create = true;
-    } else {
-        options.require_existing = true;
-    }
     bilingual_str error;
     std::unique_ptr<WalletDatabase> database = MakeDatabase(path, options, status, error);
     if (!database) {
@@ -86,7 +83,7 @@ static std::shared_ptr<CWallet> MakeWallet(const std::string& name, const fs::pa
         }
     }
 
-    if (create) WalletCreate(wallet_instance.get());
+    if (options.require_create) WalletCreate(wallet_instance.get(), options.create_flags);
 
     return wallet_instance;
 }
@@ -176,7 +173,7 @@ bool ExecuteWalletToolFunc(const ArgsManager& args, const std::string& command)
             tfm::format(std::cerr, "%s\n", error.original);
             return ret;
         }
-        tfm::format(std::cout, "The dumpfile may contain private keys. To ensure the safety of your BGL, do not share the dumpfile.\n");
+        tfm::format(std::cout, "The dumpfile may contain private keys. To ensure the safety of your Bitcoin, do not share the dumpfile.\n");
         return ret;
     } else if (command == "createfromdump") {
         bilingual_str error;

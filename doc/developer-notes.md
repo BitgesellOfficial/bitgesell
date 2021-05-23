@@ -595,11 +595,6 @@ Common misconceptions are clarified in those sections:
 
   - *Rationale*: This avoids memory and resource leaks, and ensures exception safety.
 
-- Use `MakeUnique()` to construct objects owned by `unique_ptr`s.
-
-  - *Rationale*: `MakeUnique` is concise and ensures exception safety in complex expressions.
-    `MakeUnique` is a temporary project local implementation of `std::make_unique` (C++14).
-
 C++ data structures
 --------------------
 
@@ -785,6 +780,11 @@ Threads and synchronization
   get compile-time warnings about potential race conditions in code. Combine annotations in function declarations with
   run-time asserts in function definitions:
 
+  - In functions that are declared separately from where they are defined, the
+    thread safety annotations should be added exclusively to the function
+    declaration. Annotations on the definition could lead to false positives
+    (lack of compile failure) at call sites between the two.
+
 ```C++
 // txmempool.h
 class CTxMemPool
@@ -812,7 +812,7 @@ class ChainstateManager
 {
 public:
     ...
-    bool ProcessNewBlock(...) EXCLUSIVE_LOCKS_REQUIRED(!::cs_main);
+    bool ProcessNewBlock(...) LOCKS_EXCLUDED(::cs_main);
     ...
 }
 

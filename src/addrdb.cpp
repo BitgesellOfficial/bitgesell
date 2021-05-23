@@ -23,7 +23,7 @@ bool SerializeDB(Stream& stream, const Data& data)
 {
     // Write and commit header, data
     try {
-        CHashWriter hasher(SER_DISK, CLIENT_VERSION);
+        CHashWriterKeccak hasher(SER_DISK, CLIENT_VERSION);
         stream << Params().MessageStart() << data;
         hasher << Params().MessageStart() << data;
         stream << hasher.GetHash();
@@ -109,15 +109,15 @@ template <typename Data>
 bool DeserializeFileDB(const fs::path& path, Data& data)
 {
     // open input file, and associate with CAutoFile
-    FILE *file = fsbridge::fopen(path, "rb");
+    FILE* file = fsbridge::fopen(path, "rb");
     CAutoFile filein(file, SER_DISK, CLIENT_VERSION);
-    if (filein.IsNull())
-        return error("%s: Failed to open file %s", __func__, path.string());
-
+    if (filein.IsNull()) {
+        LogPrintf("Missing or invalid file %s\n", path.string());
+        return false;
+    }
     return DeserializeDB(filein, data);
 }
-
-}
+} // namespace
 
 CBanDB::CBanDB(fs::path ban_list_path) : m_ban_list_path(std::move(ban_list_path))
 {

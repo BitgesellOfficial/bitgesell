@@ -828,7 +828,7 @@ cr 2020-03-15 17:25:29 7726f3bc4671fbc23e5bc31d0eb9fe381e2f07ef tests: Add fuzzi
 cr 2020-03-15 17:25:29 d69145acb76ff12b7c5c1e55ce89e14bc6453904 tests: Add fuzzing harness for MultiplicationOverflow(...)
 cr 2020-03-15 17:34:27 e4d366788bc2e8dce8e6ca572fce08d913d15d6b build: Drop needless EXTRA_DIST content
 v  2020-03-15 23:43:39 686c5456f2fcf7e301907223d16a85f7eb378c6c Fix missing header in sync.h
-cr 2020-03-16 10:08:07 ddbb41931019ed4226af3df37874c7eb7cf570f1 build: Use pkg-config in BITCOIN_QT_CONFIGURE for all hosts
+cr 2020-03-16 10:08:07 ddbb41931019ed4226af3df37874c7eb7cf570f1 build: Use pkg-config in BGL_QT_CONFIGURE for all hosts
 cr 2020-03-16 10:09:22 05a93d5d96101b45d87571af5b772c7a1e82fd27 build: Fix indentation in bitcoin_qt.m4
 cr 2020-03-16 10:09:22 9123ec15db104397998f5084afc69403d2f9e4b8 build: Remove extra tokens warning
 v  2020-03-16 10:09:22 fded4f48c33742d7c790335c8de59c15b80d94e6 build: Remove duplicated QT_STATICPLUGIN define
@@ -928,7 +928,7 @@ pr 2020-03-25 08:40:54 5b4a9f4bdf9d90f29921425e13e50a0076edffab Merge #18342: do
 v  2020-03-25 09:06:48 332f373a9dece71717f75eb06e6a1fc957f2952b [scripts] previous_release: improve failed download error message
 v  2020-03-25 11:45:43 fa156999695ddaeb016d8320bee62f8d96679d55 test: Add basic test for BIP 37
 pr 2020-03-25 12:35:03 3f5107d008e15efa364c53bd3ed4e819cd2c6712 Merge #18423: tests: Add fuzzing harness for classes/functions in blockfilter.h. Add integer {de,}serialization fuzzing.
-cr 2020-03-25 13:33:44 1f97b69ba27deb645bf5dd229d0cb97d2baf8f49 build: remove double LIBBITCOIN_SERVER from bench-Makefile
+cr 2020-03-25 13:33:44 1f97b69ba27deb645bf5dd229d0cb97d2baf8f49 build: remove double LIBBGL_SERVER from bench-Makefile
 pr 2020-03-25 14:48:44 baa72cd9a2fd1c7213f726e5354f87591ddd895f Merge #18331: build: Use git archive as source tarball
 pr 2020-03-25 15:11:10 244e88e6b580f94434d16b2cea2e5690db24f0d4 Merge #18402: gui: display mapped AS in peers info window
 pr 2020-03-25 15:35:36 3e50fdbe4e5bb98194e88023468bd77dee78b26e Merge #18395: scripts: add PE dylib checking to symbol-check.py
@@ -940,7 +940,7 @@ v  2020-03-26 04:39:34 1a4e9f32efcc5f6a74290446dc58784fd85c7b31 scripts: add MAC
 pr 2020-03-26 04:39:34 7142d50ac33e0ad7d24e49e04c1fc7e3e769ed46 scripts: rename test_64bit_PE to test_PE
 v  2020-03-26 04:39:34 edaca2dd123cef958699c07ab248cf0ffc71af07 scripts: add MACHO NX check to security-check.py
 pr 2020-03-26 09:22:24 d8ce27ff9f806efaf95cb4aeb11b9d5a3f106e88 Merge #18397: build: Fix libevent linking for bench_bitcoin binary
-pr 2020-03-26 10:20:28 e99ca783cd2d064734dfe7920bcfa438355b5aab Merge #18429: build: remove double LIBBITCOIN_SERVER from bench-Makefile
+pr 2020-03-26 10:20:28 e99ca783cd2d064734dfe7920bcfa438355b5aab Merge #18429: build: remove double LIBBGL_SERVER from bench-Makefile
 v  2020-03-26 13:56:43 596c627a1eb2b32e2755ae5b9bf32235cf8ce72b ci: Fix brew in Travis
 v  2020-03-26 13:57:14 25c8b73656c90f7b78a90f25c5bcc308f8b7c598 ci: Use Homebrew addon on native macOS
 pr 2020-03-26 14:10:31 f3a91ab0edc70e1bcb7e770f0878f03459c399e1 Merge #18438: ci: Use Homebrew addon on native macOS
@@ -2187,7 +2187,7 @@ pr 2020-06-12 19:48:20 +0100 5af16a4db76f8c00b6c9598147ab49d79be1f149 Merge #167
 pr 2020-06-12 20:29:53 +0100 f154071ec81760ffdb552d5768243a62e1e9eceb Merge #19177: test: Fix and clean p2p_invalid_messages functional tests
 c  2020-06-13 01:09:15 +0100 ccf1f6ea24905876f35e685204cb2293cf083e97 refactor: Drop ::HasWallets()
 pr 2020-06-13 02:50:29 +0100 8c97780db8c9dd33efed134385573ba97e9cd165 Merge #19228: Update libsecp256k1 subtree
-pr 2020-06-13 08:41:39 +0100 265492723a6874abc542361e4693840240e7d2ef Merge #18297: build: Use pkg-config in BITCOIN_QT_CONFIGURE for all hosts including Windows
+pr 2020-06-13 08:41:39 +0100 265492723a6874abc542361e4693840240e7d2ef Merge #18297: build: Use pkg-config in BGL_QT_CONFIGURE for all hosts including Windows
 cr 2020-06-13 11:24:18 +0100 78c312c983255e15fc274de2368a2ec13ce81cbf Replace current benchmarking framework with nanobench
 pr 2020-06-13 15:30:31 +0100 eac65d99ddb27061e6ae0f9448887db86e2c0734 Merge #19261: refactor: Drop ::HasWallets()
 c  2020-06-13 15:49:31 +0100 49236be099c5e8b3cadbc98d5216313e7e1a5a45 [tests] Don't import asyncio to test magic bytes
@@ -5214,6 +5214,2565 @@ v  2021-01-31 17:07:46 +0100 63d4ee1968144cc3d115f92baef95785abf813ac refactor: 
 v  2021-01-31 17:09:30 +0100 3913d1e8c1f604bdd622d5e81e5077ef52b30466 qt: Drop buggy TableViewLastColumnResizingFixer class
 v  2021-01-31 17:09:30 +0100 788205c3f783fb20bfdfd403be6befba149772ca qt: Move transactionView properties settings to constructor
 cr 2021-01-31 17:09:30 +0100 964885d04801c6ab77ce4705cff01c9d83bc3ed8 qt: Save/restore recentRequestsView table column sizes
+v  2021-01-31 17:09:30 +0100 9c5f4f2169cc4494d3e22fd62afe40e000a9eace qt: Save/restore TransactionView table column sizes
+cr 2021-01-31 17:09:30 +0100 ecdbaf71c0e1a4363e7eb019dabeb0018522ef70 qt, refactor: Drop intermediate assignment
+cr 2021-01-31 17:09:30 +0100 f5c8093e778069f4930a84452398c339aad58e79 qt: Move recentRequestsView properties settings to constructor
+cr 2021-01-31 17:35:01 +0100 365539c84691d470b44d35df374d8c049f8c1192 refactor: init vectors via std::{begin,end} to avoid pointer arithmetic
+v  2021-01-31 17:35:16 +0100 e829c9afbf75e930db6c3fe77a269b0af5e7a3ad refactor: replace sizeof(a)/sizeof(a[0]) by std::size (C++17)
+pr 2021-02-01 10:43:17 +0100 7dc4807691b96e53c04ef779501618325a7fafc0 Merge #20040: wallet: Refactor OutputGroups to handle fees and spending eligibility on grouping
+pr 2021-02-01 10:56:23 +0100 87394b6741df7068eb55d012a8169400c68b34ed Merge #20868: validation: remove redundant check on pindex
+pr 2021-02-01 10:59:50 +0100 636e754a8175822713669772052c0a3f7455b9f8 Merge #20941: rpc: document RPC_TRANSACTION_ALREADY_IN_CHAIN exception
+pr 2021-02-01 13:09:46 +0100 44f4bcd302d6061d77f4ddb86030cc888bff855c Merge #20749: [Bundle 1/n] Prune g_chainman usage related to ::LookupBlockIndex
+pr 2021-02-01 13:27:28 +0100 d0d256536cdfb1443067fb7cc0a19d647f636a5c Merge #21016: refactor: remove boost::thread_group usage
+v  2021-02-01 13:37:14 +0100 1485124291368c4a2ca8ea09c18e813f1dbabf5c Fix -Wmismatched-tags warnings
+pr 2021-02-01 14:27:09 +0100 56fcf93349c3137af95e08c1b37a8726e7e01cb6 Merge #21026: doc: Document use of make-tag script to make tags
+pr 2021-02-01 15:17:28 +0100 2c0fc856a6b0c82c5dddbbaee417171577514507 Merge #20464: refactor: Treat CDataStream bytes as uint8_t
+cr 2021-02-01 21:30:05 +0100 12f5028d4957bce3ba176e80527894b497c04a3b refactor: Move STRINGIZE macro to macros.h
+v  2021-02-01 21:30:06 +0100 e99db77a6e73996d33d7108f8336938dd57037a7 Drop boost/preprocessor dependencies
+v  2021-02-01 21:33:31 +0100 572fd0f7382bd0e6c7acc27dc354fae8489ab0a0 doc: More precise -debug and -debugexclude doc
+v  2021-02-01 22:03:10 +0100 b6aadcd5b4350a6ebcd57e88e7a0853cedf7c2fb build: Add -Werror=mismatched-tags
+cr 2021-02-01 23:13:35 +0100 98892f39e3d079c73bff7f2a5d5420fa95270497 doc: Improve setup_clean_chain documentation
+v  2021-02-01 23:13:38 +0100 590bda79e876d9b959083105b8c7c41dd87706eb scripted-diff: Remove setup_clean_chain if default is not changed
+cr 2021-02-02 00:00:39 +0100 b45eae4d5332f1da71ba9ec983fe7818fa4d32e9 net: update NET_UNROUTABLE to not_publicly_routable in GetNetworkName()
+v  2021-02-02 00:01:36 +0100 1c3af37881adbbc37fb9924bcf69c403fcae1ae7 net: create GetNetworkNames()
+v  2021-02-02 00:16:04 +0100 0dbde700a6e9894a8ead20f2eebd0ff6554ef2d9 rpc: use GetNetworkNames() in getnetworkinfo and getpeerinfo helps
+v  2021-02-02 00:16:42 +0100 96635e61777add29b6a34d47767a63f43b2919af init: use GetNetworkNames() in -onlynet help
+pr 2021-02-02 02:20:19 +0100 f72d80b07af8ecbb2f9df1e87344eb465186f19d Merge #21051: Fix -Wmismatched-tags warnings
+v  2021-02-02 04:09:03 +0100 20677ffa22e93e7408daadbd15d433f1e42faa86 validation: Guard all chainstates with cs_main
+v  2021-02-02 05:35:40 +0100 8e55981ef834490c438436719f95cbaf888c4914 refactor: replace Boost shared_mutex with std shared_mutex in cuckoocache tests
+v  2021-02-02 05:38:10 +0100 7097add83c8596f81be9edd66971ffd2486357eb refactor: replace Boost shared_mutex with std shared_mutex in sigcache
+cr 2021-02-02 05:38:22 +0100 060a2a64d40d75fecb60b7d2b9946a67e46aa6fc ci: remove boost thread installation
+cr 2021-02-02 05:38:22 +0100 06e1d7d81d5a56d136c6fc88f09a2b0654a164f9 build: don't build or use Boost Thread
+cr 2021-02-02 08:21:46 +0100 51f3752fbeee09d025db33e154bb2efff9e20837 Add release notes for listdescriptors RPC
+cr 2021-02-02 09:43:19 +0100 3ddbf22ed179a2db733af4b521bec5d2b13ebf4b util: Disallow negative mocktime
+v  2021-02-02 09:43:19 +0100 f5f2f9716885e7548809e77f46b493c896a019bf net: Avoid UBSan warning in ProcessMessage(...)
+pr 2021-02-02 12:44:27 +0100 1e69800d5e60c7805931f2c5b978720c6aee180b Merge #21059: Drop boost/preprocessor dependencies
+pr 2021-02-02 13:11:28 +0100 384e090f9345c07fa81ccafa8cd36037f3cd0813 Merge #19509: Per-Peer Message Capture
+v  2021-02-02 13:28:17 +0100 f22a3ec1403293f45a06558d105f0da624c5ebed build: make macOS HOST in download-osx generic
+v  2021-02-02 14:49:06 +0100 e1e67148321cff0de9eb5e63d2604f05c12e69d1 doc: refer to BIPs 339/155 in feature negotiation
+v  2021-02-02 15:22:22 +0100 62bf5b785087981d9c0f8ddc8a3ceda911845a53 netinfo: add ConnectionTypeForNetinfo member helper function
+v  2021-02-02 15:56:16 +0100 9db10a55061e09021ff8ea1d6637d99f7959035f [refactor] clean up logic in testmempoolaccept
+cr 2021-02-02 17:58:55 +0100 0a76a39b633760d4668d39859605c05629ee0025 [test] fix CSV test missing OP_ADD
+cr 2021-02-02 17:58:55 +0100 158a0b268ca2f73a5d504791359d1eff2cf27715 Apply maximal validation flags to tx_valid tests
+cr 2021-02-02 17:58:55 +0100 19db590d044efe7d474a16720e5b56e7b55db54c [test] remove unnecessary OP_1s from CSV and CLTV tests
+v  2021-02-02 17:58:55 +0100 4c06ebf1281f0f387ab7493fe15176a05247525e [test] fix two witness tests in invalid tests with empty vout
+v  2021-02-02 17:58:55 +0100 7a77727b2f66f3d723e03e917f0cabb459c49d62 Apply minimal validation flags to tx_invalid tests
+v  2021-02-02 17:58:55 +0100 9532591bedaecf7c2debe779dec0a0debec2623b [test] add BADTX setting for invalid txns that fail CheckTransaction
+v  2021-02-02 17:58:55 +0100 a7098a2a8d2d23ee3be1d71ab8c71475bf5a31ee [refactor] use CheckTxScripts, TrimFlags, FillFlags
+cr 2021-02-02 18:17:58 +0100 5786a818e1a96bc1dd65b0e81b05998876357a74 Verify that all validation flags are backward compatible
+v  2021-02-02 18:17:58 +0100 a260c22cad0672dda11f42f649ebdc7cfa53b16a [test] Check for invalid flag combinations
+cr 2021-02-02 18:17:58 +0100 b10ce9aa48c8937cb91fca05e29c68098a364d93 [test] check verification flags are minimal/maximal
+pr 2021-02-03 03:02:26 +0100 ea96e17e1f2c2b0a949366260906ef02e560a425 Merge #21060: doc: More precise -debug and -debugexclude doc
+v  2021-02-03 14:17:18 +0100 d3cca3be63afeb19a41e9892444fc6e02ea1c7c8 netinfo: update to use peer connection types
+v  2021-02-03 14:17:28 +0100 5de7a6cf63ef39b0474ea9c90a968f867635d98e netinfo: display manual peers count
+v  2021-02-03 14:17:30 +0100 9d6aeca2c5ec1df579c27c39e82fa3ddf1d25986 netinfo: add bip152 high-bandwidth to/from fields
+v  2021-02-03 14:17:32 +0100 76d198a5c15a9376c7d3a91754320334337a9e50 netinfo: add i2p network
+v  2021-02-03 14:18:20 +0100 747cb5b9949f80b3b4516f382a0ce80e41f3f5a6 netinfo: display only outbound block relay counts
+cr 2021-02-03 14:39:54 +0100 5baff2b31840bdbc465f55b875aa6e9480288215 build: use focal in gitian descriptors
+v  2021-02-03 14:47:16 +0100 2ecaf214331b506ebfac4f4922241744357d652b gitian: remove execstack workaround for ricv64 & powerpc64le
+v  2021-02-03 18:10:02 +0100 b3bdff42b5a7b4b956da700b187a7254daac54ae build: Proper quoting for var printing targets
+v  2021-02-03 18:10:10 +0100 4c7d41858821e4fecf7cb0cec3fcad002365e6c9 depends: Improve id string robustness
+v  2021-02-03 18:10:10 +0100 5200929bfe26c549d7da92c0adf8adf61e143416 depends: Include GUIX_ENVIRONMENT in id string
+v  2021-02-03 19:30:14 +0100 faf7d7418cf01cb04cd457bcc630654da958a777 fuzz: Avoid extraneous copy of input data, using Span<>
+pr 2021-02-04 03:11:06 +0100 5f18080c29c2d2c3178e2e6f9ad0e6c18a741c2a Merge #21065: build: make macOS HOST in download-osx generic
+pr 2021-02-04 08:51:37 +0100 5a429d3d0fecbe3809f8cb405070631b785694c9 Merge #21049: Add release notes for listdescriptors RPC
+pr 2021-02-04 09:12:05 +0100 4e946ebcf111a5af11e6434d2fe217aca1cff22f Merge #20715: util: Add ArgsManager::GetCommand() and use it in bitcoin-wallet
+cr 2021-02-04 10:17:53 +0100 98db48d3490e5863b4d89e03cebeece9bd1f91ae doc: Fix markdown formatting
+pr 2021-02-04 10:22:44 +0100 f1239b70d116ea28b65e60993a6e4ac82cc6c2b1 Merge #21025: validation: Guard chainman chainstates with cs_main
+pr 2021-02-04 10:30:06 +0100 ea5a50f92a6ff81b1d2dd67cdc3663e0e66733ac Merge #21042: doc, test: Improve setup_clean_chain documentation
+cr 2021-02-04 11:38:09 +0100 1bca2aa694cd85984c09699ae28daec313077462 Introduce GetUniquePath(base) helper method to replace boost::filesystem::unique_path() which is not available in std::filesystem.
+cr 2021-02-04 13:06:13 +0100 e1604b3d50dca3291a432be59cfd03c0e846e7b2 doc: Replace tabs for spaces
+v  2021-02-04 13:11:57 +0100 fac4be30482c21ac330e09ef8756c49e37faa6fa fuzz: Configure check for main function (take 2)
+v  2021-02-04 13:57:37 +0100 5e0cd25e29541e6c19559fb5c2555e008ed896fa fix the unreachable code at feature_taproot
+v  2021-02-04 19:34:15 +0100 faf3b4b53359850e0c47e67ead1c2b6dccc55531 refactor: Treat ArgsManager::Flags as uint32_t explicitly
+v  2021-02-04 22:10:48 +0100 eecb7ab105a4a59d09cd55b124c5ad563846fe11 [doc] clarify -peertimeout and -timeout descriptions
+v  2021-02-05 00:43:43 +0100 0d39b5848a7a341cd2b958336861cdd4098e2616 test: fix timeout decrease in feature_assumevalid
+pr 2021-02-05 09:54:43 +0100 4013e44c744433bf28a6b518833e20b2a481ed56 Merge #21082: refactor: Treat ArgsManager::Flags as uint32_t explicitly
+pr 2021-02-05 10:04:56 +0100 01d2cf2674fd85f6e48857b1d7dee47543e29283 Merge #21080: fuzz: Configure check for main function (take 2)
+pr 2021-02-05 10:21:01 +0100 53730a78bc3b017a2b3c8e373b11983929ec61fe Merge #21077: doc: clarify -timeout and -peertimeout config options
+pr 2021-02-05 11:15:37 +0100 3931732191fbf21ee5a70eae73b44342bd91ab7b Merge #20646: doc: refer to BIPs 339/155 in feature negotiation
+pr 2021-02-05 14:26:10 +0100 a6b1bf64399fd0f59f4b2bcd328b62dc953552dd Merge #20267: Disable and fix tests for when BDB is not compiled
+pr 2021-02-05 14:43:10 +0100 b829894f84839dfd581ec52383f93baa32ee2710 Merge #20764: cli -netinfo peer connections dashboard updates 🎄 ✨
+pr 2021-02-05 14:57:08 +0100 173cf31299eba8176a82499932dd511676a607ff Merge #20839: fuzz: Avoid extraneous copy of input data, using Span<>
+pr 2021-02-05 18:48:39 +0100 6c6140846f37de8c132b3b6abf09f3d7940554a7 Merge bitcoin-core/gui#203: Display plain "Inbound" in peer details
+cr 2021-02-06 01:52:45 +0100 32cbb06676e2957705d3ca7ff5710c9c3ff22c14 build: build fuzz tests by default.
+v  2021-02-06 22:21:16 +0100 6fc72bd6f030c8b49e8b9f68188413766a239d73 gui: allow ConnectionTypeToQString to prepend direction optionally
+v  2021-02-06 22:59:54 +0100 151888383a772fd5be626b6ed25af183f0395a41 gui: add "Type" column to Peers main window
+v  2021-02-06 23:02:03 +0100 be4cf4832f117ab5f97e1367f7bdcb5361de0dae gui: update to "Direction/Type" peer details name/tooltip
+v  2021-02-07 19:20:01 +0100 4ed064dbd90b5f254c4637e8f820c75225958f1f docs: correctly identify script type
+pr 2021-02-08 01:54:05 +0100 1815847103c2d989c0eec81576d94391d4c05777 Merge #21105: docs: correctly identify script type
+pr 2021-02-08 03:24:37 +0100 cf26ca3911f3c9ad1583716075b6dd07b76e3ff0 Merge #21081: test: fix the unreachable code at feature_taproot
+cr 2021-02-08 06:24:44 +0100 9913419cc9db5f8ce7afa0c3774468c330136064 test: remove type: comments in favour of actual annotations
+pr 2021-02-08 06:45:23 +0100 8636288db130145cb9db54959cb75a8744e61328 Merge #20720: build: more robustly check for fcf-protection support
+pr 2021-02-08 10:07:15 +0100 e51f6c4dee3d42b2707c31fa1c93a337b6bf5ba7 Merge #20936: build: build fuzz tests by default
+v  2021-02-08 10:11:59 +0100 fafca47adc2476f19f7926de4d55b64b0286e41c fuzz: Hide script_assets_test_minimizer
+v  2021-02-08 10:12:22 +0100 fac726b1b8331b267973138bbd2bff5304774315 doc: Fixup docs in fuzz/script_assets_test_minimizer.cpp
+pr 2021-02-08 10:38:52 +0100 c969ab43c3888b1cd8e691484f2dc32a607d050f Merge #21084: test: fix timeout decrease in feature_assumevalid
+pr 2021-02-08 10:44:37 +0100 ca85449f22cb909b9ca83861aa51fbf8f40a9070 Merge #21036: gitian: Bump descriptors to Focal for 22.0
+pr 2021-02-08 10:56:54 +0100 b401b093556f53023d1615f7cff3eb84807c6e8b Merge #21107: test: remove type: comments in favour of actual annotations
+v  2021-02-08 14:17:48 +0100 723eb4326bac4a3906cbfe278bb6b8bee17e7790 test: Fix Windows cross build
+v  2021-02-08 14:38:26 +0100 fd7caae35fd3f83175247a79f7573e374779a851 build: Disable --disable-fuzz-binary for gitian builds
+v  2021-02-08 15:41:05 +0100 cb151b797aeabb376d37ef058aee34c06d36d487 build: Disable --disable-fuzz-binary for guix builds
+v  2021-02-08 16:56:46 +0100 fa0a4d6c605b8ed47796f68068d6273bef7fcaef test: remove assert_blockchain_height
+pr 2021-02-08 20:36:46 +0100 b09ad737eef63ee527083d9a5fafea4c2237470b Merge #20944: rpc: Return total fee in getmempoolinfo
+cr 2021-02-09 06:10:46 +0100 fd6580e405699ccb051fd2a34525e48d3253673d [refactor] txmempool: split epoch logic into class
+pr 2021-02-09 06:48:26 +0100 d8646966497f1e21c3b1aad7d9bdddc3d6229383 Merge #21115: test: Fix Windows cross build
+cr 2021-02-09 06:58:59 +0100 ac24af453d16afd1993fa1f292aa41ae6b16f138 ci: use Ubuntu Focal for macOS cross build
+pr 2021-02-09 07:22:11 +0100 a0077a80b054f35a2e20e1d671539813b5cd4d12 Merge #21116: build: Disable --disable-fuzz-binary for gitian/guix builds
+pr 2021-02-09 07:43:47 +0100 c4214d0e0df04c79cebc73ffc5de97290d4495db Merge #21117: test: remove assert_blockchain_height
+pr 2021-02-09 07:56:44 +0100 19b1ceddc716e8d48a5bb5db9934eda14f7275c1 Merge #21075: doc: Fix markdown formatting
+pr 2021-02-09 08:00:33 +0100 3641ec1aacfe9a06d1e3f89875c0d0828639c4c2 Merge #21112: ci: use Focal for macOS cross builds
+pr 2021-02-09 12:36:32 +0100 b847f49717d1505694727dc800af661737fa6cc6 Merge #20557: addrman: Fix new table bucketing during unserialization
+v  2021-02-09 14:22:50 +0100 c9095b738fd4257ae5bdbb2ae38d3e7f41f51b64 test: remove unnecessary assignment in bdb
+v  2021-02-09 15:00:02 +0100 059e8ccc1eba6cd92f4c434325cb56b0533eb744 Change BOOST_CHECK to BOOST_CHECK_EQUAL to see mismatched values when a check fails.
+cr 2021-02-09 16:01:52 +0100 174cb5330af4b09f3a66974d3bae783ea43b190e [refactor] const ATMPArgs and non-const Workspace
+cr 2021-02-09 16:01:52 +0100 53e716ea119658c28935fee24eb50090907c500e [refactor] improve style for touched code
+cr 2021-02-09 16:01:52 +0100 f82baf0762f60c2ca5ffc339b095f9271d7c2f33 [refactor] return MempoolAcceptResult
+v  2021-02-09 17:56:45 +0100 166266a372fed2b1f73053084a923fab7edc77f4 script: Make LXC container size suitable for gitian builds
+v  2021-02-09 17:58:21 +0100 f64adc1eedff9d342b49d7e6428b2da21130c23c test: remove unused function xor_bytes
+v  2021-02-09 19:01:15 +0100 9305862f71189d47c873d366bf976622447e18af wallet: load flags before everything else
+pr 2021-02-09 19:21:34 +0100 d48f9e8ebbb71cfeba743b39f18db824556d5a2d Merge #21124: test: remove unnecessary assignment in bdb
+v  2021-02-09 21:37:14 +0100 fa272dfdff711e324baefc9bdbb2bf4b52d99eb0 ci: Properly bump to focal for win cross build
+pr 2021-02-09 22:22:13 +0100 d202054675c91b353d832c9c038247384a39030f Merge #21052: refactor: Replace fs::unique_path with GetUniquePath(path) calls
+v  2021-02-09 22:54:01 +0100 6014d6e1b5a0dda6e20c2721f0bdb7e6a63ece81 zmq test: dedup message reception handling in ZMQSubscriber
+v  2021-02-09 22:54:01 +0100 8666033630eeaf851ec69e018bb53eb23093f4b9 zmq test: accept arbitrary sequence start number in ZMQSubscriber
+v  2021-02-09 23:55:23 +0100 5c6546362dce8b468268578e345c37ed515a1855 zmq test: fix flakiness by using more robust sync method
+v  2021-02-09 23:55:32 +0100 ef21fb7313005a8a2d4f03fb4056f1f66c1b04f0 zmq test: speedup test by whitelisting peers (immediate tx relay)
+pr 2021-02-10 02:40:44 +0100 09530b0255aba083bf168322a95b89cc387e616f Merge #21126: ci: Properly bump to focal for win cross build
+v  2021-02-10 08:00:06 +0100 7a135d57b2ac17477b25d5046a3bec57eac3ab30 Add EditorConfig file.
+v  2021-02-10 08:59:35 +0100 faa8afe70b4992267176a97262f59413d1a1196b ci: Re-run wine tests once if they fail
+v  2021-02-10 09:16:58 +0100 fa2c52111544b0de93ac1002f5395bceeb8fea0e Deduplicate some block-to-JSON code.
+pr 2021-02-10 10:07:07 +0100 f61c3a109098d9b162869401f2440806dbbad911 Merge #21125: test: Change BOOST_CHECK to BOOST_CHECK_EQUAL for paths
+cr 2021-02-10 11:00:12 +0100 aa17a44551c03b00a47854438afe9f2f89b6ea74 net: move MillisToTimeval() from netbase to util/time
+pr 2021-02-10 12:51:01 +0100 cda914228a56d614ceba090e222d7a7d81970c12 Merge #21138: ci: Re-run wine tests once if they fail
+cr 2021-02-10 13:30:08 +0100 04ae8469049e1f14585aabfb618ae522150240a7 net: use Sock in InterruptibleRecv() and Socks5()
+cr 2021-02-10 13:30:08 +0100 ba9d73268f9585d4b9254adcf54708f88222798b net: add RAII socket and use it instead of bare SOCKET
+cr 2021-02-10 13:30:08 +0100 dec9b5e850c6aad989e814aea5b630b36f55d580 net: move CloseSocket() from netbase to util/sock
+cr 2021-02-10 13:30:09 +0100 7bd21ce1efc363b3e8ea1d51dd1410ccd66820cb style: rename hSocket to sock
+pr 2021-02-10 14:30:58 +0100 b3dda0af0ea0e63edea7a8ffebadf7602cf79359 Merge #21123: code style: Add EditorConfig file
+pr 2021-02-10 14:49:44 +0100 3c514cfe628d4becbaa40a88d21e7ec33582c194 Merge #21114: Deduplicate some block-to-JSON code
+pr 2021-02-10 19:37:06 +0100 deb185d2fdcd1327d40791ebf6621aed0ebd443d Merge #21130: script: Make LXC container size suitable for gitian builds
+v  2021-02-10 21:40:42 +0100 acd7980b37b5a71f324f7772d72175c8bd7ab900 log: Move "Leaving block file [...]: [...]" log message to debug category
+v  2021-02-10 21:46:25 +0100 25f899cc23a791c08e19acae91bebda6c3538d37 log: Move "Pre-allocating up to position 0x[...] in [...].dat" log message to debug category
+pr 2021-02-11 07:54:22 +0100 b69eab9025678654acd0dda1861152c239f07699 Merge #20663: fuzz: Hide script_assets_test_minimizer
+v  2021-02-11 09:39:32 +0100 faefed8cd5d26a485f5f6df824d7c90967c826f3 fuzz: Count message type fuzzers before main()
+v  2021-02-11 09:40:41 +0100 fa4bc897fc9332a5666ca2f3e78492cd67ee6128 fuzz: Fail if message type is not fuzzed
+pr 2021-02-11 10:34:45 +0100 dd0521b6408af5b9e0563e19eb500896568b3386 Merge #21023: fuzz: Disable shuffle when merge=1
+v  2021-02-11 10:44:53 +0100 615ba0eb96cf131364c1ceca9d3dedf006fa1e1c test: add Sock unit tests
+pr 2021-02-11 10:50:15 +0100 a59e7ed0bc34cd9fc0d03f0e2f29239104a98f8f Merge #20915: fuzz: Fail if message type is not fuzzed
+v  2021-02-11 11:39:45 +0100 00d57ff76854938ead800767fb673a8af46eac8e Avoid accessing nullpointer in BaseIndex::GetSummary()
+v  2021-02-11 11:39:45 +0100 6abe9f5b11cd4a5ecb6caca8443fe2950a417842 Allow blockfilter in conjunction with prune
+pr 2021-02-11 11:48:12 +0100 e498aeffbec96201005b9689ac9074370f7166d5 Merge #20211: Use -Wswitch for TxoutType where possible
+pr 2021-02-11 12:40:12 +0100 685c16fcb2c718154bf3e6114e35fcac351503f2 Merge #21043: net: Avoid UBSan warning in ProcessMessage(...)
+v  2021-02-11 12:45:57 +0100 fabce459bb44e90dc7ae9c44eeedab707435af5b fuzz: version handshake
+pr 2021-02-11 14:07:33 +0100 a1be08405d9bbf771a965dc170ce85ea1ad034c7 Merge #20788: net: add RAII socket and use it instead of bare SOCKET
+pr 2021-02-11 14:45:41 +0100 8e1913ae025ad8912457abe24ae5c61da02fc17a Merge #21062: refactor: return MempoolAcceptResult from ATMP
+pr 2021-02-11 17:25:33 +0100 0ad46567905ad108dd115f634b182f7edf89ff87 Merge #20370: fuzz: version handshake
+pr 2021-02-11 19:58:20 +0100 937dfa8398736b3138e3e667679c4878566f2866 Merge #21041: log: Move "Pre-allocating up to position 0x[…] in […].dat" log message to debug category
+v  2021-02-12 01:10:40 +0100 fe3e993968d6b46777d5a16a662cd22790ddf5bb [p2p] No delay in adding fixed seeds if -dnsseed=0 and peers.dat is empty. Add -fixedseeds arg.
+cr 2021-02-12 02:04:15 +0100 1624e17b5430dfe808bb3b1b79dfa53bf45aa053 build: remove duplicate visibility attribute detection
+v  2021-02-12 02:04:16 +0100 012bdec1b7df01906566a6526e56f27d57d1653b build: add building libconsensus to end-of-configure output
+cr 2021-02-12 02:04:16 +0100 7cd0a696643a824ab6f6911278f116f01c5af662 build: test for __declspec(dllexport) in configure
+v  2021-02-12 02:04:16 +0100 8f360e349e365870b40a6873917c81de714ae41a build: remove ax_gcc_func_attribute macro
+v  2021-02-12 02:04:16 +0100 f054a089ecfbdc4732e6f705a10e93189074f41c build: remove AX_GCC_FUNC_ATTRIBUTE test for dllimport
+v  2021-02-12 03:12:00 +0100 9cc8e30125df14fe47e21e55ab3bf26f4d416565 test: fix sign comparison warning in socket tests
+v  2021-02-12 09:02:21 +0100 de4238f92f4c067f099663f68d9772105de81d75 build: consolidate reduced export checks
+pr 2021-02-12 10:47:41 +0100 8d82eddee640ee7b4658d1df15a0002dbdfcaff6 Merge #19145: Add hash_type MUHASH for gettxoutsetinfo
+pr 2021-02-12 11:11:55 +0100 54b66a6e5f260c630969470af19c931e04389fa9 Merge #19522: build: fix building libconsensus with reduced exports for Darwin targets
+pr 2021-02-12 11:39:36 +0100 9996b1806a189a9632c9f5023489eb47bf87ca05 Merge #21064: refactor: use std::shared_mutex & remove Boost Thread
+pr 2021-02-12 11:49:34 +0100 e9c037ba64dd5b073fccf059ef75db1c97abd0bd Merge #19884: p2p: No delay in adding fixed seeds if -dnsseed=0 and peers.dat is empty
+cr 2021-02-12 14:53:22 +0100 7a6c46b37edb8bfa0085d202aa7e9427d5e4fceb chainparams: add allowed assumeutxo values
+v  2021-02-12 14:53:29 +0100 f6e2da5fb7c6406c37612c838c998078ea8d2252 simplify ChainstateManager::SnapshotBlockhash() return semantics
+v  2021-02-12 14:53:32 +0100 ad949ba449ff2115e3d22c71f5b6509f11112098 txdb: don't reset during in-memory cache resize
+v  2021-02-12 14:53:34 +0100 6606a4f8c616cf256537c3bfbdade9b43c51b4f5 move-onlyish: break out CreateUTXOSnapshot from dumptxoutset
+v  2021-02-12 14:53:36 +0100 31d225274ff1a4b245aea0a69f0e5224b0e64ca2 tests: add deterministic chain generation unittest fixture
+v  2021-02-12 14:53:37 +0100 4d8de04f32736199e4b41a14a2d29b1a4d0a15d4 tests: add snapshot activation test
+v  2021-02-12 14:53:40 +0100 769a1ef9fdc9c372f5bbe91d1961cabd60bc1895 test: Add tests with maleated snapshot data
+v  2021-02-12 14:53:41 +0100 1afc0e4aa1b910991d4f8a77d74e2197f370987c doc: remove potentially confusing ChainstateManager comment
+v  2021-02-12 14:59:06 +0100 fa051c23860bcdcc871db5ad6b51b8d9ca88da35 doc: Guix is shipped in Debian and Ubuntu
+v  2021-02-12 18:23:03 +0100 015637dd445e0158dc763d0d8c55f471d0bc4305 [refactor] Correct log message in net.cpp
+v  2021-02-12 18:35:18 +0100 d4187e46194e7b31f5ace48b08ff64416b967ec4 [test] Use mocktime in test_seed_peers()
+pr 2021-02-12 20:33:18 +0100 bf3189eda65d269fee6a70681ab390bd7cebf7d7 Merge #21165: test: Use mocktime in test_seed_peers
+v  2021-02-12 21:48:18 +0100 c943326d3c06e481c142b112c7e7a0c6ff5a76b3 doc/bips: Add BIPs 43, 44, 49, and 84
+v  2021-02-12 22:23:15 +0100 24bda56c29800502953c6a8cd69248e60ff9a0a0 net: make CNode::m_inbound_onion public, drop getter, update tests
+v  2021-02-12 22:32:08 +0100 2ee4a7a9ec68c75094685c06ec793b614f44c4ce net: remove CNode::m_inbound_onion defaults for explicitness
+v  2021-02-13 09:57:50 +0100 3f8776a1391c3978ed66144df15fd9bcb9edd35d Re-add dead code detection
+v  2021-02-13 13:14:16 +0100 e3e0a2432c587ee06e469c37ffae133b7ac55c77 Add benchmark to write JSON into a string
+pr 2021-02-13 18:36:37 +0100 b08cbd09b8f08264b4d2c9219c9f1eb401088a8d Merge #21028: doc/bips: Add BIPs 43, 44, 49, and 84
+pr 2021-02-13 23:30:50 +0100 43981ee2c84aa78c3a530ab7b62a8436df9cd6a6 Merge #21127: wallet: load flags before everything else
+pr 2021-02-13 23:39:20 +0100 e4f0c4cd73d89592450e5900b32ffeafb5f332f4 Merge #21163: doc: Guix is shipped in Debian and Ubuntu
+pr 2021-02-14 09:48:31 +0100 df8892dc9f05dbc3589457ed8ce080ca9cb4a594 Merge #20986: docs: update developer notes to discourage very long lines
+pr 2021-02-15 11:43:00 +0100 51397c0ff70b06c631bc728ef2f86e1fbd194561 Merge #20629: depends: Improve id string robustness
+pr 2021-02-15 12:02:43 +0100 45ea103f8f584a197558cf2b8a6e441fc660fe0a Merge #20942: [refactor] Move some net_processing globals into PeerManagerImpl
+pr 2021-02-15 12:10:41 +0100 8d6994f93d3297cd8a84e73e8696bf21ff7da903 Merge #21100: test: remove unused function xor_bytes
+v  2021-02-15 12:52:04 +0100 fafddfadda0c77876ba764c5b65ee5fa8e53a5e0 scripted-diff: Remove shadowing lock annotations
+v  2021-02-15 14:39:08 +0100 ffff84a9cb659562b3f560d3a489d4a62c71f793 fuzz: Remove expensive and redundant muhash from crypto fuzz target
+pr 2021-02-15 15:13:57 +0100 d19639d2b6e704735b689d646828d59c11c1529b Merge #21096: Re-add dead code detection
+pr 2021-02-15 15:22:21 +0100 cb073bed0056d113fede4510ec68c5a6141ca997 Merge #21167: net: make CNode::m_inbound_onion public, initialize explicitly
+pr 2021-02-15 15:31:15 +0100 489030f2a8f89e7ae5031351fc3d0db83e3911ea Merge #20965: net, rpc:  return NET_UNROUTABLE as not_publicly_routable, automate helps
+v  2021-02-15 17:02:43 +0100 0b43b81f69ff13dbc1e893a80950f186690b4f62 [net processing] Move send ping message logic into function
+v  2021-02-15 17:02:43 +0100 1a07600b4b0d08cffc7cd5c58af33fcd1ede558e [net] Add RunInactivityChecks()
+v  2021-02-15 17:02:43 +0100 dd2646d12c172cb8899669af717c590483a17404 [net processing] Move ping timeout logic to net processing
+cr 2021-02-15 17:02:43 +0100 f8b3058992b507f3a6aac9d4e2db00102ae1b197 [net processing] Add Peer& arg to MaybeDiscourageAndDisconnect()
+cr 2021-02-15 17:15:51 +0100 45dcf2266125c65d7f546bdb211a278bd090a284 [net processing] Move ping data fields to net processing
+v  2021-02-15 17:15:51 +0100 a5e15ae45ccae7948a6c5b95e6621f01afb88d55 scripted-diff: rename ping members
+v  2021-02-15 20:01:52 +0100 882ce25132e1b6880916fa154850a708e6a968b2 cli: Treat high detail levels as the maximum in -netinfo
+pr 2021-02-16 07:54:28 +0100 b55dc3ad84abec4f58e54a8581bdf8556c74b1e3 Merge #21185: fuzz: Remove expensive and redundant muhash from crypto fuzz target
+v  2021-02-16 10:26:15 +0100 5e112269c311a559bfded814d3c3c438349a1986 Avoid pruning below the blockfilterindex sync height
+cr 2021-02-16 10:26:17 +0100 c286a22f7b63a8bd336d5d7606c339053ee0054b Add debug startup parameter -fastprune for more effective pruning tests
+v  2021-02-16 10:30:37 +0100 ab3a0a2fb915d8b8384c30a8b38b4b5cc35236fd Add functional test for blockfilterindex in prune-mode
+v  2021-02-16 10:30:41 +0100 84716b134e9afca2fba7731de4af1f22fa1b1518 Add "index/blockfilterindex -> validation -> index/blockfilterindex" to expected circular dependencies
+pr 2021-02-16 11:48:30 +0100 9bbf08bf98487eeb75f143c120cfd544ea3135fb Merge #20721: Net: Move ping data to net_processing
+v  2021-02-16 13:29:00 +0100 fa55159b9ede4a915f8ef9e5b90e3e99eadedf91 net: Log to net debug in MaybeDiscourageAndDisconnect except for noban and manual peers
+cr 2021-02-16 16:25:50 +0100 faabce7d07c5776e4116b1a7ad1f6c408a4a4e46 test: Start only the number of nodes that are needed
+v  2021-02-16 16:28:40 +0100 fad25153f5c8e88f72cf666b16b0b0dbdc45d3b1 test: Remove unused bug workaround
+v  2021-02-16 16:49:08 +0100 fa4d8f3169e38cbdbae20258efebe7070c49f522 test: Cache 25 mature coins for ADDRESS_BCRT1_P2WSH_OP_TRUE
+v  2021-02-16 17:47:48 +0100 fa1fe80c757df0adcbfaf41b5c5c8a468bc07b6f test: Change address type from P2PKH to P2WSH in rpc_blockchain
+v  2021-02-16 17:47:55 +0100 faa137eb9eac5554504b062a6dc865ca87fd572b test: Speed up rpc_blockchain.py by removing miniwallet.generate()
+cr 2021-02-16 18:17:33 +0100 901f54321b386258a1682423160bfdfa35ea4c39 guix: Passthrough BASE_CACHE into container
+pr 2021-02-16 18:56:20 +0100 3c9d9d21e195ccfb28353c14a9f38f5366c98c8e Merge #21008: test: fix zmq test flakiness, improve speed
+pr 2021-02-16 19:23:06 +0100 92fee79dab384acea47bf20741a9847a58253330 Merge #19806: validation: UTXO snapshot activation
+v  2021-02-16 21:23:00 +0100 1363b6c27dbd2614fd555d148ea624ed8b95f14e [doc / util] Use comments to clarify time unit for int64_t type.
+cr 2021-02-16 21:23:00 +0100 47a7a1687d276bfa8769dee4bb78e8725f67a50e [util] Introduce a SetMockTime that takes chrono time
+v  2021-02-16 21:23:00 +0100 9a3bbe8fc57d88919acd4eadbc96124711f17ec2 [test] Introduce a unit test helper to create a valid mempool transaction.
+v  2021-02-16 21:23:00 +0100 a2d908e1daa1d1be74568bd7d1d04b724da7d79c [test] Throw error instead of segfaulting in failure scenario
+cr 2021-02-16 21:23:00 +0100 df6a5fc1dff3b1b7c2f2b67aad1ff17cac99f7b6 [util] Change GetMockTime to return chrono type instead of int
+v  2021-02-16 21:49:28 +0100 0997019e7681efb00847a7246c15ac8f235128d8 Disallow sendtoaddress and sendmany when private keys disabled
+v  2021-02-16 21:49:28 +0100 6bfbc97d716faad38c87603ac6049d222236d623 test: disallow sendtoaddress/sendmany when private keys disabled
+v  2021-02-17 01:04:11 +0100 7bf04e358a6550ac9851f1b2d87795927fc5ff4b build: remove mostly pointless BOOST_PROCESS macro
+pr 2021-02-17 01:26:42 +0100 7c8e605bf4207d176e3a706f8928fae557e49a24 Merge #21159: test: fix sign comparison warning in socket tests
+cr 2021-02-17 02:04:20 +0100 cad8b527eaf7a93877e2249960866fd4db2d1c14 build: explicitly install libboost-dev package
+v  2021-02-17 02:17:37 +0100 c5da2749e2f7375e292fb0982e8e252ae1adbce3 build: actually stop configure if Boost isn't available
+pr 2021-02-17 05:25:06 +0100 36be9b821ae0882ba5ccba543f959636e413991d Merge #21087: guix: Passthrough BASE_CACHE into container
+cr 2021-02-17 05:26:04 +0100 3c2e16be22ae04bf56663ee5ec1554d0d569741b time: add runtime sanity check
+v  2021-02-17 05:26:39 +0100 9266f7497f256d780178829e0f3a29ddaeb794ba util: Use std::chrono for time getters
+cr 2021-02-17 09:18:46 +0100 77772a1b809e443a6861ee49009ff8bc55cff9c3 doc: Rework internal and external links
+pr 2021-02-17 09:36:30 +0100 69f7f50aa5b799613666ed9b007c674d096a651b Merge #20993: test: store subversion (user agent) as string in msg_version
+pr 2021-02-17 09:50:56 +0100 7f831346cb739e4831692a61332bbaec399a41bc Merge #20380: doc: Add instructions on how to fuzz the P2P layer using Honggfuzz NetDriver
+pr 2021-02-17 09:53:29 +0100 8639c446d88b5d521485dbec00029b3028d01492 Merge #21188: scripted-diff: Remove redundant lock annotations in net processing
+cr 2021-02-17 10:00:24 +0100 652311165c4ef298dab71d7162f9054abf439f77 [test] Move MIN_VERSION_SUPPORTED to p2p.py
+v  2021-02-17 10:00:53 +0100 7e158a69104831611462cb555da931331b237c78 [test] Move MY_VERSION to p2p.py
+cr 2021-02-17 10:22:37 +0100 9b4054cb7af22123c7fcc4989e143606a630b2af [test] Move MY_SUBVERSION to p2p.py
+v  2021-02-17 10:23:32 +0100 010542614dbebba5f5ad6a58c0554930e9e214fc [test] Move MY_RELAY to p2p.py
+v  2021-02-17 10:29:41 +0100 9ce4c3c4c1682032500c97af2d6383897b87c413 [test] Add P2P_SERVICES to p2p.py
+v  2021-02-17 10:29:44 +0100 9f21ed4037758f407b536c0dd129f8da83173c79 [test] Check user agent string from test framework connections
+pr 2021-02-17 10:40:09 +0100 569b5ba1dc56ef1df2fc7dbf22b5fdbf35c87556 Merge #21121: [test] Small unit test improvements, including helper to make mempool transaction
+v  2021-02-17 11:36:30 +0100 22220ef6d5f331c9e1f3e9487eaf07ab13693921 test: Move P2WSH_OP_TRUE to shared test library
+pr 2021-02-17 12:49:18 +0100 4dc1ff809a5d38b2b40f4e821a6b50b2ccbea259 Merge #21192: cli: Treat high detail levels as maximum in -netinfo
+cr 2021-02-17 14:55:19 +0100 7afdd7225842dcff2708dedb8131bb082673f228 cli: enable -netinfo help to run without a remote server
+v  2021-02-17 15:04:50 +0100 3732404afaa15f7a86846327e48cdb9a2027f80c cli: warn in help that -netinfo is not intended to be a stable API
+v  2021-02-17 15:05:01 +0100 6b45ef32331dd3efb863d1d2f7405e2665565905 cli: improve -netinfo invalid argument error message
+v  2021-02-17 15:05:03 +0100 ef614bb408f0547d79bfe9b39278b197e040c683 cli: small -netinfo simplification and performance improvement
+cr 2021-02-17 15:05:42 +0100 7d3343fb8e775527e6afc2b183a62ad76e62347e cli: update -netinfo help doc following the merge of 882ce251
+pr 2021-02-17 15:08:38 +0100 04336086d3cb2a738e82cf54d9995474ca485f0c Merge #21182: build: remove mostly pointless BOOST_PROCESS macro
+pr 2021-02-17 20:38:08 +0100 372dd8da2475d7df584d31fa03f0b4d703b7c8f5 Merge #21110: util: remove Boost posix_time usage from GetTime*
+v  2021-02-18 00:45:11 +0100 ad5f01b96045f304b6cf9100879592b835c49c40 [validation] Move the lock annotation from function definition to declaration
+v  2021-02-18 00:58:23 +0100 25c57d640992255ed67964a44b17afbfd4bed0cf [doc] Add a note about where lock annotations should go.
+v  2021-02-18 01:57:49 +0100 8f9644890a167a093d95ecef1f12a20dce1bc581 qt: Remove Transactionview Edit Label Action
+pr 2021-02-18 07:53:37 +0100 cd66d8b1d8b5fcb96b80cdf167d0d1152b99aee0 Merge #20429: refactor: replace (sizeof(a)/sizeof(a[0])) with C++17 std::size
+pr 2021-02-18 09:40:42 +0100 9017d55e7c325eba486075bc3403dc8c9b252b75 Merge #15946: Allow maintaining the blockfilterindex when using prune
+pr 2021-02-18 09:51:16 +0100 db656db2ed5aecc6e623fd3ef1e1bb34207b9e57 Merge #19136: wallet: add parent_desc to getaddressinfo
+v  2021-02-18 10:28:06 +0100 d21d2b264cd77c027a06f68289cf4c3f177d1ed0 [net] Change AdvertiseLocal to GetLocalAddrForPeer
+v  2021-02-18 10:43:13 +0100 3e68efa615968e0c9d68a7f197c7852478f6be78 [net] Move checks from GetLocalAddrForPeer to caller
+v  2021-02-18 11:07:37 +0100 876ac3f6b62087fb5c22b0a477751895915d47b8 [tools] Allow argument/parameter bin packing in clang-format
+v  2021-02-18 11:11:40 +0100 9476886353dffb730dcb75799f2bd5e143425795 gui: display fRelayTxes in peer details
+v  2021-02-18 11:17:07 +0100 142807af8b82e2372a03df893c50df4f4a96aca4 gui: display BIP152 high bandwidth relay in peer details
+pr 2021-02-18 14:01:57 +0100 860f9168034f0f43e419e5a01024d87236677be6 Merge #20524: test: Move MIN_VERSION_SUPPORTED to p2p.py
+pr 2021-02-18 14:37:51 +0100 b805dbb0b9c90dadef0424e5b3bf86ac308e103e Merge #19809: log: Prefix log messages with function name and source code location if -logsourcelocations is set
+v  2021-02-18 15:08:35 +0100 faf48f20f196e418b2eea390a0140db3604cfa15 log: Clarify log message when file does not exist
+v  2021-02-18 20:29:42 +0100 d02076b8852d8faae95cee6e3de434460c07412a guix: Jump forwards in time-machine and adapt
+v  2021-02-18 20:29:42 +0100 f8ca8c5c28d3050b780e67d47a50ac65fc2dc3ad guix: Supply --keep-failed for debugging
+v  2021-02-18 20:34:10 +0100 bedb8d88bcfbfcadcd23e8f3ff4956340fcb028c Avoid comparision of integers with different signs
+cr 2021-02-18 20:43:28 +0100 229bc37b5f18cffbc85efbad3b6e9047c6951e95 validation: Pass in chainstate to ::AcceptToMemoryPool
+v  2021-02-18 20:43:28 +0100 252b489c9f9c9e7dceb919e9cbd208ea72d75e68 validation: Pass in coins tip to CheckInputsFromMempoolAndCache
+cr 2021-02-18 20:43:28 +0100 3a205c43dc03cc833daba93087279402f640965b validation: Pass in chainstate to AcceptToMemoryPoolWithTime
+cr 2021-02-18 20:43:28 +0100 4c15942b79c46256950df17c348302679e668ebc validation: Pass in chainstate to ::CheckSequenceLocks
+cr 2021-02-18 20:43:28 +0100 577b774d0c664b891bc9e1550ef179a655a466ad validation: Remove old CheckFinalTx w/o chain tip param
+cr 2021-02-18 20:43:28 +0100 7031cf89db943d3e73597d2f9fa4a41908558e6c scripted-diff: Invoke ::CheckFinalTx with chain tip
+v  2021-02-18 20:43:28 +0100 73a6d2b7bea832fe24870dd7593c8fc1028e8d57 validation: Pass in chainstate to IsCurrentForFeeEstimation
+cr 2021-02-18 20:43:28 +0100 d015eaa550027a387cd548cf0bcfa1a4c31a3374 validation: Pass in chain tip to ::CheckFinalTx
+v  2021-02-18 20:43:28 +0100 d0da7ea57ab932eca956458fb3633585ff3c0003 validation: Pass in chainstate to ::LoadMempool
+v  2021-02-18 20:43:28 +0100 d1f932b0b0685690e5142272a2ed6a21237fbf05 validation: Pass in coins cache to ::LimitMempoolSize
+cr 2021-02-18 20:43:28 +0100 d8a816329c878b5973d28d370c0f64ebbdde716b validation: Add chainstate member to MemPoolAccept
+v  2021-02-18 20:43:32 +0100 fae8f35df8a2158505f8333d546bc7a13b15e7a9 test: pep8 touched test
+v  2021-02-18 20:43:35 +0100 fab6995629e391d03d28ea81b89c94d9e92172f6 test: Make test actually test something
+v  2021-02-18 20:45:05 +0100 fa24247d0ff437a86b105692d342beb5f9f7a015 test: Fix NODE_NETWORK_LIMITED_MIN_BLOCKS disconnection
+v  2021-02-18 20:49:06 +0100 3704433c4f5ecf9f196860b2ccecae0d2c8b5f6e scripted-diff: Invoke ::AcceptToMemoryPool with chainstate
+cr 2021-02-18 20:49:10 +0100 0a9a24d8c717e88e36e16014630cec8eada8dfcb validation: Pass in chainstate to UpdateMempoolForReorg
+v  2021-02-18 20:49:10 +0100 120aaba9ac41af71a760aa0969dd090e96786fb3 tree-wide: Fix erroneous AcceptToMemoryPool replacements
+cr 2021-02-18 20:49:10 +0100 417dafc1ee07af3319c2fe89758123cb8362ff16 validation: Remove old AcceptToMemoryPool w/o chainstate param
+cr 2021-02-18 20:49:10 +0100 714201881251a787423fbca34f70fed505e9dc28 validation: Pass in chainstate to CTxMemPool::removeForReorg
+cr 2021-02-18 20:49:10 +0100 71734c65dc491a4bb654ccbb7a1dd0e12131cee4 validation: Pass in chain to ::TestLockPointValidity
+v  2021-02-18 20:49:10 +0100 8c824819c85005ee6c783e9f8fa43ff91716e33d validation: Use *this in CChainState::LoadMempool
+v  2021-02-18 20:49:10 +0100 8f5c100064bea720351d450f8116ff3abe0515cc style-only: Make CheckSequenceLock signature readable
+v  2021-02-18 20:49:10 +0100 e8ae1db864b09a47c736631e6cd3f5ec17929850 style-only: Make AcceptToMemoryPool signature readable
+v  2021-02-18 23:35:24 +0100 56ace907b9b7b4544c95e2945dc07e217718a8e5 Fix fuzz binary compilation under windows
+pr 2021-02-19 02:00:48 +0100 3a2d5bfeb38e7a5fca88f9b185d58266589d0452 Merge #21201: rpc: Disallow sendtoaddress and sendmany when private keys disabled
+pr 2021-02-19 08:38:01 +0100 9f3ffa29389aa59ea87b5aa974a2da17ccfd31a4 Merge #21230: test: Fix NODE_NETWORK_LIMITED_MIN_BLOCKS disconnection
+pr 2021-02-19 10:45:19 +0100 04e01606e31b506837c8eee15acfeb3b8e23e904 Merge #21205: build: actually fail when Boost is missing
+pr 2021-02-19 10:48:37 +0100 56fe4bb3c52e78aa618fa29b24e8d964475d967c Merge #21210: doc: Rework internal and external links
+pr 2021-02-19 11:02:33 +0100 f093310b2e18128c4b1c5be360d7c57223891741 Merge #21228: test: Avoid comparision of integers with different signs
+pr 2021-02-19 11:28:39 +0100 f1c2f619a68733ad79658288cc9a3b866679bf08 Merge #21221: [tools] Allow argument/parameter bin packing in clang-format
+pr 2021-02-19 11:30:41 +0100 6a680a6236e07c93f28514fe05fbb64a29cb2ec8 Merge #21226: build: Fix fuzz binary compilation under windows
+pr 2021-02-19 12:58:41 +0100 09eb46c9430bb549cf4ffc3815a951ecdb90fef7 Merge #21187: Net processing: Only call PushAddress() from net_processing
+pr 2021-02-19 13:14:25 +0100 f1c339d452f81d1cececc85dda0792767e59cdbb Merge #21211: test: Move P2WSH_OP_TRUE to shared test library
+pr 2021-02-19 15:24:19 +0100 c46fe4d1073cd220b55ec8d55da2605529ea57a5 Merge #21088: guix: Jump forwards in time-machine and adapt
+cr 2021-02-19 17:29:56 +0100 5e6df1132656995ce5b9ce279d5a9808ea52ab32 guix: Add support for powerpc64{,le}
+cr 2021-02-19 17:29:56 +0100 95990b9f3278360b63e79d6975af4ab5009c66ba guix: Update conservative space requirements
+pr 2021-02-20 09:21:45 +0100 828bb776d29cbdfad3937ba100c428e3244c652f Merge #20750: [Bundle 2/n] Prune g_chainman usage in mempool-related validation functions
+cr 2021-02-20 09:52:55 +0100 fa330d8fed5a02349440be170af3b443c1321b4b ci: Avoid invoking curl on the host
+pr 2021-02-21 03:25:26 +0100 5bb64acd9d3ced6e6f95df282a1a0f8b98522cb0 Merge #21243: ci: Avoid invoking curl on the host
+v  2021-02-21 08:08:08 +0100 fa560cc6c493764efc2f2f1702d45286060fe15f test: Intermittent issue in feature_blockfilterindex_prune
+v  2021-02-21 11:01:53 +0100 fa1b713941f71b077da07e9dedb743c7e99c3ca8 test: Assume node is running in subtests
+v  2021-02-21 11:02:58 +0100 fa730e915766b012ff145e3c2af782668defb21f test: Avoid connecting to real network when running tests
+cr 2021-02-21 16:27:10 +0100 87a97941f667483bbf2ab00929e03a2199cb8a62 configure: add --enable-external-signer
+v  2021-02-21 16:27:10 +0100 f7eb7ecc6750ab267a979d9268ce5b5d151c26de test: framework: add skip_if_no_external_signer
+cr 2021-02-21 20:01:02 +0100 89e421918ee8b9c8439317f747e5c37f0733d94b gui: Add Roboto Mono font
+v  2021-02-21 20:01:03 +0100 22e0114d055b0ac6cdc47af2968b5dc742ba055a qt: Choose monospaced font in C++ code rather in `*.ui` file
+v  2021-02-21 20:01:03 +0100 623de12d040af89ff7c25de6eb0a19c67179dc5f qt: Make GUIUtil::fixedPitchFont aware of embedded font
+v  2021-02-21 20:01:42 +0100 67f26319a0ca7e34e3db17d9330133622a40de09 gui: Add monospaced font settings
+v  2021-02-22 01:35:06 +0100 ccb7b6a97652b45f60e0ac680a239bc6058b9773 contrib: run test-symbol check for RISCV
+v  2021-02-22 03:49:05 +0100 a6a1b106dcc4350e420c461171c47e4934087175 guix: only download sources for hosts being built
+pr 2021-02-22 08:04:29 +0100 02fda8267a5479af19f3851f14a3ee34455d3ea6 Merge bitcoin-core/gui#179: Add `Type` column to peers window, update peer details name/tooltip
+pr 2021-02-22 08:11:35 +0100 8d7d5f257b384d661dd5aaeab81ffd1ee09f99cd Merge bitcoin-core/gui#202: peers-tab: bug fix right panel toggle
+pr 2021-02-22 08:13:51 +0100 fd725c2d795a1df0f3a21d9c9e8b3cf3183bd9bc Merge bitcoin-core/gui#204: Drop buggy TableViewLastColumnResizingFixer class
+pr 2021-02-22 08:17:06 +0100 0e9596c86007f35a7d8585906012264724298b05 Merge bitcoin-core/gui#205: Save/restore TransactionView and recentRequestsView tables column sizes
+pr 2021-02-22 08:19:53 +0100 08eec6907a0f7f3088605294681673cc8541350e Merge bitcoin-core/gui#206: Display fRelayTxes and bip152_highbandwidth_{to, from} in peer details
+pr 2021-02-22 08:33:51 +0100 5e4a3ca2f483b0bd8230191f16d8a8c0c45af131 Merge bitcoin-core/gui#211: qt: Remove Transactionview Edit Label Action
+v  2021-02-22 08:34:17 +0100 ab8a747d1ced9f20ca32f9898418be70670da71a qt, refactor: Use enum type as switch argument in AddressTableModel
+v  2021-02-22 08:34:27 +0100 a35223f1cdaf6918501faccac1ff94ebfd38c6f6 qt, refactor: Use enum type as switch argument in BanTableModel
+cr 2021-02-22 08:36:48 +0100 1d5d832d5c045cbbe3a0f4aa8fc29e52ecadc182 qt, refactor: Use enum type as switch argument in TransactionTableModel
+v  2021-02-22 08:36:48 +0100 52f122c11f5ac40bc2f7e31cb4da0a79c842f08e qt, refactor: Use enum type as switch argument in PeerTableModel
+pr 2021-02-22 09:43:57 +0100 4b6ca4a35a121da7667f85a58dd445755b15beca Merge #20845: net: Log to net debug in MaybeDiscourageAndDisconnect except for noban and manual peers
+pr 2021-02-22 09:47:15 +0100 34d70300631e775f1fe4f28ffadecfe6e2ce369b Merge #21202: [validation] Two small clang lock annotation improvements
+v  2021-02-22 09:53:01 +0100 fa1f3a26a7541ba82a28c2a5fd09401be825c888 doc: Clarify that squashing should happen before review
+v  2021-02-22 10:27:17 +0100 fa4fbec03e4395a6ab75ea98a696bee6d768e97e scripted-diff: Rename PROVIDE_MAIN_FUNCTION -> PROVIDE_FUZZ_MAIN_FUNCTION
+cr 2021-02-22 10:27:22 +0100 fae216a73d71441432cf07212313d18771ce7deb scripted-diff: Rename MakeFuzzingContext to MakeNoLogFileContext
+pr 2021-02-22 12:31:09 +0100 84af29337c3712a91220b5336078db1cd6553a3c Merge #21255: contrib: run test-symbol-check for RISC-V
+pr 2021-02-22 13:01:06 +0100 7fca189a2a9a524834d9485c4e391877c00c1971 Merge #79: Embed monospaced font
+v  2021-02-22 14:17:24 +0100 584fd91d2d294883e6896dbd64a2176528e94581 init: only use pipe2 if availabile, check in configure
+v  2021-02-22 14:17:40 +0100 9bac71350d98580cc7441957fc7c3fa2f4158553 build: make HAVE_O_CLOEXEC available outside LevelDB (bugfix)
+v  2021-02-22 17:46:37 +0100 9da106be4db692fa5db7b4de79f9cf7bfef37075 validation: Check chain tip is non-null in CheckFinalTx
+v  2021-02-22 17:48:39 +0100 4927c9e6991b09a36a41aab93a0e05332d899611 validation: Remove global ::LoadGenesisBlock
+v  2021-02-22 17:48:39 +0100 a3ba08ba7dec0b016e42233cd4a061ba1a0e86c1 validation: Remove global ::{{Precious,Invalidate}Block,ResetBlockFailureFlags}
+v  2021-02-22 21:14:08 +0100 67c59ae4793b1a5ebe0c4c542abf3c095e6a658b qt: Make warning label look clickable
+pr 2021-02-23 03:41:35 +0100 64343a61105eaed4cfb470620a1871fee5c71cd6 Merge #21089: guix: Add support for powerpc64{,le}
+pr 2021-02-23 03:51:41 +0100 3371758af49cfe431141dfc314b4406b79bce1c3 Merge #21078: guix: only download sources for hosts being built
+pr 2021-02-23 03:55:03 +0100 1e7dd584a5f998a5b307285a7bc29ea4ad63ebc8 Merge #21263: doc: Clarify that squashing should happen before review
+v  2021-02-23 04:07:25 +0100 13a9fd11a507fd3398bc2c0a0575bdc81579243f guix: Passthrough SDK_PATH into container
+v  2021-02-23 05:39:39 +0100 e348d7ea2c0b5d2eb8039dab33b0b9a48655885f qt: Add Copy Address Action to Payment Requests
+v  2021-02-23 05:48:15 +0100 c7b46489f8c4d880382248fb47266d81948bbce0 assumptions: assume a C++17 compiler
+v  2021-02-23 05:51:50 +0100 5e531e6beb5381c0be5efaa24b7e423e593568e4 assumptions: check C++17 assumption with MSVC
+v  2021-02-23 08:51:01 +0100 a69c3b35f8974b378a87a3e42d331bd4147e07df wallet: listdescriptors uses normalized descriptor form
+pr 2021-02-23 11:09:16 +0100 d386b54239877329e3f3f9e224de695153f08b5f Merge bitcoin-core/gui#213: qt: Add Copy Address Action to Payment Requests
+pr 2021-02-23 11:15:24 +0100 c263c3d7d2a4b85fe133c5d8018c6ec53b8c942a Merge #19698: test: apply strict verification flags for transaction tests and assert backwards compatibility
+v  2021-02-23 13:14:37 +0100 ca5bd1c8e5fee29a3c2f0a3fbc879ee74f892266 qt: Prevent the main window popup menu
+pr 2021-02-23 14:03:29 +0100 84f6c695c6a2f2126ef693dc8c22e7a579c47b7f Merge #21274: assumptions:  Assume C++17
+v  2021-02-23 14:34:30 +0100 07b7c940a7da138d55a484ef83fee19ebf58a867 rpc: add external signer RPC files
+v  2021-02-23 14:34:30 +0100 157ea7c614950d61bfe405310e2aaabcee31f7a3 wallet: add external_signer flag
+cr 2021-02-23 14:34:30 +0100 8ce7767071779a0170364e6426bd393ed71bf281 wallet: add ExternalSignerScriptPubKeyMan
+cr 2021-02-23 14:34:30 +0100 8cf543f96dcd6fdfac1367b9e2b1d7d51be8bb76 wallet: add -signer argument for external signer command
+v  2021-02-23 14:34:30 +0100 f3e6ce78fba2b31173fe7b606aa9edb5b615bff3 test: add external signer test
+cr 2021-02-23 14:34:31 +0100 245b4457cf9265190a05529a0a97e1cb258cca8a rpc: signerdisplayaddress
+cr 2021-02-23 14:34:31 +0100 259f52cc33817a00b91ec9c7d078c07b88db7ab4 test: external_signer wallet flag is immutable
+v  2021-02-23 14:34:31 +0100 2655197e1c2dea9536c32afe1482ced4a1f481e9 rpc: add external_signer option to createwallet
+cr 2021-02-23 14:34:31 +0100 2700f09c4130af6167ce71f46960e92ca800e205 rpc: signer: add enumeratesigners to list external signers
+cr 2021-02-23 14:34:31 +0100 7ebc7c0215979c53b92a436acc8b5b607b8d735a wallet: ExternalSigner: add GetDescriptors method
+cr 2021-02-23 14:34:31 +0100 fc5da520f5c72287f59823b8a6d748dda49c574a wallet: add GetExternalSigner()
+cr 2021-02-23 14:34:32 +0100 d4b0107d68a91ed4d1a5c78c8ca76251329d3f3c rpc: send: support external signer
+v  2021-02-23 14:34:32 +0100 f75e0c1edde39a91cc353b0102638e232def9476 doc: add external-signer.md
+pr 2021-02-23 16:03:19 +0100 78effb37f35ff09733e79497bd6b06d355272d79 Merge #21222: log: Clarify log message when file does not exist
+v  2021-02-23 17:38:22 +0100 bb3da8fe410285887f22679c6f08a1f40bcfac8f qt: Disable requests context menu actions when appropriate
+pr 2021-02-23 17:56:43 +0100 a9335e4f129cadd87fda0fe49baf74670ded491a Merge #16546: External signer support - Wallet Box edition
+v  2021-02-23 18:24:17 +0100 d98f4593cf00ab2973f8113e30506861b24383bc guix: Explicitly set umask in build container
+pr 2021-02-23 18:28:23 +0100 1b045b5eef9a930c78819f3badf93b16b1b53d0b Merge #21053: rpc, test: document {previous,next}blockhash as optional
+pr 2021-02-23 18:56:44 +0100 2e8116149ca45316e7cdd8ed25ea9a130afd0130 Merge #21250: build: make HAVE_O_CLOEXEC available outside LevelDB (bugfix)
+v  2021-02-23 20:05:13 +0100 da30c1bb05b245e7b56c4bb5a6a060e100d407c5 wallet: fix doc typo in signer option
+cr 2021-02-23 20:34:42 +0100 faa06ecc9c357428f3fa7a8f86b41b1220809951 build: Bump minimum Qt version to 5.9.5
+pr 2021-02-23 23:49:00 +0100 587c986ccf88daef5e979eaa91163349e36a544d Merge #21285: wallet: fix doc typo in signer option
+v  2021-02-24 08:35:55 +0100 22664d6287dda243ebf06df4409b50ab509603e1 Revert "qt: Remove Transactionview Edit Label Action"
+v  2021-02-24 08:56:41 +0100 5440c074579f5588cdcff3d33bd1350cee0b7bff qt: Rename "Edit label" to "Edit address label"
+pr 2021-02-24 09:57:21 +0100 b59f2787e53318caad6d3292de2cc6e17995d277 Merge #18017: txmempool: split epoch logic into class
+cr 2021-02-24 11:28:35 +0100 8b08d0f2a5161296d809a154ccde403a33a0f3ea build, doc: Fix configure script output indentation and typos
+v  2021-02-24 11:57:03 +0100 df8f2a11dcadd08840c5311631132a522650a83e test: Replace accidentally placed bit-OR with logical-OR
+pr 2021-02-24 13:19:56 +0100 9307c588d0bedda484487af89f215109d150a598 Merge #21293: test: Replace accidentally placed bit-OR with logical-OR
+pr 2021-02-24 15:31:01 +0100 b54a10e777f912081e5c00dabcf3643b10775a50 Merge #21292: build, doc: Fix configure script output indentation and typos
+pr 2021-02-25 01:22:04 +0100 56f06a986385b24818a53fde24c6f3a0b01f1a93 Merge #21271: guix: Explicitly set umask in build container
+v  2021-02-25 03:14:58 +0100 65363a1bd8b886f5aef5fbc97ca88c9c9b243b21 guix: Rebase on 95aca2991b (1.2.0-12.dffc918)
+cr 2021-02-25 03:14:58 +0100 c33b199456e57d83c21eacd36d3c56d0a123b0d0 guix: Bump glibc and linux-headers
+pr 2021-02-25 08:59:59 +0100 434065a4834442defddc690bf3f59dce24be401b Merge bitcoin-core/gui#219: qt: Prevent the main window popup menu
+pr 2021-02-25 09:02:44 +0100 09bc7bfed1e6c696cb8ec9c6135aaa8551a985c5 Merge bitcoin-core/gui#214: qt: Disable requests context menu actions when appropriate
+pr 2021-02-25 09:09:34 +0100 8ca6bd0dac8fbef0d852e2b537fde9bb510e90bf Merge bitcoin-core/gui#223: qt: Re-add and rename transaction "Edit Label" action
+pr 2021-02-25 10:13:39 +0100 2059d32edbd0ac8e4534b00243385b9fc2a2f3a4 Merge #21200: test: Speed up rpc_blockchain.py by removing miniwallet.generate()
+v  2021-02-25 11:32:51 +0100 4dc2fd6c37f8d85c2e9f19d5f03c72c5a1707455 qt: add RPCConsole::TimeDurationField helper, call systime only once
+v  2021-02-25 11:33:19 +0100 a21be7c401e1b885bb338645248f40023af7a88f gui: add "Last Tx" (CNodeStats::nLastTXTime) to peer details
+v  2021-02-25 12:25:07 +0100 70d3c5d0b987411873d557440607aa4f3f65b1ec gui: add "Last Block" (CNodeStats::nLastBlockTime) to peer details
+pr 2021-02-25 14:32:46 +0100 1b1d8bde1c940345cad57b165dc6b5eaf9782857 Merge #21252: test: Add missing wait for sync to feature_blockfilterindex_prune
+pr 2021-02-25 14:42:48 +0100 cac10e66d230f0c7a9fa1ff44e416b54e03f582f Merge #21264: fuzz: Two scripted diff renames
+pr 2021-02-25 14:44:22 +0100 c0e44ee8e4ba9b9d604f02841eda57938a90a6a5 Merge #21254: test: Avoid connecting to real network when running tests
+pr 2021-02-25 14:49:47 +0100 e49117470b77fb7d53be122c6490ba163c6e304d Merge bitcoin-core/gui#226: Add "Last Block" and "Last Tx" rows to peer details area
+v  2021-02-25 15:10:19 +0100 ace3f4cbdf476ea8b954d98dfaa931076f87a080 test: improve assertions in feature_blockfilterindex_prune.py
+v  2021-02-25 18:05:59 +0100 88c4b9b761964d0b3011126796f272cfca2a9fa2 test: remove unneeded node from feature_blockfilterindex_prune.py
+pr 2021-02-26 10:08:02 +0100 8d37841cdf3a35a97ab7baa058dfc72540d1a43a Merge #21277: wallet: listdescriptors uses normalized descriptor form
+v  2021-02-26 14:55:03 +0100 9d5313df7eedad8562c822f5477747e924929fd3 move-only: Add txorphanage module
+v  2021-02-26 14:55:07 +0100 81dd57e5b1ab1afa7e59468e30ef41bd34f0c8d7 txorphanage: Pass uint256 by reference instead of value
+cr 2021-02-26 14:55:10 +0100 1041616d7eb66281bb4de51ffbc83df0923b2f7e txorphanage: Extract OrphanageAddTx
+v  2021-02-26 14:55:10 +0100 26d1a6ccd5fcc7abec737c0d8c67238561627d59 denialofservices_tests: check txorphanage's AddTx
+cr 2021-02-26 14:55:10 +0100 38a11c355acfc15134c682571b3d92f66b0e7c3c txorphanage: Add lock annotations
+cr 2021-02-26 14:55:10 +0100 83679ffc600305ec0926fd195ee31c11de2ed613 txorphanage: Extract HaveOrphanTx
+cr 2021-02-26 14:55:10 +0100 ee135c8d5b39b0cb8b301a83e286285ab926dca7 txorphanage: Extract AddChildrenToWorkSet
+cr 2021-02-26 14:55:10 +0100 f294da727413210fda279afdc206a4dd12046d56 txorphanage: Extract GetOrphanTx
+v  2021-02-26 15:30:11 +0100 3c4c3c2fdda3a361e3802e97bc3566f815b75de1 net_processing: drop AddOrphanTx
+v  2021-02-26 15:31:09 +0100 03257b832debcb1470420d8657d30ba30f4be770 txorphanage: Extract EraseOrphansForBlock
+cr 2021-02-26 16:07:55 +0100 6bd4963c069bfd0af420e8a3fb724c3b693a1e76 txorphanage: Move functions and data into class
+v  2021-02-26 16:08:09 +0100 eeeafb324ef6057f40b5c5fdd8464110e809b0f7 net_processing: move AddToCompactExtraTransactions into PeerManagerImpl
+v  2021-02-26 16:08:09 +0100 f8c0688b9490c8d4902530ba3c3b6fbd8b48e0de scripted-diff: Update txorphanage naming convention
+pr 2021-02-26 20:26:21 +0100 5ba5becbb5d8c794efe579caeea7eea64f895a13 Merge #21272: guix: Passthrough SDK_PATH into container
+pr 2021-02-27 13:11:58 +0100 fb67caebe26f49a1edfff20c754b8217ef4f23ad Merge #21297: test: feature_blockfilterindex_prune.py improvements
+pr 2021-02-28 06:14:04 +0100 e52ce9f2b312b3cf3b0837918e07d7603e241d63 Merge #21286: build: Bump minimum Qt version to 5.9.5
+v  2021-02-28 19:13:53 +0100 0f035c12fb0a5c5f98fc2b9907d475c08018df36 RPCConsole::updateDetailWidget: convert strings to translated strings
+v  2021-02-28 19:14:35 +0100 6242beeb067139c01dd27c63ebcd24df5808cb15 Hoist repeated translated strings to RPCConsole struct members
+cr 2021-03-01 01:31:41 +0100 8a8c6383f6f9da10b931f00ca1220408fede8f35 zmq test: fix sync-up by matching notification to generated block
+v  2021-03-01 07:00:36 +0100 bd49ac416881ede3e5132789defd3fec4c6f8685 build: fix libnatpmp macos cross compile
+v  2021-03-01 08:53:01 +0100 97f10621f4b76fbfcc0849b10d5edb4d6898ec5e guix: Add curl to required tool list
+v  2021-03-01 09:34:30 +0100 a0a7a4337d06553ab625bbd66ed4198c4bf7f18c guix, doc: Update default HOSTS value
+pr 2021-03-01 11:45:42 +0100 362e901a17cce80cb6af97d4c69dce3f1e7c695b Merge #18466: rpc: fix invalid parameter error codes for {sign,verify}message RPCs
+pr 2021-03-01 12:08:04 +0100 ad89812c70a9b88be642fceffb970859f6fdcba2 Merge #21321: guix: Add curl to required tool list
+cr 2021-03-01 12:56:56 +0100 4cba2fdafa483cbdb70f581174138ec253c80d48 util: extract {Read,Write}BinaryFile() to its own files
+v  2021-03-01 12:57:00 +0100 25605895afe84b1765dd9da9240af22f99489df7 net: check for invalid socket earlier in CConnman::AcceptConnection()
+v  2021-03-01 12:57:00 +0100 545bc5f81d60fa6ff7c5cc43a2e9eef82f911466 util: fix WriteBinaryFile() claiming success even if error occurred
+v  2021-03-01 12:57:00 +0100 8b6e4b3b23027da263d257b342f5d9a53e4032d5 util: fix ReadBinaryFile() returning partial contents
+v  2021-03-01 12:57:01 +0100 1f75a653dd3b24ba2e4383bf951a6e5a3d5ccbcf net: get the bind address earlier in CConnman::AcceptConnection()
+v  2021-03-01 12:57:01 +0100 7c224fdac4699a2c4953b33ab423f9cddbf95cf7 net: isolate the protocol-agnostic part of CConnman::AcceptConnection()
+v  2021-03-01 12:57:01 +0100 f6c267db3be2d7077fd2bdbd34860eba838dea99 net: avoid unnecessary GetBindAddress() call
+v  2021-03-01 13:22:11 +0100 cff65c4a270887ec171293409ab84f5d0d0be7fc net: extend CNetAddr::SetSpecial() to support I2P
+cr 2021-03-01 13:22:17 +0100 34bcfab562bac9887ca9c3831cf4fd0ee7f98149 net: move the constant maxWait out of InterruptibleRecv()
+cr 2021-03-01 13:22:17 +0100 78fdfbea666201b25919dd67454eb04d6a34326f net: dedup MSG_NOSIGNAL and MSG_DONTWAIT definitions
+cr 2021-03-01 13:22:18 +0100 ea1845315a109eb105113cb5fbb6f869e1cf010c net: extend Sock::Wait() to report a timeout
+cr 2021-03-01 15:01:48 +0100 6a0a6e7d0509e48a6cc08c6604a25671d5f8cab4 Correction for VerifyTaprootCommitment comments
+v  2021-03-01 16:24:28 +0100 fbbb2d4fc13971c98c83a51635166ac532e71a32 lint: Fix spelling errors in comments
+v  2021-03-01 17:36:16 +0100 42c779f503eb8437b6232773a4a2472306cc9f3d net: extend Sock with methods for robust send & read until terminator
+v  2021-03-01 17:36:17 +0100 5bac7e45e1d3a07115b5ff002d988438fcc92a53 net: extend Sock with a method to check whether connected
+v  2021-03-01 18:19:37 +0100 c22daa2ecff1acd25426cd46f98f2587d1d324c3 net: implement the necessary parts of the I2P SAM protocol
+v  2021-03-01 18:19:46 +0100 0635233a1e7e8c303073430092afd3e0fb0d927b net: make outgoing I2P connections from CConnman
+cr 2021-03-01 18:19:46 +0100 76c35c60f338937071bcfad4211ef7254d3830ec init: introduce I2P connectivity options
+v  2021-03-01 18:19:46 +0100 9559bd1404fbf74b0d09fe9019a9305cb4e151ce net: add I2P to the reachability map
+v  2021-03-01 18:19:47 +0100 0181e244394bd9e68e9f0d44704e7b0fd12a6b1f net: recognize I2P from ParseNetwork() so that -onlynet=i2p works
+v  2021-03-01 18:19:47 +0100 a701fcf01f3ea9a12e869bfa52321302cf68351c net: Do not skip the I2P network from GetNetworkNames()
+v  2021-03-01 18:19:47 +0100 b905363fa8b0bb03fe34b53b5410880f42e0af39 net: accept incoming I2P connections from CConnman
+pr 2021-03-01 19:12:09 +0100 05e821ee1955797425b7274a16473cec5a920c56 Merge #21170: bench: Add benchmark to write JSON into a string
+v  2021-03-01 23:56:07 +0100 2bdf37fe187ba6f090a0f5299b74d5d82cde4697 validation: Pass in chainstate to CVerifyDB::VerifyDB
+v  2021-03-01 23:56:07 +0100 31eac50c721dd3b0bd2347e76196bf16913e9be9 validation: Remove
+v  2021-03-01 23:56:07 +0100 4bada76237d734c1de38d3bd58689caeefd5e8cb validation: Pass in chainstate to UpdateTip
+v  2021-03-01 23:56:07 +0100 63e4c7316a537900f525e221d8042587b443cc3d validation: Pass in chainstate to ::PruneBlockFilesManual
+v  2021-03-01 23:56:07 +0100 8b99efbcc08ab41caf657c6d730a27e6a91bc356 validation: Move invalid block handling to CChainState
+v  2021-03-01 23:56:22 +0100 8cdb2f7e58dfd9a631a8cbb8f0ee7e8c0c304eb4 validation: Move LoadBlockIndexDB to CChainState
+v  2021-03-01 23:56:23 +0100 1fb7b2c59505a6b9768789f6caad215a0a22ef16 validation: Use *this in CChainState::InvalidateBlock
+pr 2021-03-02 02:03:06 +0100 d1abe54fcee12f2f44be815cb137570e029326dd Merge #21323: guix, doc: Update default HOSTS value
+pr 2021-03-02 02:37:27 +0100 a28c053c885e9c465cfe7cb600ade5ec235ceb55 Merge #21298: guix: Bump time-machine, glibc, and linux-headers
+pr 2021-03-02 02:43:52 +0100 72e6979b31baa48b82e713b63a896aebf75ae8c8 Merge #21325: lint: Fix spelling errors in comments
+cr 2021-03-02 09:09:19 +0100 4899fa3abd740ab2dabb6724d85bf1d3510d9efe doc: Update build instructions for Fedora
+v  2021-03-02 09:36:21 +0100 9086e0dd3c924b6c9a5ad05799d30d97b9ced3be build: set Unicode true for NSIS installer
+v  2021-03-02 10:40:11 +0100 5e50e2d1b95e7ca7709a9671ab21f1164b8d0cb8 txorphanage: comment improvements
+pr 2021-03-02 11:30:17 +0100 cfce346508f1f7513a0cfa2cea7d7f8336d01c6b Merge #21310: zmq test: fix sync-up by matching notification to generated block
+pr 2021-03-02 11:50:13 +0100 b9f41df1ead4b6a83a51fc41966b111c8459c313 Merge #20685: Add I2P support using I2P SAM
+cr 2021-03-02 13:21:32 +0100 10d4477dae663631411a1bd5a92e4fa941d3a96c tests: Add fuzzing harness for TorController
+cr 2021-03-02 13:21:32 +0100 64219c01dcb0aec6ca26170c94223bd7a29dad19 torcontrol: Move TorControlReply, TorControlConnection and TorController to improve testability
+cr 2021-03-02 15:16:24 +0100 35da623574ccae99a4bf1ecc215311a0936a417a Make .gitignore ignore src/test/fuzz/fuzz.exe
+cr 2021-03-02 17:05:28 +0100 1f05dbd06d896849d16b026bfc3315ee8b73a89f util: Avoid invalid integer negation in ValueFromAmount: make ValueFromAmount(const CAmount& n) well-defined also when n is std::numeric_limits<CAmount>::min()
+pr 2021-03-02 17:05:28 +0100 7cc75c9ba38e516067e5a4ab84311c62ddddced7 util: Avoid invalid integer negation in FormatMoney: make FormatMoney(const CAmount& n) well-defined also when n is std::numeric_limits<CAmount>::min()
+cr 2021-03-02 17:55:07 +0100 9fef2099452a21335db38d66c04baec69cbc36ee build, refactor: Fix indentation for if..then..fi
+v  2021-03-02 18:07:31 +0100 a4128138b4837baadde75247cd4fd8ea463b7df5 build: Make AM_CONDITIONAL([ENABLE_EXTERNAL_SIGNER]) unconditional
+v  2021-03-02 21:14:18 +0100 f1f63ac3f833e14badac6edf88ed09d0161e18f7 doc: Remove outdated comment
+cr 2021-03-02 22:43:42 +0100 b22d4c1607b6488b378d3427a708bd71f12f7276 fuzz: Add fuzzing harness for Socks5(...)
+v  2021-03-02 22:44:51 +0100 366e3e1f89d99c62b548087384487b62fd602e17 fuzz: Add FUZZED_SOCKET_FAKE_LATENCY mode to FuzzedSock to allow for fuzzing timeout logic
+cr 2021-03-03 00:16:16 +0100 a061a299708d39ad63f85085ae07c457308823cf test: bring p2p_leak.py up to date.
+pr 2021-03-03 00:20:41 +0100 0b294c0ba84f2993db71f4b8c3cb23ba3c45a66b Merge #21342: doc: Remove outdated comment
+pr 2021-03-03 01:07:54 +0100 0459e7abbac51af28e3b01e6ca0d9826b26a13ff Merge #21336: Make .gitignore ignore src/test/fuzz/fuzz.exe
+pr 2021-03-03 02:57:52 +0100 3a8fc51a560bcf9ad2d6ed188c41e894df910ebc Merge #21333: build: set Unicode true for NSIS installer
+pr 2021-03-03 03:54:38 +0100 4f223e93e9c097c96a1655f9125aec463892da9c Merge #21339: build: Make AM_CONDITIONAL([ENABLE_EXTERNAL_SIGNER]) unconditional
+v  2021-03-03 05:00:06 +0100 bec7f2caf76901a33dcdd2c3bf976f3954131666 doc: install qt5 when building on macOS
+v  2021-03-03 07:44:49 +0100 7bbb409314c63750a9731dedaaf6dd6ecd17d988 guix: Update darwin native packages dependencies
+pr 2021-03-03 08:48:11 +0100 fca3e98f64f0c89674414a18943591a04d61ccbf Merge #18298: build: Fix Qt processing of configure script for depends with DEBUG=1
+cr 2021-03-03 09:17:37 +0100 fa576b4532814b4bca1936d170cabd01fbc51960 Move MakeNoLogFileContext to common libtest_util, and use it in bench
+pr 2021-03-03 10:08:01 +0100 9212e67463512c45626327280b1c8f92fd9a4e8a Merge #21346: doc: install qt5 when building on macOS
+pr 2021-03-03 11:50:00 +0100 dd8f474d52ec25dae06de317682692cc62659ea2 Merge #19288: fuzz: Add fuzzing harness for TorController
+pr 2021-03-03 12:49:59 +0100 b1a457ab1d5abbdd9ff77f2a7a5eb48ec8b4584b Merge #21324: doc: Update build instructions for Fedora
+pr 2021-03-03 12:58:25 +0100 97a35f3ae5bff7f4a25d37d8961191fdbc8c5b67 Merge #21320: build: fix libnatpmp macos cross compile
+v  2021-03-03 14:12:16 +0100 3ba9283a47ac358168db9db7840ae559f443486c tests: more helpful errors for failing versionbits tests
+v  2021-03-03 14:14:40 +0100 0c471a5f306044cbd2eb230714571f05dd6aaf3c tests: check never active versionbits
+pr 2021-03-03 14:41:05 +0100 ebd8d664540c776a35f4fab9cb867033dd8bef45 Merge #19203: net: Add regression fuzz harness for CVE-2017-18350. Add FuzzedSocket.
+pr 2021-03-03 15:19:35 +0100 cabe63759ce890a7d39d72f7b8046195b0edb421 Merge #20877: netinfo: user help and argument parsing improvements
+cr 2021-03-03 18:48:07 +0100 0eaea66e8bfdfb23ff86c0f0924c2d75f5aca75f Make tx relay data structure use std::chrono types
+v  2021-03-03 18:48:07 +0100 4d98b401fbd821700f7a792b0a4cb52c9b71bc9f Change all ping times to std::chrono types
+cr 2021-03-03 18:48:07 +0100 55e82881a1503bff146970856c1474a6ea659c94 Make all Poisson delays use std::chrono types
+cr 2021-03-03 18:48:07 +0100 c733ac4d8a597b1001555b142f488ed9fbecc405 Convert block/header sync timeouts to std::chrono types
+pr 2021-03-03 19:04:36 +0100 47b99ab1a9e918022ea13f54765f5b4e6aad6140 Merge #20406: util: Avoid invalid integer negation in FormatMoney and ValueFromAmount
+v  2021-03-03 20:49:29 +0100 4744efc9bae8b22efb76152a3c045d054c880399 validation: Pass in chainstate to CTxMemPool::check
+cr 2021-03-03 20:49:30 +0100 03f75c42e12a272057adccb6f0077e71f971eeef validation: Use existing chain member in CChainState::LoadGenesisBlock
+v  2021-03-03 20:49:30 +0100 5e4af773809415b71a10e3120cc44854d61c4c19 validation: Use existing chain member in CChainState::AcceptBlock
+v  2021-03-03 20:49:30 +0100 a9d28bcd8d8f71d089322b1d631390352e31ee2b validation: Use *this in CChainState::ActivateBestChainStep
+cr 2021-03-03 20:49:30 +0100 fee73347c0015e4c24595c9708831d76cd6eec8c validation: Pass in chain to FindBlockPos+SaveBlockToDisk
+v  2021-03-03 20:50:15 +0100 c967fb7fb97a86fc434912d0fff621f9f50dfe80 guix: Remove libcap from manifest
+v  2021-03-03 20:56:26 +0100 e11b6496506246882df450586acf735dabedf731 validation: CVerifyDB::VerifyDB: Use locking annotation
+cr 2021-03-03 21:38:45 +0100 d8239362e283107657a5a6577890fdb198a1d334 build, doc: Drop libcap-dev from macOS cross-compiling dependencies
+cr 2021-03-03 21:43:08 +0100 f7f3829a68df173c54ab11ecfe162b840afb64e8 build, doc: Drop libbz2-dev from macOS cross-compiling dependencies
+v  2021-03-04 03:34:18 +0100 ee35745754075d862e1855c77b20a09b260cce75 build: use newer source for libnatpmp
+cr 2021-03-04 05:34:46 +0100 7af25024e9563241c72797d4eeabdf660e548f53 build: compile libnatpmp with -DNATPMP_STATICLIB on Windows
+pr 2021-03-04 08:37:10 +0100 d099894ec124598b37bd4a0a41b2c93e0034108f Merge #20969: test: check that getblockfilter RPC fails without block filter index
+v  2021-03-04 08:39:27 +0100 fa59ad5130d732027d01b8aac04b88326b81ac5b fuzz: Add missing include (test/util/setup_common.h)
+pr 2021-03-04 10:16:38 +0100 92b7efcf54d3154e4b31c9a6eae60f27e349f45e Merge #21148: Split orphan handling from net_processing into txorphanage
+pr 2021-03-04 13:13:43 +0100 33921379b6bb989c9708867fedea1352a8091aa5 Merge #21015: Make all of net_processing (and some of net) use std::chrono types
+pr 2021-03-04 13:20:43 +0100 7450a01691e84ff44ec065dc0e11f549600d4b66 Merge #21358: fuzz: Add missing include (test/util/setup_common.h)
+pr 2021-03-04 13:29:09 +0100 83bdbbd300bb17bef07bc63735a84a0b0ce59958 Merge #21003: test: Move MakeNoLogFileContext to libtest_util, and use it in bench
+pr 2021-03-04 14:55:47 +0100 702cfc8c531d9ab42aa6975c4fc3cacfd1ddfd8f Merge #21055: [Bundle 3/n] Prune remaining g_chainman usage in validation functions
+pr 2021-03-04 16:01:25 +0100 b4d22654fe9e90093e643cb7beb896c48a274d47 Merge #21337: guix: Update darwin native packages dependencies
+cr 2021-03-04 20:54:17 +0100 c77de622dd8ef458f73b1a01a34629a7c4f49358 net: Replace enum CConnMan::NumConnections with enum class ConnectionDirection
+v  2021-03-04 21:29:28 +0100 3f3646855c4005670909c8e76de91ad07c559c66 fuzz: Avoid -Wreturn-type warnings
+pr 2021-03-05 02:41:33 +0100 2620ac4ec3086de3189cd87282cc9ae0f2529cee Merge #21354: build, doc: Drop no longer required packages from macOS cross-compiling dependencies
+pr 2021-03-05 03:30:33 +0100 fbf5d16238d67f901a1f151ddd7e68a17088eeee Merge #21246: doc: Correction for VerifyTaprootCommitment comments
+pr 2021-03-05 03:42:38 +0100 da8c7edffe0c9efe99d56ec9e8b96b3b4e3e275f Merge #21364: fuzz: Avoid -Wreturn-type warnings
+pr 2021-03-05 08:18:42 +0100 f7653eb5ae6ec39ac28f638d4b69efe024dc874e Merge #21345: test: bring p2p_leak.py up to date
+pr 2021-03-05 08:20:44 +0100 ed25cb58f605ba583c735f330482df0bf9348f3a Merge bitcoin-core/gui#217: qt: Make warning label look clickable
+v  2021-03-05 22:30:00 +0100 36aa2955b816c666f1c27cf6f3d43c75444fab48 fuzz: fix gcc Woverloaded-virtual build warnings
+pr 2021-03-06 02:20:03 +0100 48725e64fbfb85200dd2226386fbf1cfc8fe6c1f Merge #21209: build: use newer source for libnatpmp
+v  2021-03-06 21:19:08 +0100 e21276a82a9996c73e43990ccf927397f71399ea qt test: Don't bind to regtest port
+v  2021-03-07 12:18:15 +0100 fa4e088cbac035b8029a10b492849540150d0622 wallet: Mark replaced tx to not be in the mempool anymore
+pr 2021-03-07 12:47:50 +0100 1020b04c390abab2a47177a28dfdc5a9bfc97654 Merge #21334: test: Additional (refactored) BIP9 tests
+pr 2021-03-07 13:04:30 +0100 8c21562180d25389b450dc90e761ba3fc266a9da Merge bitcoin-core/gui#166: refactor: Use enum type as switch argument in *TableModel
+pr 2021-03-07 14:21:02 +0100 8c049fe9afcb749e0b80bb318641aee87c800bc5 Merge #19771: net: Replace enum CConnMan::NumConnections with enum class ConnectionDirection
+pr 2021-03-07 18:56:23 +0100 1a4a9305c2d25eafa5ad5365b4daa2bd15fc6e05 Merge bitcoin-core/gui#221: qt, refactor: rpcconsole translatable string fixes and improvements
+v  2021-03-07 20:25:11 +0100 3a16b5ef95c1c25f8b78e591f985e80b41a6dbdd test: add missing logging to wallet_groups.py
+v  2021-03-07 22:03:38 +0100 5129b36573cb07d8bcbac493506c46e26d7239eb build: Clean remnants of QTBUG-34748 fix
+v  2021-03-07 22:17:28 +0100 173ef8980d921c9c0e46257747ab1165965e3ced build: Small libxcb.mk improvements
+cr 2021-03-08 00:22:57 +0100 21b6a233734da1601846a16a741b108522901782 doc: add signet to share/examples/bitcoin.conf
+v  2021-03-08 00:44:54 +0100 4a285107c11edde2cfc8adfa831c5448c93798d3 doc: add signet to doc/bitcoin-conf.md
+pr 2021-03-08 08:15:11 +0100 e797388f8b91235c06a9589e3258c476c837f897 Merge #21384: doc: add signet to bitcoin.conf documentation
+pr 2021-03-08 08:23:10 +0100 a22653a636e8dfc1b898ef8dd18a77f2d31082a5 Merge #21371: fuzz: fix gcc Woverloaded-virtual build warnings
+v  2021-03-08 15:23:51 +0100 fad0ae6bb8e10b5cb82a5ec014e59b5aafc85b5e doc: Rename fuzz seed_dir to corpus_dir
+pr 2021-03-08 19:52:25 +0100 2067f9e5e89113f514e5d895dcdfa8e73d63c118 Merge bitcoin-core/gui#233: qt test: Don't bind to regtest port
+v  2021-03-08 21:54:21 +0100 a04aac493fd564894166d58ed4cdfd9ad4f561cb validation: Remove extraneous LoadGenesisBlock function prototype
+v  2021-03-08 21:54:31 +0100 021a04a46915468e7508a6ef44e7fbab1426343d net_processing: Move some static functions to PeerManager
+v  2021-03-08 21:54:31 +0100 106bcd4f390137904b5579cfef023fb8a5c8b4b5 node/coinstats: Pass in BlockManager to GetUTXOStats
+v  2021-03-08 21:54:31 +0100 272d993e759e7fcfe883b84e9a2a3be3c75177ec scripted-diff: net_processing: Use existing chainman
+cr 2021-03-08 21:54:31 +0100 2afcf24408b4453e4418ebfb326b141f6ea8647c miner: Remove old CreateNewBlock w/o chainstate param
+v  2021-03-08 21:54:31 +0100 2c3ba006930a5bbbf5a33bd530f3c1b2c4103c74 miner: Pass in blockman to ::RegenerateCommitments
+v  2021-03-08 21:54:31 +0100 46b7f29340acb399fbd2378508a204d8d8ee8fca scripted-diff: Invoke CreateNewBlock with chainstate
+v  2021-03-08 21:54:31 +0100 4cde4a701b8856ac4ec9721b0226dbbfc52a71c3 node: Use existing NodeContext
+v  2021-03-08 21:54:31 +0100 8a1d580b2156268e3ab30f902b3fc9aa87bd2819 node/ifaces: NodeImpl: Use existing NodeContext member
+v  2021-03-08 21:54:31 +0100 91c5b68acd12cf7c2b4888d54d8fdd21837b2817 node/ifaces: ChainImpl: Use existing NodeContext member
+v  2021-03-08 21:54:31 +0100 a67983cd6d8e61565da4e03f3ba401d0148fe195 net_processing: Add review-only assertion to PeerManager
+cr 2021-03-08 21:54:31 +0100 d0de61b764fc7e9c670b69d8210705da296dd245 miner: Pass in chainstate to BlockAssembler::CreateNewBlock
+pr 2021-03-08 22:42:21 +0100 a8b0892b743bf5b0bd7192f801fbc6144320052b Merge #20536: wallet: Error with "Transaction too large" if the funded tx will end up being too large after signing
+v  2021-03-09 00:17:56 +0100 c6b4bfb4b3507f1a62290869d7435b0f54032104 net: Make DNS lookup code testable
+v  2021-03-09 00:17:56 +0100 e5280751890b02abb558b37eb0e0401493f148b4 tests: Add fuzzing harness for Lookup(...)/LookupHost(...)/LookupNumeric(...)/LookupSubNet(...)
+v  2021-03-09 03:17:48 +0100 ebde946a527e50630df180c6565ea5bf8d2ab5aa [doc] Improve comment about protected peers
+pr 2021-03-09 07:54:18 +0100 6c156e49cb7a8ee76780b3dae6e0a53899ffc5e9 Merge #18842: wallet: Mark replaced tx to not be in the mempool anymore
+pr 2021-03-09 08:34:19 +0100 738fc4a595176ed00cd11122f859cf156aba46bc Merge #21363: build, qt: Improve Qt static plugins/libs check code
+pr 2021-03-09 08:46:57 +0100 461f0c781e5a9c13df21ca0c35029f685758d0bb Merge #21382: build: Clean remnants of QTBUG-34748 fix
+v  2021-03-09 09:04:35 +0100 2e5f7def22e1b212fbd69e9147145d9d1f408aaf wallet, rpc: update listdescriptors response format
+pr 2021-03-09 10:42:53 +0100 e175ca9c6563772714cc52787f305cbf4735c48b Merge #21370: Use C++11 member initializer in CNodeState
+v  2021-03-09 10:44:20 +0100 a6b0fe206f4a696e7646e229731a891502c44405 [net processing] Remove unused CNode.address member
+v  2021-03-09 12:56:44 +0100 fa7dc7ae9595ea49a2b31a3baef9af674d8def60 fuzz: Bump FuzzedDataProvider.h
+pr 2021-03-09 13:53:36 +0100 ee0dc02c6f93de2a366bbff490eb4d37bca6a24f Merge #21397: fuzz: Bump FuzzedDataProvider.h
+v  2021-03-09 19:00:10 +0100 fab633d2dbfed1efcc3a02061685d56327ae51fd doc: Update fuzzing docs for afl-clang-lto
+cr 2021-03-09 22:31:47 +0100 ffdd7de690d8dbe813de0108eb2a7997a8027773 build, qt: Fix regression introduced in #21363
+pr 2021-03-10 01:03:32 +0100 bca5ee6f38f0ac89f0bb90d9e005b5bbd7c25b82 Merge #21400: build: Fix regression introduced in #21363
+v  2021-03-10 01:04:04 +0100 d769b3372d9833224a5151000ab99048474f8051 build: only pass -optimized-tools to qt in debug mode
+cr 2021-03-10 01:23:47 +0100 3272e34f9c548f7e4570d786fd322947e3cf20c6 build: Add xkbcommon 0.8.4
+cr 2021-03-10 05:57:22 +0100 06cd0da21fc14360e10204affe240b72715a0267 build: qt 5.12.10
+cr 2021-03-10 05:57:26 +0100 1be8e0f2388e243d310fe7eeb46149a690de4ddf build: Add QMacStyle support
+cr 2021-03-10 05:57:26 +0100 e674e94302dec9933006dde1c18f01a1d4b77d8e build: revert to using Qts internal zlib
+v  2021-03-10 05:57:26 +0100 fa5e97e8c2cf93b7afc0d6b0c460700ec18d18f2 build: disable qt SDK version checking
+v  2021-03-10 05:57:27 +0100 286d07ff1778971d7df456cc18a91db813c1a028 build, qt: Fix lib paths in *.pc files
+v  2021-03-10 05:57:27 +0100 550ed1bed2e8091616a2d64254efdd217d94e808 build: update qt qpaint non determinism patch for 5.12.10
+v  2021-03-10 05:57:27 +0100 6093ae4d30bd3d888eccc4d6cb1c3c1efb7f13fd build: update qt no-xlib patch for 5.12.10
+v  2021-03-10 05:57:27 +0100 84928c4e73a6dba46ec47b5b344d24ed0b201c44 build: update qt android jni static patch for 5.12.10
+v  2021-03-10 05:57:27 +0100 cc6f47d51a0b3a1bb95a1f2a1b67a6d47cfcaa11 build: update qt lrelease patch for 5.12.10
+cr 2021-03-10 07:31:10 +0100 52f0be3a933225429b9b59b58de4fe54c2b20a02 compat: remove memcpy -> memmove backwards compatibility alias
+pr 2021-03-10 07:32:15 +0100 ceb6df391f281aa038ed8da6f19cad39d0d7d92e Merge #21388: doc: Rename fuzz seed_dir to corpus_dir
+pr 2021-03-10 08:24:53 +0100 eea6196c3d8056e51e1780a44ac7f599331247e5 Merge #21331: rpc: replace wallet raw pointers with references (#18592 rebased)
+pr 2021-03-10 10:41:37 +0100 7cdadf91d513250b983b6a1c4672a6acc0dcf074 Merge #21395: Net processing: Remove unused CNode.address member
+pr 2021-03-10 17:01:12 +0100 63314b8211d795b2bf0814e244d801e74f50b152 Merge bitcoin-core/gui#229: Fix regression with initial sorting after pr205
+v  2021-03-10 22:38:21 +0100 68c280f19732fb96bc29113ce9c8007d0101868c test, refactor: abstract the feature_nulldummy blockheight values
+v  2021-03-10 22:47:59 +0100 ccd976dd3dbb8f991dc1203ada2043f1736be5a4 test: use 327 fewer blocks in feature_nulldummy
+cr 2021-03-11 06:45:14 +0100 3ba2840e7ee81341b0748c0121aedc2e9305041a scripted-diff: remove MakeUnique<T>()
+v  2021-03-11 06:45:50 +0100 1a6323bdbe20bdb7b1c907d8fa0333ffa88b21ff doc: update developer notes for removal of MakeUnique
+pr 2021-03-11 11:48:55 +0100 767bb7d5c56b5e3841fcb1cd04e846c485b4f1c5 Merge #21270: [Bundle 4/n] Prune g_chainman usage in validation-adjacent modules
+pr 2021-03-11 11:51:52 +0100 e828fc8f528dbb5425c3e3d1c1d4f1485f045241 Merge #21376: depends: Qt 5.12.10
+v  2021-03-11 15:15:14 +0100 03308b2bfaef5cdf2337a1e8f63edf043d98a7c0 rpc: don't require wallet for enumeratesigners
+v  2021-03-11 15:26:50 +0100 57ff5a42ab89c2774387b53248bbf5902de086b4 doc: specify minimum HWI version
+pr 2021-03-11 15:27:47 +0100 92cf3a22e3c79ce28c5cc9dcbc18348c43cbe4d9 Merge #21007: bitcoind: Add -daemonwait option to wait for initialization
+v  2021-03-11 17:15:05 +0100 c62f9bc0e931f65eef63041d2c53f9a294c0e8d6 test: use fewer blocks in wallet_groups and move sync call
+pr 2021-03-11 17:21:15 +0100 c970c1477da16400b47b84c2ad570c9e5fff8445 Merge #21380: tests: Add fuzzing harness for versionbits
+pr 2021-03-11 19:09:09 +0100 e9b6400a1ef2f1701040dec3fd72cd82bbf1879d Merge #21411: test: add logging, reduce blocks, move sync_all in wallet_ groups
+pr 2021-03-11 19:43:43 +0100 b972913c330a46811e26221490d3ee042529dfb9 Merge bitcoin-core/gui#188: Write PSBTs to file with binary mode
+v  2021-03-11 23:34:39 +0100 91af6b97c9197f8ac9766a8559dd50bbc443ad38 validation: Make DumpMempool(...) and LoadMempool(...) easier to test/fuzz/mock
+v  2021-03-11 23:34:39 +0100 af322c7494d6bc4b94890c85d16623b082c4fe24 tests: Set errno in FuzzedFileProvider. Implement seek(..., ..., SEEK_END).
+v  2021-03-12 03:21:21 +0100 7b3434f8002d1a8cf0dbd0a0caef28e783b1efd8 build: don't try and use -fstack-clash-protection on Windows
+pr 2021-03-12 06:11:10 +0100 a13a8cd8e317ea0c6601d556cc0daa2b8a02001f Merge #21394: [doc] Improve comment about protected peers
+pr 2021-03-12 08:34:15 +0100 e0bc27a14ceb18bfe3dd9ebdae6bef447c4ec922 Merge #21404: refactor: Remove MakeUnique<T>()
+v  2021-03-12 12:37:50 +0100 55966e0cc03f0e380d21a9434b048d4d515b6729 [net processing] Remove CNodeState ctor body
+v  2021-03-12 12:39:22 +0100 6927933782acb9b158787e6f35debb916793f6b1 [net processing] Add ChainSyncTimeoutState default initializers
+v  2021-03-12 13:50:53 +0100 cba4a7e4164aa86b00b0f01beaba4be57ae21790 build, qt: Always test plugins/subdir before adding to search paths
+v  2021-03-12 13:51:10 +0100 72fc043954fa39659c572da09e893dc250f2d0f8 build, qt: Drop redundant -lxcb-static flag
+v  2021-03-12 13:51:10 +0100 cc25f892d27351e60a8cf7bf5e60b167ebe33201 build: Cleanup libxkbcommon_postprocess_cmds
+v  2021-03-12 13:51:11 +0100 e67c0122a4e849ec80a75a1d2a7f2465a921b94a doc: Update dependencies.md with a new Qt version
+cr 2021-03-12 17:55:44 +0100 77833a364a09c463e088069faf4d32dc5cea7242 Revert "qt: Use "fusion" style on macOS Big Sur with old Qt"
+cr 2021-03-13 17:27:11 +0100 61a0f8f9cc2592dc39bb71a88c61d8da05771da0 test: Cleanup test files in test-{security,symbol}-check.py
+v  2021-03-13 17:29:08 +0100 0fc0c00f7ab1a90bf673ba1a01b021d3b1fa7df0 test: Drop unused get_machine function
+pr 2021-03-13 18:52:35 +0100 3c631917f3e0da84ee48295b7d2e93bc202bae0c Merge #21111: Improve OpenRC initscript
+v  2021-03-14 12:13:13 +0100 1a01a5dc8dfaed036f66b06c502dd86fe41868af doc: Update zlib info in dependencies.md
+cr 2021-03-14 13:55:12 +0100 e4c0cada791135e2d0a36638541c03feff0bd6bc ci, gitian: Drop unneeded python3-dev package for macOS builds
+v  2021-03-15 00:23:21 +0100 def1e64bb4fc902bfc19d6487b33cd940f0e0f34 scripted-diff: Drop redundant QString calls
+cr 2021-03-15 03:41:30 +0100 57e980d13ca488031bde6ef197cf34d493d36796 scripted-diff: remove Optional & nullopt
+pr 2021-03-15 07:46:11 +0100 d42078e93b29193c9b7b8c9cd833ec803fadbf9f Merge #21437: gitian, ci: Drop unneeded python3-dev package for macOS builds
+pr 2021-03-15 08:32:15 +0100 16209b1b19420371bebb9e5a46e6c3ecdd656249 Merge #20556: rpc: Properly document return values (submitblock, gettxout, getblocktemplate, scantxoutset)
+pr 2021-03-15 09:05:18 +0100 6bc51af5c2f29882055dbbb917bbc42ab313164a Merge bitcoin-core/gui#250: scripted-diff: Drop redundant QString calls
+pr 2021-03-15 10:13:58 +0100 1e57d14d96ebe485deec6d024bf5017ea2fb8608 Merge #21035: Remove pointer cast in CRPCTable::dumpArgMap
+cr 2021-03-15 10:45:49 +0100 2f0b25a1564e275dc090e4ad6dafcfdf8701494e rpc: remove scantxoutset EXPERIMENTAL warning
+pr 2021-03-15 11:14:47 +0100 c47979778d647140e8f410cefd5b27d4fbc715ee Merge #21426: rpc: remove scantxoutset EXPERIMENTAL warning
+pr 2021-03-15 12:05:13 +0100 eceb3f7707d6793152a00476adae1c4e268ce6f3 Merge #19415: net: Make DNS lookup mockable, add fuzzing harness
+v  2021-03-15 16:27:25 +0100 7c8c140ecc95ab2ac90e20951416886c9ac5fa93 fuzz: Implement fuzzed_dns_lookup_function as lambda
+v  2021-03-15 16:41:09 +0100 12cc5704dbf8384b7821b576aadf90b9875aee5b net: update incorrect Doxygen documentation in netbase.cpp
+v  2021-03-15 16:42:15 +0100 68afd3eeec27a270765ad26cd62d87cd0935e99f tests: Add fuzzing harness for LoadMempool(...) and DumpMempool(...)
+v  2021-03-15 16:53:25 +0100 e6bd74b2e5f7f68614ca77a6667520b39feb9247 net: move Doxygen docs from netbase.cpp to netbase.h
+v  2021-03-15 16:57:48 +0100 8348a3742b938a1f3a24ee73ef8261931f93c7ff net: fix hSocket param in netbase.h::ConnectSocketDirectly()
+pr 2021-03-15 17:26:16 +0100 9a5e097435a3172bb5f31b8f1e4948a7c69df5c9 Merge #21443: fuzz: Implement fuzzed_dns_lookup_function as a lambda
+pr 2021-03-15 17:36:16 +0100 c771fc0dc1bcb48fc6aa77b61c1ff31742ac8bb7 Merge #21424: Net processing: Tidy up CNodeState ctor
+v  2021-03-15 17:45:36 +0100 06e1fb0b170a69996a7ce1ef5203785a7bc6b278 Add new format string placeholders for walletnotify to include relevant block information for transactions
+v  2021-03-15 18:18:42 +0100 b9e3f3530611d5fbb799a401b839ee23e3eba835 Update vcpkg checkout commit.
+pr 2021-03-15 18:52:58 +0100 3ba195aa48d67518fc7884122f8e50a0c993d25e Merge #21398: doc: Update fuzzing docs for afl-clang-lto
+pr 2021-03-15 18:56:06 +0100 67ec26cacff3c2cc4721aabccd85efebd9501ccc Merge #19259: fuzz: Add fuzzing harness for LoadMempool(...) and DumpMempool(...)
+pr 2021-03-15 19:55:38 +0100 b650c9140e00830b49f93a482e8bbb89a198fa8e Merge #21141: wallet: Add new format string placeholders for walletnotify
+pr 2021-03-15 20:03:24 +0100 4ba1bab44390090a939d5ab2dee1440330f9a2d7 Merge #21446: Update vcpkg checkout commit
+v  2021-03-15 20:50:20 +0100 24c6546946f28951aaef7631451a8490888a92b2 test: add ParseUInt8() unit and fuzz test coverage
+v  2021-03-15 23:13:52 +0100 76782e560b87dc87296144aeb4ee85eb3763b8e9 refactor: reuse test string with embedded null char in util_tests
+v  2021-03-16 01:26:35 +0100 da2bb6976dadeec682d163c258c9afecc87d6428 Implement Bech32m encoding/decoding
+v  2021-03-16 01:26:39 +0100 25b1c6e13ddf1626210d5e3d37298d1f3a78a94f Add Bech32m test vectors
+v  2021-03-16 01:29:34 +0100 b77b0cc507bdc716e5236b1d9880e648147e0af9 Add MissingDataBehavior and make TransactionSignatureChecker handle it
+v  2021-03-16 01:29:39 +0100 3820090bd619ac85ab35eff376c03136fe4a9f04 Make all SignatureChecker explicit about missing data
+v  2021-03-16 01:29:39 +0100 497718b467330b2c6bb0d44786020c55f1aa75f9 Treat amount<0 also as missing data for P2WPKH/P2WSH
+v  2021-03-16 01:29:39 +0100 725d7ae0494d4a45f5a840bbbd19c008a7363965 Use PrecomputedTransactionData in signet check
+pr 2021-03-16 09:05:26 +0100 8e6532053f580003869346510fc1dc20c46c8067 Merge bitcoin-core/gui#246: Revert "qt: Use "fusion" style on macOS Big Sur with old Qt"
+v  2021-03-16 09:48:26 +0100 4d008f908e18abee9513560e36a92a0e97c65d68 Always add -daemonwait to known command line arguments
+v  2021-03-16 11:00:57 +0100 7059e6d82275b44efc41675ee10760145b6c1073 test: add a test to ensure RecvUntilTerminator() limit works
+v  2021-03-16 11:00:57 +0100 80a5a8ea2b7ad512c74c29df5b504e9be6cf23a0 i2p: limit the size of incoming messages
+pr 2021-03-16 11:47:36 +0100 cb0aafbd21c175743ab7a5ad4872af16b0bb9f30 Merge #21444: net, doc: Doxygen updates and fixes in netbase.{h,cpp}
+pr 2021-03-16 11:52:54 +0100 af6ee1754511876198a199005eb0273b3c856e60 Merge #21405: compat: remove memcpy -> memmove backwards compatibility alias
+pr 2021-03-16 12:06:26 +0100 3b408d21e0938b08ef8dfc79b45508421638988c Merge #21438: test: add ParseUInt8() test coverage
+pr 2021-03-16 13:07:10 +0100 77234793004a757426f67389d09bcee502033aa1 Merge #220: Do not translate file extensions
+pr 2021-03-16 13:11:59 +0100 1b6c463e033f861561d1a46ccf7eec069bbac09f Merge #21407: i2p: limit the size of incoming messages
+v  2021-03-16 13:53:25 +0100 3088f83d016e7ebb6e6aa559e6326fa0ef0d6282 fuzz: extend FuzzedSock::Recv() to support MSG_PEEK
+v  2021-03-16 13:53:26 +0100 5a887d49b2b39e59d7cce8e9d5b89c21ad694f8b fuzz: avoid FuzzedSock::Recv() repeated errors with EAGAIN
+v  2021-03-16 13:53:26 +0100 b5861100f85fef77b00f55dcdf01ffb4a2a112d8 net: add connect() and getsockopt() wrappers to Sock
+v  2021-03-16 13:58:23 +0100 82d360b5a88d9057b6c09b61cd69e426c7a2412d net: change ConnectSocketDirectly() to take a Sock argument
+v  2021-03-16 13:59:18 +0100 9947e44de0cbd79e99d883443a9ac441d8c69713 i2p: use pointers to Sock to accommodate mocking
+v  2021-03-16 14:58:38 +0100 2d8ac779708322e1235e823edfc9c8f6e2dd65e4 fuzz: add tests for the I2P Session public interface
+pr 2021-03-16 15:10:47 +0100 01bb3afb5197cffec6bfe324a2efc314ddfdca57 Merge #21447: Always add -daemonwait to known command line arguments
+v  2021-03-16 17:18:54 +0100 d09120b7d1d5c94ec89f8d2c1d9060e7388be057 test: give fundraw more time for test_transaction_too_large
+v  2021-03-16 17:30:01 +0100 1a6a0b0dfb90f9ebd4b86d7934c6aa5594974f5f wallet: Use existing feerate instead of getting a new one
+v  2021-03-16 17:32:56 +0100 e2f429e6bbf7098f278c0247b954ecd3ba53cf37 wallet: Replace nFeeRateNeeded with effective_fee
+v  2021-03-16 18:46:15 +0100 bb3f79fbdcd792aff04b2bf111de13219cd9ad56 doc: Update libnatpmp info in dependencies.md
+cr 2021-03-16 18:48:36 +0100 fe5e495c31de47b0ec732b943db11fe345d874af Use Bech32m encoding for v1+ segwit addresses
+cr 2021-03-16 18:48:40 +0100 2e7c80fb5be82ad4a3f737cab65b31f70a772a23 Add signet support to gen_key_io_test_vectors.py
+pr 2021-03-16 19:25:31 +0100 5ef16038a1a8adc25438d77f60d83b2c01738fcf Merge #21410: test: increase rpc_timeout for fundrawtx test_transaction_too_large
+cr 2021-03-16 19:52:31 +0100 6423c8175fad3163c10ffdb49e0df48e4e4931f1 p2p, refactor: pass and use uint16_t CService::port as uint16_t
+v  2021-03-16 19:52:33 +0100 2875a764f7d8b1503c7bdb2f262964f7a0cb5fc3 util: add ParseUInt16(), use it in SplitHostPort()
+v  2021-03-16 19:52:35 +0100 6f09c0f6b57ac01a473c587a3e51e9d477866bb0 util: add missing braces and apply clang format to SplitHostPort()
+v  2021-03-16 19:52:37 +0100 52dd40a9febec1f4e70d777821b6764830bdec61 test: add missing netaddress include headers
+cr 2021-03-16 21:32:38 +0100 448d04b931f86941903e855f831249ff5ec77485 wallet: Move long term feerate setting to CreateTransaction
+v  2021-03-16 21:33:27 +0100 bdd0c2934b7f389ffcfae3b602ee3ecee8581acd wallet: Move discard feerate fetching to CreateTransaction
+v  2021-03-16 22:16:57 +0100 f9cd2bfbccb7a2b8ff07cec5f6d2adbeca5f07c3 Rename CoinSelectionParams::effective_fee to m_effective_feerate
+pr 2021-03-17 01:14:48 +0100 d25e28c20b0987c15c55e106de39cd46d32a802b Merge #21083: wallet: Avoid requesting fee rates multiple times during coin selection
+pr 2021-03-17 02:54:27 +0100 993ecafa5eb7f87574e2befc0e2057d4662a7f56 Merge #21417: Misc external signer improvement and HWI 2 support
+cr  2021-03-17 07:56:20 +0100 ebc4ab721b0371c0ef217c0f5bd7d42613e951e6 refactor: post Optional<> removal cleanups
+v 2021-03-17 10:35:30 +0100 fa2a80bf12d87c1d8a1a98b2faa8eea6731aac0e refactor: Pass PeerManagerImpl members only once
+v 2021-03-17 20:38:00 +0100 ef3e1d7272d294c65cc9904079571cf67dc6c463 qt: Improve URI/file handling message
+v  2021-03-18 01:59:22 +0100 03346022d611871f2cc185440b19d928b9264d9d naming nits 
+pr 2021-03-18 04:36:48 +0100 d6e3ac89d4e636f9a8e79a7db2381f2bff465f3a Merge #21343: doc: revamp macOS build doc
+pr  2021-03-18 04:40:45 +0100 bf7c22f7ff83c1e16dfbc1496bdd5d278ccee2d9 Merge #21435: doc: Update dependencies.md
+pr  2021-03-18 07:57:50 +0100 e057e01b7b7bf537c2f3b23bb56821e7c0e5a24c Merge #21162: Net Processing: Move RelayTransaction() into PeerManager
+pr 2021-03-18 08:58:46 +0100 6834e02c896b97ecbd2ad8251c5b09612b27bf10 Merge #21425: refactor: Pass PeerManagerImpl members only once   
+v  2021-03-18 09:12:37 +0100 fae7c0429f96e08bcac944f6fa30264636dfda8c log: Clarify that block request below NODE_NETWORK_LIMITED_MIN_BLOCKS disconnects
+v  2021-03-18 09:15:16 +0100 fae77b9e6dc9e59b355d56df49c4d9685b6f40a4 net: Simplify ProcessGetBlockData execution by removing send flag.
+v  2021-03-18 09:16:11 +0100 fa8177324392c923c6ce39056cfd870af55ab673 style-only: Remove whitespace
+pr 2021-03-18 10:45:18 +0100 a65e772fec62a083cb3037a5880829a1965e12fc Merge #21428: test: Cleanup in test-{security,symbol}-check.py
+v  2021-03-18 18:43:52 +0100 faa9ef49d18da9223220afcc263ac91a74c291a6 fuzz: Add tx_pool fuzz targets
+v  2021-03-18 19:58:04 +0100 92990e25b7e5d02651ffa27f2d57c4c2c190668e build: Make macOS-specific targets available for macOS builds only
+cr 2021-03-18 19:58:13 +0100 3d31abbaaad599443ec5ffee90ddb6989a625277 build: Make Windows-specific targets available for Windows builds only
+pr 2021-03-18 20:37:21 +0100 8ec881d3b6947d1e58917324606043ccb9d6198a Merge #20861: BIP 350: Implement Bech32m and use it for v1+ segwit addresses
+v  2021-03-18 22:28:46 +0100 5c0210e3e639727dc3606f06b7c8aa3bb0008314 bugfix: fix bech32_encode calls in gen_key_io_test_vectors.py
+pr 2021-03-19 04:32:29 +0100 47d79c941abcf79a88c7fe9d5f420fcdd4890c62 Merge #21471: bugfix: fix bech32_encode calls in gen_key_io_test_vectors.py
+v  2021-03-19 06:05:21 +0100 1639c3b76c3f2b74606f62ecd3ca725154e27f1b tests: Add fuzzing harness for versionbits
+pr 2021-03-19 09:58:13 +0100 05757aa860215a8fd5002d99b6ec653175c6b734 Merge #21423: build: Cleanups and follow ups after bumping Qt to 5.12.10
+pr 2021-03-19 18:56:34 +0100 3a12fdba51712f8e7a51d1a75ea0e8da9513c8ac Merge #21235: p2p: Clarify disconnect log message in ProcessGetBlockData, remove send bool
+v  2021-03-19 19:24:40 +0100 ea76f4ac7d6e8c268d301d7ae6c8d4d8d804d55f Doc: Tell howto install clang-format on Debian/Ubuntu
+v  2021-03-19 19:35:42 +0100 d09ebc47233187ab8dd5a70df4d261353958978c  Fix wrong(1024) divisor for 1000-based prefixes
+pr 2021-03-19 20:00:48 +0100 7f3fd341178f08c9ddb5b959e02676ad6bca3370 Merge #21481: doc: Tell howto install clang-format on Debian/Ubuntu
+cr 2021-03-19 20:11:29 +0100 f126cbd6de6e1a8fee0e900ecfbc14a88e362541 Extract ProtectEvictionCandidatesByRatio from SelectNodeToEvict
+v  2021-03-19 20:11:39 +0100 41f84d5eccd4c2620bf6fee616f2f8f717dbd6f6 Move peer eviction tests to a separate test file
+v  2021-03-19 20:11:41 +0100 ca63b53ecdf377ce777fd959d400748912266748 Use std::unordered_set instead of std::vector in IsEvicted()
+v  2021-03-19 20:11:43 +0100 72e30e8e03f880eba4bd1c3fc18b5558d8cef680 Add unit tests for ProtectEvictionCandidatesByRatio()
+v  2021-03-19 20:11:45 +0100 8b1e156143740a5548dc7b601d40fb141e6aae1c Add m_inbound_onion to AttemptToEvictConnection()
+v  2021-03-19 20:11:47 +0100 8f1a53eb027727a4c0eaac6d82f0a8279549f638 Use EraseLastKElements() throughout SelectNodeToEvict()
+v  2021-03-19 20:13:04 +0100 caa21f586f951d626a67f391050c3644f1057f57 Protect onion+localhost peers in ProtectEvictionCandidatesByRatio()
+v  2021-03-19 20:13:11 +0100 0cca08a8ee33b4e05ff586ae4fd914f5ea860cea Add unit test coverage for our onion peer eviction protection
+pr 2021-03-19 20:47:10 +0100 18cd0888ef6285f5f496c01bbcf6884565def06f Merge #21328: net, refactor: pass uint16 CService::port as uint16
+pr 2021-03-19 20:52:16 +0100 3530d5d2d851d025b013b2ea79ed39a57cbbafcd Merge #18335: bitcoin-cli: print useful error if bitcoind rpc work queue exceeded
+v  2021-03-19 22:35:56 +0100 732c7bddeb9cd4e9fe80ebb7ee98d0f9fcc6a9d3 tests: Add test for CNetAddr::ToString IPv6 address formatting (RFC 5952)
+v  2021-03-19 23:50:36 +0100 3d086f42ab58f0f5984101d5285d5a707e3dc8e7 test: add ParseUInt16() test coverage
+v  2021-03-20 00:30:52 +0100 581791c62067403fbeb4e1fd88c1d80549627c94 test: add functional test for anchors.dat
+v  2021-03-20 11:24:36 +0100 1c25adf6d278eb1a1f018986a126d0eb8137e0ee [net] Construct addrman outside connman
+v  2021-03-20 11:24:40 +0100 392a95d393a9af01b53e5e68197e81968efb84fc [net_processing] Keep addrman reference in PeerManager
+cr 2021-03-20 11:24:40 +0100 7c4cc67c0c3c50df004ee53cac5b2884b7fbab29 [net] remove CConnman::AddNewAddresses
+cr 2021-03-20 11:24:40 +0100 8073673dbcb2744fcc9c011edf2d61388ca929cd [net] remove CConnman::SetServices
+v  2021-03-20 11:24:40 +0100 bcd7f30b7944892db7ae37069175804567bb0cdf [net] remove CConnman::MarkAddressGood
+v  2021-03-20 12:03:12 +0100 55554463c15e3c75a64d26209dd3f8396e508cc2 fuzz: Use ConsumeWeakEnum in addrman for service flags
+pr 2021-03-20 12:46:11 +0100 63952f73b3041468fe3b25fa54858db7899273fa Merge #20921: validation: don't try to invalidate genesis block in CChainState::InvalidateBlock
+v  2021-03-21 02:21:41 +0100 aa7f418fe32b3ec53285693a7731decd99be4528 fuzz: cleanups for versionbits fuzzer
+pr 2021-03-21 07:51:11 +0100 4132193617a31394933c748bbdc1f441a21a39b4 Merge #21040: wallet: Fix already-loading message grammar
+pr 2021-03-21 08:05:00 +0100 9dbec0560054ba35d7df166f0fc75def70245e34 Merge #21349: build: Fix fuzz-cuckoocache cross-compiling with DEBUG=1
+pr 2021-03-21 08:12:56 +0100 d2a78ee9288e4d3bace9125bcfae6b7747f85982 Merge #21488: test: add ParseUInt16() unit test and fuzz coverage
+v  2021-03-21 11:14:35 +0100 7e3444805ed747db819d7bf630feafc31783e5de test: remove duplicate assertions in util_tests
+cr 2021-03-21 22:33:27 +0100 ebfb10cb75adb704418d08197681c1e742e63bd5 Qt: add Android packaging support
+v  2021-03-21 22:33:35 +0100 246774e26459cb3652e308880abdd140e8e9d204 depends: fix Qt precompiled headers bug
+cr 2021-03-21 22:33:35 +0100 7563720e30a3052b7ee390f1b3d2874856fd073a CI: add Android APK build script
+v  2021-03-21 22:33:35 +0100 8e7ad4146d55f472e3d1dacaabb6b7dee704a896 depends: disable Qt Vulkan support on Android
+v  2021-03-21 22:33:35 +0100 ba46adaa1abd51798394b5bad3799021adc237d2 CI: add Android APK build to cirrus
+v  2021-03-21 22:45:26 +0100 810b1310d6173250df850db0538e7f1b1cfb2843 build: Do not build unused CoreWLAN stuff in depends for macOS
+v  2021-03-22 04:22:06 +0100 5294f0d5a94cc7beaf692131fba0cad8beec9f13 refactor: return std::nullopt instead of {}
+pr 2021-03-22 04:43:35 +0100 80cb51cc6b417fb7b23fc8b299f0605e7f82c62d Merge #21491: test: remove duplicate assertions in util_tests
+pr 2021-03-22 06:42:04 +0100 786654aa5e0b7a7f91404e8fb9c3b2a7f7a421ba Merge #21498: refactor: return std::nullopt instead of {}
+pr 2021-03-22 08:35:21 +0100 1e4a3c057a9bf8d64aa414d783dc9aa37bd67536 Merge #21317: util: Make Assume() usable as unary expression
+v  2021-03-22 11:25:39 +0100 3fc06d3d7b43dc1143fe0850db23c4e7ffbfe682 [net] remove fUpdateConnectionTime from FinalizeNode
+cr 2021-03-22 13:42:13 +0100 663f6cd9ddadeec30b27ec12f0f5ed49f3146cc9 contrib: Use -daemonwait in systemd init script
+pr 2021-03-22 15:15:14 +0100 c46f1ce75196860c8b036d2965faac7db3aa4414 Merge #21418: contrib: Make systemd invoke dependencies only when ready
+v  2021-03-22 18:10:49 +0100 0eabb2abede1230edcc0d7b660d9635135f0b4c1 build: Remove unused header from the build system
+v  2021-03-23 01:39:16 +0100 180dc3c8863fc42e93657eda839001a2a35ef634 build: miniupnpc 2.2.2
+pr 2021-03-23 05:03:10 +0100 1c3a8579c0a87cfb05a4090e50143cd932e9799e Merge #21421: build: don't try and use -fstack-clash-protection on Windows
+pr 2021-03-23 09:43:15 +0100 d400e672a032e28f976332553b9a0e23d1927ae6 Merge #21487: fuzz: Use ConsumeWeakEnum in addrman for service flags
+pr 2021-03-23 09:59:40 +0100 fd2b22bf24d81027d9908d1e8aff498d6cf1a463 Merge #21142: fuzz: Add tx_pool fuzz target
+v  2021-03-23 10:58:32 +0100 fa2b95f8615453cb1c2829292afed8d2fbd4f045 fuzz: Style fixups
+v  2021-03-23 10:58:36 +0100 fac921f23f1a9cd1eb9da903e0b9a35aa391a1b8 fuzz: Fix tx_pool target to properly fuzz immature outpoints
+pr 2021-03-23 11:11:02 +0100 55ceaeb8c4a271a80d0b247ac3ff4135de5b5600 Merge #18030: doc: Coin::IsSpent() can also mean never existed
+pr 2021-03-23 12:59:09 +0100 3c87dbe95c925274f80234ad4a88beb5a05fdfff Merge #21497: build: Do not opt-in unused CoreWLAN stuff in depends for macOS
+v  2021-03-23 15:04:42 +0100 257f55c119c2c63245f3a84a9cd8f7aaeaf2d129 qt, refactor: Drop redundant setEditTriggers(NoEditTriggers) calls
+cr 2021-03-23 15:51:43 +0100 085b3a729952896ccd0e40c17df569f4421f5493 rpc: deprecate `addresses` and `reqSigs` from rpc outputs
+v  2021-03-23 15:51:46 +0100 90ae3d8ca68334ec712d67b21a8d4721c6d79788 doc: Add release notes for -deprecatedrpc=addresses and bitcoin-tx
+pr 2021-03-23 15:57:58 +0100 837e59eff6acb03c6c93b5fd36a249c28b39eacf Merge bitcoin-core/gui#248: Fix: For values of "Bytes transferred" and "Bytes/s" with 1000-based prefix names use 1000-based divisor instead of 1024-based
+pr 2021-03-23 16:04:31 +0100 681c21be9abb2b0b05b6c4f7f6dfaece9b3a75bf Merge #21512: fuzz: Fix tx_pool target to properly fuzz immature outpoints
+v  2021-03-23 17:14:13 +0100 51eef4a03ee8151c1c63b902cb3254116a2a2173 doc: Add release notes for #18335 (rpc work queue exceeded error)
+v  2021-03-23 18:13:30 +0100 915e34112b5a4c2ef391d7e3706603bcd6f62a2a qt: fix issue when disabling the auto-enabled blank wallet checkbox
+v  2021-03-23 18:57:59 +0100 18a9b27dd68dc9044a82fba0802b8cb5c68d10ce p2p: Don't send FEEFILTER in blocksonly mode
+v  2021-03-23 20:32:47 +0100 1a27af1d7b5ec18b4248ead1eaf0f381047b4b24 rpc: Improve gettxoutsetinfo help
+v  2021-03-23 20:32:50 +0100 4973c5175c5fd1f4791ea26e8ddefd6fb11ac1c3 test: Remove wallet dependency of utxo set hash test
+v  2021-03-23 20:47:24 +0100 4f2653a89018fa4d24bd2a551832a7410b682600 test: Use deterministic chain in utxo set hash test
+pr 2021-03-23 21:06:41 +0100 fa2a5b8f3aeb978b64189203cbbe95a00ac92a6a Merge #20421: build: miniupnpc 2.2.2
+v  2021-03-24 00:57:17 +0100 39a9ec579f023ab262a1abd1f0c869be5b1f3f4d Unconditionally check for fRelay field in test framework
+v  2021-03-24 06:57:55 +0100 fa818ca202cbab7f04ff467edd1757a1a3a7afdc fuzz: [refactor] Use PickValue where possible
+pr 2021-03-24 07:15:35 +0100 f95071a3f5d3e968f5c7c4d36397fc08b5849ee9 Merge #21489: fuzz: cleanups for versionbits fuzzer
+pr 2021-03-24 08:27:03 +0100 7ce7ce5716c839c2988364c8356e8770795cce8b Merge #21338: test: add functional test for anchors.dat
+pr 2021-03-24 09:52:17 +0100 f67b5dca576669bfed0cf4af9f2cc6273010a0d7 Merge #20734: build: Make platform-specific targets available for proper platform builds only
+v  2021-03-24 11:31:48 +0100 804ac106313eb52d3a86f42c681b42acf90974c8 remove unnecessary newline from initWarning() argument
+pr 2021-03-24 18:50:51 +0100 b1281b5d8fe346bb275929acbc7fba82c24621cd Merge #21516: remove unnecessary newline from initWarning() argument
+pr 2021-03-24 19:02:01 +0100 23b15601dfeb0f4e61343acce3bf3111f54ea6e7 Merge #17227: Qt: Add Android packaging support
+pr 2021-03-24 19:28:24 +0100 ed49203daabb6550d44518792c30faad64bf9a9f Merge #21357: test: Unconditionally check for fRelay field in test framework
+v  2021-03-24 20:40:56 +0100 07156eb387ea580be5e2ce4a1744992ce7575903 node/coinstats: Replace #include with fwd-declaration
+v  2021-03-24 20:40:56 +0100 0c1b2bc549aec77b247f0103652d883227841ac5 Revert "miner: Remove old CreateNewBlock w/o chainstate param"
+cr 2021-03-24 20:40:56 +0100 7b8e976cd5ac78a22f1be2b2fed8562c693af5d9 miner: Add chainstate member to BlockAssembler
+cr 2021-03-24 20:40:56 +0100 e62067e7bcad5a559899afff2e4a8e8b7e9f4301 Revert "miner: Pass in chainstate to BlockAssembler::CreateNewBlock"
+cr 2021-03-24 20:40:56 +0100 eede0647b06b6009080c4e536a2705e911d6ee19 Revert "scripted-diff: Invoke CreateNewBlock with chainstate"
+v  2021-03-25 02:17:40 +0100 ec76bad655b105916693c7a415b7c7cf0a924f16 build, qt: Fix static builds on macOS Big Sur
+pr 2021-03-25 04:38:30 +0100 8f94c70625eb1944d5ab262a31b28350c0c3e98f Merge #21495: build, qt: Fix static builds on macOS Big Sur
+pr 2021-03-25 08:02:11 +0100 9217f9fe7351d9c36803456f88ae561e23f17ac9 Merge #21522: fuzz: [refactor] Use PickValue where possible
+cr 2021-03-25 15:28:32 +0100 dc4551c22c46104d18e8e7a8bf133cbebe4bc89f remove incompatibility release note for darkmode on macos
+v  2021-03-25 21:41:56 +0100 beead33a21483c4901e76799ba5c8f7d6fdfffe9 [test] no send feefilters when txrelay is turned off
+pr 2021-03-26 08:52:59 +0100 9b48b3ac42294410cb56e7da24a261fa69ddb503 Merge #21390: test: Test improvements for UTXO set hash tests
+pr 2021-03-26 17:30:21 +0100 19e3e654293858141f39eef8fdae0badd224090f Merge bitcoin-core/gui#243: fix issue when disabling the auto-enabled blank wallet checkbox
+pr 2021-03-27 02:06:53 +0100 e658b0e49bee257e197dd8ca37ee3ffa73092d92 Merge #21505: build: Remove unused header from the build system
+pr 2021-03-28 18:21:24 +0100 c00852653f2bf9cd3ee53ab05d574fe4a9ff6dcc Merge bitcoin-core/gui#254: refactor: Drop redundant setEditTriggers(NoEditTriggers) calls
+v  2021-03-28 18:29:46 +0100 b8e76479cea448d4e00f698fe39ab3e0228ab22d ci: Bump macOS VM image to the latest version
+v  2021-03-28 19:04:24 +0100 fa908a41f3b86622e4635b3478467e19fa67b571 ci: Set DEPENDS_DIR when setting BASE_ROOT_DIR
+v  2021-03-28 19:05:31 +0100 fac577d42330e57c17540cabdb8be43c90b715d9 ci: Build depends only once for Android build
+v  2021-03-28 19:05:46 +0100 fa97a17ac332d2270f80497d5660665e88ea621c ci: Bump Android cross-build to Ubuntu Focal
+v  2021-03-28 19:06:36 +0100 ffff4e7373f7c1260e6a8347b4ea1a99db4fff76 cirrus: Only cache releases when needed
+v  2021-03-28 19:06:39 +0100 fa52d7d3adc99c0e716628058b4fd083034d27e0 cirrus: Add missing depends_sources_cache to Android task
+pr 2021-03-29 04:04:55 +0100 de4d3ba43705ea313f92f17295005c371a8d0bd0 Merge #21541: ci: Build depends only once for Android build
+v  2021-03-29 04:08:29 +0100 87deac66aa747481e6f34fc80599e1e490de3ea0 rand: only try and use freeifaddrs if available
+v  2021-03-29 04:09:40 +0100 879215e665a9f348c8d3fa92701c34065bc86a69 build: check if -lsocket is required with *ifaddrs
+v  2021-03-29 04:09:44 +0100 4783115fd4cccb46a7f8c592b34fa7c094c29410 net: add ifaddrs.h include
+cr 2021-03-29 04:12:26 +0100 9ac86bcc0d72cdcecdbf8884a557095bbc3cdc11 test: remove qt byteswap compattests
+pr 2021-03-29 06:39:42 +0100 ea3c9a92c688537c4b609a8f1880f03b14890d85 Merge bitcoin-core/gui#251: Improve URI/file handling message
+pr 2021-03-29 08:27:05 +0100 97e6a7f98cdbba051662d1aef8febe383e13b603 Merge #21477: test: Add test for CNetAddr::ToString IPv6 address formatting (RFC 5952)
+v  2021-03-29 09:01:19 +0100 7c543bc27b6bca443060398327070f1fc27abaf7 build: Enable safe warnings for msvc builds
+pr 2021-03-29 10:09:08 +0100 11840509fb44defcd0fb97d3a66d97d8ad9013c2 Merge #21484: doc: Add release notes for #18335
+pr 2021-03-29 10:17:19 +0100 3bcd278aa60adf925218a1d59506d525ae639bb3 Merge bitcoin-core/gui#154: qt: Support macOS Dark mode
+pr 2021-03-29 10:52:58 +0100 cf11f9c22ff42c62598c753eda790275616d1c50 Merge #21531: test: remove qt byteswap compattests
+pr 2021-03-29 10:56:47 +0100 4399dc81420f5a106bc34384b837bbd9aba7ddef Merge #21509: p2p: Don't send FEEFILTER in blocksonly mode.
+cr 2021-03-29 12:15:23 +0100 01a79ff924b11f91796d4aa63c571897b047ac7d [net processing] Fix overindentation in MaybeSendAddr()
+cr 2021-03-29 12:15:23 +0100 4ad4abcf07efefafd439b28679dff8d6bbf62943 [net] Change addr send times fields to be guarded by new mutex
+cr 2021-03-29 12:15:23 +0100 ad719297f2ecdd2394eff668b3be7070bc9cb3e2 [net processing] Extract `addr` send functionality into MaybeSendAddr()
+cr 2021-03-29 12:15:23 +0100 c02fa47baa517e17b5c43bde3902b1e410c1b93f [net processing] Only call GetTime() once in SendMessages()
+v  2021-03-29 12:15:23 +0100 c87423c58b5165de835a49bebd566538a70c07ab [net processing] Change MaybeSendAddr() to take a reference
+pr 2021-03-29 14:14:31 +0100 1c7be9ab90af14d24f4668b02d9f07cec6f88a78 Merge #20286: rpc: deprecate `addresses` and `reqSigs` from rpc outputs
+v  2021-03-29 14:56:51 +0100 faeba9819d81e0f41756a45db55030ec3ba9f044 rpc: Missing doc updates for bumpfee psbt update
+v  2021-03-29 14:57:14 +0100 1111896eb7865a7bc474ee2aa338c97c22a66c14 doc: Merge release notes
+v  2021-03-29 21:37:59 +0100 95cccf8a4b392959c1fd7ec0647e04eb13880865 util: introduce helper AnyPtr to access std::any instances
+cr 2021-03-29 22:29:42 +0100 8dbb87a3932f81e23ba7afd865b9aeeb535f0c20 refactor: replace util::Ref by std::any (C++17)
+cr 2021-03-29 22:29:47 +0100 916ab0195d567fd0a9097045e73a6654c453adea remove unused class util::Ref and its unit test
+v  2021-03-30 00:40:22 +0100 84f3939ece9f4901141b28fd2dd6e3899d01d66e Remove support for subdescriptors expanding to multiple scripts
+v  2021-03-30 00:40:22 +0100 a917478db0788b244c0c799b98bf67a94df7035e refactor: move population of out.scripts from ExpandHelper to MakeScripts
+v  2021-03-30 01:38:38 +0100 4441c6f3c046c0b28ce3f0ca6d938af71d797586 Make DescriptorImpl support multiple subscripts
+v  2021-03-30 01:38:41 +0100 6ba5dda0c9de75196c6a427d9e59d39e5a41bff7 Account for key cache indices in subexpressions
+pr 2021-03-30 01:42:15 +0100 3ececa76b70cbc5b0eaba3a0ddf72f9bd681d906 Merge #21543: build: Enable safe warnings for msvc builds
+v  2021-03-30 01:44:07 +0100 17e006ff8d5e42f22474c5191d1b745bbc97571f refactor: split off subscript logic from ToStringHelper
+cr 2021-03-30 01:44:13 +0100 0b188b751f970027c52729e0c223cc9257669322 Clean up context dependent checks in descriptor parsing
+cr 2021-03-30 01:44:13 +0100 33275a96490445e293c322a29a3b146ccb91083c refactor: move uncompressed-permitted logic into ParsePubkey*
+v  2021-03-30 07:54:08 +0100 765e0be5347e9d85cee03255204d94119e4cbf38 build: split native_cctools
+v  2021-03-30 08:30:43 +0100 fa98f3f66ecb0a0c6805dcdcf828f12a1a11c3e6 fuzz: [refactor] Use ConsumeScript in signature_checker fuzz target
+v  2021-03-30 09:16:22 +0100 eeee8f5be1d4ccfb7e237248be5c6bef45b0fbb8 fuzz: Removed unused try-catch in coins_view
+cr 2021-03-30 09:42:45 +0100 fa4926cca68db2433e579d9b4a642248a9314673 fuzz: [refactor] Use IsValidFlagCombination in signature_checker fuzz target
+pr 2021-03-30 11:28:15 +0100 1999baac30a1fc8328f3f175ad2a762c5114666d Merge #20228: addrman: Make addrman a top-level component
+pr 2021-03-30 15:20:47 +0100 dede9eb9247363aacc3816c7352494a3609fa28b Merge #20197: p2p: protect onions in AttemptToEvictConnection(), add eviction protection test coverage
+pr 2021-03-30 16:41:13 +0100 f9e86d89660002d3dd17211d8b030a47b95d2fa2 Merge #21387: p2p: Refactor sock to add I2P fuzz and unit tests
+v  2021-03-30 18:52:22 +0100 1dd8ed7a8491e51b76eeb236b15b794d9254f674 net_processing: Move comments to declarations
+v  2021-03-30 18:52:22 +0100 693414d27181cf967f787a2ca72344e52c58c7f0 node/ifaces: ChainImpl: Use an accessor for ChainMan
+v  2021-03-30 18:52:22 +0100 7e8b5ee814b0b8c34acb20637ed4fc988ccba555 validation: Make BlockManager::LookupBlockIndex const
+v  2021-03-30 18:52:22 +0100 88aead263c61d86e5f836028f517cfbf2a575498 node: Avoid potential UB by asserting assumptions
+v  2021-03-30 18:52:22 +0100 98c4e252f0d09bebb2e4ad3289407459c2cda5d5 node/ifaces: NodeImpl: Use an accessor for ChainMan
+pr 2021-03-30 19:07:53 +0100 267b60f800cb298d6700ae54fdace595c0e80313 Merge #21553: fuzz: Misc refactor
+pr 2021-03-31 01:27:35 +0100 1a0d1452a0abf203c92aa8faa6963349c15addb4 Merge #21457: build: split libtapi and clang out of native_cctools
+pr 2021-03-31 06:10:20 +0100 e4a2918238559e0b82e287833f51b321b97518ab Merge #21542: ci: Bump macOS VM image to the latest version
+v  2021-03-31 07:03:11 +0100 6526a1644cd1723e47054aa83b3ae8eacf84bf84 test: small cleanup in RPCNestedTests tests
+pr 2021-03-31 07:38:06 +0100 b14462083f82aeaa9a376978f210db5538db296f Merge #21486: build: link against -lsocket if required for *ifaddrs
+v  2021-03-31 10:05:52 +0100 735610940c0cac72343ca247eb3062b2e09512a0 build: set --build when configuring packages in depends
+cr 2021-03-31 14:14:26 +0100 8cac2923f57ac33848ff41b74c3be520b75936df [test] remove invalid test from tx_valid.json
+cr 2021-03-31 18:06:51 +0100 935d4889228e7e361c8b0020761fa0e08a55fb48 [net processing] Refactor MaybeSendAddr()
+pr 2021-03-31 19:17:39 +0100 602b038d433b8f35116c7149175bba191f690bb6 Merge #21366: refactor: replace util::Ref with std::any (C++17)
+cr 2021-03-31 20:09:59 +0100 8d0ce50c4826529a2d30ffc850bce4d44da6019b test: prepare cltv_invalidate to test all failure reasons in feature_cltv.py
+cr 2021-03-31 20:09:59 +0100 ce994e1202c4820b1ad5c375d3d671fd0a18e092 test: add tx modfication helper function in feature_cltv.py
+cr 2021-03-31 20:09:59 +0100 dbc19814743cb12960a99793197c811e2750a06b test: check that _all_ invalid-CLTV txs are allowed in a block pre-BIP65
+cr 2021-03-31 20:30:25 +0100 b01cd9471f435bb36b8ed5211a56baad51111ad2 test: check that _all_ invalid-CLTV txs are rejected after BIP65 activation
+cr 2021-04-01 01:05:00 +0100 af7e365b1516d660d271475fdfe0c20ae09e66a8 qt: Make PACKAGE_BUGREPORT link clickable
+cr 2021-04-01 01:05:31 +0100 64a8755af396f1c2791018510e22b58114e68594 qt: Add BitcoinApplication::handleNonFatalException function
+cr 2021-04-01 01:05:31 +0100 eb6156ba1b4c303eb597e3fc4a9e42ce45e6e78d qt: Handle exceptions in BitcoinGUI::addWallet slot
+v  2021-04-01 01:05:31 +0100 f7e260a471010e2d656fbc5ea8c310f6d94c26b9 qt: Add GUIUtil::ExceptionSafeConnect function
+pr 2021-04-01 07:29:53 +0100 539e4eec63fa5cbc525343c33c40c43f7b48cb6a Merge #21236: net processing: Extract `addr` send functionality into MaybeSendAddr()
+pr 2021-04-01 08:17:15 +0100 2b2ab9ab7895cd6356e5dc4db17aa9ce475d495e Merge #21544: rpc: Missing doc updates for bumpfee psbt update
+v  2021-04-01 09:00:48 +0100 58580573843858068db69a378b6e9363889b1f6d net: Add IPv4ToString (we already have IPv6ToString)
+v  2021-04-01 09:06:01 +0100 58580a827d10c0675c3483e2aeca1d3ab8050ae0 net: Avoid calling getnameinfo when formatting IPv4 addresses in CNetAddr::ToStringIP
+pr 2021-04-01 09:26:22 +0100 c2caa0fc4d5668308a717de454003d3ff46a6a85 Merge #21311: rpc: document optional fields for getchaintxstats result
+pr 2021-04-01 09:58:53 +0100 80a699fda9ff1129546cabbf17e955680a1cc705 Merge #21525: [Bundle 4.5/n] Followup fixups to bundle 4
+cr 2021-04-01 11:16:28 +0100 fa8192f42e1d24444f1d0433c96dbce1adf76967 rpc: Fail to return undocumented return values
+v  2021-04-01 11:35:27 +0100 5ed535a02f8f0a6f65bbe19f48a8c81f43298393 [net] Changes to RunInactivityChecks
+pr 2021-04-01 12:16:54 +0100 ee35532409fd0ee648e3e027484bdbc29cedd53f Merge #21300: script: Add explanatory comment to tc.sh
+pr 2021-04-01 12:17:12 +0100 6e22b522f9505d6a3c71ef9972aea6ae3fb10d2e Merge #21373: test: generate fewer blocks in feature_nulldummy to fix timeouts, speed up
+pr 2021-04-01 15:36:22 +0100 086226d98ae8c194a0a38b2fbfffd0dc3773e879 Merge #21198: net: Address outstanding review comments from PR20721
+v  2021-04-01 16:33:11 +0100 2f8272c2a4b6fa84c04dfeb4d751bb218f2d4c78 [doc] GetBestBlock() doesn't do nothing
+v  2021-04-01 16:35:34 +0100 4eca20d6f7d850492d331d89d1cdd77abb3c70c1 [doc] correct comment about ATMPW
+v  2021-04-01 16:35:34 +0100 8fa74aeb5b96419c7d40b40f8e1e1269509278e2 [doc] correct comment in chainparams
+pr 2021-04-01 18:12:10 +0100 66daf4cb3b47e8218623936d23ad504fd189e70b Merge #21567: docs: fix various misleading comments
+v  2021-04-01 21:53:17 +0100 3e9982ab3877eb8fe0a8c0cb3d847ac0913c7336 contrib: Silence git-describe when looking for tag
+cr 2021-04-01 21:53:17 +0100 d5a71e97853ea9e1b879e8c76bfb01d4bef33172 guix: Use --cores instead of --max-jobs
+v  2021-04-01 21:53:17 +0100 e5b49a01f5d0f631e7f08f86ca8a2c2b8213319f guix: Create windeploy inside distsrc-*
+v  2021-04-02 05:18:35 +0100 e309646db6563926f05627814f01d7d89b3d2d6f Doc: Copyright: Fix embedded font file location
+pr 2021-04-02 06:18:35 +0100 7aa0d8adf80da8bb86b3dedbf55d91c814fbd981 Merge #21063: wallet, rpc: update listdescriptors response format
+pr 2021-04-02 08:35:03 +0100 e08f3193b543017702d000c2263bccbefa981c14 Merge bitcoin-core/gui#266: Doc: Copyright: Fix embedded font file location
+v  2021-04-02 14:47:11 +0100 9a3670930eaf6b495f81ef9c5f6e68883a3a2750 wallet: refactor: dedup sqlite statement preparations
+v  2021-04-02 14:48:02 +0100 ea19cc844e780b29825b26aee321204be981a3ae wallet: refactor: dedup sqlite statement deletions
+v  2021-04-02 17:32:46 +0100 4d6e246fa46f2309e2998b542e4c104d73d29071 test: use pointers in denialofservice_tests/peer_discouragement
+v  2021-04-02 17:32:51 +0100 637bb6da368b87711005b909f451f94909400092 test: also check disconnect in denialofservice_tests/peer_discouragement
+v  2021-04-02 17:33:45 +0100 81747b21719b3fa6b0fdfc3b084c0104d64903f9 test: make sure non-IP peers get discouraged and disconnected
+v  2021-04-02 17:48:20 +0100 937fd4a66f048780bffc5e714d0c800de987ce93 Fix wrong wallet RPC context set after #21366
+v  2021-04-02 19:39:14 +0100 faf843c07f99f91603e08ea858f972516f1d669a refactor: Move load block thread into ChainstateManager
+pr 2021-04-03 06:18:51 +0100 9565dafed5973b35d9b242ff5352ee7abdc5799b Merge #21403: build: set --build when configuring packages in depends
+cr 2021-04-03 07:04:57 +0100 477df3623c8991a2e438cddf3c6a46c961bf13a2 build: reorder libs in _BITCOIN_QT_CHECK_STATIC_LIBS (move-only)
+cr 2021-04-03 07:04:58 +0100 13313b290400d79b3a4c137a53159154874c6949 scripted-diff: replace Qt5 with ${qt_lib_prefix} in _BITCOIN_QT_CHECK_STATIC_LIBS
+cr 2021-04-03 07:04:58 +0100 340fa6c0ffa190051cf11ef70c4fdfabc21e1ccc build: set QT_*_CFLAGS & QT_*_LIBS in PKG_CHECK_MODULES() calls
+cr 2021-04-03 07:04:58 +0100 4b8ad97c5bfac551b4a0cf41ec0dfebf8b6c0298 build: use QT_*_LIBS rather than passing lib names
+cr 2021-04-03 07:07:22 +0100 a53eff3ce527f067a34ce2159b190585659ddcb9 build: misc doc changes in bitcoin_qt.m4
+pr 2021-04-03 08:26:31 +0100 ad4bf8a94594e7fe424e409ba9474d91584bb78c Merge #20459: rpc: Fail to return undocumented return values
+v  2021-04-03 08:27:04 +0100 fecb3723b63d1441f1f786352e9ef330c1ac57a5 build: additional PKG_CHECK_MODULES calls in bitcoin_qt.m4
+v  2021-04-03 16:39:41 +0100 fad8a97b21014a9b09bfddffcb5cdd92da6669dc test: Add missing suppression for signed-integer-overflow:txmempool.cpp
+v  2021-04-03 16:52:58 +0100 fa73ce6e653d00824eb68f772fd29b7f8fb93d84 Fix assumeutxo crash due to truncated file
+v  2021-04-04 06:37:43 +0100 fa8fffebe8ac126f31143619843dd6578a2f4e3c refactor: Prefer clean assert over UB in coinstats
+v  2021-04-04 06:38:02 +0100 fa9b74f5ea89624e052934c48391b5076a87ffef Fix assumeutxo crash due to missing base_blockhash
+pr 2021-04-04 06:44:00 +0100 590e49ccf2af27c6c1f1e0eb8be3a4bf4d92ce8b Merge #21586: test: Add missing suppression for signed-integer-overflow:txmempool.cpp
+v  2021-04-04 17:07:24 +0100 fa413f07a14744e7d7f7746e861aabd9cf938f61 move-only: Move ThreadImport to blockstorage
+cr 2021-04-04 17:08:36 +0100 fa91b2b2b3447a3645e7958c7dc4e1946a69cb9c move-only: Move AbortNode to shutdown
+v  2021-04-04 22:10:15 +0100 585854ac66a61fbb60849c2dfdd03f10b0150c75 test: Replace blanket UBSan signed integer overflow suppression for txmempool.cpp with specific suppression
+pr 2021-04-05 06:28:45 +0100 824eea5643a1a317c04efcbd30268e46b9165a3c Merge #21599: test: Replace file level integer overflow suppression with function level suppression
+v  2021-04-05 07:42:15 +0100 fa5eabe72117f6e3704858e8d5b2c57a120258ed refactor: Remove negative lock annotations from globals
+v  2021-04-05 12:31:04 +0100 fab19871bad1cbe15ec2193f01152eacbf14aeb1 test: Document race:validation_chainstatemanager_tests suppression
+cr 2021-04-05 12:59:40 +0100 06030f7a42dea33c5120504dcd99d1714883f271 contrib: generate-seeds.py generates output in BIP155 format
+cr 2021-04-05 13:00:48 +0100 2a257de113fd31539b68c28c47ef94f257b6e427 contrib: Add a few TorV3 seed nodes
+cr 2021-04-05 13:00:48 +0100 9b29d5df7fc555eaea42029f334f2995c6ccde3d contrib: Add explicit port numbers for testnet seeds
+cr 2021-04-05 13:00:48 +0100 b2ee8b207de78f03356905bd60b7b00b6f49c252 net: Deserialize hardcoded seeds from BIP155 blob
+pr 2021-04-05 14:31:41 +0100 5c9b06db81091e1ebadf6e96701a5f1485a5d616 Merge #21302: wallet: createwallet examples for descriptor wallets
+v  2021-04-05 14:47:08 +0100 bc00e13bc800863641b3e1e64732a38418d3022f qt: Handle exceptions in WalletModel::pollBalanceChanged slot
+v  2021-04-05 14:47:31 +0100 1ac2bc7ac070dfd1df1872d759540b0c92495301 qt: Handle exceptions in TransactionView::bumpFee slot
+v  2021-04-05 15:23:13 +0100 fa04eb7d78125f80f016d65ec7bab1933f6dea6f test: Document why no symbol names can be used for suppressions
+pr 2021-04-05 15:25:58 +0100 1ea5c7ec786d3d3d8276d2915ff04152e1c68443 Merge #21604: test: Document why no symbol names can be used for suppressions
+v  2021-04-05 16:00:21 +0100 7753357a7bae98ec775c707b9dec4cea1e945802 guix: Add source-able bash prelude and utils
+v  2021-04-05 16:00:39 +0100 06d6cf6784421290e6235fe8684d5e08ed6f1b62 depends: libdmg-hfsplus: Skip CMake RPATH patching
+v  2021-04-05 16:00:39 +0100 1742f8e12d163852df09575e03edcd3db73198ee guix: Add early health check for guix-daemon
+cr 2021-04-05 16:00:39 +0100 1aec0eda8fd31a57b0621eea616398017c2ead98 guix: Fallback to local build for substitute-enabled Guix users
+cr 2021-04-05 16:00:39 +0100 39741128d3775d198dbee34dc827353bfd18acd8 guix: Supply --link-profile
+v  2021-04-05 16:00:39 +0100 4eccf063b252bfe256cf72d363a24cf0183e926e guix: Remove guix-build.sh filename extension
+v  2021-04-05 16:00:39 +0100 65176ab5730dff34466caaecdd292625ef8294fc guix: Remove codesign_allocate+pagestuff from unsigned tarball
+cr 2021-04-05 16:00:39 +0100 7476b46f1893a4858616d2a8456a7c43238851ed guix: Build dmg as a static binary
+cr 2021-04-05 16:00:39 +0100 7f401c953f8bb3574cec48561e13ef3b47dedc6e guix: Adapt guix-build to prelude, restructure hier
+cr 2021-04-05 16:00:39 +0100 c1ae726a13ecfa5e7e9fdc3030a8110b8bb263f8 guix: More thoroughly control native toolchain
+v  2021-04-05 16:00:39 +0100 ca85679eb43b8375a95d82101977829d08fb1e1b guix: Use clang-toolchain instead of clang
+v  2021-04-05 16:00:39 +0100 d55a1056ee565afed64e42d6f6efb6b0adc5599b guix: Add troubleshooting documentation entries
+v  2021-04-05 16:13:51 +0100 cced0f46c9133e0fc6211e987421ad1d9be1a399 miner: Pass in previous CBlockIndex to RegenerateCommitments
+v  2021-04-05 16:13:54 +0100 d0abf0bf429586e3a5b4c3231fe430dc29695481 rpc/*,rest: Add review-only assertion to EnsureChainman
+v  2021-04-05 16:13:54 +0100 d485e815e2b62dc74a485569d08130dc3ef9ff63 rpc/blockchain: Use existing NodeContext
+cr 2021-04-05 16:14:28 +0100 60dc05afc6f6388c6f86729a0edd7cb69f1748e0 rpc/mining: Use existing NodeContext
+v  2021-04-05 16:14:33 +0100 3f0893479908ca28d6127c8d0ada30737cb830be rest: Pass in NodeContext to rest_block
+v  2021-04-05 16:14:33 +0100 7be0671b950842fc3a17641a4a21501de0a800b5 rpc/rawtx: Use existing NodeContext
+v  2021-04-05 16:14:33 +0100 d7824acdb9b18fe8f151771a83ccae1681f16c66 rest: Use existing NodeContext
+v  2021-04-05 19:26:14 +0100 fa0c7d9ad24d3c9515d3f9c136af4071cbd79055 move-only: Move *Disk functions to blockstorage
+v  2021-04-05 19:26:32 +0100 fa121b628d51bb0e25eb3fbd716881fa55527dc7 blockstorage: [refactor] Use chainman reference where possible
+pr 2021-04-06 00:00:27 +0100 0102f80b511307fe5b6d107e6c133b71940838ce Merge #21375: guix: Misc feedback-based fixes + hier restructuring
+cr 2021-04-06 00:13:54 +0100 44f6d4f56b16e1dc5e8a23318b8e7aad0665f178 guix: Record precious directories and add guix-clean
+v  2021-04-06 00:13:54 +0100 84912d4b24382ae022da3a863bd6caa2b8948d94 build: Remove spaces from variable-printing rules
+pr 2021-04-06 01:05:41 +0100 511e58223b15cb330659bf78596767929579e966 Merge #21565: build: make bitcoin_qt.m4 more generic
+v  2021-04-06 01:12:22 +0100 1a011b3a8285a21ca9618a35bb841d3f2d48b247 build: remove -Wdeprecated-register from NOWARN flags
+v  2021-04-06 01:40:24 +0100 de3ae78eff257302dd45e57e38067f72e970a123 ci: increase CPU count of sanitizer job to increase memory limit
+v  2021-04-06 01:58:49 +0100 5c09bcadc4563abd2009e58e5528b130c6375565 Fix a typo in guix-build output
+pr 2021-04-06 02:12:36 +0100 e2777b532888bc4ca80f32188ccadf6a1ceaa028 Merge #21611: Fix a typo in guix-build output
+pr 2021-04-06 03:33:30 +0100 328aaac80d6fa28430a567230ae317362d64f897 Merge #21597: test: Document race:validation_chainstatemanager_tests suppression
+pr 2021-04-06 06:54:12 +0100 9ac8f6d7ddc4c949d84de5584baa813144c7fb26 Merge #21598: refactor: Remove negative lock annotations from globals
+pr 2021-04-06 06:57:30 +0100 b2ec7d398fb03c98f4a758b19fa87d2807af58e3 Merge #21609: ci: increase CPU count of sanitizer job to increase memory limit
+v  2021-04-06 07:44:50 +0100 c6edcf1c710e4aaf1cafdbf8e86fe209b57bdeb8 build: suppress libevent warnings if supressing external warnings
+pr 2021-04-06 07:45:08 +0100 7b4934e550a4f0cda036f6579b16fa5ed08c4b80 Merge #21557: test: small cleanup in RPCNestedTests tests
+v  2021-04-06 07:50:17 +0100 3b0078f958c46e94b468c829522ba965f5549f11 doc: fixup -Wdocumentation issues
+v  2021-04-06 07:50:26 +0100 a4e970adb6de8425025ae3f62fb89d9e27a8ab1f build: enable -Wdocumentation if suppressing external warnings
+pr 2021-04-06 07:52:54 +0100 02fb5bdc2172ac17feebc31f6a5d8585355e7bd6 Merge #21610: build: remove -Wdeprecated-register from NOWARN flags
+cr 2021-04-06 08:34:21 +0100 fadcd3f78e1dd1acd7a774f8fad68dc471ff9e1f doc: Remove irrelevant link to GitHub
+pr 2021-04-06 09:26:33 +0100 1a7dec77f610607b1f0c5113bd5b6939b04717df Merge #21571: test: make sure non-IP peers get discouraged and disconnected (vasild)
+pr 2021-04-06 09:47:51 +0100 9be7fe4849310884294669b019dd8300f69bc334 Merge #21560: net: Add Tor v3 hardcoded seeds
+v  2021-04-06 10:27:32 +0100 55d85834ccd73aa2f93cf9a81523cb747973346e script: Add trusted key for hebasto
+v  2021-04-06 11:43:33 +0100 33333755f2edcbe88fcd136f6fef81f94819002e fuzz: Fix uninitialized read in test
+cr 2021-04-06 23:22:20 +0100 c95c61657afd058b46549fb3d65633d7c736f5fc doc: improve listbanned help
+cr 2021-04-06 23:22:20 +0100 dd3c8eaa3399b28dc78a883ff78cbe7cc5c31b5b rpc: swap position of banned_until and ban_created fields
+cr 2021-04-07 04:01:10 +0100 5456b345312857981cb426712f0665800c682e09 rpc: add ban_duration field to listbanned
+v  2021-04-07 04:45:31 +0100 3e978d1a5dbd43f85bd03e759984ab1f209d6e34 rpc: add time_remaining field to listbanned
+pr 2021-04-07 05:47:41 +0100 245a5cd5604a869776e5e274d554295ff1890ccb Merge #21166: Introduce DeferredSignatureChecker and have SignatureExtractorClass subclass it
+pr 2021-04-07 06:33:27 +0100 41a8d2b96ff5cbc2efa9b0996f30228d0a625fdb Merge #21582: Fix assumeutxo crash due to missing base_blockhash
+v  2021-04-07 06:57:26 +0100 60290d3f5ec8e7e3b8cb1ebae02d5d72f6005184 test: increase listbanned unit test coverage
+pr 2021-04-07 07:17:25 +0100 c0160ea52ea849d7a10f9f5c97100b434e62d798 Merge #21540: wallet: refactor: dedup sqlite statement preparations/deletions
+pr 2021-04-07 09:39:27 +0100 6154291cf9ab5dbf4951043339fa7eb2cdbb9fac Merge #21617: fuzz: Fix uninitialized read in i2p test
+pr 2021-04-07 09:49:57 +0100 2b3e5bf4c0dced72a93dd46da2799b86d04383cb Merge #21613: build: enable -Wdocumentation
+cr 2021-04-07 09:53:26 +0100 9044522ef76f880760165d98fab024802ccfc062 Drop JSONRPCRequest constructors after #21366
+pr 2021-04-07 09:53:26 +0100 aa69471ecd553dbcd7dd6d1b2e59dfb69d6a0cf3 Merge #21572: Fix wrong wallet RPC context set after #21366
+v  2021-04-07 11:57:07 +0100 3bb6e7b6555f3c8743a697cb9d509620714dc483 rpc: add network field to rpc getnodeaddresses
+v  2021-04-07 11:57:09 +0100 1b9189866af26ed0003c1afe8dd5652ebe9b2e4a rpc: simplify/constify getnodeaddresses code
+v  2021-04-07 11:57:11 +0100 5c446784b10b168a6f649469a6627ac231eb1de2 rpc: improve getnodeaddresses help
+pr 2021-04-07 17:56:01 +0100 cb79cabdd9d9a6d183cf09575dd46925f2c9cb3b Merge #21594: rpc: add network field to getnodeaddresses
+v  2021-04-07 19:26:25 +0100 94c7dd9ac810a60f9c818c494273ad798cbac34b doc: Fix typos from codespell lint
+v  2021-04-07 20:20:25 +0100 8f8b96fb542701b7717683caa3848390b24f77ab guix: Update hint messages to mention guix-clean
+v  2021-04-07 20:21:00 +0100 867a5e172a23899a4a70eca4a396c64f1951745e guix: Register garbage collector root for containers
+pr 2021-04-08 01:16:04 +0100 2e9031f95d2bf8d0134103a10a8a2162975f1259 Merge #21626: doc: Fix typos from codespell
+cr 2021-04-08 03:00:17 +0100 5aee73d1759bcc0d1e951776942e616843934af1 [test] minor improvements / followups
+v  2021-04-08 03:00:17 +0100 5d3ced72f9b5f36db1a76bd8bc918d11b87dfd72 [test] remove unnecessary OP_1s from invalid tests
+v  2021-04-08 03:00:17 +0100 8a365df5586b36d1772c78069f9d93c56a81df6f [test] fix bug in ExcludeIndividualFlags
+v  2021-04-08 03:00:23 +0100 b109bde46a8730afbc09c107b802a2c321293f4b [test] check that mapFlagNames is up to date
+v  2021-04-08 07:58:44 +0100 fa732bccb3cf9bc2cdc444975286df0e799917a2 test: Use compressed keys in TestChain100Setup
+v  2021-04-08 07:59:00 +0100 fa6183d7761eef8bb815aa888f0396e92e275f05 test: Remove option to make TestChain100Setup non-deterministic
+pr 2021-04-08 08:08:03 +0100 6664211be2b664dd471d7aeea12fcf2859dba860 Merge #21574: Drop JSONRPCRequest constructors after #21366
+v  2021-04-08 10:28:06 +0100 fa212391ce0bb04669bc5205553a71e653f5ad48 cirrus: Use SSD cluster for speedup
+v  2021-04-08 15:31:55 +0100 1c1467f51b6dda92dec974eb59026c2c5ba79ed6 i2p: cancel the Accept() method if waiting on the socket errors
+cr 2021-04-08 16:56:00 +0100 88d4d5ff2f5c71a9a2f4c78c2b2e2fd00568cfee rpc: add help for enumeratesigners and walletdisplayaddress
+cr 2021-04-08 16:56:00 +0100 b0db187e5b30a491c9f95685430a82a1e35e921d ci: use --enable-external-signer instead of --with-boost-process
+cr 2021-04-08 16:56:00 +0100 b54b2e7b1a171203404bd41853372c73f2c64532 Move external signer out of wallet module
+v  2021-04-08 18:21:30 +0100 d3b0b08b0f04d2f1dbebbafd7ab0384dfe045dec doc: release notes for new listbanned fields
+pr 2021-04-08 22:19:54 +0100 0c9597ce7db28f5272a69bf0fbb36ce6b2520566 Merge #21304: guix: Add guix-clean script + establish gc-root for container profiles
+pr 2021-04-09 02:53:38 +0100 265a3a774b35449c3eec79c61825b7a073d78166 Merge #21445: cirrus: Use SSD cluster for speedup
+pr 2021-04-09 06:43:10 +0100 4ad83a9597e4f5340742d080e26437c5d8d203ba Merge #21592: test: Remove option to make TestChain100Setup non-deterministic
+v  2021-04-09 08:02:04 +0100 db4d2c282afd46709792aaf2d36ffbfc1745b776 cli: create AddrinfoRequestHandler class
+cr 2021-04-09 08:02:07 +0100 5056a37624b64588b277419f7ed8c325477a8ec7 cli: add -addrinfo command
+v  2021-04-09 08:02:09 +0100 bb85cbc4f7638a85049658ed951a0e06e7959cd4 doc: add cli -addrinfo release note
+cr 2021-04-09 10:25:18 +0100 223b1ba7d90509a47ea07af46f4b9c3b8efbc9f8 doc: Use CONFIG_SITE instead of --prefix
+v  2021-04-09 12:17:37 +0100 faaf3954e2f0089b6c6b9965f15e7f9af09c6fb0 fuzz: Extend psbt fuzz target a bit
+cr 2021-04-09 14:56:13 +0100 fad4f48e0763d111369656dea9575a789d2016e8 ci: [refactor] Create setting for ephemeral config in .cirrus.yml
+v  2021-04-09 14:56:23 +0100 fa278412a023ac150da764a465567f2970348449 ci: Restart docker before run
+v  2021-04-09 14:56:29 +0100 fa52a40f0ebb7aa33af210a18e525eec7bb6887f ci: Make cirrus cache folders relative to cirrus base dir
+v  2021-04-09 14:56:56 +0100 fa41a917356a7f5e0f3286b227ced7f2e6797e67 ci: Run self-hosted ci
+cr 2021-04-09 15:57:58 +0100 8e84c1872c67b9c0e82b66146ecdb845a49aee9e Ignore guix builds
+pr 2021-04-09 17:54:17 +0100 f0fa32450ec35056b3e1025262aeaef4a24c35ee Merge #21606: fuzz: Extend psbt fuzz target a bit
+v  2021-04-10 12:07:13 +0100 4e0613369f446b0a57783bf9e7258fec6c474981 qt: Elide long strings in their middle in the Peers tab
+v  2021-04-10 19:34:38 +0100 7f3a5980c1d54988a707b961fd2ef647cebb4c5b qt: Do not use QClipboard::Selection on Windows and macOS.
+pr 2021-04-11 02:51:19 +0100 dd01dc6a1d23e1f316940cd1092ad716216331aa Merge #21643: Ignore guix builds
+pr 2021-04-11 08:51:22 +0100 1e3db6807d1809182c799b5f7a78843f03fbe413 Merge #21619: ci: Run self-hosted ci
+pr 2021-04-11 12:36:29 +0100 f6c44e999b7d1d9a0de5d678ac8f1679aa271f65 Merge #21602: rpc: add additional ban time fields to listbanned
+v  2021-04-11 12:55:33 +0100 fa4f0b301ba5c07f1271fa7129d07683014d169b ci: Fix previous releases cache order
+v  2021-04-11 15:29:15 +0100 c799a19b4bb8d0cc5ffd9b49746b5b267745c9b5 build, qt: No longer need to set QT_RCC_TEST=1 for determinism
+v  2021-04-12 01:44:04 +0100 63879f0a4760c0c0f784029849cb5d21ee088abb tests: pull ComputeBlockVersion test into its own function
+v  2021-04-12 01:47:42 +0100 593274445004506c921d5d851361aefb3434d744 tests: test ComputeBlockVersion for all deployments
+v  2021-04-12 01:47:42 +0100 9e6b65f6fa205eee5c3b99343988adcb8d320460 tests: clean up versionbits test
+cr 2021-04-12 02:14:49 +0100 55ac5f568a3b73d6f1ef4654617fb76e8bcbccdf versionbits: Add explicit NEVER_ACTIVE deployments
+cr 2021-04-12 02:14:49 +0100 73d4a706393e6dbd6b6d6b6428f8d3233ac0a2d8 versionbits: Add support for delayed activation
+v  2021-04-12 02:14:49 +0100 dd07e6da48040dc7eae46bc7941db48d98a669fd fuzz: test versionbits delayed activation
+cr 2021-04-12 02:14:49 +0100 dd85d5411c1702c8ae259610fe55050ba212e21e tests: test versionbits delayed activation
+v  2021-04-12 02:14:49 +0100 f054f6bcd2c2ce5fea84cf8681013f85a444e7ea versionbits: simplify state transitions
+v  2021-04-12 03:59:04 +0100 ffe33dfbd4c3b11e3475b022b6c1dd077613de79 chainparams: drop versionbits threshold to 90% for mainnnet and signet
+v  2021-04-12 18:55:01 +0100 08151e19d97f0407e99826007df3ba5b257129b4 doc: Fix name of script guix-build
+v  2021-04-12 20:30:55 +0100 b7381552cd4f965c45f1560d9cfc2fb09dbfcc1d ci: Fix macOS brew install command
+v  2021-04-12 21:12:41 +0100 edf3167151f7a6d08cf733b4e230e2d745819ac8 addrinfo: raise helpfully on server error or incompatible server version
+pr 2021-04-12 22:32:03 +0100 708517b2dd642c20a240431891ab90979168372d Merge #21663: ci: Fix macOS brew install command
+v  2021-04-12 23:25:13 +0100 306b1cd3eeb2502904ed4698646d2c86d028aad2 rpc: Add alt Ensure* functions acepting NodeContext
+v  2021-04-13 00:29:03 +0100 41f891da508114f1fd4df30b4068073ec30abc2a tests: Skip SQLite fsyncs while testing
+pr 2021-04-13 01:16:14 +0100 89b72ce045b5269641cc5ce0213b2029f0b8cca1 Merge #21661: doc: Fix name of script guix-build
+v  2021-04-13 01:59:21 +0100 003929c0d55532038d5bf6fc0ff4a20628710fae refactor: add [[noreturn]] attribute where applicable
+pr 2021-04-13 03:24:31 +0100 bd65a76b9d97d7fe36a7cceb23cc44cbec955c21 Merge #21330: Deal with missing data in signature hashes more consistently
+pr 2021-04-13 05:16:12 +0100 1f50f0bb389a04b86ccb9045c7addff4c887e065 Merge #21631: i2p: always check the return value of Sock::Wait()
+pr 2021-04-13 07:35:16 +0100 f0b457212f9876a8c7e4d680178b49b555b488e2 Merge #21467: Move external signer out of wallet module
+pr 2021-04-13 12:18:48 +0100 c1f480fb234856a60e9b1f4bf97114bfd9b3d0b0 Merge #21653: ci: Fix previous releases cache order
+cr 2021-04-13 13:09:33 +0100 06a0673351282fff1673f3679a7cad9a7faaf987 external_signer: remove ignore_errors from Enumerate()
+cr 2021-04-13 13:09:33 +0100 54569cc6d6f54788169061004026e62e1c08440e refactor: move all signer code inside ENABLE_EXTERNAL_SIGNER #ifdefs
+v  2021-04-13 13:09:33 +0100 8fdbb899b84a2be85e632e45f08b222db02395d9 refactor: unify external wallet runtime errors
+v  2021-04-13 13:09:33 +0100 aaa4e5a45bd9ec5563ffa7b9e0d46d2de3cb9242 wallet: remove CWallet::GetExternalSigner()
+cr 2021-04-13 13:09:33 +0100 aaa4e5a45bd9ec5563ffa7b9e0d46d2de3cb9242 wallet: remove CWallet::GetExternalSigner()
+cr 2021-04-13 13:09:33 +0100 f4652bf1259d5c52ff0d500c732f40ba41256817 refactor: add missing includes to external signer code
+v  2021-04-13 13:09:34 +0100 9e0b199b976617edeb1c58d4203df5f83a26c1e3 external_signer: use const where appropriate
+v  2021-04-13 13:09:34 +0100 c8f469c6d50a8db6d92f0aed47a5d1cc82f30f7f external_signer: remove ExternalSignerException
+pr 2021-04-13 14:16:04 +0100 3aa4935db722c77e99f2ca57dea3692215c68963 Merge #17934: doc: Use CONFIG_SITE variable instead of --prefix option
+pr 2021-04-13 14:17:20 +0100 88331aa8a7627ca82e5ec4f92eaa2d206e76b7c5 Merge #21633: refactor: add [[noreturn]] attribute where applicable
+pr 2021-04-13 15:00:28 +0100 1f14130cb0778d07c7cc5ffccdf8cb5a600ba5df Merge #21575: refactor: Create blockstorage module
+pr 2021-04-13 15:31:12 +0100 a1f0b8b62eb851c837a3618583b7c2fd4d12006c Merge #21634: tests: Skip SQLite fsyncs while testing
+cr 2021-04-13 18:54:39 +0100 fadbd9988590ba94e3fd2d87d773f3b09d73ef46 test: Remove spurious double lock tsan suppressions by bumping to clang-12
+cr 2021-04-14 02:08:38 +0100 09b3e468480538977d2844ba083c66197c9d1d08 doc: remove boostrap info from GUIX_COMMON_FLAGS doc
+pr 2021-04-14 03:08:26 +0100 e7af2f35af95f4ca51e38c8ac5b05cad8be22489 Merge #21666: Miscellaneous external signer changes
+v  2021-04-14 05:56:59 +0100 fadea0bf371a38620b7f1f93f87d1da76d3314e0 Revert "test: Add tsan supp for leveldb::DBImpl::DeleteObsoleteFiles"
+v  2021-04-14 08:15:42 +0100 11115c8ee5d628f301c3f9a1ffe3afe37ac831fd ci: Only cache depends/sdk-sources for macos/apk task in cirrus
+pr 2021-04-14 08:20:53 +0100 b8e5bbdf93e5b3b35557d3b0e57a426492d568c1 Merge #21669: test: Remove spurious double lock tsan suppressions by bumping to clang-12
+v  2021-04-14 09:05:09 +0100 fa78590a8fffdfc7e98ddb1f81218f05b1935a0a test: Use mocktime to avoid intermittent failure
+v  2021-04-14 11:27:48 +0100 f2ef5a8afd5da2fb7775dafdee15e6ac532d8fe4 test: Fix TSan suppression
+pr 2021-04-14 13:17:30 +0100 03ecceedf6f15d2062e95b4533c5cea092c4c696 Merge #260: Handle exceptions instead of crash
+pr 2021-04-14 14:12:14 +0100 a12962ca894075ae203ab808db4ba5dab23346d1 Merge #21585: Fix assumeutxo crash due to truncated file
+pr 2021-04-14 15:43:00 +0100 8c867ed4ec6ce72958fe3e359eefc794c46535fa Merge #21675: ci: Only cache depends/sdk-sources for macos/apk task in cirrus
+pr 2021-04-14 15:51:30 +0100 773f8c1a7d568012768e16d2ede65b5d4d62aced Merge #21678: test: Fix TestPotentialDeadLockDetected suppression
+v  2021-04-14 15:54:27 +0100 1570c7ee98612366df031bebef9e0468fb57b8a2 rpc: Add renamed EnsureAny*() functions
+v  2021-04-14 16:09:34 +0100 6fb65b49f4d393b091479be5a5df5a0a160cf986 scripted-diff: rest/rpc: Use renamed EnsureAny*()
+v  2021-04-14 16:10:08 +0100 038854f31e3511e8bb6e163305cab0a96783d25b rest/rpc: Remove now-unused old Ensure functions
+v  2021-04-14 16:13:09 +0100 6a3d1920209cded0dae52fb9070a3530d9a4e5fd rpc: Tidy up local references (see commit message)
+v  2021-04-14 16:13:09 +0100 bc3bd369027273278a0541f3b991eb71de831aa2 rpc: style: Improve BuriedForkDescPushBack signature
+v  2021-04-14 16:13:09 +0100 f99913969f92b8b9cef1b83f5ee8e6a9267b4af0 rpc: Remove unnecessary casting of block height
+v  2021-04-14 16:17:31 +0100 586190f0b4740457cb86cba632e3d64e6dfe9b0c rpc/rest: Take and reuse local Chain/ChainState obj
+v  2021-04-14 16:38:07 +0100 fa40d6a1c47ac7f3dc6c11a2e6642cfef95422c1 test: Reset mocktime in the common setup
+v  2021-04-14 16:47:30 +0100 1398a6536c710368d9f1d0cf6e280fe63d07c9f0 qt, refactor: Make AddressBookPage::deleteAction a local variable
+v  2021-04-14 16:47:39 +0100 963e12058f3ca3cdaeefd9aa5a8305fa41afd1a0 qt: Drop menu separator that separates nothing
+cr 2021-04-14 16:47:40 +0100 79311750b58d650d49a3f0edd59d31dd132ab8c0 qt: Do not assign Alt+<KEY> shortcuts to context menu actions
+cr 2021-04-14 16:51:26 +0100 16c157de3c316517e095994fa8d526253225a672 qt, refactor: Use better QMenu::addAction overloaded function
+cr 2021-04-14 23:21:17 +0100 6262182b3f1c9540291fb8de3bf7a785e7113c55 Avoid use of low file descriptor ids (which may be in use) in FuzzedSock and StaticContentsSock
+pr 2021-04-15 01:51:14 +0100 7fcf53f7b4524572d1d0c9a5fdc388e87eb02416 Merge #21672: doc: remove boostrap info from GUIX_COMMON_FLAGS doc
+pr 2021-04-15 03:04:14 +0100 2cd834e6c09dbbb676ecac4a36d8f0f56b4fe4b2 Merge #21377: Speedy trial support for versionbits
+cr 2021-04-15 03:53:54 +0100 f979b3237f1cfc28f9c4ccb07beab558d5357a55 Add mainnet and testnet taproot activation params
+pr 2021-04-15 07:02:22 +0100 9712f75746e3da73471da2e23a4bfc1382c69308 Merge #21677: fuzz: Avoid use of low file descriptor ids (which may be in use) in FuzzedSock
+v  2021-04-15 07:19:30 +0100 63631beef6a0046390469971adf4500718ab34ad test: Remove intermittently failing and not very meaningful `BOOST_CHECK` in `cnetaddr_basic`
+v  2021-04-15 07:19:44 +0100 5198a02de4e7a1b0efe28c6095745ce59f7f98c4 style: remove extra white space
+v  2021-04-15 07:19:48 +0100 0c90ff1429deaa556c0509c13cdd5aef5df9c0d4 fuzz: set errno from FuzzedSock::Wait() if it simulates a failure
+v  2021-04-15 07:19:49 +0100 9668e43d8e757c0185b900eb6ee6891a0ba41666 fuzz: make FuzzedSock::Wait() sometimes simulate an occurred event
+v  2021-04-15 07:51:36 +0100 29ae1c13a59187119f5b2a38b54dbbec936d8f87 fuzz: split FuzzedSock interface and implementation
+v  2021-04-15 07:51:39 +0100 549c82ad3a34a885ecca37a5f04c36dfbaa95d17 fuzz: use ConsumeBool() instead of !ConsumeBool()
+pr 2021-04-15 09:05:21 +0100 a5e756b74e181cb007669baeb6a6d2eedef4eb73 Merge #21676: test: Use mocktime to avoid intermittent failure in rpc_tests
+pr 2021-04-15 09:19:02 +0100 7cb0bcb6811070786937fb5cc0af82cf4ef21ff0 Merge #21686: Speedy trial activation parameters for Taproot
+pr 2021-04-15 09:48:39 +0100 c6b30ccb2eee5f80f844f79766591f0a1326ce43 Merge #21630: fuzz: split FuzzedSock interface and implementation
+cr 2021-04-15 13:39:42 +0100 5f2be6e71e6130b58ebfbf81aaf48ce90dd9d179 Remove no longer used contrib/bitcoin-qt.pro from the repo
+pr 2021-04-16 04:08:32 +0100 585cbe22575306c05b156ea90faa9caa1add4c87 Merge #21695: Remove no longer used contrib/bitcoin-qt.pro from the repo
+v  2021-04-16 23:44:49 +0100 44dab423eb88dbf854d22f2991e79c828ffac0f2 qa: Test default include_mempool value of gettxout
+v  2021-04-17 00:22:53 +0100 bee56c78e94417f89b1f48682404e2821b57bdec rpc: Check default value type againts argument type
+cr 2021-04-17 00:22:53 +0100 f81ef4303e057e85aa24772c865287c17ffa4350 rpc: Keep default argument value in correct type
+pr 2021-04-17 06:50:51 +0100 8e69370b150658beef95c25992fb329e5a4b8526 Merge #21712: qa: Test default include_mempool value of gettxout
+v  2021-04-17 09:40:43 +0100 fad4167871c3c9fde462e64e3ef3be937e585084 test: Check that no versionbits are re-used
+v  2021-04-17 09:40:47 +0100 faec1e9ee1f12612831ad5b0f0a767d87bd2d024 test: Address outstanding versionbits_test feedback
+v  2021-04-17 09:55:19 +0100 9a0653553a0ec403b4e7c6713466e0c7fa10ec94 Refactor ProcessNewBlock to reduce code duplication
+pr 2021-04-17 10:18:51 +0100 f5e8bcf985df212c901b1e3e1ed0b68933c321f6 Merge #21689: test: Remove intermittently failing and not very meaningful `BOOST_CHECK` in `cnetaddr_basic`
+cr 2021-04-17 10:29:50 +0100 fa8eaee6a8531db970cc84436bf2ae8150a58642 test: Run versionbits_sanity for all chains
+pr 2021-04-17 12:28:25 +0100 4a1751a929cc5727d4941543baf2238f041b4b70 Merge bitcoin-core/gui#277: Do not use QClipboard::Selection on Windows and macOS.
+pr 2021-04-17 16:37:37 +0100 0dd7b234895b02bfc512ae83bd77b581c861d6e9 Merge #21391: [Bundle 5/n] Prune g_chainman usage in RPC modules
+v  2021-04-17 18:18:10 +0100 70cdf679f8e665dbdc3301873a0267fe9faa72cd Move StripRedundantLastElementsOfPath before ArgsManager class.
+cr 2021-04-17 19:09:01 +0100 1add318704108faa98f5b1b8e9c96d960e9d23a8 Move GetDataDir(fNetSpecific) implementation to ArgsManager.
+cr 2021-04-17 19:13:34 +0100 faabeb854a6e46b46e4f26b22dc2c81e68e2d863 refactor: Mark member functions const
+v  2021-04-18 05:30:58 +0100 a41149426168b8ea96099f10576022c6a09033d1 rpc: Improve getblock error message for invalid data type.
+cr 2021-04-18 10:59:25 +0100 1cb52ba0656e78ca6c2ef84b1558198ad113b76a Modify "util_datadir" unit test to not use gArgs.
+v  2021-04-18 10:59:28 +0100 511ce3a26b3b78e14acd0d85496b5422a236cf63 BasicTestingSetup: Add ArgsManager.
+v  2021-04-18 10:59:28 +0100 55c68e6f011ee604c8a65b9bca668eb4dec452aa scripted-diff: Replace m_args with m_local_args in getarg_tests.cpp
+v  2021-04-18 10:59:28 +0100 83292e2a700afbf39936bd67bb89fab5398d0066 scripted-diff: Modify unit tests to use the ArgsManager in the BasicTestingSetup class instead of implicitly relying on gArgs.
+cr 2021-04-18 10:59:28 +0100 b4190eff72c00e384ad238f9c2f10c8b91be969b Change GetBlocksDir() to ArgsManager.GetBlocksDirPath().
+v  2021-04-18 11:07:00 +0100 bb8d1c6e029a2fd01387599d2ff3bfc879a8ada5 Change ClearDataDirPathCache() to ArgsManager.ClearPathCache().
+v  2021-04-18 21:05:14 +0100 9053b88b1c15f57cdcff2fc1c761efebb2ebfefe update docstring in feature_csv_activation.py
+v  2021-04-18 21:10:47 +0100 c5a470eee1ac864b7c02b6a1669327b68411d806 refactor: Drop CCoinControl::SetNull
+v  2021-04-18 21:12:57 +0100 5f438d66c1fbc0e524d12fef233f2ed2952e6f17 refactor, qt: Simplify SendCoinsDialog::updateCoinControlState
+pr 2021-04-19 07:16:19 +0100 a47ae618a00ca06075caac6dfb1860480086d044 Merge #21718: rpc: Improve error message for getblock invalid datatype.
+pr 2021-04-19 07:53:51 +0100 ed133fe005d89c66b9801552d98bac8f2778e2d9 Merge #21615: script: Add trusted key for hebasto
+pr 2021-04-19 08:01:49 +0100 17b51cd5cb9c5e02caf04d25423313392f7f81fb Merge #21713: Refactor ProcessNewBlock to reduce code duplication
+pr 2021-04-19 08:04:31 +0100 d4300a10ddd67ceb06f0a2a27d11b556bc6e4dda Merge #21679: rpc: Keep default argument value in correct type
+v  2021-04-19 08:47:34 +0100 f2f2541ee7ad36191515ff351b667fe12a2ab871 remove executable flag for src/net_processing.cpp
+pr 2021-04-19 08:47:57 +0100 83c715415a8886e3e46ef375e042f13d8165dabd Merge #20857: test: update documentation in feature_csv_activation.py
+pr 2021-04-19 10:26:42 +0100 cfec4a1dad2181a5471b04f8a7b77ab64293fb13 Merge bitcoin/bitcoin#21280: test: bug fix in transaction_tests
+pr 2021-04-19 11:11:38 +0100 13d27b452d4b60010c54d4f80757dea9805076be Merge bitcoin-core/gui#276: Elide long strings in their middle in the Peers tab
+cr 2021-04-19 11:11:38 +0100 1fb7fcfa52569a652d3ea55c210b725e60b7d86f Move common logging GetArgs code to init/common
+cr 2021-04-19 11:11:38 +0100 387c4cf5887bfdaf1606e1b287d901e4c449514f Move common sanity check code to init/common
+cr 2021-04-19 11:11:38 +0100 5bed2ab42c4f1a820468f7005ce62e39001f6611 Move common logging start code to init/common
+cr 2021-04-19 11:11:38 +0100 615965cfd1ef1e0627d69970d99bdfedb9176833 Move common package version code to init/common
+cr 2021-04-19 11:11:38 +0100 90469c16906ab451bb1250df5e51563870a7ef3b Move common logging AddArg code to init/common
+v  2021-04-19 11:11:38 +0100 a67b54855b294802d52f09fa60d3f63550cbada7 Move common global init code to init/common
+v  2021-04-19 12:04:23 +0100 fafb68add5e16e8bd5b9428bcffcaee2639747cf refactor: Add and use EnsureConnman in rpc code
+cr 2021-04-19 16:41:50 +0100 f02ca7a354b69e3959d513cd36637507cbc33e78 Update msvc build to use Qt5.12.10 binaries.
+cr 2021-04-19 23:41:34 +0100 de17d245b7462784f9d36591b0f346aa6b2e9b8c Re-add command to install vcpkg
+pr 2021-04-20 01:11:20 +0100 67a359313f79da64f547cca3cbbc4bdc3c08ee5f Merge #21728: remove executable flag for src/net_processing.cpp
+pr 2021-04-20 01:42:56 +0100 a839303edc8a45f120e5cfcbf90f7f8a2d8ae4bc Merge #21244: Move GetDataDir to ArgsManager
+pr 2021-04-20 06:15:12 +0100 de77cbc9d8554891916f3d73f362118513da7b68 Merge bitcoin/bitcoin#21691: test: Check that no versionbits are re-used
+pr 2021-04-20 07:59:09 +0100 906ecb87c8c787c63a479e1dca44a15571ecc772 Merge #21238: A few descriptor improvements to prepare for Taproot support
+v  2021-04-20 08:29:43 +0100 e5faec65bd06a3b14175aca3040290f343bd6e9c doc: Fix doxygen comment silent merge conflict in descriptor.cpp
+v  2021-04-20 09:35:53 +0100 06c43201a714b0426cc68b2fd5c681e5df10af99 cli: use C++17 std::array class template argument deduction (CTAD)
+pr 2021-04-20 09:40:33 +0100 572b36d4ff9945baa526abe258f2645c17c88ac5 Merge bitcoin/bitcoin#21736: doc: Fix doxygen comment silent merge conflict in descriptor.cpp
+pr 2021-04-20 12:09:50 +0100 30a86bb814e329b739d49edb8876c871ff42c74f Merge bitcoin/bitcoin#21733: build: Re-add command to install vcpkg
+pr 2021-04-20 13:36:36 +0100 018045347110d76cfc1f89a79fb49a867e3b8449 Merge #21595: cli: create -addrinfo
+cr 2021-04-20 13:48:48 +0100 2045e4cdd26920665300f21be5b08fe66bde4a41 build: Use XLIFF file to provide more context to Transifex translators
+v  2021-04-20 13:49:45 +0100 f959b75e8c5964dec59a1dce937ee2244cce33df build: Add Qt lconvert tool to depends
+v  2021-04-20 13:49:46 +0100 99686b65195fe990144be1a6326061e9c6ae506c qt [experimental]: Add a translation comment and a disambiguation string
+cr 2021-04-20 13:55:55 +0100 35d52397e72f3ab96a7797148666b501d50b445d Add bitcoin_en.xlf intermediate translation file to the repo
+pr 2021-04-20 15:10:24 +0100 90e0faaa442b6ced94aee2fa9d9d21c4063d76be Merge #21694: build: Use XLIFF file to provide more context to Transifex translators
+pr 2021-04-20 18:07:55 +0100 bca00942ed2734f2a6660fe951491825b88df176 Merge bitcoin/bitcoin#21731: Update msvc build to use Qt5.12.10 binaries.
+pr 2021-04-20 21:18:54 +0100 f385ad765174afb02e60900581612a19c143cf83 Merge bitcoin-core/gui#263: Revamp context menus
+pr 2021-04-21 06:23:34 +0100 2bce9329e8b90a5f9e84ad03d0fe5a1857684d3e Merge bitcoin/bitcoin#21719: refactor: Add and use EnsureConnman in rpc code
+pr 2021-04-21 06:26:49 +0100 e507acb1184fc3e378bf33e38dce97ca3008f19c Merge #20353: configure: Support -fdebug-prefix-map and -fmacro-prefix-map
+pr 2021-04-21 08:16:47 +0100 e16f8720dca2de1040478968c9f3ca07644a04b7 Merge #21655: build, qt: No longer need to set QT_RCC_TEST=1 for determinism
+cr 2021-04-21 12:46:41 +0100 417305991a0573484f4aa3820103d8b991cb8f81 qt: Bump transifex slug for 22.x
+v  2021-04-21 21:14:16 +0100 c9919433994924931757aa7ec278c50744ede35d [test] Refactor the addr relay test to prepare for new tests
+v  2021-04-21 21:16:39 +0100 8188b77c17d78bf608cb41978db4d0f46e91f7d8 [test] Add tests for getaddr behavior
+v  2021-04-21 21:16:39 +0100 d2dbfe6ff1806e5248399b28a7a1a22dab726c40 [test] Extract sending an addr message into a helper
+pr 2021-04-21 21:28:38 +0100 e7776e20ed0ddf41d15b3d2df87a92ea6666226c Merge bitcoin-core/gui#286: qt: Bump transifex slug for 22.x
+v  2021-04-21 21:34:03 +0100 a6694eaed8f86a6ad79689bbcbfdbed4d73327c9 [test] Add address relay tests involving outbound peers
+v  2021-04-21 21:34:10 +0100 a732ee353c1922a1f9ca082775884d190893e0e9 [test] Add tests for addr relay in -blocksonly mode
+v  2021-04-22 00:09:14 +0100 d831e711cab83c70bf2ded62fe33f484844e73dd [validation] RewindBlockIndex no longer needed
+v  2021-04-22 01:18:04 +0100 785f9cc46a43661c63a5ec56a9e82f4ce9d42f44 refactor: init: mark fReset const
+pr 2021-04-22 11:29:23 +0100 aaf66413e1233f7f93d5a938e39c604612f6c407 Merge bitcoin/bitcoin#21564: net: Avoid calling getnameinfo when formatting IPv4 addresses in CNetAddr::ToStringIP
+pr 2021-04-22 11:58:23 +0100 4b5659c6b115315c9fd2902b4edd4b960a5e066e Merge bitcoin/bitcoin#19801: test: check for all possible OP_CLTV fail reasons in feature_cltv.py (BIP 65)
+cr 2021-04-22 15:28:39 +0100 229ac1892d807a1eea5a7c24ae0fe27dc913b1bd net: Combine two loops into one, and update comments
+cr 2021-04-22 15:28:39 +0100 a3d090d1103cd6c25daf07afdf4e65febca6d3f7 net: Restrict period when cs_vNodes mutex is locked
+v  2021-04-22 15:31:06 +0100 8c8237a4a10feb2ac9ce46f67b5d14bf879b670f net, refactor: Fix style in CConnman::StopNodes
+cr 2021-04-23 09:02:50 +0100 10afdf0280fa93bfffb0a7665c60dc155cd84514 multiprocess: Add Ipc interface implementation
+v  2021-04-23 09:02:50 +0100 5d62d7f6cd48bbc4e9f37ecc369f38d5e1e0036c Update libmultiprocess library
+pr 2021-04-23 09:02:50 +0100 66fd3b28e85c167f3955b5603496daf8d91abcad Merge bitcoin/bitcoin#21732: MOVEONLY: Move common init code to init/common
+v  2021-04-23 09:02:50 +0100 745c9cebd50fea1664efef571dc1ee1bddc96102 multiprocess: Add Ipc and Init interface definitions
+cr 2021-04-23 09:02:50 +0100 7d76cf667eff512043a28d4407cc89f58796c42b multiprocess: Add comments and documentation
+cr 2021-04-23 09:02:50 +0100 84934bf70e11fe4cda1cfda60113a54895d4fdd5 multiprocess: Add echoipc RPC method and test
+cr 2021-04-23 09:02:50 +0100 ddf7ecc8dfc64cf121099fb047e1ac871de94f4c multiprocess: Add bitcoin-node process spawning support
+v  2021-04-23 20:02:35 +0100 7901647d722bcc5b0554ad73b14481cbe73608e4 refactor: rename active_chainstate in VerifyDB
+v  2021-04-23 20:06:48 +0100 9b604c0207b526c008617cdca210f35db5e344db validation: prepare VerifyDB for assumeutxo
+v  2021-04-23 20:06:54 +0100 844ad0eccaa1dbfefc30d19804d95d67c3d5f06d doc: IsSnapshotActive
+pr 2021-04-25 09:08:57 +0100 8f80092d78f758fdb2e79e2a832a0c7a26fa2da1 Merge bitcoin/bitcoin#21563: net: Restrict period when cs_vNodes mutex is locked
+v  2021-04-25 09:36:00 +0100 fa1fdeb2306ab86eb0ae7e8b9764bc37b1b5f04b fuzz: Ensure prevout is consensus-valid
+pr 2021-04-25 15:06:56 +0100 c4571a0c39e08c7590bd6da5caebf695dfe028fe Merge bitcoin-core/gui#284: refactor: Simplify SendCoinsDialog::updateCoinControlState
+v  2021-04-26 07:22:46 +0100 fa4aec2b26696cc16dc44c6425f7dca3ef91c8ee test: Fix feature_notifications.py intermittent issue
+pr 2021-04-26 08:14:34 +0100 0a0a95b9d6f97738fc48a975f3c2bf66cca854c7 Merge bitcoin/bitcoin#21707: test: Extend functional tests for addr relay
+pr 2021-04-26 08:20:44 +0100 74a960a220a32b4e240551ba992d5199edac38fc Merge bitcoin/bitcoin#21714: refactor: Drop CCoinControl::SetNull
+v  2021-04-26 13:24:32 +0100 363df758a9e0b5e0aa5ab401de2de820fc362c19 doc/style followups in MempoolAcceptResult
+pr 2021-04-26 17:04:22 +0100 683dda2a70e7a210996fa34be23bd0c563971ba9 Merge bitcoin/bitcoin#21777: test: Fix feature_notifications.py intermittent issue
+pr 2021-04-27 07:26:57 +0100 f8f55522c4697b77b1f739a2ed0c483396d62154 Merge bitcoin/bitcoin#21746: refactor: init: mark fReset const
+pr 2021-04-27 09:14:52 +0100 19a56d1519fb493c3e1bd5cad55360b6b80fa52b Merge bitcoin/bitcoin#21009: Remove RewindBlockIndex logic
+pr 2021-04-27 10:59:26 +0100 ac219dcbcc18a48210d58cdfaf7cf27ca5e7435b Merge bitcoin/bitcoin#19160: multiprocess: Add basic spawn and IPC support
+pr 2021-04-27 12:31:29 +0100 c6d6bc8abb721be68a3d2cdba11ceb5e9814c9b1 Merge bitcoin/bitcoin#21523: validation: run VerifyDB on all chainstates
+pr 2021-04-28 06:13:07 +0100 bce09da1228a34b924b25864a5c814da77d2b3d0 Merge bitcoin/bitcoin#21773: fuzz: Ensure prevout is consensus-valid
+pr 2021-04-28 07:06:43 +0100 edf679503c55f4a119e6c64b76ba20e71a46d27a Merge bitcoin/bitcoin#21783: refactor: Make MempoolAcceptResult members const
+v  2021-04-28 07:34:20 +0100 545404e7e1c72985557ccffe865cea269143e5dd fuzz: Add RPC interface fuzzing. Increase fuzzing coverage from 65% to 70%.
+pr 2021-04-28 08:45:30 +0100 e45863166f5e44cc2c380f4667812fcd3cddc73b Merge bitcoin/bitcoin#21169: fuzz: Add RPC interface fuzzing. Increase fuzzing coverage from 65% to 70%.
+pr 2021-04-28 10:02:25 +0100 549d20a31beaf71c722970af32d0076b70b5ffcb Merge bitcoin/bitcoin#20772: fuzz: bolster ExtractDestination(s) checks
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 The BGL Core developers
+// Copyright (c) 2019-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -12,6 +12,7 @@
 
 class ArgsManager;
 class BanMan;
+class CAddrMan;
 class CBlockPolicyEstimator;
 class CConnman;
 class CScheduler;
@@ -21,6 +22,7 @@ class PeerManager;
 namespace interfaces {
 class Chain;
 class ChainClient;
+class Init;
 class WalletClient;
 } // namespace interfaces
 
@@ -35,6 +37,9 @@ class WalletClient;
 //! any member functions. It should just be a collection of references that can
 //! be used without pulling in unwanted dependencies or functionality.
 struct NodeContext {
+    //! Init interface for initializing current process and connecting to other processes.
+    interfaces::Init* init{nullptr};
+    std::unique_ptr<CAddrMan> addrman;
     std::unique_ptr<CConnman> connman;
     std::unique_ptr<CTxMemPool> mempool;
     std::unique_ptr<CBlockPolicyEstimator> fee_estimator;
@@ -57,11 +62,5 @@ struct NodeContext {
     NodeContext();
     ~NodeContext();
 };
-
-inline ChainstateManager& EnsureChainman(const NodeContext& node)
-{
-    assert(node.chainman);
-    return *node.chainman;
-}
 
 #endif // BGL_NODE_CONTEXT_H

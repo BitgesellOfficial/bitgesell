@@ -1,4 +1,4 @@
-// Copyright (c) 2020 The Bitcoin Core developers
+// Copyright (c) 2020-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -28,12 +28,12 @@
 //
 // (normal build)
 // $ mkdir dump
-// $ for N in $(seq 1 10); do TEST_DUMP_DIR=dump test/functional/feature_taproot --dumptests; done
+// $ for N in $(seq 1 10); do TEST_DUMP_DIR=dump test/functional/feature_taproot.py --dumptests; done
 // $ ...
 //
-// (fuzz test build)
+// (libFuzzer build)
 // $ mkdir dump-min
-// $ ./src/test/fuzz/script_assets_test_minimizer -merge=1 dump-min/ dump/
+// $ FUZZ=script_assets_test_minimizer ./src/test/fuzz/fuzz -merge=1 -use_value_profile=1 dump-min/ dump/
 // $ (echo -en '[\n'; cat dump-min/* | head -c -2; echo -en '\n]') >script_assets_test.json
 
 namespace {
@@ -161,7 +161,7 @@ void Test(const std::string& str)
         tx.vin[idx].scriptWitness = ScriptWitnessFromJSON(test["success"]["witness"]);
         PrecomputedTransactionData txdata;
         txdata.Init(tx, std::vector<CTxOut>(prevouts));
-        MutableTransactionSignatureChecker txcheck(&tx, idx, prevouts[idx].nValue, txdata);
+        MutableTransactionSignatureChecker txcheck(&tx, idx, prevouts[idx].nValue, txdata, MissingDataBehavior::ASSERT_FAIL);
         for (const auto flags : ALL_FLAGS) {
             // "final": true tests are valid for all flags. Others are only valid with flags that are
             // a subset of test_flags.
@@ -176,7 +176,7 @@ void Test(const std::string& str)
         tx.vin[idx].scriptWitness = ScriptWitnessFromJSON(test["failure"]["witness"]);
         PrecomputedTransactionData txdata;
         txdata.Init(tx, std::vector<CTxOut>(prevouts));
-        MutableTransactionSignatureChecker txcheck(&tx, idx, prevouts[idx].nValue, txdata);
+        MutableTransactionSignatureChecker txcheck(&tx, idx, prevouts[idx].nValue, txdata, MissingDataBehavior::ASSERT_FAIL);
         for (const auto flags : ALL_FLAGS) {
             // If a test is supposed to fail with test_flags, it should also fail with any superset thereof.
             if ((flags & test_flags) == test_flags) {
@@ -190,7 +190,7 @@ ECCVerifyHandle handle;
 
 } // namespace
 
-FUZZ_TARGET(script_assets_test_minimizer)
+FUZZ_TARGET_INIT_HIDDEN(script_assets_test_minimizer, FuzzFrameworkEmptyInitFun, /* hidden */ true)
 {
     if (buffer.size() < 2 || buffer.back() != '\n' || buffer[buffer.size() - 2] != ',') return;
     const std::string str((const char*)buffer.data(), buffer.size() - 2);

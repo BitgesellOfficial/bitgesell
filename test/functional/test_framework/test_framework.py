@@ -19,6 +19,7 @@ import tempfile
 import time
 
 from typing import List
+from .address import ADDRESS_BCRT1_P2WSH_OP_TRUE
 from .authproxy import JSONRPCException
 from . import coverage
 from .p2p import NetworkThread
@@ -477,7 +478,6 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
                 chain=self.chain,
                 rpchost=rpchost,
                 timewait=self.rpc_timeout,
-                factor=self.options.factor,
                 BGLd=binary[i],
                 BGL_cli=binary_cli[i],
                 timeout_factor=self.options.timeout_factor,
@@ -718,7 +718,6 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
                     extra_args=['-disablewallet'],
                     rpchost=None,
                     timewait=self.rpc_timeout,
-                    factor=self.options.factor,
                     BGLd=self.options.BGLd,
                     BGL_cli=self.options.BGLcli,
                     timeout_factor=self.options.timeout_factor,
@@ -735,16 +734,17 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             # Set a time in the past, so that blocks don't end up in the future
             cache_node.setmocktime(cache_node.getblockheader(cache_node.getbestblockhash())['time'])
 
-            # Create a 199-block-long chain; each of the 4 first nodes
+            # Create a 199-block-long chain; each of the 3 first nodes
             # gets 25 mature blocks and 25 immature.
-            # The 4th node gets only 24 immature blocks so that the very last
+            # The 4th address gets 25 mature and only 24 immature blocks so that the very last
             # block in the cache does not age too much (have an old tip age).
             # This is needed so that we are out of IBD when the test starts,
             # see the tip age check in IsInitialBlockDownload().
+            gen_addresses = [k.address for k in TestNode.PRIV_KEYS] + [ADDRESS_BCRT1_P2WSH_OP_TRUE]
             for i in range(8):
                 cache_node.generatetoaddress(
                     nblocks=25 if i != 7 else 24,
-                    address=TestNode.PRIV_KEYS[i % 4].address,
+                    address=gen_addresses[i % 4],
                 )
 
             assert_equal(cache_node.getblockchaininfo()["blocks"], 199)
@@ -830,9 +830,18 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
                     self.options.previous_releases_path))
         return self.options.prev_releases
 
+    def skip_if_no_external_signer(self):
+        """Skip the running test if external signer support has not been compiled."""
+        if not self.is_external_signer_compiled():
+            raise SkipTest("external signer support has not been compiled.")
+
     def is_cli_compiled(self):
         """Checks whether BGL-cli was compiled."""
         return self.config["components"].getboolean("ENABLE_CLI")
+
+    def is_external_signer_compiled(self):
+        """Checks whether external signer support was compiled."""
+        return self.config["components"].getboolean("ENABLE_EXTERNAL_SIGNER")
 
     def is_wallet_compiled(self):
         """Checks whether the wallet module was compiled."""

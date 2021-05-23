@@ -5,12 +5,12 @@
 #ifndef BGL_INTERFACES_CHAIN_H
 #define BGL_INTERFACES_CHAIN_H
 
-#include <optional.h>               // For Optional and nullopt
 #include <primitives/transaction.h> // For CTransactionRef
 #include <util/settings.h>          // For util::SettingsValue
 
 #include <functional>
 #include <memory>
+#include <optional>
 #include <stddef.h>
 #include <stdint.h>
 #include <string>
@@ -67,13 +67,13 @@ public:
 //! estimate fees, and submit transactions.
 //!
 //! TODO: Current chain methods are too low level, exposing too much of the
-//! internal workings of the BGL node, and not being very convenient to use.
+//! internal workings of the bitcoin node, and not being very convenient to use.
 //! Chain methods should be cleaned up and simplified over time. Examples:
 //!
 //! * The initMessages() and showProgress() methods which the wallet uses to send
 //!   notifications to the GUI should go away when GUI and wallet can directly
 //!   communicate with each other without going through the node
-//!   (https://github.com/BGL/BGL/pull/15288#discussion_r253321096).
+//!   (https://github.com/bitcoin/bitcoin/pull/15288#discussion_r253321096).
 //!
 //! * The handleRpc, registerRpcs, rpcEnableDeprecated methods and other RPC
 //!   methods can go away if wallets listen for HTTP requests on their own
@@ -94,7 +94,7 @@ public:
     //! Get current chain height, not including genesis block (returns 0 if
     //! chain only contains genesis block, nullopt if chain does not contain
     //! any blocks)
-    virtual Optional<int> getHeight() = 0;
+    virtual std::optional<int> getHeight() = 0;
 
     //! Get block hash. Height must be valid or this function will abort.
     virtual uint256 getBlockHash(int height) = 0;
@@ -109,7 +109,7 @@ public:
     //! Return height of the highest block on chain in common with the locator,
     //! which will either be the original block used to create the locator,
     //! or one of its ancestors.
-    virtual Optional<int> findLocatorFork(const CBlockLocator& locator) = 0;
+    virtual std::optional<int> findLocatorFork(const CBlockLocator& locator) = 0;
 
     //! Check if transaction will be final given chain height current time.
     virtual bool checkFinalTx(const CTransaction& tx) = 0;
@@ -154,10 +154,13 @@ public:
     //! Return true if data is available for all blocks in the specified range
     //! of blocks. This checks all blocks that are ancestors of block_hash in
     //! the height range from min_height to max_height, inclusive.
-    virtual bool hasBlocks(const uint256& block_hash, int min_height = 0, Optional<int> max_height = {}) = 0;
+    virtual bool hasBlocks(const uint256& block_hash, int min_height = 0, std::optional<int> max_height = {}) = 0;
 
     //! Check if transaction is RBF opt in.
     virtual RBFTransactionState isRBFOptIn(const CTransaction& tx) = 0;
+
+    //! Check if transaction is in mempool.
+    virtual bool isInMempool(const uint256& txid) = 0;
 
     //! Check if transaction has descendants in mempool.
     virtual bool hasDescendantsInMempool(const uint256& txid) = 0;

@@ -21,35 +21,35 @@ information in the debug log about your Tor configuration.
 The first step is running BGL Core behind a Tor proxy. This will already anonymize all
 outgoing connections, but more is possible.
 
-	-proxy=ip:port  Set the proxy server. If SOCKS5 is selected (default), this proxy
-	                server will be used to try to reach .onion addresses as well.
-	                You need to use -noonion or -onion=0 to explicitly disable
-	                outbound access to onion services.
+    -proxy=ip:port  Set the proxy server. If SOCKS5 is selected (default), this proxy
+                    server will be used to try to reach .onion addresses as well.
+                    You need to use -noonion or -onion=0 to explicitly disable
+                    outbound access to onion services.
 
-	-onion=ip:port  Set the proxy server to use for Tor onion services. You do not
-	                need to set this if it's the same as -proxy. You can use -onion=0
-	                to explicitly disable access to onion services.
-	                Note: Only the -proxy option sets the proxy for DNS requests;
-	                with -onion they will not route over Tor, so use -proxy if you
-	                have privacy concerns.
+    -onion=ip:port  Set the proxy server to use for Tor onion services. You do not
+                    need to set this if it's the same as -proxy. You can use -onion=0
+                    to explicitly disable access to onion services.
+                    Note: Only the -proxy option sets the proxy for DNS requests;
+                    with -onion they will not route over Tor, so use -proxy if you
+                    have privacy concerns.
 
-	-listen         When using -proxy, listening is disabled by default. If you want
-	                to manually configure an onion service (see section 3), you'll
-	                need to enable it explicitly.
+    -listen         When using -proxy, listening is disabled by default. If you want
+                    to manually configure an onion service (see section 3), you'll
+                    need to enable it explicitly.
 
-	-connect=X      When behind a Tor proxy, you can specify .onion addresses instead
-	-addnode=X      of IP addresses or hostnames in these parameters. It requires
-	-seednode=X     SOCKS5. In Tor mode, such addresses can also be exchanged with
-	                other P2P nodes.
+    -connect=X      When behind a Tor proxy, you can specify .onion addresses instead
+    -addnode=X      of IP addresses or hostnames in these parameters. It requires
+    -seednode=X     SOCKS5. In Tor mode, such addresses can also be exchanged with
+                    other P2P nodes.
 
-	-onlynet=onion  Make outgoing connections only to .onion addresses. Incoming
-	                connections are not affected by this option. This option can be
-	                specified multiple times to allow multiple network types, e.g.
-	                ipv4, ipv6 or onion. If you use this option with values other
-	                than onion you *cannot* disable onion connections; outgoing onion
-	                connections will be enabled when you use -proxy or -onion. Use
-	                -noonion or -onion=0 if you want to be sure there are no outbound
-	                onion connections over the default proxy or your defined -proxy.
+    -onlynet=onion  Make outgoing connections only to .onion addresses. Incoming
+                    connections are not affected by this option. This option can be
+                    specified multiple times to allow multiple network types, e.g.
+                    ipv4, ipv6 or onion. If you use this option with values other
+                    than onion you *cannot* disable onion connections; outgoing onion
+                    connections will be enabled when you use -proxy or -onion. Use
+                    -noonion or -onion=0 if you want to be sure there are no outbound
+                    onion connections over the default proxy or your defined -proxy.
 
 In a typical situation, this suffices to run behind a Tor proxy:
 

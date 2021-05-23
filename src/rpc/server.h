@@ -85,7 +85,6 @@ void RPCUnsetTimerInterface(RPCTimerInterface *iface);
  */
 void RPCRunLater(const std::string& name, std::function<void()> func, int64_t nSeconds);
 
-typedef UniValue(*rpcfn_type)(const JSONRPCRequest& jsonRequest);
 typedef RPCHelpMan (*RpcMethodFnType)();
 
 class CRPCCommand
@@ -111,14 +110,6 @@ public:
               [fn](const JSONRPCRequest& request, UniValue& result, bool) { result = fn().HandleRequest(request); return true; },
               fn().GetArgNames(),
               intptr_t(fn))
-    {
-    }
-
-    //! Simplified constructor taking plain rpcfn_type function pointer.
-    CRPCCommand(const char* category, const char* name, rpcfn_type fn, std::initializer_list<const char*> args)
-        : CRPCCommand(category, name,
-                      [fn](const JSONRPCRequest& request, UniValue& result, bool) { result = fn(request); return true; },
-                      {args.begin(), args.end()}, intptr_t(fn))
     {
     }
 
@@ -157,7 +148,7 @@ public:
     /**
      * Return all named arguments that need to be converted by the client from string to another JSON type
      */
-    UniValue dumpArgMap() const;
+    UniValue dumpArgMap(const JSONRPCRequest& request) const;
 
     /**
      * Appends a CRPCCommand to the dispatch table.

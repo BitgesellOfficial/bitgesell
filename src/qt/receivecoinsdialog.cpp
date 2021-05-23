@@ -41,25 +41,14 @@ ReceiveCoinsDialog::ReceiveCoinsDialog(const PlatformStyle *_platformStyle, QWid
         ui->removeRequestButton->setIcon(_platformStyle->SingleColorIcon(":/icons/remove"));
     }
 
-    // context menu actions
-    QAction *copyURIAction = new QAction(tr("Copy URI"), this);
-    QAction *copyLabelAction = new QAction(tr("Copy label"), this);
-    QAction *copyMessageAction = new QAction(tr("Copy message"), this);
-    QAction *copyAmountAction = new QAction(tr("Copy amount"), this);
-
     // context menu
     contextMenu = new QMenu(this);
-    contextMenu->addAction(copyURIAction);
-    contextMenu->addAction(copyLabelAction);
-    contextMenu->addAction(copyMessageAction);
-    contextMenu->addAction(copyAmountAction);
-
-    // context menu signals
+    contextMenu->addAction(tr("Copy URI"), this, &ReceiveCoinsDialog::copyURI);
+    contextMenu->addAction(tr("Copy address"), this, &ReceiveCoinsDialog::copyAddress);
+    copyLabelAction = contextMenu->addAction(tr("Copy label"), this, &ReceiveCoinsDialog::copyLabel);
+    copyMessageAction = contextMenu->addAction(tr("Copy message"), this, &ReceiveCoinsDialog::copyMessage);
+    copyAmountAction = contextMenu->addAction(tr("Copy amount"), this, &ReceiveCoinsDialog::copyAmount);
     connect(ui->recentRequestsView, &QWidget::customContextMenuRequested, this, &ReceiveCoinsDialog::showMenu);
-    connect(copyURIAction, &QAction::triggered, this, &ReceiveCoinsDialog::copyURI);
-    connect(copyLabelAction, &QAction::triggered, this, &ReceiveCoinsDialog::copyLabel);
-    connect(copyMessageAction, &QAction::triggered, this, &ReceiveCoinsDialog::copyMessage);
-    connect(copyAmountAction, &QAction::triggered, this, &ReceiveCoinsDialog::copyAmount);
 
     connect(ui->clearButton, &QPushButton::clicked, this, &ReceiveCoinsDialog::clear);
 
@@ -258,9 +247,18 @@ void ReceiveCoinsDialog::copyColumnToClipboard(int column)
 // context menu
 void ReceiveCoinsDialog::showMenu(const QPoint &point)
 {
-    if (!selectedRow().isValid()) {
+    const QModelIndex sel = selectedRow();
+    if (!sel.isValid()) {
         return;
     }
+
+    // disable context menu actions when appropriate
+    const RecentRequestsTableModel* const submodel = model->getRecentRequestsTableModel();
+    const RecentRequestEntry& req = submodel->entry(sel.row());
+    copyLabelAction->setDisabled(req.recipient.label.isEmpty());
+    copyMessageAction->setDisabled(req.recipient.message.isEmpty());
+    copyAmountAction->setDisabled(req.recipient.amount == 0);
+
     contextMenu->exec(QCursor::pos());
 }
 
@@ -275,6 +273,19 @@ void ReceiveCoinsDialog::copyURI()
     const RecentRequestsTableModel * const submodel = model->getRecentRequestsTableModel();
     const QString uri = GUIUtil::formatBGLURI(submodel->entry(sel.row()).recipient);
     GUIUtil::setClipboard(uri);
+}
+
+// context menu action: copy address
+void ReceiveCoinsDialog::copyAddress()
+{
+    const QModelIndex sel = selectedRow();
+    if (!sel.isValid()) {
+        return;
+    }
+
+    const RecentRequestsTableModel* const submodel = model->getRecentRequestsTableModel();
+    const QString address = submodel->entry(sel.row()).recipient.address;
+    GUIUtil::setClipboard(address);
 }
 
 // context menu action: copy label

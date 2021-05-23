@@ -156,6 +156,8 @@ const CLogCategoryDesc LogCategories[] =
     {BCLog::QT, "qt"},
     {BCLog::LEVELDB, "leveldb"},
     {BCLog::VALIDATION, "validation"},
+    {BCLog::I2P, "i2p"},
+    {BCLog::IPC, "ipc"},
     {BCLog::ALL, "1"},
     {BCLog::ALL, "all"},
 };
@@ -204,9 +206,9 @@ std::string BCLog::Logger::LogTimestampStr(const std::string& str)
             strStamped.pop_back();
             strStamped += strprintf(".%06dZ", nTimeMicros%1000000);
         }
-        int64_t mocktime = GetMockTime();
-        if (mocktime) {
-            strStamped += " (mocktime: " + FormatISO8601DateTime(mocktime) + ")";
+        std::chrono::seconds mocktime = GetMockTime();
+        if (mocktime > 0s) {
+            strStamped += " (mocktime: " + FormatISO8601DateTime(count_seconds(mocktime)) + ")";
         }
         strStamped += ' ' + str;
     } else

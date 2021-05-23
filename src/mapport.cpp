@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include <config/bitcoin-config.h>
+#include <config/BGL-config.h>
 #endif
 
 #include <mapport.h>
@@ -321,7 +321,7 @@ void StopMapPort()
 }
 
 #else  // #if defined(USE_NATPMP) || defined(USE_UPNP)
-void StartMapPort(bool use_upnp)
+void StartMapPort(bool use_upnp, bool use_natpmp)
 {
     // Intentionally left blank.
 }
