@@ -153,6 +153,7 @@ task:
     - cp c:\bitgesell\build_msvc\x64\Debug\BGL-wallet.exe c:\binaries_windows
     - cd c:\bitgesell\share
     - '"c:\Program Files (x86)\NSIS\makensis.exe" setup-BGL-win.nsi'
+    - cp c:\bitgesell\BGL-0.1.6.0-win64-setup.exe '"C:\Users\ContainerAdministrator\AppData\Local\Temp\cirrus-ci-build"'
   exe_artifacts:
     # Relative path (check if there's a solution for that)
-    path: '..\..\..\..\..\..\bitgesell\*.exe'
+    path: '*.exe'
