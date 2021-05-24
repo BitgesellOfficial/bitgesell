@@ -91,7 +91,7 @@ task:
     path: "/*.deb"
 
 task:
-  name: "debian [Qt][deploy]"
+  name: "debian [qt deploy]"
   << : *BASE_TEMPLATE
   compute_engine_instance:
     image_project: cirrus-images
