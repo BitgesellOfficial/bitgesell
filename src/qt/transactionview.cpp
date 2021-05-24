@@ -144,6 +144,22 @@ TransactionView::TransactionView(const PlatformStyle *platformStyle, QWidget *pa
     transactionView->setTabKeyNavigation(false);
     transactionView->setContextMenuPolicy(Qt::CustomContextMenu);
     transactionView->installEventFilter(this);
+    transactionView->setAlternatingRowColors(true);
+    transactionView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    transactionView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    transactionView->setSortingEnabled(true);
+    transactionView->verticalHeader()->hide();
+
+    QSettings settings;
+    if (!transactionView->horizontalHeader()->restoreState(settings.value("TransactionViewHeaderState").toByteArray())) {
+        transactionView->setColumnWidth(TransactionTableModel::Status, STATUS_COLUMN_WIDTH);
+        transactionView->setColumnWidth(TransactionTableModel::Watchonly, WATCHONLY_COLUMN_WIDTH);
+        transactionView->setColumnWidth(TransactionTableModel::Date, DATE_COLUMN_WIDTH);
+        transactionView->setColumnWidth(TransactionTableModel::Type, TYPE_COLUMN_WIDTH);
+        transactionView->setColumnWidth(TransactionTableModel::Amount, AMOUNT_MINIMUM_COLUMN_WIDTH);
+        transactionView->horizontalHeader()->setMinimumSectionSize(MINIMUM_COLUMN_WIDTH);
+        transactionView->horizontalHeader()->setStretchLastSection(true);
+    }
 
     contextMenu = new QMenu(this);
     contextMenu->setObjectName("contextMenu");
@@ -198,6 +214,7 @@ void TransactionView::setModel(WalletModel *_model)
         transactionProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
         transactionProxyModel->setSortRole(Qt::EditRole);
         transactionView->setModel(transactionProxyModel);
+        transactionView->sortByColumn(TransactionTableModel::Date, Qt::DescendingOrder);
 
         if (_model->getOptionsModel())
         {
