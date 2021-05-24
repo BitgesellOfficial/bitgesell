@@ -48,6 +48,11 @@ public:
     //! @returns success
     static bool Enumerate(const std::string& command, std::vector<ExternalSigner>& signers, const std::string chain);
 
+    //! Display address on the device. Calls `<command> displayaddress --desc <descriptor>`.
+    //! @param[in] descriptor Descriptor specifying which address to display.
+    //!            Must include a public key or xpub, as well as key origin.
+    UniValue DisplayAddress(const std::string& descriptor) const;
+
     //! Get receive and change Descriptor(s) from device for a given account.
     //! Calls `<command> getdescriptors --account <account>`
     //! @param[in] account  which BIP32 account to use (e.g. `m/44'/0'/account'`)

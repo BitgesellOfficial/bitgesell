@@ -10,6 +10,9 @@
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\BGLd.cpp" />
+    <ClCompile Include="..\..\src\init\BGLd.cpp">
+      <ObjectFileName>$(IntDir)init_BGLd.obj</ObjectFileName>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\libBGLconsensus\libBGLconsensus.vcxproj">
