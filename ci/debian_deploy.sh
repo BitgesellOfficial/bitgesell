@@ -15,6 +15,7 @@ echo "INSTALL DONE"
 export ARTIFACT_NAME="bitgesell_amd64.deb"
 export RELEASE_ARTIFACT_NAME="bitgesell_${CIRRUS_TAG}_amd64.deb"
 
+mv ./debian.minimal ./debian
 chmod +x ./debian/build-in-docker.sh
 set -o errexit; source ./debian/build-in-docker.sh
 set -o errexit; source ./ci/test/07_script.sh
