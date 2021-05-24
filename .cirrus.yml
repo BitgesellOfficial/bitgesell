@@ -91,6 +91,23 @@ task:
     path: "/*.deb"
 
 task:
+  name: "debian [Qt][deploy]"
+  << : *BASE_TEMPLATE
+  compute_engine_instance:
+    image_project: cirrus-images
+    image: family/docker-kvm
+    platform: linux
+    cpu: 2
+    memory: 8G
+    nested_virtualization: true
+  env:
+    GIT_CONFIG_FLAG: "--system"
+  ci_script:
+    - ./ci/debian_qt_deploy.sh
+  deb_artifacts:
+    path: "/*.deb"
+
+task:
   name: 'Win64 [installer]'
   timeout_in: 120m
   windows_container:
@@ -136,3 +153,5 @@ task:
     - cp c:\bitgesell\build_msvc\x64\Debug\BGL-wallet.exe c:\binaries_windows
     - cd c:\bitgesell\share
     - '"c:\Program Files (x86)\NSIS\makensis.exe" setup-BGL-win.nsi'
+  exe_artifacts:
+    path: "c:\bitgesell\*.exe"
