@@ -156,15 +156,14 @@ TxoutType Solver(const CScript& scriptPubKey, std::vector<std::vector<unsigned c
     std::vector<unsigned char> witnessprogram;
     if (scriptPubKey.IsWitnessProgram(witnessversion, witnessprogram)) {
         if (witnessversion == 0 && witnessprogram.size() == WITNESS_V0_KEYHASH_SIZE) {
-            vSolutionsRet.push_back(witnessprogram);
+            vSolutionsRet.push_back(std::move(witnessprogram));
             return TxoutType::WITNESS_V0_KEYHASH;
         }
         if (witnessversion == 0 && witnessprogram.size() == WITNESS_V0_SCRIPTHASH_SIZE) {
-            vSolutionsRet.push_back(witnessprogram);
+            vSolutionsRet.push_back(std::move(witnessprogram));
             return TxoutType::WITNESS_V0_SCRIPTHASH;
         }
         if (witnessversion == 1 && witnessprogram.size() == WITNESS_V1_TAPROOT_SIZE) {
-            vSolutionsRet.push_back(std::vector<unsigned char>{(unsigned char)witnessversion});
             vSolutionsRet.push_back(std::move(witnessprogram));
             return TxoutType::WITNESS_V1_TAPROOT;
         }
@@ -241,7 +240,18 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
         std::copy(vSolutions[0].begin(), vSolutions[0].end(), hash.begin());
         addressRet = hash;
         return true;
-    } else if (whichType == TxoutType::WITNESS_UNKNOWN || whichType == TxoutType::WITNESS_V1_TAPROOT) {
+    }
+    case TxoutType::WITNESS_V1_TAPROOT: {
+        /* For now, no WitnessV1Taproot variant in CTxDestination exists, so map
+         * this to WitnessUnknown. */
+        WitnessUnknown unk;
+        unk.version = 1;
+        std::copy(vSolutions[0].begin(), vSolutions[0].end(), unk.program);
+        unk.length = vSolutions[0].size();
+        addressRet = unk;
+        return true;
+    }
+    case TxoutType::WITNESS_UNKNOWN: {
         WitnessUnknown unk;
         unk.version = vSolutions[0][0];
         std::copy(vSolutions[1].begin(), vSolutions[1].end(), unk.program);
