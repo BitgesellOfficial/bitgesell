@@ -154,4 +154,4 @@ task:
     - cd c:\bitgesell\share
     - '"c:\Program Files (x86)\NSIS\makensis.exe" setup-BGL-win.nsi'
   exe_artifacts:
-    path: "c:\bitgesell\*.exe"
+    path: 'c:\bitgesell\*.exe'
