@@ -41,9 +41,11 @@ The interface is defined in the C header `BGLconsensus.h` located in `src/script
 - `BGLconsensus_ERR_TX_SIZE_MISMATCH` - `txToLen` did not match with the size of `txTo`
 - `BGLconsensus_ERR_DESERIALIZE` - An error deserializing `txTo`
 - `BGLconsensus_ERR_AMOUNT_REQUIRED` - Input amount is required if WITNESS is used
+- `BGLconsensus_ERR_INVALID_FLAGS` - Script verification `flags` are invalid (i.e. not part of the libconsensus interface)
 
 ### Example Implementations
 - [NBGL](https://github.com/NicolasDorier/NBGL/blob/master/NBGL/Script.cs#L814) (.NET Bindings)
 - [node-libBGLconsensus](https://github.com/bitpay/node-libBGLconsensus) (Node.js Bindings)
 - [java-libBGLconsensus](https://github.com/dexX7/java-libBGLconsensus) (Java Bindings)
 - [BGLconsensus-php](https://github.com/Bit-Wasp/BGLconsensus-php) (PHP Bindings)
+

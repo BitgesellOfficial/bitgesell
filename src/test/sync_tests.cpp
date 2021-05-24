@@ -7,6 +7,8 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <mutex>
+
 namespace {
 template <typename MutexType>
 void TestPotentialDeadLockDetected(MutexType& mutex1, MutexType& mutex2)
@@ -59,6 +61,19 @@ void TestDoubleLock(bool should_throw)
     g_debug_lockorder_abort = prev;
 }
 #endif /* DEBUG_LOCKORDER */
+
+template <typename MutexType>
+void TestInconsistentLockOrderDetected(MutexType& mutex1, MutexType& mutex2) NO_THREAD_SAFETY_ANALYSIS
+{
+    ENTER_CRITICAL_SECTION(mutex1);
+    ENTER_CRITICAL_SECTION(mutex2);
+#ifdef DEBUG_LOCKORDER
+    BOOST_CHECK_EXCEPTION(LEAVE_CRITICAL_SECTION(mutex1), std::logic_error, HasReason("mutex1 was not most recent critical section locked"));
+#endif // DEBUG_LOCKORDER
+    LEAVE_CRITICAL_SECTION(mutex2);
+    LEAVE_CRITICAL_SECTION(mutex1);
+    BOOST_CHECK(LockStackEmpty());
+}
 } // namespace
 
 BOOST_FIXTURE_TEST_SUITE(sync_tests, BasicTestingSetup)
@@ -83,6 +98,45 @@ BOOST_AUTO_TEST_CASE(potential_deadlock_detected)
     #ifdef DEBUG_LOCKORDER
     g_debug_lockorder_abort = prev;
     #endif
+}
+
+/* Double lock would produce an undefined behavior. Thus, we only do that if
+ * DEBUG_LOCKORDER is activated to detect it. We don't want non-DEBUG_LOCKORDER
+ * build to produce tests that exhibit known undefined behavior. */
+#ifdef DEBUG_LOCKORDER
+BOOST_AUTO_TEST_CASE(double_lock_mutex)
+{
+    TestDoubleLock<Mutex>(true /* should throw */);
+}
+
+BOOST_AUTO_TEST_CASE(double_lock_recursive_mutex)
+{
+    TestDoubleLock<RecursiveMutex>(false /* should not throw */);
+}
+#endif /* DEBUG_LOCKORDER */
+
+BOOST_AUTO_TEST_CASE(inconsistent_lock_order_detected)
+{
+#ifdef DEBUG_LOCKORDER
+    bool prev = g_debug_lockorder_abort;
+    g_debug_lockorder_abort = false;
+#endif // DEBUG_LOCKORDER
+
+    RecursiveMutex rmutex1, rmutex2;
+    TestInconsistentLockOrderDetected(rmutex1, rmutex2);
+    // By checking lock order consistency (CheckLastCritical) before any unlocking (LeaveCritical)
+    // the lock tracking data must not have been broken by exception.
+    TestInconsistentLockOrderDetected(rmutex1, rmutex2);
+
+    Mutex mutex1, mutex2;
+    TestInconsistentLockOrderDetected(mutex1, mutex2);
+    // By checking lock order consistency (CheckLastCritical) before any unlocking (LeaveCritical)
+    // the lock tracking data must not have been broken by exception.
+    TestInconsistentLockOrderDetected(mutex1, mutex2);
+
+#ifdef DEBUG_LOCKORDER
+    g_debug_lockorder_abort = prev;
+#endif // DEBUG_LOCKORDER
 }
 
 BOOST_AUTO_TEST_SUITE_END()

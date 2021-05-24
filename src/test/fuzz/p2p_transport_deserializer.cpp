@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Bitcoin Core developers
+// Copyright (c) 2019-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,14 +10,15 @@
 #include <cassert>
 #include <cstdint>
 #include <limits>
+#include <optional>
 #include <vector>
 
-void initialize()
+void initialize_p2p_transport_deserializer()
 {
     SelectParams(CBaseChainParams::REGTEST);
 }
 
-void test_one_input(const std::vector<uint8_t>& buffer)
+FUZZ_TARGET_INIT(p2p_transport_deserializer, initialize_p2p_transport_deserializer)
 {
     // Construct deserializer, with a dummy NodeId
     V1TransportDeserializer deserializer{Params(), (NodeId)0, SER_NETWORK, INIT_PROTO_VERSION};
@@ -27,12 +28,10 @@ void test_one_input(const std::vector<uint8_t>& buffer)
         if (handled < 0) {
             break;
         }
-        pch += handled;
-        n_bytes -= handled;
         if (deserializer.Complete()) {
             const std::chrono::microseconds m_time{std::numeric_limits<int64_t>::max()};
             uint32_t out_err_raw_size{0};
-            Optional<CNetMessage> result{deserializer.GetMessage(Params().MessageStart(), m_time, out_err_raw_size)};
+            std::optional<CNetMessage> result{deserializer.GetMessage(m_time, out_err_raw_size)};
             if (result) {
                 assert(result->m_command.size() <= CMessageHeader::COMMAND_SIZE);
                 assert(result->m_raw_message_size <= buffer.size());

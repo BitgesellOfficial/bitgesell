@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2019 The Bitcoin Core developers
+# Copyright (c) 2014-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the wallet."""
@@ -95,6 +95,8 @@ class WalletTest(BGLTestFramework):
         # but invisible if you include mempool
         txout = self.nodes[0].gettxout(confirmed_txid, confirmed_index, False)
         assert_equal(txout['value'], 50)
+        txout = self.nodes[0].gettxout(confirmed_txid, confirmed_index)  # by default include_mempool=True
+        assert txout is None
         txout = self.nodes[0].gettxout(confirmed_txid, confirmed_index, True)
         assert txout is None
         # new utxo from mempool should be invisible if you exclude mempool
@@ -233,13 +235,25 @@ class WalletTest(BGLTestFramework):
         fee_rate_BGL_kvb = fee_rate_sat_vb * 1e3 / 1e8
         explicit_fee_rate_BGL_kvb = Decimal(fee_rate_BGL_kvb) / 1000
 
-        txid = self.nodes[2].sendmany(amounts={address: 10}, fee_rate=fee_rate_sat_vb)
+        # Test passing fee_rate as a string
+        txid = self.nodes[2].sendmany(amounts={address: 10}, fee_rate=str(fee_rate_sat_vb))
         self.nodes[2].generate(1)
         self.sync_all(self.nodes[0:3])
         balance = self.nodes[2].getbalance()
         node_2_bal = self.check_fee_amount(balance, node_2_bal - Decimal('10'), explicit_fee_rate_BGL_kvb, self.get_vsize(self.nodes[2].gettransaction(txid)['hex']))
         assert_equal(balance, node_2_bal)
         node_0_bal += Decimal('10')
+        assert_equal(self.nodes[0].getbalance(), node_0_bal)
+
+        # Test passing fee_rate as an integer
+        amount = Decimal("0.0001")
+        txid = self.nodes[2].sendmany(amounts={address: amount}, fee_rate=fee_rate_sat_vb)
+        self.nodes[2].generate(1)
+        self.sync_all(self.nodes[0:3])
+        balance = self.nodes[2].getbalance()
+        node_2_bal = self.check_fee_amount(balance, node_2_bal - amount, explicit_fee_rate_btc_kvb, self.get_vsize(self.nodes[2].gettransaction(txid)['hex']))
+        assert_equal(balance, node_2_bal)
+        node_0_bal += amount
         assert_equal(self.nodes[0].getbalance(), node_0_bal)
 
         for key in ["totalFee", "feeRate"]:
@@ -412,6 +426,19 @@ class WalletTest(BGLTestFramework):
             fee = prebalance - postbalance - Decimal(amount)
             assert_fee_amount(fee, tx_size, Decimal(fee_rate_BGL_kvb))
 
+            prebalance = self.nodes[2].getbalance()
+            amount = Decimal("0.001")
+            fee_rate_sat_vb = 1.23
+            fee_rate_btc_kvb = fee_rate_sat_vb * 1e3 / 1e8
+            # Test passing fee_rate as a string
+            txid = self.nodes[2].sendtoaddress(address=address, amount=amount, fee_rate=str(fee_rate_sat_vb))
+            tx_size = self.get_vsize(self.nodes[2].gettransaction(txid)['hex'])
+            self.nodes[0].generate(1)
+            self.sync_all(self.nodes[0:3])
+            postbalance = self.nodes[2].getbalance()
+            fee = prebalance - postbalance - amount
+            assert_fee_amount(fee, tx_size, Decimal(fee_rate_btc_kvb))
+
             for key in ["totalFee", "feeRate"]:
                 assert_raises_rpc_error(-8, "Unknown named parameter key", self.nodes[2].sendtoaddress, address=address, amount=1, fee_rate=1, key=1)
 
@@ -560,7 +587,7 @@ class WalletTest(BGLTestFramework):
         assert_equal(total_txs, len(self.nodes[0].listtransactions("*", 99999)))
 
         # Test getaddressinfo on external address. Note that these addresses are taken from disablewallet.py
-        assert_raises_rpc_error(-5, "Invalid address", self.nodes[0].getaddressinfo, "3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy")
+        assert_raises_rpc_error(-5, "Invalid prefix for Base58-encoded address", self.nodes[0].getaddressinfo, "3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy")
         address_info = self.nodes[0].getaddressinfo("mneYUmWYsuk7kySiURxCi3AGxrAqZxLgPZ")
         assert_equal(address_info['address'], "mneYUmWYsuk7kySiURxCi3AGxrAqZxLgPZ")
         assert_equal(address_info["scriptPubKey"], "76a9144e3854046c7bd1594ac904e4793b6a45b36dea0988ac")
@@ -574,7 +601,7 @@ class WalletTest(BGLTestFramework):
         destination = self.nodes[1].getnewaddress()
         txid = self.nodes[0].sendtoaddress(destination, 0.123)
         tx = self.nodes[0].decoderawtransaction(self.nodes[0].gettransaction(txid)['hex'])
-        output_addresses = [vout['scriptPubKey']['addresses'][0] for vout in tx["vout"]]
+        output_addresses = [vout['scriptPubKey']['address'] for vout in tx["vout"]]
         assert len(output_addresses) > 1
         for address in output_addresses:
             ischange = self.nodes[0].getaddressinfo(address)['ischange']

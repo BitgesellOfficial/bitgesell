@@ -4,7 +4,7 @@
 
 # Pattern rule to print variables, e.g. make print-top_srcdir
 print-%:
-	@echo $* = $($*)
+	@echo '$*'='$($*)'
 
 ACLOCAL_AMFLAGS = -I build-aux/m4
 SUBDIRS = src
@@ -25,7 +25,10 @@ BGLD_BIN=$(top_builddir)/src/$(BGL_DAEMON_NAME)$(EXEEXT)
 BGL_QT_BIN=$(top_builddir)/src/qt/$(BGL_GUI_NAME)$(EXEEXT)
 BGL_CLI_BIN=$(top_builddir)/src/$(BGL_CLI_NAME)$(EXEEXT)
 BGL_TX_BIN=$(top_builddir)/src/$(BGL_TX_NAME)$(EXEEXT)
+BGL_UTIL_BIN=$(top_builddir)/src/$(BGL_UTIL_NAME)$(EXEEXT)
 BGL_WALLET_BIN=$(top_builddir)/src/$(BGL_WALLET_TOOL_NAME)$(EXEEXT)
+BGL_NODE_BIN=$(top_builddir)/src/$(BGL_MP_NODE_NAME)$(EXEEXT)
+BGL_GUI_BIN=$(top_builddir)/src/$(BGL_MP_GUI_NAME)$(EXEEXT)
 BGL_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win64-setup$(EXEEXT)
 
 empty :=
@@ -41,18 +44,11 @@ OSX_BACKGROUND_IMAGE_DPIS=36 72
 OSX_DEPLOY_SCRIPT=$(top_srcdir)/contrib/macdeploy/macdeployqtplus
 OSX_INSTALLER_ICONS=$(top_srcdir)/src/qt/res/icons/BGL.icns
 OSX_PLIST=$(top_builddir)/share/qt/Info.plist #not installed
-OSX_QT_TRANSLATIONS = ar,bg,ca,cs,da,de,es,fa,fi,fr,gd,gl,he,hu,it,ja,ko,lt,lv,pl,pt,ru,sk,sl,sv,uk,zh_CN,zh_TW
 
-DIST_DOCS = \
-  README.md \
-  $(wildcard doc/*.md) \
-  $(wildcard doc/release-notes/*.md)
-DIST_CONTRIB = $(top_srcdir)/contrib/BGL-cli.bash-completion \
-	       $(top_srcdir)/contrib/BGL-tx.bash-completion \
-	       $(top_srcdir)/contrib/BGLd.bash-completion \
-	       $(top_srcdir)/contrib/debian/copyright \
-	       $(top_srcdir)/contrib/init \
-	       $(top_srcdir)/contrib/install_db4.sh \
+DIST_CONTRIB = \
+	       $(top_srcdir)/test/sanitizer_suppressions/lsan \
+	       $(top_srcdir)/test/sanitizer_suppressions/tsan \
+	       $(top_srcdir)/test/sanitizer_suppressions/ubsan \
 	       $(top_srcdir)/contrib/linearize/linearize-data.py \
 	       $(top_srcdir)/contrib/linearize/linearize-hashes.py
 
@@ -81,6 +77,7 @@ COVERAGE_INFO = $(COV_TOOL_WRAPPER) baseline.info \
 dist-hook:
 	-$(GIT) archive --format=tar HEAD -- src/clientversion.cpp | $(AMTAR) -C $(top_distdir) -xf -
 
+if TARGET_WINDOWS
 $(BGL_WIN_INSTALLER): all-recursive
 	$(MKDIR_P) $(top_builddir)/release
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGLD_BIN) $(top_builddir)/release
@@ -88,10 +85,15 @@ $(BGL_WIN_INSTALLER): all-recursive
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_CLI_BIN) $(top_builddir)/release
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_TX_BIN) $(top_builddir)/release
 	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_WALLET_BIN) $(top_builddir)/release
+	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_UTIL_BIN) $(top_builddir)/release
 	@test -f $(MAKENSIS) && echo 'OutFile "$@"' | cat $(top_builddir)/share/setup.nsi - | $(MAKENSIS) -V2 - || \
 	  echo error: could not build $@
 	@echo built $@
 
+deploy: $(BGL_WIN_INSTALLER)
+endif
+
+if TARGET_DARWIN
 $(OSX_APP)/Contents/PkgInfo:
 	$(MKDIR_P) $(@D)
 	@echo "APPL????" > $@
@@ -136,7 +138,7 @@ $(OSX_BACKGROUND_IMAGE): $(OSX_BACKGROUND_IMAGE).png $(OSX_BACKGROUND_IMAGE)@2x.
 	tiffutil -cathidpicheck $^ -out $@
 
 deploydir: $(OSX_DMG)
-else
+else !BUILD_DARWIN
 APP_DIST_DIR=$(top_builddir)/dist
 APP_DIST_EXTRAS=$(APP_DIST_DIR)/.background/$(OSX_BACKGROUND_IMAGE) $(APP_DIST_DIR)/.DS_Store $(APP_DIST_DIR)/Applications
 
@@ -145,6 +147,9 @@ $(APP_DIST_DIR)/Applications:
 	@cd $(@D); $(LN_S) /Applications $(@F)
 
 $(APP_DIST_EXTRAS): $(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/BGL-Qt
+
+$(OSX_TEMP_ISO): $(APP_DIST_EXTRAS)
+	$(XORRISOFS) -D -l -V "$(OSX_VOLNAME)" -no-pad -r -dir-mode 0755 -o $@ dist -- $(if $(SOURCE_DATE_EPOCH),-volume_date all_file_dates =$(SOURCE_DATE_EPOCH))
 
 $(OSX_TEMP_ISO): $(APP_DIST_EXTRAS)
 	$(XORRISOFS) -D -l -V "$(OSX_VOLNAME)" -no-pad -r -dir-mode 0755 -o $@ dist -- $(if $(SOURCE_DATE_EPOCH),-volume_date all_file_dates =$(SOURCE_DATE_EPOCH))
@@ -163,12 +168,12 @@ $(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/BGL-Qt: $(OSX_APP_BUILT) $(OSX_PACKAGI
 	INSTALLNAMETOOL=$(INSTALLNAMETOOL) OTOOL=$(OTOOL) STRIP=$(STRIP) $(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) $(OSX_VOLNAME) -translations-dir=$(QT_TRANSLATION_DIR)
 
 deploydir: $(APP_DIST_EXTRAS)
-endif
+endif !BUILD_DARWIN
 
-if TARGET_DARWIN
 appbundle: $(OSX_APP_BUILT)
 deploy: $(OSX_DMG)
 endif
+
 if TARGET_WINDOWS
 deploy: $(BGL_WIN_INSTALLER)
 endif
@@ -185,7 +190,16 @@ $(BGL_CLI_BIN): FORCE
 $(BGL_TX_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
+$(BGL_UTIL_BIN): FORCE
+	$(MAKE) -C src $(@F)
+
 $(BGL_WALLET_BIN): FORCE
+	$(MAKE) -C src $(@F)
+
+$(BGL_NODE_BIN): FORCE
+	$(MAKE) -C src $(@F)
+
+$(BGL_GUI_BIN): FORCE
 	$(MAKE) -C src $(@F)
 
 if USE_LCOV
@@ -359,10 +373,13 @@ clean-local: clean-docs
 test-security-check:
 if TARGET_DARWIN
 	$(AM_V_at) $(PYTHON) $(top_srcdir)/contrib/devtools/test-security-check.py TestSecurityChecks.test_MACHO
+	$(AM_V_at) $(PYTHON) $(top_srcdir)/contrib/devtools/test-symbol-check.py TestSymbolChecks.test_MACHO
 endif
 if TARGET_WINDOWS
 	$(AM_V_at) $(PYTHON) $(top_srcdir)/contrib/devtools/test-security-check.py TestSecurityChecks.test_PE
+	$(AM_V_at) $(PYTHON) $(top_srcdir)/contrib/devtools/test-symbol-check.py TestSymbolChecks.test_PE
 endif
 if TARGET_LINUX
 	$(AM_V_at) $(PYTHON) $(top_srcdir)/contrib/devtools/test-security-check.py TestSecurityChecks.test_ELF
+	$(AM_V_at) $(PYTHON) $(top_srcdir)/contrib/devtools/test-symbol-check.py TestSymbolChecks.test_ELF
 endif

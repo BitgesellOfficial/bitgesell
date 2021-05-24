@@ -40,12 +40,12 @@
 #include <set>
 #include <vector>
 
-void initialize()
+void initialize_integer()
 {
     SelectParams(CBaseChainParams::REGTEST);
 }
 
-void test_one_input(const std::vector<uint8_t>& buffer)
+FUZZ_TARGET_INIT(integer, initialize_integer)
 {
     if (buffer.size() < sizeof(uint256) + sizeof(uint160)) {
         return;
@@ -84,8 +84,7 @@ void test_one_input(const std::vector<uint8_t>& buffer)
     (void)DecompressAmount(u64);
     (void)FormatISO8601Date(i64);
     (void)FormatISO8601DateTime(i64);
-    // FormatMoney(i) not defined when i == std::numeric_limits<int64_t>::min()
-    if (i64 != std::numeric_limits<int64_t>::min()) {
+    {
         int64_t parsed_money;
         if (ParseMoney(FormatMoney(i64), parsed_money)) {
             assert(parsed_money == i64);
@@ -132,8 +131,7 @@ void test_one_input(const std::vector<uint8_t>& buffer)
     (void)SipHashUint256Extra(u64, u64, u256, u32);
     (void)ToLower(ch);
     (void)ToUpper(ch);
-    // ValueFromAmount(i) not defined when i == std::numeric_limits<int64_t>::min()
-    if (i64 != std::numeric_limits<int64_t>::min()) {
+    {
         int64_t parsed_money;
         if (ParseMoney(ValueFromAmount(i64).getValStr(), parsed_money)) {
             assert(parsed_money == i64);

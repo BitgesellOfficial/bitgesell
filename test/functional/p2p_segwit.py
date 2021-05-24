@@ -694,13 +694,35 @@ class SegWitTest(BGLTestFramework):
         if not self.segwit_active:
             # Just check mempool acceptance, but don't add the transaction to the mempool, since witness is disallowed
             # in blocks and the tx is impossible to mine right now.
-            assert_equal(self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]), [{'txid': tx3.hash, 'allowed': True, 'vsize': tx3.get_vsize(), 'fees': { 'base': Decimal('0.00001000')}}])
+            assert_equal(
+                self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]),
+                [{
+                    'txid': tx3.hash,
+                    'wtxid': tx3.getwtxid(),
+                    'allowed': True,
+                    'vsize': tx3.get_vsize(),
+                    'fees': {
+                        'base': Decimal('0.00001000'),
+                    },
+                }],
+            )
             # Create the same output as tx3, but by replacing tx
             tx3_out = tx3.vout[0]
             tx3 = tx
             tx3.vout = [tx3_out]
             tx3.rehash()
-            assert_equal(self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]), [{'txid': tx3.hash, 'allowed': True, 'vsize': tx3.get_vsize(), 'fees': { 'base': Decimal('0.00011000')}}])
+            assert_equal(
+                self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]),
+                [{
+                    'txid': tx3.hash,
+                    'wtxid': tx3.getwtxid(),
+                    'allowed': True,
+                    'vsize': tx3.get_vsize(),
+                    'fees': {
+                        'base': Decimal('0.00011000'),
+                    },
+                }],
+            )
         test_transaction_acceptance(self.nodes[0], self.test_node, tx3, with_witness=True, accepted=True)
 
         self.nodes[0].generate(1)
@@ -1942,22 +1964,33 @@ class SegWitTest(BGLTestFramework):
     def test_upgrade_after_activation(self):
         """Test the behavior of starting up a segwit-aware node after the softfork has activated."""
 
-        self.restart_node(2, extra_args=["-segwitheight={}".format(SEGWIT_HEIGHT)])
+        # All nodes are caught up and node 2 is a pre-segwit node that will soon upgrade.
+        for n in range(2):
+            assert_equal(self.nodes[n].getblockcount(), self.nodes[2].getblockcount())
+            assert softfork_active(self.nodes[n], "segwit")
+        assert SEGWIT_HEIGHT < self.nodes[2].getblockcount()
+        assert 'segwit' not in self.nodes[2].getblockchaininfo()['softforks']
+
+        # Restarting node 2 should result in a shutdown because the blockchain consists of
+        # insufficiently validated blocks per segwit consensus rules.
+        self.stop_node(2)
+        with self.nodes[2].assert_debug_log(expected_msgs=[
+                f"Witness data for blocks after height {SEGWIT_HEIGHT} requires validation. Please restart with -reindex."], timeout=10):
+            self.nodes[2].start([f"-segwitheight={SEGWIT_HEIGHT}"])
+
+        # As directed, the user restarts the node with -reindex
+        self.start_node(2, extra_args=["-reindex", f"-segwitheight={SEGWIT_HEIGHT}"])
+
+        # With the segwit consensus rules, the node is able to validate only up to SEGWIT_HEIGHT - 1
+        assert_equal(self.nodes[2].getblockcount(), SEGWIT_HEIGHT - 1)
         self.connect_nodes(0, 2)
 
         # We reconnect more than 100 blocks, give it plenty of time
+        # sync_blocks() also verifies the best block hash is the same for all nodes
         self.sync_blocks(timeout=240)
 
-        # Make sure that this peer thinks segwit has activated.
-        assert softfork_active(self.nodes[2], 'segwit')
-
-        # Make sure this peer's blocks match those of node0.
-        height = self.nodes[2].getblockcount()
-        while height >= 0:
-            block_hash = self.nodes[2].getblockhash(height)
-            assert_equal(block_hash, self.nodes[0].getblockhash(height))
-            assert_equal(self.nodes[0].getblock(block_hash), self.nodes[2].getblock(block_hash))
-            height -= 1
+        # The upgraded node should now have segwit activated
+        assert softfork_active(self.nodes[2], "segwit")
 
     @subtest  # type: ignore
     def test_witness_sigops(self):

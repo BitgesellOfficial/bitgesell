@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2019 The Bitcoin Core developers
+# Copyright (c) 2014-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the RBF code."""
@@ -33,12 +33,7 @@ def make_utxo(node, amount, confirmed=True, scriptPubKey=DUMMY_P2WPKH_SCRIPT):
     txid = node.sendtoaddress(new_addr, satoshi_round((amount+fee)/COIN))
     tx1 = node.getrawtransaction(txid, 1)
     txid = int(txid, 16)
-    i = None
-
-    for i, txout in enumerate(tx1['vout']):
-        if txout['scriptPubKey']['addresses'] == [new_addr]:
-            break
-    assert i is not None
+    i, _ = next(filter(lambda vout: new_addr == vout[1]['scriptPubKey']['address'], enumerate(tx1['vout'])))
 
     tx2 = CTransaction()
     tx2.vin = [CTxIn(COutPoint(txid, i))]

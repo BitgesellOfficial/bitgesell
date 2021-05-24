@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019 The Bitcoin Core developers
+// Copyright (c) 2017-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -60,13 +60,13 @@ enum WalletFlags : uint64_t {
 
     //! Indicate that this wallet supports DescriptorScriptPubKeyMan
     WALLET_FLAG_DESCRIPTORS = (1ULL << 34),
+
+    //! Indicates that the wallet needs an external signer
+    WALLET_FLAG_EXTERNAL_SIGNER = (1ULL << 35),
 };
 
 //! Get the path of the wallet directory.
 fs::path GetWalletDir();
-
-//! Get wallets in wallet directory.
-std::vector<fs::path> ListWalletDir();
 
 /** Descriptor with some wallet metadata */
 class WalletDescriptor

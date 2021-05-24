@@ -149,7 +149,7 @@ def test_simple_bumpfee_succeeds(self, mode, rbf_node, peer_node, dest_address):
     self.sync_mempools((rbf_node, peer_node))
     assert rbfid in rbf_node.getrawmempool() and rbfid in peer_node.getrawmempool()
     if mode == "fee_rate":
-        bumped_psbt = rbf_node.psbtbumpfee(rbfid, {"fee_rate": NORMAL})
+        bumped_psbt = rbf_node.psbtbumpfee(rbfid, {"fee_rate": str(NORMAL)})
         bumped_tx = rbf_node.bumpfee(rbfid, {"fee_rate": NORMAL})
     else:
         bumped_psbt = rbf_node.psbtbumpfee(rbfid)
@@ -445,6 +445,9 @@ def test_watchonly_psbt(self, peer_node, rbf_node, dest_address):
     original_txid = watcher.sendrawtransaction(psbt_final["hex"])
     assert_equal(len(watcher.decodepsbt(psbt)["tx"]["vin"]), 1)
 
+    # bumpfee can't be used on watchonly wallets
+    assert_raises_rpc_error(-4, "bumpfee is not available with wallets that have private keys disabled. Use psbtbumpfee instead.", watcher.bumpfee, original_txid)
+
     # Bump fee, obnoxiously high to add additional watchonly input
     bumped_psbt = watcher.psbtbumpfee(original_txid, {"fee_rate": HIGH})
     assert_greater_than(len(watcher.decodepsbt(bumped_psbt['psbt'])["tx"]["vin"]), 1)
@@ -552,7 +555,7 @@ def test_change_script_match(self, rbf_node, dest_address):
 
     def get_change_address(tx):
         tx_details = rbf_node.getrawtransaction(tx, 1)
-        txout_addresses = [txout['scriptPubKey']['addresses'][0] for txout in tx_details["vout"]]
+        txout_addresses = [txout['scriptPubKey']['address'] for txout in tx_details["vout"]]
         return [address for address in txout_addresses if rbf_node.getaddressinfo(address)["ischange"]]
 
     # Check that there is only one change output

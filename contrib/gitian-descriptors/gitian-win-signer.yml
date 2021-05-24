@@ -2,7 +2,7 @@
 name: "BGL-win-signer"
 distro: "ubuntu"
 suites:
-- "bionic"
+- "focal"
 architectures:
 - "linux64"
 packages:

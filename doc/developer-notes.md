@@ -14,7 +14,7 @@ Developer Notes
         - [Compiling for debugging](#compiling-for-debugging)
         - [Compiling for gprof profiling](#compiling-for-gprof-profiling)
         - [`debug.log`](#debuglog)
-        - [Testnet and Regtest modes](#testnet-and-regtest-modes)
+        - [Signet, testnet, and regtest modes](#signet-testnet-and-regtest-modes)
         - [DEBUG_LOCKORDER](#debug_lockorder)
         - [Valgrind suppressions file](#valgrind-suppressions-file)
         - [Compiling for test coverage](#compiling-for-test-coverage)
@@ -75,6 +75,11 @@ tool to clean up patches automatically before submission.
     on the same line as the `if`, without braces. In every other case,
     braces are required, and the `then` and `else` clauses must appear
     correctly indented on a new line.
+  - There's no hard limit on line width, but prefer to keep lines to <100
+    characters if doing so does not decrease readability. Break up long
+    function declarations over multiple lines using the Clang Format
+    [AlignAfterOpenBracket](https://clang.llvm.org/docs/ClangFormatStyleOptions.html)
+    style option.
 
 - **Symbol naming conventions**. These are preferred in new code, but are not
 required when doing so would need changes to significant pieces of existing
@@ -156,7 +161,7 @@ For example, to describe a function use:
 bool function(int arg1, const char *arg2, std::string& arg3)
 ```
 
-A complete list of `@xxx` commands can be found at http://www.doxygen.nl/manual/commands.html.
+A complete list of `@xxx` commands can be found at https://www.doxygen.nl/manual/commands.html.
 As Doxygen recognizes the comments by the delimiters (`/**` and `*/` in this case), you don't
 *need* to provide any commands for a comment to be valid; just a description text is fine.
 
@@ -203,7 +208,7 @@ Also not picked up by Doxygen:
  */
 ```
 
-A full list of comment syntaxes picked up by Doxygen can be found at http://www.doxygen.nl/manual/docblocks.html,
+A full list of comment syntaxes picked up by Doxygen can be found at https://www.doxygen.nl/manual/docblocks.html,
 but the above styles are favored.
 
 Recommendations:
@@ -216,7 +221,7 @@ Recommendations:
 
 - Backticks aren't required when referring to functions Doxygen already knows
   about; it will build hyperlinks for these automatically. See
-  http://www.doxygen.nl/manual/autolink.html for complete info.
+  https://www.doxygen.nl/manual/autolink.html for complete info.
 
 - Avoid linking to external documentation; links can break.
 
@@ -259,14 +264,15 @@ on all categories (and give you a very large `debug.log` file).
 The Qt code routes `qDebug()` output to `debug.log` under category "qt": run with `-debug=qt`
 to see it.
 
-### Testnet and Regtest modes
+### Signet, testnet, and regtest modes
 
-Run with the `-testnet` option to run with "play BGLs" on the test network, if you
-are testing multi-machine code that needs to operate across the internet.
+If you are testing multi-machine code that needs to operate across the internet,
+you can run with either the `-signet` or the `-testnet` config option to test
+with "play BGLs" on a test network.
 
-If you are testing something that can run on one machine, run with the `-regtest` option.
-In regression test mode, blocks can be created on-demand; see [test/functional/](/test/functional) for tests
-that run in `-regtest` mode.
+If you are testing something that can run on one machine, run with the
+`-regtest` option.  In regression test mode, blocks can be created on demand;
+see [test/functional/](/test/functional) for tests that run in `-regtest` mode.
 
 ### DEBUG_LOCKORDER
 
@@ -543,7 +549,7 @@ General BGL Core
   - *Rationale*: RPC allows for better automatic testing. The test suite for
     the GUI is very limited.
 
-- Make sure pull requests pass Travis CI before merging.
+- Make sure pull requests pass CI before merging.
 
   - *Rationale*: Makes sure that they pass thorough testing, and that the tester will keep passing
      on the master branch. Otherwise, all new pull requests will start failing the tests, resulting in
@@ -588,11 +594,6 @@ Common misconceptions are clarified in those sections:
   `unique_ptr` for allocations in a function.
 
   - *Rationale*: This avoids memory and resource leaks, and ensures exception safety.
-
-- Use `MakeUnique()` to construct objects owned by `unique_ptr`s.
-
-  - *Rationale*: `MakeUnique` is concise and ensures exception safety in complex expressions.
-    `MakeUnique` is a temporary project local implementation of `std::make_unique` (C++14).
 
 C++ data structures
 --------------------
@@ -779,6 +780,11 @@ Threads and synchronization
   get compile-time warnings about potential race conditions in code. Combine annotations in function declarations with
   run-time asserts in function definitions:
 
+  - In functions that are declared separately from where they are defined, the
+    thread safety annotations should be added exclusively to the function
+    declaration. Annotations on the definition could lead to false positives
+    (lack of compile failure) at call sites between the two.
+
 ```C++
 // txmempool.h
 class CTxMemPool
@@ -806,7 +812,7 @@ class ChainstateManager
 {
 public:
     ...
-    bool ProcessNewBlock(...) EXCLUSIVE_LOCKS_REQUIRED(!::cs_main);
+    bool ProcessNewBlock(...) LOCKS_EXCLUDED(::cs_main);
     ...
 }
 
@@ -1036,7 +1042,7 @@ Scripted diffs
 --------------
 
 For reformatting and refactoring commits where the changes can be easily automated using a bash script, we use
-scripted-diff commits. The bash script is included in the commit message and our Travis CI job checks that
+scripted-diff commits. The bash script is included in the commit message and our CI job checks that
 the result of the script is identical to the commit. This aids reviewers since they can verify that the script
 does exactly what it is supposed to do. It is also helpful for rebasing (since the same script can just be re-run
 on the new master commit).

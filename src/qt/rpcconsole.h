@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2019 The Bitcoin Core developers
+// Copyright (c) 2011-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -28,11 +28,12 @@ namespace Ui {
 }
 
 QT_BEGIN_NAMESPACE
+class QDateTime;
 class QMenu;
 class QItemSelection;
 QT_END_NAMESPACE
 
-/** Local BGL RPC console. */
+/** Local Bitcoin RPC console. */
 class RPCConsole: public QWidget
 {
     Q_OBJECT
@@ -94,6 +95,8 @@ private Q_SLOTS:
     void showOrHideBanTableIfRequired();
     /** clear the selected node */
     void clearSelectedNode();
+    /** show detailed information on ui about selected node */
+    void updateDetailWidget();
 
 public Q_SLOTS:
     void clear(bool clearHistory = true);
@@ -115,8 +118,6 @@ public Q_SLOTS:
     void browseHistory(int offset);
     /** Scroll console view to end */
     void scrollToEnd();
-    /** Handle selection of peer in peers list */
-    void peerSelected(const QItemSelection &selected, const QItemSelection &deselected);
     /** Handle selection caching before update */
     void peerLayoutAboutToChange();
     /** Handle updated peer information */
@@ -135,10 +136,13 @@ Q_SIGNALS:
     void cmdRequest(const QString &command, const WalletModel* wallet_model);
 
 private:
+    struct TranslatedStrings {
+        const QString yes{tr("Yes")}, no{tr("No")}, to{tr("To")}, from{tr("From")},
+            ban_for{tr("Ban for")}, na{tr("N/A")}, unknown{tr("Unknown")};
+    } const ts;
+
     void startExecutor();
     void setTrafficGraphRange(int mins);
-    /** show detailed information on ui about selected node */
-    void updateNodeDetail(const CNodeCombinedStats *stats);
 
     enum ColumnWidths
     {
@@ -168,6 +172,11 @@ private:
 
     /** Update UI with latest network info from model. */
     void updateNetworkState();
+
+    /** Helper for the output of a time duration field. Inputs are UNIX epoch times. */
+    QString TimeDurationField(uint64_t time_now, uint64_t time_at_event) const {
+        return time_at_event ? GUIUtil::formatDurationStr(time_now - time_at_event) : tr("Never");
+    }
 
 private Q_SLOTS:
     void updateAlerts(const QString& warnings);

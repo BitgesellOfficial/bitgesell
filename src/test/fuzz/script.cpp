@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 The Bitcoin Core developers
+// Copyright (c) 2019-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -20,7 +20,6 @@
 #include <test/fuzz/fuzz.h>
 #include <test/fuzz/util.h>
 #include <univalue.h>
-#include <util/memory.h>
 
 #include <algorithm>
 #include <cassert>
@@ -29,7 +28,7 @@
 #include <string>
 #include <vector>
 
-void initialize()
+void initialize_script()
 {
     // Fuzzers using pubkey must hold an ECCVerifyHandle.
     static const ECCVerifyHandle verify_handle;
@@ -37,7 +36,7 @@ void initialize()
     SelectParams(CBaseChainParams::REGTEST);
 }
 
-void test_one_input(const std::vector<uint8_t>& buffer)
+FUZZ_TARGET_INIT(script, initialize_script)
 {
     FuzzedDataProvider fuzzed_data_provider(buffer.data(), buffer.size());
     const std::optional<CScript> script_opt = ConsumeDeserializable<CScript>(fuzzed_data_provider);
@@ -71,7 +70,22 @@ void test_one_input(const std::vector<uint8_t>& buffer)
     (void)IsSolvable(signing_provider, script);
 
     TxoutType which_type;
-    (void)IsStandard(script, which_type);
+    bool is_standard_ret = IsStandard(script, which_type);
+    if (!is_standard_ret) {
+        assert(which_type == TxoutType::NONSTANDARD ||
+               which_type == TxoutType::NULL_DATA ||
+               which_type == TxoutType::MULTISIG);
+    }
+    if (which_type == TxoutType::NONSTANDARD) {
+        assert(!is_standard_ret);
+    }
+    if (which_type == TxoutType::NULL_DATA) {
+        assert(script.IsUnspendable());
+    }
+    if (script.IsUnspendable()) {
+        assert(which_type == TxoutType::NULL_DATA ||
+               which_type == TxoutType::NONSTANDARD);
+    }
 
     (void)RecursiveDynamicUsage(script);
 
@@ -82,7 +96,6 @@ void test_one_input(const std::vector<uint8_t>& buffer)
     (void)script.IsPayToScriptHash();
     (void)script.IsPayToWitnessScriptHash();
     (void)script.IsPushOnly();
-    (void)script.IsUnspendable();
     (void)script.GetSigOpCount(/* fAccurate= */ false);
 
     (void)FormatScript(script);
@@ -90,9 +103,11 @@ void test_one_input(const std::vector<uint8_t>& buffer)
     (void)ScriptToAsmStr(script, true);
 
     UniValue o1(UniValue::VOBJ);
-    ScriptPubKeyToUniv(script, o1, true);
+    ScriptPubKeyToUniv(script, o1, true, true);
+    ScriptPubKeyToUniv(script, o1, true, false);
     UniValue o2(UniValue::VOBJ);
-    ScriptPubKeyToUniv(script, o2, false);
+    ScriptPubKeyToUniv(script, o2, false, true);
+    ScriptPubKeyToUniv(script, o2, false, false);
     UniValue o3(UniValue::VOBJ);
     ScriptToUniv(script, o3, true);
     UniValue o4(UniValue::VOBJ);
@@ -140,13 +155,13 @@ void test_one_input(const std::vector<uint8_t>& buffer)
 
     {
         WitnessUnknown witness_unknown_1{};
-        witness_unknown_1.version = fuzzed_data_provider.ConsumeIntegral<int>();
+        witness_unknown_1.version = fuzzed_data_provider.ConsumeIntegral<uint32_t>();
         const std::vector<uint8_t> witness_unknown_program_1 = fuzzed_data_provider.ConsumeBytes<uint8_t>(40);
         witness_unknown_1.length = witness_unknown_program_1.size();
         std::copy(witness_unknown_program_1.begin(), witness_unknown_program_1.end(), witness_unknown_1.program);
 
         WitnessUnknown witness_unknown_2{};
-        witness_unknown_2.version = fuzzed_data_provider.ConsumeIntegral<int>();
+        witness_unknown_2.version = fuzzed_data_provider.ConsumeIntegral<uint32_t>();
         const std::vector<uint8_t> witness_unknown_program_2 = fuzzed_data_provider.ConsumeBytes<uint8_t>(40);
         witness_unknown_2.length = witness_unknown_program_2.size();
         std::copy(witness_unknown_program_2.begin(), witness_unknown_program_2.end(), witness_unknown_2.program);
