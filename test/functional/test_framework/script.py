@@ -19,6 +19,7 @@ from .messages import (
     CTransaction,
     CTxOut,
     hash256,
+    keccak256,
     ser_string,
     ser_uint256,
     sha256,
@@ -28,8 +29,6 @@ from .messages import (
 MAX_SCRIPT_ELEMENT_SIZE = 520
 LOCKTIME_THRESHOLD = 500000000
 ANNEX_TAG = 0x50
-
-OPCODE_NAMES = {}  # type: Dict[CScriptOp, str]
 
 LEAF_VERSION_TAPSCRIPT = 0xc0
 
@@ -47,7 +46,6 @@ def bn2vch(v):
     # Serialize to bytes
     return encoded_v.to_bytes(n_bytes, 'little')
 
-_opcode_instances = []  # type: List[CScriptOp]
 class CScriptOp(int):
     """A single script opcode"""
     __slots__ = ()
@@ -110,6 +108,9 @@ class CScriptOp(int):
             assert len(_opcode_instances) == n
             _opcode_instances.append(super().__new__(cls, n))
             return _opcode_instances[n]
+
+OPCODE_NAMES: Dict[CScriptOp, str] = {}
+_opcode_instances: List[CScriptOp] = []
 
 # Populate opcode instance table
 for n in range(0xff+1):
@@ -254,14 +255,15 @@ OP_CHECKSIGADD = CScriptOp(0xba)
 OP_INVALIDOPCODE = CScriptOp(0xff)
 
 OPCODE_NAMES.update({
-    OP_0 : 'OP_0',
-    OP_PUSHDATA1 : 'OP_PUSHDATA1',
-    OP_PUSHDATA2 : 'OP_PUSHDATA2',
-    OP_PUSHDATA4 : 'OP_PUSHDATA4',
-    OP_1NEGATE : 'OP_1NEGATE',
-    OP_RESERVED : 'OP_RESERVED',
-    OP_1 : 'OP_1',
-    OP_2 : 'OP_2',
+    OP_0: 'OP_0',
+    OP_PUSHDATA1: 'OP_PUSHDATA1',
+    OP_PUSHDATA2: 'OP_PUSHDATA2',
+    OP_PUSHDATA4: 'OP_PUSHDATA4',
+    OP_1NEGATE: 'OP_1NEGATE',
+    OP_RESERVED: 'OP_RESERVED',
+    OP_1: 'OP_1',
+    OP_2: 'OP_2',
+    OP_3: 'OP_3',
     OP_4: 'OP_4',
     OP_5: 'OP_5',
     OP_6: 'OP_6',
@@ -374,6 +376,7 @@ class CScriptInvalidError(Exception):
 
 class CScriptTruncatedPushDataError(CScriptInvalidError):
     """Invalid pushdata due to truncation"""
+    def __init__(self, msg, data):
         self.data = data
         super().__init__(msg)
 
@@ -664,7 +667,7 @@ def LegacySignatureHash(script, txTo, inIdx, hashtype):
     s = txtmp.serialize_without_witness()
     s += struct.pack(b"<I", hashtype)
 
-    hash = hash256(s)
+    hash = keccak256(s)
 
     return (hash, None)
 
@@ -682,22 +685,22 @@ def SegwitV0SignatureHash(script, txTo, inIdx, hashtype, amount):
         serialize_prevouts = bytes()
         for i in txTo.vin:
             serialize_prevouts += i.prevout.serialize()
-        hashPrevouts = uint256_from_str(hash256(serialize_prevouts))
+        hashPrevouts = uint256_from_str(keccak256(serialize_prevouts))
 
     if (not (hashtype & SIGHASH_ANYONECANPAY) and (hashtype & 0x1f) != SIGHASH_SINGLE and (hashtype & 0x1f) != SIGHASH_NONE):
         serialize_sequence = bytes()
         for i in txTo.vin:
             serialize_sequence += struct.pack("<I", i.nSequence)
-        hashSequence = uint256_from_str(hash256(serialize_sequence))
+        hashSequence = uint256_from_str(keccak256(serialize_sequence))
 
     if ((hashtype & 0x1f) != SIGHASH_SINGLE and (hashtype & 0x1f) != SIGHASH_NONE):
         serialize_outputs = bytes()
         for o in txTo.vout:
             serialize_outputs += o.serialize()
-        hashOutputs = uint256_from_str(hash256(serialize_outputs))
+        hashOutputs = uint256_from_str(keccak256(serialize_outputs))
     elif ((hashtype & 0x1f) == SIGHASH_SINGLE and inIdx < len(txTo.vout)):
         serialize_outputs = txTo.vout[inIdx].serialize()
-        hashOutputs = uint256_from_str(hash256(serialize_outputs))
+        hashOutputs = uint256_from_str(keccak256(serialize_outputs))
 
     ss = bytes()
     ss += struct.pack("<i", txTo.nVersion)
@@ -711,7 +714,7 @@ def SegwitV0SignatureHash(script, txTo, inIdx, hashtype, amount):
     ss += struct.pack("<i", txTo.nLockTime)
     ss += struct.pack("<I", hashtype)
 
-    return hash256(ss)
+    return keccak256(ss)
 
 class TestFrameworkScript(unittest.TestCase):
     def test_bn2vch(self):
@@ -751,12 +754,12 @@ def TaprootSignatureHash(txTo, spent_utxos, hash_type, input_index = 0, scriptpa
     ss += struct.pack("<i", txTo.nVersion)
     ss += struct.pack("<I", txTo.nLockTime)
     if in_type != SIGHASH_ANYONECANPAY:
-        ss += sha256(b"".join(i.prevout.serialize() for i in txTo.vin))
-        ss += sha256(b"".join(struct.pack("<q", u.nValue) for u in spent_utxos))
-        ss += sha256(b"".join(ser_string(u.scriptPubKey) for u in spent_utxos))
-        ss += sha256(b"".join(struct.pack("<I", i.nSequence) for i in txTo.vin))
+        ss += keccak256(b"".join(i.prevout.serialize() for i in txTo.vin))
+        ss += keccak256(b"".join(struct.pack("<q", u.nValue) for u in spent_utxos))
+        ss += keccak256(b"".join(ser_string(u.scriptPubKey) for u in spent_utxos))
+        ss += keccak256(b"".join(struct.pack("<I", i.nSequence) for i in txTo.vin))
     if out_type == SIGHASH_ALL:
-        ss += sha256(b"".join(o.serialize() for o in txTo.vout))
+        ss += keccak256(b"".join(o.serialize() for o in txTo.vout))
     spend_type = 0
     if annex is not None:
         spend_type |= 1
@@ -786,7 +789,7 @@ def TaprootSignatureHash(txTo, spent_utxos, hash_type, input_index = 0, scriptpa
 
 def taproot_tree_helper(scripts):
     if len(scripts) == 0:
-        return ([], bytes(0 for _ in range(32)))
+        return ([], bytes())
     if len(scripts) == 1:
         # One entry: treat as a leaf
         script = scripts[0]
@@ -825,11 +828,11 @@ def taproot_tree_helper(scripts):
 
 # A TaprootInfo object has the following fields:
 # - scriptPubKey: the scriptPubKey (witness v1 CScript)
-# - inner_pubkey: the inner pubkey (32 bytes)
-# - negflag: whether the pubkey in the scriptPubKey was negated from inner_pubkey+tweak*G (bool).
+# - internal_pubkey: the internal pubkey (32 bytes)
+# - negflag: whether the pubkey in the scriptPubKey was negated from internal_pubkey+tweak*G (bool).
 # - tweak: the tweak (32 bytes)
 # - leaves: a dict of name -> TaprootLeafInfo objects for all known leaves
-TaprootInfo = namedtuple("TaprootInfo", "scriptPubKey,inner_pubkey,negflag,tweak,leaves")
+TaprootInfo = namedtuple("TaprootInfo", "scriptPubKey,internal_pubkey,negflag,tweak,leaves")
 
 # A TaprootLeafInfo object has the following fields:
 # - script: the leaf script (CScript or bytes)

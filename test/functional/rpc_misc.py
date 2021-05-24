@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2019 The Bitcoin Core developers
+# Copyright (c) 2019-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test RPC misc output."""
@@ -60,6 +60,9 @@ class RpcMiscTest(BGLTestFramework):
         assert_equal(node.logging()['qt'], False)
         node.logging(include=['qt'])
         assert_equal(node.logging()['qt'], True)
+
+        self.log.info("test echoipc (testing spawned process in multiprocess build)")
+        assert_equal(node.echoipc("hello"), "hello")
 
         self.log.info("test getindexinfo")
         # Without any indices running the RPC returns an empty object

@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2018 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,7 +15,6 @@
 #include <uint256.h>
 #include <version.h>
 
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -27,7 +26,7 @@ extern "C" {
 
 typedef uint256 ChainCode;
 
-/** A hasher class for BGL's 256-bit hash (double SHA-256). */
+/** A hasher class for Bitcoin's 256-bit hash (double SHA-256). */
 class CHash256 {
 private:
     CSHA256 sha;
@@ -75,13 +74,13 @@ public:
 };
 
 /** A SHA3 hasher class specifically for blocks and transactions of BGL. */
-class CHash256BlockOrTransaction {
+class CHash256Keccak {
 private:
     sha3_context sha3context;
 public:
     static const size_t OUTPUT_SIZE = CSHA256::OUTPUT_SIZE;
 
-    CHash256BlockOrTransaction() {
+    CHash256Keccak() {
         sha3_Init256(&sha3context);
         sha3_SetFlags(&sha3context, SHA3_FLAGS_KECCAK);
     }
@@ -96,12 +95,12 @@ public:
         }
     }
 
-    CHash256BlockOrTransaction& Write(const unsigned char *data, size_t len) {
+    CHash256Keccak& Write(const unsigned char *data, size_t len) {
         sha3_Update(&sha3context, data, len);
         return *this;
     }
 
-    CHash256BlockOrTransaction& Reset() {
+    CHash256Keccak& Reset() {
         sha3_Init256(&sha3context);
         return *this;
     }
@@ -159,16 +158,16 @@ inline uint160 Hash160(const T1& in1)
 }
 
 /** A writer stream (for serialization) that computes a 256-bit Keccak hash. */
-class CHashWriter
+class CHashWriterKeccak
 {
 private:
-    CHash256BlockOrTransaction ctx;
+    CHash256Keccak ctx;
 
     const int nType;
     const int nVersion;
 public:
 
-    CHashWriter(int nTypeIn, int nVersionIn) : nType(nTypeIn), nVersion(nVersionIn) {}
+    CHashWriterKeccak(int nTypeIn, int nVersionIn) : nType(nTypeIn), nVersion(nVersionIn) {}
 
     int GetType() const { return nType; }
     int GetVersion() const { return nVersion; }
@@ -207,12 +206,13 @@ public:
     }
 
     template<typename T>
-    CHashWriter& operator<<(const T& obj) {
+    CHashWriterKeccak& operator<<(const T& obj) {
         // Serialize to this stream
         ::Serialize(*this, obj);
         return (*this);
     }
 };
+
 
 class CHashWriterSHA256
 {
@@ -277,13 +277,13 @@ public:
 
 /** Reads data from an underlying stream, while hashing the read data. */
 template<typename Source>
-class CHashVerifier : public CHashWriter
+class CHashVerifier : public CHashWriterKeccak
 {
 private:
     Source* source;
 
 public:
-    explicit CHashVerifier(Source* source_) : CHashWriter(source_->GetType(), source_->GetVersion()), source(source_) {}
+    explicit CHashVerifier(Source* source_) : CHashWriterKeccak(source_->GetType(), source_->GetVersion()), source(source_) {}
 
     void read(char* pch, size_t nSize)
     {
@@ -314,7 +314,7 @@ public:
 template<typename T>
 uint256 SerializeHashKeccak(const T& obj, int nType=SER_GETHASH, int nVersion=PROTOCOL_VERSION)
 {
-    CHashWriter ss(nType, nVersion);
+    CHashWriterKeccak ss(nType, nVersion);
     ss << obj;
     return ss.GetHash();
 }

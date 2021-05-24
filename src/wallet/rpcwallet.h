@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2020 The BGL Core developers
+// Copyright (c) 2016-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,6 +7,7 @@
 
 #include <span.h>
 
+#include <any>
 #include <memory>
 #include <string>
 #include <vector>
@@ -39,8 +40,8 @@ Span<const CRPCCommand> GetWalletRPCCommands();
  */
 std::shared_ptr<CWallet> GetWalletForJSONRPCRequest(const JSONRPCRequest& request);
 
-void EnsureWalletIsUnlocked(const CWallet*);
-WalletContext& EnsureWalletContext(const util::Ref& context);
+void EnsureWalletIsUnlocked(const CWallet&);
+WalletContext& EnsureWalletContext(const std::any& context);
 LegacyScriptPubKeyMan& EnsureLegacyScriptPubKeyMan(CWallet& wallet, bool also_create = false);
 
 RPCHelpMan getaddressinfo();

@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2019 The BGL Core developers
+// Copyright (c) 2011-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -19,6 +19,7 @@
 #include <uint256.h>
 
 #include <algorithm>
+#include <functional>
 
 #include <QColor>
 #include <QDateTime>
@@ -259,13 +260,17 @@ void TransactionTableModel::updateConfirmations()
 
 int TransactionTableModel::rowCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    if (parent.isValid()) {
+        return 0;
+    }
     return priv->size();
 }
 
 int TransactionTableModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    if (parent.isValid()) {
+        return 0;
+    }
     return columns.length();
 }
 
@@ -510,27 +515,30 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
         return QVariant();
     TransactionRecord *rec = static_cast<TransactionRecord*>(index.internalPointer());
 
-    switch(role)
-    {
+    const auto column = static_cast<ColumnIndex>(index.column());
+    switch (role) {
     case RawDecorationRole:
-        switch(index.column())
-        {
+        switch (column) {
         case Status:
             return txStatusDecoration(rec);
         case Watchonly:
             return txWatchonlyDecoration(rec);
+        case Date: return {};
+        case Type: return {};
         case ToAddress:
             return txAddressDecoration(rec);
-        }
-        break;
+        case Amount: return {};
+        } // no default case, so the compiler can warn about missing cases
+        assert(false);
     case Qt::DecorationRole:
     {
         QIcon icon = qvariant_cast<QIcon>(index.data(RawDecorationRole));
         return platformStyle->TextColorIcon(icon);
     }
     case Qt::DisplayRole:
-        switch(index.column())
-        {
+        switch (column) {
+        case Status: return {};
+        case Watchonly: return {};
         case Date:
             return formatTxDate(rec);
         case Type:
@@ -539,12 +547,11 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
             return formatTxToAddress(rec, false);
         case Amount:
             return formatTxAmount(rec, true, BGLUnits::SeparatorStyle::ALWAYS);
-        }
-        break;
+        } // no default case, so the compiler can warn about missing cases
+        assert(false);
     case Qt::EditRole:
         // Edit role is used for sorting, so return the unformatted values
-        switch(index.column())
-        {
+        switch (column) {
         case Status:
             return QString::fromStdString(rec->status.sortKey);
         case Date:
@@ -557,8 +564,8 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
             return formatTxToAddress(rec, true);
         case Amount:
             return qint64(rec->credit + rec->debit);
-        }
-        break;
+        } // no default case, so the compiler can warn about missing cases
+        assert(false);
     case Qt::ToolTipRole:
         return formatTooltip(rec);
     case Qt::TextAlignmentRole:

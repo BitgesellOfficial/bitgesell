@@ -5,8 +5,8 @@ Release Process
 
 ### Before every release candidate
 
-* Update translations (ping wumpus on IRC) see [translation_process.md](https://github.com/BGL/BGL/blob/master/doc/translation_process.md#synchronising-translations).
-* Update manpages, see [gen-manpages.sh](https://github.com/BGL/BGL/blob/master/contrib/devtools/README.md#gen-manpagessh).
+* Update translations see [translation_process.md](https://github.com/BitgesellOfficial/bitgesell/blob/master/doc/translation_process.md#synchronising-translations).
+* Update manpages, see [gen-manpages.sh](https://github.com/BitgesellOfficial/bitgesell/blob/master/contrib/devtools/README.md#gen-manpagessh).
 * Update release candidate version in `configure.ac` (`CLIENT_VERSION_RC`).
 
 ### Before every major and minor release
@@ -19,7 +19,7 @@ Release Process
 
 * On both the master branch and the new release branch:
   - update `CLIENT_VERSION_MAJOR` in [`configure.ac`](../configure.ac)
-  - update `CLIENT_VERSION_MAJOR`, `PACKAGE_VERSION`, and `PACKAGE_STRING` in [`build_msvc/bitcoin_config.h`](/build_msvc/bitcoin_config.h)
+  - update `CLIENT_VERSION_MAJOR`, `PACKAGE_VERSION`, and `PACKAGE_STRING` in [`build_msvc/BGL_config.h`](/build_msvc/BGL_config.h)
 * On the new release branch in [`configure.ac`](../configure.ac) and [`build_msvc/bitcoin_config.h`](/build_msvc/bitcoin_config.h) (see [this commit](https://github.com/bitcoin/bitcoin/commit/742f7dd)):
   - set `CLIENT_VERSION_MINOR` to `0`
   - set `CLIENT_VERSION_BUILD` to `0`
@@ -52,6 +52,13 @@ Release Process
 - Merge the release notes from the wiki into the branch.
 - Ensure the "Needs release note" label is removed from all relevant pull requests and issues.
 
+#### Tagging a release (candidate)
+
+To tag the version (or release candidate) in git, use the `make-tag.py` script from [BGL-maintainer-tools](https://github.com/bitcoin-core/bitcoin-maintainer-tools). From the root of the repository run:
+
+    ../BGL-maintainer-tools/make-tag.py v(new version, e.g. 0.20.0)
+
+This will perform a few last-minute consistency checks in the build system files, and if they pass, create a signed tag.
 
 ## Building
 
@@ -73,20 +80,11 @@ Open a draft of the release notes for collaborative editing at https://github.co
 
 For the period during which the notes are being edited on the wiki, the version on the branch should be wiped and replaced with a link to the wiki which should be used for all announcements until `-final`.
 
-Write the release notes. `git shortlog` helps a lot, for example:
-
-    git shortlog --no-merges v(current version, e.g. 0.19.2)..v(new version, e.g. 0.20.0)
-
-(or ping @wumpus on IRC, he has specific tooling to generate the list of merged pulls
-and sort them into categories based on labels).
+Generate the change log. As this is a huge amount of work to do manually, there is the `list-pulls` script to do a pre-sorting step based on github PR metadata. See the [documentation in the README.md](https://github.com/bitcoin-core/bitcoin-maintainer-tools/blob/master/README.md#list-pulls).
 
 Generate list of authors:
 
     git log --format='- %aN' v(current version, e.g. 0.20.0)..v(new version, e.g. 0.20.1) | sort -fiu
-
-Tag the version (or release candidate) in git:
-
-    git tag -s v(new version, e.g. 0.20.0)
 
 ### Setup and perform Gitian builds
 
@@ -307,9 +305,9 @@ BGL.org (see below for BGL.org update instructions).
   - First, check to see if the BGL.org maintainers have prepared a
     release: https://github.com/BGL-dot-org/BGL.org/labels/Core
 
-      - If they have, it will have previously failed their Travis CI
+      - If they have, it will have previously failed their CI
         checks because the final release files weren't uploaded.
-        Trigger a Travis CI rebuild---if it passes, merge.
+        Trigger a CI rebuild---if it passes, merge.
 
   - If they have not prepared a release, follow the BGL.org release
     instructions: https://github.com/BGL-dot-org/BGL.org/blob/master/docs/adding-events-release-notes-and-alerts.md#release-notes
@@ -325,6 +323,18 @@ BGL.org (see below for BGL.org update instructions).
     [table](https://github.com/BGL-core/BGLcore.org/commits/master/_includes/posts/maintenance-table.md)
 
   - BGLcore.org RPC documentation update
+
+      - Install [golang](https://golang.org/doc/install)
+
+      - Install the new BGL Core release
+
+      - Run BGLd on regtest
+
+      - Clone the [bitcoincore.org repository](https://github.com/bitcoin-core/bitcoincore.org)
+
+      - Run: `go run generate.go` while being in `contrib/doc-gen` folder, and with BGL-cli in PATH
+
+      - Add the generated files to git
 
   - Update packaging repo
 

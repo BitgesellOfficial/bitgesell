@@ -22,9 +22,9 @@ src/BGL-cli
 src/BGL-gui
 src/BGL-node
 src/BGL-tx
+src/BGL-util
 src/BGL-wallet
-src/test/fuzz/*
-!src/test/fuzz/*.*
+src/test/fuzz/fuzz
 src/test/test_BGL
 src/qt/test/test_BGL-qt
 
@@ -104,6 +104,7 @@ src/qt/BGL-qt.includes
 *.log
 *.trs
 *.dmg
+*.iso
 
 *.json.h
 *.raw.h
@@ -176,3 +177,8 @@ db4/
 osx_volname
 dist/
 *.background.tiff
+
+.gdb_history
+
+.vscode/
+/guix-build-*
