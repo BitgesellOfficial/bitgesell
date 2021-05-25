@@ -1,5 +1,7 @@
 ![](share/pixmaps/BGL64.png) BGL Core integration/staging tree
 
+[English](#) | [Chinese](./README-zh.md) 
+
 What is BGL?
 ----------------
 
