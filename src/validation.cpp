@@ -489,8 +489,10 @@ public:
          */
         std::vector<COutPoint>& m_coins_to_uncache;
         const bool m_test_accept;
-        /** Disable BIP125 RBFing; disallow all conflicts with mempool transactions. */
-        const bool disallow_mempool_conflicts;
+        /** Whether we allow transactions to replace mempool transactions by BIP125 rules. If false,
+         * any transaction spending the same inputs as a transaction in the mempool is considered
+         * a conflict. */
+        const bool m_allow_bip125_replacement{true};
     };
 
     // Single transaction acceptance
@@ -636,6 +638,10 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
     {
         const CTransaction* ptxConflicting = m_pool.GetConflictTx(txin.prevout);
         if (ptxConflicting) {
+            if (!args.m_allow_bip125_replacement) {
+                // Transaction conflicts with a mempool tx, but we're not allowing replacements.
+                return state.Invalid(TxValidationResult::TX_MEMPOOL_POLICY, "bip125-replacement-disallowed");
+            }
             if (!setConflicts.count(ptxConflicting->GetHash()))
             {
                 // Allow opt-out of transaction replacement by setting
@@ -662,7 +668,7 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
                         break;
                     }
                 }
-                if (fReplacementOptOut || args.disallow_mempool_conflicts) {
+                if (fReplacementOptOut) {
                     return state.Invalid(TxValidationResult::TX_MEMPOOL_POLICY, "txn-mempool-conflict");
                 }
 
@@ -1171,7 +1177,7 @@ PackageMempoolAcceptResult MemPoolAccept::AcceptMultipleTransactions(const std::
         // package to spend. Since we already checked conflicts in the package and we don't allow
         // replacements, we don't need to track the coins spent. Note that this logic will need to be
         // updated if package replace-by-fee is allowed in the future.
-        assert(args.disallow_mempool_conflicts);
+        assert(!args.m_allow_bip125_replacement);
         m_viewmempool.PackageAddTransaction(ws.m_ptx);
     }
 
@@ -1205,7 +1211,7 @@ static MempoolAcceptResult AcceptToMemoryPoolWithTime(const CChainParams& chainp
 {
     std::vector<COutPoint> coins_to_uncache;
     MemPoolAccept::ATMPArgs args { chainparams, nAcceptTime, bypass_limits, coins_to_uncache,
-                                   test_accept, /* disallow_mempool_conflicts */ false };
+                                   test_accept, /* m_allow_bip125_replacement */ true };
 
     assert(std::addressof(::ChainstateActive()) == std::addressof(active_chainstate));
     const MempoolAcceptResult result = MemPoolAccept(pool, active_chainstate).AcceptSingleTransaction(tx, args);
@@ -1242,7 +1248,7 @@ PackageMempoolAcceptResult ProcessNewPackage(CChainState& active_chainstate, CTx
     std::vector<COutPoint> coins_to_uncache;
     const CChainParams& chainparams = Params();
     MemPoolAccept::ATMPArgs args { chainparams, GetTime(), /* bypass_limits */ false, coins_to_uncache,
-                                   test_accept, /* disallow_mempool_conflicts */ true };
+                                   test_accept, /* m_allow_bip125_replacement */ false };
     assert(std::addressof(::ChainstateActive()) == std::addressof(active_chainstate));
     const PackageMempoolAcceptResult result = MemPoolAccept(pool, active_chainstate).AcceptMultipleTransactions(package, args);
 
