@@ -28,6 +28,8 @@ import socket
 import struct
 import time
 
+import sha3
+
 from test_framework.siphash import siphash256
 from test_framework.util import hex_str_to_bytes, assert_equal
 
