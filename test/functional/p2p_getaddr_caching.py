@@ -11,7 +11,7 @@ from test_framework.p2p import (
     P2PInterface,
     p2p_lock
 )
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
 )
@@ -39,7 +39,7 @@ class AddrReceiver(P2PInterface):
         return self.received_addrs is not None
 
 
-class AddrTest(BitcoinTestFramework):
+class AddrTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
 

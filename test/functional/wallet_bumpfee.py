@@ -37,7 +37,7 @@ HIGH         =    500
 TOO_HIGH     = 100000
 
 
-class BumpFeeTest(BitcoinTestFramework):
+class BumpFeeTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 2
         self.setup_clean_chain = True

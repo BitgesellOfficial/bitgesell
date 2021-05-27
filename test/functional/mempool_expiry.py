@@ -12,7 +12,7 @@ definable expiry timeout via the '-mempoolexpiry=<n>' command line argument
 
 from datetime import timedelta
 
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
@@ -23,7 +23,7 @@ DEFAULT_MEMPOOL_EXPIRY = 336  # hours
 CUSTOM_MEMPOOL_EXPIRY = 10  # hours
 
 
-class MempoolExpiryTest(BitcoinTestFramework):
+class MempoolExpiryTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
         self.setup_clean_chain = True

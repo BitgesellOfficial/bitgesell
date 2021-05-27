@@ -18,7 +18,7 @@ import time
 from test_framework.blocktools import create_block, create_coinbase
 from test_framework.messages import CTransaction, FromHex, msg_pong, msg_tx
 from test_framework.p2p import P2PDataStore, P2PInterface
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 from test_framework.util import assert_equal
 
 
@@ -32,7 +32,7 @@ class SlowP2PInterface(P2PInterface):
         time.sleep(0.1)
         self.send_message(msg_pong(message.nonce))
 
-class P2PEvict(BitcoinTestFramework):
+class P2PEvict(BGLTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1

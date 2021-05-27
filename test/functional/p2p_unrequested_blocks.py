@@ -56,7 +56,7 @@ import time
 from test_framework.blocktools import create_block, create_coinbase, create_tx_with_script
 from test_framework.messages import CBlockHeader, CInv, MSG_BLOCK, msg_block, msg_headers, msg_inv
 from test_framework.p2p import p2p_lock, P2PInterface
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
