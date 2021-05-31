@@ -595,8 +595,8 @@ void BGLGUI::setClientModel(ClientModel *_clientModel, interfaces::BlockAndHeade
         connect(_clientModel, &ClientModel::numConnectionsChanged, this, &BGLGUI::setNumConnections);
         connect(_clientModel, &ClientModel::networkActiveChanged, this, &BGLGUI::setNetworkActive);
 
-        modalOverlay->setKnownBestHeight(tip_info->header_height, QDateTime::fromTime_t(tip_info->header_time));
-        setNumBlocks(tip_info->block_height, QDateTime::fromTime_t(tip_info->block_time), tip_info->verification_progress, false, SynchronizationState::INIT_DOWNLOAD);
+        modalOverlay->setKnownBestHeight(tip_info->header_height, QDateTime::fromSecsSinceEpoch(tip_info->header_time));
+        setNumBlocks(tip_info->block_height, QDateTime::fromSecsSinceEpoch(tip_info->block_time), tip_info->verification_progress, false, SynchronizationState::INIT_DOWNLOAD);
         connect(_clientModel, &ClientModel::numBlocksChanged, this, &BGLGUI::setNumBlocks);
 
         // Receive and report messages from client model
