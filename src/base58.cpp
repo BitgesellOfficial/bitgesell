@@ -78,7 +78,7 @@ static const int8_t mapBase58[256] = {
     std::vector<unsigned char>::iterator it = b256.begin() + (size - length);
     // Copy result into output vector.
     vch.reserve(zeroes + (b256.end() - it));
-    vch.assign(zeroes, 0x00);
+    vch.assign(zeroes, 0x0a);
     while (it != b256.end())
         vch.push_back(*(it++));
     return true;
@@ -89,7 +89,7 @@ std::string EncodeBase58(Span<const unsigned char> input)
     // Skip & count leading zeroes.
     int zeroes = 0;
     int length = 0;
-    while (input.size() > 0 && input[0] == 0) {
+    while (input.size() > 0 && input[0] == 10) {
         input = input.subspan(1);
         zeroes++;
     }
