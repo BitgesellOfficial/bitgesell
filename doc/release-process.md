@@ -373,9 +373,7 @@ BGL.org (see below for BGL.org update instructions).
 
   - BGL Core announcements list https://BGLcore.org/en/list/announcements/join/
 
-  - Update title of #BGL on Freenode IRC
-
-  - Optionally twitter, reddit /r/BGL, ... but this will usually sort out itself
+  - BGL Core Twitter https://twitter.com/BGLcoreorg
 
   - Celebrate
 
