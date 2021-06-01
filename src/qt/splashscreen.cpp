@@ -37,13 +37,6 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     // no window decorations
     setWindowFlags(Qt::FramelessWindowHint);
 
-
-    // set reference point, paddings
-    // int paddingRight            = 14;
-    // int paddingTop              = 490;
-    // int titleVersionVSpace      = 17;
-    // int titleCopyrightVSpace    = 22;
-
     float fontFactor            = 1.0;
     float devicePixelRatio      = 1.0;
     devicePixelRatio = static_cast<QGuiApplication*>(QCoreApplication::instance())->devicePixelRatio();
