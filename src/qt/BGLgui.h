@@ -50,6 +50,7 @@ QT_BEGIN_NAMESPACE
 class QAction;
 class QComboBox;
 class QMenu;
+class QDateTime;
 class QProgressBar;
 class QProgressDialog;
 QT_END_NAMESPACE

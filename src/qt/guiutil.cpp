@@ -914,5 +914,4 @@ void PrintSlotException(
     description += receiver->metaObject()->className();
     PrintExceptionContinue(exception, description.c_str());
 }
-
 } // namespace GUIUtil
