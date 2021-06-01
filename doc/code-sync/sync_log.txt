@@ -3430,7 +3430,7 @@ v  2020-08-27 09:57:20 +0100 407175e0c2bc797599ebd9c0a1f2ec89ad7af136 p2p: chang
 v  2020-08-27 10:41:40 +0100 facb41bf1d1b7ee552c627f9829b4494b817ce28 test: Remove unused p2p_lock in VersionBitsWarningTest
 pr 2020-08-27 15:21:37 +0100 91af7ef831d32a9db7719c64442a7d76cef5a931 Merge #19289: wallet: GetWalletTx and IsMine require cs_wallet lock
 cr 2020-08-27 17:50:05 +0100 fad2794e93b4f5976e81793a4a63aa03a2c8c686 test: Rename wait until helper to wait_until_helper
-v  2020-08-27 17:50:08 +0100 fa1cd9e1ddc6918c3d600d36eadea71eebb242b6 test: Remove unused lock arg from BitcoinTestFramework.wait_until
+v  2020-08-27 17:50:08 +0100 fa1cd9e1ddc6918c3d600d36eadea71eebb242b6 test: Remove unused lock arg from BGLTestFramework.wait_until
 v  2020-08-27 18:50:39 +0100 cc26fab48d76a813d798657b18ae1af08a301150 tests: Add fuzzing harness for CNode
 pr 2020-08-27 19:17:25 +0100 b987e657cda982a65c181e378ab9a9f3ca765b49 Merge #19169: rpc: Validate provided keys for query_options parameter in listunspent
 pr 2020-08-27 19:33:00 +0100 15886b08aa5f05194633eba063d7412d0e4fd036 Merge bitcoin-core/gui#40: Clarify block height label
@@ -4793,7 +4793,7 @@ v  2020-12-24 13:43:25 +0100 fad140e311028f904635126e3c77352afac1b75e test: Set 
 v  2020-12-24 14:16:59 +0100 fa2630328687645fbc7dd1ea46aac32514025715 fuzz: Check that NULL_DATA is unspendable
 pr 2020-12-24 15:32:10 +0100 f656165e9c0d09e654efabd56e6581638e35c26c Merge #18772: rpc: calculate fees in getblock using BlockUndo data
 v  2020-12-24 18:39:54 +0100 48a0319babb409cf486a9eb7c776810f70b06cb2 Add a test that selects too large if BnB is used
-v  2020-12-24 19:54:56 +0100 40fdb2a212d0a0e775114e4766d065e6d234c155 test: Fix Comment Typo in BitcoinTestFramework
+v  2020-12-24 19:54:56 +0100 40fdb2a212d0a0e775114e4766d065e6d234c155 test: Fix Comment Typo in BGLTestFramework
 pr 2020-12-25 03:56:08 +0100 1b31695c747eb9a99bf602f6dd4fde9b993f0740 Merge #20673: depends: Use more legible qmake commands in qt package
 pr 2020-12-25 07:41:43 +0100 443988d40699e2693a9269cc2c72808b09288b34 Merge #20761: fuzz: Check that NULL_DATA is unspendable
 pr 2020-12-25 07:51:29 +0100 22435f0cf69dbff53e47be517921ed4223e174e5 Merge #20759: doc: [test] Remove outdated comment in fuzz runner
@@ -4807,7 +4807,7 @@ cr 2020-12-26 22:30:08 +0100 537053336fbc1b633e7c99286c3e3492eaca1e9d [rpc] Remo
 v  2020-12-26 22:30:54 +0100 454a4088a87eac5878070b26d13d5574da891877 [doc] Add release notes for removed getpeerinfo fields.
 v  2020-12-26 22:30:54 +0100 b1a936d4ae7dd9030b0720ef05579a90ce2894f1 [rpc] Remove deprecated "whitelisted" field from getpeerinfo
 pr 2020-12-27 10:37:32 +0100 31e511658a18d916b743bfcddeef52c0a4e6ea7a Merge #20674: fuzz: Call SendMessages after ProcessMessage to increase coverage
-pr 2020-12-27 10:51:15 +0100 0e1b57b4bb637c5d1c34d4a27fa02f425eba0b98 Merge #20763: test: Fix comment typo in BitcoinTestFramework
+pr 2020-12-27 10:51:15 +0100 0e1b57b4bb637c5d1c34d4a27fa02f425eba0b98 Merge #20763: test: Fix comment typo in BGLTestFramework
 v  2020-12-27 14:28:31 +0100 af9103cc792e17f35249f1d4cb30f0d6958ceb75 net, rpc: change CNodeStats::m_network from string to Network
 cr 2020-12-27 14:29:24 +0100 0d5613f9ded846aa20a95c757672e9560c664c4c gui: create GUIUtil::NetworkToQString() utility function
 v  2020-12-27 14:29:26 +0100 e0e55060bf697fe8b9ed43ff62383a0451e9c0ce gui: fix broken doxygen formatting in src/qt/guiutil.h

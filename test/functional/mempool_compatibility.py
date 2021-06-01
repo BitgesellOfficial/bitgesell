@@ -15,11 +15,11 @@ Only v0.15.2 is required by this test. The rest is used in other backwards compa
 
 import os
 
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 from test_framework.wallet import MiniWallet
 
 
-class MempoolCompatibilityTest(BitcoinTestFramework):
+class MempoolCompatibilityTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 2
         self.wallet_names = [None]
