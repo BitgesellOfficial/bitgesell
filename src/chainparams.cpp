@@ -413,6 +413,7 @@ public:
         pchMessageStart[3] = 0xba;
         nDefaultPort = 18474;
         nPruneAfterHeight = 1000;
+        nPruneAfterHeight = args.GetBoolArg("-fastprune", false) ? 100 : 1000;
         m_assumed_blockchain_size = 0;
         m_assumed_chain_state_size = 0;
 
