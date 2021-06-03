@@ -4,7 +4,7 @@ define(_CLIENT_VERSION_MINOR, 1)
 define(_CLIENT_VERSION_REVISION, 1)
 define(_CLIENT_VERSION_BUILD, 6)
 define(_CLIENT_VERSION_RC, 0)
-define(_CLIENT_VERSION_IS_RELEASE, false)
+define(_CLIENT_VERSION_IS_RELEASE, true)
 define(_COPYRIGHT_YEAR, 2021)
 define(_COPYRIGHT_HOLDERS,[The %s developers])
 define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[BGL Core]])
@@ -951,6 +951,9 @@ AC_CHECK_DECLS([strnlen])
 
 dnl Check for daemon(3), unrelated to --with-daemon (although used by it)
 AC_CHECK_DECLS([daemon])
+
+AC_CHECK_DECLS([fork])
+AC_CHECK_DECLS([setsid])
 
 AC_CHECK_DECLS([pipe2])
 

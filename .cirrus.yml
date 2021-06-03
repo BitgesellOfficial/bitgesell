@@ -91,6 +91,23 @@ task:
     path: "/*.deb"
 
 task:
+  name: "debian [qt deploy]"
+  << : *BASE_TEMPLATE
+  compute_engine_instance:
+    image_project: cirrus-images
+    image: family/docker-kvm
+    platform: linux
+    cpu: 2
+    memory: 8G
+    nested_virtualization: true
+  env:
+    GIT_CONFIG_FLAG: "--system"
+  ci_script:
+    - ./ci/debian_qt_deploy.sh
+  deb_artifacts:
+    path: "/*.deb"
+
+task:
   name: 'Win64 [installer]'
   timeout_in: 120m
   windows_container:
@@ -124,7 +141,7 @@ task:
     # Build BGL
     - cd c:\bitgesell\build_msvc
     - py msvc-autogen.py
-    - '"c:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\msbuild" BGL.sln'
+    - '"c:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\msbuild" BGL.sln /p:Configuration=Release'
   prepare_installer_script:
     # Install NSIS and prepare msi package
     - choco install -y nsis
@@ -136,3 +153,7 @@ task:
     - cp c:\bitgesell\build_msvc\x64\Debug\BGL-wallet.exe c:\binaries_windows
     - cd c:\bitgesell\share
     - '"c:\Program Files (x86)\NSIS\makensis.exe" setup-BGL-win.nsi'
+    - cp c:\bitgesell\BGL-0.1.6.0-win64-setup.exe C:\Users\ContainerAdministrator\AppData\Local\Temp\cirrus-ci-build\
+  exe_artifacts:
+    # Relative path (check if there's a solution for that)
+    path: '*.exe'

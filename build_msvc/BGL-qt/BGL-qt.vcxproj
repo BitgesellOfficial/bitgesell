@@ -86,6 +86,7 @@
     <Link>
       <AdditionalDependencies>Wtsapi32.lib;$(QtDebugLibraries);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/ignore:4206</AdditionalOptions>
+      <SubSystem>Windows</SubSystem>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\src;</AdditionalIncludeDirectories>

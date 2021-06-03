@@ -12,10 +12,10 @@ apt-get install --no-install-recommends --no-upgrade -y build-essential devscrip
 
 echo "INSTALL DONE"
 
-export ARTIFACT_NAME="bitgesell_amd64.deb"
-export RELEASE_ARTIFACT_NAME="bitgesell_${CIRRUS_TAG}_amd64.deb"
+export ARTIFACT_NAME="bitgesell-qt-amd64.deb"
+export RELEASE_ARTIFACT_NAME="bitgesell-qt_${CIRRUS_TAG}_amd64.deb"
 
-mv ./debian.minimal ./debian
+mv ./debian.qt ./debian
 chmod +x ./debian/build-in-docker.sh
 set -o errexit; source ./debian/build-in-docker.sh
 set -o errexit; source ./ci/test/07_script.sh
