@@ -26,6 +26,7 @@ bool LegacyScriptPubKeyMan::GetNewDestination(const OutputType type, CTxDestinat
         error = _("Error: Legacy wallets only support the \"legacy\", \"p2sh-segwit\", and \"bech32\" address types").translated;
         return false;
     }
+    assert(type != OutputType::BECH32M);
 
     LOCK(cs_KeyStore);
     error.clear();
@@ -300,6 +301,7 @@ bool LegacyScriptPubKeyMan::GetReservedDestination(const OutputType type, bool i
         error = _("Error: Legacy wallets only support the \"legacy\", \"p2sh-segwit\", and \"bech32\" address types").translated;
         return false;
     }
+    assert(type != OutputType::BECH32M);
 
     LOCK(cs_KeyStore);
     if (!CanGetAddresses(internal)) {
@@ -1306,6 +1308,7 @@ void LegacyScriptPubKeyMan::AddKeypoolPubkeyWithDB(const CPubKey& pubkey, const 
 
 void LegacyScriptPubKeyMan::KeepDestination(int64_t nIndex, const OutputType& type)
 {
+    assert(type != OutputType::BECH32M);
     // Remove from key pool
     WalletBatch batch(m_storage.GetDatabase());
     batch.ErasePool(nIndex);
@@ -1339,6 +1342,7 @@ void LegacyScriptPubKeyMan::ReturnDestination(int64_t nIndex, bool fInternal, co
 
 bool LegacyScriptPubKeyMan::GetKeyFromPool(CPubKey& result, const OutputType type, bool internal)
 {
+    assert(type != OutputType::BECH32M);
     if (!CanGetAddresses(internal)) {
         return false;
     }
@@ -1407,6 +1411,7 @@ bool LegacyScriptPubKeyMan::ReserveKeyFromKeyPool(int64_t& nIndex, CKeyPool& key
 
 void LegacyScriptPubKeyMan::LearnRelatedScripts(const CPubKey& key, OutputType type)
 {
+    assert(type != OutputType::BECH32M);
     if (key.IsCompressed() && (type == OutputType::P2SH_SEGWIT || type == OutputType::BECH32)) {
         CTxDestination witdest = WitnessV0KeyHash(key.GetID());
         CScript witprog = GetScriptForDestination(witdest);
