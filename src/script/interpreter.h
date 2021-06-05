@@ -288,6 +288,40 @@ public:
 using TransactionSignatureChecker = GenericTransactionSignatureChecker<CTransaction>;
 using MutableTransactionSignatureChecker = GenericTransactionSignatureChecker<CMutableTransaction>;
 
+class DeferringSignatureChecker : public BaseSignatureChecker
+{
+protected:
+    BaseSignatureChecker& m_checker;
+
+public:
+    DeferringSignatureChecker(BaseSignatureChecker& checker) : m_checker(checker) {}
+
+    bool CheckECDSASignature(const std::vector<unsigned char>& scriptSig, const std::vector<unsigned char>& vchPubKey, const CScript& scriptCode, SigVersion sigversion) const override
+    {
+        return m_checker.CheckECDSASignature(scriptSig, vchPubKey, scriptCode, sigversion);
+    }
+
+    bool CheckSchnorrSignature(Span<const unsigned char> sig, Span<const unsigned char> pubkey, SigVersion sigversion, const ScriptExecutionData& execdata, ScriptError* serror = nullptr) const override
+    {
+        return m_checker.CheckSchnorrSignature(sig, pubkey, sigversion, execdata, serror);
+    }
+
+    bool CheckLockTime(const CScriptNum& nLockTime) const override
+    {
+        return m_checker.CheckLockTime(nLockTime);
+    }
+    bool CheckSequence(const CScriptNum& nSequence) const override
+    {
+        return m_checker.CheckSequence(nSequence);
+    }
+};
+
+/** Compute the BIP341 tapleaf hash from leaf version & script. */
+uint256 ComputeTapleafHash(uint8_t leaf_version, const CScript& script);
+/** Compute the BIP341 taproot script tree Merkle root from control block and leaf hash.
+ *  Requires control block to have valid length (33 + k*32, with k in {0,1,..,128}). */
+uint256 ComputeTaprootMerkleRoot(Span<const unsigned char> control, const uint256& tapleaf_hash);
+
 bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& script, unsigned int flags, const BaseSignatureChecker& checker, SigVersion sigversion, ScriptExecutionData& execdata, ScriptError* error = nullptr);
 bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& script, unsigned int flags, const BaseSignatureChecker& checker, SigVersion sigversion, ScriptError* error = nullptr);
 bool VerifyScript(const CScript& scriptSig, const CScript& scriptPubKey, const CScriptWitness* witness, unsigned int flags, const BaseSignatureChecker& checker, ScriptError* serror = nullptr);
