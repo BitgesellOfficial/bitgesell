@@ -150,8 +150,8 @@ AC_DEFUN([BGL_QT_CONFIGURE],[
       AC_DEFINE(QT_QPA_PLATFORM_WINDOWS, 1, [Define this symbol if the qt platform is windows])
     elif test "x$TARGET_OS" = xlinux; then
       dnl workaround for https://bugreports.qt.io/browse/QTBUG-74874
-      AX_CHECK_LINK_FLAG([-lxcb-shm], [QT_LIBS="-lxcb-shm $QT_LIBS"], [AC_MSG_ERROR([could not link against -lxcb-shm])])
-      _BGL_QT_CHECK_STATIC_PLUGIN([QXcbIntegrationPlugin], [-lqxcb])
+      AX_CHECK_LINK_FLAG([-lxcb-shm], [QT_LIBS="$QT_LIBS -lxcb-shm"], [AC_MSG_ERROR([could not link against -lxcb-shm])])
+      _BITCOIN_QT_CHECK_STATIC_PLUGIN([QXcbIntegrationPlugin], [-lqxcb])
       AC_DEFINE(QT_QPA_PLATFORM_XCB, 1, [Define this symbol if the qt platform is xcb])
     elif test "x$TARGET_OS" = xdarwin; then
       AX_CHECK_LINK_FLAG([[-framework Carbon]],[QT_LIBS="$QT_LIBS -framework Carbon"],[AC_MSG_ERROR(could not link against Carbon framework)])
