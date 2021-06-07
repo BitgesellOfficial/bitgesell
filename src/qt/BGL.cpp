@@ -298,7 +298,7 @@ void BGLApplication::startThread()
 
     /*  communication to and from thread */
     connect(&m_executor.value(), &InitExecutor::initializeResult, this, &BGLApplication::initializeResult);
-    connect(&m_executor.value(), &InitExecutor::shutdownResult, this, &BGLApplication::shutdownResult);
+    connect(&m_executor.value(), &InitExecutor::shutdownResult, this, &QCoreApplication::quit);
     connect(&m_executor.value(), &InitExecutor::runawayException, this, &BGLApplication::handleRunawayException);
     connect(this, &BGLApplication::requestedInitialize, &m_executor.value(), &InitExecutor::initialize);
     connect(this, &BGLApplication::requestedShutdown, &m_executor.value(), &InitExecutor::shutdown);
@@ -419,11 +419,6 @@ void BGLApplication::initializeResult(bool success, interfaces::BlockAndHeaderTi
         Q_EMIT splashFinished(); // Make sure splash screen doesn't stick around during shutdown
         requestShutdown();
     }
-}
-
-void BGLApplication::shutdownResult()
-{
-    quit();
 }
 
 void BGLApplication::handleRunawayException(const QString &message)
