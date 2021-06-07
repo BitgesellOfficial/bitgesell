@@ -55,6 +55,7 @@
 #include <QThread>
 #include <QTimer>
 #include <QTranslator>
+#include <QWindow>
 
 #if defined(QT_STATICPLUGIN)
 #include <QtPlugin>
@@ -258,8 +259,9 @@ void BGLApplication::createOptionsModel(bool resetSettings)
 
 void BGLApplication::createWindow(const NetworkStyle *networkStyle)
 {
-    window = new BGLGUI(node(), platformStyle, networkStyle, nullptr);
 
+    window = new BGLGUI(node(), platformStyle, networkStyle, nullptr);
+    connect(window, &BGLGUI::quitRequested, this, &BGLApplication::requestShutdown);
     pollShutdownTimer = new QTimer(window);
     connect(pollShutdownTimer, &QTimer::timeout, window, &BGLGUI::detectShutdown);
 }
@@ -328,13 +330,17 @@ void BGLApplication::requestInitialize()
 
 void BGLApplication::requestShutdown()
 {
+    for (const auto w : QGuiApplication::topLevelWindows()) {
+        w->hide();
+    }
+
     // Show a simple window indicating shutdown status
     // Do this first as some of the steps may take some time below,
     // for example the RPC console may still be executing a command.
     shutdownWindow.reset(ShutdownWindow::showShutdownWindow(window));
 
     qDebug() << __func__ << ": Requesting shutdown";
-    window->hide();
+
     // Must disconnect node signals otherwise current thread can deadlock since
     // no event loop is running.
     window->unsubscribeFromCoreSignals();
@@ -411,13 +417,13 @@ void BGLApplication::initializeResult(bool success, interfaces::BlockAndHeaderTi
         pollShutdownTimer->start(200);
     } else {
         Q_EMIT splashFinished(); // Make sure splash screen doesn't stick around during shutdown
-        quit(); // Exit first main loop invocation
+        requestShutdown();
     }
 }
 
 void BGLApplication::shutdownResult()
 {
-    quit(); // Exit second main loop invocation after shutdown finished
+    quit();
 }
 
 void BGLApplication::handleRunawayException(const QString &message)
@@ -641,8 +647,6 @@ int GuiMain(int argc, char* argv[])
 #if defined(Q_OS_WIN)
             WinShutdownMonitor::registerShutdownBlockReason(QObject::tr("%1 didn't yet exit safely…").arg(PACKAGE_NAME), (HWND)app.getMainWinId());
 #endif
-            app.exec();
-            app.requestShutdown();
             app.exec();
             rv = app.getReturnValue();
         } else {

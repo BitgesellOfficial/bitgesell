@@ -328,9 +328,9 @@ void BGLGUI::createActions()
     verifyMessageAction = new QAction(tr("&Verify message…"), this);
     verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified BGL addresses"));
     m_load_psbt_action = new QAction(tr("&Load PSBT from file…"), this);
-    m_load_psbt_action->setStatusTip(tr("Load Partially Signed Bitcoin Transaction"));
+    m_load_psbt_action->setStatusTip(tr("Load Partially Signed Bitgesell Transaction"));
     m_load_psbt_clipboard_action = new QAction(tr("Load PSBT from &clipboard…"), this);
-    m_load_psbt_clipboard_action->setStatusTip(tr("Load Partially Signed Bitcoin Transaction from clipboard"));
+    m_load_psbt_clipboard_action->setStatusTip(tr("Load Partially Signed Bitgesell Transaction from clipboard"));
 
     openRPCConsoleAction = new QAction(tr("Node window"), this);
     openRPCConsoleAction->setStatusTip(tr("Open node debugging and diagnostic console"));
@@ -370,7 +370,7 @@ void BGLGUI::createActions()
     m_mask_values_action->setStatusTip(tr("Mask the values in the Overview tab"));
     m_mask_values_action->setCheckable(true);
 
-    connect(quitAction, &QAction::triggered, qApp, QApplication::quit);
+    connect(quitAction, &QAction::triggered, this, &BGLGUI::quitRequested);
     connect(aboutAction, &QAction::triggered, this, &BGLGUI::aboutClicked);
     connect(aboutQtAction, &QAction::triggered, qApp, QApplication::aboutQt);
     connect(optionsAction, &QAction::triggered, this, &BGLGUI::optionsClicked);
@@ -414,12 +414,7 @@ void BGLGUI::createActions()
 
                 connect(action, &QAction::triggered, [this, path] {
                     auto activity = new OpenWalletActivity(m_wallet_controller, this);
-<<<<<<< HEAD:src/qt/BGLgui.cpp
                     connect(activity, &OpenWalletActivity::opened, this, &BGLGUI::setCurrentWallet);
-                    connect(activity, &OpenWalletActivity::finished, activity, &QObject::deleteLater);
-=======
-                    connect(activity, &OpenWalletActivity::opened, this, &BitcoinGUI::setCurrentWallet);
->>>>>>> 4a024fc31... qt, wallet, refactor: Move connection to QObject::deleteLater to ctor:src/qt/bitcoingui.cpp
                     activity->open(path);
                 });
             }
@@ -433,7 +428,7 @@ void BGLGUI::createActions()
         });
         connect(m_create_wallet_action, &QAction::triggered, [this] {
             auto activity = new CreateWalletActivity(m_wallet_controller, this);
-            connect(activity, &CreateWalletActivity::created, this, &BitcoinGUI::setCurrentWallet);
+            connect(activity, &CreateWalletActivity::created, this, &BGLGUI::setCurrentWallet);
             activity->create();
         });
         connect(m_close_all_wallets_action, &QAction::triggered, [this] {
@@ -688,15 +683,15 @@ void BGLGUI::addWallet(WalletModel* walletModel)
         m_wallet_selector_action->setVisible(true);
     }
 
-    connect(wallet_view, &WalletView::outOfSyncWarningClicked, this, &BitcoinGUI::showModalOverlay);
-    connect(wallet_view, &WalletView::transactionClicked, this, &BitcoinGUI::gotoHistoryPage);
-    connect(wallet_view, &WalletView::coinsSent, this, &BitcoinGUI::gotoHistoryPage);
+    connect(wallet_view, &WalletView::outOfSyncWarningClicked, this, &BGLGUI::showModalOverlay);
+    connect(wallet_view, &WalletView::transactionClicked, this, &BGLGUI::gotoHistoryPage);
+    connect(wallet_view, &WalletView::coinsSent, this, &BGLGUI::gotoHistoryPage);
     connect(wallet_view, &WalletView::message, [this](const QString& title, const QString& message, unsigned int style) {
         this->message(title, message, style);
     });
-    connect(wallet_view, &WalletView::encryptionStatusChanged, this, &BitcoinGUI::updateWalletStatus);
-    connect(wallet_view, &WalletView::incomingTransaction, this, &BitcoinGUI::incomingTransaction);
-    connect(this, &BitcoinGUI::setPrivacy, wallet_view, &WalletView::setPrivacy);
+    connect(wallet_view, &WalletView::encryptionStatusChanged, this, &BGLGUI::updateWalletStatus);
+    connect(wallet_view, &WalletView::incomingTransaction, this, &BGLGUI::incomingTransaction);
+    connect(this, &BGLGUI::setPrivacy, wallet_view, &WalletView::setPrivacy);
     wallet_view->setPrivacy(isPrivacyModeActivated());
     const QString display_name = walletModel->getDisplayName();
     m_wallet_selector->addItem(display_name, QVariant::fromValue(walletModel));
@@ -992,6 +987,7 @@ void BGLGUI::openOptionsDialogWithTab(OptionsDialog::Tab tab)
         return;
 
     auto dlg = new OptionsDialog(this, enableWallet);
+    connect(dlg, &OptionsDialog::quitOnReset, this, &BGLGUI::quitRequested);
     dlg->setCurrentTab(tab);
     dlg->setModel(clientModel->getOptionsModel());
     GUIUtil::ShowModalDialogAndDeleteOnClose(dlg);
@@ -1217,7 +1213,7 @@ void BGLGUI::closeEvent(QCloseEvent *event)
             // close rpcConsole in case it was open to make some space for the shutdown window
             rpcConsole->close();
 
-            QApplication::quit();
+            Q_EMIT quitRequested();
         }
         else
         {
@@ -1411,7 +1407,7 @@ void BGLGUI::detectShutdown()
     {
         if(rpcConsole)
             rpcConsole->hide();
-        qApp->quit();
+        Q_EMIT quitRequested();
     }
 }
 
