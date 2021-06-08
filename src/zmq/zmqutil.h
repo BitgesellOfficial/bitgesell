@@ -5,6 +5,8 @@
 #ifndef BGL_ZMQ_ZMQUTIL_H
 #define BGL_ZMQ_ZMQUTIL_H
 
-void zmqError(const char* str);
+#include <string>
+
+void zmqError(const std::string& str);
 
 #endif // BGL_ZMQ_ZMQUTIL_H
