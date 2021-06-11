@@ -31,8 +31,8 @@ ASMAP = '../../src/test/data/asmap.raw' # path to unit test skeleton asmap
 VERSION = 'c88edc2215daef7b5ae0b71bd0bc100e1c4928cd59634e66938860a6b73a6b0e'
 
 def expected_messages(filename):
-    return ['Opened asmap file "{}" (59 bytes) from disk'.format(filename),
-            'Using asmap version {} for IP bucketing'.format(VERSION)]
+    return [f'Opened asmap file "{filename}" (59 bytes) from disk',
+            f'Using asmap version {VERSION} for IP bucketing']
 
 class AsmapTest(BGLTestFramework):
     def set_test_params(self):
@@ -50,7 +50,7 @@ class AsmapTest(BGLTestFramework):
         filename = os.path.join(self.datadir, 'my-map-file.map')
         shutil.copyfile(self.asmap_raw, filename)
         with self.node.assert_debug_log(expected_messages(filename)):
-            self.start_node(0, ['-asmap={}'.format(filename)])
+            self.start_node(0, [f'-asmap={filename}'])
         os.remove(filename)
 
     def test_asmap_with_relative_path(self):
@@ -61,13 +61,13 @@ class AsmapTest(BGLTestFramework):
         shutil.copyfile(self.asmap_raw, filename)
 
         with self.node.assert_debug_log(expected_messages(filename)):
-            self.start_node(0, ['-asmap={}'.format(name)])
+            self.start_node(0, [f'-asmap={name}'])
         os.remove(filename)
 
     def test_default_asmap(self):
         shutil.copyfile(self.asmap_raw, self.default_asmap)
         for arg in ['-asmap', '-asmap=']:
-            self.log.info('Test BGLd {} (using default map file)'.format(arg))
+            self.log.info(f'Test BGLd {arg} (using default map file)')
             self.stop_node(0)
             with self.node.assert_debug_log(expected_messages(self.default_asmap)):
                 self.start_node(0, [arg])
@@ -76,7 +76,7 @@ class AsmapTest(BGLTestFramework):
     def test_default_asmap_with_missing_file(self):
         self.log.info('Test BGLd -asmap with missing default map file')
         self.stop_node(0)
-        msg = "Error: Could not find asmap file \"{}\"".format(self.default_asmap)
+        msg = f"Error: Could not find asmap file \"{self.default_asmap}\""
         self.node.assert_start_raises_init_error(extra_args=['-asmap'], expected_msg=msg)
 
     def test_empty_asmap(self):
@@ -84,7 +84,7 @@ class AsmapTest(BGLTestFramework):
         self.stop_node(0)
         with open(self.default_asmap, "w", encoding="utf-8") as f:
             f.write("")
-        msg = "Error: Could not parse asmap file \"{}\"".format(self.default_asmap)
+        msg = f"Error: Could not parse asmap file \"{self.default_asmap}\""
         self.node.assert_start_raises_init_error(extra_args=['-asmap'], expected_msg=msg)
         os.remove(self.default_asmap)
 
