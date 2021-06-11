@@ -35,10 +35,11 @@ class AddrReceiver(P2PInterface):
         super().__init__(support_addrv2 = True)
 
     def on_addrv2(self, message):
-        expected_set = set((addr.ip, addr.port) for addr in ADDRS)
-        received_set = set((addr.ip, addr.port) for addr in message.addrs)
-        if expected_set == received_set:
-            self.addrv2_received_and_checked = True
+        for addr in message.addrs:
+            assert_equal(addr.nServices, NODE_NETWORK | NODE_WITNESS)
+            assert addr.ip.startswith('123.123.123.')
+            assert (8333 <= addr.port < 8343)
+        self.addrv2_received_and_checked = True
 
     def wait_for_addrv2(self):
         self.wait_until(lambda: "addrv2" in self.last_message)
