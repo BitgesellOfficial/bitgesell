@@ -2296,7 +2296,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <context-group purpose="location"><context context-type="linenumber">243</context></context-group>
       </trans-unit>
       <trans-unit id="_msg421">
-        <source xml:space="preserve">URI cannot be parsed! This can be caused by an invalid Bitcoin address or malformed URI parameters.</source>
+        <source xml:space="preserve">URI cannot be parsed! This can be caused by an invalid BGL address or malformed URI parameters.</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">251</context></context-group>
       </trans-unit>
@@ -3766,7 +3766,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee of &quot;100 satos
         </trans-unit>
       </group>
       <trans-unit id="_msg686">
-        <source xml:space="preserve">Warning: Invalid Bitcoin address</source>
+        <source xml:space="preserve">Warning: Invalid BGL address</source>
         <target xml:space="preserve"></target>
         <context-group purpose="location"><context context-type="linenumber">888</context></context-group>
       </trans-unit>
