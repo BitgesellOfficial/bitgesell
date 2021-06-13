@@ -294,18 +294,21 @@ bool LegacyScriptPubKeyMan::Encrypt(const CKeyingMaterial& master_key, WalletBat
     return true;
 }
 
-bool LegacyScriptPubKeyMan::GetReservedDestination(const OutputType type, bool internal, CTxDestination& address, int64_t& index, CKeyPool& keypool)
+bool LegacyScriptPubKeyMan::GetReservedDestination(const OutputType type, bool internal, CTxDestination& address, int64_t& index, CKeyPool& keypool, std::string& error)
 {
     if (LEGACY_OUTPUT_TYPES.count(type) == 0) {
+        error = _("Error: Legacy wallets only support the \"legacy\", \"p2sh-segwit\", and \"bech32\" address types").translated;
         return false;
     }
 
     LOCK(cs_KeyStore);
     if (!CanGetAddresses(internal)) {
+        error = _("Error: Keypool ran out, please call keypoolrefill first").translated;
         return false;
     }
 
     if (!ReserveKeyFromKeyPool(index, keypool, internal)) {
+        error = _("Error: Keypool ran out, please call keypoolrefill first").translated;
         return false;
     }
     address = GetDestinationForKey(keypool.vchPubKey, type);
@@ -1715,10 +1718,9 @@ bool DescriptorScriptPubKeyMan::Encrypt(const CKeyingMaterial& master_key, Walle
     return true;
 }
 
-bool DescriptorScriptPubKeyMan::GetReservedDestination(const OutputType type, bool internal, CTxDestination& address, int64_t& index, CKeyPool& keypool)
+bool DescriptorScriptPubKeyMan::GetReservedDestination(const OutputType type, bool internal, CTxDestination& address, int64_t& index, CKeyPool& keypool, std::string& error)
 {
     LOCK(cs_desc_man);
-    std::string error;
     bool result = GetNewDestination(type, address, error);
     index = m_wallet_descriptor.next_index - 1;
     return result;
