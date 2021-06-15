@@ -42,6 +42,7 @@ from test_framework.messages import (
     ser_vector,
     sha256,
     tx_from_hex,
+    uint256_from_str,
 )
 from test_framework.p2p import (
     P2PInterface,

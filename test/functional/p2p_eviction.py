@@ -20,7 +20,11 @@ from test_framework.blocktools import (
     create_block,
     create_coinbase,
 )
-from test_framework.messages import CTransaction, FromHex, msg_pong, msg_tx
+from test_framework.messages import (
+    msg_pong,
+    msg_tx,
+    tx_from_hex,
+)
 from test_framework.p2p import P2PDataStore, P2PInterface
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import assert_equal

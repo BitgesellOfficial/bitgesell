@@ -212,16 +212,18 @@ def FromHex(obj, hex_string):
     obj.deserialize(BytesIO(hex_str_to_bytes(hex_string)))
     return obj
 
+
 # Convert a binary-serializable object to hex (eg for submission via RPC)
 def ToHex(obj):
     return obj.serialize().hex()
 
+
 def tx_from_hex(hex_string):
     """Deserialize from hex string to a transaction object"""
-    return from_hex(CTransaction(), hex_string)
+    return FromHex(CTransaction(), hex_string)
 
 
-# Objects that map to BGLd objects, which can be serialized/deserialized
+# Objects that map to bitcoind objects, which can be serialized/deserialized
 
 
 class CAddress:
