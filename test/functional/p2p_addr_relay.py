@@ -26,7 +26,6 @@ import time
 class AddrReceiver(P2PInterface):
     num_ipv4_received = 0
     test_addr_contents = False
-    _tokens = 1
 
     def __init__(self, test_addr_contents=False):
         super().__init__()
@@ -42,6 +41,11 @@ class AddrReceiver(P2PInterface):
                 if not 8333 <= addr.port < 8343:
                     raise AssertionError("Invalid addr.port of {} (8333-8342 expected)".format(addr.port))
                 assert addr.ip.startswith('123.123.123.')
+
+
+class GetAddrStore(P2PInterface):
+    getaddr_received = False
+    num_ipv4_received = 0
 
     def on_getaddr(self, message):
         # When the node sends us a getaddr, it increments the addr relay tokens for the connection by 1000
@@ -158,7 +162,7 @@ class AddrTest(BGLTestFramework):
 
         self.log.info('Check relay of addresses received from outbound peers')
         inbound_peer = self.nodes[0].add_p2p_connection(AddrReceiver(test_addr_contents=True))
-        full_outbound_peer = self.nodes[0].add_outbound_p2p_connection(AddrReceiver(), p2p_idx=0, connection_type="outbound-full-relay")
+        full_outbound_peer = self.nodes[0].add_outbound_p2p_connection(GetAddrStore(), p2p_idx=0, connection_type="outbound-full-relay")
         msg = self.setup_addr_msg(2)
         self.send_addr_msg(full_outbound_peer, msg, [inbound_peer])
         self.log.info('Check that the first addr message received from an outbound peer is not relayed')
