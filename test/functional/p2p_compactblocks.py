@@ -34,7 +34,6 @@ from test_framework.messages import (
     NODE_NETWORK,
     P2PHeaderAndShortIDs,
     PrefilledTransaction,
-    ToHex,
     calculate_shortid,
     msg_block,
     msg_blocktxn,
@@ -62,7 +61,10 @@ from test_framework.script import (
     OP_TRUE,
 )
 from test_framework.test_framework import BGLTestFramework
-from test_framework.util import assert_equal, softfork_active
+from test_framework.util import (
+    assert_equal,
+    softfork_active,
+)
 
 # TestP2PConn: A peer we use to send messages to bitcoind, and store responses.
 class TestP2PConn(P2PInterface):
