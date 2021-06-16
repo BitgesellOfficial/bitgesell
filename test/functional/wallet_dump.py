@@ -67,13 +67,13 @@ def read_dump(file_name, addrs, script_addrs, hd_master_addr_old):
                 # count key types
                 for addrObj in addrs:
                     if addrObj['address'] == addr.split(",")[0] and addrObj['hdkeypath'] == keypath and keytype == "label=":
-                        if addr.startswith('m') or addr.startswith('n'):
+                        if addr.startswith('E') or addr.startswith('F'):
                             # P2PKH address
                             found_legacy_addr += 1
-                        elif addr.startswith('2'):
+                        elif addr.startswith('M'):
                             # P2SH-segwit address
                             found_p2sh_segwit_addr += 1
-                        elif addr.startswith('bcrt1'):
+                        elif addr.startswith('rbgl1'):
                             found_bech32_addr += 1
                         break
                     elif keytype == "change=1":
@@ -121,6 +121,7 @@ class WalletDumpTest(BGLTestFramework):
             for _ in range(test_addr_count):
                 addr = self.nodes[0].getnewaddress(address_type=address_type)
                 vaddr = self.nodes[0].getaddressinfo(addr)  # required to get hd keypath
+                print("vaddr",vaddr)
                 addrs.append(vaddr)
 
         # Test scripts dump by adding a 1-of-1 multisig address

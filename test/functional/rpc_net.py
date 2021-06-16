@@ -52,7 +52,7 @@ class NetTest(BGLTestFramework):
         self.wallet = MiniWallet(self.nodes[0])
         self.wallet.generate(1)
         # Get out of IBD for the minfeefilter and getpeerinfo tests.
-        self.nodes[0].generate(101)
+        self.nodes[0].generate(100 + 1)
 
         # By default, the test framework sets up an addnode connection from
         # node 1 --> node0. By connecting node0 --> node 1, we're left with
@@ -196,13 +196,7 @@ class NetTest(BGLTestFramework):
             second_octet = i % 256
             a = "{}.{}.1.1".format(first_octet, second_octet)  # IPV4
             imported_addrs.append(a)
-            addr = CAddress()
-            addr.time = 100000000
-            addr.nServices = NODE_NETWORK | NODE_WITNESS
-            addr.ip = a
-            addr.port = 8333
-            msg.addrs.append(addr)
-        self.nodes[0].p2p.send_and_ping(msg)
+            self.nodes[0].addpeeraddress(a, 8333)
 
         # Obtain addresses via rpc call and check they were ones sent in before.
         #
@@ -211,8 +205,8 @@ class NetTest(BGLTestFramework):
         # 64, although actual number will usually be slightly less due to
         # BucketPosition collisions.
         node_addresses = self.nodes[0].getnodeaddresses(0)
-        assert_greater_than(len(node_addresses), 50)
-        assert_greater_than(65, len(node_addresses))
+        assert_greater_than(len(node_addresses), 5000)
+        assert_greater_than(10000, len(node_addresses))
         for a in node_addresses:
             assert_greater_than(a["time"], 1527811200)  # 1st June 2018
             assert_equal(a["services"], NODE_NETWORK | NODE_WITNESS)
