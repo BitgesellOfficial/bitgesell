@@ -8,6 +8,7 @@ import os
 import time
 
 from test_framework.test_framework import BGLTestFramework
+from test_framework import util
 
 
 class ConfArgsTest(BGLTestFramework):

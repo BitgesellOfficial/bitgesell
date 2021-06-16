@@ -118,7 +118,7 @@ class RpcCreateMultiSigTest(BGLTestFramework):
 
         height = node0.getblockchaininfo()["blocks"]
         assert 150 < height < 350
-        total = 149 * 50 + (height - 149 - 100) * 25
+        total = 149 * 200 + (height - 149 - 100) * 100 - decimal.Decimal("0.00038295")
         assert bal1 == 0
         assert bal2 == self.moved
         assert bal0 + bal1 + bal2 == total
@@ -151,7 +151,7 @@ class RpcCreateMultiSigTest(BGLTestFramework):
         mredeem = msig["redeemScript"]
         assert_equal(desc, msig['descriptor'])
         if self.output_type == 'bech32':
-            assert madd[0:4] == "bcrt"  # actually a bech32 address
+            assert madd[0:4] == "rbgl"  # actually a bech32 address
 
         # compare against addmultisigaddress
         msigw = wmulti.addmultisigaddress(self.nsigs, self.pub, None, self.output_type)

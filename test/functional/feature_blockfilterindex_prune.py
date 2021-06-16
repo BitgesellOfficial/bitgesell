@@ -25,15 +25,15 @@ class FeatureBlockfilterindexPruneTest(BGLTestFramework):
         self.sync_index(height=200)
         assert_greater_than(len(self.nodes[0].getblockfilter(self.nodes[0].getbestblockhash())['filter']), 0)
         # Mine two batches of blocks to avoid hitting NODE_NETWORK_LIMITED_MIN_BLOCKS disconnection
-        self.nodes[0].generate(250)
+        self.nodes[0].generate(400)
         self.sync_all()
-        self.nodes[0].generate(250)
+        self.nodes[0].generate(400)
         self.sync_all()
-        self.sync_index(height=700)
+        self.sync_index(height=1000)
 
         self.log.info("prune some blocks")
-        pruneheight = self.nodes[0].pruneblockchain(400)
-        assert_equal(pruneheight, 250)
+        pruneheight = self.nodes[0].pruneblockchain(1000)
+        assert_equal(pruneheight, 506)
 
         self.log.info("check if we can access the tips blockfilter when we have pruned some blocks")
         assert_greater_than(len(self.nodes[0].getblockfilter(self.nodes[0].getbestblockhash())['filter']), 0)
@@ -46,10 +46,10 @@ class FeatureBlockfilterindexPruneTest(BGLTestFramework):
 
         self.log.info("make sure accessing the blockfilters throws an error")
         assert_raises_rpc_error(-1, "Index is not enabled for filtertype basic", self.nodes[0].getblockfilter, self.nodes[0].getblockhash(2))
-        self.nodes[0].generate(1000)
+        self.nodes[0].generate(400)
 
         self.log.info("prune below the blockfilterindexes best block while blockfilters are disabled")
-        pruneheight_new = self.nodes[0].pruneblockchain(1000)
+        pruneheight_new = self.nodes[0].pruneblockchain(1400)
         assert_greater_than(pruneheight_new, pruneheight)
         self.stop_node(0)
 
