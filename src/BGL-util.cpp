@@ -34,6 +34,8 @@ static void SetupBGLUtilArgs(ArgsManager &argsman)
 
     argsman.AddArg("-version", "Print version and exit", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
 
+    argsman.AddCommand("grind", "Perform proof of work on hex header string");
+
     SetupChainParamsBaseOptions(argsman);
 }
 
