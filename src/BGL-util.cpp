@@ -41,30 +41,22 @@ static void SetupBGLUtilArgs(ArgsManager &argsman)
 
 // This function returns either one of EXIT_ codes when it's expected to stop the process or
 // CONTINUE_EXECUTION when it's expected to continue further.
-static int AppInitUtil(int argc, char* argv[])
+static int AppInitUtil(ArgsManager& args, int argc, char* argv[])
 {
     SetupBGLUtilArgs(gArgs);
     std::string error;
-    if (!gArgs.ParseParameters(argc, argv, error)) {
+    if (!args.ParseParameters(argc, argv, error)) {
         tfm::format(std::cerr, "Error parsing command line arguments: %s\n", error);
         return EXIT_FAILURE;
     }
 
-    // Check for chain settings (Params() calls are only valid after this clause)
-    try {
-        SelectParams(gArgs.GetChainName());
-    } catch (const std::exception& e) {
-        tfm::format(std::cerr, "Error: %s\n", e.what());
-        return EXIT_FAILURE;
-    }
-
-    if (argc < 2 || HelpRequested(gArgs) || gArgs.IsArgSet("-version")) {
+    if (HelpRequested(args) || args.IsArgSet("-version")) {
         // First part of help message is specific to this utility
         std::string strUsage = PACKAGE_NAME " BGL-util utility version " + FormatFullVersion() + "\n";
-        if (!gArgs.IsArgSet("-version")) {
+        if (!args.IsArgSet("-version")) {
             strUsage += "\n"
                 "Usage:  BGL-util [options] [commands]  Do stuff\n";
-            strUsage += "\n" + gArgs.GetHelpMessage();
+            strUsage += "\n" + args.GetHelpMessage();
         }
 
         tfm::format(std::cout, "%s", strUsage);
@@ -75,6 +67,16 @@ static int AppInitUtil(int argc, char* argv[])
         }
         return EXIT_SUCCESS;
     }
+
+
+    // Check for chain settings (Params() calls are only valid after this clause)
+    try {
+        SelectParams(args.GetChainName());
+    } catch (const std::exception& e) {
+        tfm::format(std::cerr, "Error: %s\n", e.what());
+        return EXIT_FAILURE;
+    }
+
     return CONTINUE_EXECUTION;
 }
 
@@ -186,18 +188,25 @@ __declspec(dllexport) int main(int argc, char* argv[])
 int main(int argc, char* argv[])
 #endif
 {
+    ArgsManager& args = gArgs;
     SetupEnvironment();
 
     try {
-        int ret = AppInitUtil(argc, argv);
-        if (ret != CONTINUE_EXECUTION)
+        int ret = AppInitUtil(args, argc, argv);
+        if (ret != CONTINUE_EXECUTION) {
             return ret;
-    }
-    catch (const std::exception& e) {
+        }
+    } catch (const std::exception& e) {
         PrintExceptionContinue(&e, "AppInitUtil()");
         return EXIT_FAILURE;
     } catch (...) {
         PrintExceptionContinue(nullptr, "AppInitUtil()");
+        return EXIT_FAILURE;
+    }
+
+    const auto cmd = args.GetCommand();
+    if (!cmd) {
+        tfm::format(std::cerr, "Error: must specify a command\n");
         return EXIT_FAILURE;
     }
 
