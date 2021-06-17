@@ -207,11 +207,6 @@ def from_hex(obj, hex_string):
     obj.deserialize(BytesIO(hex_str_to_bytes(hex_string)))
     return obj
 
-# Deserialize from a hex string representation (eg from RPC)
-def from_hex(obj, hex_string):
-    obj.deserialize(BytesIO(hex_str_to_bytes(hex_string)))
-    return obj
-
 
 def tx_from_hex(hex_string):
     """Deserialize from hex string to a transaction object"""
