@@ -220,20 +220,18 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
 
     // We can't make transactions until we have inputs
     // Therefore, load 110 blocks :)
-    static_assert(std::size(blockinfo) == 110, "Should have 110 blocks to import");
+    static_assert(std::size(BLOCKINFO) == 110, "Should have 110 blocks to import");
     int baseheight = 0;
     std::vector<CTransactionRef> txFirst;
-    for (const auto& bi : blockinfo) {
+    for (const auto& bi : BLOCKINFO) {
         CBlock *pblock = &pblocktemplate->block; // pointer for convenience
         {
             LOCK(cs_main);
-            pblock->nVersion = 1;
+            pblock->nVersion = VERSIONBITS_TOP_BITS;
             pblock->nTime = m_node.chainman->ActiveChain().Tip()->GetMedianTimePast()+1;
             CMutableTransaction txCoinbase(*pblock->vtx[0]);
             txCoinbase.nVersion = 1;
-            txCoinbase.vin[0].scriptSig = CScript();
-            txCoinbase.vin[0].scriptSig.push_back(bi.extranonce);
-            txCoinbase.vin[0].scriptSig.push_back(m_node.chainman->ActiveChain().Height());
+            txCoinbase.vin[0].scriptSig = CScript{} << (m_node.chainman->ActiveChain().Height() + 1) << bi.extranonce;
             txCoinbase.vout.resize(1); // Ignore the (optional) segwit commitment added by CreateNewBlock (as the hardcoded nonces don't account for this)
             txCoinbase.vout[0].scriptPubKey = CScript();
             txCoinbase.vin[0].scriptWitness.stack.resize(0); // Ignore the scriptWitness added by CreateNewBlock (as the hardcoded nonces don't account for this)
