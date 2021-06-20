@@ -26,7 +26,7 @@ from test_framework.messages import (
     CTxIn,
     CTxInWitness,
     CTxOut,
-    FromHex,
+    from_hex,
     HeaderAndShortIDs,
     MSG_BLOCK,
     MSG_CMPCT_BLOCK,
