@@ -49,31 +49,6 @@ class AddrReceiver(P2PInterface):
         return self.message_count['getaddr'] > 0
 
 
-class GetAddrStore(P2PInterface):
-    getaddr_received = False
-    num_ipv4_received = 0
-
-    def on_getaddr(self, message):
-        # When the node sends us a getaddr, it increments the addr relay tokens for the connection by 1000
-        self._tokens += 1000
-
-    @property
-    def tokens(self):
-        with p2p_lock:
-            return self._tokens
-
-    def increment_tokens(self, n):
-        # When we move mocktime forward, the node increments the addr relay tokens for its peers
-        with p2p_lock:
-            self._tokens += n
-
-    def addr_received(self):
-        return self.num_ipv4_received != 0
-
-    def getaddr_received(self):
-        return self.message_count['getaddr'] > 0
-
-
 class AddrTest(BGLTestFramework):
     counter = 0
     mocktime = int(time.time())
