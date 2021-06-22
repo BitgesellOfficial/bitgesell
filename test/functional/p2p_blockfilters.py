@@ -246,6 +246,7 @@ class CompactFiltersTest(BGLTestFramework):
             peer_0.send_message(request)
             peer_0.wait_for_disconnect()
 
+
 def compute_last_header(prev_header, hashes):
     """Compute the last filter header from a starting header and a sequence of filter hashes."""
     header = ser_uint256(prev_header)
