@@ -1173,14 +1173,12 @@ void BGLGUI::message(const QString& title, QString message, unsigned int style, 
 
 void BGLGUI::changeEvent(QEvent *e)
 {
-#ifdef Q_OS_MACOS
     if (e->type() == QEvent::PaletteChange) {
         overviewAction->setIcon(platformStyle->SingleColorIcon(QStringLiteral(":/icons/overview")));
         sendCoinsAction->setIcon(platformStyle->SingleColorIcon(QStringLiteral(":/icons/send")));
         receiveCoinsAction->setIcon(platformStyle->SingleColorIcon(QStringLiteral(":/icons/receiving_addresses")));
         historyAction->setIcon(platformStyle->SingleColorIcon(QStringLiteral(":/icons/history")));
     }
-#endif
 
     QMainWindow::changeEvent(e);
 
@@ -1518,14 +1516,12 @@ void UnitDisplayStatusBarControl::mousePressEvent(QMouseEvent *event)
 
 void UnitDisplayStatusBarControl::changeEvent(QEvent* e)
 {
-#ifdef Q_OS_MACOS
     if (e->type() == QEvent::PaletteChange) {
         QString style = QString("QLabel { color : %1 }").arg(m_platform_style->SingleColor().name());
         if (style != styleSheet()) {
             setStyleSheet(style);
         }
     }
-#endif
 }
 
 /** Creates context menu, its actions, and wires up all the relevant signals for mouse events. */
