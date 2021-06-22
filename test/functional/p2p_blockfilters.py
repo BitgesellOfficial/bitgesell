@@ -164,7 +164,8 @@ class CompactFiltersTest(BGLTestFramework):
             start_height=1,
             stop_hash=int(stop_hash, 16),
         )
-        peer_0.send_and_ping(request)
+        peer_0.send_message(request)
+        peer_0.sync_with_ping()
         response = peer_0.pop_cfilters()
         assert_equal(len(response), 10)
 
@@ -182,7 +183,8 @@ class CompactFiltersTest(BGLTestFramework):
             start_height=1000,
             stop_hash=int(stale_block_hash, 16),
         )
-        peer_0.send_and_ping(request)
+        peer_0.send_message(request)
+        peer_0.sync_with_ping()
         response = peer_0.pop_cfilters()
         assert_equal(len(response), 1)
 
@@ -243,7 +245,6 @@ class CompactFiltersTest(BGLTestFramework):
             peer_0 = self.nodes[0].add_p2p_connection(P2PInterface())
             peer_0.send_message(request)
             peer_0.wait_for_disconnect()
-
 
 def compute_last_header(prev_header, hashes):
     """Compute the last filter header from a starting header and a sequence of filter hashes."""
