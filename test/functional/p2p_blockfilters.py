@@ -62,7 +62,6 @@ class CompactFiltersTest(BGLTestFramework):
         self.disconnect_nodes(0, 1)
 
         stale_block_hash = self.nodes[0].generate(1)[0]
-        self.nodes[0].syncwithvalidationinterfacequeue()
         assert_equal(self.nodes[0].getblockcount(), 1000)
 
         self.nodes[1].generate(1001)
@@ -164,8 +163,7 @@ class CompactFiltersTest(BGLTestFramework):
             start_height=1,
             stop_hash=int(stop_hash, 16),
         )
-        peer_0.send_message(request)
-        peer_0.sync_with_ping()
+        peer_0.send_and_ping(request)
         response = peer_0.pop_cfilters()
         assert_equal(len(response), 10)
 
@@ -183,8 +181,7 @@ class CompactFiltersTest(BGLTestFramework):
             start_height=1000,
             stop_hash=int(stale_block_hash, 16),
         )
-        peer_0.send_message(request)
-        peer_0.sync_with_ping()
+        peer_0.send_and_ping(request)
         response = peer_0.pop_cfilters()
         assert_equal(len(response), 1)
 
