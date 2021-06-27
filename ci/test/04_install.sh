@@ -9,12 +9,9 @@ if [[ $QEMU_USER_CMD == qemu-s390* ]]; then
   export LC_ALL=C
 fi
 
-if [[ $HOST == *-apple-* ]]; then
-
-  export PATH="/usr/local/opt/ccache/libexec:$PATH"
-
-  ${CI_RETRY_EXE} pip3 install $PIP_PACKAGES --user
-
+if [ "$CI_OS_NAME" == "macos" ]; then
+  sudo -H pip3 install --upgrade pip
+  IN_GETOPT_BIN="/usr/local/opt/gnu-getopt/bin/getopt" ${CI_RETRY_EXE} pip3 install --user $PIP_PACKAGES
 fi
 
 # Create folders that are mounted into the docker
