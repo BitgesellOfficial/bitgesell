@@ -63,6 +63,8 @@ from test_framework.script import (
     OP_DROP,
     OP_ELSE,
     OP_ENDIF,
+    OP_EQUAL,
+    OP_HASH160,
     OP_IF,
     OP_RETURN,
     OP_TRUE,
@@ -75,10 +77,7 @@ from test_framework.script import (
     hash160,
 )
 from test_framework.script_util import (
-    key_to_p2wpkh_script,
     keyhash_to_p2pkh_script,
-    script_to_p2sh_script,
-    script_to_p2wsh_script,
 )
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
@@ -102,10 +101,6 @@ class UTXO():
         self.sha256 = sha256
         self.n = n
         self.nValue = value
-
-def get_p2pkh_script(pubkeyhash):
-    """Get the script associated with a P2PKH."""
-    return CScript([CScriptOp(OP_DUP), CScriptOp(OP_HASH160), pubkeyhash, CScriptOp(OP_EQUALVERIFY), CScriptOp(OP_CHECKSIG)])
 
 def sign_p2pk_witness_input(script, tx_to, in_idx, hashtype, value, key):
     """Add signature for a P2PK witness program."""
