@@ -28,10 +28,11 @@ Drag BGL Core to your applications folder, and then run BGL Core.
 
 ### Need Help?
 
-* See the documentation at the [BGL Wiki](https://bitgesell.ca)
-for help and more information. The compatibility is largely maintained with BTC code base, so it's wiki and developer documentation stays relevant to BGL.
-* Ask for help on [#BGL](http://webchat.freenode.net?channels=BGL) on Freenode. If you don't have an IRC client, use [webchat here](http://webchat.freenode.net?channels=BGL).
-* Ask for help on the [BGLTalk](https://BGLtalk.org/) forums, in the [Technical Support board](https://BGLtalk.org/index.php?board=4.0).
+* See the documentation at the [BGL Wiki](https://en.bitcoin.it/wiki/Main_Page)
+for help and more information.
+* Ask for help on [BGL StackExchange](https://bitcoin.stackexchange.com).
+* Ask for help on #BGL on Libera Chat. If you don't have an IRC client, you can use [web.libera.chat](https://web.libera.chat/#bitcoin).
+* Ask for help on the [BitcoinTalk](https://bitcointalk.org/) forums, in the [Technical Support board](https://bitcointalk.org/index.php?board=4.0).
 
 Building
 ---------------------
@@ -66,9 +67,8 @@ The BGL repo's [root README](/README.md) contains relevant information on the de
 - [Benchmarking](benchmarking.md)
 
 ### Resources
-* Discuss on the [BGLTalk](https://BGLtalk.org/) forums, in the [Development & Technical Discussion board](https://BGLtalk.org/index.php?board=6.0).
-* Discuss project-specific development on #BGL-core-dev on Freenode. If you don't have an IRC client, use [webchat here](http://webchat.freenode.net/?channels=BGL-core-dev).
-* Discuss general BGL development on #BGL-dev on Freenode. If you don't have an IRC client, use [webchat here](http://webchat.freenode.net/?channels=BGL-dev).
+* Discuss on the [BitcoinTalk](https://bitcointalk.org/) forums, in the [Development & Technical Discussion board](https://bitcointalk.org/index.php?board=6.0).
+* Discuss project-specific development on #bitcoin-core-dev on Libera Chat. If you don't have an IRC client, you can use [web.libera.chat](https://web.libera.chat/#bitcoin-core-dev).
 
 ### Miscellaneous
 - [Assets Attribution](assets-attribution.md)
