@@ -41,7 +41,6 @@ from test_framework.messages import (
     ser_vector,
     sha256,
     tx_from_hex,
-    uint256_from_str,
 )
 from test_framework.p2p import (
     P2PInterface,
@@ -74,8 +73,10 @@ from test_framework.script import (
     hash160,
 )
 from test_framework.script_util import (
+    key_to_p2wpkh_script,
     keyhash_to_p2pkh_script,
     script_to_p2sh_script,
+    script_to_p2wsh_script,
 )
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
@@ -484,8 +485,7 @@ class SegWitTest(BGLTestFramework):
 
         # Create two outputs, a p2wsh and p2sh-p2wsh
         witness_program = CScript([OP_TRUE])
-        witness_hash = sha256(witness_program)
-        script_pubkey = CScript([OP_0, witness_hash])
+        script_pubkey = script_to_p2wsh_script(witness_program)
         p2sh_script_pubkey = script_to_p2sh_script(script_pubkey)
 
         value = self.utxo[0].nValue // 3
@@ -621,8 +621,7 @@ class SegWitTest(BGLTestFramework):
         V0 segwit inputs may only be mined after activation, but not before."""
 
         witness_program = CScript([OP_TRUE])
-        witness_hash = sha256(witness_program)
-        script_pubkey = CScript([OP_0, witness_hash])
+        script_pubkey = script_to_p2wsh_script(witness_program)
         p2sh_script_pubkey = script_to_p2sh_script(witness_program)
 
         # First prepare a p2sh output (so that spending it will pass standardness)
@@ -729,8 +728,7 @@ class SegWitTest(BGLTestFramework):
 
         # Prepare the p2sh-wrapped witness output
         witness_program = CScript([OP_DROP, OP_TRUE])
-        witness_hash = sha256(witness_program)
-        p2wsh_pubkey = CScript([OP_0, witness_hash])
+        p2wsh_pubkey = script_to_p2wsh_script(witness_program)
         script_pubkey = script_to_p2sh_script(p2wsh_pubkey)
         script_sig = CScript([p2wsh_pubkey])  # a push of the redeem script
 
@@ -1843,7 +1841,7 @@ class SegWitTest(BGLTestFramework):
         # For each script, generate a pair of P2WSH and P2SH-P2WSH output.
         outputvalue = (self.utxo[0].nValue - 1000) // (len(scripts) * 2)
         for i in scripts:
-            p2wsh = CScript([OP_0, sha256(i)])
+            p2wsh = script_to_p2wsh_script(i)
             p2wsh_scripts.append(p2wsh)
             tx.vout.append(CTxOut(outputvalue, p2wsh))
             tx.vout.append(CTxOut(outputvalue, script_to_p2sh_script(p2wsh)))
