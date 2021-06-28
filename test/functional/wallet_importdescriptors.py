@@ -79,7 +79,6 @@ class ImportDescriptorsTest(BGLTestFramework):
         # RPC importdescriptors -----------------------------------------------
 
         # # Test import fails if no descriptor present
-        key = get_generate_key()
         self.log.info("Import should fail if a descriptor is not provided")
         self.test_importdesc({"timestamp": "now"},
                              success=False,
@@ -103,11 +102,12 @@ class ImportDescriptorsTest(BGLTestFramework):
         self.log.info("Test can import same descriptor with public key twice")
         self.test_importdesc(import_request, success=True)
 
+        self.log.info("Test can update descriptor label")
+        self.test_importdesc({**import_request, "label": "Updated label"}, success=True)
+        test_address(w1, key.p2pkh_addr, solvable=True, ismine=True, labels=["Updated label"])
+
         self.log.info("Internal addresses cannot have labels")
-        self.test_importdesc({"desc": descsum_create("pkh(" + key.pubkey + ")"),
-                              "timestamp": "now",
-                              "internal": True,
-                              "label": "Descriptor import test"},
+        self.test_importdesc({**import_request, "internal": True},
                              success=False,
                              error_code=-8,
                              error_message="Internal addresses should not have a label")
@@ -246,6 +246,39 @@ class ImportDescriptorsTest(BGLTestFramework):
         self.test_importdesc({"desc": descsum_create(desc), "timestamp": "now", "range": [0, 1000001]},
                               success=False, error_code=-8, error_message='Range is too large')
 
+        self.log.info("Verify we can only extend descriptor's range")
+        range_request = {"desc": descsum_create(desc), "timestamp": "now", "range": [5, 10], 'active': True}
+        self.test_importdesc(range_request, wallet=wpriv, success=True)
+        assert_equal(wpriv.getwalletinfo()['keypoolsize'], 6)
+        self.test_importdesc({**range_request, "range": [0, 10]}, wallet=wpriv, success=True)
+        assert_equal(wpriv.getwalletinfo()['keypoolsize'], 11)
+        self.test_importdesc({**range_request, "range": [0, 20]}, wallet=wpriv, success=True)
+        assert_equal(wpriv.getwalletinfo()['keypoolsize'], 21)
+        # Can keep range the same
+        self.test_importdesc({**range_request, "range": [0, 20]}, wallet=wpriv, success=True)
+        assert_equal(wpriv.getwalletinfo()['keypoolsize'], 21)
+
+        self.test_importdesc({**range_request, "range": [5, 10]}, wallet=wpriv, success=False,
+                             error_code=-8, error_message='new range must include current range = [0,20]')
+        self.test_importdesc({**range_request, "range": [0, 10]}, wallet=wpriv, success=False,
+                             error_code=-8, error_message='new range must include current range = [0,20]')
+        self.test_importdesc({**range_request, "range": [5, 20]}, wallet=wpriv, success=False,
+                             error_code=-8, error_message='new range must include current range = [0,20]')
+        assert_equal(wpriv.getwalletinfo()['keypoolsize'], 21)
+
+        self.log.info("Check we can change descriptor internal flag")
+        self.test_importdesc({**range_request, "range": [0, 20], "internal": True}, wallet=wpriv, success=True)
+        assert_equal(wpriv.getwalletinfo()['keypoolsize'], 0)
+        assert_raises_rpc_error(-4, 'This wallet has no available keys', wpriv.getnewaddress, '', 'p2sh-segwit')
+        assert_equal(wpriv.getwalletinfo()['keypoolsize_hd_internal'], 21)
+        wpriv.getrawchangeaddress('p2sh-segwit')
+
+        self.test_importdesc({**range_request, "range": [0, 20], "internal": False}, wallet=wpriv, success=True)
+        assert_equal(wpriv.getwalletinfo()['keypoolsize'], 21)
+        wpriv.getnewaddress('', 'p2sh-segwit')
+        assert_equal(wpriv.getwalletinfo()['keypoolsize_hd_internal'], 0)
+        assert_raises_rpc_error(-4, 'This wallet has no available keys', wpriv.getrawchangeaddress, 'p2sh-segwit')
+
         # Make sure ranged imports import keys in order
         w1 = self.nodes[1].get_wallet_rpc('w1')
         self.log.info('Key ranges should be imported in order')
@@ -297,6 +330,18 @@ class ImportDescriptorsTest(BGLTestFramework):
         w1.keypoolrefill()
         assert_equal(w1.getwalletinfo()['keypoolsize'], 5 * 3)
 
+        self.log.info("Check we can change next_index")
+        # go back and forth with next_index
+        for i in [4, 0, 2, 1, 3]:
+            self.test_importdesc({'desc': descsum_create('wpkh([80002067/0h/0h]' + xpub + '/*)'),
+                                  'active': True,
+                                  'range': [0, 9],
+                                  'next_index': i,
+                                  'timestamp': 'now'
+                                  },
+                                 success=True)
+            assert_equal(w1.getnewaddress('', 'bech32'), addresses[i])
+
         # Check active=False default
         self.log.info('Check imported descriptors are not active by default')
         self.test_importdesc({'desc': descsum_create('pkh([12345678/1h]' + xpub + '/*)'),
@@ -317,21 +362,6 @@ class ImportDescriptorsTest(BGLTestFramework):
                              success=True)
         address = w1.getrawchangeaddress('legacy')
         assert_equal(address, "mpA2Wh9dvZT7yfELq1UnrUmAoc5qCkMetg")
-
-        self.log.info('Check can deactivate active descriptor')
-        self.test_importdesc({'desc': descsum_create('pkh([12345678]' + xpub + '/*)'),
-                              'range': [0, 5],
-                              'active': False,
-                              'timestamp': 'now',
-                              'internal': True
-                              },
-                             success=True)
-        assert_raises_rpc_error(-4, 'This wallet has no available keys', w1.getrawchangeaddress, 'legacy')
-
-        self.log.info('Verify activation state is persistent')
-        w1.unloadwallet()
-        self.nodes[1].loadwallet('w1')
-        assert_raises_rpc_error(-4, 'This wallet has no available keys', w1.getrawchangeaddress, 'legacy')
 
         # # Test importing a descriptor containing a WIF private key
         wif_priv = "cTe1f5rdT8A8DFgVWTjyPwACsDPJM9ff4QngFxUixCSvvbg1x6sh"
