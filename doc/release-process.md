@@ -296,24 +296,9 @@ Note: check that SHA256SUMS itself doesn't end up in SHA256SUMS, which is a spur
 transmission-show -m <torrent file>
 ```
 Insert the magnet URI into the announcement sent to mailing lists. This permits
-people without access to `BGL.org` to download the binary distribution.
+people without access to `BGLcore.org` to download the binary distribution.
 Also put it into the `optional_magnetlink:` slot in the YAML file for
-BGL.org (see below for BGL.org update instructions).
-
-- Update BGL.org version
-
-  - First, check to see if the BGL.org maintainers have prepared a
-    release: https://github.com/BGL-dot-org/BGL.org/labels/Core
-
-      - If they have, it will have previously failed their CI
-        checks because the final release files weren't uploaded.
-        Trigger a CI rebuild---if it passes, merge.
-
-  - If they have not prepared a release, follow the BGL.org release
-    instructions: https://github.com/BGL-dot-org/BGL.org/blob/master/docs/adding-events-release-notes-and-alerts.md#release-notes
-
-  - After the pull request is merged, the website will automatically show the newest version within 15 minutes, as well
-    as update the OS download links.
+BGLcore.org.
 
 - Update other repositories and websites for new version
 
@@ -330,7 +315,7 @@ BGL.org (see below for BGL.org update instructions).
 
       - Run BGLd on regtest
 
-      - Clone the [bitcoincore.org repository](https://github.com/bitcoin-core/bitcoincore.org)
+      - Clone the [BGLcore.org repository](https://github.com/bitcoin-core/bitcoincore.org)
 
       - Run: `go run generate.go` while being in `contrib/doc-gen` folder, and with BGL-cli in PATH
 
