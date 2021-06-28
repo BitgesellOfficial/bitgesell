@@ -364,6 +364,9 @@ task:
 
 # Sanitizers
 task:
+  name: 'macOS 10.15 [gui, no tests] [focal]'
+  << : *DEPENDS_SDK_CACHE_TEMPLATE
+  << : *GLOBAL_TASK_TEMPLATE
   container:
     dockerfile: ci/linux-debian.Dockerfile
     cpu: 1

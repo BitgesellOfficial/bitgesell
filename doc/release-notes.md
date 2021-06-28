@@ -46,7 +46,7 @@ Compatibility
 ==============
 
 BGL Core is supported and extensively tested on operating systems
-using the Linux kernel, macOS 10.14+, and Windows 7 and newer.  BGL
+using the Linux kernel, macOS 10.15+, and Windows 7 and newer.  BGL
 Core should also work on most other Unix-like systems but is not as
 frequently tested on them.  It is not recommended to use BGL Core on
 unsupported systems.
@@ -57,7 +57,7 @@ Notable changes
 P2P and network changes
 -----------------------
 
-- A bitcoind node will no longer rumour addresses to inbound peers by default.
+- A BGLd node will no longer rumour addresses to inbound peers by default.
   They will become eligible for address gossip after sending an ADDR, ADDRV2,
   or GETADDR message. (#21528)
 
