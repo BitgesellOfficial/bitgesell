@@ -13,12 +13,13 @@ from test_framework.messages import (
     msg_addr,
     msg_getaddr
 )
-from test_framework.p2p import (
-    P2PInterface,
-    p2p_lock,
-)
+from test_framework.p2p import P2PInterface
 from test_framework.test_framework import BGLTestFramework
-from test_framework.util import assert_equal
+from test_framework.util import (
+    assert_equal,
+    assert_greater_than_or_equal,
+)
+import os
 import random
 import time
 
@@ -62,8 +63,7 @@ class AddrTest(BGLTestFramework):
         self.relay_tests()
         self.getaddr_tests()
         self.blocksonly_mode_tests()
-        # Not sure if supported by BGL
-        #self.rate_limit_tests()
+        self.rate_limit_tests()
 
     def setup_addr_msg(self, num):
         addrs = []
@@ -225,61 +225,67 @@ class AddrTest(BGLTestFramework):
 
         self.nodes[0].disconnect_p2ps()
 
-    def send_addrs_and_test_rate_limiting(self, peer, no_relay, new_addrs, total_addrs):
-        """Send an addr message and check that the number of addresses processed and rate-limited is as expected"""
-
-        peer.send_and_ping(self.setup_rand_addr_msg(new_addrs))
-
-        peerinfo = self.nodes[0].getpeerinfo()[0]
-        addrs_processed = peerinfo['addr_processed']
-        addrs_rate_limited = peerinfo['addr_rate_limited']
-        self.log.debug(f"addrs_processed = {addrs_processed}, addrs_rate_limited = {addrs_rate_limited}")
-
-        if no_relay:
-            assert_equal(addrs_processed, 0)
-            assert_equal(addrs_rate_limited, 0)
-        else:
-            assert_equal(addrs_processed, min(total_addrs, peer.tokens))
-            assert_equal(addrs_rate_limited, max(0, total_addrs - peer.tokens))
-
     def rate_limit_tests(self):
 
-        self.mocktime = int(time.time())
-        self.restart_node(0, [])
-        self.nodes[0].setmocktime(self.mocktime)
-
-        for contype, no_relay in [("outbound-full-relay", False), ("block-relay-only", True), ("inbound", False)]:
+        for contype, tokens, no_relay in [("outbound-full-relay", 1001, False), ("block-relay-only", 0, True), ("inbound", 1, False)]:
             self.log.info(f'Test rate limiting of addr processing for {contype} peers')
+            self.stop_node(0)
+            os.remove(os.path.join(self.nodes[0].datadir, "regtest", "peers.dat"))
+            self.start_node(0, [])
+            self.mocktime = int(time.time())
+            self.nodes[0].setmocktime(self.mocktime)
             if contype == "inbound":
                 peer = self.nodes[0].add_p2p_connection(AddrReceiver())
             else:
                 peer = self.nodes[0].add_outbound_p2p_connection(AddrReceiver(), p2p_idx=0, connection_type=contype)
 
-            # Send 600 addresses. For all but the block-relay-only peer this should result in addresses being processed.
-            self.send_addrs_and_test_rate_limiting(peer, no_relay, 600, 600)
+            # Check that we start off with empty addrman
+            addr_count_0 = len(self.nodes[0].getnodeaddresses(0))
+            assert_equal(addr_count_0, 0)
+
+            # Send 600 addresses. For all but the block-relay-only peer this should result in at least 1 address.
+            peer.send_and_ping(self.setup_rand_addr_msg(600))
+            addr_count_1 = len(self.nodes[0].getnodeaddresses(0))
+            assert_greater_than_or_equal(tokens, addr_count_1)
+            assert_greater_than_or_equal(addr_count_0 + 600, addr_count_1)
+            assert_equal(addr_count_1 > addr_count_0, tokens > 0)
 
             # Send 600 more addresses. For the outbound-full-relay peer (which we send a GETADDR, and thus will
-            # process up to 1001 incoming addresses), this means more addresses will be processed.
-            self.send_addrs_and_test_rate_limiting(peer, no_relay, 600, 1200)
+            # process up to 1001 incoming addresses), this means more entries will appear.
+            peer.send_and_ping(self.setup_rand_addr_msg(600))
+            addr_count_2 = len(self.nodes[0].getnodeaddresses(0))
+            assert_greater_than_or_equal(tokens, addr_count_2)
+            assert_greater_than_or_equal(addr_count_1 + 600, addr_count_2)
+            assert_equal(addr_count_2 > addr_count_1, tokens > 600)
 
-            # Send 10 more. As we reached the processing limit for all nodes, no more addresses should be procesesd.
-            self.send_addrs_and_test_rate_limiting(peer, no_relay, 10, 1210)
+            # Send 10 more. As we reached the processing limit for all nodes, this should have no effect.
+            peer.send_and_ping(self.setup_rand_addr_msg(10))
+            addr_count_3 = len(self.nodes[0].getnodeaddresses(0))
+            assert_greater_than_or_equal(tokens, addr_count_3)
+            assert_equal(addr_count_2, addr_count_3)
 
-            # Advance the time by 100 seconds, permitting the processing of 10 more addresses.
-            # Send 200 and verify that 10 are processed.
+            # Advance the time by 100 seconds, permitting the processing of 10 more addresses. Send 200,
+            # but verify that no more than 10 are processed.
             self.mocktime += 100
             self.nodes[0].setmocktime(self.mocktime)
-            peer.increment_tokens(10)
+            new_tokens = 0 if no_relay else 10
+            tokens += new_tokens
+            peer.send_and_ping(self.setup_rand_addr_msg(200))
+            addr_count_4 = len(self.nodes[0].getnodeaddresses(0))
+            assert_greater_than_or_equal(tokens, addr_count_4)
+            assert_greater_than_or_equal(addr_count_3 + new_tokens, addr_count_4)
 
-            self.send_addrs_and_test_rate_limiting(peer, no_relay, 200, 1410)
-
-            # Advance the time by 1000 seconds, permitting the processing of 100 more addresses.
-            # Send 200 and verify that 100 are processed.
+            # Advance the time by 1000 seconds, permitting the processing of 100 more addresses. Send 200,
+            # but verify that no more than 100 are processed (and at least some).
             self.mocktime += 1000
             self.nodes[0].setmocktime(self.mocktime)
-            peer.increment_tokens(100)
-
-            self.send_addrs_and_test_rate_limiting(peer, no_relay, 200, 1610)
+            new_tokens = 0 if no_relay else 100
+            tokens += new_tokens
+            peer.send_and_ping(self.setup_rand_addr_msg(200))
+            addr_count_5 = len(self.nodes[0].getnodeaddresses(0))
+            assert_greater_than_or_equal(tokens, addr_count_5)
+            assert_greater_than_or_equal(addr_count_4 + new_tokens, addr_count_5)
+            assert_equal(addr_count_5 > addr_count_4, not no_relay)
 
             self.nodes[0].disconnect_p2ps()
 
