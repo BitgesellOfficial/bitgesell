@@ -6,6 +6,9 @@
 
 #include <chainparams.h>
 #include <net.h>
+#include <span.h>
+
+#include <vector>
 
 void ConnmanTestMsg::NodeReceiveMsgBytes(CNode& node, Span<const uint8_t> msg_bytes, bool& complete) const
 {
