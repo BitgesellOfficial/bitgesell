@@ -29,11 +29,7 @@ class KeypoolRestoreTest(BGLTestFramework):
         self.skip_if_no_wallet()
 
     def run_test(self):
-<<<<<<< HEAD
-        wallet_path = os.path.join(self.nodes[1].datadir, "regtest", "wallets", "wallet.dat")
-=======
         wallet_path = os.path.join(self.nodes[1].datadir, self.chain, "wallets", self.default_wallet_name, self.wallet_data_filename)
->>>>>>> ed3acda33... test, refactor: add default_wallet_name and wallet_data_filename variables
         wallet_backup_path = os.path.join(self.nodes[1].datadir, "wallet.bak")
         self.nodes[0].generate(101)
 
