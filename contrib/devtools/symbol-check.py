@@ -10,15 +10,14 @@ Example usage:
 
     find ../path/to/binaries -type f -executable | xargs python3 contrib/devtools/symbol-check.py
 '''
-import subprocess
-import re
 import sys
 from typing import List, Optional
 
 import lief
-import pixie
 
-from utils import determine_wellknown_cmd
+# temporary constant, to be replaced with lief.ELF.ARCH.RISCV
+# https://github.com/lief-project/LIEF/pull/562
+LIEF_ELF_ARCH_RISCV = lief.ELF.ARCH(243)
 
 # Debian 8 (Jessie) EOL: 2020. https://wiki.debian.org/DebianReleases#Production_Releases
 #
@@ -44,12 +43,12 @@ from utils import determine_wellknown_cmd
 MAX_VERSIONS = {
 'GCC':       (4,8,0),
 'GLIBC': {
-    pixie.EM_386:    (2,17),
-    pixie.EM_X86_64: (2,17),
-    pixie.EM_ARM:    (2,17),
-    pixie.EM_AARCH64:(2,17),
-    pixie.EM_PPC64:  (2,17),
-    pixie.EM_RISCV:  (2,27),
+    lief.ELF.ARCH.i386:   (2,17),
+    lief.ELF.ARCH.x86_64: (2,17),
+    lief.ELF.ARCH.ARM:    (2,17),
+    lief.ELF.ARCH.AARCH64:(2,17),
+    lief.ELF.ARCH.PPC64:  (2,17),
+    LIEF_ELF_ARCH_RISCV:  (2,27),
 },
 'LIBATOMIC': (1,0),
 'V':         (0,5,0),  # xkb (bitcoin-qt only)
@@ -59,7 +58,8 @@ MAX_VERSIONS = {
 
 # Ignore symbols that are exported as part of every executable
 IGNORE_EXPORTS = {
-'_edata', '_end', '__end__', '_init', '__bss_start', '__bss_start__', '_bss_end__', '__bss_end__', '_fini', '_IO_stdin_used', 'stdin', 'stdout', 'stderr',
+'_edata', '_end', '__end__', '_init', '__bss_start', '__bss_start__', '_bss_end__',
+'__bss_end__', '_fini', '_IO_stdin_used', 'stdin', 'stdout', 'stderr',
 'environ', '_environ', '__environ',
 }
 
@@ -132,54 +132,8 @@ PE_ALLOWED_LIBRARIES = {
 'WTSAPI32.dll',
 }
 
-class CPPFilt(object):
-    '''
-    Demangle C++ symbol names.
-
-    Use a pipe to the 'c++filt' command.
-    '''
-    def __init__(self):
-        self.proc = subprocess.Popen(determine_wellknown_cmd('CPPFILT', 'c++filt'), stdin=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
-
-    def __call__(self, mangled):
-        self.proc.stdin.write(mangled + '\n')
-        self.proc.stdin.flush()
-        return self.proc.stdout.readline().rstrip()
-
-    def close(self):
-        self.proc.stdin.close()
-        self.proc.stdout.close()
-        self.proc.wait()
-
-def read_symbols(executable, imports=True) -> List[Tuple[str, str, str]]:
-    '''
-    Parse an ELF executable and return a list of (symbol,version, arch) tuples
-    for dynamic, imported symbols.
-    '''
-    p = subprocess.Popen([READELF_CMD, '--dyn-syms', '-W', '-h', executable], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, universal_newlines=True)
-    (stdout, stderr) = p.communicate()
-    if p.returncode:
-        raise IOError('Could not read symbols for {}: {}'.format(executable, stderr.strip()))
-    syms = []
-    for line in stdout.splitlines():
-        line = line.split()
-        if 'Machine:' in line:
-            arch = line[-1]
-        if len(line)>7 and re.match('[0-9]+:$', line[0]):
-            (sym, _, version) = line[7].partition('@')
-            is_import = line[6] == 'UND'
-            if version.startswith('@'):
-                version = version[1:]
-            if is_import == imports:
-                syms.append((sym, version, arch))
-    return syms
-
 def check_version(max_versions, version, arch) -> bool:
-    if '_' in version:
-        (lib, _, ver) = version.rpartition('_')
-    else:
-        lib = version
-        ver = '0'
+    (lib, _, ver) = version.rpartition('_')
     ver = tuple([int(x) for x in ver.split('.')])
     if not lib in max_versions:
         return False
@@ -205,39 +159,42 @@ def elf_read_libraries(filename) -> List[str]:
     return libraries
 
 def check_imported_symbols(filename) -> bool:
-    cppfilt = CPPFilt()
     ok: bool = True
+    binary = lief.parse(filename)
 
-    for symbol in elf.dyn_symbols:
-        if not symbol.is_import:
+    for symbol in binary.imported_symbols:
+        if not symbol.imported:
             continue
-        sym = symbol.name.decode()
-        version = symbol.version.decode() if symbol.version is not None else None
-        if version and not check_version(MAX_VERSIONS, version, elf.hdr.e_machine):
-            print('{}: symbol {} from unsupported version {}'.format(filename, cppfilt(sym), version))
-            ok = False
+
+        version = symbol.symbol_version if symbol.has_version else None
+
+        if version:
+            aux_version = version.symbol_version_auxiliary.name if version.has_auxiliary_version else None
+            if aux_version and not check_version(MAX_VERSIONS, aux_version, binary.header.machine_type):
+                print(f'{filename}: symbol {symbol.name} from unsupported version {version}')
+                ok = False
     return ok
 
 def check_exported_symbols(filename) -> bool:
-    cppfilt = CPPFilt()
     ok: bool = True
-    for symbol in elf.dyn_symbols:
-        if not symbol.is_export:
+    binary = lief.parse(filename)
+
+    for symbol in binary.dynamic_symbols:
+        if not symbol.exported:
             continue
-        sym = symbol.name.decode()
-        if elf.hdr.e_machine == pixie.EM_RISCV or sym in IGNORE_EXPORTS:
+        name = symbol.name
+        if binary.header.machine_type == LIEF_ELF_ARCH_RISCV or name in IGNORE_EXPORTS:
             continue
-        print('{}: export of symbol {} not allowed'.format(filename, cppfilt(sym)))
+        print(f'{filename}: export of symbol {name} not allowed!')
         ok = False
     return ok
 
 def check_ELF_libraries(filename) -> bool:
     ok: bool = True
-    elf = pixie.load(filename)
-    for library_name in elf.query_dyn_tags(pixie.DT_NEEDED):
-        assert(isinstance(library_name, bytes))
-        if library_name.decode() not in ELF_ALLOWED_LIBRARIES:
-            print('{}: NEEDED library {} is not allowed'.format(filename, library_name.decode()))
+    binary = lief.parse(filename)
+    for library in binary.libraries:
+        if library not in ELF_ALLOWED_LIBRARIES:
+            print(f'{filename}: {library} is not in ALLOWED_LIBRARIES!')
             ok = False
     return ok
 
