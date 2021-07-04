@@ -561,7 +561,7 @@ void SetupServerArgs(NodeContext& node)
 
 std::string LicenseInfo()
 {
-    const std::string URL_SOURCE_CODE = "<https://github.com/bitcoin/bitcoin>";
+    const std::string URL_SOURCE_CODE = "<https://github.com/bitgesellofficial/bitgesell>";
 
     return CopyrightHolders(strprintf(_("Copyright (C) %i-%i").translated, 2009, COPYRIGHT_YEAR) + " ") + "\n" +
            "\n" +
@@ -1043,7 +1043,7 @@ bool AppInitParameterInteraction(const ArgsManager& args)
 
 static bool LockDataDirectory(bool probeOnly)
 {
-    // Make sure only a single Bitcoin process is using the data directory.
+    // Make sure only a single Bitgesell process is using the data directory.
     fs::path datadir = GetDataDir();
     if (!DirIsWritable(datadir)) {
         return InitError(strprintf(_("Cannot write to data directory '%s'; check permissions."), datadir.string()));
