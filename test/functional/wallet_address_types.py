@@ -49,7 +49,6 @@ Test that the nodes generate the correct change address type:
     - node3 always uses a bech32 address for change
     - node4 always uses p2sh/segwit output for change.
 """
-
 from decimal import Decimal
 import itertools
 
@@ -84,18 +83,30 @@ class AddressTypeTest(BGLTestFramework):
         self.skip_if_no_wallet()
 
     def setup_network(self):
+        self.log.debug("Setting up nodes")
         self.setup_nodes()
-
+          
+    def assert_in_info(name):
+        assert in info(name)
+    
+    def assert_not_info(name):
+        assert not info[name]
+        
         # Fully mesh-connect nodes for faster mempool sync
         for i, j in itertools.product(range(self.num_nodes), repeat=2):
             if i > j:
-                self.connect_nodes(i, j)
+                self.connect_nodes(i, j) #Connecting nodes i and j
+        self.log.debug("Syncing....")
         self.sync_all()
+        self.log.debug("Sync completed")
 
     def get_balances(self, key='trusted'):
         """Return a list of balances."""
-        return [self.nodes[i].getbalances()['mine'][key] for i in range(4)]
-
+        self.log.debug("Getting the balances")
+        balances_list = [self.nodes[i].getbalances()['mine'][key] for i in range(4)] #Creating a list of balances
+        for i in balances_list:
+            return i #Returning each balance
+        
     def test_address(self, node, address, multisig, typ):
         """Run sanity checks on an address."""
         info = self.nodes[node].getaddressinfo(address)
@@ -104,33 +115,33 @@ class AddressTypeTest(BGLTestFramework):
 
         if not multisig and typ == 'legacy':
             # P2PKH
-            assert not info['isscript']
-            assert not info['iswitness']
-            assert 'pubkey' in info
+            assert_not_info('isscript')
+            assert_not_info('iswitness')
+            assert_in_info('pubkey')
         elif not multisig and typ == 'p2sh-segwit':
             # P2SH-P2WPKH
             assert info['isscript']
-            assert not info['iswitness']
+            assert_not_info('iswitness')
             assert_equal(info['script'], 'witness_v0_keyhash')
-            assert 'pubkey' in info
+            assert_in_info('pubkey')
         elif not multisig and typ == 'bech32':
             # P2WPKH
-            assert not info['isscript']
+            assert_not_info('isscript')
             assert info['iswitness']
             assert_equal(info['witness_version'], 0)
             assert_equal(len(info['witness_program']), 40)
-            assert 'pubkey' in info
+            assert_in_info('pubkey')
         elif typ == 'legacy':
             # P2SH-multisig
             assert info['isscript']
             assert_equal(info['script'], 'multisig')
-            assert not info['iswitness']
-            assert 'pubkeys' in info
+            assert_not_info('iswitness')
+            assert_in_info("pubkeys")
         elif typ == 'p2sh-segwit':
             # P2SH-P2WSH-multisig
             assert info['isscript']
             assert_equal(info['script'], 'witness_v0_scripthash')
-            assert not info['iswitness']
+            assert_not_info('iswitness')
             assert info['embedded']['isscript']
             assert_equal(info['embedded']['script'], 'multisig')
             assert info['embedded']['iswitness']
@@ -144,7 +155,7 @@ class AddressTypeTest(BGLTestFramework):
             assert info['iswitness']
             assert_equal(info['witness_version'], 0)
             assert_equal(len(info['witness_program']), 64)
-            assert 'pubkeys' in info
+            assert_in_info('pubkeys')
         else:
             # Unknown type
             assert False
@@ -215,13 +226,16 @@ class AddressTypeTest(BGLTestFramework):
         assert_equal(len(change_addresses), 1)
 
         self.log.debug("Check if change address " + change_addresses[0] + " is " + expected_type)
-        self.test_address(node_sender, change_addresses[0], multisig=False, typ=expected_type)
+        self.test_address(node_sender, change_addresses[0], multisig=False, typ=expected_type) #Testing the address
 
     def run_test(self):
         # Mine 101 blocks on node5 to bring nodes out of IBD and make sure that
         # no coinbases are maturing for the nodes-under-test during the test
+        self.log.debug("Running the tests....")
         self.nodes[5].generate(101)
+        self.log.debug("Syncing....")
         self.sync_blocks()
+        self.log.debug("Sync completed")
 
         uncompressed_1 = "0496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858ee"
         uncompressed_2 = "047211a824f55b505228e4c3d5194c1fcfaa15a456abdf37f9b9d97a4040afc073dee6c89064984f03385237d92167c13e236446b417ab79a0fcae412ae3316b77"
@@ -248,13 +262,15 @@ class AddressTypeTest(BGLTestFramework):
 
         for explicit_type, multisig, from_node in itertools.product([False, True], do_multisigs, range(4)):
             address_type = None
-            if explicit_type and not multisig:
-                if from_node == 1:
-                    address_type = 'bech32'
-                elif from_node == 0 or from_node == 3:
-                    address_type = 'p2sh-segwit'
-                else:
-                    address_type = 'legacy'
+            if explicit_type and not multisig and from_node == 1:
+                address_type = 'bech32'
+                self.log.debug("Address type is bech32")
+            elif explicit_type and not multisig and from_node == 0 or from_node == 3:
+                address_type = 'p2sh-segwit'
+                self.log.debug("Address type is p2sh-segwit")
+            elif explicit_type and not multisig:
+                address_type = 'legacy'
+                self.log.debug("Address type is legacy")
             self.log.info("Sending from node {} ({}) with{} multisig using {}".format(from_node, self.extra_args[from_node], "" if multisig else "out", "default" if address_type is None else address_type))
             old_balances = self.get_balances()
             self.log.debug("Old balances are {}".format(old_balances))
