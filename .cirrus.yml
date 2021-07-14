@@ -2,17 +2,50 @@
 ###Global defaults
 
 env:
-  PACKAGE_MANAGER_INSTALL: "apt-get update && apt-get install -y"
-  MAKEJOBS: "-j4"
-  DANGER_RUN_CI_ON_HOST: "1"  # Containers will be discarded after the run, so there is no risk that the ci scripts modify the system
-  TEST_RUNNER_PORT_MIN: "14000"  # Must be larger than 12321, which is used for the http cache. See https://cirrus-ci.org/guide/writing-tasks/#http-cache
-  CCACHE_SIZE: "200M"
-  CCACHE_DIR: "/tmp/ccache_dir"
-  GIT_CONFIG_FLAG: "--global"
-  GITHUB_TOKEN: ENCRYPTED[4b3398c0684d6780e8247b0bb8af32697c90e41f09f64553e63cee666f80d7afdecd4e96a10a4f44bdf5b0b14407c5a6]
+  ### compiler options
+  HOST:
+  # Specific warnings can be disabled with -Wno-error=foo.
+  # -pedantic-errors is not equivalent to -Werror=pedantic and thus not implied by -Werror according to the GCC manual.
+  WERROR_CFLAGS: -Werror -pedantic-errors
+  MAKEFLAGS: -j2
+  BUILD: check
+  ### secp256k1 config
+  STATICPRECOMPUTATION: yes
+  ECMULTGENPRECISION: auto
+  ASM: no
+  WIDEMUL: auto
+  WITH_VALGRIND: yes
+  EXTRAFLAGS:
+  ### secp256k1 modules
+  EXPERIMENTAL: no
+  ECDH: no
+  RECOVERY: no
+  SCHNORRSIG: no
+  ### test options
+  TEST_ITERS:
+  BENCH: yes
+  BENCH_ITERS: 2
+  CTIMETEST: yes
 
-# https://cirrus-ci.org/guide/tips-and-tricks/#sharing-configuration-between-tasks
-base_template: &BASE_TEMPLATE
+cat_logs_snippet: &CAT_LOGS
+  always:
+    cat_tests_log_script:
+      - cat tests.log || true
+    cat_exhaustive_tests_log_script:
+      - cat exhaustive_tests.log || true
+    cat_valgrind_ctime_test_log_script:
+      - cat valgrind_ctime_test.log || true
+    cat_bench_log_script:
+      - cat bench.log || true
+  on_failure:
+    cat_config_log_script:
+      - cat config.log || true
+    cat_test_env_script:
+      - cat test_env.log || true
+    cat_ci_env_script:
+      - env
+
+merge_base_script_snippet: &MERGE_BASE
   merge_base_script:
     - if [ "$CIRRUS_PR" = "" ]; then exit 0; fi
     - bash -c "$PACKAGE_MANAGER_INSTALL git"
@@ -74,12 +107,29 @@ task:
     image: ubuntu:bionic  # For python 3.6, oldest supported version according to doc/dependencies.md
     cpu: 1
     memory: 1G
-  # For faster CI feedback, immediately schedule the linters
-  << : *CREDITS_TEMPLATE
-  lint_script:
-    - ./ci/lint_run_all.sh
-  env:
-    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
+  matrix: &ENV_MATRIX
+    - env: {WIDEMUL:  int64,  RECOVERY: yes}
+    - env: {WIDEMUL:  int64,                 ECDH: yes, EXPERIMENTAL: yes, SCHNORRSIG: yes}
+    - env: {WIDEMUL: int128}
+    - env: {WIDEMUL: int128,  RECOVERY: yes,            EXPERIMENTAL: yes, SCHNORRSIG: yes}
+    - env: {WIDEMUL: int128,                 ECDH: yes, EXPERIMENTAL: yes, SCHNORRSIG: yes}
+    - env: {WIDEMUL: int128,  ASM: x86_64}
+    - env: {                  RECOVERY: yes,            EXPERIMENTAL: yes, SCHNORRSIG: yes}
+    - env: {                  STATICPRECOMPUTATION: no}
+    - env: {BUILD: distcheck, WITH_VALGRIND: no, CTIMETEST: no, BENCH: no}
+    - env: {CPPFLAGS: -DDETERMINISTIC}
+    - env: {CFLAGS: -O0, CTIMETEST: no}
+    - env: { ECMULTGENPRECISION: 2 }
+    - env: { ECMULTGENPRECISION: 8 }
+  matrix:
+    - env:
+        CC: gcc
+    - env:
+        CC: clang
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
 
 task:
   name: 'ARM [unit tests, no functional tests] [buster]'
@@ -87,8 +137,20 @@ task:
   container:
     image: debian:buster
   env:
-    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-    FILE_ENV: "./ci/test/00_setup_env_arm.sh"
+    HOST: i686-linux-gnu
+    ECDH: yes
+    RECOVERY: yes
+    EXPERIMENTAL: yes
+    SCHNORRSIG: yes
+  matrix:
+    - env:
+        CC: i686-linux-gnu-gcc
+    - env:
+        CC: clang --target=i686-pc-linux-gnu -isystem /usr/i686-linux-gnu/include
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
 
 task:
   name: 'Win64 [unit tests, no gui tests, no boost::process, no functional tests] [focal]'
@@ -127,132 +189,173 @@ task:
     cpu: 6  # Increase CPU and Memory to avoid timeout
     memory: 24G
   env:
-    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-    MAKEJOBS: "-j8"
-    FILE_ENV: "./ci/test/00_setup_env_native_tsan.sh"
+    WRAPPER_CMD: qemu-s390x
+    TEST_ITERS: 16
+    HOST: s390x-linux-gnu
+    WITH_VALGRIND: no
+    ECDH: yes
+    RECOVERY: yes
+    EXPERIMENTAL: yes
+    SCHNORRSIG: yes
+    CTIMETEST: no
+  << : *MERGE_BASE
+  test_script:
+    # https://sourceware.org/bugzilla/show_bug.cgi?id=27008
+    - rm /etc/ld.so.cache
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
 
 task:
-  name: 'macOS 10.15 [qt deploy]'
-  macos_brew_addon_script:
-    - brew install boost libevent berkeley-db4 qt miniupnpc libnatpmp ccache zeromq qrencode sqlite libtool automake pkg-config gnu-getopt librsvg
-  << : *GLOBAL_TASK_TEMPLATE
+  name: "ARM32: Linux (Debian stable, QEMU)"
   container:
-    image: ubuntu:hirsute
+    dockerfile: ci/linux-debian.Dockerfile
+    cpu: 1
+    memory: 1G
   env:
-    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-    FILE_ENV: "./ci/test/00_setup_env_native_asan.sh"
+    WRAPPER_CMD: qemu-arm
+    TEST_ITERS: 16
+    HOST: arm-linux-gnueabihf
+    WITH_VALGRIND: no
+    ECDH: yes
+    RECOVERY: yes
+    EXPERIMENTAL: yes
+    SCHNORRSIG: yes
+    CTIMETEST: no
+  matrix:
+    - env: {}
+    - env: {ASM: arm}
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
 
 task:
-  name: '[no depends, sanitizers: fuzzer,address,undefined,integer] [focal]'
-  << : *GLOBAL_TASK_TEMPLATE
+  name: "ARM64: Linux (Debian stable, QEMU)"
   container:
-    image: ubuntu:focal
-    cpu: 4  # Increase CPU and memory to avoid timeout
-    memory: 16G
+    dockerfile: ci/linux-debian.Dockerfile
+    cpu: 1
+    memory: 1G
   env:
-    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-    MAKEJOBS: "-j8"
-    FILE_ENV: "./ci/test/00_setup_env_native_fuzz.sh"
+    WRAPPER_CMD: qemu-aarch64
+    TEST_ITERS: 16
+    HOST: aarch64-linux-gnu
+    WITH_VALGRIND: no
+    ECDH: yes
+    RECOVERY: yes
+    EXPERIMENTAL: yes
+    SCHNORRSIG: yes
+    CTIMETEST: no
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
 
 task:
-  name: '[multiprocess, DEBUG] [focal]'
-  << : *GLOBAL_TASK_TEMPLATE
+  name: "ppc64le: Linux (Debian stable, QEMU)"
   container:
-    image: ubuntu:focal
-    cpu: 4
-    memory: 16G  # The default memory is sometimes just a bit too small, so double everything
+    dockerfile: ci/linux-debian.Dockerfile
+    cpu: 1
+    memory: 1G
   env:
-    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-    MAKEJOBS: "-j8"
-    FILE_ENV: "./ci/test/00_setup_env_native_multiprocess.sh"
-
-#task:
-#  name: "x86_64 Linux [qt]"
-#  << : *GLOBAL_TASK_TEMPLATE
-#  container:
-#    image: ubuntu:bionic
-#  env:
-#    FILE_ENV: "./ci/test/00_setup_env_native_qt5.sh"
+    WRAPPER_CMD: qemu-ppc64le
+    TEST_ITERS: 16
+    HOST: powerpc64le-linux-gnu
+    WITH_VALGRIND: no
+    ECDH: yes
+    RECOVERY: yes
+    EXPERIMENTAL: yes
+    SCHNORRSIG: yes
+    CTIMETEST: no
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
 
 task:
-  name: "debian [deploy]"
-  << : *BASE_TEMPLATE
-  compute_engine_instance:
-    image_project: cirrus-images
-    image: family/docker-kvm
-    platform: linux
-    cpu: 2
-    memory: 8G
-    nested_virtualization: true
+  name: "x86_64 (mingw32-w64): Windows (Debian stable, Wine)"
+  container:
+    dockerfile: ci/linux-debian.Dockerfile
+    cpu: 1
+    memory: 1G
   env:
-    GIT_CONFIG_FLAG: "--system"
-  ci_script:
-    - ./ci/debian_deploy.sh
-  deb_artifacts:
-    path: "/*.deb"
+    WRAPPER_CMD: wine64-stable
+    TEST_ITERS: 16
+    HOST: x86_64-w64-mingw32
+    WITH_VALGRIND: no
+    ECDH: yes
+    RECOVERY: yes
+    EXPERIMENTAL: yes
+    SCHNORRSIG: yes
+    CTIMETEST: no
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
+
+# Sanitizers
+task:
+  container:
+    dockerfile: ci/linux-debian.Dockerfile
+    cpu: 1
+    memory: 1G
+  env:
+    ECDH: yes
+    RECOVERY: yes
+    EXPERIMENTAL: yes
+    SCHNORRSIG: yes
+    CTIMETEST: no
+    EXTRAFLAGS: "--disable-openssl-tests"
+  matrix:
+    - name: "Valgrind (memcheck)"
+      env:
+        # The `--error-exitcode` is required to make the test fail if valgrind found errors, otherwise it'll return 0 (https://www.valgrind.org/docs/manual/manual-core.html)
+        WRAPPER_CMD: "valgrind --error-exitcode=42"
+        TEST_ITERS: 16
+    - name: "UBSan, ASan, LSan"
+      env:
+        CFLAGS: "-fsanitize=undefined,address"
+        CFLAGS_FOR_BUILD: "-fsanitize=undefined,address"
+        UBSAN_OPTIONS: "print_stacktrace=1:halt_on_error=1"
+        ASAN_OPTIONS: "strict_string_checks=1:detect_stack_use_after_return=1:detect_leaks=1"
+        LSAN_OPTIONS: "use_unaligned=1"
+        TEST_ITERS: 32
+  # Try to cover many configurations with just a tiny matrix.
+  matrix:
+    - env:
+        ASM: auto
+        STATICPRECOMPUTATION: yes
+    - env:
+        ASM: no
+        STATICPRECOMPUTATION: no
+        ECMULTGENPRECISION: 2
+  matrix:
+    - env:
+        CC: clang
+    - env:
+        HOST: i686-linux-gnu
+        CC: i686-linux-gnu-gcc
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
 
 task:
-  name: 'macOS 11 native [gui] [no depends]'
-  brew_install_script:
-    - brew install boost libevent berkeley-db4 qt@5 miniupnpc libnatpmp ccache zeromq qrencode sqlite libtool automake pkg-config gnu-getopt
-  << : *GLOBAL_TASK_TEMPLATE
-  osx_instance:
-    # Use latest image, but hardcode version to avoid silent upgrades (and breaks)
-    image: big-sur-xcode-12.5  # https://cirrus-ci.org/guide/macOS
+  name: "C++ -fpermissive"
+  container:
+    dockerfile: ci/linux-debian.Dockerfile
+    cpu: 1
+    memory: 1G
   env:
-    GIT_CONFIG_FLAG: "--system"
-  ci_script:
-    - ./ci/debian_qt_deploy.sh
-  deb_artifacts:
-    path: "/*.deb"
-
-task:
-  name: 'Win64 [installer]'
-  timeout_in: 120m
-  windows_container:
-    image: cirrusci/windowsservercore:2019
-    cpu: 8
-    memory: 16G
-  clone_script:
-    - choco install -y git
-    - cd c:\
-    - git clone -b %CIRRUS_BRANCH% %CIRRUS_REPO_CLONE_URL%
-  install_script: 
-    # Install Vistual Studio build tools and other prerequisites
-    - choco upgrade -y visualstudio2019-workload-vctools
-    - choco install -y python3
-  install_vcpkgs_script:
-    # Add vcpkg packages
-    - git clone https://github.com/microsoft/vcpkg
-    - .\vcpkg\bootstrap-vcpkg.bat
-    - .\vcpkg\vcpkg integrate install
-    - .\vcpkg\vcpkg install boost-process:x64-windows-static boost-variant:x64-windows-static boost-signals2:x64-windows-static boost-multi-index:x64-windows-static boost-test:x64-windows-static
-    - .\vcpkg\vcpkg install libevent:x64-windows-static sqlite3:x64-windows-static
-    - .\vcpkg\vcpkg install berkeleydb:x64-windows-static curl:x64-windows-static
-    - .\vcpkg\vcpkg install zeromq:x64-windows-static rapidcheck:x64-windows-static
-  add_qt_script:
-    # Add Qt libraries
-    - choco install -y wget
-    - wget https://github.com/sipsorcery/qt_win_binary/releases/download/qt598x64_vs2019_v1681/qt598_x64_vs2019_1681.zip
-    - mkdir c:\Qt
-    - unzip qt598_x64_vs2019_1681.zip -d c:\Qt\Qt5.9.8_x64_static_vs2019
-  build_script:
-    # Build BGL
-    - cd c:\bitgesell\build_msvc
-    - py msvc-autogen.py
-    - '"c:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\msbuild" BGL.sln /p:Configuration=Release'
-  prepare_installer_script:
-    # Install NSIS and prepare msi package
-    - choco install -y nsis
-    - mkdir c:\binaries_windows
-    - cp c:\bitgesell\build_msvc\x64\Debug\BGLd.exe c:\binaries_windows
-    - cp c:\bitgesell\build_msvc\x64\Debug\BGL-tx.exe c:\binaries_windows
-    - cp c:\bitgesell\build_msvc\x64\Debug\BGL-qt.exe c:\binaries_windows
-    - cp c:\bitgesell\build_msvc\x64\Debug\BGL-cli.exe c:\binaries_windows
-    - cp c:\bitgesell\build_msvc\x64\Debug\BGL-wallet.exe c:\binaries_windows
-    - cd c:\bitgesell\share
-    - '"c:\Program Files (x86)\NSIS\makensis.exe" setup-BGL-win.nsi'
-    - cp c:\bitgesell\BGL-0.1.6.0-win64-setup.exe C:\Users\ContainerAdministrator\AppData\Local\Temp\cirrus-ci-build\
-  exe_artifacts:
-    # Relative path (check if there's a solution for that)
-    path: '*.exe'
+    # ./configure correctly errors out when given CC=g++.
+    # We hack around this by passing CC=g++ only to make.
+    CC: gcc
+    MAKEFLAGS: -j2 CC=g++ CFLAGS=-fpermissive
+    WERROR_CFLAGS:
+    EXPERIMENTAL: yes
+    ECDH: yes
+    RECOVERY: yes
+    SCHNORRSIG: yes
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS

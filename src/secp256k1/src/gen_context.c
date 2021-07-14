@@ -12,7 +12,13 @@
 #define USE_BASIC_CONFIG 1
 #include "basic-config.h"
 
-#include "include/secp256k1.h"
+/* In principle we could use ASM, but this yields only a minor speedup in
+   build time and it's very complicated. In particular when cross-compiling, we'd
+   need to build the ASM for the build and the host machine. */
+#undef USE_EXTERNAL_ASM
+#undef USE_ASM_X86_64
+
+#include "../include/secp256k1.h"
 #include "assumptions.h"
 #include "util.h"
 #include "field_impl.h"

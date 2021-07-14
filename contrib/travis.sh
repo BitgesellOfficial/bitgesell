@@ -21,28 +21,31 @@ fi
     --with-valgrind="$WITH_VALGRIND" \
     --host="$HOST" $EXTRAFLAGS
 
-if [ -n "$BUILD" ]
-then
-    make -j2 "$BUILD"
-fi
-if [ "$RUN_VALGRIND" = "yes" ]
-then
-    make -j2
-    # the `--error-exitcode` is required to make the test fail if valgrind found errors, otherwise it'll return 0 (http://valgrind.org/docs/manual/manual-core.html)
-    valgrind --error-exitcode=42 ./tests 16
-    valgrind --error-exitcode=42 ./exhaustive_tests
-fi
+# We have set "-j<n>" in MAKEFLAGS.
+make
+
+# Print information about binaries so that we can see that the architecture is correct
+file *tests* || true
+file bench_* || true
+file .libs/* || true
+
+# This tells `make check` to wrap test invocations.
+export LOG_COMPILER="$WRAPPER_CMD"
+
+# This limits the iterations in the tests and benchmarks.
+export SECP256K1_TEST_ITERS="$TEST_ITERS"
+export SECP256K1_BENCH_ITERS="$BENCH_ITERS"
+
+make "$BUILD"
+
 if [ "$BENCH" = "yes" ]
 then
-    if [ "$RUN_VALGRIND" = "yes" ]
+    # Using the local `libtool` because on macOS the system's libtool has nothing to do with GNU libtool
+    EXEC='./libtool --mode=execute'
+    if [ -n "$WRAPPER_CMD" ]
     then
-        # Using the local `libtool` because on macOS the system's libtool has nothing to do with GNU libtool
-        EXEC='./libtool --mode=execute valgrind --error-exitcode=42'
-    else
-        EXEC=
+        EXEC="$EXEC $WRAPPER_CMD"
     fi
-    # This limits the iterations in the benchmarks below to ITER(set in .travis.yml) iterations.
-    export SECP256K1_BENCH_ITERS="$ITERS"
     {
         $EXEC ./bench_ecmult
         $EXEC ./bench_internal

@@ -2,14 +2,66 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-# Pattern rule to print variables, e.g. make print-top_srcdir
-print-%: FORCE
-	@echo '$*'='$($*)'
+# AM_CFLAGS will be automatically prepended to CFLAGS by Automake when compiling some foo
+# which does not have an explicit foo_CFLAGS variable set.
+AM_CFLAGS = $(SECP_CFLAGS)
 
-ACLOCAL_AMFLAGS = -I build-aux/m4
-SUBDIRS = src
-if ENABLE_MAN
-SUBDIRS += doc/man
+lib_LTLIBRARIES = libsecp256k1.la
+include_HEADERS = include/secp256k1.h
+include_HEADERS += include/secp256k1_preallocated.h
+noinst_HEADERS =
+noinst_HEADERS += src/scalar.h
+noinst_HEADERS += src/scalar_4x64.h
+noinst_HEADERS += src/scalar_8x32.h
+noinst_HEADERS += src/scalar_low.h
+noinst_HEADERS += src/scalar_impl.h
+noinst_HEADERS += src/scalar_4x64_impl.h
+noinst_HEADERS += src/scalar_8x32_impl.h
+noinst_HEADERS += src/scalar_low_impl.h
+noinst_HEADERS += src/group.h
+noinst_HEADERS += src/group_impl.h
+noinst_HEADERS += src/ecdsa.h
+noinst_HEADERS += src/ecdsa_impl.h
+noinst_HEADERS += src/eckey.h
+noinst_HEADERS += src/eckey_impl.h
+noinst_HEADERS += src/ecmult.h
+noinst_HEADERS += src/ecmult_impl.h
+noinst_HEADERS += src/ecmult_const.h
+noinst_HEADERS += src/ecmult_const_impl.h
+noinst_HEADERS += src/ecmult_gen.h
+noinst_HEADERS += src/ecmult_gen_impl.h
+noinst_HEADERS += src/field_10x26.h
+noinst_HEADERS += src/field_10x26_impl.h
+noinst_HEADERS += src/field_5x52.h
+noinst_HEADERS += src/field_5x52_impl.h
+noinst_HEADERS += src/field_5x52_int128_impl.h
+noinst_HEADERS += src/field_5x52_asm_impl.h
+noinst_HEADERS += src/modinv32.h
+noinst_HEADERS += src/modinv32_impl.h
+noinst_HEADERS += src/modinv64.h
+noinst_HEADERS += src/modinv64_impl.h
+noinst_HEADERS += src/assumptions.h
+noinst_HEADERS += src/util.h
+noinst_HEADERS += src/scratch.h
+noinst_HEADERS += src/scratch_impl.h
+noinst_HEADERS += src/selftest.h
+noinst_HEADERS += src/testrand.h
+noinst_HEADERS += src/testrand_impl.h
+noinst_HEADERS += src/hash.h
+noinst_HEADERS += src/hash_impl.h
+noinst_HEADERS += src/field.h
+noinst_HEADERS += src/field_impl.h
+noinst_HEADERS += src/bench.h
+noinst_HEADERS += contrib/lax_der_parsing.h
+noinst_HEADERS += contrib/lax_der_parsing.c
+noinst_HEADERS += contrib/lax_der_privatekey_parsing.h
+noinst_HEADERS += contrib/lax_der_privatekey_parsing.c
+
+if USE_EXTERNAL_ASM
+COMMON_LIB = libsecp256k1_common.la
+noinst_LTLIBRARIES = $(COMMON_LIB)
+else
+COMMON_LIB =
 endif
 .PHONY: deploy FORCE
 .INTERMEDIATE: $(OSX_TEMP_ISO) $(COVERAGE_INFO)
@@ -21,159 +73,55 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libBGLconsensus.pc
 endif
 
-BGLD_BIN=$(top_builddir)/src/$(BGL_DAEMON_NAME)$(EXEEXT)
-BGL_QT_BIN=$(top_builddir)/src/qt/$(BGL_GUI_NAME)$(EXEEXT)
-BGL_CLI_BIN=$(top_builddir)/src/$(BGL_CLI_NAME)$(EXEEXT)
-BGL_TX_BIN=$(top_builddir)/src/$(BGL_TX_NAME)$(EXEEXT)
-BGL_UTIL_BIN=$(top_builddir)/src/$(BGL_UTIL_NAME)$(EXEEXT)
-BGL_WALLET_BIN=$(top_builddir)/src/$(BGL_WALLET_TOOL_NAME)$(EXEEXT)
-BGL_NODE_BIN=$(top_builddir)/src/$(BGL_MP_NODE_NAME)$(EXEEXT)
-BGL_GUI_BIN=$(top_builddir)/src/$(BGL_MP_GUI_NAME)$(EXEEXT)
-BGL_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win64-setup$(EXEEXT)
+libsecp256k1_la_SOURCES = src/secp256k1.c
+libsecp256k1_la_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/src $(SECP_INCLUDES)
+libsecp256k1_la_LIBADD = $(SECP_LIBS) $(COMMON_LIB)
 
 empty :=
 space := $(empty) $(empty)
 
-OSX_APP=BGL-Qt.app
-OSX_VOLNAME = $(PACKAGE)-Qt
-OSX_DMG = $(OSX_VOLNAME).dmg
-OSX_TEMP_ISO = $(OSX_DMG:.dmg=).temp.iso
-OSX_BACKGROUND_SVG=background.svg
-OSX_BACKGROUND_IMAGE=background.tiff
-OSX_BACKGROUND_IMAGE_DPIS=36 72
-OSX_DEPLOY_SCRIPT=$(top_srcdir)/contrib/macdeploy/macdeployqtplus
-OSX_INSTALLER_ICONS=$(top_srcdir)/src/qt/res/icons/BGL.icns
-OSX_PLIST=$(top_builddir)/share/qt/Info.plist #not installed
-
-DIST_CONTRIB = \
-	       $(top_srcdir)/test/sanitizer_suppressions/lsan \
-	       $(top_srcdir)/test/sanitizer_suppressions/tsan \
-	       $(top_srcdir)/test/sanitizer_suppressions/ubsan \
-	       $(top_srcdir)/contrib/linearize/linearize-data.py \
-	       $(top_srcdir)/contrib/linearize/linearize-hashes.py
-
-DIST_SHARE = \
-  $(top_srcdir)/share/genbuild.sh \
-  $(top_srcdir)/share/rpcauth
-
-BIN_CHECKS=$(top_srcdir)/contrib/devtools/symbol-check.py \
-           $(top_srcdir)/contrib/devtools/security-check.py \
-           $(top_srcdir)/contrib/devtools/utils.py \
-           $(top_srcdir)/contrib/devtools/pixie.py
-
-WINDOWS_PACKAGING = $(top_srcdir)/share/pixmaps/BGL.ico \
-  $(top_srcdir)/share/pixmaps/nsis-header.bmp \
-  $(top_srcdir)/share/pixmaps/nsis-wizard.bmp \
-  $(top_srcdir)/doc/README_windows.txt
-
-OSX_PACKAGING = $(OSX_DEPLOY_SCRIPT) $(OSX_INSTALLER_ICONS) \
-  $(top_srcdir)/contrib/macdeploy/$(OSX_BACKGROUND_SVG) \
-  $(top_srcdir)/contrib/macdeploy/detached-sig-apply.sh \
-  $(top_srcdir)/contrib/macdeploy/detached-sig-create.sh
-
-COVERAGE_INFO = $(COV_TOOL_WRAPPER) baseline.info \
-  test_BGL_filtered.info total_coverage.info \
-  baseline_filtered.info functional_test.info functional_test_filtered.info \
-  test_BGL_coverage.info test_BGL.info fuzz.info fuzz_filtered.info fuzz_coverage.info
-
-dist-hook:
-	-$(GIT) archive --format=tar HEAD -- src/clientversion.cpp | $(AMTAR) -C $(top_distdir) -xf -
-
-if TARGET_WINDOWS
-$(BGL_WIN_INSTALLER): all-recursive
-	$(MKDIR_P) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGLD_BIN) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_QT_BIN) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_CLI_BIN) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_TX_BIN) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_WALLET_BIN) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_UTIL_BIN) $(top_builddir)/release
-	@test -f $(MAKENSIS) && echo 'OutFile "$@"' | cat $(top_builddir)/share/setup.nsi - | $(MAKENSIS) -V2 - || \
-	  echo error: could not build $@
-	@echo built $@
-
-deploy: $(BGL_WIN_INSTALLER)
+noinst_PROGRAMS =
+if USE_BENCHMARK
+noinst_PROGRAMS += bench_verify bench_sign bench_internal bench_ecmult
+bench_verify_SOURCES = src/bench_verify.c
+bench_verify_LDADD = libsecp256k1.la $(SECP_LIBS) $(SECP_TEST_LIBS) $(COMMON_LIB)
+# SECP_TEST_INCLUDES are only used here for CRYPTO_CPPFLAGS
+bench_verify_CPPFLAGS = $(SECP_TEST_INCLUDES)
+bench_sign_SOURCES = src/bench_sign.c
+bench_sign_LDADD = libsecp256k1.la $(SECP_LIBS) $(SECP_TEST_LIBS) $(COMMON_LIB)
+bench_internal_SOURCES = src/bench_internal.c
+bench_internal_LDADD = $(SECP_LIBS) $(COMMON_LIB)
+bench_internal_CPPFLAGS = $(SECP_INCLUDES)
+bench_ecmult_SOURCES = src/bench_ecmult.c
+bench_ecmult_LDADD = $(SECP_LIBS) $(COMMON_LIB)
+bench_ecmult_CPPFLAGS = $(SECP_INCLUDES)
 endif
 
-if TARGET_DARWIN
-$(OSX_APP)/Contents/PkgInfo:
-	$(MKDIR_P) $(@D)
-	@echo "APPL????" > $@
+TESTS =
+if USE_TESTS
+noinst_PROGRAMS += tests
+tests_SOURCES = src/tests.c
+tests_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/include $(SECP_INCLUDES) $(SECP_TEST_INCLUDES)
+if VALGRIND_ENABLED
+tests_CPPFLAGS += -DVALGRIND
+noinst_PROGRAMS += valgrind_ctime_test
+valgrind_ctime_test_SOURCES = src/valgrind_ctime_test.c
+valgrind_ctime_test_LDADD = libsecp256k1.la $(SECP_LIBS) $(COMMON_LIB)
+endif
+if !ENABLE_COVERAGE
+tests_CPPFLAGS += -DVERIFY
+endif
+tests_LDADD = $(SECP_LIBS) $(SECP_TEST_LIBS) $(COMMON_LIB)
+tests_LDFLAGS = -static
+TESTS += tests
+endif
 
-$(OSX_APP)/Contents/Resources/empty.lproj:
-	$(MKDIR_P) $(@D)
-	@touch $@
-
-$(OSX_APP)/Contents/Info.plist: $(OSX_PLIST)
-	$(MKDIR_P) $(@D)
-	$(INSTALL_DATA) $< $@
-
-$(OSX_APP)/Contents/Resources/BGL.icns: $(OSX_INSTALLER_ICONS)
-	$(MKDIR_P) $(@D)
-	$(INSTALL_DATA) $< $@
-
-$(OSX_APP)/Contents/MacOS/BGL-Qt: all-recursive
-	$(MKDIR_P) $(@D)
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM)  $(BGL_QT_BIN) $@
-
-$(OSX_APP)/Contents/Resources/Base.lproj/InfoPlist.strings:
-	$(MKDIR_P) $(@D)
-	echo '{	CFBundleDisplayName = "$(PACKAGE_NAME)"; CFBundleName = "$(PACKAGE_NAME)"; }' > $@
-
-OSX_APP_BUILT=$(OSX_APP)/Contents/PkgInfo $(OSX_APP)/Contents/Resources/empty.lproj \
-  $(OSX_APP)/Contents/Resources/BGL.icns $(OSX_APP)/Contents/Info.plist \
-  $(OSX_APP)/Contents/MacOS/BGL-Qt $(OSX_APP)/Contents/Resources/Base.lproj/InfoPlist.strings
-
-osx_volname:
-	echo $(OSX_VOLNAME) >$@
-
-if BUILD_DARWIN
-$(OSX_DMG): $(OSX_APP_BUILT) $(OSX_PACKAGING) $(OSX_BACKGROUND_IMAGE)
-	@echo "TEST BUILD DARWIN"
-	$(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) $(OSX_VOLNAME) -translations-dir=$(QT_TRANSLATION_DIR) -dmg
-
-$(OSX_BACKGROUND_IMAGE).png: contrib/macdeploy/$(OSX_BACKGROUND_SVG)
-	sed 's/PACKAGE_NAME/$(PACKAGE_NAME)/' < "$<" | $(RSVG_CONVERT) -f png -d 36 -p 36 -o $@
-$(OSX_BACKGROUND_IMAGE)@2x.png: contrib/macdeploy/$(OSX_BACKGROUND_SVG)
-	sed 's/PACKAGE_NAME/$(PACKAGE_NAME)/' < "$<" | $(RSVG_CONVERT) -f png -d 72 -p 72 -o $@
-$(OSX_BACKGROUND_IMAGE): $(OSX_BACKGROUND_IMAGE).png $(OSX_BACKGROUND_IMAGE)@2x.png
-	tiffutil -cathidpicheck $^ -out $@
-
-deploydir: $(OSX_DMG)
-else !BUILD_DARWIN
-APP_DIST_DIR=$(top_builddir)/dist
-APP_DIST_EXTRAS=$(APP_DIST_DIR)/.background/$(OSX_BACKGROUND_IMAGE) $(APP_DIST_DIR)/.DS_Store $(APP_DIST_DIR)/Applications
-
-$(APP_DIST_DIR)/Applications:
-	@rm -f $@
-	@cd $(@D); $(LN_S) /Applications $(@F)
-
-$(APP_DIST_EXTRAS): $(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/BGL-Qt
-
-$(OSX_TEMP_ISO): $(APP_DIST_EXTRAS)
-	$(XORRISOFS) -D -l -V "$(OSX_VOLNAME)" -no-pad -r -dir-mode 0755 -o $@ dist -- $(if $(SOURCE_DATE_EPOCH),-volume_date all_file_dates =$(SOURCE_DATE_EPOCH))
-
-$(OSX_TEMP_ISO): $(APP_DIST_EXTRAS)
-	$(XORRISOFS) -D -l -V "$(OSX_VOLNAME)" -no-pad -r -dir-mode 0755 -o $@ $(APP_DIST_DIR) -- $(if $(SOURCE_DATE_EPOCH),-volume_date all_file_dates =$(SOURCE_DATE_EPOCH))
-
-$(OSX_DMG): $(OSX_TEMP_ISO)
-	$(DMG) dmg "$<" "$@"
-
-dpi%.$(OSX_BACKGROUND_IMAGE): contrib/macdeploy/$(OSX_BACKGROUND_SVG)
-	sed 's/PACKAGE_NAME/$(PACKAGE_NAME)/' < "$<" | $(RSVG_CONVERT) -f png -d $* -p $* | $(IMAGEMAGICK_CONVERT) - $@
-OSX_BACKGROUND_IMAGE_DPIFILES := $(foreach dpi,$(OSX_BACKGROUND_IMAGE_DPIS),dpi$(dpi).$(OSX_BACKGROUND_IMAGE))
-$(APP_DIST_DIR)/.background/$(OSX_BACKGROUND_IMAGE): $(OSX_BACKGROUND_IMAGE_DPIFILES)
-	$(MKDIR_P) $(@D)
-	$(TIFFCP) -c none $(OSX_BACKGROUND_IMAGE_DPIFILES) $@
-
-$(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/BGL-Qt: $(OSX_APP_BUILT) $(OSX_PACKAGING)
-	INSTALLNAMETOOL=$(INSTALLNAMETOOL) OTOOL=$(OTOOL) STRIP=$(STRIP) $(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) $(OSX_VOLNAME) -translations-dir=$(QT_TRANSLATION_DIR)
-
-deploydir: $(APP_DIST_EXTRAS)
-endif !BUILD_DARWIN
-
-appbundle: $(OSX_APP_BUILT)
-deploy: $(OSX_DMG)
+if USE_EXHAUSTIVE_TESTS
+noinst_PROGRAMS += exhaustive_tests
+exhaustive_tests_SOURCES = src/tests_exhaustive.c
+exhaustive_tests_CPPFLAGS = -I$(top_srcdir)/src $(SECP_INCLUDES)
+if !ENABLE_COVERAGE
+exhaustive_tests_CPPFLAGS += -DVERIFY
 endif
 
 if TARGET_WINDOWS
@@ -183,11 +131,13 @@ endif
 $(BGL_QT_BIN): FORCE
 	$(MAKE) -C src qt/$(@F)
 
-$(BGLD_BIN): FORCE
-	$(MAKE) -C src $(@F)
+gen_context_OBJECTS = gen_context.o
+gen_context_BIN = gen_context$(BUILD_EXEEXT)
+gen_%.o: src/gen_%.c src/libsecp256k1-config.h
+	$(CC_FOR_BUILD) $(DEFS) $(CPPFLAGS_FOR_BUILD) $(SECP_CFLAGS_FOR_BUILD) $(CFLAGS_FOR_BUILD) -c $< -o $@
 
-$(BGL_CLI_BIN): FORCE
-	$(MAKE) -C src $(@F)
+$(gen_context_BIN): $(gen_context_OBJECTS)
+	$(CC_FOR_BUILD) $(SECP_CFLAGS_FOR_BUILD) $(CFLAGS_FOR_BUILD) $(LDFLAGS_FOR_BUILD) $^ -o $@
 
 $(BGL_TX_BIN): FORCE
 	$(MAKE) -C src $(@F)

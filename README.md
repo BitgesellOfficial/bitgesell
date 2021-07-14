@@ -52,9 +52,19 @@
 
 ![Product Name Screen Shot](https://github.com/BitgesellOfficial/bitgesell/blob/master/share/pixmaps/BGL64.png) 
 
-BGL is an experimental digital currency that enables instant payments to anyone, anywhere in the world. BGL uses peer-to-peer technology to operate with no central authority: managing transactions and issuing money are carried out collectively by the network. BGL Core is the name of open source software which enables the use of this currency.
+Features:
+* secp256k1 ECDSA signing/verification and key generation.
+* Additive and multiplicative tweaking of secret/public keys.
+* Serialization/parsing of secret keys, public keys, signatures.
+* Constant time, constant memory access signing and public key generation.
+* Derandomized ECDSA (via RFC6979 or with a caller provided function.)
+* Very efficient implementation.
+* Suitable for embedded systems.
+* Optional module for public key recovery.
+* Optional module for ECDH key exchange.
+* Optional module for Schnorr signatures according to [BIP-340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki) (experimental).
 
-<b>Bitgesell is a fork of bitcoin with the following changes:</b> <br>
+<b>Bitgesell is a fork of BGL with the following changes:</b> <br>
 * Block Reward [Burn rate is 90% of tx fees]
   ```sh
   nFees*0.1 + GetBlockSubsidy()  
@@ -67,7 +77,7 @@ BGL is an experimental digital currency that enables instant payments to anyone,
   ```sh
   Eliminates problems with legacy type of transactions
   ```
-* Halving Interval [Halving cycle of bitgetsell is 1yr while that of bitcoin is 4yr]
+* Halving Interval [Halving cycle of bitgetsell is 1yr while that of BGL is 4yr]
   ```sh
   210000 blocks/4
   ```
@@ -127,6 +137,8 @@ not straightforward.
 See the [open issues](https://github.com/BitgesellOfficial/bitgesell/issues) for a list of proposed features (and known issues).
 
 
+    $ mkdir -p coverage
+    $ gcovr --exclude 'src/bench*' --html --html-details -o coverage/coverage.html
 
 <!-- CONTRIBUTING -->
 ## Contributing
