@@ -9,11 +9,14 @@
 #include <config/BGL-config.h>
 #endif
 
-#include <QApplication>
+#include <interfaces/node.h>
+
 #include <assert.h>
 #include <memory>
+#include <optional>
 
-#include <interfaces/node.h>
+#include <QApplication>
+#include <QThread>
 
 class BGLGUI;
 class ClientModel;
@@ -34,6 +37,7 @@ class BGLCore: public QObject
     Q_OBJECT
 public:
     explicit BGLCore(interfaces::Node& node);
+    ~BGLCore();
 
 public Q_SLOTS:
     void initialize();
@@ -49,6 +53,7 @@ private:
     void handleRunawayException(const std::exception *e);
 
     interfaces::Node& m_node;
+    QThread m_thread;
 };
 
 /** Main BGL application object */
@@ -113,7 +118,7 @@ Q_SIGNALS:
     void windowShown(BGLGUI* window);
 
 private:
-    QThread *coreThread;
+    std::optional<BitcoinCore> m_executor;
     OptionsModel *optionsModel;
     ClientModel *clientModel;
     BGLGUI *window;

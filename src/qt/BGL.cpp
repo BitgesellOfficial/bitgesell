@@ -210,6 +210,16 @@ void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
 BGLCore::BGLCore(interfaces::Node& node) :
     QObject(), m_node(node)
 {
+    this->moveToThread(&m_thread);
+    m_thread.start();
+}
+
+BitcoinCore::~BitcoinCore()
+{
+    qDebug() << __func__ << ": Stopping thread";
+    m_thread.quit();
+    m_thread.wait();
+    qDebug() << __func__ << ": Stopped thread";
 }
 
 void BGLCore::handleRunawayException(const std::exception *e)
@@ -254,7 +264,6 @@ static const char* qt_argv = "BGL-qt";
 
 BGLApplication::BGLApplication():
     QApplication(qt_argc, const_cast<char **>(&qt_argv)),
-    coreThread(nullptr),
     optionsModel(nullptr),
     clientModel(nullptr),
     window(nullptr),
@@ -282,13 +291,7 @@ void BGLApplication::setupPlatformStyle()
 
 BGLApplication::~BGLApplication()
 {
-    if(coreThread)
-    {
-        qDebug() << __func__ << ": Stopping thread";
-        coreThread->quit();
-        coreThread->wait();
-        qDebug() << __func__ << ": Stopped thread";
-    }
+    m_executor.reset();
 
     delete window;
     window = nullptr;
@@ -343,22 +346,15 @@ bool BGLApplication::baseInitialize()
 
 void BGLApplication::startThread()
 {
-    if(coreThread)
-        return;
-    coreThread = new QThread(this);
-    BGLCore *executor = new BGLCore(node());
-    executor->moveToThread(coreThread);
+    assert(!m_executor);
+    m_executor.emplace(node());
 
     /*  communication to and from thread */
-    connect(executor, &BGLCore::initializeResult, this, &BGLApplication::initializeResult);
-    connect(executor, &BGLCore::shutdownResult, this, &BGLApplication::shutdownResult);
-    connect(executor, &BGLCore::runawayException, this, &BGLApplication::handleRunawayException);
-    connect(this, &BGLApplication::requestedInitialize, executor, &BGLCore::initialize);
-    connect(this, &BGLApplication::requestedShutdown, executor, &BGLCore::shutdown);
-    /*  make sure executor object is deleted in its own thread */
-    connect(coreThread, &QThread::finished, executor, &QObject::deleteLater);
-
-    coreThread->start();
+    connect(&m_executor.value(), &BGLCore::initializeResult, this, &BGLApplication::initializeResult);
+    connect(&m_executor.value(), &BGLCore::shutdownResult, this, &BGLApplication::shutdownResult);
+    connect(&m_executor.value(), &BGLCore::runawayException, this, &BGLApplication::handleRunawayException);
+    connect(this, &BGLApplication::requestedInitialize, &m_executor.value(), &BGLCore::initialize);
+    connect(this, &BGLApplication::requestedShutdown, &m_executor.value(), &BGLCore::shutdown);
 }
 
 void BGLApplication::parameterSetup()
@@ -393,7 +389,6 @@ void BGLApplication::requestShutdown()
     shutdownWindow.reset(ShutdownWindow::showShutdownWindow(window));
 
     qDebug() << __func__ << ": Requesting shutdown";
-    startThread();
     window->hide();
     // Must disconnect node signals otherwise current thread can deadlock since
     // no event loop is running.
