@@ -32,12 +32,12 @@ class WalletModel;
 /** Class encapsulating BGL Core startup and shutdown.
  * Allows running startup and shutdown in a different thread from the UI thread.
  */
-class BGLCore: public QObject
+class InitExecutor: public QObject
 {
     Q_OBJECT
 public:
-    explicit BGLCore(interfaces::Node& node);
-    ~BGLCore();
+    explicit InitExecutor(interfaces::Node& node);
+    ~InitExecutor();
 
 public Q_SLOTS:
     void initialize();
@@ -118,7 +118,7 @@ Q_SIGNALS:
     void windowShown(BGLGUI* window);
 
 private:
-    std::optional<BitcoinCore> m_executor;
+    std::optional<InitExecutor> m_executor;
     OptionsModel *optionsModel;
     ClientModel *clientModel;
     BGLGUI *window;
