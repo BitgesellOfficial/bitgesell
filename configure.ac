@@ -243,12 +243,6 @@ if test "x$use_asm" = xyes; then
   AC_DEFINE(USE_ASM, 1, [Define this symbol to build in assembly routines])
 fi
 
-AC_ARG_WITH([system-univalue],
-  [AS_HELP_STRING([--with-system-univalue],
-  [Build with system UniValue (default is no)])],
-  [system_univalue=$withval],
-  [system_univalue=no]
-)
 AC_ARG_ENABLE([zmq],
   [AS_HELP_STRING([--disable-zmq],
   [disable ZMQ notifications])],
@@ -1472,78 +1466,32 @@ if test x$build_BGL_cli$build_BGLd$BGL_enable_qt$use_tests$use_bench != xnononon
   fi
 fi
 
-# Add -Werror and similar flags passed from the outside (for testing, e.g., in CI)
-SECP_CFLAGS="$SECP_CFLAGS $WERROR_CFLAGS"
+dnl QR Code encoding library check
 
-# Handle static precomputation (after everything which modifies CFLAGS and friends)
-if test x"$use_ecmult_static_precomputation" != x"no"; then
-  if test x"$cross_compiling" = x"no"; then
-    set_precomp=yes
-    if test x"${CC_FOR_BUILD+x}${CFLAGS_FOR_BUILD+x}${CPPFLAGS_FOR_BUILD+x}${LDFLAGS_FOR_BUILD+x}" != x; then
-      AC_MSG_WARN([CC_FOR_BUILD, CFLAGS_FOR_BUILD, CPPFLAGS_FOR_BUILD, and/or LDFLAGS_FOR_BUILD is set but ignored because we are not cross-compiling.])
-    fi
-    # If we're not cross-compiling, simply use the same compiler for building the static precompation code.
-    CC_FOR_BUILD="$CC"
-    CPPFLAGS_FOR_BUILD="$CPPFLAGS"
-    SECP_CFLAGS_FOR_BUILD="$SECP_CFLAGS"
-    CFLAGS_FOR_BUILD="$CFLAGS"
-    LDFLAGS_FOR_BUILD="$LDFLAGS"
-  else
-    AX_PROG_CC_FOR_BUILD
-
-    # Temporarily switch to an environment for the native compiler
-    save_cross_compiling=$cross_compiling
-    cross_compiling=no
-    SAVE_CC="$CC"
-    CC="$CC_FOR_BUILD"
-    SAVE_CPPFLAGS="$CPPFLAGS"
-    CPPFLAGS="$CPPFLAGS_FOR_BUILD"
-    SAVE_CFLAGS="$CFLAGS"
-    CFLAGS="$CFLAGS_FOR_BUILD"
-    SAVE_LDFLAGS="$LDFLAGS"
-    LDFLAGS="$LDFLAGS_FOR_BUILD"
-
-    SECP_TRY_APPEND_DEFAULT_CFLAGS(SECP_CFLAGS_FOR_BUILD)
-
-    AC_MSG_CHECKING([for working native compiler: ${CC_FOR_BUILD}])
-    AC_RUN_IFELSE(
-      [AC_LANG_PROGRAM([], [])],
-      [working_native_cc=yes],
-      [working_native_cc=no],[:])
-
-    # Restore the environment
-    cross_compiling=$save_cross_compiling
-    CC="$SAVE_CC"
-    CPPFLAGS="$SAVE_CPPFLAGS"
-    CFLAGS="$SAVE_CFLAGS"
-    LDFLAGS="$SAVE_LDFLAGS"
-
-    if test x"$working_native_cc" = x"no"; then
-      AC_MSG_RESULT([no])
-      set_precomp=no
-      m4_define([please_set_for_build], [Please set CC_FOR_BUILD, CPPFLAGS_FOR_BUILD, CFLAGS_FOR_BUILD, and/or LDFLAGS_FOR_BUILD.])
-      if test x"$use_ecmult_static_precomputation" = x"yes";  then
-        AC_MSG_ERROR([native compiler ${CC_FOR_BUILD} does not produce working binaries. please_set_for_build])
-      else
-        AC_MSG_WARN([Disabling statically generated ecmult table because the native compiler ${CC_FOR_BUILD} does not produce working binaries. please_set_for_build])
-      fi
-    else
-      system_univalue=no
-    fi
-  fi
-
-  AC_SUBST(CC_FOR_BUILD)
-  AC_SUBST(CPPFLAGS_FOR_BUILD)
-  AC_SUBST(SECP_CFLAGS_FOR_BUILD)
-  AC_SUBST(CFLAGS_FOR_BUILD)
-  AC_SUBST(LDFLAGS_FOR_BUILD)
-else
-  set_precomp=no
+if test "x$use_qr" != xno; then
+  BGL_QT_CHECK([PKG_CHECK_MODULES([QR], [libqrencode], [have_qrencode=yes], [have_qrencode=no])])
 fi
 
-AM_CONDITIONAL([EMBEDDED_UNIVALUE],[test x$need_bundled_univalue = xyes])
-AC_SUBST(UNIVALUE_CFLAGS)
-AC_SUBST(UNIVALUE_LIBS)
+dnl ZMQ check
+
+if test "x$use_zmq" = xyes; then
+  PKG_CHECK_MODULES([ZMQ], [libzmq >= 4],
+    AC_DEFINE([ENABLE_ZMQ], [1], [Define to 1 to enable ZMQ functions]),
+    [AC_DEFINE([ENABLE_ZMQ], [0], [Define to 1 to enable ZMQ functions])
+    AC_MSG_WARN([libzmq version 4.x or greater not found, disabling])
+    use_zmq=no])
+else
+  AC_DEFINE_UNQUOTED([ENABLE_ZMQ], [0], [Define to 1 to enable ZMQ functions])
+fi
+
+if test "x$use_zmq" = xyes; then
+  dnl Assume libzmq was built for static linking
+  case $host in
+    *mingw*)
+      ZMQ_CFLAGS="$ZMQ_CFLAGS -DZMQ_STATIC"
+    ;;
+  esac
+fi
 
 dnl libmultiprocess library check
 
@@ -1907,11 +1855,7 @@ PKGCONFIG_LIBDIR_TEMP="$PKG_CONFIG_LIBDIR"
 unset PKG_CONFIG_LIBDIR
 PKG_CONFIG_LIBDIR="$PKGCONFIG_LIBDIR_TEMP"
 
-if test x$need_bundled_univalue = xyes; then
-  AC_CONFIG_SUBDIRS([src/univalue])
-fi
-
-ac_configure_args="${ac_configure_args} --disable-shared --with-pic --enable-benchmark=no --with-bignum=no --enable-module-recovery --enable-module-schnorrsig --enable-experimental"
+ac_configure_args="${ac_configure_args} --disable-shared --with-pic --enable-benchmark=no --enable-module-recovery --enable-module-schnorrsig --enable-experimental"
 AC_CONFIG_SUBDIRS([src/secp256k1])
 
 AC_OUTPUT
