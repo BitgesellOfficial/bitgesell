@@ -20,8 +20,8 @@ docker exec $container useradd user
 docker exec $container mkdir /home/user
 docker exec $container chown user.user /home/user
 docker exec $container sudo -u user mkdir /home/user/build
-docker cp ../bitgesell_0.1.6.dsc $container:/root/repo/
-docker cp ../bitgesell_0.1.6.tar.xz $container:/root/repo/
+docker cp ../bitgesell_0.1.7.dsc $container:/root/repo/
+docker cp ../bitgesell_0.1.7.tar.xz $container:/root/repo/
 # docker exec -w /root/repo $container sh -c "dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz"
 docker exec -w /root/repo $container sh -c "apt-ftparchive sources . > Sources"
 docker exec $container sh -c "echo deb-src [trusted=yes] file:/root/repo ./ >> /etc/apt/sources.list"
