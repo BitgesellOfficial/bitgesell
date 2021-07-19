@@ -81,8 +81,8 @@ public:
         consensus.nPowTargetSpacing = 10 * 60;
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
-        consensus.nRuleChangeActivationThreshold = 1614; // 80% of 2016
-        consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
+        consensus.nRuleChangeActivationThreshold = 237; // 55% (237 of 432 mined block should contain feature bit)
+        consensus.nMinerConfirmationWindow = 432; // 3-days window for confirmation (int BTC it's 2-week nPowTargetTimespan / nPowTargetSpacing)
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999;   // December 31, 2008
@@ -93,11 +93,20 @@ public:
         // By default assume that the signatures in ancestors of this block are valid.
         consensus.defaultAssumeValid = uint256S("0x000000000000055e5a25481d6b90bc943f36d5f2b3ca0ecf4f4b4ea3241a3168");
 
+        // Deployment of Taproot (BIPs 340-342) that did not pass
+        // we would be keeping this information here for now, because blocks contain this version bit
+        // and on relaxed conditions for window/treshold (that are set for now)
+        // the blocks would signal that bit=2 unknown rule was activated
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].bit = 2;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].nStartTime = 1621589357; // May 21th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].nTimeout = 1623715200; // June 15th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].min_activation_height = 66000; // Approximately July 1st, 2021
+
         // Deployment of Taproot (BIPs 340-342)
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].bit = 2;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = 1621589357; // May 21th, 2021
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = 1623715200; // June 15th, 2021
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 66000; // Approximately July 1st, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = 1626307200; // July 15th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = 1629936000; // End of day Aug 25th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 74574; // Approximately Sep 1st, 2021
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.

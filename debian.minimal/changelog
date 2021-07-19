@@ -1,3 +1,10 @@
+bitgesell (0.1.7) UNRELEASED; urgency=low
+
+  * Taproot activation rescheduled with relaxed conditions
+
+ -- Mathias van Orton <it@bitgesell.ca>  Sun, 4 Jul 2021 14:40:01 +0000
+
+
 bitgesell (0.1.6) UNRELEASED; urgency=low
 
   * Code synced with BTC up to April 2021, Taproot activation scheduled
