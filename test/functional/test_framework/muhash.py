@@ -4,6 +4,7 @@
 """Native Python MuHash3072 implementation."""
 
 import hashlib
+import unittest
 
 from .util import modinv
 

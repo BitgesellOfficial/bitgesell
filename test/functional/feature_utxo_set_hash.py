@@ -14,7 +14,7 @@ from test_framework.messages import (
 from test_framework.muhash import MuHash3072
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import assert_equal
-from test_framework.wallet import MiniWallet
+from test_framework.wallet import MiniWallet,MiniWalletMode
 
 class UTXOSetHashTest(BGLTestFramework):
     def set_test_params(self):
@@ -69,8 +69,8 @@ class UTXOSetHashTest(BGLTestFramework):
         assert_equal(finalized[::-1].hex(), node_muhash)
 
         self.log.info("Test deterministic UTXO set hash results")
-        assert_equal(node.gettxoutsetinfo()['hash_serialized_2'], "5b1b44097406226c0eb8e1362cd17a1f346522cf9390a8175a57a5262cb1963f")
-        assert_equal(node.gettxoutsetinfo("muhash")['muhash'], "4b8803075d7151d06fad3e88b68ba726886794873fbfa841d12aefb2cc2b881b")
+        assert_equal(node.gettxoutsetinfo()['hash_serialized_2'], "1ec3e58b0be79fca5917c7c30b9761f12adb609d0233cf2b42fa17ec419f0056")
+        assert_equal(node.gettxoutsetinfo("muhash")['muhash'], "faee25ca4765facb643b7a2d96531c568cb52ad84de5ae3d420a92967621ec17")
 
     def run_test(self):
         self.test_muhash_implementation()

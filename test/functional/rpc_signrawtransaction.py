@@ -41,7 +41,7 @@ class SignRawTransactionsTest(BGLTestFramework):
              'scriptPubKey': '76a914669b857c03a5ed269d5d85a1ffac9ed5d663072788ac'},
         ]
 
-        outputs = {'mpLQjfK79b7CCV4VMJWEWAj5Mpx8Up5zxB': 0.1}
+        outputs = {'rbgl1qmevj8zfx0wdvp05cqwkmr6mxkfx60yezhdmczp': 0.1}
 
         rawTx = self.nodes[0].createrawtransaction(inputs, outputs)
         rawTxSigned = self.nodes[0].signrawtransactionwithkey(rawTx, privKeys, inputs)
@@ -90,7 +90,7 @@ class SignRawTransactionsTest(BGLTestFramework):
              'scriptPubKey': 'badbadbadbad'}
         ]
 
-        outputs = {'mpLQjfK79b7CCV4VMJWEWAj5Mpx8Up5zxB': 0.1}
+        outputs = {'rbgl1qmevj8zfx0wdvp05cqwkmr6mxkfx60yezhdmczp': 0.1}
 
         rawTx = self.nodes[0].createrawtransaction(inputs, outputs)
 
@@ -192,6 +192,7 @@ class SignRawTransactionsTest(BGLTestFramework):
 
         # Now test with P2PKH and P2PK scripts as the witnessScript
         for tx_type in ['P2PKH', 'P2PK']:  # these tests are order-independent
+            pass
             self.verify_txn_with_witness_script(tx_type)
 
     def verify_txn_with_witness_script(self, tx_type):

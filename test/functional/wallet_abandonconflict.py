@@ -50,13 +50,13 @@ class AbandonConflictTest(BGLTestFramework):
         # Disconnect nodes so node0's transactions don't get into node1's mempool
         self.disconnect_nodes(0, 1)
 
-        # Identify the 10btc outputs
+        # Identify the BGL outputs
         nA = next(tx_out["vout"] for tx_out in self.nodes[0].gettransaction(txA)["details"] if tx_out["amount"] == Decimal("10"))
         nB = next(tx_out["vout"] for tx_out in self.nodes[0].gettransaction(txB)["details"] if tx_out["amount"] == Decimal("10"))
         nC = next(tx_out["vout"] for tx_out in self.nodes[0].gettransaction(txC)["details"] if tx_out["amount"] == Decimal("10"))
 
         inputs = []
-        # spend 10btc outputs from txA and txB
+        # spend BGL outputs from txA and txB
         inputs.append({"txid": txA, "vout": nA})
         inputs.append({"txid": txB, "vout": nB})
         outputs = {}
@@ -66,7 +66,7 @@ class AbandonConflictTest(BGLTestFramework):
         signed = self.nodes[0].signrawtransactionwithwallet(self.nodes[0].createrawtransaction(inputs, outputs))
         txAB1 = self.nodes[0].sendrawtransaction(signed["hex"])
 
-        # Identify the 14.99998btc output
+        # Identify the 14.99998BGL output
         nAB = next(tx_out["vout"] for tx_out in self.nodes[0].gettransaction(txAB1)["details"] if tx_out["amount"] == Decimal("14.99998"))
 
         #Create a child tx spending AB1 and C
@@ -162,13 +162,13 @@ class AbandonConflictTest(BGLTestFramework):
         self.connect_nodes(0, 1)
         self.sync_blocks()
 
-        # Verify that B and C's 10 BTC outputs are available for spending again because AB1 is now conflicted
+        # Verify that B and C's 10 BGL outputs are available for spending again because AB1 is now conflicted
         newbalance = self.nodes[0].getbalance()
         assert_equal(newbalance, balance + Decimal("20"))
         balance = newbalance
 
         # There is currently a minor bug around this and so this test doesn't work.  See Issue #7315
-        # Invalidate the block with the double spend and B's 10 BTC output should no longer be available
+        # Invalidate the block with the double spend and B's 10 BGL output should no longer be available
         # Don't think C's should either
         self.nodes[0].invalidateblock(self.nodes[0].getbestblockhash())
         newbalance = self.nodes[0].getbalance()
