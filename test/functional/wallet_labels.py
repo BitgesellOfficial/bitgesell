@@ -14,7 +14,7 @@ from collections import defaultdict
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import assert_equal, assert_raises_rpc_error
 from test_framework.wallet_util import test_address
-
+import random
 
 class WalletLabelsTest(BGLTestFramework):
     def set_test_params(self):
@@ -33,10 +33,10 @@ class WalletLabelsTest(BGLTestFramework):
         # the same address, so we call twice to get two addresses w/50 each
         node.generatetoaddress(nblocks=1, address=node.getnewaddress(label='coinbase'))
         node.generatetoaddress(nblocks=101, address=node.getnewaddress(label='coinbase'))
-        assert_equal(node.getbalance(), 100)
+        assert_equal(node.getbalance(), 400)
 
         # there should be 2 address groups
-        # each with 1 address with a balance of 50 BGLs
+        # each with 1 address with a balance of 200 BGLs
         address_groups = node.listaddressgroupings()
         assert_equal(len(address_groups), 2)
         # the addresses aren't linked now, but will be after we send to the
@@ -45,14 +45,14 @@ class WalletLabelsTest(BGLTestFramework):
         for address_group in address_groups:
             assert_equal(len(address_group), 1)
             assert_equal(len(address_group[0]), 3)
-            assert_equal(address_group[0][1], 50)
+            assert_equal(address_group[0][1], 200)
             assert_equal(address_group[0][2], 'coinbase')
             linked_addresses.add(address_group[0][0])
 
-        # send 50 from each address to a third address not in this wallet
-        common_address = "msf4WtN1YQKXvNtvdFYt9JBnUD2FB41kjr"
+        # send 200 from each address to a third address not in this wallet
+        common_address = "rbgl1qqzhun7algln9jg3734me3ch679yzu06spda08r"
         node.sendmany(
-            amounts={common_address: 100},
+            amounts={common_address: 400},
             subtractfeefrom=[common_address],
             minconf=1,
         )
@@ -138,13 +138,15 @@ class WalletLabelsTest(BGLTestFramework):
         node.createwallet(wallet_name='watch_only', disable_private_keys=True)
         wallet_watch_only = node.get_wallet_rpc('watch_only')
         BECH32_VALID = {
-            '✔️_VER15_PROG40': 'bcrt10qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxkg7fn',
-            '✔️_VER16_PROG03': 'bcrt1sqqqqq8uhdgr',
-            '✔️_VER16_PROB02': 'bcrt1sqqqq4wstyw',
+            '✔️':'rbgl1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqv0fdzt',
+            # '✔️_VER15_PROG40': 'rbgl10qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq9sf544',
+            # '✔️_VER16_PROG03': 'rbgl1sqqqqqkdgcyl',
+            # '✔️_VER16_PROB02': 'rbgl1sqqqqjsfprr',
         }
         BECH32_INVALID = {
-            '❌_VER15_PROG41': 'bcrt1sqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqajlxj8',
-            '❌_VER16_PROB01': 'bcrt1sqq5r4036',
+            '❌': 'rbgl1sqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqajlxj8',
+            # '❌_VER15_PROG41': 'rbgl1sqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqajlxj8',
+            # '❌_VER16_PROB01': 'rbgl1sqq5r4036',
         }
         for l in BECH32_VALID:
             ad = BECH32_VALID[l]
@@ -156,7 +158,7 @@ class WalletLabelsTest(BGLTestFramework):
             ad = BECH32_INVALID[l]
             assert_raises_rpc_error(
                 -5,
-                "Address is not valid" if self.options.descriptors else "Invalid Bitcoin address or script",
+                "Address is not valid" if self.options.descriptors else "Invalid BGL address or script",
                 lambda: wallet_watch_only.importaddress(label=l, rescan=False, address=ad),
             )
 

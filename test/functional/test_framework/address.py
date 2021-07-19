@@ -9,15 +9,15 @@
 
 import enum
 import unittest
-
+import sha3
 from .script import hash256, hash160, sha256, CScript, OP_0
 from .segwit_addr import encode_segwit_address
 from .util import assert_equal, hex_str_to_bytes
 
-ADDRESS_BCRT1_UNSPENDABLE = 'rgbl1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3xueyj'
-ADDRESS_BCRT1_UNSPENDABLE_DESCRIPTOR = 'addr(bcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq3xueyj)#juyq9d97'
+ADDRESS_BCRT1_UNSPENDABLE = 'rbgl1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqv0fdzt'
+ADDRESS_BCRT1_UNSPENDABLE_DESCRIPTOR = 'addr(rbgl1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqv0fdzt)#q3s9fnd2'
 # Coins sent to this address can be spent with a witness stack of just OP_TRUE
-ADDRESS_BCRT1_P2WSH_OP_TRUE = 'rbgl1qft5p2uhsdcdc3l2ua4ap5qqfg4pjaqlp250x7us7a8qqhrxrxfsqseac85'
+ADDRESS_BCRT1_P2WSH_OP_TRUE = 'rbgl1qft5p2uhsdcdc3l2ua4ap5qqfg4pjaqlp250x7us7a8qqhrxrxfsqdsgvpd'
 
 
 class AddressType(enum.Enum):
@@ -77,12 +77,12 @@ def base58_to_byte(s):
 
 def keyhash_to_p2pkh(hash, main=False):
     assert len(hash) == 20
-    version = 0 if main else 111
+    version = 10 if main else 34
     return byte_to_base58(hash, version)
 
 def scripthash_to_p2sh(hash, main=False):
     assert len(hash) == 20
-    version = 5 if main else 196
+    version = 25 if main else 50
     return byte_to_base58(hash, version)
 
 def key_to_p2pkh(key, main=False):
@@ -104,7 +104,7 @@ def program_to_witness(version, program, main=False):
     assert 0 <= version <= 16
     assert 2 <= len(program) <= 40
     assert version > 0 or len(program) in [20, 32]
-    return encode_segwit_address("bc" if main else "bcrt", version, program)
+    return encode_segwit_address("bgl" if main else "rbgl", version, program)
 
 def script_to_p2wsh(script, main=False):
     script = check_script(script)
@@ -139,15 +139,15 @@ class TestFrameworkScript(unittest.TestCase):
         def check_base58(data, version):
             self.assertEqual(base58_to_byte(byte_to_base58(data, version)), (data, version))
 
-        check_base58(bytes.fromhex('1f8ea1702a7bd4941bca0941b852c4bbfedb2e05'), 111)
-        check_base58(bytes.fromhex('3a0b05f4d7f66c3ba7009f453530296c845cc9cf'), 111)
-        check_base58(bytes.fromhex('41c1eaf111802559bad61b60d62b1f897c63928a'), 111)
-        check_base58(bytes.fromhex('0041c1eaf111802559bad61b60d62b1f897c63928a'), 111)
-        check_base58(bytes.fromhex('000041c1eaf111802559bad61b60d62b1f897c63928a'), 111)
-        check_base58(bytes.fromhex('00000041c1eaf111802559bad61b60d62b1f897c63928a'), 111)
-        check_base58(bytes.fromhex('1f8ea1702a7bd4941bca0941b852c4bbfedb2e05'), 0)
-        check_base58(bytes.fromhex('3a0b05f4d7f66c3ba7009f453530296c845cc9cf'), 0)
-        check_base58(bytes.fromhex('41c1eaf111802559bad61b60d62b1f897c63928a'), 0)
-        check_base58(bytes.fromhex('0041c1eaf111802559bad61b60d62b1f897c63928a'), 0)
-        check_base58(bytes.fromhex('000041c1eaf111802559bad61b60d62b1f897c63928a'), 0)
-        check_base58(bytes.fromhex('00000041c1eaf111802559bad61b60d62b1f897c63928a'), 0)
+        check_base58(bytes.fromhex('1f8ea1702a7bd4941bca0941b852c4bbfedb2e05'), 34)
+        check_base58(bytes.fromhex('3a0b05f4d7f66c3ba7009f453530296c845cc9cf'), 34)
+        check_base58(bytes.fromhex('41c1eaf111802559bad61b60d62b1f897c63928a'), 34)
+        check_base58(bytes.fromhex('0041c1eaf111802559bad61b60d62b1f897c63928a'), 34)
+        check_base58(bytes.fromhex('000041c1eaf111802559bad61b60d62b1f897c63928a'), 34)
+        check_base58(bytes.fromhex('00000041c1eaf111802559bad61b60d62b1f897c63928a'), 34)
+        check_base58(bytes.fromhex('1f8ea1702a7bd4941bca0941b852c4bbfedb2e05'), 10)
+        check_base58(bytes.fromhex('3a0b05f4d7f66c3ba7009f453530296c845cc9cf'), 10)
+        check_base58(bytes.fromhex('41c1eaf111802559bad61b60d62b1f897c63928a'), 10)
+        check_base58(bytes.fromhex('0041c1eaf111802559bad61b60d62b1f897c63928a'), 10)
+        check_base58(bytes.fromhex('000041c1eaf111802559bad61b60d62b1f897c63928a'), 10)
+        check_base58(bytes.fromhex('00000041c1eaf111802559bad61b60d62b1f897c63928a'), 10)

@@ -80,14 +80,14 @@ class RESTTest (BGLTestFramework):
         self.log.info("Mine blocks and send BGL to node 1")
 
         # Random address so node1's balance doesn't increase
-        not_related_address = "2MxqoHEdNQTyYeX1mHcbrrpzgojbosTpCvJ"
+        not_related_address = "rbgl1qmevj8zfx0wdvp05cqwkmr6mxkfx60yezhdmczp"
 
         self.nodes[0].generate(1)
         self.sync_all()
         self.nodes[1].generatetoaddress(100, not_related_address)
         self.sync_all()
 
-        assert_equal(self.nodes[0].getbalance(), 50)
+        assert_equal(self.nodes[0].getbalance(), 200)
 
         txid = self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 0.1)
         self.sync_all()

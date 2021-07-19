@@ -9,6 +9,7 @@ from test_framework.descriptors import descsum_create
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
+    assert_approx,
     assert_fee_amount,
     assert_greater_than,
     assert_greater_than_or_equal,
@@ -99,7 +100,7 @@ class RawTransactionsTest(BGLTestFramework):
     def test_change_position(self):
         """Ensure setting changePosition in fundraw with an exact match is handled properly."""
         self.log.info("Test fundrawtxn changePosition option")
-        rawmatch = self.nodes[2].createrawtransaction([], {self.nodes[2].getnewaddress():50})
+        rawmatch = self.nodes[2].createrawtransaction([], {self.nodes[2].getnewaddress():200})
         rawmatch = self.nodes[2].fundrawtransaction(rawmatch, {"changePosition":1, "subtractFeeFromOutputs":[0]})
         assert_equal(rawmatch["changepos"], -1)
 
@@ -230,7 +231,7 @@ class RawTransactionsTest(BGLTestFramework):
         dec_tx  = self.nodes[2].decoderawtransaction(rawtx)
         assert_equal(utx['txid'], dec_tx['vin'][0]['txid'])
 
-        assert_raises_rpc_error(-5, "Change address must be a valid bitcoin address", self.nodes[2].fundrawtransaction, rawtx, {'changeAddress':'foobar'})
+        assert_raises_rpc_error(-5, "Change address must be a valid BGL address", self.nodes[2].fundrawtransaction, rawtx, {'changeAddress':'foobar'})
 
     def test_valid_change_address(self):
         self.log.info("Test fundrawtxn with a provided change address")
@@ -571,7 +572,7 @@ class RawTransactionsTest(BGLTestFramework):
         self.sync_all()
 
         # Make sure funds are received at node1.
-        assert_equal(oldBalance+Decimal('51.10000000'), self.nodes[0].getbalance())
+        assert_equal(oldBalance+Decimal('201.10000000'), self.nodes[0].getbalance())
 
     def test_many_inputs_fee(self):
         """Multiple (~19) inputs tx test | Compare fee."""
@@ -626,7 +627,7 @@ class RawTransactionsTest(BGLTestFramework):
         self.nodes[1].sendrawtransaction(fundedAndSignedTx['hex'])
         self.nodes[1].generate(1)
         self.sync_all()
-        assert_equal(oldBalance+Decimal('50.19000000'), self.nodes[0].getbalance()) #0.19+block reward
+        assert_equal(oldBalance+Decimal('200.19000000'), self.nodes[0].getbalance()) #0.19+block reward
 
     def test_op_return(self):
         self.log.info("Test fundrawtxn with OP_RETURN and no vin")
@@ -909,23 +910,15 @@ class RawTransactionsTest(BGLTestFramework):
         self.nodes[0].sendrawtransaction(signedtx['hex'])
 
     def test_transaction_too_large(self):
-        self.log.info("Test fundrawtx where BnB solution would result in a too large transaction, but Knapsack would not")
+        self.log.info("Test too large transaction")
         self.nodes[0].createwallet("large")
         wallet = self.nodes[0].get_wallet_rpc(self.default_wallet_name)
         recipient = self.nodes[0].get_wallet_rpc("large")
         outputs = {}
-        rawtx = recipient.createrawtransaction([], {wallet.getnewaddress(): 147.99899260})
-
-        # Make 1500 0.1 BTC outputs. The amount that we target for funding is in
-        # the BnB range when these outputs are used.  However if these outputs
-        # are selected, the transaction will end up being too large, so it
-        # shouldn't use BnB and instead fall back to Knapsack but that behavior
-        # is not implemented yet. For now we just check that we get an error.
-        for _ in range(1500):
+        for _ in range(4000):
             outputs[recipient.getnewaddress()] = 0.1
-        wallet.sendmany("", outputs)
         self.nodes[0].generate(10)
-        assert_raises_rpc_error(-4, "Transaction too large", recipient.fundrawtransaction, rawtx)
+        assert_raises_rpc_error(-6, "Transaction too large", wallet.sendmany,"", outputs)
 
 
 if __name__ == '__main__':
