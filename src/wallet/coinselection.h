@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 The Bitcoin Core developers
+// Copyright (c) 2017-2019 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -6,6 +6,7 @@
 #define BGL_WALLET_COINSELECTION_H
 
 #include <amount.h>
+#include <policy/feerate.h>
 #include <primitives/transaction.h>
 #include <random.h>
 
@@ -36,6 +37,8 @@ public:
     COutPoint outpoint;
     CTxOut txout;
     CAmount effective_value;
+    CAmount m_fee{0};
+    CAmount m_long_term_fee{0};
 
     /** Pre-computed estimated size of this output as a fully-signed input in a transaction. Can be -1 if it could not be calculated */
     int m_input_bytes{-1};
@@ -59,9 +62,11 @@ struct CoinEligibilityFilter
     const int conf_theirs;
     const uint64_t max_ancestors;
     const uint64_t max_descendants;
+    const bool m_include_partial_groups{false}; //! Include partial destination groups when avoid_reuse and there are full groups
 
     CoinEligibilityFilter(int conf_mine, int conf_theirs, uint64_t max_ancestors) : conf_mine(conf_mine), conf_theirs(conf_theirs), max_ancestors(max_ancestors), max_descendants(max_ancestors) {}
     CoinEligibilityFilter(int conf_mine, int conf_theirs, uint64_t max_ancestors, uint64_t max_descendants) : conf_mine(conf_mine), conf_theirs(conf_theirs), max_ancestors(max_ancestors), max_descendants(max_descendants) {}
+    CoinEligibilityFilter(int conf_mine, int conf_theirs, uint64_t max_ancestors, uint64_t max_descendants, bool include_partial) : conf_mine(conf_mine), conf_theirs(conf_theirs), max_ancestors(max_ancestors), max_descendants(max_descendants), m_include_partial_groups(include_partial) {}
 };
 
 struct OutputGroup
@@ -74,22 +79,17 @@ struct OutputGroup
     size_t m_descendants{0};
     CAmount effective_value{0};
     CAmount fee{0};
+    CFeeRate m_effective_feerate{0};
     CAmount long_term_fee{0};
+    CFeeRate m_long_term_feerate{0};
 
     OutputGroup() {}
-    OutputGroup(std::vector<CInputCoin>&& outputs, bool from_me, CAmount value, int depth, size_t ancestors, size_t descendants)
-    : m_outputs(std::move(outputs))
-    , m_from_me(from_me)
-    , m_value(value)
-    , m_depth(depth)
-    , m_ancestors(ancestors)
-    , m_descendants(descendants)
+    OutputGroup(const CFeeRate& effective_feerate, const CFeeRate& long_term_feerate) :
+        m_effective_feerate(effective_feerate),
+        m_long_term_feerate(long_term_feerate)
     {}
-    OutputGroup(const CInputCoin& output, int depth, bool from_me, size_t ancestors, size_t descendants) : OutputGroup() {
-        Insert(output, depth, from_me, ancestors, descendants);
-    }
-    void Insert(const CInputCoin& output, int depth, bool from_me, size_t ancestors, size_t descendants);
-    std::vector<CInputCoin>::iterator Discard(const CInputCoin& output);
+
+    void Insert(const CInputCoin& output, int depth, bool from_me, size_t ancestors, size_t descendants, bool positive_only);
     bool EligibleForSpending(const CoinEligibilityFilter& eligibility_filter) const;
 };
 

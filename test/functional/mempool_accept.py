@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-# Copyright (c) 2017-2019 The Bitcoin Core developers
+# Copyright (c) 2017-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test mempool acceptance of raw transactions."""
 
+from decimal import Decimal
 from io import BytesIO
 import math
 
@@ -15,6 +16,7 @@ from test_framework.messages import (
     CTransaction,
     CTxOut,
     MAX_BLOCK_BASE_SIZE,
+    MAX_MONEY,
 )
 from test_framework.script import (
     hash160,
@@ -45,6 +47,8 @@ class MempoolAcceptanceTest(BGLTestFramework):
     def check_mempool_result(self, result_expected, *args, **kwargs):
         """Wrapper to check result of testmempoolaccept on node_0's mempool"""
         result_test = self.nodes[0].testmempoolaccept(*args, **kwargs)
+        for r in result_test:
+            r.pop('wtxid')  # Skip check for now
         assert_equal(result_expected, result_test)
         assert_equal(self.nodes[0].getmempoolinfo()['size'], self.mempool_size)  # Must not change mempool state
 
@@ -77,29 +81,31 @@ class MempoolAcceptanceTest(BGLTestFramework):
         )
 
         self.log.info('A transaction not in the mempool')
-        fee = 0.00000700
+        fee = Decimal('0.000007')
         raw_tx_0 = node.signrawtransactionwithwallet(node.createrawtransaction(
             inputs=[{"txid": txid_in_block, "vout": 0, "sequence": BIP125_SEQUENCE_NUMBER}],  # RBF is used later
-            outputs=[{node.getnewaddress(): 0.3 - fee}],
+            outputs=[{node.getnewaddress(): Decimal('0.3') - fee}],
         ))['hex']
         tx = CTransaction()
         tx.deserialize(BytesIO(hex_str_to_bytes(raw_tx_0)))
         txid_0 = tx.rehash()
         self.check_mempool_result(
-            result_expected=[{'txid': txid_0, 'allowed': True}],
+            result_expected=[{'txid': txid_0, 'allowed': True, 'vsize': tx.get_vsize(), 'fees': {'base': fee}}],
             rawtxs=[raw_tx_0],
         )
 
         self.log.info('A final transaction not in the mempool')
         coin = coins.pop()  # Pick a random coin(base) to spend
+        output_amount = Decimal('0.025')
         raw_tx_final = node.signrawtransactionwithwallet(node.createrawtransaction(
             inputs=[{'txid': coin['txid'], 'vout': coin['vout'], "sequence": 0xffffffff}],  # SEQUENCE_FINAL
-            outputs=[{node.getnewaddress(): 0.025}],
+            outputs=[{node.getnewaddress(): output_amount}],
             locktime=node.getblockcount() + 2000,  # Can be anything
         ))['hex']
         tx.deserialize(BytesIO(hex_str_to_bytes(raw_tx_final)))
+        fee_expected = coin['amount'] - output_amount
         self.check_mempool_result(
-            result_expected=[{'txid': tx.rehash(), 'allowed': True}],
+            result_expected=[{'txid': tx.rehash(), 'allowed': True, 'vsize': tx.get_vsize(), 'fees': {'base': fee_expected}}],
             rawtxs=[tx.serialize().hex()],
             maxfeerate=0,
         )
@@ -122,7 +128,7 @@ class MempoolAcceptanceTest(BGLTestFramework):
         tx.deserialize(BytesIO(hex_str_to_bytes(raw_tx_0)))
         txid_0 = tx.rehash()
         self.check_mempool_result(
-            result_expected=[{'txid': txid_0, 'allowed': True}],
+            result_expected=[{'txid': txid_0, 'allowed': True, 'vsize': tx.get_vsize(), 'fees': {'base': (2 * fee)}}],
             rawtxs=[raw_tx_0],
         )
 
@@ -182,7 +188,7 @@ class MempoolAcceptanceTest(BGLTestFramework):
         tx.deserialize(BytesIO(hex_str_to_bytes(raw_tx_reference)))
         # Reference tx should be valid on itself
         self.check_mempool_result(
-            result_expected=[{'txid': tx.rehash(), 'allowed': True}],
+            result_expected=[{'txid': tx.rehash(), 'allowed': True, 'vsize': tx.get_vsize(), 'fees': { 'base': Decimal('0.1') - Decimal('0.05')}}],
             rawtxs=[tx.serialize().hex()],
             maxfeerate=0,
         )
@@ -216,7 +222,7 @@ class MempoolAcceptanceTest(BGLTestFramework):
         # The following two validations prevent overflow of the output amounts (see CVE-2010-5139).
         self.log.info('A transaction with too large output value')
         tx.deserialize(BytesIO(hex_str_to_bytes(raw_tx_reference)))
-        tx.vout[0].nValue = 21000000 * COIN + 1
+        tx.vout[0].nValue = MAX_MONEY + 1
         self.check_mempool_result(
             result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'bad-txns-vout-toolarge'}],
             rawtxs=[tx.serialize().hex()],
@@ -225,7 +231,7 @@ class MempoolAcceptanceTest(BGLTestFramework):
         self.log.info('A transaction with too large sum of output values')
         tx.deserialize(BytesIO(hex_str_to_bytes(raw_tx_reference)))
         tx.vout = [tx.vout[0]] * 2
-        tx.vout[0].nValue = 21000000 * COIN
+        tx.vout[0].nValue = MAX_MONEY
         self.check_mempool_result(
             result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'bad-txns-txouttotal-toolarge'}],
             rawtxs=[tx.serialize().hex()],
@@ -278,7 +284,7 @@ class MempoolAcceptanceTest(BGLTestFramework):
         num_scripts = 100000 // len(output_p2sh_burn.serialize())  # Use enough outputs to make the tx too large for our policy
         tx.vout = [output_p2sh_burn] * num_scripts
         self.check_mempool_result(
-            result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'tx-size'}],
+            result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'bad-txns-oversize'}],
             rawtxs=[tx.serialize().hex()],
         )
         tx.deserialize(BytesIO(hex_str_to_bytes(raw_tx_reference)))

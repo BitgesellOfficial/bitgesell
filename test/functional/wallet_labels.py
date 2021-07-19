@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2016-2018 The Bitcoin Core developers
+# Copyright (c) 2016-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test label RPCs.
@@ -13,10 +13,8 @@ from collections import defaultdict
 
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import assert_equal, assert_raises_rpc_error
-from test_framework.wallet_util import (
-    labels_value,
-    test_address,
-)
+from test_framework.wallet_util import test_address
+import random
 
 class WalletLabelsTest(BGLTestFramework):
     def set_test_params(self):
@@ -35,10 +33,10 @@ class WalletLabelsTest(BGLTestFramework):
         # the same address, so we call twice to get two addresses w/50 each
         node.generatetoaddress(nblocks=1, address=node.getnewaddress(label='coinbase'))
         node.generatetoaddress(nblocks=101, address=node.getnewaddress(label='coinbase'))
-        assert_equal(node.getbalance(), 100)
+        assert_equal(node.getbalance(), 400)
 
         # there should be 2 address groups
-        # each with 1 address with a balance of 50 BGLs
+        # each with 1 address with a balance of 200 BGLs
         address_groups = node.listaddressgroupings()
         assert_equal(len(address_groups), 2)
         # the addresses aren't linked now, but will be after we send to the
@@ -47,14 +45,14 @@ class WalletLabelsTest(BGLTestFramework):
         for address_group in address_groups:
             assert_equal(len(address_group), 1)
             assert_equal(len(address_group[0]), 3)
-            assert_equal(address_group[0][1], 50)
+            assert_equal(address_group[0][1], 200)
             assert_equal(address_group[0][2], 'coinbase')
             linked_addresses.add(address_group[0][0])
 
-        # send 50 from each address to a third address not in this wallet
-        common_address = "msf4WtN1YQKXvNtvdFYt9JBnUD2FB41kjr"
+        # send 200 from each address to a third address not in this wallet
+        common_address = "rbgl1qqzhun7algln9jg3734me3ch679yzu06spda08r"
         node.sendmany(
-            amounts={common_address: 100},
+            amounts={common_address: 400},
             subtractfeefrom=[common_address],
             minconf=1,
         )
@@ -117,15 +115,16 @@ class WalletLabelsTest(BGLTestFramework):
             assert_raises_rpc_error(-11, "No addresses with label", node.getaddressesbylabel, "")
 
         # Check that addmultisigaddress can assign labels.
-        for label in labels:
-            addresses = []
-            for x in range(10):
-                addresses.append(node.getnewaddress())
-            multisig_address = node.addmultisigaddress(5, addresses, label.name)['address']
-            label.add_address(multisig_address)
-            label.purpose[multisig_address] = "send"
-            label.verify(node)
-        node.generate(101)
+        if not self.options.descriptors:
+            for label in labels:
+                addresses = []
+                for _ in range(10):
+                    addresses.append(node.getnewaddress())
+                multisig_address = node.addmultisigaddress(5, addresses, label.name)['address']
+                label.add_address(multisig_address)
+                label.purpose[multisig_address] = "send"
+                label.verify(node)
+            node.generate(101)
 
         # Check that setlabel can change the label of an address from a
         # different label.
@@ -134,6 +133,35 @@ class WalletLabelsTest(BGLTestFramework):
         # Check that setlabel can set the label of an address already
         # in the label. This is a no-op.
         change_label(node, labels[2].addresses[0], labels[2], labels[2])
+
+        self.log.info('Check watchonly labels')
+        node.createwallet(wallet_name='watch_only', disable_private_keys=True)
+        wallet_watch_only = node.get_wallet_rpc('watch_only')
+        BECH32_VALID = {
+            '✔️':'rbgl1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqv0fdzt',
+            # '✔️_VER15_PROG40': 'rbgl10qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq9sf544',
+            # '✔️_VER16_PROG03': 'rbgl1sqqqqqkdgcyl',
+            # '✔️_VER16_PROB02': 'rbgl1sqqqqjsfprr',
+        }
+        BECH32_INVALID = {
+            '❌': 'rbgl1sqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqajlxj8',
+            # '❌_VER15_PROG41': 'rbgl1sqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqajlxj8',
+            # '❌_VER16_PROB01': 'rbgl1sqq5r4036',
+        }
+        for l in BECH32_VALID:
+            ad = BECH32_VALID[l]
+            wallet_watch_only.importaddress(label=l, rescan=False, address=ad)
+            node.generatetoaddress(1, ad)
+            assert_equal(wallet_watch_only.getaddressesbylabel(label=l), {ad: {'purpose': 'receive'}})
+            assert_equal(wallet_watch_only.getreceivedbylabel(label=l), 0)
+        for l in BECH32_INVALID:
+            ad = BECH32_INVALID[l]
+            assert_raises_rpc_error(
+                -5,
+                "Address is not valid" if self.options.descriptors else "Invalid BGL address or script",
+                lambda: wallet_watch_only.importaddress(label=l, rescan=False, address=ad),
+            )
+
 
 class Label:
     def __init__(self, name):
@@ -157,12 +185,7 @@ class Label:
         if self.receive_address is not None:
             assert self.receive_address in self.addresses
         for address in self.addresses:
-            test_address(
-                node,
-                address,
-                label=self.name,
-                labels=labels_value(name=self.name, purpose=self.purpose[address])
-             )
+            test_address(node, address, labels=[self.name])
         assert self.name in node.listlabels()
         assert_equal(
             node.getaddressesbylabel(self.name),

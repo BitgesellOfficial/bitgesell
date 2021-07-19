@@ -1,53 +1,159 @@
-task:
-  name: "FreeBsd 12.0 amd64  [GOAL: install]  [no depends, only system libs]"
-  freebsd_instance:
-    image: freebsd-12-0-release-amd64
-    cpu: 8
-    memory: 8G
-  timeout_in: 60m
-  env:
-    MAKEJOBS: "-j9"
-    CONFIGURE_OPTS: "--disable-dependency-tracking"
-    GOAL: "install"
-    TEST_RUNNER_PORT_MIN: "14000"  # Must be larger than 12321, which is used for the http cache. See https://cirrus-ci.org/guide/writing-tasks/#http-cache
-    CCACHE_SIZE: "200M"
-    CCACHE_COMPRESS: 1
-    CCACHE_DIR: "/tmp/ccache_dir"
-  ccache_cache:
-    folder: "/tmp/ccache_dir"
-  install_script:
-    - pkg install -y autoconf automake boost-libs git gmake libevent libtool pkgconf python3 ccache
-    - ./contrib/install_db4.sh $(pwd)
-    - ccache --max-size=${CCACHE_SIZE}
-  configure_script:
-    - ./autogen.sh
-    - ./configure ${CONFIGURE_OPTS} BDB_LIBS="-L$(pwd)/db4/lib -ldb_cxx-4.8" BDB_CFLAGS="-I$(pwd)/db4/include" || ( cat config.log && false)
-  make_script:
-    - gmake ${MAKEJOBS} ${GOAL} || ( echo "Build failure. Verbose build follows." && gmake ${GOAL} V=1 ; false )
-  check_script:
-    - gmake check ${MAKEJOBS} VERBOSE=1
-  functional_test_script:
-    - ./test/functional/test_runner.py --jobs 9 --ci --extended --exclude feature_dbcrash --combinedlogslen=1000 --quiet --failfast
-task:
-  name: "x86_64 Linux  [GOAL: install]  [bionic]  [Using ./ci/ system]"
+
+###Global defaults
+
+env:
+  PACKAGE_MANAGER_INSTALL: "apt-get update && apt-get install -y"
+  MAKEJOBS: "-j4"
+  DANGER_RUN_CI_ON_HOST: "1"  # Containers will be discarded after the run, so there is no risk that the ci scripts modify the system
+  TEST_RUNNER_PORT_MIN: "14000"  # Must be larger than 12321, which is used for the http cache. See https://cirrus-ci.org/guide/writing-tasks/#http-cache
+  CCACHE_SIZE: "200M"
+  CCACHE_DIR: "/tmp/ccache_dir"
+  GIT_CONFIG_FLAG: "--global"
+  GITHUB_TOKEN: ENCRYPTED[4b3398c0684d6780e8247b0bb8af32697c90e41f09f64553e63cee666f80d7afdecd4e96a10a4f44bdf5b0b14407c5a6]
+
+# https://cirrus-ci.org/guide/tips-and-tricks/#sharing-configuration-between-tasks
+base_template: &BASE_TEMPLATE
+  merge_base_script:
+    - if [ "$CIRRUS_PR" = "" ]; then exit 0; fi
+    - bash -c "$PACKAGE_MANAGER_INSTALL git"
+    - git fetch $CIRRUS_REPO_CLONE_URL $CIRRUS_BASE_BRANCH
+    - git config $GIT_CONFIG_FLAG user.email "ci@ci.ci"
+    - git config $GIT_CONFIG_FLAG user.name "ci"
+    - git merge FETCH_HEAD  # Merge base to detect silent merge conflicts
+  stateful: false  # https://cirrus-ci.org/guide/writing-tasks/#stateful-tasks
+
+global_task_template: &GLOBAL_TASK_TEMPLATE
+  << : *BASE_TEMPLATE
+  timeout_in: 120m  # https://cirrus-ci.org/faq/#instance-timed-out
   container:
-    image: ubuntu:18.04
-    cpu: 8
-    memory: 8G
-  timeout_in: 60m
-  env:
-    MAKEJOBS: "-j9"
-    RUN_CI_ON_HOST: "1"
-    TEST_RUNNER_PORT_MIN: "14000"  # Must be larger than 12321, which is used for the http cache. See https://cirrus-ci.org/guide/writing-tasks/#http-cache
-    CCACHE_SIZE: "200M"
-    CCACHE_DIR: "/tmp/ccache_dir"
+    # https://cirrus-ci.org/faq/#are-there-any-limits
+    # Each project has 16 CPU in total, assign 2 to each container, so that 8 tasks run in parallel
+    cpu: 2
+    memory: 8G  # Set to 8GB to avoid OOM. https://cirrus-ci.org/guide/linux/#linux-containers
+    kvm: true  # Use kvm to avoid spurious CI failures in the default virtualization cluster, see https://github.com/bitcoin/bitcoin/issues/20093
   ccache_cache:
     folder: "/tmp/ccache_dir"
   depends_built_cache:
     folder: "/tmp/cirrus-ci-build/depends/built"
-  install_script:
-    - apt-get update
-    - apt-get -y install git bash ccache
-    - ccache --max-size=${CCACHE_SIZE}
+  depends_sdk_cache:
+    folder: "/tmp/cirrus-ci-build/depends/sdk-sources"
+  depends_releases_cache:
+    folder: "/tmp/cirrus-ci-build/releases"
   ci_script:
     - ./ci/test_run_all.sh
+
+
+task:
+  name: 'macOS 10.15 [qt deploy]'
+  macos_brew_addon_script:
+    - brew install boost libevent berkeley-db4 qt miniupnpc libnatpmp ccache zeromq qrencode sqlite libtool automake pkg-config gnu-getopt librsvg
+  << : *GLOBAL_TASK_TEMPLATE
+  osx_instance:
+    # Use latest image, but hardcode version to avoid silent upgrades (and breaks)
+    image: catalina-xcode-12.1  # https://cirrus-ci.org/guide/macOS
+  env:
+    FILE_ENV: "./ci/test/00_setup_env_mac_host.sh"
+    PACKAGE_MANAGER_INSTALL: "echo" # Override earlier for merge script to work
+  dmg_artifacts:
+    path: "*.dmg"
+
+#task:
+#  name: "x86_64 Linux"
+#  << : *GLOBAL_TASK_TEMPLATE
+#  container:
+#    image: ubuntu:bionic
+#  env:
+#    FILE_ENV: "./ci/test/00_setup_env_native_nowallet.sh"
+
+#task:
+#  name: "x86_64 Linux [qt]"
+#  << : *GLOBAL_TASK_TEMPLATE
+#  container:
+#    image: ubuntu:bionic
+#  env:
+#    FILE_ENV: "./ci/test/00_setup_env_native_qt5.sh"
+
+task:
+  name: "debian [deploy]"
+  << : *BASE_TEMPLATE
+  compute_engine_instance:
+    image_project: cirrus-images
+    image: family/docker-kvm
+    platform: linux
+    cpu: 2
+    memory: 8G
+    nested_virtualization: true
+  env:
+    GIT_CONFIG_FLAG: "--system"
+  ci_script:
+    - ./ci/debian_deploy.sh
+  deb_artifacts:
+    path: "/*.deb"
+
+task:
+  name: "debian [qt deploy]"
+  << : *BASE_TEMPLATE
+  compute_engine_instance:
+    image_project: cirrus-images
+    image: family/docker-kvm
+    platform: linux
+    cpu: 2
+    memory: 8G
+    nested_virtualization: true
+  env:
+    GIT_CONFIG_FLAG: "--system"
+  ci_script:
+    - ./ci/debian_qt_deploy.sh
+  deb_artifacts:
+    path: "/*.deb"
+
+task:
+  name: 'Win64 [installer]'
+  timeout_in: 120m
+  windows_container:
+    image: cirrusci/windowsservercore:2019
+    cpu: 8
+    memory: 16G
+  clone_script:
+    - choco install -y git
+    - cd c:\
+    - git clone -b %CIRRUS_BRANCH% %CIRRUS_REPO_CLONE_URL%
+  install_script: 
+    # Install Vistual Studio build tools and other prerequisites
+    - choco upgrade -y visualstudio2019-workload-vctools
+    - choco install -y python3
+  install_vcpkgs_script:
+    # Add vcpkg packages
+    - git clone https://github.com/microsoft/vcpkg
+    - .\vcpkg\bootstrap-vcpkg.bat
+    - .\vcpkg\vcpkg integrate install
+    - .\vcpkg\vcpkg install boost-process:x64-windows-static boost-variant:x64-windows-static boost-signals2:x64-windows-static boost-multi-index:x64-windows-static boost-test:x64-windows-static
+    - .\vcpkg\vcpkg install libevent:x64-windows-static sqlite3:x64-windows-static
+    - .\vcpkg\vcpkg install berkeleydb:x64-windows-static curl:x64-windows-static
+    - .\vcpkg\vcpkg install zeromq:x64-windows-static rapidcheck:x64-windows-static
+  add_qt_script:
+    # Add Qt libraries
+    - choco install -y wget
+    - wget https://github.com/sipsorcery/qt_win_binary/releases/download/qt598x64_vs2019_v1681/qt598_x64_vs2019_1681.zip
+    - mkdir c:\Qt
+    - unzip qt598_x64_vs2019_1681.zip -d c:\Qt\Qt5.9.8_x64_static_vs2019
+  build_script:
+    # Build BGL
+    - cd c:\bitgesell\build_msvc
+    - py msvc-autogen.py
+    - '"c:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\msbuild" BGL.sln /p:Configuration=Release'
+  prepare_installer_script:
+    # Install NSIS and prepare msi package
+    - choco install -y nsis
+    - mkdir c:\binaries_windows
+    - cp c:\bitgesell\build_msvc\x64\Debug\BGLd.exe c:\binaries_windows
+    - cp c:\bitgesell\build_msvc\x64\Debug\BGL-tx.exe c:\binaries_windows
+    - cp c:\bitgesell\build_msvc\x64\Debug\BGL-qt.exe c:\binaries_windows
+    - cp c:\bitgesell\build_msvc\x64\Debug\BGL-cli.exe c:\binaries_windows
+    - cp c:\bitgesell\build_msvc\x64\Debug\BGL-wallet.exe c:\binaries_windows
+    - cd c:\bitgesell\share
+    - '"c:\Program Files (x86)\NSIS\makensis.exe" setup-BGL-win.nsi'
+    - cp c:\bitgesell\BGL-0.1.6.0-win64-setup.exe C:\Users\ContainerAdministrator\AppData\Local\Temp\cirrus-ci-build\
+  exe_artifacts:
+    # Relative path (check if there's a solution for that)
+    path: '*.exe'

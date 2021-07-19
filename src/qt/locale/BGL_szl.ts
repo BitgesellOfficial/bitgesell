@@ -334,14 +334,6 @@
         <translation>Pōmiyń hasło użyte do szyfrowaniŏ portmanyja</translation>
     </message>
     <message>
-        <source>&amp;Debug window</source>
-        <translation>Ôkno &amp;debugowaniŏ</translation>
-    </message>
-    <message>
-        <source>Open debugging and diagnostic console</source>
-        <translation>Ôdewrzij kōnsolã debugowaniŏ i diagnostyki</translation>
-    </message>
-    <message>
         <source>&amp;Verify message...</source>
         <translation>&amp;Weryfikuj wiadōmość...</translation>
     </message>
@@ -536,10 +528,6 @@
     <message>
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;unlocked&lt;/b&gt;</source>
         <translation>Portmanyj je &lt;b&gt;zaszyfrowany&lt;/b&gt; i terŏźnie &lt;b&gt;ôdszperowany&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
-        <translation>Portmanyj je &lt;b&gt;zaszyfrowany&lt;/b&gt; i terŏźnie &lt;b&gt;zaszperowany&lt;/b&gt;</translation>
     </message>
     <message>
         <source>A fatal error occurred. BGL can no longer continue safely and will quit.</source>
@@ -784,10 +772,6 @@
         <translation>wersyjŏ</translation>
     </message>
     <message>
-        <source>(%1-bit)</source>
-        <translation>(%1-bit)</translation>
-    </message>
-    <message>
         <source>About %1</source>
         <translation>Ô %1</translation>
     </message>
@@ -917,24 +901,8 @@
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open URI</source>
-        <translation>Ôdewrzij URI</translation>
-    </message>
-    <message>
-        <source>Open payment request from URI or file</source>
-        <translation>Ôdewrzij żōndanie płatu z URI abo zbioru</translation>
-    </message>
-    <message>
         <source>URI:</source>
         <translation>URI:</translation>
-    </message>
-    <message>
-        <source>Select payment request file</source>
-        <translation>Ôtwōrz żōndanie płatu ze zbioru</translation>
-    </message>
-    <message>
-        <source>Select payment request file to open</source>
-        <translation>Ôbier zbiōr żōndaniŏ płatu do ôdewrzyniŏ</translation>
     </message>
 </context>
 <context>
@@ -1159,6 +1127,13 @@
     </message>
     </context>
 <context>
+    <name>PSBTOperationsDialog</name>
+    <message>
+        <source>or</source>
+        <translation>abo</translation>
+    </message>
+    </context>
+<context>
     <name>PaymentServer</name>
     <message>
         <source>Payment request error</source>
@@ -1172,27 +1147,7 @@
         <source>'BGL://' is not a valid URI. Use 'BGL:' instead.</source>
         <translation>'BGL://' to niyma nŏleżne URI. Użyj 'BGL:'.</translation>
     </message>
-    <message>
-        <source>Payment request network doesn't match client network.</source>
-        <translation>Nec żōndaniŏ płatu niy ôdpadŏ necu klijynta.</translation>
-    </message>
-    <message>
-        <source>Unverified payment requests to custom payment scripts are unsupported.</source>
-        <translation>Niyzweryfikowane żōndaniŏ płatu do włŏsnych skryptōw płatu sōm niypodpiyrane.</translation>
-    </message>
-    <message>
-        <source>Error communicating with %1: %2</source>
-        <translation>Feler kōmunikacyje z %1: %2</translation>
-    </message>
-    <message>
-        <source>Network request error</source>
-        <translation>Feler żōndaniŏ necu</translation>
-    </message>
-    <message>
-        <source>Payment acknowledged</source>
-        <translation>Płat przituplowany</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>PeerTableModel</name>
     <message>
@@ -1297,10 +1252,6 @@
         <translation>Wersyjŏ klijynta</translation>
     </message>
     <message>
-        <source>Debug window</source>
-        <translation>Ôkno debugowaniŏ</translation>
-    </message>
-    <message>
         <source>Using BerkeleyDB version</source>
         <translation>Używanie wersyje BerkeleyDB</translation>
     </message>
@@ -1329,16 +1280,12 @@
         <translation>Keta blokōw</translation>
     </message>
     <message>
-        <source>Current number of blocks</source>
-        <translation>Terŏźniŏ wielość blokōw</translation>
-    </message>
-    <message>
         <source>Current number of transactions</source>
         <translation>Terŏźniŏ wielość transakcyji</translation>
     </message>
     <message>
         <source>Wallet: </source>
-        <translation>Portmanyj: </translation>
+        <translation>Portmanyj:</translation>
     </message>
     <message>
         <source>Received</source>
@@ -1416,14 +1363,6 @@
         <source>Outbound</source>
         <translation>Wychodowy</translation>
     </message>
-    <message>
-        <source>Yes</source>
-        <translation>Ja</translation>
-    </message>
-    <message>
-        <source>No</source>
-        <translation>Niy</translation>
-    </message>
     </context>
 <context>
     <name>ReceiveCoinsDialog</name>
@@ -1467,12 +1406,24 @@
         <source>Copy amount</source>
         <translation>Kopiyruj kwotã</translation>
     </message>
-</context>
+    <message>
+        <source>Could not unlock wallet.</source>
+        <translation>Niy idzie było ôdszperować portmanyja.</translation>
+    </message>
+    </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
-        <source>QR Code</source>
-        <translation>Kod QR</translation>
+        <source>Amount:</source>
+        <translation>Kwota:</translation>
+    </message>
+    <message>
+        <source>Message:</source>
+        <translation>Wiadōmość:</translation>
+    </message>
+    <message>
+        <source>Wallet:</source>
+        <translation>Portmanyj:</translation>
     </message>
     <message>
         <source>Copy &amp;URI</source>
@@ -1489,30 +1440,6 @@
     <message>
         <source>Payment information</source>
         <translation>Informacyje ô płacie</translation>
-    </message>
-    <message>
-        <source>URI</source>
-        <translation>URI</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresa</translation>
-    </message>
-    <message>
-        <source>Amount</source>
-        <translation>Kwota</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>Etyketa</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Wiadōmość</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>Portmanyj</translation>
     </message>
 </context>
 <context>
@@ -1684,13 +1611,6 @@
         <translation>Wiadōmość, kerŏ ôstała prziwstōnŏ do URI BGL:, kerŏ bydzie przechowowanŏ z transakcyjōm w cylach informacyjnych. Napōmniynie: Ta wiadōmość niy bydzie rozszyrzowanŏ w necu BGL.</translation>
     </message>
     </context>
-<context>
-    <name>SendConfirmationDialog</name>
-    <message>
-        <source>Yes</source>
-        <translation>Ja</translation>
-    </message>
-</context>
 <context>
     <name>ShutdownWindow</name>
     </context>
@@ -1935,6 +1855,10 @@
         <translation>Eksportuj dane z aktywnyj szkarty do zbioru</translation>
     </message>
     <message>
+        <source>Error</source>
+        <translation>Feler</translation>
+    </message>
+    <message>
         <source>Backup Failed</source>
         <translation>Backup niy podarził sie</translation>
     </message>
@@ -2020,10 +1944,6 @@
     <message>
         <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
         <translation>Imyntnŏ dugość kety wersyje (%i) przekrŏczŏ maksymalnõ dopuszczalnõ dugość (%i). Zmyńsz wielość abo miara parametra uacomment.</translation>
-    </message>
-    <message>
-        <source>Warning: Wallet file corrupt, data salvaged! Original %s saved as %s in %s; if your balance or transactions are incorrect you should restore from a backup.</source>
-        <translation>Pozōr: Ôdtworzōno było dane z poprzniōnego zbioru portmanyja! Ôryginalny %s ôstoł zapisany za %s w %s; jeźli twoje saldo abo transakcyje sōm niynŏleżne winiyn żeś prziwrōcić kopijõ ibrycznõ.</translation>
     </message>
     <message>
         <source>Error loading wallet %s. Duplicate -wallet filename specified.</source>

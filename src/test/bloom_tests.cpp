@@ -1,9 +1,10 @@
-// Copyright (c) 2012-2019 The Bitcoin Core developers
+// Copyright (c) 2012-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <bloom.h>
 
+#include <iostream>
 #include <clientversion.h>
 #include <key.h>
 #include <key_io.h>
@@ -12,10 +13,10 @@
 #include <random.h>
 #include <serialize.h>
 #include <streams.h>
-#include <uint256.h>
-#include <util/system.h>
-#include <util/strencodings.h>
 #include <test/util/setup_common.h>
+#include <uint256.h>
+#include <util/strencodings.h>
+#include <util/system.h>
 
 #include <vector>
 
@@ -27,6 +28,7 @@ BOOST_AUTO_TEST_CASE(bloom_create_insert_serialize)
 {
     CBloomFilter filter(3, 0.01, 0, BLOOM_UPDATE_ALL);
 
+    BOOST_CHECK_MESSAGE( !filter.contains(ParseHex("99108ad8ed9bb6274d3980bab5a85c048f0950c8")), "Bloom filter should be empty!");
     filter.insert(ParseHex("99108ad8ed9bb6274d3980bab5a85c048f0950c8"));
     BOOST_CHECK_MESSAGE( filter.contains(ParseHex("99108ad8ed9bb6274d3980bab5a85c048f0950c8")), "Bloom filter doesn't contain just-inserted object!");
     // One bit different in first byte
@@ -50,8 +52,6 @@ BOOST_AUTO_TEST_CASE(bloom_create_insert_serialize)
     BOOST_CHECK_EQUAL_COLLECTIONS(stream.begin(), stream.end(), expected.begin(), expected.end());
 
     BOOST_CHECK_MESSAGE( filter.contains(ParseHex("99108ad8ed9bb6274d3980bab5a85c048f0950c8")), "Bloom filter doesn't contain just-inserted object!");
-    filter.clear();
-    BOOST_CHECK_MESSAGE( !filter.contains(ParseHex("99108ad8ed9bb6274d3980bab5a85c048f0950c8")), "Bloom filter should be empty!");
 }
 
 BOOST_AUTO_TEST_CASE(bloom_create_insert_serialize_with_tweak)
@@ -120,6 +120,7 @@ BOOST_AUTO_TEST_CASE(bloom_match)
 
     CBloomFilter filter(10, 0.000001, 0, BLOOM_UPDATE_ALL);
     filter.insert(uint256S("0xb4749f017444b051c44dfd2720e88f314ff94f3dd6d56d40ef65854fcd7fff6b"));
+    printf("%s\n", tx.ToString().c_str());
     BOOST_CHECK_MESSAGE(filter.IsRelevantAndUpdate(tx), "Simple Bloom filter didn't match tx hash");
 
     filter = CBloomFilter(10, 0.000001, 0, BLOOM_UPDATE_ALL);
@@ -177,8 +178,7 @@ BOOST_AUTO_TEST_CASE(bloom_match)
 
 BOOST_AUTO_TEST_CASE(merkle_block_1)
 {
-    //CBlock block = getBlock13b8a();
-    CBlock block = getBlock6548(); //Added to attempt to compile
+    CBlock block = getBlock13b8a();
     CBloomFilter filter(10, 0.000001, 0, BLOOM_UPDATE_ALL);
     // Match the last transaction
     filter.insert(uint256S("0x74d681e0e03bafa802c8aa084379aa98d9fcd632ddc2ed9782b586ec87451f20"));
@@ -490,7 +490,7 @@ BOOST_AUTO_TEST_CASE(rolling_bloom)
             ++nHits;
     }
     // Expect about 100 hits
-    BOOST_CHECK_EQUAL(nHits, 75);
+    BOOST_CHECK_EQUAL(nHits, 75U);
 
     BOOST_CHECK(rb1.contains(data[DATASIZE-1]));
     rb1.reset();
@@ -518,7 +518,7 @@ BOOST_AUTO_TEST_CASE(rolling_bloom)
             ++nHits;
     }
     // Expect about 5 false positives
-    BOOST_CHECK_EQUAL(nHits, 6);
+    BOOST_CHECK_EQUAL(nHits, 6U);
 
     // last-1000-entry, 0.01% false positive:
     CRollingBloomFilter rb2(1000, 0.001);
@@ -533,3 +533,4 @@ BOOST_AUTO_TEST_CASE(rolling_bloom)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+

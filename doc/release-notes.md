@@ -1,6 +1,7 @@
 *After branching off for a major version release of BGL Core, use this
 template to create the initial release notes draft.*
 
+https://github.com/wu-emma/BGL-devwiki/wiki/0.20.0-Release-Notes-Draft
 *The release notes draft is a temporary file that can be added to by anyone. See
 [/doc/developer-notes.md#release-notes](/doc/developer-notes.md#release-notes)
 for the process.*
@@ -8,7 +9,6 @@ for the process.*
 *Create the draft, named* "*version* Release Notes Draft"
 *(e.g. "0.20.0 Release Notes Draft"), as a collaborative wiki in:*
 
-https://github.com/BGL-core/BGL-devwiki/wiki/
 
 *Before the final release, move the notes back to this git repository.*
 
@@ -45,75 +45,138 @@ wallet versions of BGL Core are generally supported.
 Compatibility
 ==============
 
-BGL Core is supported and extensively tested on operating systems using
-the Linux kernel, macOS 10.12+, and Windows 7 and newer. It is not recommended
-to use BGL Core on unsupported systems.
+BGL Core is supported and extensively tested on operating systems
+using the Linux kernel, macOS 10.14+, and Windows 7 and newer.  BGL
+Core should also work on most other Unix-like systems but is not as
+frequently tested on them.  It is not recommended to use BGL Core on
+unsupported systems.
 
-BGL Core should also work on most other Unix-like systems but is not
-as frequently tested on them.
 
-From BGL Core 0.20.0 onwards, macOS versions earlier than 10.12 are no
-longer supported. Additionally, BGL Core does not yet change appearance
-when macOS "dark mode" is activated.
-
-In addition to previously supported CPU platforms, this release's pre-compiled
-distribution provides binaries for the RISC-V platform.
+From Bitcoin Core 22.0 onwards, macOS versions earlier than 10.14 are no longer supported.
 
 Notable changes
 ===============
 
-Build System
-------------
+P2P and network changes
+-----------------------
 
-- OpenSSL is no longer used by BGL Core. The last usage of the library
-was removed in #17265.
-
-- glibc 2.17 or greater is now required to run the release binaries. This
-retains compatibility with RHEL 7, CentOS 7, Debian 8 and Ubuntu 14.04 LTS.
-Further details can be found in #17538.
-
-New RPCs
---------
-
-New settings
-------------
-
-- RPC Whitelist system. It can give certain RPC users permissions to only some RPC calls.
-It can be set with two command line arguments (`rpcwhitelist` and `rpcwhitelistdefault`). (#12763)
-
-Updated settings
-----------------
+- Added NAT-PMP port mapping support via
+  [`libnatpmp`](https://miniupnp.tuxfamily.org/libnatpmp.html). (#18077)
 
 Updated RPCs
 ------------
 
-Note: some low-level RPC changes mainly useful for testing are described in the
-Low-level Changes section below.
+- Due to [BIP 350](https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki)
+  being implemented, behavior for all RPCs that accept addresses is changed when
+  a native witness version 1 (or higher) is passed. These now require a Bech32m
+  encoding instead of a Bech32 one, and Bech32m encoding will be used for such
+  addresses in RPC output as well. No version 1 addresses should be created
+  for mainnet until consensus rules are adopted that give them meaning
+  (e.g. through [BIP 341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki)).
+  Once that happens, Bech32m is expected to be used for them, so this shouldn't
+  affect any production systems, but may be observed on other networks where such
+  addresses already have meaning (like signet). (#20861)
 
-GUI changes
------------
+- The `getpeerinfo` RPC returns two new boolean fields, `bip152_hb_to` and
+  `bip152_hb_from`, that respectively indicate whether we selected a peer to be
+  in compact blocks high-bandwidth mode or whether a peer selected us as a
+  compact blocks high-bandwidth peer. High-bandwidth peers send new block
+  announcements via a `cmpctblock` message rather than the usual inv/headers
+  announcements. See BIP 152 for more details. (#19776)
 
-- The "Start BGL Core on system login" option has been removed on macOS.
+- `getpeerinfo` no longer returns the following fields: `addnode`, `banscore`,
+  and `whitelisted`, which were previously deprecated in 0.21. Instead of
+  `addnode`, the `connection_type` field returns manual. Instead of
+  `whitelisted`, the `permissions` field indicates if the peer has special
+  privileges. The `banscore` field has simply been removed. (#20755)
+
+- The following RPCs:  `gettxout`, `getrawtransaction`, `decoderawtransaction`,
+  `decodescript`, `gettransaction`, and REST endpoints: `/rest/tx`,
+  `/rest/getutxos`, `/rest/block` deprecated the following fields (which are no
+  longer returned in the responses by default): `addresses`, `reqSigs`.
+  The `-deprecatedrpc=addresses` flag must be passed for these fields to be
+  included in the RPC response. This flag/option will be available only for this major release, after which
+  the deprecation will be removed entirely. Note that these fields are attributes of
+  the `scriptPubKey` object returned in the RPC response. However, in the response
+  of `decodescript` these fields are top-level attributes, and included again as attributes
+  of the `scriptPubKey` object. (#20286)
+
+- When creating a hex-encoded bitcoin transaction using the `bitcoin-tx` utility
+  with the `-json` option set, the following fields: `addresses`, `reqSigs` are no longer
+  returned in the tx output of the response. (#20286)
+
+- The `listbanned` RPC now returns two new numeric fields: `ban_duration` and `time_remaining`.
+  Respectively, these new fields indicate the duration of a ban and the time remaining until a ban expires,
+  both in seconds. Additionally, the `ban_created` field is repositioned to come before `banned_until`. (#21602)
+
+Changes to Wallet or GUI related RPCs can be found in the GUI or Wallet section below.
+
+New RPCs
+--------
+
+Build System
+------------
+
+New settings
+------------
+
+- The `-natpmp` option has been added to use NAT-PMP to map the listening port.
+  If both UPnP and NAT-PMP are enabled, a successful allocation from UPnP
+  prevails over one from NAT-PMP. (#18077)
+
+Updated settings
+----------------
+
+Changes to Wallet or GUI related settings can be found in the GUI or Wallet section below.
+
+- Passing an invalid `-rpcauth` argument now cause bitcoind to fail to start.  (#20461)
+
+- The `getnodeaddresses` RPC now returns a "network" field indicating the
+  network type (ipv4, ipv6, onion, or i2p) for each address.  (#21594)
+
+Tools and Utilities
+-------------------
+
+- A new CLI `-addrinfo` command returns the number of addresses known to the
+  node per network type (including Tor v2 versus v3) and total. This can be
+  useful to see if the node knows enough addresses in a network to use options
+  like `-onlynet=<network>` or to upgrade to current and future Tor releases
+  that support Tor v3 addresses only.  (#21595)
 
 Wallet
 ------
 
-- The wallet now by default uses bech32 addresses when using RPC, and creates native segwit change outputs.
-- The way that output trust was computed has been fixed in #16766, which impacts confirmed/unconfirmed balance status and coin selection.
+- A new `listdescriptors` RPC is available to inspect the contents of descriptor-enabled wallets.
+  The RPC returns public versions of all imported descriptors, including their timestamp and flags.
+  For ranged descriptors, it also returns the range boundaries and the next index to generate addresses from. (#20226)
+
+- The `bumpfee` RPC is not available with wallets that have private keys
+  disabled. `psbtbumpfee` can be used instead. (#20891)
+
+GUI changes
+-----------
 
 Low-level changes
 =================
 
+RPC
+---
+
+- The RPC server can process a limited number of simultaneous RPC requests.
+  Previously, if this limit was exceeded, the RPC server would respond with
+  [status code 500 (`HTTP_INTERNAL_SERVER_ERROR`)](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#5xx_server_errors).
+  Now it returns status code 503 (`HTTP_SERVICE_UNAVAILABLE`). (#18335)
+
+- Error codes have been updated to be more accurate for the following error cases (#18466):
+  - `signmessage` now returns RPC_INVALID_ADDRESS_OR_KEY (-5) if the
+    passed address is invalid. Previously returned RPC_TYPE_ERROR (-3).
+  - `verifymessage` now returns RPC_INVALID_ADDRESS_OR_KEY (-5) if the
+    passed address is invalid. Previously returned RPC_TYPE_ERROR (-3).
+  - `verifymessage` now returns RPC_TYPE_ERROR (-3) if the passed signature
+    is malformed. Previously returned RPC_INVALID_ADDRESS_OR_KEY (-5).
+
 Tests
 -----
-
-- It is now an error to use an unqualified `walletdir=path` setting in the config file if running on testnet or regtest
-  networks. The setting now needs to be qualified as `chain.walletdir=path` or placed in the appropriate `[chain]`
-  section. (#17447)
-
-- `-fallbackfee` was 0 (disabled) by default for the main chain, but 0.0002 by default for the test chains. Now it is 0
-  by default for all chains. Testnet and regtest users will have to add `fallbackfee=0.0002` to their configuration if
-  they weren't setting it and they want it to keep working like before. (#16524)
 
 Credits
 =======

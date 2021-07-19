@@ -1,4 +1,4 @@
-// Copyright (c) 2009-2019 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,18 +7,17 @@
 #include <rpc/client.h>
 #include <rpc/util.h>
 #include <test/fuzz/fuzz.h>
-#include <util/memory.h>
 
 #include <limits>
 #include <string>
 
-void initialize()
+void initialize_parse_univalue()
 {
-    static const auto verify_handle = MakeUnique<ECCVerifyHandle>();
+    static const ECCVerifyHandle verify_handle;
     SelectParams(CBaseChainParams::REGTEST);
 }
 
-void test_one_input(const std::vector<uint8_t>& buffer)
+FUZZ_TARGET_INIT(parse_univalue, initialize_parse_univalue)
 {
     const std::string random_string(buffer.begin(), buffer.end());
     bool valid = true;
@@ -35,21 +34,31 @@ void test_one_input(const std::vector<uint8_t>& buffer)
     }
     try {
         (void)ParseHashO(univalue, "A");
+    } catch (const UniValue&) {
+    } catch (const std::runtime_error&) {
+    }
+    try {
         (void)ParseHashO(univalue, random_string);
     } catch (const UniValue&) {
     } catch (const std::runtime_error&) {
     }
     try {
         (void)ParseHashV(univalue, "A");
+    } catch (const UniValue&) {
+    } catch (const std::runtime_error&) {
+    }
+    try {
         (void)ParseHashV(univalue, random_string);
     } catch (const UniValue&) {
     } catch (const std::runtime_error&) {
     }
     try {
         (void)ParseHexO(univalue, "A");
+    } catch (const UniValue&) {
+    }
+    try {
         (void)ParseHexO(univalue, random_string);
     } catch (const UniValue&) {
-    } catch (const std::runtime_error&) {
     }
     try {
         (void)ParseHexUV(univalue, "A");
@@ -59,6 +68,10 @@ void test_one_input(const std::vector<uint8_t>& buffer)
     }
     try {
         (void)ParseHexV(univalue, "A");
+    } catch (const UniValue&) {
+    } catch (const std::runtime_error&) {
+    }
+    try {
         (void)ParseHexV(univalue, random_string);
     } catch (const UniValue&) {
     } catch (const std::runtime_error&) {

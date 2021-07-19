@@ -1,8 +1,13 @@
 ### Description
 what is the goal of the pull request
 
-### Items done
-item list of changes or additions
+Pull requests without a rationale and clear improvement may be closed
+immediately.
+
+GUI-related pull requests should be opened against
+https://github.com/BGL-core/gui
+first. See CONTRIBUTING.md
+-->
 
 ### Notes
 implementation details, hints for reviewers

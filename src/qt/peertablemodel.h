@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2018 The Bitcoin Core developers
+// Copyright (c) 2011-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -13,7 +13,6 @@
 #include <QAbstractTableModel>
 #include <QStringList>
 
-class ClientModel;
 class PeerTablePriv;
 
 namespace interfaces {
@@ -29,6 +28,7 @@ struct CNodeCombinedStats {
     CNodeStateStats nodeStateStats;
     bool fNodeStateStatsAvailable;
 };
+Q_DECLARE_METATYPE(CNodeCombinedStats*)
 
 class NodeLessThan
 {
@@ -51,31 +51,36 @@ class PeerTableModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    explicit PeerTableModel(interfaces::Node& node, ClientModel *parent = nullptr);
+    explicit PeerTableModel(interfaces::Node& node, QObject* parent);
     ~PeerTableModel();
-    const CNodeCombinedStats *getNodeStats(int idx);
     int getRowByNodeId(NodeId nodeid);
     void startAutoRefresh();
     void stopAutoRefresh();
 
     enum ColumnIndex {
         NetNodeId = 0,
-        Address = 1,
-        Ping = 2,
-        Sent = 3,
-        Received = 4,
-        Subversion = 5
+        Address,
+        ConnectionType,
+        Network,
+        Ping,
+        Sent,
+        Received,
+        Subversion
+    };
+
+    enum {
+        StatsRole = Qt::UserRole,
     };
 
     /** @name Methods overridden from QAbstractTableModel
         @{*/
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent) const;
-    Qt::ItemFlags flags(const QModelIndex &index) const;
-    void sort(int column, Qt::SortOrder order);
+    int rowCount(const QModelIndex &parent) const override;
+    int columnCount(const QModelIndex &parent) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    QModelIndex index(int row, int column, const QModelIndex &parent) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    void sort(int column, Qt::SortOrder order) override;
     /*@}*/
 
 public Q_SLOTS:
@@ -83,8 +88,7 @@ public Q_SLOTS:
 
 private:
     interfaces::Node& m_node;
-    ClientModel *clientModel;
-    QStringList columns;
+    const QStringList columns{tr("Peer Id"), tr("Address"), tr("Type"), tr("Network"), tr("Ping"), tr("Sent"), tr("Received"), tr("User Agent")};
     std::unique_ptr<PeerTablePriv> priv;
     QTimer *timer;
 };

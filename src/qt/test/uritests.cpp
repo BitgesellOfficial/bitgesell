@@ -16,51 +16,51 @@ void URITests::uriTests()
     uri.setUrl(QString("BGL:175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?req-dontexist="));
     QVERIFY(!GUIUtil::parseBGLURI(uri, &rv));
 
-    uri.setUrl(QString("BGL:175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?dontexist="));
+    uri.setUrl(QString("BGL:BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L?dontexist="));
     QVERIFY(GUIUtil::parseBGLURI(uri, &rv));
-    QVERIFY(rv.address == QString("175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W"));
+    QVERIFY(rv.address == QString("BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L"));
     QVERIFY(rv.label == QString());
     QVERIFY(rv.amount == 0);
 
-    uri.setUrl(QString("BGL:175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?label=Wikipedia Example Address"));
+    uri.setUrl(QString("BGL:BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L?label=Wikipedia Example Address"));
     QVERIFY(GUIUtil::parseBGLURI(uri, &rv));
-    QVERIFY(rv.address == QString("175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W"));
+    QVERIFY(rv.address == QString("BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L"));
     QVERIFY(rv.label == QString("Wikipedia Example Address"));
     QVERIFY(rv.amount == 0);
 
-    uri.setUrl(QString("BGL:175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?amount=0.001"));
+    uri.setUrl(QString("BGL:BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L?amount=0.001"));
     QVERIFY(GUIUtil::parseBGLURI(uri, &rv));
-    QVERIFY(rv.address == QString("175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W"));
+    QVERIFY(rv.address == QString("BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L"));
     QVERIFY(rv.label == QString());
     QVERIFY(rv.amount == 100000);
 
-    uri.setUrl(QString("BGL:175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?amount=1.001"));
+    uri.setUrl(QString("BGL:BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L?amount=1.001"));
     QVERIFY(GUIUtil::parseBGLURI(uri, &rv));
-    QVERIFY(rv.address == QString("175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W"));
+    QVERIFY(rv.address == QString("BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L"));
     QVERIFY(rv.label == QString());
     QVERIFY(rv.amount == 100100000);
 
-    uri.setUrl(QString("BGL:175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?amount=100&label=Wikipedia Example"));
+    uri.setUrl(QString("BGL:BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L?amount=100&label=Wikipedia Example"));
     QVERIFY(GUIUtil::parseBGLURI(uri, &rv));
-    QVERIFY(rv.address == QString("175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W"));
+    QVERIFY(rv.address == QString("BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L"));
     QVERIFY(rv.amount == 10000000000LL);
     QVERIFY(rv.label == QString("Wikipedia Example"));
 
-    uri.setUrl(QString("BGL:175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?message=Wikipedia Example Address"));
+    uri.setUrl(QString("BGL:BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L?message=Wikipedia Example Address"));
     QVERIFY(GUIUtil::parseBGLURI(uri, &rv));
-    QVERIFY(rv.address == QString("175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W"));
+    QVERIFY(rv.address == QString("BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L"));
     QVERIFY(rv.label == QString());
 
-    QVERIFY(GUIUtil::parseBGLURI("BGL:175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?message=Wikipedia Example Address", &rv));
-    QVERIFY(rv.address == QString("175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W"));
+    QVERIFY(GUIUtil::parseBGLURI("BGL:BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L?message=Wikipedia Example Address", &rv));
+    QVERIFY(rv.address == QString("BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L"));
     QVERIFY(rv.label == QString());
 
-    uri.setUrl(QString("BGL:175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?req-message=Wikipedia Example Address"));
+    uri.setUrl(QString("BGL:BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L?req-message=Wikipedia Example Address"));
     QVERIFY(GUIUtil::parseBGLURI(uri, &rv));
 
-    uri.setUrl(QString("BGL:175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?amount=1,000&label=Wikipedia Example"));
+    uri.setUrl(QString("BGL:BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L?amount=1,000&label=Wikipedia Example"));
     QVERIFY(!GUIUtil::parseBGLURI(uri, &rv));
 
-    uri.setUrl(QString("BGL:175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?amount=1,000.0&label=Wikipedia Example"));
+    uri.setUrl(QString("BGL:BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L?amount=1,000.0&label=Wikipedia Example"));
     QVERIFY(!GUIUtil::parseBGLURI(uri, &rv));
 }

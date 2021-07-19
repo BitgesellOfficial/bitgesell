@@ -1,9 +1,11 @@
-// Copyright (c) 2019 The Bitcoin Core developers
+// Copyright (c) 2019-2020 The BGL Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BGL_UTIL_SETTINGS_H
 #define BGL_UTIL_SETTINGS_H
+
+#include <fs.h>
 
 #include <map>
 #include <string>
@@ -24,19 +26,31 @@ namespace util {
 //!       https://github.com/BGL/BGL/pull/15934/files#r337691812)
 using SettingsValue = UniValue;
 
-//! Stored BGL settings. This struct combines settings from the command line
-//! and a read-only configuration file.
+//! Stored settings. This struct combines settings from the command line, a
+//! read-only configuration file, and a read-write runtime settings file.
 struct Settings {
     //! Map of setting name to forced setting value.
     std::map<std::string, SettingsValue> forced_settings;
     //! Map of setting name to list of command line values.
     std::map<std::string, std::vector<SettingsValue>> command_line_options;
+    //! Map of setting name to read-write file setting value.
+    std::map<std::string, SettingsValue> rw_settings;
     //! Map of config section name and setting name to list of config file values.
     std::map<std::string, std::map<std::string, std::vector<SettingsValue>>> ro_config;
 };
 
+//! Read settings file.
+bool ReadSettings(const fs::path& path,
+    std::map<std::string, SettingsValue>& values,
+    std::vector<std::string>& errors);
+
+//! Write settings file.
+bool WriteSettings(const fs::path& path,
+    const std::map<std::string, SettingsValue>& values,
+    std::vector<std::string>& errors);
+
 //! Get settings value from combined sources: forced settings, command line
-//! arguments and the read-only config file.
+//! arguments, runtime read-write settings, and the read-only config file.
 //!
 //! @param ignore_default_section_config - ignore values in the default section
 //!                                        of the config file (part before any
@@ -71,11 +85,11 @@ struct SettingsSpan {
     explicit SettingsSpan(const SettingsValue& value) noexcept : SettingsSpan(&value, 1) {}
     explicit SettingsSpan(const SettingsValue* data, size_t size) noexcept : data(data), size(size) {}
     explicit SettingsSpan(const std::vector<SettingsValue>& vec) noexcept;
-    const SettingsValue* begin() const; //<! Pointer to first non-negated value.
-    const SettingsValue* end() const;   //<! Pointer to end of values.
-    bool empty() const;                 //<! True if there are any non-negated values.
-    bool last_negated() const;          //<! True if the last value is negated.
-    size_t negated() const;             //<! Number of negated values.
+    const SettingsValue* begin() const; //!< Pointer to first non-negated value.
+    const SettingsValue* end() const;   //!< Pointer to end of values.
+    bool empty() const;                 //!< True if there are any non-negated values.
+    bool last_negated() const;          //!< True if the last value is negated.
+    size_t negated() const;             //!< Number of negated values.
 
     const SettingsValue* data = nullptr;
     size_t size = 0;
