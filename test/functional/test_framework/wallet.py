@@ -51,8 +51,7 @@ class MiniWalletMode(Enum):
     """
     ADDRESS_OP_TRUE = 1
     RAW_OP_TRUE = 2
-    RAW_P2PK = 3
-
+    
 class MiniWallet:
     def __init__(self, test_node,mode=MiniWalletMode.ADDRESS_OP_TRUE):
         self._test_node = test_node
@@ -62,12 +61,7 @@ class MiniWallet:
         assert isinstance(mode, MiniWalletMode)
         if mode == MiniWalletMode.RAW_OP_TRUE:
             self._scriptPubKey = bytes(CScript([OP_TRUE]))
-        elif mode == MiniWalletMode.RAW_P2PK:
-            # use simple deterministic private key (k=1)
-            self._priv_key = ECKey()
-            self._priv_key.set((1).to_bytes(32, 'big'), True)
-            pub_key = self._priv_key.get_pubkey()
-            self._scriptPubKey = bytes(CScript([pub_key.get_bytes(), OP_CHECKSIG]))
+  
         elif mode == MiniWalletMode.ADDRESS_OP_TRUE:
             self._address = ADDRESS_BCRT1_P2WSH_OP_TRUE
             self._scriptPubKey = hex_str_to_bytes(self._test_node.validateaddress(self._address)['scriptPubKey'])
@@ -143,8 +137,8 @@ class MiniWallet:
         if not self._address:
             # raw script
             if self._priv_key is not None:
-                # P2PK, need to sign
-                self.sign_tx(tx)
+                # P2PK, no need to sign
+                pass
             else:
                 # anyone-can-spend
                 tx.vin[0].scriptSig = CScript([OP_NOP] * 35)  # pad to identical size
