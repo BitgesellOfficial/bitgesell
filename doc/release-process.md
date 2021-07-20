@@ -134,7 +134,7 @@ Commit your signature to guix.sigs:
 ```sh
 pushd ./guix.sigs
 git add "${VERSION}/${SIGNER}"/noncodesigned.SHA256SUMS{,.asc}
-git commit -m "Add ${VERSION} unsigned sigs for ${SIGNER}"
+git commit -m "Add attestations by ${SIGNER} for ${VERSION} non-codesigned"
 git push  # Assuming you can push to the guix.sigs tree
 popd
 ```
@@ -189,12 +189,13 @@ Create (and optionally verify) the codesigned outputs:
 
 Commit your signature for the signed macOS/Windows binaries:
 
-    pushd ./gitian-builder
-    ./bin/gbuild -i --commit signature=v${VERSION} ../BGL/contrib/gitian-descriptors/gitian-win-signer.yml
-    ./bin/gsign --signer "$SIGNER" --release ${VERSION}-win-signed --destination ../gitian.sigs/ ../BGL/contrib/gitian-descriptors/gitian-win-signer.yml
-    ./bin/gverify -v -d ../gitian.sigs/ -r ${VERSION}-win-signed ../BGL/contrib/gitian-descriptors/gitian-win-signer.yml
-    mv build/out/BGL-*win64-setup.exe ../BGL-${VERSION}-win64-setup.exe
-    popd
+```sh
+pushd ./guix.sigs
+git add "${VERSION}/${SIGNER}"/all.SHA256SUMS{,.asc}
+git commit -m "Add attestations by ${SIGNER} for ${VERSION} codesigned"
+git push  # Assuming you can push to the guix.sigs tree
+popd
+```
 
 ### After 3 or more people have guix-built and their results match:
 
