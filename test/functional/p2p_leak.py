@@ -29,7 +29,7 @@ from test_framework.util import (
     assert_greater_than_or_equal,
 )
 
-DISCOURAGEMENT_THRESHOLD = 100
+PEER_TIMEOUT = 3
 
 
 class LazyPeer(P2PInterface):
@@ -100,7 +100,7 @@ class P2PVersionStore(P2PInterface):
 class P2PLeakTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
-        self.extra_args = [['-peertimeout=4']]
+        self.extra_args = [[f"-peertimeout={PEER_TIMEOUT}"]]
 
     def create_old_version(self, nversion):
         old_version_msg = msg_version()
@@ -128,7 +128,6 @@ class P2PLeakTest(BGLTestFramework):
         no_verack_idle_peer.wait_for_verack()
         pre_wtxidrelay_peer.wait_for_verack()
 
-        no_version_disconnect_peer.wait_until(lambda: no_version_disconnect_peer.ever_connected, check_connected=False)
         no_version_idle_peer.wait_until(lambda: no_version_idle_peer.ever_connected)
         no_verack_idle_peer.wait_until(lambda: no_verack_idle_peer.version_received)
         pre_wtxidrelay_peer.wait_until(lambda: pre_wtxidrelay_peer.version_received)
@@ -137,7 +136,7 @@ class P2PLeakTest(BGLTestFramework):
         self.nodes[0].generate(nblocks=1)
 
         # Give the node enough time to possibly leak out a message
-        time.sleep(5)
+        time.sleep(PEER_TIMEOUT + 2)
 
         # Make sure only expected messages came in
         assert not no_version_idle_peer.unexpected_msg

@@ -18,6 +18,7 @@ from test_framework.p2p import (
     msg_block,
     msg_getdata,
     msg_getheaders,
+    p2p_lock,
 )
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
@@ -102,13 +103,11 @@ class P2PFingerprintTest(BGLTestFramework):
 
         # Check that getdata request for stale block succeeds
         self.send_block_request(stale_hash, node0)
-        test_function = lambda: self.last_block_equals(stale_hash, node0)
-        self.wait_until(test_function, timeout=3)
+        node0.wait_for_block(stale_hash, timeout=3)
 
         # Check that getheader request for stale block header succeeds
         self.send_header_request(stale_hash, node0)
-        test_function = lambda: self.last_header_equals(stale_hash, node0)
-        self.wait_until(test_function, timeout=3)
+        node0.wait_for_header(hex(stale_hash), timeout=3)
 
         # Longest chain is extended so stale is much older than chain tip
         self.nodes[0].setmocktime(0)
@@ -117,14 +116,18 @@ class P2PFingerprintTest(BGLTestFramework):
         node0.wait_for_block(block_hash, timeout=3)
 
         # Request for very old stale block should now fail
+        with p2p_lock:
+            node0.last_message.pop("block", None)
         self.send_block_request(stale_hash, node0)
-        time.sleep(3)
-        assert not self.last_block_equals(stale_hash, node0)
+        node0.sync_with_ping()
+        assert "block" not in node0.last_message
 
         # Request for very old stale block header should now fail
+        with p2p_lock:
+            node0.last_message.pop("headers", None)
         self.send_header_request(stale_hash, node0)
-        time.sleep(3)
-        assert not self.last_header_equals(stale_hash, node0)
+        node0.sync_with_ping()
+        assert "headers" not in node0.last_message
 
         # Verify we can fetch very old blocks and headers on the active chain
         block_hash = int(block_hashes[2], 16)
@@ -133,12 +136,10 @@ class P2PFingerprintTest(BGLTestFramework):
         node0.sync_with_ping()
 
         self.send_block_request(block_hash, node0)
-        test_function = lambda: self.last_block_equals(block_hash, node0)
-        self.wait_until(test_function, timeout=3)
+        node0.wait_for_block(block_hash, timeout=3)
 
         self.send_header_request(block_hash, node0)
-        test_function = lambda: self.last_header_equals(block_hash, node0)
-        self.wait_until(test_function, timeout=3)
+        node0.wait_for_header(hex(block_hash), timeout=3)
 
 
 if __name__ == '__main__':
