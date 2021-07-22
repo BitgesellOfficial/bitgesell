@@ -98,7 +98,7 @@ The https://github.com/BGL-core/gui repository is used exclusively for the devel
 Official thread: [click here](https://bitcointalk.org/index.php?topic=5238559.0)
 
 
-### Automated Testing
+## Automated Testing
 
 Developers are strongly encouraged to write [unit tests](https://github.com/BitgesellOfficial/bitgesell/blob/master/src/test/README.md) for new code, and to
 submit new unit tests for old code. Unit tests can be compiled and run
@@ -113,7 +113,7 @@ The CI (Continuous Integration) systems make sure that every pull request is bui
 and that unit/sanity tests are run automatically. <br>
 
 
-### Manual Quality Assurance (QA) Testing
+## Manual Quality Assurance (QA) Testing
 
 Changes should be tested by somebody other than the developer who wrote the
 code. This is especially important for large or high-risk changes. It is useful
