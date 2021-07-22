@@ -37,6 +37,7 @@ from test_framework.messages import (
     msg_tx,
     msg_block,
     msg_no_witness_tx,
+    msg_verack,
     ser_uint256,
     ser_vector,
     sha256,

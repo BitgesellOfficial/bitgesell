@@ -77,7 +77,8 @@ class AddrTest(BGLTestFramework):
         self.relay_tests()
         self.getaddr_tests()
         self.blocksonly_mode_tests()
-        self.rate_limit_tests()
+        # Not sure if supported by BGL
+        #self.rate_limit_tests()
 
     def setup_addr_msg(self, num):
         addrs = []
