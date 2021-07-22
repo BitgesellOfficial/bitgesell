@@ -38,7 +38,7 @@ VALID_DATA_LIMIT = MAX_PROTOCOL_MESSAGE_LENGTH - 5  # Account for the 5-byte len
 class msg_unrecognized:
     """Nonsensical message. Modeled after similar types in test_framework.messages."""
 
-    msgtype = b'badmsg\x01'
+    msgtype = b'badmsg'
 
     def __init__(self, *, str_data):
         self.str_data = str_data.encode() if not isinstance(str_data, bytes) else str_data
@@ -105,7 +105,7 @@ class InvalidMessagesTest(BGLTestFramework):
             conn.send_and_ping(msg_version())
         self.nodes[0].disconnect_p2ps()
 
-        def test_magic_bytes(self):
+    def test_magic_bytes(self):
         self.log.info("Test message with invalid magic bytes disconnects peer")
         conn = self.nodes[0].add_p2p_connection(P2PDataStore())
         with self.nodes[0].assert_debug_log(['HEADER ERROR - MESSAGESTART (badmsg, 2 bytes), received ffffffff']):
