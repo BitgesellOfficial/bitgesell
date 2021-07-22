@@ -91,6 +91,7 @@ BGL is an experimental digital currency that enables instant payments to anyone,
 <!-- GETTING STARTED -->
 ## Getting Started
 
+Visit official website: [click here](https://bitgesell.ca/)
 The https://github.com/BGL-core/gui repository is used exclusively for the development of the GUI. Its master branch is identical in all monotree repositories. Release branches and tags do not exist, so please do not fork that repository unless it is for development reasons.
 
 Official thread: [click here](https://bitcointalk.org/index.php?topic=5238559.0)
