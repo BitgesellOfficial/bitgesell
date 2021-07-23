@@ -72,9 +72,9 @@ BGL is an experimental digital currency that enables instant payments to anyone,
   210000 blocks/4
   ```
 * Block Subsidy [Max coins = 21,000,000] <br>
-  `210000 blocks/4` <br>
-  `Hashing algorithm for blocks is Keccak (sha-3).` <br>
-  `The master branch is regularly built (see [doc/build-*.md](https://github.com/BitgesellOfficial/bitgesell/tree/master/doc) for instructions) and tested, but is not guaranteed to be completely stable.` <br>
+  `210000 blocks/4` <br> <hr>
+  `Hashing algorithm for blocks is Keccak (sha-3).` <br> <hr>
+  `The master branch is regularly built (see [doc/build-*.md](https://github.com/BitgesellOfficial/bitgesell/tree/master/doc) for instructions) and tested, but is not guaranteed to be completely stable.` <br> <hr>
   `[tags](https://github.com/BitgesellOfficial/bitgesell/tags) are created regularly to indicate new official, stable release versions of BGL Core.` <br>
  
  
