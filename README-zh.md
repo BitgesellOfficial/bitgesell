@@ -72,9 +72,9 @@ BGL 是一種實驗性數字貨幣，可以向世界上任何地方的任何人�
   210000 blocks/4
   ```
 * 區塊補貼 [最大硬幣 = 21,000,000] <br>
-  `210000 blocks/4` <br>
-  `塊的哈希算法是 Keccak (sha-3).` <br>
-  `master 分支定期搭建 (看 [doc/build-*.md](https://github.com/BitgesellOfficial/bitgesell/tree/master/doc) 說明) 並經過測試，但不保證完全穩定。` <br>
+  `210000 blocks/4` <br> <hr>
+  `塊的哈希算法是 Keccak (sha-3).` <br> <hr>
+  `master 分支定期搭建 (看 [doc/build-*.md](https://github.com/BitgesellOfficial/bitgesell/tree/master/doc) 說明) 並經過測試，但不保證完全穩定。` <br> <hr>
   `[標籤](https://github.com/BitgesellOfficial/bitgesell/tags) 定期創建，以指示 BGL Core 的新官方穩定發行版本。` <br>
  
  
@@ -103,9 +103,9 @@ https://github.com/BGL-core/gui 存儲庫專門用於 GUI 的開發。它的 mas
 （假設它們在配置中沒有被禁用）：`make check`。關於跑步的更多細節
 擴展單元測試可以在 [src/test/README.md](https://github.com/BitgesellOfficial/bitgesell/blob/master/src/test/README.md) 中找到。 <br>
 
-還有【回歸和集成測試】(https://github.com/BitgesellOfficial/bitgesell/tree/master/test)，寫的
+還有 [回歸和集成測試](https://github.com/BitgesellOfficial/bitgesell/tree/master/test)，寫的
 在 Python 中。 <br>
-這些測試可以運行（如果[測試依賴項]（https://github.com/BitgesellOfficial/bitgesell/tree/master/test）與: `test/functional/test_runner.py` <br>
+這些測試可以運行 [如果[測試依賴項](https://github.com/BitgesellOfficial/bitgesell/tree/master/test) 與: `test/functional/test_runner.py` <br>
 
 CI（持續集成）系統確保每個拉取請求都是為 Windows、Linux 和 macOS 構建的，
 並且自動運行單元/健全性測試. <br>
