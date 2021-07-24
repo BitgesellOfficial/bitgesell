@@ -74,8 +74,8 @@ BGL 是一種實驗性數字貨幣，可以向世界上任何地方的任何人�
 * 區塊補貼 [最大硬幣 = 21,000,000] <br>
   `210000 blocks/4` <br> <hr>
   `塊的哈希算法是 Keccak (sha-3).` <br> <hr>
-  `master 分支定期搭建 (看 [doc/build-*.md](https://github.com/BitgesellOfficial/bitgesell/tree/master/doc) 說明) 並經過測試，但不保證完全穩定。` <br> <hr>
-  `[標籤](https://github.com/BitgesellOfficial/bitgesell/tags) 定期創建，以指示 BGL Core 的新官方穩定發行版本。` <br>
+  `master 分支定期搭建 (看` [doc/build-*.md](https://github.com/BitgesellOfficial/bitgesell/tree/master/doc) `說明) 並經過測試，但不保證完全穩定。` <br> <hr>
+  [標籤](https://github.com/BitgesellOfficial/bitgesell/tags) `定期創建，以指示 BGL Core 的新官方穩定發行版本。` <br>
  
  
 ### 內置
@@ -91,7 +91,7 @@ BGL 是一種實驗性數字貨幣，可以向世界上任何地方的任何人�
 <!-- GETTING STARTED -->
 ## 入門
 
-https://github.com/BGL-core/gui 存儲庫專門用於 GUI 的開發。它的 master 分支在所有 monotree 存儲庫中都是相同的。發布分支和標籤不存在，所以除非出於開發原因，否則請不要分叉該存儲庫。
+[GUI](https://github.com/BGL-core/gui) 存儲庫專門用於 GUI 的開發。它的 master 分支在所有 monotree 存儲庫中都是相同的。發布分支和標籤不存在，所以除非出於開發原因，否則請不要分叉該存儲庫。
 
 官方線程: [點擊這裡](https://bitcointalk.org/index.php?topic=5238559.0)
 
