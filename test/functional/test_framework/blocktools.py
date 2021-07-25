@@ -62,6 +62,10 @@ COINBASE_MATURITY = 100
 # Coinbase transaction outputs can only be spent after this number of new blocks (network rule)
 COINBASE_MATURITY = 100
 
+# Soft-fork activation heights
+CLTV_HEIGHT = 1351
+CSV_ACTIVATION_HEIGHT = 432
+
 # From BIP141
 WITNESS_COMMITMENT_HEADER = b"\xaa\x21\xa9\xed"
 
