@@ -23,7 +23,7 @@ for i in range(10):
     addr = CAddress()
     addr.time = int(time.time()) + i
     addr.nServices = NODE_NETWORK | NODE_WITNESS
-    addr.ip = "123.123.123.{}".format(i % 256)
+    addr.ip = f"123.123.123.{i % 256}"
     addr.port = 8333 + i
     ADDRS.append(addr)
 
@@ -35,11 +35,10 @@ class AddrReceiver(P2PInterface):
         super().__init__(support_addrv2 = True)
 
     def on_addrv2(self, message):
-        for addr in message.addrs:
-            assert_equal(addr.nServices, 9)
-            assert addr.ip.startswith('123.123.123.')
-            assert (8333 <= addr.port < 8343)
-        self.addrv2_received_and_checked = True
+        expected_set = set((addr.ip, addr.port) for addr in ADDRS)
+        received_set = set((addr.ip, addr.port) for addr in message.addrs)
+        if expected_set == received_set:
+            self.addrv2_received_and_checked = True
 
     def wait_for_addrv2(self):
         self.wait_until(lambda: "addrv2" in self.last_message)
@@ -49,6 +48,7 @@ class AddrTest(BGLTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1
+        self.extra_args = [["-whitelist=addr@127.0.0.1"]]
 
     def run_test(self):
         self.log.info('Create connection that sends addrv2 messages')
@@ -64,8 +64,10 @@ class AddrTest(BGLTestFramework):
         addr_receiver = self.nodes[0].add_p2p_connection(AddrReceiver())
         msg.addrs = ADDRS
         with self.nodes[0].assert_debug_log([
+                # The I2P address is not added to node's own addrman because it has no
+                # I2P reachability (thus 10 - 1 = 9).
                 'Added 10 addresses from 127.0.0.1: 0 tried',
-                'received: addrv2 (131 bytes) peer=0',
+                #'received: addrv2 (159 bytes) peer=0',
                 'sending addrv2 (131 bytes) peer=1',
         ]):
             addr_source.send_and_ping(msg)
