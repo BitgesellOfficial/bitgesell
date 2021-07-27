@@ -53,43 +53,20 @@ std::optional<std::string> GetEntriesForConflicts(const CTransaction& tx, CTxMem
 /** BIP125 Rule #2: "The replacement transaction may only include an unconfirmed input if that input
  * was included in one of the original transactions."
  * @returns error message if Rule #2 is broken, otherwise std::nullopt. */
-std::optional<std::string> HasNoNewUnconfirmed(const CTransaction& tx, const CTxMemPool& pool,
-                                               const CTxMemPool::setEntries& iters_conflicting)
-                                               EXCLUSIVE_LOCKS_REQUIRED(pool.cs);
+std::optional<std::string> HasNoNewUnconfirmed(const CTransaction& tx, const CTxMemPool& m_pool,
+                                               const CTxMemPool::setEntries& setIterConflicting)
+                                               EXCLUSIVE_LOCKS_REQUIRED(m_pool.cs);
 
 /** Check the intersection between two sets of transactions (a set of mempool entries and a set of
  * txids) to make sure they are disjoint.
- * @param[in]   ancestors           Set of mempool entries corresponding to ancestors of the
- *                                  replacement transactions.
- * @param[in]   direct_conflicts    Set of txids corresponding to the mempool conflicts
- *                                  (candidates to be replaced).
- * @param[in]   txid                Transaction ID, included in the error message if violation occurs.
+ * @param[in]   setAncestors    Set of mempool entries corresponding to ancestors of the
+ *                              replacement transactions.
+ * @param[in]   setConflicts    Set of txids corresponding to the mempool conflicts
+ *                              (candidates to be replaced).
+ * @param[in]   txid            Transaction ID, included in the error message if violation occurs.
  * @returns error message if the sets intersect, std::nullopt if they are disjoint.
  */
-std::optional<std::string> EntriesAndTxidsDisjoint(const CTxMemPool::setEntries& ancestors,
-                                                   const std::set<uint256>& direct_conflicts,
+std::optional<std::string> EntriesAndTxidsDisjoint(const CTxMemPool::setEntries& setAncestors,
+                                                   const std::set<uint256>& setConflicts,
                                                    const uint256& txid);
-
-/** Check that the feerate of the replacement transaction(s) is higher than the feerate of each
- * of the transactions in iters_conflicting.
- * @param[in]   iters_conflicting  The set of mempool entries.
- * @returns error message if fees insufficient, otherwise std::nullopt.
- */
-std::optional<std::string> PaysMoreThanConflicts(const CTxMemPool::setEntries& iters_conflicting,
-                                                 CFeeRate replacement_feerate, const uint256& txid);
-
-/** Enforce BIP125 Rule #3 "The replacement transaction pays an absolute fee of at least the sum
- * paid by the original transactions." Enforce BIP125 Rule #4 "The replacement transaction must also
- * pay for its own bandwidth at or above the rate set by the node's minimum relay fee setting."
- * @param[in]   original_fees       Total modified fees of original transaction(s).
- * @param[in]   replacement_fees    Total modified fees of replacement transaction(s).
- * @param[in]   replacement_vsize   Total virtual size of replacement transaction(s).
- * @param[in]   txid                Transaction ID, included in the error message if violation occurs.
- * @returns error string if fees are insufficient, otherwise std::nullopt.
- */
-std::optional<std::string> PaysForRBF(CAmount original_fees,
-                                      CAmount replacement_fees,
-                                      size_t replacement_vsize,
-                                      const uint256& txid);
-
-#endif // BITCOIN_POLICY_RBF_H
+#endif // BGL_POLICY_RBF_H
