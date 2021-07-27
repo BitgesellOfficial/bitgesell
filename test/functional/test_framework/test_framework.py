@@ -411,7 +411,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             # To ensure that all nodes are out of IBD, the most recent block
             # must have a timestamp not too old (see IsInitialBlockDownload()).
             self.log.debug('Generate a block with current time')
-            block_hash = self.nodes[0].generate(1)[0]
+            block_hash = self.generate(self.nodes[0], 1)[0]
             block = self.nodes[0].getblock(blockhash=block_hash, verbosity=0)
             for n in self.nodes:
                 n.submitblock(block)
@@ -765,7 +765,8 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             # see the tip age check in IsInitialBlockDownload().
             gen_addresses = [k.address for k in TestNode.PRIV_KEYS] + [ADDRESS_BCRT1_P2WSH_OP_TRUE]
             for i in range(8):
-                cache_node.generatetoaddress(
+                self.generatetoaddress(
+                    cache_node,
                     nblocks=25 if i != 7 else 24,
                     address=gen_addresses[i % 4],
                 )
