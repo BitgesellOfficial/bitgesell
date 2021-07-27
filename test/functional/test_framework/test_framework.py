@@ -100,7 +100,6 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         self.rpc_timeout = 60  # Wait for up to 60 seconds for the RPC server to respond
         self.supports_cli = True
         self.bind_to_localhost_only = True
-        self.set_test_params()
         self.parse_args()
         self.default_wallet_name = "default_wallet" if self.options.descriptors else ""
         self.wallet_data_filename = "wallet.dat"
@@ -195,6 +194,10 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
                             help="Run test using legacy wallets", dest='descriptors')
 
         self.add_options(parser)
+        # Running TestShell in a Jupyter notebook causes an additional -f argument
+        # To keep TestShell from failing with an "unrecognized argument" error, we add a dummy "-f" argument
+        # source: https://stackoverflow.com/questions/48796169/how-to-fix-ipykernel-launcher-py-error-unrecognized-arguments-in-jupyter/56349168#56349168
+        parser.add_argument("-f", "--fff", help="a dummy argument to fool ipython", default="1")
         self.options = parser.parse_args()
         self.options.previous_releases_path = previous_releases_path
 
@@ -697,7 +700,6 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
 
     def _initialize_chain(self):
         """Initialize a pre-mined blockchain for use by the test.
-
         Create a cache of a 199-block-long chain
         Afterward, create num_nodes copies from the cache."""
 
@@ -740,11 +742,12 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             # block in the cache does not age too much (have an old tip age).
             # This is needed so that we are out of IBD when the test starts,
             # see the tip age check in IsInitialBlockDownload().
-            gen_addresses = [k.address for k in TestNode.PRIV_KEYS] + [ADDRESS_BCRT1_P2WSH_OP_TRUE]
+            gen_addresses = [k.address for k in TestNode.PRIV_KEYS][:3] + [ADDRESS_BCRT1_P2WSH_OP_TRUE]
+            assert_equal(len(gen_addresses), 4)
             for i in range(8):
                 cache_node.generatetoaddress(
                     nblocks=25 if i != 7 else 24,
-                    address=gen_addresses[i % 4],
+                    address=gen_addresses[i % len(gen_addresses)],
                 )
 
             assert_equal(cache_node.getblockchaininfo()["blocks"], 199)
@@ -758,7 +761,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
 
             os.rmdir(cache_path('wallets'))  # Remove empty wallets dir
             for entry in os.listdir(cache_path()):
-                if entry not in ['chainstate', 'blocks']:  # Only keep chainstate and blocks folder
+                if entry not in ['chainstate', 'blocks', 'indexes']:  # Only indexes, chainstate and blocks folders
                     os.remove(cache_path(entry))
 
         for i in range(self.num_nodes):

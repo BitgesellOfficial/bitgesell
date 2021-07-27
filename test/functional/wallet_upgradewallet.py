@@ -53,6 +53,8 @@ class UpgradeWalletTest(BGLTestFramework):
             ["-usehd=1", "-keypool=2"],            # v0.16.3 wallet
             ["-usehd=0", "-keypool=2"]             # v0.15.2 wallet
         ]
+        self.parse_args()
+        self.default_wallet_name = "default_wallet" if self.options.descriptors else ""
         self.wallet_names = [self.default_wallet_name, None, None]
 
     def skip_test_if_missing_module(self):

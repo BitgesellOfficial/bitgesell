@@ -70,8 +70,8 @@ class InvalidBlockRequestTest(BGLTestFramework):
         block_time += 1
 
         # b'0x51' is OP_TRUE
-        tx1 = create_tx_with_script(block1.vtx[0], 0, script_sig=b'\x51', amount=50 * COIN)
-        tx2 = create_tx_with_script(tx1, 0, script_sig=b'\x51', amount=50 * COIN)
+        tx1 = create_tx_with_script(block1.vtx[0], 0, script_sig=b'\x51', amount=200 * COIN)
+        tx2 = create_tx_with_script(tx1, 0, script_sig=b'\x51', amount=200 * COIN)
 
         block2.vtx.extend([tx1, tx2])
         block2.hashMerkleRoot = block2.calc_merkle_root()
@@ -103,7 +103,7 @@ class InvalidBlockRequestTest(BGLTestFramework):
 
         block3 = create_block(tip, create_coinbase(height), block_time)
         block_time += 1
-        block3.vtx[0].vout[0].nValue = 100 * COIN  # Too high!
+        block3.vtx[0].vout[0].nValue = 600 * COIN  # Too high!
         block3.vtx[0].sha256 = None
         block3.vtx[0].calc_sha256()
         block3.hashMerkleRoot = block3.calc_merkle_root()
@@ -127,7 +127,7 @@ class InvalidBlockRequestTest(BGLTestFramework):
         # Complete testing of CVE-2018-17144, by checking for the inflation bug.
         # Create a block that spends the output of a tx in a previous block.
         block4 = create_block(tip, create_coinbase(height), block_time)
-        tx3 = create_tx_with_script(tx2, 0, script_sig=b'\x51', amount=50 * COIN)
+        tx3 = create_tx_with_script(tx2, 0, script_sig=b'\x51', amount=200 * COIN)
 
         # Duplicates input
         tx3.vin.append(tx3.vin[0])
@@ -138,19 +138,6 @@ class InvalidBlockRequestTest(BGLTestFramework):
         block4.solve()
         self.log.info("Test inflation by duplicating input")
         peer.send_blocks_and_test([block4], node, success=False,  reject_reason='bad-txns-inputs-duplicate')
-
-        self.log.info("Test accepting identical block after rejecting it due to a future timestamp.")
-        t = int(time.time())
-        node.setmocktime(t)
-        # Set block time +1 second past max future validity
-        block = create_block(tip, create_coinbase(height), t + MAX_FUTURE_BLOCK_TIME + 1)
-        block.hashMerkleRoot = block.calc_merkle_root()
-        block.solve()
-        # Need force_send because the block will get rejected without a getdata otherwise
-        peer.send_blocks_and_test([block], node, force_send=True, success=False, reject_reason='time-too-new')
-        node.setmocktime(t + 1)
-        peer.send_blocks_and_test([block], node, success=True)
-
 
 if __name__ == '__main__':
     InvalidBlockRequestTest().main()

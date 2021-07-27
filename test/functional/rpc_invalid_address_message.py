@@ -11,16 +11,13 @@ from test_framework.util import (
     assert_raises_rpc_error,
 )
 
-BECH32_VALID = 'bcrt1qtmp74ayg7p24uslctssvjm06q5phz4yrxucgnv'
-BECH32_INVALID_BECH32 = 'bcrt1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqdmchcc'
-BECH32_INVALID_BECH32M = 'bcrt1qw508d6qejxtdg4y5r3zarvary0c5xw7k35mrzd'
-BECH32_INVALID_VERSION = 'bcrt130xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqynjegk'
-BECH32_INVALID_SIZE = 'bcrt1s0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7v8n0nx0muaewav25430mtr'
-BECH32_INVALID_V0_SIZE = 'bcrt1qw508d6qejxtdg4y5r3zarvary0c5xw7kqqq5k3my'
-BECH32_INVALID_PREFIX = 'bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx'
-
-BASE58_VALID = 'mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJRfn'
-BASE58_INVALID_PREFIX = '17VZNX1SN5NtKa8UQFxwQbFeFc3iqRYhem'
+BECH32_VALID = 'rbgl1qqymf0uykeha35u2m9kaq384xmg53rfl3t46ccx'
+BECH32_INVALID_BECH32 = 'rbgl1zqymf0uykeha35u2m9kaq384xmg53rfl3aqawzs'
+BECH32_INVALID_BECH32M = 'rbgl1qqymf0uykeha35u2m9kaq384xmg53rfl37f25ay'
+BECH32_INVALID_VERSION = 'rbgl13qymf0uykeha35u2m9kaq384xmg53rfl3t46ccx'
+BECH32_INVALID_SIZE = 'rbgl1pzem3xr'
+BECH32_INVALID_V0_SIZE = 'rbgl1qqymf0uykeha35u2m9kaq384xmg53rfl3mg53rfcdu24t8'
+BECH32_INVALID_PREFIX = 'rbgr1qqymf0uykeha35u2m9kaq384xmg53rfl3me9uen'
 
 INVALID_ADDRESS = 'asfah14i8fajz0123f'
 
@@ -60,15 +57,6 @@ class InvalidAddressErrorMessageTest(BGLTestFramework):
         assert info['isvalid']
         assert 'error' not in info
 
-        # Base58
-        info = node.validateaddress(BASE58_INVALID_PREFIX)
-        assert not info['isvalid']
-        assert_equal(info['error'], 'Invalid prefix for Base58-encoded address')
-
-        info = node.validateaddress(BASE58_VALID)
-        assert info['isvalid']
-        assert 'error' not in info
-
         # Invalid address format
         info = node.validateaddress(INVALID_ADDRESS)
         assert not info['isvalid']
@@ -80,8 +68,6 @@ class InvalidAddressErrorMessageTest(BGLTestFramework):
         assert_raises_rpc_error(-5, "Invalid Bech32 address data size", node.getaddressinfo, BECH32_INVALID_SIZE)
 
         assert_raises_rpc_error(-5, "Invalid prefix for Bech32 address", node.getaddressinfo, BECH32_INVALID_PREFIX)
-
-        assert_raises_rpc_error(-5, "Invalid prefix for Base58-encoded address", node.getaddressinfo, BASE58_INVALID_PREFIX)
 
         assert_raises_rpc_error(-5, "Invalid address format", node.getaddressinfo, INVALID_ADDRESS)
 

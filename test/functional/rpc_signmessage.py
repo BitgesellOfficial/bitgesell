@@ -20,9 +20,9 @@ class SignMessagesTest(BGLTestFramework):
         message = 'This is just a test message'
 
         self.log.info('test signing with priv_key')
-        priv_key = 'cU2MAEpFKrHYzpUQUajkxoerJ33rKwF6ViLoHw2xRu7yy7dXkK5U'
-        address = 'Ejt5fCe8NyLDC3nRk5ptc85PWSubNDUY4D'
-        expected_signature = 'H28itpEwmM/PUOfLsKTHwtpl3nXwbenOYYW9WBkgYdybYJ71uwQL37f1Ahc0aKlyZ8D1pU5IlZpVSngJHhw2VNs='
+        priv_key = 'cUeKHd5orzT3mz8P9pxyREHfsWtVfgsfDjiZZBcjUBAaGk1BTj7N'
+        address = 'rbgl1qvza2pay5kwxw8j2qm6n87wqym3fdr7u5p9ch5p'
+        expected_signature = 'H+9fodtWIWFIVzvP93SmEhGRkWYUCauBko1X0HLpkIpcIC103x9cnCx8/qCx6f+hwgW5peTVGUQCYtnmITgsdQ0='
         signature = self.nodes[0].signmessagewithprivkey(priv_key, message)
         assert_equal(expected_signature, signature)
         assert self.nodes[0].verifymessage(address, signature, message)

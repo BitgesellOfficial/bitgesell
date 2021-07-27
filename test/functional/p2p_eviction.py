@@ -82,16 +82,11 @@ class P2PEvict(BGLTestFramework):
             prevtx = node.getblock(node.getblockhash(i + 1), 2)['tx'][0]
             rawtx = node.createrawtransaction(
                 inputs=[{'txid': prevtx['txid'], 'vout': 0}],
-                outputs=[{node.get_deterministic_priv_key().address: 50 - 0.00125}],
+                outputs=[{node.get_deterministic_priv_key().address: 200 - 0.00125}],
             )
             sigtx = node.signrawtransactionwithkey(
                 hexstring=rawtx,
                 privkeys=[node.get_deterministic_priv_key().key],
-                prevtxs=[{
-                    'txid': prevtx['txid'],
-                    'vout': 0,
-                    'scriptPubKey': prevtx['vout'][0]['scriptPubKey']['hex'],
-                }],
             )['hex']
             txpeer.send_message(msg_tx(tx_from_hex(sigtx)))
             protected_peers.add(current_peer)
