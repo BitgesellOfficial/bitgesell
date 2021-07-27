@@ -25,6 +25,7 @@
 #include <node/coinstats.h>
 #include <node/ui_interface.h>
 #include <policy/policy.h>
+#include <policy/rbf.h>
 #include <policy/settings.h>
 #include <pow.h>
 #include <primitives/block.h>
@@ -821,6 +822,7 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
     if (fReplacementTransaction)
     {
         CFeeRate newFeeRate(nModifiedFees, nSize);
+        std::set<uint256> setConflictsParents;
         for (const auto& mi : setIterConflicting) {
             // Don't allow the replacement to reduce the feerate of the
             // mempool.
@@ -879,6 +881,28 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
             {
                 setConflictsParents.insert(txin.prevout.hash);
             }
+
+            nConflictingCount += mi->GetCountWithDescendants();
+        }
+        // This potentially overestimates the number of actual descendants
+        // but we just want to be conservative to avoid doing too much
+        // work.
+        if (nConflictingCount <= MAX_BIP125_REPLACEMENT_CANDIDATES) {
+            // If not too many to replace, then calculate the set of
+            // transactions that would have to be evicted
+            for (CTxMemPool::txiter it : setIterConflicting) {
+                m_pool.CalculateDescendants(it, allConflicting);
+            }
+            for (CTxMemPool::txiter it : allConflicting) {
+                nConflictingFees += it->GetModifiedFee();
+                nConflictingSize += it->GetTxSize();
+            }
+        } else {
+            return state.Invalid(TxValidationResult::TX_MEMPOOL_POLICY, "too many potential replacements",
+                    strprintf("rejecting replacement %s; too many potential replacements (%d > %d)\n",
+                        hash.ToString(),
+                        nConflictingCount,
+                        MAX_BIP125_REPLACEMENT_CANDIDATES));
         }
 
         for (unsigned int j = 0; j < tx.vin.size(); j++)
