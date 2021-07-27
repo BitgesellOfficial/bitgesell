@@ -813,11 +813,6 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
         }
     }
 
-    // Check if it's economically rational to mine this transaction rather
-    // than the ones it replaces.
-    nConflictingFees = 0;
-    nConflictingSize = 0;
-    uint64_t nConflictingCount = 0;
 
     // If we don't hold the lock allConflicting might be incomplete; the
     // subsequent RemoveStaged() and addUnchecked() calls don't guarantee
@@ -826,8 +821,6 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
     if (fReplacementTransaction)
     {
         CFeeRate newFeeRate(nModifiedFees, nSize);
-        std::set<uint256> setConflictsParents;
-        const int maxDescendantsToVisit = 100;
         for (const auto& mi : setIterConflicting) {
             // Don't allow the replacement to reduce the feerate of the
             // mempool.
@@ -852,33 +845,40 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
                             newFeeRate.ToString(),
                             oldFeeRate.ToString()));
             }
+        }
 
+        uint64_t nConflictingCount = 0;
+        for (const auto& mi : setIterConflicting) {
+            nConflictingCount += mi->GetCountWithDescendants();
+            // This potentially overestimates the number of actual descendants
+            // but we just want to be conservative to avoid doing too much
+            // work.
+            if (nConflictingCount > MAX_BIP125_REPLACEMENT_CANDIDATES) {
+                return state.Invalid(TxValidationResult::TX_MEMPOOL_POLICY, "too many potential replacements",
+                        strprintf("rejecting replacement %s; too many potential replacements (%d > %d)\n",
+                            hash.ToString(),
+                            nConflictingCount,
+                            MAX_BIP125_REPLACEMENT_CANDIDATES));
+            }
+        }
+        // If not too many to replace, then calculate the set of
+        // transactions that would have to be evicted
+        for (CTxMemPool::txiter it : setIterConflicting) {
+            m_pool.CalculateDescendants(it, allConflicting);
+        }
+        // Check if it's economically rational to mine this transaction rather
+        // than the ones it replaces.
+        for (CTxMemPool::txiter it : allConflicting) {
+            nConflictingFees += it->GetModifiedFee();
+            nConflictingSize += it->GetTxSize();
+        }
+
+        std::set<uint256> setConflictsParents;
+        for (const auto& mi : setIterConflicting) {
             for (const CTxIn &txin : mi->GetTx().vin)
             {
                 setConflictsParents.insert(txin.prevout.hash);
             }
-
-            nConflictingCount += mi->GetCountWithDescendants();
-        }
-        // This potentially overestimates the number of actual descendants
-        // but we just want to be conservative to avoid doing too much
-        // work.
-        if (nConflictingCount <= maxDescendantsToVisit) {
-            // If not too many to replace, then calculate the set of
-            // transactions that would have to be evicted
-            for (CTxMemPool::txiter it : setIterConflicting) {
-                m_pool.CalculateDescendants(it, allConflicting);
-            }
-            for (CTxMemPool::txiter it : allConflicting) {
-                nConflictingFees += it->GetModifiedFee();
-                nConflictingSize += it->GetTxSize();
-            }
-        } else {
-            return state.Invalid(TxValidationResult::TX_MEMPOOL_POLICY, "too many potential replacements",
-                    strprintf("rejecting replacement %s; too many potential replacements (%d > %d)\n",
-                        hash.ToString(),
-                        nConflictingCount,
-                        maxDescendantsToVisit));
         }
 
         for (unsigned int j = 0; j < tx.vin.size(); j++)
