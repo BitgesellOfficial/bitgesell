@@ -862,7 +862,6 @@ Files:     Makefile.am
            test/functional/wallet_balance.py
            test/functional/wallet_basic.py
            test/functional/wallet_bumpfee.py
-           test/functional/wallet_bumpfee_totalfee_deprecation.py
            test/functional/wallet_coinbase_category.py
            test/functional/wallet_create_tx.py
            test/functional/wallet_createwallet.py
