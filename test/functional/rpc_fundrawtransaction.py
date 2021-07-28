@@ -99,9 +99,7 @@ class RawTransactionsTest(BGLTestFramework):
         self.fee_tolerance = 2 * self.min_relay_tx_fee / 1000
 
         self.generate(self.nodes[2], 1)
-        self.sync_all()
         self.generate(self.nodes[0], 121)
-        self.sync_all()
 
         self.test_change_position()
         self.test_simple()
@@ -163,7 +161,6 @@ class RawTransactionsTest(BGLTestFramework):
         self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 5.0)
 
         self.generate(self.nodes[0], 1)
-        self.sync_all()
 
         wwatch.unloadwallet()
 
@@ -549,7 +546,6 @@ class RawTransactionsTest(BGLTestFramework):
         # Send 1.2 BGL to msig addr.
         self.nodes[0].sendtoaddress(mSigObj, 1.2)
         self.generate(self.nodes[0], 1)
-        self.sync_all()
 
         oldBalance = self.nodes[1].getbalance()
         inputs = []
@@ -560,7 +556,6 @@ class RawTransactionsTest(BGLTestFramework):
         final_psbt = w2.finalizepsbt(signed_psbt['psbt'])
         self.nodes[2].sendrawtransaction(final_psbt['hex'])
         self.generate(self.nodes[2], 1)
-        self.sync_all()
 
         # Make sure funds are received at node1.
         assert_equal(oldBalance+Decimal('1.10000000'), self.nodes[1].getbalance())
@@ -624,7 +619,6 @@ class RawTransactionsTest(BGLTestFramework):
         signedTx = self.nodes[1].signrawtransactionwithwallet(fundedTx['hex'])
         self.nodes[1].sendrawtransaction(signedTx['hex'])
         self.generate(self.nodes[1], 1)
-        self.sync_all()
 
         # Make sure funds are received at node1.
         assert_equal(oldBalance+Decimal('201.10000000'), self.nodes[0].getbalance())
@@ -636,12 +630,10 @@ class RawTransactionsTest(BGLTestFramework):
         # Empty node1, send some small coins from node0 to node1.
         self.nodes[1].sendtoaddress(self.nodes[0].getnewaddress(), self.nodes[1].getbalance(), "", "", True)
         self.generate(self.nodes[1], 1)
-        self.sync_all()
 
         for _ in range(20):
             self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 0.01)
         self.generate(self.nodes[0], 1)
-        self.sync_all()
 
         # Fund a tx with ~20 small inputs.
         inputs = []
@@ -664,12 +656,10 @@ class RawTransactionsTest(BGLTestFramework):
         # Again, empty node1, send some small coins from node0 to node1.
         self.nodes[1].sendtoaddress(self.nodes[0].getnewaddress(), self.nodes[1].getbalance(), "", "", True)
         self.generate(self.nodes[1], 1)
-        self.sync_all()
 
         for _ in range(20):
             self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 0.01)
         self.generate(self.nodes[0], 1)
-        self.sync_all()
 
         # Fund a tx with ~20 small inputs.
         oldBalance = self.nodes[0].getbalance()
@@ -759,7 +749,6 @@ class RawTransactionsTest(BGLTestFramework):
         assert signedtx["complete"]
         self.nodes[0].sendrawtransaction(signedtx["hex"])
         self.generate(self.nodes[0], 1)
-        self.sync_all()
 
         wwatch.unloadwallet()
 
@@ -1004,7 +993,6 @@ class RawTransactionsTest(BGLTestFramework):
         self.nodes[0].sendtoaddress(addr, 10)
         self.nodes[0].sendtoaddress(wallet.getnewaddress(), 10)
         self.generate(self.nodes[0], 6)
-        self.sync_all()
         ext_utxo = self.nodes[0].listunspent(addresses=[addr])[0]
 
         # An external input without solving data should result in an error
@@ -1122,6 +1110,32 @@ class RawTransactionsTest(BGLTestFramework):
         do_fund_send(upper_bound)
 
         self.restart_node(0)
+        self.connect_nodes(0, 1)
+        self.connect_nodes(0, 2)
+        self.connect_nodes(0, 3)
+
+    def test_feerate_rounding(self):
+        self.log.info("Test that rounding of GetFee does not result in an assertion")
+
+        self.nodes[1].createwallet("roundtest")
+        w = self.nodes[1].get_wallet_rpc("roundtest")
+
+        addr = w.getnewaddress(address_type="bech32")
+        self.nodes[0].sendtoaddress(addr, 1)
+        self.generate(self.nodes[0], 1)
+
+        # A P2WPKH input costs 68 vbytes; With a single P2WPKH output, the rest of the tx is 42 vbytes for a total of 110 vbytes.
+        # At a feerate of 1.85 sat/vb, the input will need a fee of 125.8 sats and the rest 77.7 sats
+        # The entire tx fee should be 203.5 sats.
+        # Coin selection rounds the fee individually instead of at the end (due to how CFeeRate::GetFee works).
+        # If rounding down (which is the incorrect behavior), then the calculated fee will be 125 + 77 = 202.
+        # If rounding up, then the calculated fee will be 126 + 78 = 204.
+        # In the former case, the calculated needed fee is higher than the actual fee being paid, so an assertion is reached
+        # To test this does not happen, we subtract 202 sats from the input value. If working correctly, this should
+        # fail with insufficient funds rather than bitcoind asserting.
+        rawtx = w.createrawtransaction(inputs=[], outputs=[{self.nodes[0].getnewaddress(address_type="bech32"): 1 - 0.00000202}])
+        assert_raises_rpc_error(-4, "Insufficient funds", w.fundrawtransaction, rawtx, {"fee_rate": 1.85})
+
 
 if __name__ == '__main__':
     RawTransactionsTest().main()

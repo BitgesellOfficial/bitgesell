@@ -128,7 +128,6 @@ class TxnMallTest(BGLTestFramework):
         self.nodes[2].sendrawtransaction(node0_tx2["hex"])
         self.nodes[2].sendrawtransaction(tx2["hex"])
         self.generate(self.nodes[2], 1)  # Mine another block to make sure we sync
-        self.sync_blocks()
 
         # Re-fetch transaction info:
         tx1 = self.nodes[0].gettransaction(txid1)

@@ -345,7 +345,6 @@ class WalletTest(BGLTestFramework):
 
         self.sync_all()
         self.generate(self.nodes[1], 1)  # mine a block
-        self.sync_all()
 
         unspent_txs = self.nodes[0].listunspent()  # zero value tx must be in listunspents output
         found = False

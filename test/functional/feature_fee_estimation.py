@@ -213,7 +213,6 @@ class EstimateFeeTest(BGLTestFramework):
                 self.fees_per_kb.append(float(fee) / tx_kbytes)
             self.sync_mempools(wait=.1)
             mined = mining_node.getblock(self.generate(mining_node, 1)[0], True)["tx"]
-            self.sync_blocks(wait=.1)
             # update which txouts are confirmed
             newmem = []
             for utx in self.memutxo:
@@ -273,8 +272,6 @@ class EstimateFeeTest(BGLTestFramework):
         # Finish by mining a normal-sized block:
         while len(self.nodes[1].getrawmempool()) > 0:
             self.generate(self.nodes[1], 1)
-
-        self.sync_blocks(self.nodes[0:3], wait=.1)
         self.log.info("Final estimates after emptying mempools")
         check_estimates(self.nodes[1], self.fees_per_kb)
 
@@ -317,7 +314,6 @@ class EstimateFeeTest(BGLTestFramework):
             for txid in txids_to_replace:
                 miner.prioritisetransaction(txid=txid, fee_delta=-COIN)
             self.generate(miner, 1)
-            self.sync_blocks(wait=.1, nodes=[node, miner])
             # RBF the low-fee transactions
             while True:
                 try:
@@ -329,7 +325,6 @@ class EstimateFeeTest(BGLTestFramework):
         # Mine the last replacement txs
         self.sync_mempools(wait=.1, nodes=[node, miner])
         self.generate(miner, 1)
-        self.sync_blocks(wait=.1, nodes=[node, miner])
 
         # Only 10% of the transactions were really confirmed with a low feerate,
         # the rest needed to be RBF'd. We must return the 90% conf rate feerate.

@@ -26,10 +26,8 @@ class FeatureBlockfilterindexPruneTest(BGLTestFramework):
         assert_greater_than(len(self.nodes[0].getblockfilter(self.nodes[0].getbestblockhash())['filter']), 0)
         # Mine two batches of blocks to avoid hitting NODE_NETWORK_LIMITED_MIN_BLOCKS disconnection
         self.generate(self.nodes[0], 250)
-        self.sync_all()
         self.generate(self.nodes[0], 250)
-        self.sync_all()
-        self.sync_index(height=1000)
+        self.sync_index(height=700)
 
         self.log.info("prune some blocks")
         pruneheight = self.nodes[0].pruneblockchain(1000)
