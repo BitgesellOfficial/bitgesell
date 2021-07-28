@@ -131,8 +131,8 @@ class MempoolPersistTest(BGLTestFramework):
         assert self.nodes[0].getmempoolinfo()["loaded"]
         assert_equal(len(self.nodes[0].getrawmempool()), 6)
 
-        mempooldat0 = os.path.join(self.nodes[0].datadir, 'regtest', 'mempool.dat')
-        mempooldat1 = os.path.join(self.nodes[1].datadir, 'regtest', 'mempool.dat')
+        mempooldat0 = os.path.join(self.nodes[0].datadir, self.chain, 'mempool.dat')
+        mempooldat1 = os.path.join(self.nodes[1].datadir, self.chain, 'mempool.dat')
         self.log.debug("Remove the mempool.dat file. Verify that savemempool to disk via RPC re-creates it")
         os.remove(mempooldat0)
         self.nodes[0].savemempool()
@@ -145,7 +145,7 @@ class MempoolPersistTest(BGLTestFramework):
         assert self.nodes[1].getmempoolinfo()["loaded"]
         assert_equal(len(self.nodes[1].getrawmempool()), 6)
 
-        self.log.debug("Prevent BGLd from writing mempool.dat to disk. Verify that `savemempool` fails")
+        self.log.debug("Prevent bitcoind from writing mempool.dat to disk. Verify that `savemempool` fails")
         # to test the exception we are creating a tmp folder called mempool.dat.new
         # which is an implementation detail that could change and break this test
         mempooldotnew1 = mempooldat1 + '.new'
