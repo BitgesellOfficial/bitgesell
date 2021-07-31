@@ -29,7 +29,6 @@ from test_framework.p2p import (
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
-    hex_str_to_bytes,
 )
 
 VALID_DATA_LIMIT = MAX_PROTOCOL_MESSAGE_LENGTH - 5  # Account for the 5-byte length prefix
@@ -190,7 +189,7 @@ class InvalidMessagesTest(BGLTestFramework):
             [
                 'received: addrv2 (1 bytes)',
             ],
-            hex_str_to_bytes('00'))
+            bytes.fromhex('00'))
 
     def test_addrv2_too_long_address(self):
         self.test_addrv2('too long address',
@@ -199,7 +198,7 @@ class InvalidMessagesTest(BGLTestFramework):
                 'ProcessMessages(addrv2, 525 bytes): Exception',
                 'Address too long: 513 > 512',
             ],
-            hex_str_to_bytes(
+            bytes.fromhex(
                 '01' +       # number of entries
                 '61bc6649' + # time, Fri Jan  9 02:54:25 UTC 2009
                 '00' +       # service flags, COMPACTSIZE(NODE_NONE)
@@ -216,7 +215,7 @@ class InvalidMessagesTest(BGLTestFramework):
                 'IP 9.9.9.9 mapped',
                 'Added 1 addresses',
             ],
-            hex_str_to_bytes(
+            bytes.fromhex(
                 '02' +     # number of entries
                 # this should be ignored without impeding acceptance of subsequent ones
                 now_hex +  # time
