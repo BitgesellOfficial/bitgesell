@@ -1,12 +1,5 @@
 [
-    [
-        "12nJxUxoNYHehdCQGWnU8Q6qfB59NREzi7",
-        "76a9141389d55e3b2be715260c8e9a89c967b0155479ed88ac",
-        {
-            "isPrivkey": false,
-            "chain": "main"
-        }
-    ],
+
     [
         "BMv7nAPDFLHRu7DrUtHqahEcR3CJYwpAZs",
         "a914bf972cbe063830e39b90dd83aef6bfccfe46b21987",
@@ -98,14 +91,6 @@
         }
     ],
     [
-        "1PbTMQF9mJrmF7NtcCcF5CucKZFGD9r8VS",
-        "76a914f7d6e8429c3539c9c8064c81456f50ed68776a5688ac",
-        {
-            "isPrivkey": false,
-            "chain": "main"
-        }
-    ],
-    [
         "BJbDxW4yf9URyQV24y1HWMR5JPiR5ujmjt",
         "a9149b1c0d2f7958c547d03d696543d2e840c371967c87",
         {
@@ -175,14 +160,6 @@
         }
     ],
     [
-        "16L3dWG59XsEUumZCirjW5HWfdXZvmqdMq",
-        "76a9143a72ba22e7b69f6d4551dfa97b99270c1210502188ac",
-        {
-            "chain": "main",
-            "isPrivkey": false
-        }
-    ],
-    [
         "BFNrM3GoqfmdNkPfZH6GUKGQe3jrJaKbzm",
         "a91477dca46ea1b39de8f9c6ac95490f33816c32c52287",
         {
@@ -203,14 +180,6 @@
         "a91487c86a48e18c15343b4a5c90e3d342f443c5ae8487",
         {
             "chain": "test",
-            "isPrivkey": false
-        }
-    ],
-    [
-        "14yj8rYWQ8AB9PZUt9wb5PnvD5LYrAHfrk",
-        "76a9142ba2d8160cd2b393983280a524cdedca5f67470b88ac",
-        {
-            "chain": "main",
             "isPrivkey": false
         }
     ],
@@ -251,14 +220,6 @@
         "a9148badb3c3b5c0d39f906f7618e0018b7eae4baf7387",
         {
             "chain": "signet",
-            "isPrivkey": false
-        }
-    ],
-    [
-        "173dCEQeQUhbAtcSkHFUuXrZtqW4NoXh2D",
-        "76a914424fccafb4ffe23ed9837c5e39e8d1d085b764c888ac",
-        {
-            "chain": "main",
             "isPrivkey": false
         }
     ],
@@ -346,14 +307,6 @@
             "chain": "regtest",
             "isCompressed": true,
             "isPrivkey": true
-        }
-    ],
-    [
-        "14zaf88zQwfkwB3C6WeFRwnej8voZJykwf",
-        "76a9142bcc2ed06a03068688cb7c69e4003c98dac241d988ac",
-        {
-            "chain": "main",
-            "isPrivkey": false
         }
     ],
     [
