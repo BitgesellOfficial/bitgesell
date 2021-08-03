@@ -172,7 +172,14 @@ void TxToUniv(const CTransaction& tx, const uint256& hashBlock, UniValue& entry,
     entry.pushKV("weight", GetTransactionWeight(tx));
     entry.pushKV("locktime", (int64_t)tx.nLockTime);
 
-    UniValue vin(UniValue::VARR);
+    UniValue vin{UniValue::VARR};
+
+    // If available, use Undo data to calculate the fee. Note that txundo == nullptr
+    // for coinbase transactions and for transactions where undo data is unavailable.
+    const bool have_undo = txundo != nullptr;
+    CAmount amt_total_in = 0;
+    CAmount amt_total_out = 0;
+
     for (unsigned int i = 0; i < tx.vin.size(); i++) {
         const CTxIn& txin = tx.vin[i];
         UniValue in(UniValue::VOBJ);
@@ -193,7 +200,7 @@ void TxToUniv(const CTransaction& tx, const uint256& hashBlock, UniValue& entry,
             }
             in.pushKV("txinwitness", txinwitness);
         }
-        if (calculate_fee) {
+        if (have_undo) {
             const Coin& prev_coin = txundo->vprevout[i];
             const CTxOut& prev_txout = prev_coin.out;
 
@@ -234,8 +241,18 @@ void TxToUniv(const CTransaction& tx, const uint256& hashBlock, UniValue& entry,
         ScriptPubKeyToUniv(txout.scriptPubKey, o, true);
         out.pushKV("scriptPubKey", o);
         vout.push_back(out);
+
+        if (have_undo) {
+            amt_total_out += txout.nValue;
+        }
     }
     entry.pushKV("vout", vout);
+
+    if (have_undo) {
+        const CAmount fee = amt_total_in - amt_total_out;
+        CHECK_NONFATAL(MoneyRange(fee));
+        entry.pushKV("fee", ValueFromAmount(fee));
+    }
 
     if (!hashBlock.IsNull())
         entry.pushKV("blockhash", hashBlock.GetHex());
