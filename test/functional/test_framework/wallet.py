@@ -18,6 +18,7 @@ from test_framework.messages import (
     CTxIn,
     CTxInWitness,
     CTxOut,
+    tx_from_hex,
 )
 from test_framework.script import (
     CScript,
@@ -195,13 +196,13 @@ class MiniWallet:
         from_node.sendrawtransaction(tx_hex)
         self.scan_tx(from_node.decoderawtransaction(tx_hex))
 
-def make_chain(node, address, privkeys, parent_txid, parent_value, n=0, parent_locking_script=None, fee=DEFAULT_FEE):
+def make_chain(node, address, privkeys, parent_txid, parent_value, n=0, parent_locking_script=None):
     """Build a transaction that spends parent_txid.vout[n] and produces one output with
     amount = parent_value with a fee deducted.
     Return tuple (CTransaction object, raw hex, nValue, scriptPubKey of the output created).
     """
     inputs = [{"txid": parent_txid, "vout": n}]
-    my_value = parent_value - fee
+    my_value = parent_value - Decimal("0.0001")
     outputs = {address : my_value}
     rawtx = node.createrawtransaction(inputs, outputs)
     prevtxs = [{
@@ -215,12 +216,12 @@ def make_chain(node, address, privkeys, parent_txid, parent_value, n=0, parent_l
     tx = tx_from_hex(signedtx["hex"])
     return (tx, signedtx["hex"], my_value, tx.vout[0].scriptPubKey.hex())
 
-def create_child_with_parents(node, address, privkeys, parents_tx, values, locking_scripts, fee=DEFAULT_FEE):
+def create_child_with_parents(node, address, privkeys, parents_tx, values, locking_scripts):
     """Creates a transaction that spends the first output of each parent in parents_tx."""
     num_parents = len(parents_tx)
     total_value = sum(values)
     inputs = [{"txid": tx.rehash(), "vout": 0} for tx in parents_tx]
-    outputs = {address : total_value - fee}
+    outputs = {address : total_value - num_parents * Decimal("0.0001")}
     rawtx_child = node.createrawtransaction(inputs, outputs)
     prevtxs = []
     for i in range(num_parents):
@@ -246,23 +247,3 @@ def create_raw_chain(node, first_coin, address, privkeys, chain_length=25):
         chain_txns.append(tx)
 
     return (chain_hex, chain_txns)
-
-def bulk_transaction(tx, node, target_weight, privkeys, prevtxs=None):
-    """Pad a transaction with extra outputs until it reaches a target weight (or higher).
-    returns CTransaction object
-    """
-    tx_heavy = deepcopy(tx)
-    assert_greater_than_or_equal(target_weight, tx_heavy.get_weight())
-    while tx_heavy.get_weight() < target_weight:
-        random_spk = "6a4d0200"  # OP_RETURN OP_PUSH2 512 bytes
-        for _ in range(512*2):
-            random_spk += choice("0123456789ABCDEF")
-        tx_heavy.vout.append(CTxOut(0, bytes.fromhex(random_spk)))
-    # Re-sign the transaction
-    if privkeys:
-        signed = node.signrawtransactionwithkey(tx_heavy.serialize().hex(), privkeys, prevtxs)
-        return tx_from_hex(signed["hex"])
-    # OP_TRUE
-    tx_heavy.wit.vtxinwit = [CTxInWitness()]
-    tx_heavy.wit.vtxinwit[0].scriptWitness.stack = [CScript([OP_TRUE])]
-    return tx_heavy
