@@ -16,9 +16,12 @@
 #include <utility>
 #include <vector>
 
+class CBlockFileInfo;
 class CBlockIndex;
-class CCoinsViewDBCursor;
 class uint256;
+namespace Consensus {
+struct Params;
+};
 
 //! No need to periodic flush if at least this much space still available.
 static constexpr int MAX_BLOCK_COINSDB_USAGE = 10;
