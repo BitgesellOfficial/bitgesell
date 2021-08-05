@@ -4,8 +4,10 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """A limited-functionality wallet, which may replace a real wallet in tests"""
 
+from copy import deepcopy
 from decimal import Decimal
 from enum import Enum
+from random import choice
 from typing import Optional
 from test_framework.address import ADDRESS_BCRT1_P2WSH_OP_TRUE
 from test_framework.key import ECKey
@@ -27,6 +29,7 @@ from test_framework.script import (
 )
 from test_framework.util import (
     assert_equal,
+    assert_greater_than_or_equal,
     satoshi_round,
 )
 from enum import Enum
