@@ -2,12 +2,14 @@
 # Copyright (c) 2016-2019 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
-"""Test RPC commands for signing and verifying messages."""
+"""Test Wallet commands for signing and verifying messages."""
 
-from test_framework.test_framework import BGLTestFramework
-from test_framework.util import assert_equal
+from test_framework.test_framework import BitcoinTestFramework
+from test_framework.util import (
+    assert_raises_rpc_error,
+)
 
-class SignMessagesTest(BGLTestFramework):
+class SignMessagesWithAddressTest(BitcoinTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1
@@ -18,14 +20,6 @@ class SignMessagesTest(BGLTestFramework):
 
     def run_test(self):
         message = 'This is just a test message'
-
-        self.log.info('test signing with priv_key')
-        priv_key = 'cU2MAEpFKrHYzpUQUajkxoerJ33rKwF6ViLoHw2xRu7yy7dXkK5U'
-        address = 'Ejt5fCe8NyLDC3nRk5ptc85PWSubNDUY4D'
-        expected_signature = 'H28itpEwmM/PUOfLsKTHwtpl3nXwbenOYYW9WBkgYdybYJ71uwQL37f1Ahc0aKlyZ8D1pU5IlZpVSngJHhw2VNs='
-        signature = self.nodes[0].signmessagewithprivkey(priv_key, message)
-        assert_equal(expected_signature, signature)
-        assert self.nodes[0].verifymessage(address, signature, message)
 
         self.log.info('test signing with an address with wallet')
         address = self.nodes[0].getnewaddress()
@@ -38,5 +32,14 @@ class SignMessagesTest(BGLTestFramework):
         assert not self.nodes[0].verifymessage(other_address, signature, message)
         assert not self.nodes[0].verifymessage(address, other_signature, message)
 
+        self.log.info('test parameter validity and error codes')
+        # signmessage has two required parameters
+        for num_params in [0, 1, 3, 4, 5]:
+            param_list = ["dummy"]*num_params
+            assert_raises_rpc_error(-1, "signmessage", self.nodes[0].signmessage, *param_list)
+        # invalid key or address provided
+        assert_raises_rpc_error(-5, "Invalid address", self.nodes[0].signmessage, "invalid_addr", message)
+
+
 if __name__ == '__main__':
-    SignMessagesTest().main()
+    SignMessagesWithAddressTest().main()
