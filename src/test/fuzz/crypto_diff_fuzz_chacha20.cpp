@@ -265,6 +265,7 @@ void ECRYPT_keystream_bytes(ECRYPT_ctx* x, u8* stream, u32 bytes)
     ECRYPT_encrypt_bytes(x, stream, stream, bytes);
 }
 
+<<<<<<< HEAD
 FUZZ_TARGET(crypto_diff_fuzz_chacha20)
 {
     FuzzedDataProvider fuzzed_data_provider{buffer.data(), buffer.size()};
@@ -328,3 +329,5 @@ FUZZ_TARGET(crypto_diff_fuzz_chacha20)
             });
     }
 }
+=======
+>>>>>>> 65ef93203c... [fuzz] Add D. J. Bernstein's implementation of ChaCha20
