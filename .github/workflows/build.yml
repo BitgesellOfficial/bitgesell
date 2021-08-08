@@ -26,4 +26,4 @@ jobs:
     - name: Install Test Dependencies
       run: sudo apt install python3-zmq && pip3 install pysha3
     - name: Run Test
-      run: make check && python3 test/functional/test_runner.py --extended
+      run: make check && python3 test/functional/test_runner.py
