@@ -22,7 +22,7 @@ jobs:
     - name: Install Berkeley Database
       run: chmod +x ./contrib/install_db4.sh && ./contrib/install_db4.sh .
     - name: Build
-      run: export BDB_PREFIX='/home/runner/work/bitgesell/bitgesell/db4' && ./autogen.sh && ./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BDB_PREFIX}/include" --enable-lcov --enable-lcov-branch-coverage --enable-extended-functional-tests --enable-debug && make -j$(nproc) && make -j$(nproc) install
+      run: export BDB_PREFIX='/home/runner/work/bitgesell/bitgesell/db4' && ./autogen.sh && ./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BDB_PREFIX}/include" --enable-extended-functional-tests --enable-debug && make -j$(nproc) && make -j$(nproc) install
     - name: Install Test Dependencies
       run: sudo apt install python3-zmq && pip3 install pysha3
     - name: Run Test
