@@ -25,5 +25,7 @@ jobs:
       run: chmod +x ./contrib/install_db4.sh && ./contrib/install_db4.sh .
     - name: Build
       run: export BDB_PREFIX='/home/runner/work/bitgesell/bitgesell/db4' && ./autogen.sh && ./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BDB_PREFIX}/include" && make
-    - name: Test
-      run: make check
+    - name: Install Test Dependencies
+      run: sudo apt install python3-zmq && pip3 install pysha3
+    - name: Run Test
+      run: make check && python3 test/functional/test_runner.py --extended
