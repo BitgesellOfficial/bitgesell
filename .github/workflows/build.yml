@@ -26,4 +26,4 @@ jobs:
     - name: Build
       run: export BDB_PREFIX='/home/runner/work/bitgesell/bitgesell/db4' && ./autogen.sh && ./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BDB_PREFIX}/include" && make
     - name: Test
-      run: make check && cd ./src/test && ./configure && make && make check
+      run: make check
