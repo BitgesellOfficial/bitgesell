@@ -12,19 +12,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Update apt
-      run: sudo apt update && sudo apt upgrade
     - name: Install Requirements
       run: sudo apt install git build-essential libtool autotools-dev automake pkg-config bsdmainutils python3
     - name: Install Required Dependencies
-      run: sudo apt install libevent-dev libboost-system-dev libboost-filesystem-dev libboost-test-dev libboost-thread-dev
+      run: sudo apt install libevent-dev libboost-system-dev libboost-filesystem-dev libboost-test-dev libboost-thread-dev libsqlite3-dev libminiupnpc-dev libnatpmp-dev libzmq3-dev
+    - name: Install QT Required Dependencies
+      run: sudo apt install libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libqrencode-dev
     - uses: actions/checkout@v2
-    - name: Debug
-      run: ls -al ./
     - name: Install Berkeley Database
       run: chmod +x ./contrib/install_db4.sh && ./contrib/install_db4.sh .
     - name: Build
-      run: export BDB_PREFIX='/home/runner/work/bitgesell/bitgesell/db4' && ./autogen.sh && ./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BDB_PREFIX}/include" && make
+      run: export BDB_PREFIX='/home/runner/work/bitgesell/bitgesell/db4' && ./autogen.sh && ./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BDB_PREFIX}/include" --enable-lcov --enable-lcov-branch-coverage --enable-extended-functional-tests --enable-debug --with-sanitizers && make -j$(nproc) && make -j$(nproc) install
     - name: Install Test Dependencies
       run: sudo apt install python3-zmq && pip3 install pysha3
     - name: Run Test
