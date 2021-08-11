@@ -1341,9 +1341,8 @@ void BGLGUI::setEncryptionStatus(int status)
 
 void BGLGUI::updateWalletStatus()
 {
-    if (!walletFrame) {
-        return;
-    }
+    assert(walletFrame);
+
     WalletView * const walletView = walletFrame->currentWalletView();
     if (!walletView) {
         return;
