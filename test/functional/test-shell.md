@@ -169,11 +169,11 @@ can be called after the TestShell is shut down.
 
 | Test parameter key | Default Value | Description |
 |---|---|---|
-| `bind_to_localhost_only` | `True` | Binds BGLd RPC services to `127.0.0.1` if set to `True`.|
-| `cachedir` | `"/path/to/BGL/test/cache"` | Sets the BGLd datadir directory. |
-| `chain`  | `"regtest"` | Sets the chain-type for the underlying test BGLd processes. |
-| `configfile` | `"/path/to/BGL/test/config.ini"` | Sets the location of the test framework config file. |
-| `coveragedir` | `None` | Records BGLd RPC test coverage into this directory if set. |
+| `bind_to_localhost_only` | `True` | Binds bitcoind P2P services to `127.0.0.1` if set to `True`.|
+| `cachedir` | `"/path/to/bitcoin/test/cache"` | Sets the bitcoind datadir directory. |
+| `chain`  | `"regtest"` | Sets the chain-type for the underlying test bitcoind processes. |
+| `configfile` | `"/path/to/bitcoin/test/config.ini"` | Sets the location of the test framework config file. |
+| `coveragedir` | `None` | Records bitcoind RPC test coverage into this directory if set. |
 | `loglevel` | `INFO` | Logs events at this level and higher. Can be set to `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`. |
 | `nocleanup` | `False` | Cleans up temporary test directory if set to `True` during `shutdown`. |
 | `noshutdown` | `False` | Does not stop BGLd instances after `shutdown` if set to `True`. |
