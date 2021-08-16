@@ -690,8 +690,8 @@ class CBlockHeader:
             r += struct.pack("<I", self.nNonce)
             #print("DATA TO HASH:", r.hex())
             self.sha256 = uint256_from_str(keccak256(r))
-            self.hash = encode(keccak256(r)[::-1], 'hex_codec').decode('ascii')
-            #print("BLOCK HASH:", hex(self.sha256))
+            self.hash = keccak256(r)[::-1].hex()
+            #print("BLOCK HASH:", hex(self.sha256)
 
     def rehash(self):
         self.sha256 = None
