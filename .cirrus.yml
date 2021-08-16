@@ -66,11 +66,8 @@ task_template: &TASK_TEMPLATE
   ccache_cache:
     folder: "/tmp/ccache_dir"
   depends_built_cache:
-    folder: "/tmp/cirrus-ci-build/depends/built"
-  depends_sdk_cache:
-    folder: "/tmp/cirrus-ci-build/depends/sdk-sources"
-  depends_releases_cache:
-    folder: "/tmp/cirrus-ci-build/releases"
+    folder: "depends/built"
+    fingerprint_script: echo $CIRRUS_TASK_NAME $(git rev-list -1 HEAD ./depends)
   ci_script:
     - ./ci/test_run_all.sh
 
@@ -348,6 +345,7 @@ task:
   << : *BASE_TEMPLATE
   depends_sources_cache:
     folder: "depends/sources"
+    fingerprint_script: git rev-list -1 HEAD ./depends
   << : *TASK_TEMPLATE
   container:
     dockerfile: ci/linux-debian.Dockerfile
