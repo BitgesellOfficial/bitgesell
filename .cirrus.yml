@@ -55,8 +55,7 @@ merge_base_script_snippet: &MERGE_BASE
     - git merge FETCH_HEAD  # Merge base to detect silent merge conflicts
   stateful: false  # https://cirrus-ci.org/guide/writing-tasks/#stateful-tasks
 
-global_task_template: &GLOBAL_TASK_TEMPLATE
-  << : *BASE_TEMPLATE
+task_template: &TASK_TEMPLATE
   timeout_in: 120m  # https://cirrus-ci.org/faq/#instance-timed-out
   container:
     # https://cirrus-ci.org/faq/#are-there-any-limits
@@ -74,6 +73,10 @@ global_task_template: &GLOBAL_TASK_TEMPLATE
     folder: "/tmp/cirrus-ci-build/releases"
   ci_script:
     - ./ci/test_run_all.sh
+
+global_task_template: &GLOBAL_TASK_TEMPLATE
+  << : *BASE_TEMPLATE
+  << : *TASK_TEMPLATE
 
 depends_sdk_cache_template: &DEPENDS_SDK_CACHE_TEMPLATE
   depends_sdk_cache:
@@ -340,7 +343,12 @@ task:
   << : *CAT_LOGS
 
 task:
-  name: "C++ -fpermissive"
+  name: 'ARM64 Android APK [focal]'
+  << : *DEPENDS_SDK_CACHE_TEMPLATE
+  << : *BASE_TEMPLATE
+  depends_sources_cache:
+    folder: "depends/sources"
+  << : *TASK_TEMPLATE
   container:
     dockerfile: ci/linux-debian.Dockerfile
     cpu: 1
