@@ -131,13 +131,13 @@ public:
  *      configuration option will introduce (expensive) consistency checks for the entire data structure.
  */
 
-//! total number of buckets for tried addresses
+/** Total number of buckets for tried addresses */
 static constexpr int32_t ADDRMAN_TRIED_BUCKET_COUNT_LOG2{8};
 
-//! total number of buckets for new addresses
+/** Total number of buckets for new addresses */
 static constexpr int32_t ADDRMAN_NEW_BUCKET_COUNT_LOG2{10};
 
-//! maximum allowed number of entries in buckets for new and tried addresses
+/** Maximum allowed number of entries in buckets for new and tried addresses */
 static constexpr int32_t ADDRMAN_BUCKET_SIZE_LOG2{6};
 
 //! over how many buckets entries with tried addresses from a single group (/16 for IPv4) are spread
