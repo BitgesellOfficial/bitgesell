@@ -125,7 +125,8 @@ using RecursiveMutex = AnnotatedMixin<std::recursive_mutex>;
 typedef AnnotatedMixin<std::mutex> Mutex;
 
 #ifdef DEBUG_LOCKCONTENTION
-void PrintLockContention(const char* pszName, const char* pszFile, int nLine);
+/** Prints a lock contention to the log */
+void LockContention(const char* pszName, const char* pszFile, int nLine);
 #endif
 
 /** Wrapper around std::unique_lock style lock for Mutex. */
@@ -138,7 +139,7 @@ private:
         EnterCritical(pszName, pszFile, nLine, (void*)(Base::mutex()));
 #ifdef DEBUG_LOCKCONTENTION
         if (!Base::try_lock()) {
-            PrintLockContention(pszName, pszFile, nLine);
+            LockContention(pszName, pszFile, nLine); // log the contention
 #endif
             Base::lock();
 #ifdef DEBUG_LOCKCONTENTION
