@@ -53,7 +53,7 @@ this release:
   `./configure`. This is the same as when checking out from git.
 
 - Instead of running `make` simply, you should instead run
-  `BGL_GENBUILD_NO_GIT=1 make`.
+  `BITCOIN_GENBUILD_NO_GIT=1 make`.
 
 Notable changes
 ===============
@@ -528,7 +528,7 @@ Build system
 - #17756 Remove `WINDOWS_BITS` from build system (fanquake)
 - #17769 Set `AC_PREREQ` to 2.69 (fanquake)
 - #17880 Add -Wdate-time to Werror flags (fanquake)
-- #17910 Remove double `LIBBGL_SERVER` linking (fanquake)
+- #17910 Remove double `LIBBITCOIN_SERVER` linking (fanquake)
 - #17928 Consistent use of package variable (Bushstar)
 - #17933 guix: Pin Guix using `guix time-machine` (dongcarl)
 - #17948 pass -fno-ident in Windows gitian descriptor (fanquake)
@@ -546,7 +546,7 @@ Build system
 - #18331 Use git archive as source tarball (hebasto)
 - #18397 Fix libevent linking for `bench_bitcoin` binary (hebasto)
 - #18426 scripts: `Previous_release`: improve behaviour on failed download (theStack)
-- #18429 Remove double `LIBBGL_SERVER` from bench-Makefile (brakmic)
+- #18429 Remove double `LIBBITCOIN_SERVER` from bench-Makefile (brakmic)
 - #18528 Create `test_fuzz` library from src/test/fuzz/fuzz.cpp (brakmic)
 - #18558 Fix boost detection for arch armv7l (hebasto)
 - #18598 gitian: Add missing automake package to gitian-win-signer.yml (achow101)

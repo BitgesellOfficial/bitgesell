@@ -53,7 +53,7 @@ this release:
   `./configure`. This is the same as when checking out from git.
 
 - Instead of running `make` simply, you should instead run
-  `BGL_GENBUILD_NO_GIT=1 make`.
+  `BITCOIN_GENBUILD_NO_GIT=1 make`.
 
 Notable changes
 ===============
