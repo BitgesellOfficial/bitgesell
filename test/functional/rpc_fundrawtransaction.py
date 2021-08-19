@@ -998,7 +998,7 @@ class RawTransactionsTest(BGLTestFramework):
         assert_greater_than(fees, 0.01)
 
         def do_fund_send(target):
-            create_tx = tester.createrawtransaction([], [{funds.getnewaddress(): lower_bound}])
+            create_tx = tester.createrawtransaction([], [{funds.getnewaddress(): target}])
             funded_tx = tester.fundrawtransaction(create_tx)
             signed_tx = tester.signrawtransactionwithwallet(funded_tx["hex"])
             assert signed_tx["complete"]
