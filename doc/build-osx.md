@@ -71,7 +71,7 @@ brew install berkeley-db4
 
 1. Clone the BGL Core source code:
     ```shell
-    git clone https://github.com/BGL/BGL
+    git clone https://github.com/BitgesellOfficial/bitgesell
     cd BGL
     ```
 

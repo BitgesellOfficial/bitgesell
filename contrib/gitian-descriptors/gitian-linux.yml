@@ -41,7 +41,7 @@ packages:
 - "binutils-riscv64-linux-gnu"
 - "g++-8-riscv64-linux-gnu"
 remotes:
-- "url": "https://github.com/BGL/BGL.git"
+- "url": "https://github.com/BitgesellOfficial/bitgesell.git"
   "dir": "BGL"
 files: []
 script: |

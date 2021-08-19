@@ -7,7 +7,7 @@ project at Transifex to help:
 https://www.transifex.net/projects/p/BGL/
 
 Please report bugs using the issue tracker at github:
-https://github.com/BGL/BGL/issues
+https://github.com/BitgesellOfficial/bitgesell/issues
 
 Project source code is hosted at github; we are no longer
 distributing .tar.gz files here, you can get them

@@ -7,7 +7,7 @@ updates. It is recommended to upgrade to this version as soon as possible.
 
 Please report bugs using the issue tracker at github:
 
-  <https://github.com/BGL/BGL/issues>
+  <https://github.com/BitgesellOfficial/bitgesell/issues>
 
 Upgrading and downgrading
 =========================

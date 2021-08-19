@@ -23,7 +23,7 @@ packages:
 - "ca-certificates"
 - "python3"
 remotes:
-- "url": "https://github.com/BGL/BGL.git"
+- "url": "https://github.com/BitgesellOfficial/bitgesell.git"
   "dir": "BGL"
 files: []
 script: |

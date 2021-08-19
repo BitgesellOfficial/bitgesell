@@ -7,7 +7,7 @@ bug fixes.
 
 Please report bugs using the issue tracker at github:
 
-  https://github.com/BGL/BGL/issues
+  https://github.com/BitgesellOfficial/bitgesell/issues
 
 Upgrading and downgrading
 =========================
@@ -230,7 +230,7 @@ bindings such as [python-BGLlib](https://pypi.python.org/pypi/python-BGLlib) or
 alternative node implementations.
 
 This library is called `libBGLconsensus.so` (or, `.dll` for Windows).
-Its interface is defined in the C header [BGLconsensus.h](https://github.com/BGL/BGL/blob/0.10/src/script/BGLconsensus.h).
+Its interface is defined in the C header [BGLconsensus.h](https://github.com/BitgesellOfficial/bitgesell/blob/master/src/script/BGLconsensus.h).
 
 In its initial version the API includes two functions:
 

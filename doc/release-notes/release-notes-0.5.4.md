@@ -5,7 +5,7 @@ NOTE: 0.5.4rc3 is being renamed to 0.5.4 final with no changes.
 This is a bugfix-only release in the 0.5.x series, plus a few protocol updates.
 
 Please report bugs using the issue tracker at github:
-https://github.com/BGL/BGL/issues
+https://github.com/BitgesellOfficial/bitgesell/issues
 
 Stable source code is hosted at Gitorious:
 http://gitorious.org/BGL/BGLd-stable/archive-tarball/v0.5.4#.tar.gz

@@ -5,7 +5,7 @@ We recommend that everybody running prior versions of BGLd/BGL-Qt
 upgrade to this release, except for users running Mac OSX 10.5.
 
 Please report bugs using the issue tracker at github:
-  https://github.com/BGL/BGL/issues
+  https://github.com/BitgesellOfficial/bitgesell/issues
 
 Project source code is hosted at github; you can get
 source-only tarballs/zipballs directly from there:

@@ -5,7 +5,7 @@ Introduction
 ---------------------
 Solution and project files to build the BGL Core applications `msbuild` or Visual Studio can be found in the build_msvc directory. The build has been tested with Visual Studio 2017 and 2019.
 
-Building with Visual Studio is an alternative to the Linux based [cross-compiler build](https://github.com/BGL/BGL/blob/master/doc/build-windows.md).
+Building with Visual Studio is an alternative to the Linux based [cross-compiler build](https://github.com/BitgesellOfficial/bitgesell/blob/master/doc/build-windows.md).
 
 Quick Start
 ---------------------
@@ -19,7 +19,7 @@ msbuild /m BGL.sln /p:Platform=x64 /p:Configuration=Release /t:build
 
 Dependencies
 ---------------------
-A number of [open source libraries](https://github.com/BGL/BGL/blob/master/doc/dependencies.md) are required in order to be able to build BGL Core.
+A number of [open source libraries](https://github.com/BitgesellOfficial/bitgesell/blob/master/doc/dependencies.md) are required in order to be able to build BGL Core.
 
 Options for installing the dependencies in a Visual Studio compatible manner are:
 

@@ -72,7 +72,7 @@ Check out the source code in the following directory hierarchy.
     git clone https://github.com/BGL-core/gitian.sigs.git
     git clone https://github.com/BGL-core/BGL-detached-sigs.git
     git clone https://github.com/devrandom/gitian-builder.git
-    git clone https://github.com/BGL/BGL.git
+    git clone https://github.com/BitgesellOfficial/bitgesell.git
 
 ### Write the release notes
 
@@ -365,7 +365,7 @@ BGL.org (see below for BGL.org update instructions).
 
       - Archive the release notes for the new version to `doc/release-notes/` (branch `master` and branch of the release)
 
-      - Create a [new GitHub release](https://github.com/BGL/BGL/releases/new) with a link to the archived release notes
+      - Create a [new GitHub release](https://github.com/BitgesellOfficial/bitgesell/releases/new) with a link to the archived release notes
 
 - Announce the release:
 

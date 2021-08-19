@@ -6,7 +6,7 @@ This is a new minor version release, with various bugfixes.
 
 Please report bugs using the issue tracker at GitHub:
 
-  <https://github.com/BGL/BGL/issues>
+  <https://github.com/BitgesellOfficial/bitgesell/issues>
 
 To receive security and update notifications, please subscribe to:
 

@@ -28,7 +28,7 @@ packages:
 - "xorriso"
 - "libtinfo5"
 remotes:
-- "url": "https://github.com/BGL/BGL.git"
+- "url": "https://github.com/BitgesellOfficial/bitgesell.git"
   "dir": "BGL"
 files:
 - "Xcode-11.3.1-11C505-extracted-SDK-with-libcxx-headers.tar.gz"
