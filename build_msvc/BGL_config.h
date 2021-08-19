@@ -256,7 +256,7 @@
 #define PACKAGE_TARNAME "BGL"
 
 /* Define to the home page for this package. */
-#define PACKAGE_URL "https://BGLcore.org/"
+#define PACKAGE_URL "https://bitgesell.ca/"
 
 /* Define to the version of this package. */
 #define PACKAGE_VERSION "21.99.0"

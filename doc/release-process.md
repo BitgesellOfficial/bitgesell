@@ -317,12 +317,12 @@ BGL.org (see below for BGL.org update instructions).
 
 - Update other repositories and websites for new version
 
-  - BGLcore.org blog post
+  - bitgesell.ca blog post
 
-  - BGLcore.org maintained versions update:
-    [table](https://github.com/BGL-core/BGLcore.org/commits/master/_includes/posts/maintenance-table.md)
+  - bitgesell.ca maintained versions update:
+    [table](https://github.com/BGL-core/bitgesell.ca/commits/master/_includes/posts/maintenance-table.md)
 
-  - BGLcore.org RPC documentation update
+  - bitgesell.ca RPC documentation update
 
       - Install [golang](https://golang.org/doc/install)
 
@@ -371,7 +371,7 @@ BGL.org (see below for BGL.org update instructions).
 
   - BGL-dev and BGL-core-dev mailing list
 
-  - BGL Core announcements list https://BGLcore.org/en/list/announcements/join/
+  - BGL Core announcements list https://bitgesell.ca/en/list/announcements/join/
 
   - Update title of #BGL on Freenode IRC
 

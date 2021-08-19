@@ -94,10 +94,10 @@ bool static TestSplitHost(const std::string& test, const std::string& host, uint
 
 BOOST_AUTO_TEST_CASE(netbase_splithost)
 {
-    BOOST_CHECK(TestSplitHost("www.BGLcore.org", "www.BGLcore.org", -1));
-    BOOST_CHECK(TestSplitHost("[www.BGLcore.org]", "www.BGLcore.org", -1));
-    BOOST_CHECK(TestSplitHost("www.BGLcore.org:80", "www.BGLcore.org", 80));
-    BOOST_CHECK(TestSplitHost("[www.BGLcore.org]:80", "www.BGLcore.org", 80));
+    BOOST_CHECK(TestSplitHost("www.bitgesell.ca", "www.bitgesell.ca", -1));
+    BOOST_CHECK(TestSplitHost("[www.bitgesell.ca]", "www.bitgesell.ca", -1));
+    BOOST_CHECK(TestSplitHost("www.bitgesell.ca:80", "www.bitgesell.ca", 80));
+    BOOST_CHECK(TestSplitHost("[www.bitgesell.ca]:80", "www.bitgesell.ca", 80));
     BOOST_CHECK(TestSplitHost("127.0.0.1", "127.0.0.1", -1));
     BOOST_CHECK(TestSplitHost("127.0.0.1:8333", "127.0.0.1", 8333));
     BOOST_CHECK(TestSplitHost("[127.0.0.1]", "127.0.0.1", 0));

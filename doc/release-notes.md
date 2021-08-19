@@ -17,7 +17,7 @@ for the process.*
 
 BGL Core version *version* is now available from:
 
-  <https://BGLcore.org/bin/BGL-core-*version*/>
+  <https://bitgesell.ca/bin/BGL-core-*version*/>
 
 This release includes new features, various bug fixes and performance
 improvements, as well as updated translations.
@@ -28,7 +28,7 @@ Please report bugs using the issue tracker at GitHub:
 
 To receive security and update notifications, please subscribe to:
 
-  <https://BGLcore.org/en/list/announcements/join/>
+  <https://bitgesell.ca/en/list/announcements/join/>
 
 How to Upgrade
 ==============

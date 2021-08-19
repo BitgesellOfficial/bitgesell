@@ -6,7 +6,7 @@ SetCompressor /SOLID lzma
 # General Symbol Definitions
 !define REGKEY "SOFTWARE\$(^Name)"
 !define COMPANY "BGL Core project"
-!define URL https://BGLcore.org/
+!define URL https://bitgesell.ca/
 
 # MUI Symbol Definitions
 !define MUI_ICON "..\share\pixmaps\BGL.ico"
