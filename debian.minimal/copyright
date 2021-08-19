@@ -1721,7 +1721,7 @@ Files:     doc/man/BGL-cli.1
 Copyright: 2009-2019 The Bitcoin Core developers
 License:   __UNKNOWN__
  Please contribute if you find BGL Core useful. Visit
- <https://BGLcore.org> for further information about the software.
+ <https://bitgesell.ca> for further information about the software.
  The source code is available from <https://github.com/BitgesellOfficial/bitgesell>.
  .
  This is experimental software.
@@ -2630,7 +2630,7 @@ Files:     contrib/verifybinaries/verify.sh
 Copyright: 2016 The Bitcoin Core developers Distributed under the MIT software license, see the accompanying file COPYING or http://www.opensource.org/licenses/mit-license.php.
 License:   __UNKNOWN__
  This script attempts to download the signature file SHA256SUMS.asc from
- BGLcore.org and BGL.org and compares them.
+ bitgesell.ca and BGL.org and compares them.
  It first checks if the signature passes, and then downloads the files specified in
  the file, and checks if the hashes of these files match those that are specified
  in the signature file.

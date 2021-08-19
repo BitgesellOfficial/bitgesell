@@ -183,7 +183,7 @@
 #define PACKAGE_STRING "Bitgesell Core 22.99.0"
 
 /* Define to the home page for this package. */
-#define PACKAGE_URL "https://github.com/BitgesellOfficial/bitgesell/releases/"
+#define PACKAGE_URL "https://bitgesell.ca/"
 
 /* Define to the version of this package. */
 #define PACKAGE_VERSION "0.1.8"
