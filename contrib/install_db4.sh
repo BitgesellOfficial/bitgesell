@@ -220,7 +220,7 @@ EOF
 
 # The packaged config.guess and config.sub are ancient (2009) and can cause build issues.
 # Replace them with modern versions.
-# See https://github.com/BGL/BGL/issues/16064
+# See https://github.com/bitcoin/bitcoin/issues/16064
 CONFIG_GUESS_URL='https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=55eaf3e779455c4e5cc9f82efb5278be8f8f900b'
 CONFIG_GUESS_HASH='2d1ff7bca773d2ec3c6217118129220fa72d8adda67c7d2bf79994b3129232c1'
 CONFIG_SUB_URL='https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=55eaf3e779455c4e5cc9f82efb5278be8f8f900b'

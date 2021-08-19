@@ -45,7 +45,7 @@ Release Process
 #### After branch-off (on the major release branch)
 
 - Update the versions.
-- Create a pinned meta-issue for testing the release candidate (see [this issue](https://github.com/BGL/BGL/issues/17079) for an example) and provide a link to it in the release announcements where useful.
+- Create a pinned meta-issue for testing the release candidate (see [this issue](https://github.com/bitcoin/bitcoin/issues/17079) for an example) and provide a link to it in the release announcements where useful.
 
 #### Before final release
 
