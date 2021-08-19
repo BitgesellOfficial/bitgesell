@@ -311,7 +311,7 @@ class SegWitTest(BGLTestFramework):
         self.test_node.send_and_ping(msg_no_witness_block(block))  # make sure the block was processed
         txid = block.vtx[0].sha256
 
-        self.nodes[0].generate(99)  # let the block mature
+        self.generate(self.nodes[0], 99)  # let the block mature
 
         # Create a transaction that spends the coinbase
         tx = CTransaction()
@@ -327,7 +327,7 @@ class SegWitTest(BGLTestFramework):
         assert tx.hash in self.nodes[0].getrawmempool()
         # Save this transaction for later
         self.utxo.append(UTXO(tx.sha256, 0, 49 * 100000000))
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
 
     @subtest  # type: ignore
     def test_unnecessary_witness_before_segwit_activation(self):
@@ -563,7 +563,7 @@ class SegWitTest(BGLTestFramework):
         test_transaction_acceptance(self.nodes[0], self.test_node, tx, with_witness=False, accepted=True)
 
         # Cleanup: mine the first transaction and update utxo
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
         assert_equal(len(self.nodes[0].getrawmempool()), 0)
 
         self.utxo.pop(0)
@@ -588,7 +588,7 @@ class SegWitTest(BGLTestFramework):
 
         # Mine it on test_node to create the confirmed output.
         test_transaction_acceptance(self.nodes[0], self.test_node, p2sh_tx, with_witness=True, accepted=True)
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
         self.sync_blocks()
 
         # Now test standardness of v0 P2WSH outputs.
@@ -661,7 +661,7 @@ class SegWitTest(BGLTestFramework):
             )
         test_transaction_acceptance(self.nodes[0], self.test_node, tx3, with_witness=True, accepted=True)
 
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
         self.sync_blocks()
         self.utxo.pop(0)
         self.utxo.append(UTXO(tx3.sha256, 0, tx3.vout[0].nValue))
@@ -672,9 +672,9 @@ class SegWitTest(BGLTestFramework):
         """Mine enough blocks to activate segwit."""
         assert not softfork_active(self.nodes[0], 'segwit')
         height = self.nodes[0].getblockcount()
-        self.nodes[0].generate(SEGWIT_HEIGHT - height - 2)
+        self.generate(self.nodes[0], SEGWIT_HEIGHT - height - 2)
         assert not softfork_active(self.nodes[0], 'segwit')
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
         assert softfork_active(self.nodes[0], 'segwit')
         self.segwit_active = True
 
@@ -1306,7 +1306,7 @@ class SegWitTest(BGLTestFramework):
         assert vsize != raw_tx["size"]
 
         # Cleanup: mine the transactions and update utxo for next test
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
         assert_equal(len(self.nodes[0].getrawmempool()), 0)
 
         self.utxo.pop(0)
@@ -1356,7 +1356,7 @@ class SegWitTest(BGLTestFramework):
             self.utxo.pop(0)
             temp_utxo.append(UTXO(tx.sha256, 0, tx.vout[0].nValue))
 
-        self.nodes[0].generate(1)  # Mine all the transactions
+        self.generate(self.nodes[0], 1)  # Mine all the transactions
         self.sync_blocks()
         assert len(self.nodes[0].getrawmempool()) == 0
 
@@ -1427,14 +1427,14 @@ class SegWitTest(BGLTestFramework):
         spend_tx.rehash()
 
         # Now test a premature spend.
-        self.nodes[0].generate(98)
+        self.generate(self.nodes[0], 98)
         self.sync_blocks()
         block2 = self.build_next_block()
         self.update_witness_block_with_transactions(block2, [spend_tx])
         test_witness_block(self.nodes[0], self.test_node, block2, accepted=False)
 
         # Advancing one more block should allow the spend.
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
         block2 = self.build_next_block()
         self.update_witness_block_with_transactions(block2, [spend_tx])
         test_witness_block(self.nodes[0], self.test_node, block2, accepted=True)
@@ -1741,7 +1741,7 @@ class SegWitTest(BGLTestFramework):
         tx.vout.append(CTxOut(self.utxo[0].nValue - 1000, script_pubkey))
         tx.rehash()
         test_transaction_acceptance(self.nodes[0], self.test_node, tx, False, True)
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
         self.sync_blocks()
 
         # We'll add an unnecessary witness to this transaction that would cause
@@ -1770,7 +1770,7 @@ class SegWitTest(BGLTestFramework):
         test_transaction_acceptance(self.nodes[0], self.test_node, tx2, False, True)
         test_transaction_acceptance(self.nodes[0], self.test_node, tx3, False, True)
 
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
         self.sync_blocks()
 
         # Update our utxo list; we spent the first entry.
@@ -1805,7 +1805,7 @@ class SegWitTest(BGLTestFramework):
         txid = tx.sha256
         test_transaction_acceptance(self.nodes[0], self.test_node, tx, with_witness=False, accepted=True)
 
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
         self.sync_blocks()
 
         # Creating transactions for tests
@@ -1868,7 +1868,7 @@ class SegWitTest(BGLTestFramework):
         test_transaction_acceptance(self.nodes[1], self.std_node, p2sh_txs[3], True, False, 'bad-witness-nonstandard')
         test_transaction_acceptance(self.nodes[0], self.test_node, p2sh_txs[3], True, True)
 
-        self.nodes[0].generate(1)  # Mine and clean up the mempool of non-standard node
+        self.generate(self.nodes[0], 1)  # Mine and clean up the mempool of non-standard node
         # Valid but non-standard transactions in a block should be accepted by standard node
         self.sync_blocks()
         assert_equal(len(self.nodes[0].getrawmempool()), 0)
@@ -2006,7 +2006,7 @@ class SegWitTest(BGLTestFramework):
                 return serialize_with_bogus_witness(self.tx)
 
         self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(address_type='bech32'), 5)
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
         unspent = next(u for u in self.nodes[0].listunspent() if u['spendable'] and u['address'].startswith('bcrt'))
 
         raw = self.nodes[0].createrawtransaction([{"txid": unspent['txid'], "vout": unspent['vout']}], {self.nodes[0].getnewaddress(): 1})
