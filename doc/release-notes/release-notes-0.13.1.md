@@ -8,7 +8,7 @@ updated translations.
 
 Please report bugs using the issue tracker at github:
 
-  <https://github.com/BGL/BGL/issues>
+  <https://github.com/BitgesellOfficial/bitgesell/issues>
 
 To receive security and update notifications, please subscribe to:
 

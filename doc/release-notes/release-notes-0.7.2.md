@@ -4,7 +4,7 @@ BGL version 0.7.2 is now available from:
 This is a bug-fix minor release.
 
 Please report bugs using the issue tracker at github:
-  https://github.com/BGL/BGL/issues
+  https://github.com/BitgesellOfficial/bitgesell/issues
 
 How to Upgrade
 --------------

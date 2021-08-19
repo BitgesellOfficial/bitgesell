@@ -4,7 +4,7 @@ http://sourceforge.net/projects/BGL/files/BGL/BGL-0.5.2/
 This is a bugfix-only release based on 0.5.1.
 
 Please report bugs using the issue tracker at github:
-https://github.com/BGL/BGL/issues
+https://github.com/BitgesellOfficial/bitgesell/issues
 
 Stable source code is hosted at Gitorious:
 http://gitorious.org/BGL/BGLd-stable/archive-tarball/v0.5.2#.tar.gz

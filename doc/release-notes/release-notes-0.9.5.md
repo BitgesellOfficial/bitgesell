@@ -8,7 +8,7 @@ recommended.
 
 Please report bugs using the issue tracker at github:
 
-  https://github.com/BGL/BGL/issues
+  https://github.com/BitgesellOfficial/bitgesell/issues
 
 How to Upgrade
 ===============

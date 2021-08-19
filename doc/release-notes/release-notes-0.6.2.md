@@ -4,7 +4,7 @@ http://sourceforge.net/projects/BGL/files/BGL/BGL-0.6.2/
 This is a bug-fix and code-cleanup release, with no major new features.
 
 Please report bugs using the github issue tracker at:
-https://github.com/BGL/BGL/issues
+https://github.com/BitgesellOfficial/bitgesell/issues
 
 
 NOTABLE CHANGES
