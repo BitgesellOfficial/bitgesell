@@ -504,6 +504,8 @@ class LegacySigningProvider : public SigningProvider
 private:
     const LegacyScriptPubKeyMan& m_spk_man;
 public:
+    virtual ~LegacySigningProvider() final = default;
+
     explicit LegacySigningProvider(const LegacyScriptPubKeyMan& spk_man) : m_spk_man(spk_man) {}
 
     bool GetCScript(const CScriptID &scriptid, CScript& script) const override { return m_spk_man.GetCScript(scriptid, script); }

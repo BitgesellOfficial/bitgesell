@@ -121,15 +121,15 @@ public:
     mutable RecursiveMutex cs_KeyStore;
 
     virtual bool AddKeyPubKey(const CKey& key, const CPubKey &pubkey);
-    virtual bool AddKey(const CKey &key) { return AddKeyPubKey(key, key.GetPubKey()); }
+    virtual bool AddKey(const CKey &key) final { return AddKeyPubKey(key, key.GetPubKey()); }
     virtual bool GetPubKey(const CKeyID &address, CPubKey& vchPubKeyOut) const override;
     virtual bool HaveKey(const CKeyID &address) const override;
     virtual std::set<CKeyID> GetKeys() const;
     virtual bool GetKey(const CKeyID &address, CKey &keyOut) const override;
     virtual bool AddCScript(const CScript& redeemScript);
-    virtual bool HaveCScript(const CScriptID &hash) const override;
-    virtual std::set<CScriptID> GetCScripts() const;
-    virtual bool GetCScript(const CScriptID &hash, CScript& redeemScriptOut) const override;
+    virtual bool HaveCScript(const CScriptID &hash) const override final;
+    virtual std::set<CScriptID> GetCScripts() const final;
+    virtual bool GetCScript(const CScriptID &hash, CScript& redeemScriptOut) const override final;
 };
 
 /** Return the CKeyID of the key involved in a script (if there is a unique one). */
