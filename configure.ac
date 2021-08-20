@@ -453,7 +453,7 @@ if test "x$CXXFLAGS_overridden" = "xno"; then
   dnl some compilers will ignore -Wformat-security without -Wformat, so just combine the two here.
   AX_CHECK_COMPILE_FLAG([-Wformat -Wformat-security],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wformat -Wformat-security"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wvla],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wvla"],,[[$CXXFLAG_WERROR]])
-  AX_CHECK_COMPILE_FLAG([-Wshadow-field],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wshadow-field"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wshadow-all],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wshadow-all"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wswitch],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wswitch"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wthread-safety],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wthread-safety"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wrange-loop-analysis],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wrange-loop-analysis"],,[[$CXXFLAG_WERROR]])
@@ -475,6 +475,18 @@ if test "x$CXXFLAGS_overridden" = "xno"; then
   dnl AX_CHECK_COMPILE_FLAG([-Wsuggest-final-types],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wsuggest-final-types"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wunreachable-code-loop-increment],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wunreachable-code-loop-increment"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wnon-virtual-dtor],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wnon-virtual-dtor"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Warray-bounds],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Warray-bounds"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wdisabled-optimization],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wdisabled-optimization"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wuninitialized],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wuninitialized"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Winit-self],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Winit-self"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wmissing-include-dirs],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wmissing-include-dirs"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wunsafe-loop-optimizations],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wunsafe-loop-optimizations"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wvector-operation-performance],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wvector-operation-performance"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Winvalid-pch],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Winvalid-pch"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wcast-align],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wcast-align"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wnormalized],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wnormalized"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wpacked],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wpacked"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wpointer-arith],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wpointer-arith"],,[[$CXXFLAG_WERROR]])
 
   if test x$suppress_external_warnings != xno ; then
     AX_CHECK_COMPILE_FLAG([-Wdocumentation],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wdocumentation"],,[[$CXXFLAG_WERROR]])
