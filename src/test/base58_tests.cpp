@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(base58_DecodeBase58)
     std::vector<unsigned char> expected = ParseHex("971a55");
     BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(), expected.begin(), expected.end());
 
-    BOOST_CHECK(DecodeBase58Check("3vQB7B6MrGQZaxCuFg4oh"s, result, 100));
+    BOOST_CHECK(DecodeBase58Check("HT9MbbSVwpGwjqWtbEF1jkTUCcwQ4q12YbVBs9izmwCWfH2mebMQ"s, result, 100));
     BOOST_CHECK(!DecodeBase58Check("3vQB7B6MrGQZaxCuFg4oi"s, result, 100));
     BOOST_CHECK(!DecodeBase58Check("3vQB7B6MrGQZaxCuFg4oh0IOl"s, result, 100));
     BOOST_CHECK(!DecodeBase58Check("3vQB7B6MrGQZaxCuFg4oh\0" "0IOl"s, result, 100));
