@@ -328,7 +328,7 @@ public:
             return std::numeric_limits<int>::max();
         else if (m_value < std::numeric_limits<int>::min())
             return std::numeric_limits<int>::min();
-        return m_value;
+        return static_cast<int>(m_value);
     }
 
     std::vector<unsigned char> getvch() const

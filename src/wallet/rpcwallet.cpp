@@ -1486,10 +1486,10 @@ static RPCHelpMan listtransactions()
 
     // ret is newest to oldest
 
-    if (nFrom > (int)ret.size())
-        nFrom = ret.size();
-    if ((nFrom + nCount) > (int)ret.size())
-        nCount = ret.size() - nFrom;
+    if (nFrom > static_cast<int>(ret.size()))
+        nFrom = static_cast<int>(ret.size());
+    if ((nFrom + nCount) > static_cast<int>(ret.size()))
+        nCount = static_cast<int>(ret.size()) - nFrom;
 
     const std::vector<UniValue>& txs = ret.getValues();
     UniValue result{UniValue::VARR};
