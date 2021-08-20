@@ -495,14 +495,15 @@ static bool rest_getutxos(const std::any& context, HTTPRequest* req, const std::
     }
 
     switch (rf) {
-    case RetFormat::HEX: {
+    case RetFormat::HEX:
+    {
         // convert hex to bin, continue then with bin part
         std::vector<unsigned char> strRequestV = ParseHex(strRequestMutable);
         strRequestMutable.assign(strRequestV.begin(), strRequestV.end());
         [[fallthrough]];
     }
 
-    case RetFormat::BINARY: {
+    case RetFormat::BINARY:
         try {
             //deserialize only if user sent a request
             if (strRequestMutable.size() > 0)
@@ -520,16 +521,14 @@ static bool rest_getutxos(const std::any& context, HTTPRequest* req, const std::
             return RESTERR(req, HTTP_BAD_REQUEST, "Parse error");
         }
         break;
-    }
 
-    case RetFormat::JSON: {
+    case RetFormat::JSON:
         if (!fInputParsed)
             return RESTERR(req, HTTP_BAD_REQUEST, "Error: empty request");
         break;
-    }
-    default: {
+
+    default:
         return RESTERR(req, HTTP_NOT_FOUND, "output format not found (available: " + AvailableDataFormatsString() + ")");
-    }
     }
 
     // limit max outpoints
