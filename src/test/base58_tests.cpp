@@ -13,7 +13,6 @@
 
 #include <boost/test/unit_test.hpp>
 #include <string>
-#include <iostream>
 
 using namespace std::literals;
 

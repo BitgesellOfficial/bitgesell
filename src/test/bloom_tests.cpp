@@ -4,7 +4,6 @@
 
 #include <bloom.h>
 
-#include <iostream>
 #include <clientversion.h>
 #include <key.h>
 #include <key_io.h>
