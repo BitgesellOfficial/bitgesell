@@ -5,6 +5,7 @@
 #ifndef BGL_QT_BANTABLEMODEL_H
 #define BGL_QT_BANTABLEMODEL_H
 
+#include <addrdb.h>
 #include <net.h>
 
 #include <memory>
