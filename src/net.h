@@ -387,7 +387,7 @@ public:
     virtual ~TransportSerializer() {}
 };
 
-class V1TransportSerializer  : public TransportSerializer {
+class V1TransportSerializer final : public TransportSerializer {
 public:
     void prepareForTransport(CSerializedNetMsg& msg, std::vector<unsigned char>& header) override;
 };

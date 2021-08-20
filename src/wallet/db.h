@@ -155,7 +155,7 @@ public:
 };
 
 /** RAII class that provides access to a DummyDatabase. Never fails. */
-class DummyBatch : public DatabaseBatch
+class DummyBatch final : public DatabaseBatch
 {
 private:
     bool ReadKey(CDataStream&& key, CDataStream& value) override { return true; }
@@ -177,7 +177,7 @@ public:
 
 /** A dummy WalletDatabase that does nothing and never fails. Only used by unit tests.
  **/
-class DummyDatabase : public WalletDatabase
+class DummyDatabase final : public WalletDatabase
 {
 public:
     void Open() override {};

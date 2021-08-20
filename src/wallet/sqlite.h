@@ -13,7 +13,7 @@ struct bilingual_str;
 class SQLiteDatabase;
 
 /** RAII class that provides access to a WalletDatabase */
-class SQLiteBatch : public DatabaseBatch
+class SQLiteBatch final : public DatabaseBatch
 {
 private:
     SQLiteDatabase& m_database;
@@ -52,7 +52,7 @@ public:
 
 /** An instance of this class represents one SQLite3 database.
  **/
-class SQLiteDatabase : public WalletDatabase
+class SQLiteDatabase final : public WalletDatabase
 {
 private:
     const bool m_mock{false};
