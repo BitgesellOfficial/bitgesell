@@ -543,7 +543,7 @@ void TorController::disconnected_cb(TorControlConnection& _conn)
     LogPrint(BCLog::TOR, "tor: Not connected to Tor control port %s, trying to reconnect\n", m_tor_control_center);
 
     // Single-shot timer for reconnect. Use exponential backoff.
-    struct timeval time = MillisToTimeval(int64_t(reconnect_timeout * 1000.0));
+    struct timeval time = MillisToTimeval(static_cast<int64_t>(reconnect_timeout * 1000.0f));
     if (reconnect_ev)
         event_add(reconnect_ev, &time);
     reconnect_timeout *= RECONNECT_TIMEOUT_EXP;
