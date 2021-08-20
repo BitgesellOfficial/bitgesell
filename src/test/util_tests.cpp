@@ -2224,45 +2224,44 @@ BOOST_AUTO_TEST_CASE(message_verify)
             "message too"),
         MessageVerificationResult::ERR_INVALID_ADDRESS);
 
-   // BOOST_CHECK_EQUAL(
-    //    MessageVerify(
-    //        "1QFqqMUD55ZV3PJEJZtaKCsQmjLT8SEhCG",
-    //        "signature should be irrelevant",
-    //        "message too"),
-    //    MessageVerificationResult::ERR_ADDRESS_NO_KEY);
-    // Would get back to this later
+   BOOST_CHECK_EQUAL(
+        MessageVerify(
+            "bgl1qapzlteru5p93c6exsqvjmy34pua8q0lws0p4kg",
+            "signature should be irrelevant",
+            "message too"),
+        MessageVerificationResult::ERR_ADDRESS_NO_KEY);
 
     BOOST_CHECK_EQUAL(
         MessageVerify(
-            "1QFqqMUD55ZV3PJEJZtaKCsQmjLT8SEhCG",
+            "56aToLcrXcuKWqYoNV7UmkMn23CmE1G2z8",
             "invalid signature, not in base64 encoding",
             "message should be irrelevant"),
         MessageVerificationResult::ERR_MALFORMED_SIGNATURE);
 
     BOOST_CHECK_EQUAL(
         MessageVerify(
-            "1QFqqMUD55ZV3PJEJZtaKCsQmjLT8SEhCG",
+            "56aToLcrXcuKWqYoNV7UmkMn23CmE1G2z8",
             "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
             "message should be irrelevant"),
         MessageVerificationResult::ERR_PUBKEY_NOT_RECOVERED);
 
     BOOST_CHECK_EQUAL(
         MessageVerify(
-            "1QFqqMUD55ZV3PJEJZtaKCsQmjLT8SEhCG",
+            "56aToLcrXcuKWqYoNV7UmkMn23CmE1G2z8",
             "GyCkhyvkWUMYnUU6vWwEz6J2DXLYDlwl85bD8BX0A2jUEu5Kq66pe53+nA5pponV7egAvlrNs/P/g55xsYBDZaQ=",
             "I never signed this"),
         MessageVerificationResult::ERR_NOT_SIGNED);
 
     BOOST_CHECK_EQUAL(
         MessageVerify(
-            "15CRxFdyRpGZLW9w8HnHvVduizdL3kw8CZ",
+            "56aToLcrXcuKWqYoNV7UmkMn23CmE1G2z8",
             "HyFfKaXqUu1sA+mTuI75Fgmw1VhTL3esRGQsTfp9GlAISSVXMvm94PnRzcvKd4k/p1cmrVeBYBmUZrdl0jCgJ7U=",
             "Trust no one"),
         MessageVerificationResult::OK);
 
     BOOST_CHECK_EQUAL(
         MessageVerify(
-            "15CRxFdyRpGZLW9w8HnHvVduizdL3kw8CZ",
+            "56aToLcrXcuKWqYoNV7UmkMn23CmE1G2z8",
             "IGeEjdD3RTVfr9wUnwZR4q+DHz2kVfODqI/fynzhHHmFdOscHe5ePpqUAm0j+frLcIq4OotxNu86NMW8L/d7zMk=",
             "Trust me"),
         MessageVerificationResult::OK);
