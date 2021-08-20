@@ -30,7 +30,7 @@ static const char* WWW_AUTH_HEADER_DATA = "Basic realm=\"jsonrpc\"";
 /** Simple one-shot callback timer to be used by the RPC mechanism to e.g.
  * re-lock the wallet.
  */
-class HTTPRPCTimer : public RPCTimerBase
+class HTTPRPCTimer final : public RPCTimerBase
 {
 public:
     HTTPRPCTimer(struct event_base* eventBase, std::function<void()>& func, int64_t millis) :
@@ -45,7 +45,7 @@ private:
     HTTPEvent ev;
 };
 
-class HTTPRPCTimerInterface : public RPCTimerInterface
+class HTTPRPCTimerInterface final : public RPCTimerInterface
 {
 public:
     explicit HTTPRPCTimerInterface(struct event_base* _base) : base(_base)

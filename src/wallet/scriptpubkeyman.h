@@ -254,7 +254,7 @@ public:
     boost::signals2::signal<void ()> NotifyCanGetAddressesChanged;
 };
 
-class LegacyScriptPubKeyMan : public ScriptPubKeyMan, public FillableSigningProvider
+class LegacyScriptPubKeyMan final : public ScriptPubKeyMan, public FillableSigningProvider
 {
 private:
     //! keeps track of whether Unlock has run a thorough check before
@@ -514,7 +514,7 @@ public:
     bool GetKeyOrigin(const CKeyID& keyid, KeyOriginInfo& info) const override { return m_spk_man.GetKeyOrigin(keyid, info); }
 };
 
-class DescriptorScriptPubKeyMan : public ScriptPubKeyMan
+class DescriptorScriptPubKeyMan final : public ScriptPubKeyMan
 {
 private:
     using ScriptPubKeyMap = std::map<CScript, int32_t>; // Map of scripts to descriptor range index

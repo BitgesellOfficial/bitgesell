@@ -209,7 +209,7 @@ public:
 
 
 /** CCoinsView that adds a memory cache for transactions to another CCoinsView */
-class CCoinsViewCache : public CCoinsViewBacked
+class CCoinsViewCache final : public CCoinsViewBacked
 {
 protected:
     /**

@@ -91,7 +91,7 @@ class BerkeleyBatch;
 /** An instance of this class represents one database.
  * For BerkeleyDB this is just a (env, strFile) tuple.
  **/
-class BerkeleyDatabase : public WalletDatabase
+class BerkeleyDatabase final : public WalletDatabase
 {
 public:
     BerkeleyDatabase() = delete;
@@ -165,7 +165,7 @@ public:
 };
 
 /** RAII class that provides access to a Berkeley database */
-class BerkeleyBatch : public DatabaseBatch
+class BerkeleyBatch final : public DatabaseBatch
 {
     /** RAII class that automatically cleanses its data on destruction */
     class SafeDbt final

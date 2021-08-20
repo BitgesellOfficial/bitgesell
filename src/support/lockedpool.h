@@ -183,7 +183,7 @@ private:
     std::unique_ptr<LockedPageAllocator> allocator;
 
     /** Create an arena from locked pages */
-    class LockedPageArena: public Arena
+    class LockedPageArena final : public Arena
     {
     public:
         LockedPageArena(LockedPageAllocator *alloc_in, void *base_in, size_t size, size_t align);
