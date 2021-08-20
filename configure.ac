@@ -474,6 +474,7 @@ if test "x$CXXFLAGS_overridden" = "xno"; then
   dnl AX_CHECK_COMPILE_FLAG([-Wsuggest-final-methods],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wsuggest-final-methods"],,[[$CXXFLAG_WERROR]])
   dnl AX_CHECK_COMPILE_FLAG([-Wsuggest-final-types],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wsuggest-final-types"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wunreachable-code-loop-increment],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wunreachable-code-loop-increment"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wnon-virtual-dtor],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wnon-virtual-dtor"],,[[$CXXFLAG_WERROR]])
 
   if test x$suppress_external_warnings != xno ; then
     AX_CHECK_COMPILE_FLAG([-Wdocumentation],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wdocumentation"],,[[$CXXFLAG_WERROR]])

@@ -61,6 +61,8 @@ protected:
     virtual int Period(const Consensus::Params& params) const =0;
     virtual int Threshold(const Consensus::Params& params) const =0;
 
+    virtual ~AbstractThresholdConditionChecker() = default;
+
 public:
     /** Returns the numerical statistics of an in-progress BIP9 softfork in the current period */
     BIP9Stats GetStateStatisticsFor(const CBlockIndex* pindex, const Consensus::Params& params) const;
