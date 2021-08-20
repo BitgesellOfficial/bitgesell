@@ -487,6 +487,7 @@ if test "x$CXXFLAGS_overridden" = "xno"; then
   AX_CHECK_COMPILE_FLAG([-Wnormalized],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wnormalized"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wpacked],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wpacked"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wpointer-arith],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wpointer-arith"],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_COMPILE_FLAG([-Wdouble-promotion],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wdouble-promotion"],,[[$CXXFLAG_WERROR]])
 
   if test x$suppress_external_warnings != xno ; then
     AX_CHECK_COMPILE_FLAG([-Wdocumentation],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wdocumentation"],,[[$CXXFLAG_WERROR]])
