@@ -174,8 +174,8 @@ template<typename X> const X& ReadWriteAsHelper(const X& x) { return x; }
 
 #define READWRITE(...) (::SerReadWriteMany(s, ser_action, __VA_ARGS__))
 #define READWRITEAS(type, obj) (::SerReadWriteMany(s, ser_action, ReadWriteAsHelper<type>(obj)))
-#define SER_READ(obj, code) ::SerRead(s, ser_action, obj, [&](Stream& s, typename std::remove_const<Type>::type& obj) { code; })
-#define SER_WRITE(obj, code) ::SerWrite(s, ser_action, obj, [&](Stream& s, const Type& obj) { code; })
+#define SER_READ(obj, code) ::SerRead(s, ser_action, obj, [&]([[maybe_unused]] Stream& s, typename std::remove_const<Type>::type& obj) { code; })
+#define SER_WRITE(obj, code) ::SerWrite(s, ser_action, obj, [&]([[maybe_unused]] Stream& s, const Type& obj) { code; })
 
 /**
  * Implement the Ser and Unser methods needed for implementing a formatter (see Using below).
@@ -1018,7 +1018,7 @@ protected:
 public:
     explicit CSizeComputer(int nVersionIn) : nSize(0), nVersion(nVersionIn) {}
 
-    void write(const char *psz, size_t _nSize)
+    void write([[maybe_unused]] const char *psz, size_t _nSize)
     {
         this->nSize += _nSize;
     }
@@ -1044,7 +1044,7 @@ public:
 };
 
 template<typename Stream>
-void SerializeMany(Stream& s)
+void SerializeMany([[maybe_unused]] Stream& s)
 {
 }
 
@@ -1056,7 +1056,7 @@ void SerializeMany(Stream& s, const Arg& arg, const Args&... args)
 }
 
 template<typename Stream>
-inline void UnserializeMany(Stream& s)
+inline void UnserializeMany([[maybe_unused]] Stream& s)
 {
 }
 
@@ -1068,36 +1068,36 @@ inline void UnserializeMany(Stream& s, Arg&& arg, Args&&... args)
 }
 
 template<typename Stream, typename... Args>
-inline void SerReadWriteMany(Stream& s, CSerActionSerialize ser_action, const Args&... args)
+inline void SerReadWriteMany(Stream& s, [[maybe_unused]] CSerActionSerialize ser_action, const Args&... args)
 {
     ::SerializeMany(s, args...);
 }
 
 template<typename Stream, typename... Args>
-inline void SerReadWriteMany(Stream& s, CSerActionUnserialize ser_action, Args&&... args)
+inline void SerReadWriteMany(Stream& s, [[maybe_unused]] CSerActionUnserialize ser_action, Args&&... args)
 {
     ::UnserializeMany(s, args...);
 }
 
 template<typename Stream, typename Type, typename Fn>
-inline void SerRead(Stream& s, CSerActionSerialize ser_action, Type&&, Fn&&)
+inline void SerRead([[maybe_unused]] Stream& s, [[maybe_unused]] CSerActionSerialize ser_action, [[maybe_unused]] Type&&, Fn&&)
 {
 }
 
 template<typename Stream, typename Type, typename Fn>
-inline void SerRead(Stream& s, CSerActionUnserialize ser_action, Type&& obj, Fn&& fn)
-{
-    fn(s, std::forward<Type>(obj));
-}
-
-template<typename Stream, typename Type, typename Fn>
-inline void SerWrite(Stream& s, CSerActionSerialize ser_action, Type&& obj, Fn&& fn)
+inline void SerRead(Stream& s, [[maybe_unused]] CSerActionUnserialize ser_action, Type&& obj, Fn&& fn)
 {
     fn(s, std::forward<Type>(obj));
 }
 
 template<typename Stream, typename Type, typename Fn>
-inline void SerWrite(Stream& s, CSerActionUnserialize ser_action, Type&&, Fn&&)
+inline void SerWrite(Stream& s, [[maybe_unused]] CSerActionSerialize ser_action, Type&& obj, Fn&& fn)
+{
+    fn(s, std::forward<Type>(obj));
+}
+
+template<typename Stream, typename Type, typename Fn>
+inline void SerWrite([[maybe_unused]] Stream& s, [[maybe_unused]] CSerActionUnserialize ser_action, [[maybe_unused]] Type&&, Fn&&)
 {
 }
 

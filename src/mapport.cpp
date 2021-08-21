@@ -321,7 +321,7 @@ void StopMapPort()
 }
 
 #else  // #if defined(USE_NATPMP) || defined(USE_UPNP)
-void StartMapPort(bool use_upnp, bool use_natpmp)
+void StartMapPort([[maybe_unused]] bool use_upnp, [[maybe_unused]] bool use_natpmp)
 {
     // Intentionally left blank.
 }

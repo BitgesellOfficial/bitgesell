@@ -948,7 +948,7 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
     return true;
 }
 
-bool MemPoolAccept::PolicyScriptChecks(const ATMPArgs& args, Workspace& ws, PrecomputedTransactionData& txdata)
+bool MemPoolAccept::PolicyScriptChecks([[maybe_unused]] const ATMPArgs& args, Workspace& ws, PrecomputedTransactionData& txdata)
 {
     const CTransaction& tx = *ws.m_ptx;
     TxValidationState& state = ws.m_state;
@@ -1709,8 +1709,8 @@ private:
 public:
     explicit WarningBitsConditionChecker(int bitIn) : bit(bitIn) {}
 
-    int64_t BeginTime(const Consensus::Params& params) const override { return 0; }
-    int64_t EndTime(const Consensus::Params& params) const override { return std::numeric_limits<int64_t>::max(); }
+    int64_t BeginTime([[maybe_unused]] const Consensus::Params& params) const override { return 0; }
+    int64_t EndTime([[maybe_unused]] const Consensus::Params& params) const override { return std::numeric_limits<int64_t>::max(); }
     int Period(const Consensus::Params& params) const override { return params.nMinerConfirmationWindow; }
     int Threshold(const Consensus::Params& params) const override { return params.nRuleChangeActivationThreshold; }
 

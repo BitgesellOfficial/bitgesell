@@ -112,7 +112,7 @@ void TorControlConnection::readcb(struct bufferevent *bev, void *ctx)
     }
 }
 
-void TorControlConnection::eventcb(struct bufferevent *bev, short what, void *ctx)
+void TorControlConnection::eventcb([[maybe_unused]] struct bufferevent *bev, short what, void *ctx)
 {
     TorControlConnection *self = static_cast<TorControlConnection*>(ctx);
     if (what & BEV_EVENT_CONNECTED) {
@@ -325,7 +325,7 @@ TorController::~TorController()
     }
 }
 
-void TorController::add_onion_cb(TorControlConnection& _conn, const TorControlReply& reply)
+void TorController::add_onion_cb([[maybe_unused]] TorControlConnection& _conn, const TorControlReply& reply)
 {
     if (reply.code == 250) {
         LogPrint(BCLog::TOR, "tor: ADD_ONION successful\n");
@@ -531,7 +531,7 @@ void TorController::connected_cb(TorControlConnection& _conn)
         LogPrintf("tor: Error sending initial protocolinfo command\n");
 }
 
-void TorController::disconnected_cb(TorControlConnection& _conn)
+void TorController::disconnected_cb([[maybe_unused]] TorControlConnection& _conn)
 {
     // Stop advertising service when disconnected
     if (service.IsValid())
@@ -565,7 +565,7 @@ fs::path TorController::GetPrivateKeyFile()
     return GetDataDir() / "onion_v3_private_key";
 }
 
-void TorController::reconnect_cb(evutil_socket_t fd, short what, void *arg)
+void TorController::reconnect_cb([[maybe_unused]] evutil_socket_t fd, [[maybe_unused]] short what, void *arg)
 {
     TorController *self = static_cast<TorController*>(arg);
     self->Reconnect();

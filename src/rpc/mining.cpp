@@ -99,7 +99,7 @@ static RPCHelpMan getnetworkhashps()
                     HelpExampleCli("getnetworkhashps", "")
             + HelpExampleRpc("getnetworkhashps", "")
                 },
-        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+        [&]([[maybe_unused]] const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
     ChainstateManager& chainman = EnsureAnyChainman(request.context);
     LOCK(cs_main);
@@ -225,7 +225,7 @@ static RPCHelpMan generatetodescriptor()
         },
         RPCExamples{
             "\nGenerate 11 blocks to mydesc\n" + HelpExampleCli("generatetodescriptor", "11 \"mydesc\"")},
-        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+        [&]([[maybe_unused]] const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
     const int num_blocks{request.params[0].get_int()};
     const uint64_t max_tries{request.params[2].isNull() ? DEFAULT_MAX_TRIES : request.params[2].get_int()};
@@ -247,7 +247,7 @@ static RPCHelpMan generatetodescriptor()
 
 static RPCHelpMan generate()
 {
-    return RPCHelpMan{"generate", "has been replaced by the -generate cli option. Refer to -help for more information.", {}, {}, RPCExamples{""}, [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue {
+    return RPCHelpMan{"generate", "has been replaced by the -generate cli option. Refer to -help for more information.", {}, {}, RPCExamples{""}, [&]([[maybe_unused]] const RPCHelpMan& self, [[maybe_unused]] const JSONRPCRequest& request) -> UniValue {
         throw JSONRPCError(RPC_METHOD_NOT_FOUND, self.ToString());
     }};
 }
@@ -272,7 +272,7 @@ static RPCHelpMan generatetoaddress()
             + "If you are using the " PACKAGE_NAME " wallet, you can get a new address to send the newly generated BGL to with:\n"
             + HelpExampleCli("getnewaddress", "")
                 },
-        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+        [&]([[maybe_unused]] const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
     const int num_blocks{request.params[0].get_int()};
     const uint64_t max_tries{request.params[2].isNull() ? DEFAULT_MAX_TRIES : request.params[2].get_int()};
@@ -317,7 +317,7 @@ static RPCHelpMan generateblock()
             "\nGenerate a block to myaddress, with txs rawtx and mempool_txid\n"
             + HelpExampleCli("generateblock", R"("myaddress" '["rawtx", "mempool_txid"]')")
         },
-        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+        [&]([[maybe_unused]] const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
     const auto address_or_descriptor = request.params[0].get_str();
     CScript coinbase_script;
@@ -426,7 +426,7 @@ static RPCHelpMan getmininginfo()
                     HelpExampleCli("getmininginfo", "")
             + HelpExampleRpc("getmininginfo", "")
                 },
-        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+        [&]([[maybe_unused]] const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
     NodeContext& node = EnsureAnyNodeContext(request.context);
     const CTxMemPool& mempool = EnsureMemPool(node);
@@ -469,7 +469,7 @@ static RPCHelpMan prioritisetransaction()
                     HelpExampleCli("prioritisetransaction", "\"txid\" 0.0 10000")
             + HelpExampleRpc("prioritisetransaction", "\"txid\", 0.0, 10000")
                 },
-        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+        [&]([[maybe_unused]] const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
     LOCK(cs_main);
 
@@ -599,7 +599,7 @@ static RPCHelpMan getblocktemplate()
                     HelpExampleCli("getblocktemplate", "'{\"rules\": [\"segwit\"]}'")
             + HelpExampleRpc("getblocktemplate", "{\"rules\": [\"segwit\"]}")
                 },
-        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+        [&]([[maybe_unused]] const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
     NodeContext& node = EnsureAnyNodeContext(request.context);
     ChainstateManager& chainman = EnsureChainman(node);
@@ -969,7 +969,7 @@ static RPCHelpMan submitblock()
                     HelpExampleCli("submitblock", "\"mydata\"")
             + HelpExampleRpc("submitblock", "\"mydata\"")
                 },
-        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+        [&]([[maybe_unused]] const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
     std::shared_ptr<CBlock> blockptr = std::make_shared<CBlock>();
     CBlock& block = *blockptr;
@@ -1034,7 +1034,7 @@ static RPCHelpMan submitheader()
                     HelpExampleCli("submitheader", "\"aabbcc\"") +
                     HelpExampleRpc("submitheader", "\"aabbcc\"")
                 },
-        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+        [&]([[maybe_unused]] const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
     CBlockHeader h;
     if (!DecodeHexBlockHeader(h, request.params[0].get_str())) {
@@ -1093,7 +1093,7 @@ static RPCHelpMan estimatesmartfee()
                 RPCExamples{
                     HelpExampleCli("estimatesmartfee", "6")
                 },
-        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+        [&]([[maybe_unused]] const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
     RPCTypeCheck(request.params, {UniValue::VNUM, UniValue::VSTR});
     RPCTypeCheckArgument(request.params[0], UniValue::VNUM);
@@ -1181,7 +1181,7 @@ static RPCHelpMan estimaterawfee()
                 RPCExamples{
                     HelpExampleCli("estimaterawfee", "6 0.9")
                 },
-        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+        [&]([[maybe_unused]] const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
     RPCTypeCheck(request.params, {UniValue::VNUM, UniValue::VNUM}, true);
     RPCTypeCheckArgument(request.params[0], UniValue::VNUM);

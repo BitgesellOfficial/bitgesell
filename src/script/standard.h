@@ -133,8 +133,8 @@ enum class TxoutType {
 
 class CNoDestination {
 public:
-    friend bool operator==(const CNoDestination &a, const CNoDestination &b) { return true; }
-    friend bool operator<(const CNoDestination &a, const CNoDestination &b) { return true; }
+    friend bool operator==([[maybe_unused]] const CNoDestination &a, [[maybe_unused]] const CNoDestination &b) { return true; }
+    friend bool operator<([[maybe_unused]] const CNoDestination &a, [[maybe_unused]] const CNoDestination &b) { return true; }
 };
 
 struct PKHash : public BaseHash<uint160>

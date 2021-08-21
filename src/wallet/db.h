@@ -158,17 +158,17 @@ public:
 class DummyBatch final : public DatabaseBatch
 {
 private:
-    bool ReadKey(CDataStream&& key, CDataStream& value) override { return true; }
-    bool WriteKey(CDataStream&& key, CDataStream&& value, bool overwrite=true) override { return true; }
-    bool EraseKey(CDataStream&& key) override { return true; }
-    bool HasKey(CDataStream&& key) override { return true; }
+    bool ReadKey([[maybe_unused]] CDataStream&& key, [[maybe_unused]] CDataStream& value) override { return true; }
+    bool WriteKey([[maybe_unused]] CDataStream&& key, [[maybe_unused]] CDataStream&& value, [[maybe_unused]] bool overwrite=true) override { return true; }
+    bool EraseKey([[maybe_unused]] CDataStream&& key) override { return true; }
+    bool HasKey([[maybe_unused]] CDataStream&& key) override { return true; }
 
 public:
     void Flush() override {}
     void Close() override {}
 
     bool StartCursor() override { return true; }
-    bool ReadAtCursor(CDataStream& ssKey, CDataStream& ssValue, bool& complete) override { return true; }
+    bool ReadAtCursor([[maybe_unused]] CDataStream& ssKey, [[maybe_unused]] CDataStream& ssValue, [[maybe_unused]] bool& complete) override { return true; }
     void CloseCursor() override {}
     bool TxnBegin() override { return true; }
     bool TxnCommit() override { return true; }
@@ -183,8 +183,8 @@ public:
     void Open() override {};
     void AddRef() override {}
     void RemoveRef() override {}
-    bool Rewrite(const char* pszSkip=nullptr) override { return true; }
-    bool Backup(const std::string& strDest) const override { return true; }
+    bool Rewrite([[maybe_unused]] const char* pszSkip=nullptr) override { return true; }
+    bool Backup([[maybe_unused]] const std::string& strDest) const override { return true; }
     void Close() override {}
     void Flush() override {}
     bool PeriodicFlush() override { return true; }
@@ -192,7 +192,7 @@ public:
     void ReloadDbEnv() override {}
     std::string Filename() override { return "dummy"; }
     std::string Format() override { return "dummy"; }
-    std::unique_ptr<DatabaseBatch> MakeBatch(bool flush_on_close = true) override { return std::make_unique<DummyBatch>(); }
+    std::unique_ptr<DatabaseBatch> MakeBatch([[maybe_unused]] bool flush_on_close = true) override { return std::make_unique<DummyBatch>(); }
 };
 
 enum class DatabaseFormat {

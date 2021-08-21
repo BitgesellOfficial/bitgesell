@@ -62,7 +62,7 @@ extern char** environ;
 
 namespace {
 
-void RandAddSeedPerfmon(CSHA512& hasher)
+void RandAddSeedPerfmon([[maybe_unused]] CSHA512& hasher)
 {
 #ifdef WIN32
     // Seed with the entire set of perfmon data

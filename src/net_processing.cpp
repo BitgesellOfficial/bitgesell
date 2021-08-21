@@ -1304,7 +1304,7 @@ PeerManagerImpl::PeerManagerImpl(const CChainParams& chainparams, CConnman& conn
  * block, remember the recently confirmed transactions, and delete tracked
  * announcements for them. Also save the time of the last tip update.
  */
-void PeerManagerImpl::BlockConnected(const std::shared_ptr<const CBlock>& pblock, const CBlockIndex* pindex)
+void PeerManagerImpl::BlockConnected(const std::shared_ptr<const CBlock>& pblock, [[maybe_unused]] const CBlockIndex* pindex)
 {
     m_orphanage.EraseForBlock(*pblock);
     m_last_tip_update = GetTime();
@@ -1327,7 +1327,7 @@ void PeerManagerImpl::BlockConnected(const std::shared_ptr<const CBlock>& pblock
     }
 }
 
-void PeerManagerImpl::BlockDisconnected(const std::shared_ptr<const CBlock> &block, const CBlockIndex* pindex)
+void PeerManagerImpl::BlockDisconnected([[maybe_unused]] const std::shared_ptr<const CBlock> &block, [[maybe_unused]] const CBlockIndex* pindex)
 {
     // To avoid relay problems with transactions that were previously
     // confirmed, clear our filter of recently confirmed transactions whenever
@@ -4324,7 +4324,7 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
             if (pto->vAddrToSend.capacity() > 40)
                 pto->vAddrToSend.shrink_to_fit();
         }
-        
+
         // Start block sync
         if (pindexBestHeader == nullptr)
             pindexBestHeader = m_chainman.ActiveChain().Tip();

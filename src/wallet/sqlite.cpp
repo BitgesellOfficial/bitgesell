@@ -250,7 +250,7 @@ void SQLiteDatabase::Open()
     }
 }
 
-bool SQLiteDatabase::Rewrite(const char* skip)
+bool SQLiteDatabase::Rewrite([[maybe_unused]] const char* skip)
 {
     // Rewrite the database using the VACUUM command: https://sqlite.org/lang_vacuum.html
     int ret = sqlite3_exec(m_db, "VACUUM", nullptr, nullptr, nullptr);
@@ -293,7 +293,7 @@ void SQLiteDatabase::Close()
     m_db = nullptr;
 }
 
-std::unique_ptr<DatabaseBatch> SQLiteDatabase::MakeBatch(bool flush_on_close)
+std::unique_ptr<DatabaseBatch> SQLiteDatabase::MakeBatch([[maybe_unused]] bool flush_on_close)
 {
     // We ignore flush_on_close because we don't do manual flushing for SQLite
     return std::make_unique<SQLiteBatch>(*this);

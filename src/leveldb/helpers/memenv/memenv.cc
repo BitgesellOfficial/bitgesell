@@ -219,7 +219,7 @@ class WritableFileImpl : public WritableFile {
 
 class NoOpLogger : public Logger {
  public:
-  void Logv(const char* format, va_list ap) override {}
+  void Logv([[maybe_unused]] const char* format, [[maybe_unused]] va_list ap) override {}
 };
 
 class InMemoryEnv : public EnvWrapper {
@@ -332,9 +332,9 @@ class InMemoryEnv : public EnvWrapper {
     return Status::OK();
   }
 
-  Status CreateDir(const std::string& dirname) override { return Status::OK(); }
+  Status CreateDir([[maybe_unused]] const std::string& dirname) override { return Status::OK(); }
 
-  Status DeleteDir(const std::string& dirname) override { return Status::OK(); }
+  Status DeleteDir([[maybe_unused]] const std::string& dirname) override { return Status::OK(); }
 
   Status GetFileSize(const std::string& fname, uint64_t* file_size) override {
     MutexLock lock(&mutex_);
@@ -359,7 +359,7 @@ class InMemoryEnv : public EnvWrapper {
     return Status::OK();
   }
 
-  Status LockFile(const std::string& fname, FileLock** lock) override {
+  Status LockFile([[maybe_unused]] const std::string& fname, FileLock** lock) override {
     *lock = new FileLock;
     return Status::OK();
   }
@@ -374,7 +374,7 @@ class InMemoryEnv : public EnvWrapper {
     return Status::OK();
   }
 
-  Status NewLogger(const std::string& fname, Logger** result) override {
+  Status NewLogger([[maybe_unused]] const std::string& fname, Logger** result) override {
     *result = new NoOpLogger;
     return Status::OK();
   }

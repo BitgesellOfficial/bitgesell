@@ -65,7 +65,7 @@ static void ApplyHash(CHashWriterKeccak& ss, const uint256& hash, const std::map
     }
 }
 
-static void ApplyHash(std::nullptr_t, const uint256& hash, const std::map<uint32_t, Coin>& outputs) {}
+static void ApplyHash([[maybe_unused]] std::nullptr_t, [[maybe_unused]] const uint256& hash, [[maybe_unused]] const std::map<uint32_t, Coin>& outputs) {}
 
 static void ApplyHash(MuHash3072& muhash, const uint256& hash, const std::map<uint32_t, Coin>& outputs)
 {
@@ -76,7 +76,7 @@ static void ApplyHash(MuHash3072& muhash, const uint256& hash, const std::map<ui
     }
 }
 
-static void ApplyStats(CCoinsStats& stats, const uint256& hash, const std::map<uint32_t, Coin>& outputs)
+static void ApplyStats(CCoinsStats& stats, [[maybe_unused]] const uint256& hash, const std::map<uint32_t, Coin>& outputs)
 {
     assert(!outputs.empty());
     stats.nTransactions++;
@@ -167,10 +167,10 @@ static void PrepareHash(CHashWriterKeccak& ss, const CCoinsStats& stats)
     ss << stats.hashBlock;
 }
 // MuHash does not need the prepare step
-static void PrepareHash(MuHash3072& muhash, CCoinsStats& stats) {}
-static void PrepareHash(std::nullptr_t, CCoinsStats& stats) {}
+static void PrepareHash([[maybe_unused]] MuHash3072& muhash, [[maybe_unused]] CCoinsStats& stats) {}
+static void PrepareHash([[maybe_unused]] std::nullptr_t, [[maybe_unused]] CCoinsStats& stats) {}
 
-static void FinalizeHash(CHashWriterKeccak& ss, CCoinsStats& stats)
+static void FinalizeHash([[maybe_unused]] CHashWriterKeccak& ss, [[maybe_unused]] CCoinsStats& stats)
 {
     stats.hashSerialized = ss.GetHash();
 }
@@ -180,4 +180,4 @@ static void FinalizeHash(MuHash3072& muhash, CCoinsStats& stats)
     muhash.Finalize(out);
     stats.hashSerialized = out;
 }
-static void FinalizeHash(std::nullptr_t, CCoinsStats& stats) {}
+static void FinalizeHash([[maybe_unused]] std::nullptr_t, [[maybe_unused]] CCoinsStats& stats) {}

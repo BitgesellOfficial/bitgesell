@@ -244,7 +244,7 @@ class ConstPubkeyProvider final : public PubkeyProvider
 
 public:
     ConstPubkeyProvider(uint32_t exp_index, const CPubKey& pubkey) : PubkeyProvider(exp_index), m_pubkey(pubkey) {}
-    bool GetPubKey(int pos, const SigningProvider& arg, CPubKey& key, KeyOriginInfo& info, const DescriptorCache* read_cache = nullptr, DescriptorCache* write_cache = nullptr) override
+    bool GetPubKey([[maybe_unused]] int pos, [[maybe_unused]] const SigningProvider& arg, CPubKey& key, KeyOriginInfo& info, [[maybe_unused]] const DescriptorCache* read_cache = nullptr, [[maybe_unused]] DescriptorCache* write_cache = nullptr) override
     {
         key = m_pubkey;
         info.path.clear();
@@ -268,7 +268,7 @@ public:
         ret = ToString();
         return true;
     }
-    bool GetPrivKey(int pos, const SigningProvider& arg, CKey& key) const override
+    bool GetPrivKey([[maybe_unused]] int pos, const SigningProvider& arg, CKey& key) const override
     {
         return arg.GetKey(m_pubkey.GetID(), key);
     }
