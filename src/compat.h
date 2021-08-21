@@ -101,7 +101,7 @@ typedef char* sockopt_arg_type;
 #define USE_POLL
 #endif
 
-bool static inline IsSelectableSocket(const SOCKET& s) {
+bool static inline IsSelectableSocket([[maybe_unused]] const SOCKET& s) {
 #if defined(USE_POLL) || defined(WIN32)
     return true;
 #else

@@ -19,12 +19,12 @@ class SigningProvider
 {
 public:
     virtual ~SigningProvider() {}
-    virtual bool GetCScript(const CScriptID &scriptid, CScript& script) const { return false; }
-    virtual bool HaveCScript(const CScriptID &scriptid) const { return false; }
-    virtual bool GetPubKey(const CKeyID &address, CPubKey& pubkey) const { return false; }
-    virtual bool GetKey(const CKeyID &address, CKey& key) const { return false; }
-    virtual bool HaveKey(const CKeyID &address) const { return false; }
-    virtual bool GetKeyOrigin(const CKeyID& keyid, KeyOriginInfo& info) const { return false; }
+    virtual bool GetCScript([[maybe_unused]] const CScriptID &scriptid, [[maybe_unused]] CScript& script) const { return false; }
+    virtual bool HaveCScript([[maybe_unused]] const CScriptID &scriptid) const { return false; }
+    virtual bool GetPubKey([[maybe_unused]] const CKeyID &address, [[maybe_unused]] CPubKey& pubkey) const { return false; }
+    virtual bool GetKey([[maybe_unused]] const CKeyID &address, [[maybe_unused]] CKey& key) const { return false; }
+    virtual bool HaveKey([[maybe_unused]] const CKeyID &address) const { return false; }
+    virtual bool GetKeyOrigin([[maybe_unused]] const CKeyID& keyid, [[maybe_unused]] KeyOriginInfo& info) const { return false; }
 };
 
 extern const SigningProvider& DUMMY_SIGNING_PROVIDER;

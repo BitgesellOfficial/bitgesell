@@ -224,22 +224,22 @@ uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn
 class BaseSignatureChecker
 {
 public:
-    virtual bool CheckECDSASignature(const std::vector<unsigned char>& scriptSig, const std::vector<unsigned char>& vchPubKey, const CScript& scriptCode, SigVersion sigversion) const
+    virtual bool CheckECDSASignature([[maybe_unused]] const std::vector<unsigned char>& scriptSig, [[maybe_unused]] const std::vector<unsigned char>& vchPubKey, [[maybe_unused]] const CScript& scriptCode, [[maybe_unused]] SigVersion sigversion) const
     {
         return false;
     }
 
-    virtual bool CheckSchnorrSignature(Span<const unsigned char> sig, Span<const unsigned char> pubkey, SigVersion sigversion, const ScriptExecutionData& execdata, ScriptError* serror = nullptr) const
+    virtual bool CheckSchnorrSignature([[maybe_unused]] Span<const unsigned char> sig, [[maybe_unused]] Span<const unsigned char> pubkey, [[maybe_unused]] SigVersion sigversion, [[maybe_unused]] const ScriptExecutionData& execdata, [[maybe_unused]] ScriptError* serror = nullptr) const
     {
         return false;
     }
 
-    virtual bool CheckLockTime(const CScriptNum& nLockTime) const
+    virtual bool CheckLockTime([[maybe_unused]] const CScriptNum& nLockTime) const
     {
          return false;
     }
 
-    virtual bool CheckSequence(const CScriptNum& nSequence) const
+    virtual bool CheckSequence([[maybe_unused]] const CScriptNum& nSequence) const
     {
          return false;
     }

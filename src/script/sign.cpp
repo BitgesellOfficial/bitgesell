@@ -404,7 +404,7 @@ class DummySignatureChecker final : public BaseSignatureChecker
 {
 public:
     DummySignatureChecker() {}
-    bool CheckECDSASignature(const std::vector<unsigned char>& scriptSig, const std::vector<unsigned char>& vchPubKey, const CScript& scriptCode, SigVersion sigversion) const override { return true; }
+    bool CheckECDSASignature([[maybe_unused]] const std::vector<unsigned char>& scriptSig, [[maybe_unused]] const std::vector<unsigned char>& vchPubKey, [[maybe_unused]] const CScript& scriptCode, [[maybe_unused]] SigVersion sigversion) const override { return true; }
 };
 const DummySignatureChecker DUMMY_CHECKER;
 
@@ -415,7 +415,7 @@ private:
 public:
     DummySignatureCreator(char r_len, char s_len) : m_r_len(r_len), m_s_len(s_len) {}
     const BaseSignatureChecker& Checker() const override { return DUMMY_CHECKER; }
-    bool CreateSig(const SigningProvider& provider, std::vector<unsigned char>& vchSig, const CKeyID& keyid, const CScript& scriptCode, SigVersion sigversion) const override
+    bool CreateSig([[maybe_unused]] const SigningProvider& provider, std::vector<unsigned char>& vchSig, [[maybe_unused]] const CKeyID& keyid, [[maybe_unused]] const CScript& scriptCode, [[maybe_unused]] SigVersion sigversion) const override
     {
         // Create a dummy signature that is a valid DER-encoding
         vchSig.assign(m_r_len + m_s_len + 7, '\000');

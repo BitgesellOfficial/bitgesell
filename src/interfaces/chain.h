@@ -234,12 +234,12 @@ public:
     {
     public:
         virtual ~Notifications() {}
-        virtual void transactionAddedToMempool(const CTransactionRef& tx, uint64_t mempool_sequence) {}
-        virtual void transactionRemovedFromMempool(const CTransactionRef& tx, MemPoolRemovalReason reason, uint64_t mempool_sequence) {}
-        virtual void blockConnected(const CBlock& block, int height) {}
-        virtual void blockDisconnected(const CBlock& block, int height) {}
+        virtual void transactionAddedToMempool([[maybe_unused]] const CTransactionRef& tx, [[maybe_unused]] uint64_t mempool_sequence) {}
+        virtual void transactionRemovedFromMempool([[maybe_unused]] const CTransactionRef& tx, [[maybe_unused]] MemPoolRemovalReason reason, [[maybe_unused]] uint64_t mempool_sequence) {}
+        virtual void blockConnected([[maybe_unused]] const CBlock& block, [[maybe_unused]] int height) {}
+        virtual void blockDisconnected([[maybe_unused]] const CBlock& block, [[maybe_unused]] int height) {}
         virtual void updatedBlockTip() {}
-        virtual void chainStateFlushed(const CBlockLocator& locator) {}
+        virtual void chainStateFlushed([[maybe_unused]] const CBlockLocator& locator) {}
     };
 
     //! Register handler for notifications.

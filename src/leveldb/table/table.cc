@@ -135,11 +135,11 @@ void Table::ReadFilter(const Slice& filter_handle_value) {
 
 Table::~Table() { delete rep_; }
 
-static void DeleteBlock(void* arg, void* ignored) {
+static void DeleteBlock(void* arg, [[maybe_unused]] void* ignored) {
   delete reinterpret_cast<Block*>(arg);
 }
 
-static void DeleteCachedBlock(const Slice& key, void* value) {
+static void DeleteCachedBlock([[maybe_unused]] const Slice& key, void* value) {
   Block* block = reinterpret_cast<Block*>(value);
   delete block;
 }

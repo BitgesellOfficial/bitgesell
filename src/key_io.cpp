@@ -65,7 +65,7 @@ public:
         return bech32::Encode(bech32::Encoding::BECH32M, m_params.Bech32HRP(), data);
     }
 
-    std::string operator()(const CNoDestination& no) const { return {}; }
+    std::string operator()([[maybe_unused]] const CNoDestination& no) const { return {}; }
 };
 
 CTxDestination DecodeDestination(const std::string& str, const CChainParams& params, std::string& error_str)

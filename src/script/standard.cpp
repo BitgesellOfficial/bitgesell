@@ -266,7 +266,7 @@ namespace {
 class CScriptVisitor
 {
 public:
-    CScript operator()(const CNoDestination& dest) const
+    CScript operator()([[maybe_unused]] const CNoDestination& dest) const
     {
         return CScript();
     }

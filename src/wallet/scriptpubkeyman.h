@@ -174,40 +174,40 @@ protected:
 public:
     explicit ScriptPubKeyMan(WalletStorage& storage) : m_storage(storage) {}
     virtual ~ScriptPubKeyMan() {};
-    virtual bool GetNewDestination(const OutputType type, CTxDestination& dest, std::string& error) { return false; }
-    virtual isminetype IsMine(const CScript& script) const { return ISMINE_NO; }
+    virtual bool GetNewDestination([[maybe_unused]] const OutputType type, [[maybe_unused]] CTxDestination& dest, [[maybe_unused]] std::string& error) { return false; }
+    virtual isminetype IsMine([[maybe_unused]] const CScript& script) const { return ISMINE_NO; }
 
     //! Check that the given decryption key is valid for this ScriptPubKeyMan, i.e. it decrypts all of the keys handled by it.
-    virtual bool CheckDecryptionKey(const CKeyingMaterial& master_key, bool accept_no_keys = false) { return false; }
-    virtual bool Encrypt(const CKeyingMaterial& master_key, WalletBatch* batch) { return false; }
+    virtual bool CheckDecryptionKey([[maybe_unused]] const CKeyingMaterial& master_key, [[maybe_unused]] bool accept_no_keys = false) { return false; }
+    virtual bool Encrypt([[maybe_unused]] const CKeyingMaterial& master_key, [[maybe_unused]] WalletBatch* batch) { return false; }
 
-    virtual bool GetReservedDestination(const OutputType type, bool internal, CTxDestination& address, int64_t& index, CKeyPool& keypool) { return false; }
-    virtual void KeepDestination(int64_t index, const OutputType& type) {}
-    virtual void ReturnDestination(int64_t index, bool internal, const CTxDestination& addr) {}
+    virtual bool GetReservedDestination([[maybe_unused]] const OutputType type, [[maybe_unused]] bool internal, [[maybe_unused]] CTxDestination& address, [[maybe_unused]] int64_t& index, [[maybe_unused]] CKeyPool& keypool) { return false; }
+    virtual void KeepDestination([[maybe_unused]] int64_t index, [[maybe_unused]] const OutputType& type) {}
+    virtual void ReturnDestination([[maybe_unused]] int64_t index, [[maybe_unused]] bool internal, [[maybe_unused]] const CTxDestination& addr) {}
 
     /** Fills internal address pool. Use within ScriptPubKeyMan implementations should be used sparingly and only
       * when something from the address pool is removed, excluding GetNewDestination and GetReservedDestination.
       * External wallet code is primarily responsible for topping up prior to fetching new addresses
       */
-    virtual bool TopUp(unsigned int size = 0) { return false; }
+    virtual bool TopUp([[maybe_unused]] unsigned int size = 0) { return false; }
 
     //! Mark unused addresses as being used
-    virtual void MarkUnusedAddresses(const CScript& script) {}
+    virtual void MarkUnusedAddresses([[maybe_unused]] const CScript& script) {}
 
     /** Sets up the key generation stuff, i.e. generates new HD seeds and sets them as active.
       * Returns false if already setup or setup fails, true if setup is successful
       * Set force=true to make it re-setup if already setup, used for upgrades
       */
-    virtual bool SetupGeneration(bool force = false) { return false; }
+    virtual bool SetupGeneration([[maybe_unused]] bool force = false) { return false; }
 
     /* Returns true if HD is enabled */
     virtual bool IsHDEnabled() const { return false; }
 
     /* Returns true if the wallet can give out new addresses. This means it has keys in the keypool or can generate new keys */
-    virtual bool CanGetAddresses(bool internal = false) const { return false; }
+    virtual bool CanGetAddresses([[maybe_unused]] bool internal = false) const { return false; }
 
     /** Upgrades the wallet to the specified version */
-    virtual bool Upgrade(int prev_version, int new_version, bilingual_str& error) { return false; }
+    virtual bool Upgrade([[maybe_unused]] int prev_version, [[maybe_unused]] int new_version, [[maybe_unused]] bilingual_str& error) { return false; }
 
     virtual bool HavePrivateKeys() const { return false; }
 
@@ -221,25 +221,25 @@ public:
 
     virtual int64_t GetTimeFirstKey() const { return 0; }
 
-    virtual std::unique_ptr<CKeyMetadata> GetMetadata(const CTxDestination& dest) const { return nullptr; }
+    virtual std::unique_ptr<CKeyMetadata> GetMetadata([[maybe_unused]] const CTxDestination& dest) const { return nullptr; }
 
-    virtual std::unique_ptr<SigningProvider> GetSolvingProvider(const CScript& script) const { return nullptr; }
+    virtual std::unique_ptr<SigningProvider> GetSolvingProvider([[maybe_unused]] const CScript& script) const { return nullptr; }
 
     /** Whether this ScriptPubKeyMan can provide a SigningProvider (via GetSolvingProvider) that, combined with
       * sigdata, can produce solving data.
       */
-    virtual bool CanProvide(const CScript& script, SignatureData& sigdata) { return false; }
+    virtual bool CanProvide([[maybe_unused]] const CScript& script, [[maybe_unused]] SignatureData& sigdata) { return false; }
 
     /** Creates new signatures and adds them to the transaction. Returns whether all inputs were signed */
-    virtual bool SignTransaction(CMutableTransaction& tx, const std::map<COutPoint, Coin>& coins, int sighash, std::map<int, std::string>& input_errors) const { return false; }
+    virtual bool SignTransaction([[maybe_unused]] CMutableTransaction& tx, [[maybe_unused]] const std::map<COutPoint, Coin>& coins, [[maybe_unused]] int sighash, [[maybe_unused]] std::map<int, std::string>& input_errors) const { return false; }
     /** Sign a message with the given script */
-    virtual SigningResult SignMessage(const std::string& message, const PKHash& pkhash, std::string& str_sig) const { return SigningResult::SIGNING_FAILED; };
+    virtual SigningResult SignMessage([[maybe_unused]] const std::string& message, [[maybe_unused]] const PKHash& pkhash, [[maybe_unused]] std::string& str_sig) const { return SigningResult::SIGNING_FAILED; };
     /** Adds script and derivation path information to a PSBT, and optionally signs it. */
-    virtual TransactionError FillPSBT(PartiallySignedTransaction& psbt, int sighash_type = 1 /* SIGHASH_ALL */, bool sign = true, bool bip32derivs = false, int* n_signed = nullptr) const { return TransactionError::INVALID_PSBT; }
+    virtual TransactionError FillPSBT([[maybe_unused]] PartiallySignedTransaction& psbt, [[maybe_unused]] int sighash_type = 1 /* SIGHASH_ALL */, [[maybe_unused]] bool sign = true, [[maybe_unused]] bool bip32derivs = false, [[maybe_unused]] int* n_signed = nullptr) const { return TransactionError::INVALID_PSBT; }
 
     virtual uint256 GetID() const { return uint256(); }
 
-    virtual void SetInternal(bool internal) {}
+    virtual void SetInternal([[maybe_unused]] bool internal) {}
 
     /** Prepends the wallet name in logging output to ease debugging in multi-wallet use cases */
     template<typename... Params>
@@ -511,8 +511,8 @@ public:
     bool GetCScript(const CScriptID &scriptid, CScript& script) const override { return m_spk_man.GetCScript(scriptid, script); }
     bool HaveCScript(const CScriptID &scriptid) const override { return m_spk_man.HaveCScript(scriptid); }
     bool GetPubKey(const CKeyID &address, CPubKey& pubkey) const override { return m_spk_man.GetPubKey(address, pubkey); }
-    bool GetKey(const CKeyID &address, CKey& key) const override { return false; }
-    bool HaveKey(const CKeyID &address) const override { return false; }
+    bool GetKey([[maybe_unused]] const CKeyID &address, [[maybe_unused]] CKey& key) const override { return false; }
+    bool HaveKey([[maybe_unused]] const CKeyID &address) const override { return false; }
     bool GetKeyOrigin(const CKeyID& keyid, KeyOriginInfo& info) const override { return m_spk_man.GetKeyOrigin(keyid, info); }
 };
 

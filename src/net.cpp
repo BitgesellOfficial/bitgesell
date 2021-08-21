@@ -885,7 +885,7 @@ static bool CompareNodeBlockRelayOnlyTime(const NodeEvictionCandidate &a, const 
 template <typename T, typename Comparator>
 static void EraseLastKElements(
     std::vector<T>& elements, Comparator comparator, size_t k,
-    std::function<bool(const NodeEvictionCandidate&)> predicate = [](const NodeEvictionCandidate& n) { return true; })
+    std::function<bool(const NodeEvictionCandidate&)> predicate = []([[maybe_unused]] const NodeEvictionCandidate& n) { return true; })
 {
     std::sort(elements.begin(), elements.end(), comparator);
     size_t eraseSize = std::min(k, elements.size());

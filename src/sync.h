@@ -66,14 +66,14 @@ bool LockStackEmpty();
  */
 extern bool g_debug_lockorder_abort;
 #else
-inline void EnterCritical(const char* pszName, const char* pszFile, int nLine, void* cs, bool fTry = false) {}
+inline void EnterCritical([[maybe_unused]] const char* pszName, [[maybe_unused]] const char* pszFile, [[maybe_unused]] int nLine, [[maybe_unused]] void* cs, [[maybe_unused]] bool fTry = false) {}
 inline void LeaveCritical() {}
-inline void CheckLastCritical(void* cs, std::string& lockname, const char* guardname, const char* file, int line) {}
+inline void CheckLastCritical([[maybe_unused]] void* cs, [[maybe_unused]] std::string& lockname, [[maybe_unused]] const char* guardname, [[maybe_unused]] const char* file, [[maybe_unused]] int line) {}
 template <typename MutexType>
-inline void AssertLockHeldInternal(const char* pszName, const char* pszFile, int nLine, MutexType* cs) EXCLUSIVE_LOCKS_REQUIRED(cs) {}
+inline void AssertLockHeldInternal([[maybe_unused]] const char* pszName, [[maybe_unused]] const char* pszFile, [[maybe_unused]] int nLine, [[maybe_unused]] MutexType* cs) EXCLUSIVE_LOCKS_REQUIRED(cs) {}
 template <typename MutexType>
-void AssertLockNotHeldInternal(const char* pszName, const char* pszFile, int nLine, MutexType* cs) LOCKS_EXCLUDED(cs) {}
-inline void DeleteLock(void* cs) {}
+void AssertLockNotHeldInternal([[maybe_unused]] const char* pszName, [[maybe_unused]] const char* pszFile, [[maybe_unused]] int nLine, [[maybe_unused]] MutexType* cs) LOCKS_EXCLUDED(cs) {}
+inline void DeleteLock([[maybe_unused]] void* cs) {}
 inline bool LockStackEmpty() { return true; }
 #endif
 #define AssertLockHeld(cs) AssertLockHeldInternal(#cs, __FILE__, __LINE__, &cs)

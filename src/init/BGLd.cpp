@@ -22,7 +22,7 @@ public:
 } // namespace init
 
 namespace interfaces {
-std::unique_ptr<Init> MakeNodeInit(NodeContext& node, int argc, char* argv[], int& exit_status)
+std::unique_ptr<Init> MakeNodeInit(NodeContext& node, [[maybe_unused]] int argc, [[maybe_unused]] char* argv[], [[maybe_unused]] int& exit_status)
 {
     return std::make_unique<init::BGLdInit>(node);
 }

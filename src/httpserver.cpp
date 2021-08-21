@@ -211,7 +211,7 @@ std::string RequestMethodString(HTTPRequest::RequestMethod m)
 }
 
 /** HTTP request callback */
-static void http_request_cb(struct evhttp_request* req, void* arg)
+static void http_request_cb(struct evhttp_request* req, [[maybe_unused]] void* arg)
 {
     // Disable reading to work around a libevent bug, fixed in 2.2.0.
     if (event_get_version_number() >= 0x02010600 && event_get_version_number() < 0x02020001) {

@@ -260,12 +260,12 @@ class DescribeAddressVisitor
 public:
     explicit DescribeAddressVisitor() {}
 
-    UniValue operator()(const CNoDestination& dest) const
+    UniValue operator()([[maybe_unused]] const CNoDestination& dest) const
     {
         return UniValue(UniValue::VOBJ);
     }
 
-    UniValue operator()(const PKHash& keyID) const
+    UniValue operator()([[maybe_unused]] const PKHash& keyID) const
     {
         UniValue obj(UniValue::VOBJ);
         obj.pushKV("isscript", false);
@@ -273,7 +273,7 @@ public:
         return obj;
     }
 
-    UniValue operator()(const ScriptHash& scriptID) const
+    UniValue operator()([[maybe_unused]] const ScriptHash& scriptID) const
     {
         UniValue obj(UniValue::VOBJ);
         obj.pushKV("isscript", true);
