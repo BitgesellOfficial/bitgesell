@@ -37,9 +37,6 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <key_io.h>
-#include <key.h>
-
 using namespace std::literals;
 static const std::string STRING_WITH_EMBEDDED_NULL_CHAR{"1"s "\0" "1"s};
 
@@ -2224,7 +2221,7 @@ BOOST_AUTO_TEST_CASE(message_verify)
             "message too"),
         MessageVerificationResult::ERR_INVALID_ADDRESS);
 
-   BOOST_CHECK_EQUAL(
+    BOOST_CHECK_EQUAL(
         MessageVerify(
             "bgl1qapzlteru5p93c6exsqvjmy34pua8q0lws0p4kg",
             "signature should be irrelevant",
@@ -2233,35 +2230,35 @@ BOOST_AUTO_TEST_CASE(message_verify)
 
     BOOST_CHECK_EQUAL(
         MessageVerify(
-            "56aToLcrXcuKWqYoNV7UmkMn23CmE1G2z8",
+            "56aToLcrXcuKWqYoNV7UmkMn23CmA6mTN1",
             "invalid signature, not in base64 encoding",
             "message should be irrelevant"),
         MessageVerificationResult::ERR_MALFORMED_SIGNATURE);
 
     BOOST_CHECK_EQUAL(
         MessageVerify(
-            "56aToLcrXcuKWqYoNV7UmkMn23CmE1G2z8",
+            "56aToLcrXcuKWqYoNV7UmkMn23CmA6mTN1",
             "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
             "message should be irrelevant"),
         MessageVerificationResult::ERR_PUBKEY_NOT_RECOVERED);
 
     BOOST_CHECK_EQUAL(
         MessageVerify(
-            "56aToLcrXcuKWqYoNV7UmkMn23CmE1G2z8",
+            "56aToLcrXcuKWqYoNV7UmkMn23CmA6mTN1",
             "GyCkhyvkWUMYnUU6vWwEz6J2DXLYDlwl85bD8BX0A2jUEu5Kq66pe53+nA5pponV7egAvlrNs/P/g55xsYBDZaQ=",
             "I never signed this"),
         MessageVerificationResult::ERR_NOT_SIGNED);
 
     BOOST_CHECK_EQUAL(
         MessageVerify(
-            "56aToLcrXcuKWqYoNV7UmkMn23CmE1G2z8",
+            "56aToLcrXcuKWqYoNV7UmkMn23CmA6mTN1",
             "HyFfKaXqUu1sA+mTuI75Fgmw1VhTL3esRGQsTfp9GlAISSVXMvm94PnRzcvKd4k/p1cmrVeBYBmUZrdl0jCgJ7U=",
             "Trust no one"),
         MessageVerificationResult::OK);
 
     BOOST_CHECK_EQUAL(
         MessageVerify(
-            "56aToLcrXcuKWqYoNV7UmkMn23CmE1G2z8",
+            "56aToLcrXcuKWqYoNV7UmkMn23CmA6mTN1",
             "IGeEjdD3RTVfr9wUnwZR4q+DHz2kVfODqI/fynzhHHmFdOscHe5ePpqUAm0j+frLcIq4OotxNu86NMW8L/d7zMk=",
             "Trust me"),
         MessageVerificationResult::OK);
@@ -2280,7 +2277,8 @@ BOOST_AUTO_TEST_CASE(message_hash)
     const uint256 message_hash1 = Hash(prefixed_message);
     const uint256 message_hash2 = MessageHash(unsigned_tx);
 
-    BOOST_CHECK_EQUAL(message_hash1, message_hash2);
+   // Commented out because MessageHash uses keccak algorithm, while Hash uses CSHA256
+   // BOOST_CHECK_EQUAL(message_hash1, message_hash2);
     BOOST_CHECK_NE(message_hash1, signature_hash);
 }
 
