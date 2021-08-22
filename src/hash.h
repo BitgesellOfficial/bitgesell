@@ -100,11 +100,6 @@ public:
         return *this;
     }
 
-    CHash256Keccak& Write(Span<const unsigned char> input) {
-        sha3_Update(&sha3context, input.data(), input.size());
-        return *this;
-    }
-
     CHash256Keccak& Reset() {
         sha3_Init256(&sha3context);
         return *this;
@@ -141,7 +136,7 @@ template<typename T>
 inline uint256 Hash(const T& in1)
 {
     uint256 result;
-    CHash256Keccak().Write(MakeUCharSpan(in1)).Finalize((unsigned char*)&result);
+    CHash256().Write(MakeUCharSpan(in1)).Finalize(result);
     return result;
 }
 
