@@ -85,6 +85,8 @@ class P2PAddConnections(BGLTestFramework):
 
         check_node_connections(node=self.nodes[1], num_in=5, num_out=10)
 
+        # Feeler connections do not request tx relay
+        assert_equal(feeler_conn.last_message["version"].relay, 0)
 
 if __name__ == '__main__':
     P2PAddConnections().main()
