@@ -488,6 +488,8 @@ if test "x$CXXFLAGS_overridden" = "xno"; then
   AX_CHECK_COMPILE_FLAG([-Wpacked],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wpacked"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wpointer-arith],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wpointer-arith"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wdouble-promotion],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wdouble-promotion"],,[[$CXXFLAG_WERROR]])
+  dnl AX_CHECK_COMPILE_FLAG([-Wconversion],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wconversion"],,[[$CXXFLAG_WERROR]])
+  dnl AX_CHECK_COMPILE_FLAG([-Wuseless-cast],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wuseless-cast"],,[[$CXXFLAG_WERROR]])
 
   if test x$suppress_external_warnings != xno ; then
     AX_CHECK_COMPILE_FLAG([-Wdocumentation],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wdocumentation"],,[[$CXXFLAG_WERROR]])
@@ -500,6 +502,7 @@ if test "x$CXXFLAGS_overridden" = "xno"; then
   AX_CHECK_COMPILE_FLAG([-Wunused-local-typedef],[NOWARN_CXXFLAGS="$NOWARN_CXXFLAGS -Wno-unused-local-typedef"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wdeprecated-copy],[NOWARN_CXXFLAGS="$NOWARN_CXXFLAGS -Wno-deprecated-copy"],,[[$CXXFLAG_WERROR]])
 fi
+
 
 dnl Don't allow extended (non-ASCII) symbols in identifiers. This is easier for code review.
 AX_CHECK_COMPILE_FLAG([-fno-extended-identifiers],[[CXXFLAGS="$CXXFLAGS -fno-extended-identifiers"]],,[[$CXXFLAG_WERROR]])
