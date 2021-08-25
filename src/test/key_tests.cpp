@@ -68,6 +68,11 @@ BOOST_AUTO_TEST_CASE(key_test1)
     BOOST_CHECK(!key2C.VerifyPubKey(pubkey2));
     BOOST_CHECK(key2C.VerifyPubKey(pubkey2C));
 
+    // check the addresses are valid - if they aren't, it can give misleading failures later
+    BOOST_CHECK(IsValidDestination(DecodeDestination(addr1)));
+    BOOST_CHECK(IsValidDestination(DecodeDestination(addr2)));
+    BOOST_CHECK(IsValidDestination(DecodeDestination(addr1C)));
+    BOOST_CHECK(IsValidDestination(DecodeDestination(addr2C)));
     CTxDestination dest1 = DecodeDestination(addr1);
     CTxDestination dest2 = CTxDestination(PKHash(pubkey1));
     BOOST_CHECK(dest1 == dest2);
