@@ -153,13 +153,23 @@ public:
     //! See if any to-be-evicted tried table entries have been tested and if so resolve the collisions.
     void ResolveCollisions() EXCLUSIVE_LOCKS_REQUIRED(!cs);
 
-    //! Randomly select an address in tried that another address is attempting to evict.
-    CAddrInfo SelectTriedCollision() EXCLUSIVE_LOCKS_REQUIRED(!cs);
+    /**
+     * Randomly select an address in the tried table that another address is
+     * attempting to evict.
+     *
+     * @return CAddress The record for the selected tried peer.
+     *         int64_t  The last time we attempted to connect to that peer.
+     */
+    std::pair<CAddress, int64_t> SelectTriedCollision();
 
     /**
      * Choose an address to connect to.
+     *
+     * @param[in] newOnly  Whether to only select addresses from the new table.
+     * @return    CAddress The record for the selected peer.
+     *            int64_t  The last time we attempted to connect to that peer.
      */
-    CAddrInfo Select(bool newOnly = false) const EXCLUSIVE_LOCKS_REQUIRED(!cs);
+    std::pair<CAddress, int64_t> Select(bool newOnly = false) const;
 
     /**
      * Return all or many randomly selected addresses, optionally by network.
