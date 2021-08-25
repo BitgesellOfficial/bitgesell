@@ -27,6 +27,8 @@ static const std::string addr2C = "5DoksNxE71AHAcZPacDu7bhYyR2abomBK7";
 
 static const std::string strAddressBad = "1HV9Lc3sNHZxwj4Zk6fB38tEmBryq2cBiF";
 
+static const std::string addr_bitcoin = "1QFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"; // valid BTC address, not valid BGL address
+
 
 BOOST_FIXTURE_TEST_SUITE(key_tests, BasicTestingSetup)
 
@@ -73,6 +75,10 @@ BOOST_AUTO_TEST_CASE(key_test1)
     BOOST_CHECK(IsValidDestination(DecodeDestination(addr2)));
     BOOST_CHECK(IsValidDestination(DecodeDestination(addr1C)));
     BOOST_CHECK(IsValidDestination(DecodeDestination(addr2C)));
+
+    // bitcoin addresses (prefix 0) should NOT be valid
+    BOOST_CHECK(!IsValidDestination(DecodeDestination(addr_bitcoin)));
+
     CTxDestination dest1 = DecodeDestination(addr1);
     CTxDestination dest2 = CTxDestination(PKHash(pubkey1));
     BOOST_CHECK(dest1 == dest2);
