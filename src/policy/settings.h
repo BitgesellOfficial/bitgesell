@@ -10,8 +10,6 @@
 
 #include <logging.h>
 
-#include <cstdio>
-
 class CFeeRate;
 class CTransaction;
 

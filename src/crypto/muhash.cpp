@@ -9,7 +9,6 @@
 #include <hash.h>
 
 #include <cassert>
-#include <cstdio>
 #include <limits>
 
 namespace {
