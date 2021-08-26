@@ -57,7 +57,7 @@ static std::string DecodeDumpString(const std::string &str) {
     return ret.str();
 }
 
-static bool GetWalletAddressesForKey(LegacyScriptPubKeyMan* spk_man, const CWallet& wallet, const CKeyID& keyid, std::string& strAddr, std::string& strLabel) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet)
+static bool GetWalletAddressesForKey(const LegacyScriptPubKeyMan* spk_man, const CWallet& wallet, const CKeyID& keyid, std::string& strAddr, std::string& strLabel) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet)
 {
     bool fLabelFound = false;
     CKey key;
@@ -684,7 +684,7 @@ RPCHelpMan dumpprivkey()
     const std::shared_ptr<const CWallet> pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) return NullUniValue;
 
-    LegacyScriptPubKeyMan& spk_man = EnsureLegacyScriptPubKeyMan(*pwallet);
+    const LegacyScriptPubKeyMan& spk_man = EnsureConstLegacyScriptPubKeyMan(*pwallet);
 
     LOCK2(pwallet->cs_wallet, spk_man.cs_KeyStore);
 
@@ -734,7 +734,7 @@ RPCHelpMan dumpwallet()
     const std::shared_ptr<const CWallet> pwallet = GetWalletForJSONRPCRequest(request);
     if (!pwallet) return NullUniValue;
 
-    const CWallet& wallet = *pwallet;
+    CWallet& wallet = *pwallet;
     const LegacyScriptPubKeyMan& spk_man = EnsureConstLegacyScriptPubKeyMan(wallet);
 
     // Make sure the results are valid at least up to the most recent block
