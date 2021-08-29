@@ -212,7 +212,7 @@ class InvalidMessagesTest(BGLTestFramework):
         self.test_addrv2('unrecognized network',
             [
                 'received: addrv2 (25 bytes)',
-                'IP 9.9.9.9 mapped',
+                '9.9.9.9:8333 mapped',
                 'Added 1 addresses',
             ],
             bytes.fromhex(

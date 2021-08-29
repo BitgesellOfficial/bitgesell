@@ -500,6 +500,7 @@ void AddrManImpl::ClearNew(int nUBucket, int nUBucketPos)
         assert(infoDelete.nRefCount > 0);
         infoDelete.nRefCount--;
         vvNew[nUBucket][nUBucketPos] = -1;
+        LogPrint(BCLog::ADDRMAN, "Removed %s from new[%i][%i]\n", infoDelete.ToString(), nUBucket, nUBucketPos);
         if (infoDelete.nRefCount == 0) {
             Delete(nIdDelete);
         }
@@ -551,6 +552,8 @@ void AddrManImpl::MakeTried(AddrInfo& info, int nId)
         infoOld.nRefCount = 1;
         vvNew[nUBucket][nUBucketPos] = nIdEvict;
         nNew++;
+        LogPrint(BCLog::ADDRMAN, "Moved %s from tried[%i][%i] to new[%i][%i] to make space\n",
+                 infoOld.ToString(), nKBucket, nKBucketPos, nUBucket, nUBucketPos);
     }
     assert(vvTried[nKBucket][nKBucketPos] == -1);
 
@@ -601,17 +604,20 @@ void AddrManImpl::Good_(const CService& addr, bool test_before_evict, int64_t nT
 
     // Will moving this address into tried evict another entry?
     if (test_before_evict && (vvTried[tried_bucket][tried_bucket_pos] != -1)) {
-        // Output the entry we'd be colliding with, for debugging purposes
-        auto colliding_entry = mapInfo.find(vvTried[tried_bucket][tried_bucket_pos]);
-        LogPrint(BCLog::ADDRMAN, "Collision inserting element into tried table (%s), moving %s to m_tried_collisions=%d\n", colliding_entry != mapInfo.end() ? colliding_entry->second.ToString() : "", addr.ToString(), m_tried_collisions.size());
         if (m_tried_collisions.size() < ADDRMAN_SET_TRIED_COLLISION_SIZE) {
             m_tried_collisions.insert(nId);
         }
+        // Output the entry we'd be colliding with, for debugging purposes
+        auto colliding_entry = mapInfo.find(vvTried[tried_bucket][tried_bucket_pos]);
+        LogPrint(BCLog::ADDRMAN, "Collision with %s while attempting to move %s to tried table. Collisions=%d\n",
+                 colliding_entry != mapInfo.end() ? colliding_entry->second.ToString() : "",
+                 addr.ToString(),
+                 m_tried_collisions.size());
     } else {
-        LogPrint(BCLog::ADDRMAN, "Moving %s to tried\n", addr.ToString());
-
         // move nId to the tried tables
         MakeTried(info, nId);
+        LogPrint(BCLog::ADDRMAN, "Moved %s mapped to AS%i to tried[%i][%i]\n",
+                 addr.ToString(), addr.GetMappedAS(m_asmap), tried_bucket, tried_bucket_pos);
     }
 }
 
@@ -681,6 +687,8 @@ bool AddrManImpl::Add_(const CAddress& addr, const CNetAddr& source, int64_t nTi
             ClearNew(nUBucket, nUBucketPos);
             pinfo->nRefCount++;
             vvNew[nUBucket][nUBucketPos] = nId;
+            LogPrint(BCLog::ADDRMAN, "Added %s mapped to AS%i to new[%i][%i]\n",
+                     addr.ToString(), addr.GetMappedAS(m_asmap), nUBucket, nUBucketPos);
         } else {
             if (pinfo->nRefCount == 0) {
                 Delete(nId);
@@ -746,6 +754,7 @@ CAddrInfo AddrManImpl::Select_(bool newOnly) const
             const AddrInfo& info{it_found->second};
             // With probability GetChance() * fChanceFactor, return the entry.
             if (insecure_rand.randbits(30) < fChanceFactor * info.GetChance() * (1 << 30)) {
+                LogPrint(BCLog::ADDRMAN, "Selected %s from tried\n", info.ToString());
                 return {info, info.nLastTry};
             }
             // Otherwise start over with a (likely) different bucket, and increased chance factor.
@@ -773,6 +782,7 @@ CAddrInfo AddrManImpl::Select_(bool newOnly) const
             const AddrInfo& info{it_found->second};
             // With probability GetChance() * fChanceFactor, return the entry.
             if (insecure_rand.randbits(30) < fChanceFactor * info.GetChance() * (1 << 30)) {
+                LogPrint(BCLog::ADDRMAN, "Selected %s from new\n", info.ToString());
                 return {info, info.nLastTry};
             }
             // Otherwise start over with a (likely) different bucket, and increased chance factor.
@@ -815,7 +825,7 @@ void AddrManImpl::GetAddr_(std::vector<CAddress>& vAddr, size_t max_addresses, s
 
         addresses.push_back(ai);
     }
-
+    LogPrint(BCLog::ADDRMAN, "GetAddr returned %d random addresses\n", addresses.size());
     return addresses;
 }
 
