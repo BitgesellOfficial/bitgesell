@@ -579,6 +579,9 @@ public:
 
     ~FuzzedSock() override;
 
+    #ifndef NDEBUG
+      [[noreturn]]
+    #endif // NDEBUG
     FuzzedSock& operator=(Sock&& other) override;
 
     void Reset() override;

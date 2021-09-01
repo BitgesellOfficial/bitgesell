@@ -22,10 +22,17 @@ FuzzedSock::~FuzzedSock()
     Reset();
 }
 
-FuzzedSock& FuzzedSock::operator=([[maybe_unused]] Sock&& other) [[noreturn]]
+#ifndef NDEBUG
+  // the assert(false ... ) will fail if debug mode, making this function never return
+  [[noreturn]]
+#endif // NDEBUG
+FuzzedSock& FuzzedSock::operator=([[maybe_unused]] Sock&& other)
 {
     assert(false && "Move of Sock into FuzzedSock not allowed.");
-    return *this;
+    #ifdef NDEBUG
+      // only reachable in release build
+      return *this;
+    #endif // NDEBUG
 }
 
 void FuzzedSock::Reset()
