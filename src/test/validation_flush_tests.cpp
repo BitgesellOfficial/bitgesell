@@ -133,8 +133,8 @@ BOOST_AUTO_TEST_CASE(getcoinscachesizestate)
     if (is_64_bit) {
         float usage_percentage = (float)view.DynamicMemoryUsage() / (MAX_COINS_CACHE_BYTES + (1 << 10));
         BOOST_TEST_MESSAGE("CoinsTip usage percentage: " << usage_percentage);
-        BOOST_CHECK(usage_percentage >= 0.9);
-        BOOST_CHECK(usage_percentage < 1);
+        BOOST_CHECK(usage_percentage >= 0.9f);
+        BOOST_CHECK(usage_percentage < 1.0f);
         BOOST_CHECK_EQUAL(
             chainstate.GetCoinsCacheSizeState(&tx_pool, MAX_COINS_CACHE_BYTES, 1 << 10),
             CoinsCacheSizeState::LARGE);

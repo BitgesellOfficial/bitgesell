@@ -256,7 +256,7 @@ T FuzzedDataProvider::ConsumeFloatingPointInRange(T min, T max) {
     // The diff |max - min| would overflow the given floating point type. Use
     // the half of the diff as the range and consume a bool to decide whether
     // the result is in the first of the second part of the diff.
-    range = (max / 2.0) - (min / 2.0);
+    range = (max / static_cast<T>(2.0)) - (min / static_cast<T>(2.0));
     if (ConsumeBool()) {
       result += range;
     }
