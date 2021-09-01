@@ -578,6 +578,7 @@ public:
     }
 
     void Clear()
+        EXCLUSIVE_LOCKS_REQUIRED(!cs)
     {
         LOCK(cs);
         std::vector<int>().swap(vRandom);
@@ -601,9 +602,11 @@ public:
         mapAddr.clear();
     }
 
-    CAddrMan()
+    explicit CAddrMan(bool deterministic = false)
+        : insecure_rand{deterministic}
     {
         Clear();
+        if (deterministic) nKey = uint256{1};
     }
 
     ~CAddrMan()
