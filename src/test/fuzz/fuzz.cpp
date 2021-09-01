@@ -72,7 +72,7 @@ extern "C" int LLVMFuzzerInitialize([[maybe_unused]] int* argc, [[maybe_unused]]
 }
 
 #if defined(PROVIDE_FUZZ_MAIN_FUNCTION)
-int main(int argc, char** argv)
+int main()
 {
     initialize();
     static const auto& test_one_input = *Assert(g_test_one_input);
