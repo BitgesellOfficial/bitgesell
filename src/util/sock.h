@@ -21,7 +21,7 @@ static constexpr auto MAX_WAIT_FOR_IO = 1s;
  * RAII helper class that manages a socket. Mimics `std::unique_ptr`, but instead of a pointer it
  * contains a socket and closes it automatically when it goes out of scope.
  */
-class Sock final
+class Sock
 {
 public:
     /**
