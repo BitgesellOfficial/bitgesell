@@ -57,14 +57,13 @@ std::optional<std::string> GetEntriesForConflicts(const CTransaction& tx,
     uint64_t nConflictingCount = 0;
     for (const auto& mi : setIterConflicting) {
         nConflictingCount += mi->GetCountWithDescendants();
-        // This potentially overestimates the number of actual descendants
-        // but we just want to be conservative to avoid doing too much
-        // work.
+        // This potentially overestimates the number of actual descendants but we just want to be
+        // conservative to avoid doing too much work.
         if (nConflictingCount > MAX_BIP125_REPLACEMENT_CANDIDATES) {
             return strprintf("rejecting replacement %s; too many potential replacements (%d > %d)\n",
-                        hash.ToString(),
-                        nConflictingCount,
-                        MAX_BIP125_REPLACEMENT_CANDIDATES);
+                             txid.ToString(),
+                             nConflictingCount,
+                             MAX_BIP125_REPLACEMENT_CANDIDATES);
         }
     }
     // If not too many to replace, then calculate the set of
@@ -79,32 +78,26 @@ std::optional<std::string> HasNoNewUnconfirmed(const CTransaction& tx,
                                                const CTxMemPool& m_pool,
                                                const CTxMemPool::setEntries& setIterConflicting)
 {
-    AssertLockHeld(m_pool.cs);
-    std::set<uint256> setConflictsParents;
-    for (const auto& mi : setIterConflicting) {
-        for (const CTxIn &txin : mi->GetTx().vin)
-        {
-            setConflictsParents.insert(txin.prevout.hash);
+    AssertLockHeld(pool.cs);
+    std::set<uint256> parents_of_conflicts;
+    for (const auto& mi : iters_conflicting) {
+        for (const CTxIn &txin : mi->GetTx().vin) {
+            parents_of_conflicts.insert(txin.prevout.hash);
         }
     }
 
-    for (unsigned int j = 0; j < tx.vin.size(); j++)
-    {
-        // We don't want to accept replacements that require low
-        // feerate junk to be mined first. Ideally we'd keep track of
-        // the ancestor feerates and make the decision based on that,
-        // but for now requiring all new inputs to be confirmed works.
+    for (unsigned int j = 0; j < tx.vin.size(); j++) {
+        // We don't want to accept replacements that require low feerate junk to be mined first.
+        // Ideally we'd keep track of the ancestor feerates and make the decision based on that, but
+        // for now requiring all new inputs to be confirmed works.
         //
-        // Note that if you relax this to make RBF a little more useful,
-        // this may break the CalculateMempoolAncestors RBF relaxation,
-        // above. See the comment above the first CalculateMempoolAncestors
-        // call for more info.
-        if (!setConflictsParents.count(tx.vin[j].prevout.hash))
-        {
-            // Rather than check the UTXO set - potentially expensive -
-            // it's cheaper to just check if the new input refers to a
-            // tx that's in the mempool.
-            if (m_pool.exists(tx.vin[j].prevout.hash)) {
+        // Note that if you relax this to make RBF a little more useful, this may break the
+        // CalculateMempoolAncestors RBF relaxation, above. See the comment above the first
+        // CalculateMempoolAncestors call for more info.
+        if (!parents_of_conflicts.count(tx.vin[j].prevout.hash)) {
+            // Rather than check the UTXO set - potentially expensive - it's cheaper to just check
+            // if the new input refers to a tx that's in the mempool.
+            if (pool.exists(tx.vin[j].prevout.hash)) {
                 return strprintf("replacement %s adds unconfirmed input, idx %d",
                                  tx.GetHash().ToString(), j);
             }
