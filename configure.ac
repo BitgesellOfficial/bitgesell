@@ -24,6 +24,7 @@ BGL_GUI_NAME=BGL-qt
 BGL_CLI_NAME=BGL-cli
 BGL_TX_NAME=BGL-tx
 BGL_UTIL_NAME=BGL-util
+BGL_CHAINSTATE_NAME=BGL-chainstate
 BGL_WALLET_TOOL_NAME=BGL-wallet
 dnl Multi Process
 BGL_MP_NODE_NAME=BGL-node
@@ -633,6 +634,12 @@ AC_ARG_ENABLE([util-util],
   [build BGL-util])],
   [build_BGL_util=$enableval],
   [build_BGL_util=$build_BGL_utils])
+
+AC_ARG_ENABLE([experimental-util-chainstate],
+  [AS_HELP_STRING([--enable-experimental-util-chainstate],
+  [build experimental BGL-chainstate executable (default=no)])],
+  [build_BGL_chainstate=$enableval],
+  [build_BGL_chainstate=no])
 
 AC_ARG_WITH([libs],
   [AS_HELP_STRING([--with-libs],
@@ -1257,6 +1264,7 @@ if test "$enable_fuzz" = "yes"; then
   build_BGL_cli=no
   build_BGL_tx=no
   build_BGL_util=no
+  build_BGL_chainstate=no
   build_BGL_wallet=no
   build_BGLd=no
   build_BGL_libs=no
@@ -1590,6 +1598,10 @@ AC_MSG_CHECKING([whether to build BGL-util])
 AM_CONDITIONAL([BUILD_BGL_UTIL], [test $build_BGL_util = "yes"])
 AC_MSG_RESULT($build_BGL_util)
 
+AC_MSG_CHECKING([whether to build experimental BGL-chainstate])
+AM_CONDITIONAL([BUILD_BGL_CHAINSTATE], [test $build_BGL_chainstate = "yes"])
+AC_MSG_RESULT($build_BGL_chainstate)
+
 AC_MSG_CHECKING([whether to build libraries])
 AM_CONDITIONAL([BUILD_BGL_LIBS], [test $build_BGL_libs = "yes"])
 if test "$build_BGL_libs" = "yes"; then
@@ -1809,6 +1821,7 @@ AC_SUBST(BGL_GUI_NAME)
 AC_SUBST(BGL_CLI_NAME)
 AC_SUBST(BGL_TX_NAME)
 AC_SUBST(BGL_UTIL_NAME)
+AC_SUBST(BGL_CHAINSTATE_NAME)
 AC_SUBST(BGL_WALLET_TOOL_NAME)
 AC_SUBST(BGL_MP_NODE_NAME)
 AC_SUBST(BGL_MP_GUI_NAME)

@@ -7,10 +7,19 @@ gen_ecmult_gen_static_prec_table
 gen_ecmult_static_pre_g
 valgrind_ctime_test
 *.exe
-*.so
-*.a
-*.csv
-!.gitignore
+*.pdb
+src/BGL
+src/BGLd
+src/BGL-cli
+src/BGL-gui
+src/BGL-node
+src/BGL-tx
+src/BGL-util
+src/BGL-chainstate
+src/BGL-wallet
+src/test/fuzz/fuzz
+src/test/test_BGL
+src/qt/test/test_BGL-qt
 
 # autoreconf
 Makefile.in
