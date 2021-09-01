@@ -217,7 +217,7 @@ public:
 class CHashWriterSHA256
 {
 private:
-    CHash256Single ctx;
+    CSHA256 ctx;
 
     const int nType;
     const int nVersion;
@@ -242,11 +242,6 @@ public:
         ctx.Reset().Write(result.begin(), CSHA256::OUTPUT_SIZE).Finalize(result.begin());
         return result;
     }
-//    uint256 GetHash() {
-//        uint256 result;
-//        ctx.Finalize(result.begin());
-//        return result;
-//    }
 
     /** Compute the SHA256 hash of all data written to this object.
      *
@@ -262,9 +257,8 @@ public:
      * Returns the first 64 bits from the resulting hash.
      */
     inline uint64_t GetCheapHash() {
-        unsigned char result[CHash256::OUTPUT_SIZE];
-        ctx.Finalize(result);
-        return ReadLE64(result);
+        uint256 result = GetHash();
+        return ReadLE64(result.begin());
     }
 
     template<typename T>
