@@ -2275,10 +2275,10 @@ BOOST_AUTO_TEST_CASE(message_hash)
 
     const uint256 signature_hash = Hash(unsigned_tx);
     const uint256 message_hash1 = Hash(prefixed_message);
-    const uint256 message_hash2 = MessageHash(unsigned_tx);
+    //const uint256 message_hash2 = MessageHash(unsigned_tx);
 
-   // Commented out because MessageHash uses keccak algorithm, while Hash uses CSHA256
-   // BOOST_CHECK_EQUAL(message_hash1, message_hash2);
+    // Commented out because MessageHash uses keccak algorithm, while Hash uses CSHA256
+    // BOOST_CHECK_EQUAL(message_hash1, message_hash2);
     BOOST_CHECK_NE(message_hash1, signature_hash);
 }
 
