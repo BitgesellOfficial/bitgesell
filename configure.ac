@@ -468,6 +468,8 @@ if test "x$CXXFLAGS_overridden" = "xno"; then
   AX_CHECK_COMPILE_FLAG([-Woverloaded-virtual],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Woverloaded-virtual"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wsuggest-override],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wsuggest-override"],,[[$CXXFLAG_WERROR]],
                         [AC_LANG_SOURCE([[struct A { virtual void f(); }; struct B : A { void f() final; };]])])
+  AX_CHECK_COMPILE_FLAG([-Wsuggest-attribute=noreturn],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wsuggest-attribute=noreturn"],,[[$CXXFLAG_WERROR]])
+  dnl AX_CHECK_COMPILE_FLAG([-Wsuggest-final-methods],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wsuggest-final-methods"],,[[$CXXFLAG_WERROR]])
   dnl AX_CHECK_COMPILE_FLAG([-Wsuggest-final-types],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wsuggest-final-types"],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-Wunreachable-code-loop-increment],[WARN_CXXFLAGS="$WARN_CXXFLAGS -Wunreachable-code-loop-increment"],,[[$CXXFLAG_WERROR]])
 
