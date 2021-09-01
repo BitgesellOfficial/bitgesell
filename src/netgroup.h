@@ -18,10 +18,19 @@ public:
         : m_asmap{std::move(asmap)}
     {}
 
-    /* Get a reference to (const) asmap. May be held as long as NetGroupManager
-     * exists, since the data is const. */
-    const std::vector<bool>& GetAsmap() const { return m_asmap; }
+    /** Get a checksum identifying the asmap being used. */
+    uint256 GetAsmapChecksum() const;
 
+    /**
+     * Get the canonical identifier of the network group for address.
+     *
+     * The groups are assigned in a way where it should be costly for an attacker to
+     * obtain addresses with many different group identifiers, even if it is cheap
+     * to obtain addresses with the same identifier.
+     *
+     * @note No two connections will be attempted to addresses with the same network
+     *       group.
+     */
     std::vector<unsigned char> GetGroup(const CNetAddr& address) const;
 
     uint32_t GetMappedAS(const CNetAddr& address) const;
