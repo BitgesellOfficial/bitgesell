@@ -57,7 +57,7 @@ public:
     {
         if (m_on_destroy) m_on_destroy();
     }
-    void BlockChecked(const CBlock& block, const BlockValidationState& state) override
+    void BlockChecked([[maybe_unused]] const CBlock& block, [[maybe_unused]] const BlockValidationState& state) override
     {
         if (m_on_call) m_on_call();
     }

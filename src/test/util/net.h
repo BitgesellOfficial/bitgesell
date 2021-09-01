@@ -78,7 +78,7 @@ public:
 
     ~StaticContentsSock() override { Reset(); }
 
-    StaticContentsSock& operator=(Sock&& other) override
+    StaticContentsSock& operator=([[maybe_unused]] Sock&& other) override
     {
         assert(false && "Move of Sock into MockSock not allowed.");
         return *this;
@@ -103,13 +103,13 @@ public:
 
     int Connect(const sockaddr*, socklen_t) const override { return 0; }
 
-    int GetSockOpt(int level, int opt_name, void* opt_val, socklen_t* opt_len) const override
+    int GetSockOpt([[maybe_unused]] int level, [[maybe_unused]] int opt_name, void* opt_val, socklen_t* opt_len) const override
     {
         std::memset(opt_val, 0x0, *opt_len);
         return 0;
     }
 
-    bool Wait(std::chrono::milliseconds timeout,
+    bool Wait([[maybe_unused]] std::chrono::milliseconds timeout,
               Event requested,
               Event* occurred = nullptr) const override
     {

@@ -26,7 +26,7 @@ struct DumbCheck {
         return result;
     }
 
-    void swap(DumbCheck& x)
+    void swap([[maybe_unused]] DumbCheck& x)
     {
     }
 };

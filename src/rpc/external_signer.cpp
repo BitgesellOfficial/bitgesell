@@ -34,7 +34,7 @@ static RPCHelpMan enumeratesigners()
             HelpExampleCli("enumeratesigners", "")
             + HelpExampleRpc("enumeratesigners", "")
         },
-        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+        [&]([[maybe_unused]] const RPCHelpMan& self, [[maybe_unused]] const JSONRPCRequest& request) -> UniValue
         {
             const std::string command = gArgs.GetArg("-signer", "");
             if (command == "") throw JSONRPCError(RPC_MISC_ERROR, "Error: restart bitcoind with -signer=<cmd>");

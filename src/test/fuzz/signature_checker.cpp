@@ -29,22 +29,22 @@ public:
     {
     }
 
-    bool CheckECDSASignature(const std::vector<unsigned char>& scriptSig, const std::vector<unsigned char>& vchPubKey, const CScript& scriptCode, SigVersion sigversion) const override
+    bool CheckECDSASignature([[maybe_unused]] const std::vector<unsigned char>& scriptSig, [[maybe_unused]] const std::vector<unsigned char>& vchPubKey, [[maybe_unused]] const CScript& scriptCode, [[maybe_unused]] SigVersion sigversion) const override
     {
         return m_fuzzed_data_provider.ConsumeBool();
     }
 
-    bool CheckSchnorrSignature(Span<const unsigned char> sig, Span<const unsigned char> pubkey, SigVersion sigversion, const ScriptExecutionData& execdata, ScriptError* serror = nullptr) const override
+    bool CheckSchnorrSignature([[maybe_unused]] Span<const unsigned char> sig, [[maybe_unused]] Span<const unsigned char> pubkey, [[maybe_unused]] SigVersion sigversion, [[maybe_unused]] const ScriptExecutionData& execdata, [[maybe_unused]] ScriptError* serror = nullptr) const override
     {
         return m_fuzzed_data_provider.ConsumeBool();
     }
 
-    bool CheckLockTime(const CScriptNum& nLockTime) const override
+    bool CheckLockTime([[maybe_unused]] const CScriptNum& nLockTime) const override
     {
         return m_fuzzed_data_provider.ConsumeBool();
     }
 
-    bool CheckSequence(const CScriptNum& nSequence) const override
+    bool CheckSequence([[maybe_unused]] const CScriptNum& nSequence) const override
     {
         return m_fuzzed_data_provider.ConsumeBool();
     }

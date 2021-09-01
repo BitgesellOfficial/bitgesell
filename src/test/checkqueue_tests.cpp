@@ -28,7 +28,7 @@ struct FakeCheck {
     {
         return true;
     }
-    void swap(FakeCheck& x){};
+    void swap([[maybe_unused]] FakeCheck& x){};
 };
 
 struct FakeCheckCheckCompletion {
@@ -38,7 +38,7 @@ struct FakeCheckCheckCompletion {
         n_calls.fetch_add(1, std::memory_order_relaxed);
         return true;
     }
-    void swap(FakeCheckCheckCompletion& x){};
+    void swap([[maybe_unused]] FakeCheckCheckCompletion& x){};
 };
 
 struct FailingCheck {
@@ -79,7 +79,7 @@ struct MemoryCheck {
         return true;
     }
     MemoryCheck(){};
-    MemoryCheck(const MemoryCheck& x)
+    MemoryCheck([[maybe_unused]] const MemoryCheck& x)
     {
         // We have to do this to make sure that destructor calls are paired
         //

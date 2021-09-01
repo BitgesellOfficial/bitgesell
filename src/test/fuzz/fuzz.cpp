@@ -65,7 +65,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 }
 
 // This function is used by libFuzzer
-extern "C" int LLVMFuzzerInitialize(int* argc, char*** argv)
+extern "C" int LLVMFuzzerInitialize([[maybe_unused]] int* argc, [[maybe_unused]] char*** argv)
 {
     initialize();
     return 0;

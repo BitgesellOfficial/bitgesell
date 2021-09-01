@@ -22,7 +22,7 @@ FuzzedSock::~FuzzedSock()
     Reset();
 }
 
-FuzzedSock& FuzzedSock::operator=(Sock&& other)
+FuzzedSock& FuzzedSock::operator=([[maybe_unused]] Sock&& other) [[noreturn]]
 {
     assert(false && "Move of Sock into FuzzedSock not allowed.");
     return *this;
@@ -33,7 +33,7 @@ void FuzzedSock::Reset()
     m_socket = INVALID_SOCKET;
 }
 
-ssize_t FuzzedSock::Send(const void* data, size_t len, int flags) const
+ssize_t FuzzedSock::Send([[maybe_unused]] const void* data, size_t len, [[maybe_unused]] int flags) const
 {
     constexpr std::array send_errnos{
         EACCES,
@@ -152,7 +152,7 @@ int FuzzedSock::Connect(const sockaddr*, socklen_t) const
     return 0;
 }
 
-int FuzzedSock::GetSockOpt(int level, int opt_name, void* opt_val, socklen_t* opt_len) const
+int FuzzedSock::GetSockOpt([[maybe_unused]] int level, [[maybe_unused]] int opt_name, void* opt_val, socklen_t* opt_len) const
 {
     constexpr std::array getsockopt_errnos{
         ENOMEM,
@@ -171,7 +171,7 @@ int FuzzedSock::GetSockOpt(int level, int opt_name, void* opt_val, socklen_t* op
     return 0;
 }
 
-bool FuzzedSock::Wait(std::chrono::milliseconds timeout, Event requested, Event* occurred) const
+bool FuzzedSock::Wait([[maybe_unused]] std::chrono::milliseconds timeout, Event requested, Event* occurred) const
 {
     constexpr std::array wait_errnos{
         EBADF,

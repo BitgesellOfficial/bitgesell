@@ -41,12 +41,12 @@ public:
         assert(0 <= m_min_activation_height);
     }
 
-    bool Condition(const CBlockIndex* pindex, const Consensus::Params& params) const override { return Condition(pindex->nVersion); }
-    int64_t BeginTime(const Consensus::Params& params) const override { return m_begin; }
-    int64_t EndTime(const Consensus::Params& params) const override { return m_end; }
-    int Period(const Consensus::Params& params) const override { return m_period; }
-    int Threshold(const Consensus::Params& params) const override { return m_threshold; }
-    int MinActivationHeight(const Consensus::Params& params) const override { return m_min_activation_height; }
+    bool Condition(const CBlockIndex* pindex, [[maybe_unused]] const Consensus::Params& params) const override { return Condition(pindex->nVersion); }
+    int64_t BeginTime([[maybe_unused]] const Consensus::Params& params) const override { return m_begin; }
+    int64_t EndTime([[maybe_unused]] const Consensus::Params& params) const override { return m_end; }
+    int Period([[maybe_unused]] const Consensus::Params& params) const override { return m_period; }
+    int Threshold([[maybe_unused]] const Consensus::Params& params) const override { return m_threshold; }
+    int MinActivationHeight([[maybe_unused]] const Consensus::Params& params) const override { return m_min_activation_height; }
 
     ThresholdState GetStateFor(const CBlockIndex* pindexPrev) const { return AbstractThresholdConditionChecker::GetStateFor(pindexPrev, dummy_params, m_cache); }
     int GetStateSinceHeightFor(const CBlockIndex* pindexPrev) const { return AbstractThresholdConditionChecker::GetStateSinceHeightFor(pindexPrev, dummy_params, m_cache); }

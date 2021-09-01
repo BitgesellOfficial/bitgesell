@@ -425,7 +425,7 @@ public:
         return random_bytes.size();
     }
 
-    static ssize_t write(void* cookie, const char* buf, size_t size)
+    static ssize_t write(void* cookie, [[maybe_unused]] const char* buf, size_t size)
     {
         FuzzedFileProvider* fuzzed_file = (FuzzedFileProvider*)cookie;
         SetFuzzedErrNo(fuzzed_file->m_fuzzed_data_provider);

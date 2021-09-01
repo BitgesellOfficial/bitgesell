@@ -132,7 +132,7 @@ class TestLockedPageAllocator: public LockedPageAllocator
 {
 public:
     TestLockedPageAllocator(int count_in, int lockedcount_in): count(count_in), lockedcount(lockedcount_in) {}
-    void* AllocateLocked(size_t len, bool *lockingSuccess) override
+    void* AllocateLocked([[maybe_unused]] size_t len, bool *lockingSuccess) override
     {
         *lockingSuccess = false;
         if (count > 0) {
@@ -147,7 +147,7 @@ public:
         }
         return nullptr;
     }
-    void FreeLocked(void* addr, size_t len) override
+    void FreeLocked([[maybe_unused]] void* addr, [[maybe_unused]] size_t len) override
     {
     }
     size_t GetLimit() override

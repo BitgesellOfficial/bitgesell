@@ -217,7 +217,7 @@ BOOST_FIXTURE_TEST_CASE(blockfilter_index_initial_sync, BuildChainTestingSetup)
         CheckFilterLookups(filter_index, block_index, chainA_last_header);
     }
 
-    // Reorg back to chain A.
+     // Reorg back to chain A.
      for (size_t i = 2; i < 4; i++) {
          const auto& block = chainA[i];
          BOOST_REQUIRE(Assert(m_node.chainman)->ProcessNewBlock(Params(), block, true, nullptr));
@@ -283,7 +283,7 @@ BOOST_FIXTURE_TEST_CASE(blockfilter_index_init_destroy, BasicTestingSetup)
     BOOST_CHECK(!InitBlockFilterIndex(BlockFilterType::BASIC, 1 << 20, true, false));
 
     int iter_count = 0;
-    ForEachBlockFilterIndex([&iter_count](BlockFilterIndex& _index) { iter_count++; });
+    ForEachBlockFilterIndex([&iter_count]([[maybe_unused]] BlockFilterIndex& _index) { iter_count++; });
     BOOST_CHECK_EQUAL(iter_count, 1);
 
     BOOST_CHECK(DestroyBlockFilterIndex(BlockFilterType::BASIC));

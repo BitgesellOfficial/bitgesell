@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE(chainstatemanager_rebalance_caches)
     BOOST_CHECK_CLOSE(c2.m_coinsdb_cache_size_bytes, max_cache * 0.95, 1);
 }
 
-auto NoMalleation = [](CAutoFile& file, SnapshotMetadata& meta){};
+auto NoMalleation = []([[maybe_unused]] CAutoFile& file, [[maybe_unused]] SnapshotMetadata& meta){};
 
 template<typename F = decltype(NoMalleation)>
 static bool
@@ -250,17 +250,17 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_activate_snapshot, TestChain100Setup)
             auto_infile >> coin;
     }));
     BOOST_REQUIRE(!CreateAndActivateUTXOSnapshot(
-        m_node, m_path_root, [](CAutoFile& auto_infile, SnapshotMetadata& metadata) {
+        m_node, m_path_root, []([[maybe_unused]] CAutoFile& auto_infile, SnapshotMetadata& metadata) {
             // Coins count is larger than coins in file
             metadata.m_coins_count += 1;
     }));
     BOOST_REQUIRE(!CreateAndActivateUTXOSnapshot(
-        m_node, m_path_root, [](CAutoFile& auto_infile, SnapshotMetadata& metadata) {
+        m_node, m_path_root, []([[maybe_unused]] CAutoFile& auto_infile, SnapshotMetadata& metadata) {
             // Coins count is smaller than coins in file
             metadata.m_coins_count -= 1;
     }));
     BOOST_REQUIRE(!CreateAndActivateUTXOSnapshot(
-        m_node, m_path_root, [](CAutoFile& auto_infile, SnapshotMetadata& metadata) {
+        m_node, m_path_root, []([[maybe_unused]] CAutoFile& auto_infile, SnapshotMetadata& metadata) {
             // Wrong hash
             metadata.m_base_blockhash = uint256::ONE;
     }));
