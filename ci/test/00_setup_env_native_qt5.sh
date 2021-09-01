@@ -21,6 +21,6 @@ export DOCKER_NAME_TAG=ubuntu:18.04  # Check that bionic gcc-7 can compile our c
 #export NO_DEPENDS #default
 #export DEP_OPTS #no relevant
 export GOAL="install"
-export PREVIOUS_RELEASES_TO_DOWNLOAD="v0.15.2 v0.16.3 v0.17.2 v0.18.1 v0.19.1"
-export BGL_CONFIG="--enable-zmq --with-libs=no --with-gui=qt5 --enable-glibc-back-compat --enable-reduce-exports
+export PREVIOUS_RELEASES_TO_DOWNLOAD="v0.15.2 v0.16.3 v0.17.2 v0.18.1 v0.19.1 v0.20.1"
+export BGL_CONFIG="--enable-zmq --with-libs=no --with-gui=qt5 --enable-reduce-exports
 --enable-debug --disable-fuzz-binary  CFLAGS=\"-g0 -O2 -funsigned-char\" CXXFLAGS=\"-g0 -O2 -funsigned-char\""

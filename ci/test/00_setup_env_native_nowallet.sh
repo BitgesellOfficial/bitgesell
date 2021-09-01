@@ -21,4 +21,4 @@ export DOCKER_NAME_TAG=ubuntu:18.04  # Check that bionic gcc-7 can compile our c
 #export NO_DEPENDS #default
 #export DEP_OPTS #no relevant
 export GOAL="install"
-export BGL_CONFIG="--enable-glibc-back-compat --enable-reduce-exports CC=clang-5.0 CXX=clang++-5.0"
+export BGL_CONFIG="--enable-reduce-exports CC=clang-5.0 CXX=clang++-5.0"
