@@ -257,24 +257,27 @@ BOOST_AUTO_TEST_CASE(addrman_new_collisions)
 
     CNetAddr source = ResolveIP("252.2.2.2");
 
-    BOOST_CHECK_EQUAL(addrman.size(), 0U);
+    uint32_t num_addrs{0};
 
-    for (unsigned int i = 1; i < 18; i++) {
-        CService addr = ResolveService("250.1.1." + std::to_string(i));
-        BOOST_CHECK(addrman.Add(CAddress(addr, NODE_NONE), source));
+    BOOST_CHECK_EQUAL(addrman.size(), num_addrs);
+
+    while (num_addrs != 22) {  // Magic number! 250.1.1.1 - 250.1.1.22 do not collide with deterministic key = 1
+        CService addr = ResolveService("250.1.1." + ToString(++num_addrs));
+        BOOST_CHECK(addrman.Add({CAddress(addr, NODE_NONE)}, source));
 
         //Test: No collision in new table yet.
-        BOOST_CHECK_EQUAL(addrman.size(), i);
+        BOOST_CHECK_EQUAL(addrman.size(), num_addrs);
     }
 
     //Test: new table collision!
-    CService addr1 = ResolveService("250.1.1.18");
-    BOOST_CHECK(addrman.Add(CAddress(addr1, NODE_NONE), source));
-    BOOST_CHECK_EQUAL(addrman.size(), 17U);
+    CService addr1 = ResolveService("250.1.1." + ToString(++num_addrs));
+    uint32_t collisions{1};
+    BOOST_CHECK(addrman.Add({CAddress(addr1, NODE_NONE)}, source));
+    BOOST_CHECK_EQUAL(addrman.size(), num_addrs - collisions);
 
-    CService addr2 = ResolveService("250.1.1.19");
-    BOOST_CHECK(addrman.Add(CAddress(addr2, NODE_NONE), source));
-    BOOST_CHECK_EQUAL(addrman.size(), 18U);
+    CService addr2 = ResolveService("250.1.1." + ToString(++num_addrs));
+    BOOST_CHECK(addrman.Add({CAddress(addr2, NODE_NONE)}, source));
+    BOOST_CHECK_EQUAL(addrman.size(), num_addrs - collisions);
 }
 
 BOOST_AUTO_TEST_CASE(addrman_tried_collisions)
