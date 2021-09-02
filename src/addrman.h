@@ -273,10 +273,8 @@ protected:
     //! Return a random to-be-evicted tried table address.
     CAddrInfo SelectTriedCollision_() EXCLUSIVE_LOCKS_REQUIRED(cs);
 
-#ifdef DEBUG_ADDRMAN
     //! Perform consistency check. Returns an error code or zero.
     int Check_() EXCLUSIVE_LOCKS_REQUIRED(cs);
-#endif
 
     //! Select several addresses at once.
     void GetAddr_(std::vector<CAddress> &vAddr, size_t max_addresses, size_t max_pct) EXCLUSIVE_LOCKS_REQUIRED(cs);
@@ -629,14 +627,11 @@ public:
     {
         AssertLockHeld(cs);
 
-#ifdef DEBUG_ADDRMAN
-        {
-            LOCK(cs);
-            int err;
-            if ((err=Check_()))
-                LogPrintf("ADDRMAN CONSISTENCY CHECK FAILED!!! err=%i\n", err);
+        const int err = Check_();
+        if (err) {
+            LogPrintf("ADDRMAN CONSISTENCY CHECK FAILED!!! err=%i\n", err);
+            assert(false);
         }
-#endif
     }
 
     //! Add a single address.

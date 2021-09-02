@@ -423,7 +423,6 @@ CAddrInfo CAddrMan::Select_(bool newOnly)
     }
 }
 
-#ifdef DEBUG_ADDRMAN
 int CAddrMan::Check_()
 {
     AssertLockHeld(cs);
@@ -501,7 +500,6 @@ int CAddrMan::Check_()
 
     return 0;
 }
-#endif
 
 void CAddrMan::GetAddr_(std::vector<CAddress>& vAddr, size_t max_addresses, size_t max_pct)
 {
