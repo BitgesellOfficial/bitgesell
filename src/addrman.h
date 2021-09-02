@@ -699,13 +699,10 @@ public:
     CAddrInfo SelectTriedCollision()
         EXCLUSIVE_LOCKS_REQUIRED(!cs)
     {
-        CAddrInfo ret;
-        {
-            LOCK(cs);
-            Check();
-            ret = SelectTriedCollision_();
-            Check();
-        }
+        LOCK(cs);
+        Check();
+        const CAddrInfo ret = SelectTriedCollision_();
+        Check();
         return ret;
     }
 
@@ -715,13 +712,10 @@ public:
     CAddrInfo Select(bool newOnly = false)
         EXCLUSIVE_LOCKS_REQUIRED(!cs)
     {
-        CAddrInfo addrRet;
-        {
-            LOCK(cs);
-            Check();
-            addrRet = Select_(newOnly);
-            Check();
-        }
+        LOCK(cs);
+        Check();
+        const CAddrInfo addrRet = Select_(newOnly);
+        Check();
         return addrRet;
     }
 
