@@ -5,20 +5,24 @@ etc.
 
 This directory contains the following sets of tests:
 
+- [fuzz](/test/fuzz) A runner to execute all fuzz targets from
+  [/src/test/fuzz](/src/test/fuzz).
 - [functional](/test/functional) which test the functionality of
 BGLd and BGL-qt by interacting with them through the RPC and P2P
 interfaces.
-- [util](/test/util) which tests the BGL utilities, currently only
-BGL-tx.
+- [util](/test/util) which tests the utilities (BGL-util, BGL-tx, ...).
 - [lint](/test/lint/) which perform various static analysis checks.
 
-The util tests are run as part of `make check` target. The functional
+The util tests are run as part of `make check` target. The fuzz tests, functional
 tests and lint scripts can be run as explained in the sections below.
 
 # Running tests locally
 
 Before tests can be run locally, BGL Core must be built.  See the [building instructions](/doc#building) for help.
 
+## Fuzz tests
+
+See [/doc/fuzzing.md](/doc/fuzzing.md)
 
 ### Functional tests
 
@@ -263,11 +267,10 @@ Use the `-v` option for verbose output.
 
 | Lint test | Dependency | Version [used by CI](../ci/lint/04_install.sh) | Installation
 |-----------|:----------:|:-------------------------------------------:|--------------
-| [`lint-python.sh`](lint/lint-python.sh) | [flake8](https://gitlab.com/pycqa/flake8) | [3.8.3](https://github.com/BGL/BGL/pull/19348) | `pip3 install flake8==3.8.3`
-| [`lint-python.sh`](lint/lint-python.sh) | [mypy](https://github.com/python/mypy) | [0.781](https://github.com/BGL/BGL/pull/19348) | `pip3 install mypy==0.781`
-| [`lint-shell.sh`](lint/lint-shell.sh) | [ShellCheck](https://github.com/koalaman/shellcheck) | [0.7.1](https://github.com/BGL/BGL/pull/19348) | [details...](https://github.com/koalaman/shellcheck#installing)
-| [`lint-shell.sh`](lint/lint-shell.sh) | [yq](https://github.com/kislyuk/yq) | default | `pip3 install yq`
-| [`lint-spelling.sh`](lint/lint-spelling.sh) | [codespell](https://github.com/codespell-project/codespell) | [2.0.0](https://github.com/BGL/BGL/pull/19348) | `pip3 install codespell==2.0.0`
+| [`lint-python.sh`](lint/lint-python.sh) | [flake8](https://gitlab.com/pycqa/flake8) | [3.8.3](https://github.com/bitcoin/bitcoin/pull/19348) | `pip3 install flake8==3.8.3`
+| [`lint-python.sh`](lint/lint-python.sh) | [mypy](https://github.com/python/mypy) | [0.781](https://github.com/bitcoin/bitcoin/pull/19348) | `pip3 install mypy==0.781`
+| [`lint-shell.sh`](lint/lint-shell.sh) | [ShellCheck](https://github.com/koalaman/shellcheck) | [0.7.2](https://github.com/bitcoin/bitcoin/pull/21749) | [details...](https://github.com/koalaman/shellcheck#installing)
+| [`lint-spelling.sh`](lint/lint-spelling.sh) | [codespell](https://github.com/codespell-project/codespell) | [2.0.0](https://github.com/bitcoin/bitcoin/pull/20817) | `pip3 install codespell==2.0.0`
 
 Please be aware that on Linux distributions all dependencies are usually available as packages, but could be outdated.
 
