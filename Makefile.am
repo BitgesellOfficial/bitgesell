@@ -243,7 +243,7 @@ EXTRA_DIST += \
     test/functional
 
 EXTRA_DIST += \
-    test/util/BGL-util-test.py \
+    test/util/test_runner.py \
     test/util/data/BGL-util-test.json \
     test/util/data/blanktxv1.hex \
     test/util/data/blanktxv1.json \
