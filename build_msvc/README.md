@@ -40,6 +40,8 @@ nmake
 nmake install
 ```
 
+One could speed up building with [`jom`](https://wiki.qt.io/Jom), a replacement for `nmake` which makes use of all CPU cores.
+
 To build Bitgesell Core without Qt, unload or disable the `BGL-qt`, `libBGL_qt` and `test_BGL-qt` projects.
 
 
