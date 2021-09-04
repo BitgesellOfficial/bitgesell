@@ -23,8 +23,7 @@ static constexpr uint32_t ADDRMAN_TRIED_BUCKETS_PER_GROUP{8};
 
 //! over how many buckets entries with new addresses originating from a single group are spread
 static constexpr uint32_t ADDRMAN_NEW_BUCKETS_PER_SOURCE_GROUP{64};
-
-//! in how many buckets for entries with new addresses a single address may occur
+/** Maximum number of times an address can occur in the new table */
 static constexpr int32_t ADDRMAN_NEW_BUCKETS_PER_ADDRESS{8};
 
 //! how old addresses can maximally be
