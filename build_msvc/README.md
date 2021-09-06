@@ -39,7 +39,7 @@ In order to build the BGL Core a static build of Qt is required. The runtime lib
 
 Some prebuilt x64 versions of Qt can be downloaded from [here](https://github.com/sipsorcery/qt_win_binary/releases). Please be aware these downloads are NOT officially sanctioned by BGL Core and are provided for developer convenience only. They should NOT be used for builds that will be used in a production environment or with real funds.
 
-To determine which Qt prebuilt version to download open the `.appveyor.yml` file and note the `QT_DOWNLOAD_URL`. When extracting the zip file the destination path must be set to `C:\`. This is due to the way that Qt includes, libraries and tools use internal paths.
+To determine which Qt prebuilt version to download open the `.cirrus.yml` file and note the `QT_DOWNLOAD_URL`. When extracting the zip file the destination path must be set to `C:\`. This is due to the way that Qt includes, libraries and tools use internal paths.
 
 To build BGL Core without Qt unload or disable the `BGL-qt`, `libBGL_qt` and `test_BGL-qt` projects.
 
@@ -65,13 +65,24 @@ msbuild /m BGL.sln /p:Platform=x64 /p:Configuration=Release /t:build
 
 - Alternatively, open the `build_msvc/BGL.sln` file in Visual Studio 2019.
 
-AppVeyor
+Security
 ---------------------
-The .appveyor.yml in the root directory is suitable to perform builds on [AppVeyor](https://www.appveyor.com/) Continuous Integration servers. The simplest way to perform an AppVeyor build is to fork BGL Core and then configure a new AppVeyor Project pointing to the forked repository.
+[Base address randomization](https://docs.microsoft.com/en-us/cpp/build/reference/dynamicbase-use-address-space-layout-randomization?view=msvc-160) is used to make Bitcoin Core more secure. When building Bitcoin using the `build_msvc` process base address randomization can be disabled by editing `common.init.vcproj` to change `RandomizedBaseAddress` from `true` to `false` and then rebuilding the project.
 
-For safety reasons the BGL Core .appveyor.yml file has the artifact options disabled. The build will be performed but no executable files will be available. To enable artifacts on a forked repository uncomment the lines shown below:
+To check if `BGLd` has `RandomizedBaseAddress` enabled or disabled run
 
 ```
-    #- 7z a BGL-%APPVEYOR_BUILD_VERSION%.zip %APPVEYOR_BUILD_FOLDER%\build_msvc\%platform%\%configuration%\*.exe
-    #- path: BGL-%APPVEYOR_BUILD_VERSION%.zip
+.\dumpbin.exe /headers src/BGLd.exe
 ```
+
+If is it enabled then in the output `Dynamic base` will be listed in the `DLL characteristics` under `OPTIONAL HEADER VALUES` as shown below
+
+```
+            8160 DLL characteristics
+                   High Entropy Virtual Addresses
+                   Dynamic base
+                   NX compatible
+                   Terminal Server Aware
+```
+
+This may not disable all stack randomization as versions of windows employ additional stack randomization protections. These protections must be turned off in the OS configuration.
