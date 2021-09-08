@@ -81,15 +81,17 @@ std::optional<std::string> PaysMoreThanConflicts(const CTxMemPool::setEntries& i
 /** Enforce BIP125 Rule #3 "The replacement transaction pays an absolute fee of at least the sum
  * paid by the original transactions." Enforce BIP125 Rule #4 "The replacement transaction must also
  * pay for its own bandwidth at or above the rate set by the node's minimum relay fee setting."
- * @param[in]   original_fees    Total modified fees of original transaction(s).
- * @param[in]   replacement_fees       Total modified fees of replacement transaction(s).
- * @param[in]   replacement_vsize               Total virtual size of replacement transaction(s).
+ * @param[in]   original_fees       Total modified fees of original transaction(s).
+ * @param[in]   replacement_fees    Total modified fees of replacement transaction(s).
+ * @param[in]   replacement_vsize   Total virtual size of replacement transaction(s).
+ * @param[in]   relay_fee           The node's minimum feerate for transaction relay.
  * @param[in]   txid                Transaction ID, included in the error message if violation occurs.
  * @returns error string if fees are insufficient, otherwise std::nullopt.
  */
 std::optional<std::string> PaysForRBF(CAmount original_fees,
                                       CAmount replacement_fees,
                                       size_t replacement_vsize,
+                                      CFeeRate relay_fee,
                                       const uint256& txid);
 
 #endif // BGL_POLICY_RBF_H
