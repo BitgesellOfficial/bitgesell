@@ -1,5 +1,13 @@
+env:  # Global defaults
+  PACKAGE_MANAGER_INSTALL: "apt-get update && apt-get install -y"
+  MAKEJOBS: "-j4"
+  TEST_RUNNER_PORT_MIN: "14000"  # Must be larger than 12321, which is used for the http cache. See https://cirrus-ci.org/guide/writing-tasks/#http-cache
+  CCACHE_SIZE: "200M"
+  CCACHE_DIR: "/tmp/ccache_dir"
+  CCACHE_NOHASHDIR: "1"  # Debug info might contain a stale path if the build dir changes, but this is fine
 
-###Global defaults
+cirrus_ephemeral_worker_template_env: &CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
+  DANGER_RUN_CI_ON_HOST: "1"  # Containers will be discarded after the run, so there is no risk that the ci scripts modify the system
 
 env:
   ### compiler options
@@ -173,6 +181,7 @@ task:
     folder: 'C:\Users\ContainerAdministrator\AppData\Local\vcpkg\archives'
   install_python_script:
     - choco install --yes --no-progress python3 --version=3.9.6
+    - pip install zmq
     - python -VV
   install_vcpkg_script:
     - cd ..
@@ -192,6 +201,8 @@ task:
     - src\bench_BGL.exe > $null
     - python test\util\test_runner.py
     - python test\util\rpcauth-test.py
+  functional_tests_script:
+    - python test\functional\test_runner.py --ci --quiet --combinedlogslen=4000 --jobs=4 --timeout-factor=8 rpc_help feature_config_args rpc_signer feature_presegwit_node_upgrade "tool_wallet.py --descriptors" --failfast  # TODO enable '--extended' and remove cherry-picked test list
 
 task:
   name: 'ARM [unit tests, no functional tests] [buster]'
