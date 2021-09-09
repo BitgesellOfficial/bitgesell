@@ -582,8 +582,8 @@ libBGL_common_a_SOURCES = \
 
 # util: shared between all executables.
 # This library *must* be included to make sure that the glibc
-# backward-compatibility objects and their sanity checks are linked.
-libBGL_util_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
+# sanity checks are linked.
+libBGL_util_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 libBGL_util_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_util_a_SOURCES = \
   support/lockedpool.cpp \
@@ -630,13 +630,8 @@ if USE_LIBEVENT
 libBGL_util_a_SOURCES += util/url.cpp
 endif
 
-if GLIBC_BACK_COMPAT
-libBGL_util_a_SOURCES += compat/glibc_compat.cpp
-AM_LDFLAGS += $(COMPAT_LDFLAGS)
-endif
-
 # cli: shared between BGL-cli and BGL-qt
-libBGL_cli_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
+libBGL_cli_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 libBGL_cli_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_cli_a_SOURCES = \
   compat/stdin.h \
@@ -761,10 +756,6 @@ BGL_util_LDADD += $(BOOST_LIBS)
 if BUILD_BGL_LIBS
 include_HEADERS = script/BGLconsensus.h
 libBGLconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libBGL_crypto_base_a_SOURCES) $(crypto_sha3_libBGL_crypto_sha3_a_SOURCES) $(libBGL_consensus_a_SOURCES)
-
-if GLIBC_BACK_COMPAT
-  libBGLconsensus_la_SOURCES += compat/glibc_compat.cpp
-endif
 
 libBGLconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS)
 libBGLconsensus_la_LIBADD = $(LIBSECP256K1)
