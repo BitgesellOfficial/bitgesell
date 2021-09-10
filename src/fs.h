@@ -24,8 +24,8 @@ using namespace boost::filesystem;
  * Path class wrapper to prepare application code for transition from
  * boost::filesystem library to std::filesystem implementation. The main
  * purpose of the class is to define fs::path::u8string() and fs::u8path()
- * functions not present in boost. It also blocks calls to the
- * fs::path(std::string) implicit constructor and the fs::path::string()
+ * functions not present in boost. In the next git commit, it also blocks calls
+ * to the fs::path(std::string) implicit constructor and the fs::path::string()
  * method, which worked well in the boost::filesystem implementation, but have
  * unsafe and unpredictable behavior on Windows in the std::filesystem
  * implementation (see implementation note in \ref PathToString for details).
@@ -34,26 +34,7 @@ class path : public boost::filesystem::path
 {
 public:
     using boost::filesystem::path::path;
-
-    // Allow path objects arguments for compatibility.
     path(boost::filesystem::path path) : boost::filesystem::path::path(std::move(path)) {}
-    path& operator=(boost::filesystem::path path) { boost::filesystem::path::operator=(std::move(path)); return *this; }
-    path& operator/=(boost::filesystem::path path) { boost::filesystem::path::operator/=(std::move(path)); return *this; }
-
-    // Allow literal string arguments, which are safe as long as the literals are ASCII.
-    path(const char* c) : boost::filesystem::path(c) {}
-    path& operator=(const char* c) { boost::filesystem::path::operator=(c); return *this; }
-    path& operator/=(const char* c) { boost::filesystem::path::operator/=(c); return *this; }
-    path& append(const char* c) { boost::filesystem::path::append(c); return *this; }
-
-    // Disallow std::string arguments to avoid locale-dependent decoding on windows.
-    path(std::string) = delete;
-    path& operator=(std::string) = delete;
-    path& operator/=(std::string) = delete;
-    path& append(std::string) = delete;
-
-    // Disallow std::string conversion method to avoid locale-dependent encoding on windows.
-    std::string string() const = delete;
 
     // Define UTF-8 string conversion method not present in boost::filesystem but present in std::filesystem.
     std::string u8string() const { return boost::filesystem::path::string(); }
@@ -64,34 +45,6 @@ static inline path u8path(const std::string& string)
 {
     return boost::filesystem::path(string);
 }
-
-// Disallow implicit std::string conversion for system_complete to avoid
-// locale-dependent encoding on windows.
-static inline path system_complete(const path& p)
-{
-    return boost::filesystem::system_complete(p);
-}
-
-// Disallow implicit std::string conversion for exists to avoid
-// locale-dependent encoding on windows.
-static inline bool exists(const path& p)
-{
-    return boost::filesystem::exists(p);
-}
-
-// Allow explicit quoted stream I/O.
-static inline auto quoted(const std::string& s)
-{
-    return boost::io::quoted(s, '&');
-}
-
-// Allow safe path append operations.
-static inline path operator+(path p1, path p2)
-{
-    p1 += std::move(p2);
-    return p1;
-}
-
 /**
  * Convert path object to byte string. On POSIX, paths natively are byte
  * strings so this is trivial. On Windows, paths natively are Unicode, so an
