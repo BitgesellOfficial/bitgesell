@@ -2,8 +2,34 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_ADDRMAN_IMPL_H
-#define BITCOIN_ADDRMAN_IMPL_H
+#ifndef BGL_ADDRMAN_IMPL_H
+#define BGL_ADDRMAN_IMPL_H
+
+
+#include <logging.h>
+#include <netaddress.h>
+#include <protocol.h>
+#include <serialize.h>
+#include <sync.h>
+#include <uint256.h>
+
+#include <cstdint>
+#include <optional>
+#include <set>
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
+
+/** Total number of buckets for tried addresses */
+static constexpr int32_t ADDRMAN_TRIED_BUCKET_COUNT_LOG2{8};
+static constexpr int ADDRMAN_TRIED_BUCKET_COUNT{1 << ADDRMAN_TRIED_BUCKET_COUNT_LOG2};
+/** Total number of buckets for new addresses */
+static constexpr int32_t ADDRMAN_NEW_BUCKET_COUNT_LOG2{10};
+static constexpr int ADDRMAN_NEW_BUCKET_COUNT{1 << ADDRMAN_NEW_BUCKET_COUNT_LOG2};
+/** Maximum allowed number of entries in buckets for new and tried addresses */
+static constexpr int32_t ADDRMAN_BUCKET_SIZE_LOG2{6};
+static constexpr int ADDRMAN_BUCKET_SIZE{1 << ADDRMAN_BUCKET_SIZE_LOG2};
 
 /**
  * Extended statistics about a CAddress
@@ -275,4 +301,4 @@ private:
     int ForceCheckAddrman() const EXCLUSIVE_LOCKS_REQUIRED(cs);
 };
 
-#endif // BITCOIN_ADDRMAN_IMPL_H
+#endif // BGL_ADDRMAN_IMPL_H
