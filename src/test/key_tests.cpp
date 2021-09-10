@@ -21,10 +21,10 @@ static const std::string strSecret1 = "5HxWvvfubhXpYYpS3tJkw6fq9jE9j18THftkZjHHf
 static const std::string strSecret2 = "5KC4ejrDjv152FGwP386VD1i2NYc5KkfSMyv1nGy1VGDxGHqVY3";
 static const std::string strSecret1C = "Kwr371tjA9u2rFSMZjTNun2PXXP3WPZu2afRHTcta6KxEUdm1vEw";
 static const std::string strSecret2C = "L3Hq7a8FEQwJkW1M2GNKDW28546Vp5miewcCzSqUD9kCAXrJdS3g";
-static const std::string addr1 = "1QFqqMUD55ZV3PJEJZtaKCsQmjLT8SEhCG";
-static const std::string addr2 = "1F5y5E5FMc5YzdJtB9hLaUe43GDxBSJz9r";
-static const std::string addr1C = "1NoJrossxPBKfCHuJXT4HadJrXREB1q6GY";
-static const std::string addr2C = "1CRj2HyM1CXWzHAXLQtiGLyggNT9VTvr9f";
+static const std::string addr1 = "5RdsgST6AtCFDih6YmDmATbH4mutEn52Mi";
+static const std::string addr2 = "5GTzvK48TQiKAxhkRM2XRjMvLJoPHn9KKJ";
+static const std::string addr1C = "5QBLhtrm4Bp5qXgmYinF8qMB9ZzfHMfRRz";
+static const std::string addr2C = "5DoksNxE71AHAcZPacDu7bhYyR2abomBK7";
 
 static const std::string strAddressBad = "1HV9Lc3sNHZxwj4Zk6fB38tEmBryq2cBiF";
 

@@ -189,6 +189,7 @@ public:
         consensus.MinBIP9WarningHeight = 0;
         consensus.powLimit = uint256S("000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 1 * 24 * 60 * 60; // one day
+        consensus.nPowTargetSpacing = 10 * 60;
         consensus.signet_blocks = false;
         consensus.signet_challenge.clear();
         consensus.fPowAllowMinDifficultyBlocks = true;
@@ -431,8 +432,23 @@ public:
         m_is_test_chain = true;
         m_is_mockable_chain = true;
 
-        checkpointData = {
-            {}};
+       checkpointData = {
+            {
+                {0, uint256S("0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206")},
+            }
+        };
+
+        m_assumeutxo_data = MapAssumeutxo{
+            {
+                110,
+                {uint256S("0xd9c6cd17c8cdcc2b076a02b304dd85cf22182d2ece4c7c7428e4ca89b724ae85"), 110},
+            },
+            {
+                210,
+                {uint256S("0x9c5ed99ef98544b34f8920b6d1802f72ac28ae6e2bd2bd4c316ff10c230df3f2"), 210},
+            },
+        };
+
 
         chainTxData = ChainTxData{
             0,

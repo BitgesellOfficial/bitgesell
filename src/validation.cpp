@@ -3326,6 +3326,14 @@ CBlockIndex* BlockManager::GetLastCheckpoint(const CCheckpointData& data)
     return nullptr;
 }
 
+bool nBitsNotIn(uint32_t nBits) {
+    // The numbers are computed from UintToArith256(params.powLimit).GetCompact() for each chain
+	if (nBits == 553705471 || nBits == 521142271 || nBits == 503543726) {
+		return false;
+	}
+	return true;
+}
+
 /** Context-dependent validity checks.
  *  By "context", we mean only the previous block headers, but not the UTXO
  *  set; UTXO-related validity checks are done in ConnectBlock().
@@ -3342,9 +3350,11 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, BlockValidatio
 
     // Check proof of work
     const Consensus::Params& consensusParams = params.GetConsensus();
-    if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams))
-        return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "bad-diffbits", "incorrect proof of work");
-
+    if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams)) {
+        if (nBitsNotIn(block.nBits)) {
+            return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "bad-diffbits", "incorrect proof of work");
+        }
+    }
     // Check against checkpoints
     if (fCheckpointsEnabled) {
         // Don't accept any forks from the main chain prior to last checkpoint.
