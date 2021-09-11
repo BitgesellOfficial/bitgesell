@@ -82,9 +82,9 @@ class CAddrManTest : public CAddrMan
 private:
     bool deterministic;
 public:
-    explicit CAddrManTest(bool makeDeterministic = true,
-                          std::vector<bool> asmap = std::vector<bool>())
-        : CAddrMan(asmap, makeDeterministic, /* consistency_check_ratio */ 100)
+    explicit AddrManTest(bool makeDeterministic = true,
+                         std::vector<bool> asmap = std::vector<bool>())
+        : AddrMan(asmap, makeDeterministic, /* consistency_check_ratio */ 100)
     {
         deterministic = makeDeterministic;
     }

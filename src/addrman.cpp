@@ -49,8 +49,7 @@ static constexpr size_t ADDRMAN_SET_TRIED_COLLISION_SIZE{10};
 //! the maximum time we'll spend trying to resolve a tried table collision, in seconds
 static constexpr int64_t ADDRMAN_TEST_WINDOW{40*60}; // 40 minutes
 
-
-int CAddrInfo::GetTriedBucket(const uint256& nKey, const std::vector<bool> &asmap) const
+int AddrInfo::GetTriedBucket(const uint256& nKey, const std::vector<bool>& asmap) const
 {
     uint64_t hash1 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << GetKey()).GetCheapHash();
     uint64_t hash2 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << GetGroup(asmap) << (hash1 % ADDRMAN_TRIED_BUCKETS_PER_GROUP)).GetCheapHash();
@@ -60,7 +59,7 @@ int CAddrInfo::GetTriedBucket(const uint256& nKey, const std::vector<bool> &asma
     return tried_bucket;
 }
 
-int CAddrInfo::GetNewBucket(const uint256& nKey, const CNetAddr& src, const std::vector<bool> &asmap) const
+int AddrInfo::GetNewBucket(const uint256& nKey, const CNetAddr& src, const std::vector<bool>& asmap) const
 {
     std::vector<unsigned char> vchSourceGroupKey = src.GetGroup(asmap);
     uint64_t hash1 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << GetGroup(asmap) << vchSourceGroupKey).GetCheapHash();
@@ -71,7 +70,7 @@ int CAddrInfo::GetNewBucket(const uint256& nKey, const CNetAddr& src, const std:
     return new_bucket;
 }
 
-int CAddrInfo::GetBucketPosition(const uint256& nKey, bool fNew, int nBucket) const
+int AddrInfo::GetBucketPosition(const uint256& nKey, bool fNew, int nBucket) const
 {
 
     uint64_t hash1 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << (fNew ? uint8_t{'P'} : uint8_t{'Z'}) << nBucket << GetKey()).GetCheapHash();
@@ -210,7 +209,7 @@ void AddrManImpl::Serialize(Stream& s_) const
     int nIds = 0;
     for (const auto& entry : mapInfo) {
         mapUnkIds[entry.first] = nIds;
-        const CAddrInfo &info = entry.second;
+        const AddrInfo& info = entry.second;
         if (info.nRefCount) {
             assert(nIds != nNew); // this means nNew was wrong, oh ow
             s << info;
@@ -219,7 +218,7 @@ void AddrManImpl::Serialize(Stream& s_) const
     }
     nIds = 0;
     for (const auto& entry : mapInfo) {
-        const CAddrInfo &info = entry.second;
+        const AddrInfo& info = entry.second;
         if (info.fInTried) {
             assert(nIds != nTried); // this means nTried was wrong, oh ow
             s << info;
@@ -303,7 +302,7 @@ void AddrManImpl::Unserialize(Stream& s_)
 
     // Deserialize entries from the new table.
     for (int n = 0; n < nNew; n++) {
-        CAddrInfo &info = mapInfo[n];
+        AddrInfo& info = mapInfo[n];
         s >> info;
         mapAddr[info] = n;
         info.nRandomPos = vRandom.size();
@@ -1044,7 +1043,7 @@ size_t AddrManImpl::size() const
     return vRandom.size();
 }
 
-bool AddrManImpl::Add(const std::vector<CAddress> &vAddr, const CNetAddr& source, int64_t nTimePenalty)
+bool AddrManImpl::Add(const std::vector<CAddress>& vAddr, const CNetAddr& source, int64_t nTimePenalty)
 {
     LOCK(cs);
     int nAdd = 0;
@@ -1058,7 +1057,7 @@ bool AddrManImpl::Add(const std::vector<CAddress> &vAddr, const CNetAddr& source
     return nAdd > 0;
 }
 
-void AddrManImpl::Good(const CService &addr, int64_t nTime)
+void AddrManImpl::Good(const CService& addr, int64_t nTime)
 {
     LOCK(cs);
     Check();
@@ -1066,7 +1065,7 @@ void AddrManImpl::Good(const CService &addr, int64_t nTime)
     Check();
 }
 
-void AddrManImpl::Attempt(const CService &addr, bool fCountFailure, int64_t nTime)
+void AddrManImpl::Attempt(const CService& addr, bool fCountFailure, int64_t nTime)
 {
     LOCK(cs);
     Check();
@@ -1109,7 +1108,7 @@ std::vector<CAddress> AddrManImpl::GetAddr(size_t max_addresses, size_t max_pct,
     return addresses;
 }
 
-void AddrManImpl::Connected(const CService &addr, int64_t nTime)
+void AddrManImpl::Connected(const CService& addr, int64_t nTime)
 {
     LOCK(cs);
     Check();
@@ -1117,7 +1116,7 @@ void AddrManImpl::Connected(const CService &addr, int64_t nTime)
     Check();
 }
 
-void AddrManImpl::SetServices(const CService &addr, ServiceFlags nServices)
+void AddrManImpl::SetServices(const CService& addr, ServiceFlags nServices)
 {
     LOCK(cs);
     Check();
@@ -1161,17 +1160,17 @@ size_t CAddrMan::size() const
     return m_impl->size();
 }
 
-bool CAddrMan::Add(const std::vector<CAddress> &vAddr, const CNetAddr& source, int64_t nTimePenalty)
+bool AddrMan::Add(const std::vector<CAddress>& vAddr, const CNetAddr& source, int64_t nTimePenalty)
 {
     return m_impl->Add(vAddr, source, nTimePenalty);
 }
 
-void CAddrMan::Good(const CService &addr, int64_t nTime)
+void AddrMan::Good(const CService& addr, int64_t nTime)
 {
     m_impl->Good(addr, nTime);
 }
 
-void CAddrMan::Attempt(const CService &addr, bool fCountFailure, int64_t nTime)
+void AddrMan::Attempt(const CService& addr, bool fCountFailure, int64_t nTime)
 {
     m_impl->Attempt(addr, fCountFailure, nTime);
 }
@@ -1196,12 +1195,12 @@ std::vector<CAddress> CAddrMan::GetAddr(size_t max_addresses, size_t max_pct, st
     return m_impl->GetAddr(max_addresses, max_pct, network);
 }
 
-void CAddrMan::Connected(const CService &addr, int64_t nTime)
+void AddrMan::Connected(const CService& addr, int64_t nTime)
 {
     m_impl->Connected(addr, nTime);
 }
 
-void CAddrMan::SetServices(const CService &addr, ServiceFlags nServices)
+void AddrMan::SetServices(const CService& addr, ServiceFlags nServices)
 {
     m_impl->SetServices(addr, nServices);
 }
