@@ -49,7 +49,7 @@ static constexpr size_t ADDRMAN_SET_TRIED_COLLISION_SIZE{10};
 //! the maximum time we'll spend trying to resolve a tried table collision, in seconds
 static constexpr int64_t ADDRMAN_TEST_WINDOW{40*60}; // 40 minutes
 
-int AddrInfo::GetTriedBucket(const uint256& nKey, const std::vector<bool>& asmap) const
+int AddrInfo::GetTriedBucket(const uint256& nKey, const std::vector<bool> &asmap) const
 {
     uint64_t hash1 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << GetKey()).GetCheapHash();
     uint64_t hash2 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << GetGroup(asmap) << (hash1 % ADDRMAN_TRIED_BUCKETS_PER_GROUP)).GetCheapHash();
@@ -59,7 +59,7 @@ int AddrInfo::GetTriedBucket(const uint256& nKey, const std::vector<bool>& asmap
     return tried_bucket;
 }
 
-int AddrInfo::GetNewBucket(const uint256& nKey, const CNetAddr& src, const std::vector<bool>& asmap) const
+int AddrInfo::GetNewBucket(const uint256& nKey, const CNetAddr& src, const std::vector<bool> &asmap) const
 {
     std::vector<unsigned char> vchSourceGroupKey = src.GetGroup(asmap);
     uint64_t hash1 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << GetGroup(asmap) << vchSourceGroupKey).GetCheapHash();
@@ -70,14 +70,14 @@ int AddrInfo::GetNewBucket(const uint256& nKey, const CNetAddr& src, const std::
     return new_bucket;
 }
 
-int AddrInfo::GetBucketPosition(const uint256& nKey, bool fNew, int nBucket) const
+int AddrInfo::GetBucketPosition(const uint256 &nKey, bool fNew, int nBucket) const
 {
 
     uint64_t hash1 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << (fNew ? uint8_t{'P'} : uint8_t{'Z'}) << nBucket << GetKey()).GetCheapHash();
     return hash1 % ADDRMAN_BUCKET_SIZE;
 }
 
-bool CAddrInfo::IsTerrible(int64_t nNow) const
+bool AddrInfo::IsTerrible(int64_t nNow) const
 {
     if (nLastTry && nLastTry >= nNow - 60) // never remove things tried in the last minute
         return false;
@@ -97,7 +97,7 @@ bool CAddrInfo::IsTerrible(int64_t nNow) const
     return false;
 }
 
-double CAddrInfo::GetChance(int64_t nNow) const
+double AddrInfo::GetChance(int64_t nNow) const
 {
     double fChance = 1.0;
     int64_t nSinceLastTry = std::max<int64_t>(nNow - nLastTry, 0);
@@ -209,7 +209,7 @@ void AddrManImpl::Serialize(Stream& s_) const
     int nIds = 0;
     for (const auto& entry : mapInfo) {
         mapUnkIds[entry.first] = nIds;
-        const AddrInfo& info = entry.second;
+        const AddrInfo &info = entry.second;
         if (info.nRefCount) {
             assert(nIds != nNew); // this means nNew was wrong, oh ow
             s << info;
@@ -218,7 +218,7 @@ void AddrManImpl::Serialize(Stream& s_) const
     }
     nIds = 0;
     for (const auto& entry : mapInfo) {
-        const AddrInfo& info = entry.second;
+        const AddrInfo &info = entry.second;
         if (info.fInTried) {
             assert(nIds != nTried); // this means nTried was wrong, oh ow
             s << info;
@@ -302,7 +302,7 @@ void AddrManImpl::Unserialize(Stream& s_)
 
     // Deserialize entries from the new table.
     for (int n = 0; n < nNew; n++) {
-        AddrInfo& info = mapInfo[n];
+        AddrInfo &info = mapInfo[n];
         s >> info;
         mapAddr[info] = n;
         info.nRandomPos = vRandom.size();
@@ -313,7 +313,7 @@ void AddrManImpl::Unserialize(Stream& s_)
     // Deserialize entries from the tried table.
     int nLost = 0;
     for (int n = 0; n < nTried; n++) {
-        CAddrInfo info;
+        AddrInfo info;
         s >> info;
         int nKBucket = info.GetTriedBucket(nKey, m_asmap);
         int nKBucketPos = info.GetBucketPosition(nKey, false, nKBucket);
@@ -370,7 +370,7 @@ void AddrManImpl::Unserialize(Stream& s_)
     for (auto bucket_entry : bucket_entries) {
         int bucket{bucket_entry.first};
         const int entry_index{bucket_entry.second};
-        CAddrInfo& info = mapInfo[entry_index];
+        AddrInfo& info = mapInfo[entry_index];
 
         // Don't store the entry in the new bucket if it's not a valid address for our addrman
         if (!info.IsValid()) continue;
@@ -420,7 +420,7 @@ void AddrManImpl::Unserialize(Stream& s_)
     }
 }
 
-CAddrInfo* AddrManImpl::Find(const CNetAddr& addr, int* pnId)
+AddrInfo* AddrManImpl::Find(const CNetAddr& addr, int* pnId)
 {
     AssertLockHeld(cs);
 
@@ -435,12 +435,12 @@ CAddrInfo* AddrManImpl::Find(const CNetAddr& addr, int* pnId)
     return nullptr;
 }
 
-CAddrInfo* AddrManImpl::Create(const CAddress& addr, const CNetAddr& addrSource, int* pnId)
+AddrInfo* AddrManImpl::Create(const CAddress& addr, const CNetAddr& addrSource, int* pnId)
 {
     AssertLockHeld(cs);
 
     int nId = nIdCount++;
-    mapInfo[nId] = CAddrInfo(addr, addrSource);
+    mapInfo[nId] = AddrInfo(addr, addrSource);
     mapAddr[addr] = nId;
     mapInfo[nId].nRandomPos = vRandom.size();
     vRandom.push_back(nId);
@@ -478,7 +478,7 @@ void AddrManImpl::Delete(int nId)
     AssertLockHeld(cs);
 
     assert(mapInfo.count(nId) != 0);
-    CAddrInfo& info = mapInfo[nId];
+    AddrInfo& info = mapInfo[nId];
     assert(!info.fInTried);
     assert(info.nRefCount == 0);
 
@@ -496,7 +496,7 @@ void AddrManImpl::ClearNew(int nUBucket, int nUBucketPos)
     // if there is an entry in the specified bucket, delete it.
     if (vvNew[nUBucket][nUBucketPos] != -1) {
         int nIdDelete = vvNew[nUBucket][nUBucketPos];
-        CAddrInfo& infoDelete = mapInfo[nIdDelete];
+        AddrInfo& infoDelete = mapInfo[nIdDelete];
         assert(infoDelete.nRefCount > 0);
         infoDelete.nRefCount--;
         vvNew[nUBucket][nUBucketPos] = -1;
@@ -506,7 +506,7 @@ void AddrManImpl::ClearNew(int nUBucket, int nUBucketPos)
     }
 }
 
-void AddrManImpl::MakeTried(CAddrInfo& info, int nId)
+void AddrManImpl::MakeTried(AddrInfo& info, int nId)
 {
     AssertLockHeld(cs);
 
@@ -534,7 +534,7 @@ void AddrManImpl::MakeTried(CAddrInfo& info, int nId)
         // find an item to evict
         int nIdEvict = vvTried[nKBucket][nKBucketPos];
         assert(mapInfo.count(nIdEvict) == 1);
-        CAddrInfo& infoOld = mapInfo[nIdEvict];
+        AddrInfo& infoOld = mapInfo[nIdEvict];
 
         // Remove the to-be-evicted item from the tried set.
         infoOld.fInTried = false;
@@ -567,13 +567,13 @@ void AddrManImpl::Good_(const CService& addr, bool test_before_evict, int64_t nT
 
     nLastGood = nTime;
 
-    CAddrInfo* pinfo = Find(addr, &nId);
+    AddrInfo* pinfo = Find(addr, &nId);
 
     // if not found, bail out
     if (!pinfo)
         return;
 
-    CAddrInfo& info = *pinfo;
+    AddrInfo& info = *pinfo;
 
     // check whether we are talking about the exact same CService (including same port)
     if (info != addr)
@@ -624,7 +624,7 @@ bool AddrManImpl::Add_(const CAddress& addr, const CNetAddr& source, int64_t nTi
 
     bool fNew = false;
     int nId;
-    CAddrInfo* pinfo = Find(addr, &nId);
+    AddrInfo* pinfo = Find(addr, &nId);
 
     // Do not set a penalty for a source's self-announcement
     if (addr == source) {
@@ -671,7 +671,7 @@ bool AddrManImpl::Add_(const CAddress& addr, const CNetAddr& source, int64_t nTi
     if (vvNew[nUBucket][nUBucketPos] != nId) {
         bool fInsert = vvNew[nUBucket][nUBucketPos] == -1;
         if (!fInsert) {
-            CAddrInfo& infoExisting = mapInfo[vvNew[nUBucket][nUBucketPos]];
+            AddrInfo& infoExisting = mapInfo[vvNew[nUBucket][nUBucketPos]];
             if (infoExisting.IsTerrible() || (infoExisting.nRefCount > 1 && pinfo->nRefCount == 0)) {
                 // Overwrite the existing new table entry.
                 fInsert = true;
@@ -694,13 +694,13 @@ void AddrManImpl::Attempt_(const CService& addr, bool fCountFailure, int64_t nTi
 {
     AssertLockHeld(cs);
 
-    CAddrInfo* pinfo = Find(addr);
+    AddrInfo* pinfo = Find(addr);
 
     // if not found, bail out
     if (!pinfo)
         return;
 
-    CAddrInfo& info = *pinfo;
+    AddrInfo& info = *pinfo;
 
     // check whether we are talking about the exact same CService (including same port)
     if (info != addr)
@@ -737,7 +737,7 @@ CAddrInfo AddrManImpl::Select_(bool newOnly) const
             int nId = vvTried[nKBucket][nKBucketPos];
             const auto it_found{mapInfo.find(nId)};
             assert(it_found != mapInfo.end());
-            const CAddrInfo& info{it_found->second};
+            const AddrInfo& info{it_found->second};
             if (insecure_rand.randbits(30) < fChanceFactor * info.GetChance() * (1 << 30)) {
                 return {info, info.nLastTry};
             }
@@ -756,7 +756,7 @@ CAddrInfo AddrManImpl::Select_(bool newOnly) const
             int nId = vvNew[nUBucket][nUBucketPos];
             const auto it_found{mapInfo.find(nId)};
             assert(it_found != mapInfo.end());
-            const CAddrInfo& info{it_found->second};
+            const AddrInfo& info{it_found->second};
             if (insecure_rand.randbits(30) < fChanceFactor * info.GetChance() * (1 << 30)) {
                 return {info, info.nLastTry};
             }
@@ -789,7 +789,7 @@ void AddrManImpl::GetAddr_(std::vector<CAddress>& vAddr, size_t max_addresses, s
         const auto it{mapInfo.find(vRandom[n])};
         assert(it != mapInfo.end());
 
-        const CAddrInfo& ai{it->second};
+        const AddrInfo& ai{it->second};
 
         // Filter by network (optional)
         if (network != std::nullopt && ai.GetNetClass() != network) continue;
@@ -807,13 +807,13 @@ void AddrManImpl::Connected_(const CService& addr, int64_t nTime)
 {
     AssertLockHeld(cs);
 
-    CAddrInfo* pinfo = Find(addr);
+    AddrInfo* pinfo = Find(addr);
 
     // if not found, bail out
     if (!pinfo)
         return;
 
-    CAddrInfo& info = *pinfo;
+    AddrInfo& info = *pinfo;
 
     // check whether we are talking about the exact same CService (including same port)
     if (info != addr)
@@ -829,13 +829,13 @@ void AddrManImpl::SetServices_(const CService& addr, ServiceFlags nServices)
 {
     AssertLockHeld(cs);
 
-    CAddrInfo* pinfo = Find(addr);
+    AddrInfo* pinfo = Find(addr);
 
     // if not found, bail out
     if (!pinfo)
         return;
 
-    CAddrInfo& info = *pinfo;
+    AddrInfo& info = *pinfo;
 
     // check whether we are talking about the exact same CService (including same port)
     if (info != addr)
@@ -858,7 +858,7 @@ void AddrManImpl::ResolveCollisions_()
         if (mapInfo.count(id_new) != 1) {
             erase_collision = true;
         } else {
-            CAddrInfo& info_new = mapInfo[id_new];
+            AddrInfo& info_new = mapInfo[id_new];
 
             // Which tried bucket to move the entry to.
             int tried_bucket = info_new.GetTriedBucket(nKey, m_asmap);
@@ -869,7 +869,7 @@ void AddrManImpl::ResolveCollisions_()
 
                 // Get the to-be-evicted address that is being tested
                 int id_old = vvTried[tried_bucket][tried_bucket_pos];
-                CAddrInfo& info_old = mapInfo[id_old];
+                AddrInfo& info_old = mapInfo[id_old];
 
                 // Has successfully connected in last X hours
                 if (GetAdjustedTime() - info_old.nLastSuccess < ADDRMAN_REPLACEMENT_HOURS*(60*60)) {
@@ -924,13 +924,13 @@ CAddrInfo AddrManImpl::SelectTriedCollision_()
         return {};
     }
 
-    const CAddrInfo& newInfo = mapInfo[id_new];
+    const AddrInfo& newInfo = mapInfo[id_new];
 
     // which tried bucket to move the entry to
     int tried_bucket = newInfo.GetTriedBucket(nKey, m_asmap);
     int tried_bucket_pos = newInfo.GetBucketPosition(nKey, false, tried_bucket);
 
-    const CAddrInfo& info_old = mapInfo[vvTried[tried_bucket][tried_bucket_pos]];
+    const AddrInfo& info_old = mapInfo[vvTried[tried_bucket][tried_bucket_pos]];
     return {info_old, info_old.nLastTry};
 }
 
@@ -963,7 +963,7 @@ int AddrManImpl::ForceCheckAddrman() const
 
     for (const auto& entry : mapInfo) {
         int n = entry.first;
-        const CAddrInfo& info = entry.second;
+        const AddrInfo& info = entry.second;
         if (info.fInTried) {
             if (!info.nLastSuccess)
                 return -1;
