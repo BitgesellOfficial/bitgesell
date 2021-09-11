@@ -6,7 +6,7 @@
 #ifndef BGL_CONSENSUS_AMOUNT_H
 #define BGL_CONSENSUS_AMOUNT_H
 
-#include <stdint.h>
+#include <cstdint>
 
 /** Amount in satoshis (Can be negative) */
 typedef int64_t CAmount;
