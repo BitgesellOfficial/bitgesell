@@ -9,8 +9,8 @@
 #ifndef BGL_UTIL_MONEYSTR_H
 #define BGL_UTIL_MONEYSTR_H
 
-#include <amount.h>
 #include <attributes.h>
+#include <consensus/amount.h>
 
 #include <optional>
 #include <string>

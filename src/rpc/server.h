@@ -6,7 +6,6 @@
 #ifndef BGL_RPC_SERVER_H
 #define BGL_RPC_SERVER_H
 
-#include <amount.h>
 #include <rpc/request.h>
 #include <rpc/util.h>
 

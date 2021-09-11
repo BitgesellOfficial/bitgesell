@@ -6,7 +6,6 @@
 #ifndef BGL_WALLET_WALLETDB_H
 #define BGL_WALLET_WALLETDB_H
 
-#include <amount.h>
 #include <script/sign.h>
 #include <wallet/db.h>
 #include <wallet/walletutil.h>

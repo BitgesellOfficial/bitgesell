@@ -6,7 +6,7 @@
 #ifndef BGL_POLICY_FEERATE_H
 #define BGL_POLICY_FEERATE_H
 
-#include <amount.h>
+#include <consensus/amount.h>
 #include <serialize.h>
 
 #include <string>
