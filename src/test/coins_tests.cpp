@@ -256,6 +256,17 @@ BOOST_AUTO_TEST_CASE(coins_cache_simulation_test)
     BOOST_CHECK(uncached_an_entry);
 }
 
+
+// Run the above simulation for multiple base types.
+BOOST_AUTO_TEST_CASE(coins_cache_simulation_test)
+{
+    CCoinsViewTest base;
+    SimulationTest(&base, false);
+
+    CCoinsViewDB db_base{"test", /*nCacheSize=*/1 << 23, /*fMemory=*/true, /*fWipe=*/false};
+    SimulationTest(&db_base, true);
+}
+
 // Store of all necessary tx and undo data for next test
 typedef std::map<COutPoint, std::tuple<CTransaction,CTxUndo,Coin>> UtxoData;
 UtxoData utxoData;
