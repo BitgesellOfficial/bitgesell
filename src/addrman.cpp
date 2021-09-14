@@ -32,9 +32,9 @@ int CAddrInfo::GetNewBucket(const uint256& nKey, const CNetAddr& src, const std:
     return new_bucket;
 }
 
-int CAddrInfo::GetBucketPosition(const uint256 &nKey, bool fNew, int nBucket) const
+int CAddrInfo::GetBucketPosition(const uint256& nKey, bool fNew, int nBucket) const
 {
-    uint64_t hash1 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << (fNew ? 'N' : 'K') << nBucket << GetKey()).GetCheapHash();
+    uint64_t hash1 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << (fNew ? 'P' : 'Z') << nBucket << GetKey()).GetCheapHash();
     return hash1 % ADDRMAN_BUCKET_SIZE;
 }
 
