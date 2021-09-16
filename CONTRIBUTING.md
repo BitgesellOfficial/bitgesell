@@ -60,8 +60,8 @@ Most communication about BGL Core development happens on IRC, in the
 #BGL-core-dev channel on Freenode. The easiest way to participate on IRC is
 with the web client, [webchat.freenode.net](https://webchat.freenode.net/). Chat
 history logs can be found
-on [http://www.erisian.com.au/BGL-core-dev/](http://www.erisian.com.au/BGL-core-dev/)
-and [http://gnusha.org/BGL-core-dev/](http://gnusha.org/BGL-core-dev/).
+on [https://www.erisian.com.au/bitcoin-core-dev/](https://www.erisian.com.au/bitcoin-core-dev/)
+and [https://gnusha.org/bitcoin-core-dev/](https://gnusha.org/bitcoin-core-dev/).
 
 Discussion about codebase improvements happens in GitHub issues and pull
 requests.
