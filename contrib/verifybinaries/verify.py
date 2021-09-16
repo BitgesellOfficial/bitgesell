@@ -2,30 +2,154 @@
 # Copyright (c) 2020-2021 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
-"""Script for verifying Bitcoin Core release binaries
+"""Script for verifying Bitcoin Core release binaries.
 
-This script attempts to download the signature file SHA256SUMS.asc from
-bitcoincore.org and bitcoin.org and compares them.
-It first checks if the signature passes, and then downloads the files
-specified in the file, and checks if the hashes of these files match those
-that are specified in the signature file.
-The script returns 0 if everything passes the checks. It returns 1 if either
-the signature check or the hash check doesn't pass. If an error occurs the
-return value is >= 2.
+This script attempts to download the sum file SHA256SUMS and corresponding
+signature file SHA256SUMS.asc from bitcoincore.org and bitcoin.org and
+compares them.
+
+The sum-signature file is signed by a number of builder keys. This script
+ensures that there is a minimum threshold of signatures from pubkeys that
+we trust. This trust is articulated on the basis of configuration options
+here, but by default is based upon local GPG trust settings.
+
+The builder keys are available in the guix.sigs repo:
+
+    https://github.com/bitcoin-core/guix.sigs/tree/main/builder-keys
+
+If a minimum good, trusted signature threshold is met on the sum file, we then
+download the files specified in SHA256SUMS, and check if the hashes of these
+files match those that are specified. The script returns 0 if everything passes
+the checks. It returns 1 if either the signature check or the hash check
+doesn't pass. If an error occurs the return value is >= 2.
+
+Logging output goes to stderr and final binary verification data goes to stdout.
+
+JSON output can by obtained by setting env BINVERIFY_JSON=1.
 """
-from hashlib import sha256
+import argparse
+import difflib
+import json
+import logging
 import os
 import subprocess
+import typing as t
+import re
 import sys
-from textwrap import indent
+import shutil
+import tempfile
+import textwrap
+import urllib.request
+import enum
+from hashlib import sha256
+from pathlib import Path
 
-WORKINGDIR = "/tmp/BGL_verify_binaries"
-HASHFILE = "hashes.tmp"
+# The primary host; this will fail if we can't retrieve files from here.
 HOST1 = "https://bitcoincore.org"
 HOST2 = "https://bitcoin.org"
 VERSIONPREFIX = "bitcoin-core-"
 SUMS_FILENAME = 'SHA256SUMS'
 SIGNATUREFILENAME = f"{SUMS_FILENAME}.asc"
+
+
+class ReturnCode(enum.IntEnum):
+    SUCCESS = 0
+    INTEGRITY_FAILURE = 1
+    FILE_GET_FAILED = 4
+    FILE_MISSING_FROM_ONE_HOST = 5
+    FILES_NOT_EQUAL = 6
+    NO_BINARIES_MATCH = 7
+    NOT_ENOUGH_GOOD_SIGS = 9
+    BINARY_DOWNLOAD_FAILED = 10
+    BAD_VERSION = 11
+
+
+def set_up_logger(is_verbose: bool = True) -> logging.Logger:
+    """Set up a logger that writes to stderr."""
+    log = logging.getLogger(__name__)
+    log.setLevel(logging.INFO if is_verbose else logging.WARNING)
+    console = logging.StreamHandler(sys.stderr)  # log to stderr
+    console.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('[%(levelname)s] %(message)s')
+    console.setFormatter(formatter)
+    log.addHandler(console)
+    return log
+
+
+log = set_up_logger()
+
+
+def indent(output: str) -> str:
+    return textwrap.indent(output, '  ')
+
+
+def bool_from_env(key, default=False) -> bool:
+    if key not in os.environ:
+        return default
+    raw = os.environ[key]
+
+    if raw.lower() in ('1', 'true'):
+        return True
+    elif raw.lower() in ('0', 'false'):
+        return False
+    raise ValueError(f"Unrecognized environment value {key}={raw!r}")
+
+
+VERSION_FORMAT = "<major>.<minor>[.<patch>][-rc[0-9]][-platform]"
+VERSION_EXAMPLE = "22.0-x86_64 or 0.21.0-rc2-osx"
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument(
+    'version', type=str, help=(
+        f'version of the bitcoin release to download; of the format '
+        f'{VERSION_FORMAT}. Example: {VERSION_EXAMPLE}')
+)
+parser.add_argument(
+    '-v', '--verbose', action='store_true',
+    default=bool_from_env('BINVERIFY_VERBOSE'),
+)
+parser.add_argument(
+    '-q', '--quiet', action='store_true',
+    default=bool_from_env('BINVERIFY_QUIET'),
+)
+parser.add_argument(
+    '--cleanup', action='store_true',
+    default=bool_from_env('BINVERIFY_CLEANUP'),
+    help='if specified, clean up files afterwards'
+)
+parser.add_argument(
+    '--import-keys', action='store_true',
+    default=bool_from_env('BINVERIFY_IMPORTKEYS'),
+    help='if specified, ask to import each unknown builder key'
+)
+parser.add_argument(
+    '--require-all-hosts', action='store_true',
+    default=bool_from_env('BINVERIFY_REQUIRE_ALL_HOSTS'),
+    help=(
+        f'If set, require all hosts ({HOST1}, {HOST2}) to provide signatures. '
+        '(Sometimes bitcoin.org lags behind bitcoincore.org.)')
+)
+parser.add_argument(
+    '--min-good-sigs', type=int, action='store', nargs='?',
+    default=int(os.environ.get('BINVERIFY_MIN_GOOD_SIGS', 3)),
+    help=(
+        'The minimum number of good signatures to require successful termination.'),
+)
+parser.add_argument(
+    '--keyserver', action='store', nargs='?',
+    default=os.environ.get('BINVERIFY_KEYSERVER', 'hkp://keyserver.ubuntu.com'),
+    help='which keyserver to use',
+)
+parser.add_argument(
+    '--trusted-keys', action='store', nargs='?',
+    default=os.environ.get('BINVERIFY_TRUSTED_KEYS', ''),
+    help='A list of trusted signer GPG keys, separated by commas. Not "trusted keys" in the GPG sense.',
+)
+parser.add_argument(
+    '--json', action='store_true',
+    default=bool_from_env('BINVERIFY_JSON'),
+    help='If set, output the result as JSON',
+)
 
 
 class ReturnCode(enum.IntEnum):
@@ -94,16 +218,136 @@ def parse_version_string(version_str):
     return version_base, version_rc, version_os
 
 
-def download_with_wget(remote_file, local_file=None):
-    if local_file:
-        wget_args = ['wget', '-O', local_file, remote_file]
-    else:
-        # use timestamping mechanism if local filename is not explicitly set
-        wget_args = ['wget', '-N', remote_file]
-
-    result = subprocess.run(wget_args,
+def download_with_wget(remote_file, local_file):
+    result = subprocess.run(['wget', '-O', local_file, remote_file],
                             stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
     return result.returncode == 0, result.stdout.decode().rstrip()
+
+
+def download_lines_with_urllib(url) -> t.Tuple[bool, t.List[str]]:
+    """Get (success, text lines of a file) over HTTP."""
+    try:
+        return (True, [
+            line.strip().decode() for line in urllib.request.urlopen(url).readlines()])
+    except urllib.request.HTTPError as e:
+        log.warning(f"HTTP request to {url} failed (HTTPError): {e}")
+    except Exception as e:
+        log.warning(f"HTTP request to {url} failed ({e})")
+    return (False, [])
+
+
+def verify_with_gpg(
+    signature_filename,
+    output_filename: t.Optional[str] = None
+) -> t.Tuple[int, str]:
+    args = [
+        'gpg', '--yes', '--decrypt', '--verify-options', 'show-primary-uid-only',
+        '--output', output_filename if output_filename else '', signature_filename]
+
+    env = dict(os.environ, LANGUAGE='en')
+    result = subprocess.run(args, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=env)
+    log.debug(f'Result from GPG ({result.returncode}): {result.stdout}')
+    return result.returncode, result.stdout.decode().rstrip()
+
+
+def remove_files(filenames):
+    for filename in filenames:
+        os.remove(filename)
+
+
+class SigData:
+    """GPG signature data as parsed from GPG stdout."""
+    def __init__(self, key: str, name: str, trusted: bool, status: str):
+        self.key = key
+        self.name = name
+        self.trusted = trusted
+        self.status = status
+
+    def __repr__(self):
+        return (
+            "SigData(%r, %r, trusted=%s, status=%r)" %
+            (self.key, self.name, self.trusted, self.status))
+
+
+def parse_gpg_result(
+    output: t.List[str]
+) -> t.Tuple[t.List[SigData], t.List[SigData], t.List[SigData]]:
+    """Returns good, unknown, and bad signatures from GPG stdout."""
+    good_sigs = []
+    unknown_sigs = []
+    bad_sigs = []
+    total_resolved_sigs = 0
+    curr_key = None
+
+    # Ensure that all lines we match on include a prefix that prevents malicious input
+    # from fooling the parser.
+    def line_begins_with(patt: str, line: str) -> t.Optional[re.Match]:
+        return re.match(r'^\s*(gpg:)?(\s+)' + patt, line)
+
+    detected_name = ''
+
+    for i, line in enumerate(output):
+        if line_begins_with(r"using (ECDSA|RSA) key (0x[0-9a-fA-F]{16}|[0-9a-fA-F]{40})$", line):
+            if curr_key:
+                raise RuntimeError(
+                    f"WARNING: encountered a new sig without resolving the last ({curr_key}) - "
+                    "this could mean we have encountered a bad signature! check GPG output!")
+            curr_key = line.split('key ')[-1].strip()
+            assert len(curr_key) == 40 or (len(curr_key) == 18 and curr_key.startswith('0x'))
+
+        if line_begins_with(r"Can't check signature: No public key$", line):
+            if not curr_key:
+                raise RuntimeError("failed to detect signature being resolved")
+            unknown_sigs.append(SigData(curr_key, detected_name, False, ''))
+            detected_name = ''
+            curr_key = None
+
+        if line_begins_with(r'Good signature from (".+")(\s+)(\[.+\])$', line):
+            if not curr_key:
+                raise RuntimeError("failed to detect signature being resolved")
+            name, status = parse_gpg_from_line(line)
+
+            # It's safe to index output[i + 1] because if we saw a good sig, there should
+            # always be another line
+            trusted = (
+                'This key is not certified with a trusted signature' not in output[i + 1])
+            good_sigs.append(SigData(curr_key, name, trusted, status))
+            curr_key = None
+
+        if line_begins_with("issuer ", line):
+            detected_name = line.split("issuer ")[-1].strip('"')
+
+        if 'bad signature from' in line.lower():
+            if not curr_key:
+                raise RuntimeError("failed to detect signature being resolved")
+            name, status = parse_gpg_from_line(line)
+            bad_sigs.append(SigData(curr_key, name, False, status))
+            curr_key = None
+
+        # Track total signatures included
+        if line_begins_with('Signature made ', line):
+            total_resolved_sigs += 1
+
+    all_found = len(good_sigs + bad_sigs + unknown_sigs)
+    if all_found != total_resolved_sigs:
+        raise RuntimeError(
+            f"failed to evaluate all signatures: found {all_found} "
+            f"but expected {total_resolved_sigs}")
+
+    return (good_sigs, unknown_sigs, bad_sigs)
+
+
+def parse_gpg_from_line(line: str) -> t.Tuple[str, str]:
+    """Returns name and expiration status."""
+    assert 'signature from' in line
+
+    name_end = line.split(' from ')[-1]
+    m = re.search(r'(?P<name>".+") \[(?P<status>\w+)\]', name_end)
+    assert m
+    (name, status) = m.groups()
+    name = name.strip('"\'')
+
+    return (name, status)
 
 
 def files_are_equal(filename1, filename2):
@@ -111,8 +355,13 @@ def files_are_equal(filename1, filename2):
         contents1 = file1.read()
     with open(filename2, 'rb') as file2:
         contents2 = file2.read()
-    return contents1 == contents2
+    eq = contents1 == contents2
 
+    if not eq:
+        with open(filename1, 'r', encoding='utf-8') as f1, \
+                open(filename2, 'r', encoding='utf-8') as f2:
+            f1lines = f1.readlines()
+            f2lines = f2.readlines()
 
             diff = indent(
                 ''.join(difflib.unified_diff(f1lines, f2lines)))
@@ -183,7 +432,7 @@ def get_files_from_hosts_and_compare(
     return ReturnCode.SUCCESS
 
 
-def check_multisig(sigfilename: Path, args: argparse.Namespace) -> t.Tuple[int, str, t.List[SigData], t.List[SigData], t.List[SigData]]:
+def check_multisig(sigfilename: str, args: argparse.Namespace):
     # check signature
     #
     # We don't write output to a file because this command will almost certainly
@@ -213,9 +462,12 @@ def check_multisig(sigfilename: Path, args: argparse.Namespace) -> t.Tuple[int, 
     return retval, output, good, unknown, bad
 
 
-def remove_files(filenames):
-    for filename in filenames:
-        os.remove(filename)
+def prompt_yn(prompt) -> bool:
+    """Return true if the user inputs 'y'."""
+    got = ''
+    while got not in ['y', 'n']:
+        got = input(prompt).lower()
+    return got == 'y'
 
 def verify_shasums_signature(
     signature_file_path: str, sums_file_path: str, args: argparse.Namespace
@@ -284,39 +536,11 @@ def verify_shasums_signature(
     for sig in unknown:
         log.warning(f"UNKNOWN SIGNATURE: {sig}")
 
-    return (ReturnCode.SUCCESS, good_trusted, good_untrusted, unknown, bad)
+def main(args):
+    args = parser.parse_args()
+    if args.quiet:
+        log.setLevel(logging.WARNING)
 
-
-def parse_sums_file(sums_file_path: Path, filename_filter: str) -> t.List[t.List[str]]:
-    # extract hashes/filenames of binaries to verify from hash file;
-    # each line has the following format: "<hash> <binary_filename>"
-    with open(sums_file_path, 'r', encoding='utf8') as hash_file:
-        return [line.split()[:2] for line in hash_file if filename_filter in line]
-
-
-def verify_binary_hashes(hashes_to_verify: t.List[t.List[str]]) -> t.Tuple[ReturnCode, t.Dict[str, str]]:
-    offending_files = []
-    files_to_hashes = {}
-
-    for hash_expected, binary_filename in hashes_to_verify:
-        with open(binary_filename, 'rb') as binary_file:
-            hash_calculated = sha256(binary_file.read()).hexdigest()
-        if hash_calculated != hash_expected:
-            offending_files.append(binary_filename)
-        else:
-            files_to_hashes[binary_filename] = hash_calculated
-
-    if offending_files:
-        joined_files = '\n'.join(offending_files)
-        log.critical(
-            "Hashes don't match.\n"
-            f"Offending files:\n{joined_files}")
-        return (ReturnCode.INTEGRITY_FAILURE, files_to_hashes)
-
-    return (ReturnCode.SUCCESS, files_to_hashes)
-
-
-def verify_published_handler(args: argparse.Namespace) -> ReturnCode:
     WORKINGDIR = Path(tempfile.gettempdir()) / f"bitcoin_verify_binaries.{args.version}"
 
     def cleanup():
@@ -352,40 +576,129 @@ def verify_published_handler(args: argparse.Namespace) -> ReturnCode:
         return got_sig_status
 
     # Multi-sig verification is available after 22.0.
-    if version_tuple[0] < 22:
+    if version_tuple[0] >= 22:
+        min_good_sigs = args.min_good_sigs
+        gpg_allowed_codes = [0, 2]  # 2 is returned when untrusted signatures are present.
+
+        got_sums_status = get_files_from_hosts_and_compare(
+            hosts, remote_sums_path, SUMS_FILENAME, args.require_all_hosts)
+        if got_sums_status != ReturnCode.SUCCESS:
+            return got_sums_status
+
+        gpg_retval, gpg_output, good, unknown, bad = check_multisig(SIGNATUREFILENAME, args)
+    else:
         log.error("Version too old - single sig not supported. Use a previous "
                   "version of this script from the repo.")
         return ReturnCode.BAD_VERSION
 
-    got_sums_status = get_files_from_hosts_and_compare(
-        hosts, remote_sums_path, SUMS_FILENAME, args.require_all_hosts)
-    if got_sums_status != ReturnCode.SUCCESS:
-        return got_sums_status
+    if gpg_retval not in gpg_allowed_codes:
+        if gpg_retval == 1:
+            log.critical(f"Bad signature (code: {gpg_retval}).")
+        if gpg_retval == 2:
+            log.critical(
+                "gpg error. Do you have the Bitcoin Core binary release "
+                "signing key installed?")
+        else:
+            log.critical(f"unexpected GPG exit code ({gpg_retval})")
 
-    # Verify the signature on the SHA256SUMS file
-    sigs_status, good_trusted, good_untrusted, unknown, bad = verify_shasums_signature(SIGNATUREFILENAME, SUMS_FILENAME, args)
-    if sigs_status != ReturnCode.SUCCESS:
-        if sigs_status == ReturnCode.INTEGRITY_FAILURE:
-            cleanup()
-        return sigs_status
+        log.error(f"gpg output:\n{indent(gpg_output)}")
+        cleanup()
+        return ReturnCode.INTEGRITY_FAILURE
 
-    # Extract hashes and filenames
-    hashes_to_verify = parse_sums_file(SUMS_FILENAME, os_filter)
+    # Decide which keys we trust, though not "trust" in the GPG sense, but rather
+    # which pubkeys convince us that this sums file is legitimate. In other words,
+    # which pubkeys within the Bitcoin community do we trust for the purposes of
+    # binary verification?
+    trusted_keys = set()
+    if args.trusted_keys:
+        trusted_keys |= set(args.trusted_keys.split(','))
+
+    # Tally signatures and make sure we have enough goods to fulfill
+    # our threshold.
+    good_trusted = {sig for sig in good if sig.trusted or sig.key in trusted_keys}
+    good_untrusted = [sig for sig in good if sig not in good_trusted]
+    num_trusted = len(good_trusted) + len(good_untrusted)
+    log.info(f"got {num_trusted} good signatures")
+
+    if num_trusted < min_good_sigs:
+        log.info("Maybe you need to import "
+                  f"(`gpg --keyserver {args.keyserver} --recv-keys <key-id>`) "
+                  "some of the following keys: ")
+        log.info('')
+        for sig in unknown:
+            log.info(f"    {sig.key} ({sig.name})")
+        log.info('')
+        log.error(
+            "not enough trusted sigs to meet threshold "
+            f"({num_trusted} vs. {min_good_sigs})")
+
+        return ReturnCode.NOT_ENOUGH_GOOD_SIGS
+
+    for sig in good_trusted:
+        log.info(f"GOOD SIGNATURE: {sig}")
+
+    for sig in good_untrusted:
+        log.info(f"GOOD SIGNATURE (untrusted): {sig}")
+
+    for sig in [sig for sig in good if sig.status == 'expired']:
+        log.warning(f"key {sig.key} for {sig.name} is expired")
+
+    for sig in bad:
+        log.warning(f"BAD SIGNATURE: {sig}")
+
+    for sig in unknown:
+        log.warning(f"UNKNOWN SIGNATURE: {sig}")
+
+    # extract hashes/filenames of binaries to verify from hash file;
+    # each line has the following format: "<hash> <binary_filename>"
+    with open(SUMS_FILENAME, 'r', encoding='utf8') as hash_file:
+        hashes_to_verify = [line.split()[:2] for line in hash_file if os_filter in line]
     remove_files([SUMS_FILENAME])
     if not hashes_to_verify:
-        print("error: no files matched the platform specified")
-        return 7
+        log.error("no files matched the platform specified")
+        return ReturnCode.NO_BINARIES_MATCH
+
+    # remove binaries that are known not to be hosted by bitcoincore.org
+    fragments_to_remove = ['-unsigned', '-debug', '-codesignatures']
+    for fragment in fragments_to_remove:
+        nobinaries = [i for i in hashes_to_verify if fragment in i[1]]
+        if nobinaries:
+            remove_str = ', '.join(i[1] for i in nobinaries)
+            log.info(
+                f"removing *{fragment} binaries ({remove_str}) from verification "
+                f"since {HOST1} does not host *{fragment} binaries")
+            hashes_to_verify = [i for i in hashes_to_verify if fragment not in i[1]]
 
     # download binaries
     for _, binary_filename in hashes_to_verify:
-        print(f"Downloading {binary_filename}")
-        download_with_wget(HOST1 + remote_dir + binary_filename)
+        log.info(f"downloading {binary_filename}")
+        success, output = download_with_wget(
+            HOST1 + remote_dir + binary_filename, binary_filename)
+
+        if not success:
+            log.error(
+                f"failed to download {binary_filename}\n"
+                f"wget output:\n{indent(output)}")
+            return ReturnCode.BINARY_DOWNLOAD_FAILED
 
     # verify hashes
-    hashes_status, files_to_hashes = verify_binary_hashes(hashes_to_verify)
-    if hashes_status != ReturnCode.SUCCESS:
-        return hashes_status
+    offending_files = []
+    files_to_hashes = {}
 
+    for hash_expected, binary_filename in hashes_to_verify:
+        with open(binary_filename, 'rb') as binary_file:
+            hash_calculated = sha256(binary_file.read()).hexdigest()
+        if hash_calculated != hash_expected:
+            offending_files.append(binary_filename)
+        else:
+            files_to_hashes[binary_filename] = hash_calculated
+
+    if offending_files:
+        joined_files = '\n'.join(offending_files)
+        log.critical(
+            "Hashes don't match.\n"
+            f"Offending files:\n{joined_files}")
+        return ReturnCode.INTEGRITY_FAILURE
 
     if args.cleanup:
         cleanup()
@@ -402,11 +715,10 @@ def verify_published_handler(args: argparse.Namespace) -> ReturnCode:
         }
         print(json.dumps(output, indent=2))
     else:
-        print(f"Keep the binaries in {WORKINGDIR}")
+        for filename in files_to_hashes:
+            print(f"VERIFIED: {filename}")
 
-    print("Verified hashes of")
-    print('\n'.join(verified_binaries))
-    return 0
+    return ReturnCode.SUCCESS
 
 
 def main():
