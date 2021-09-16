@@ -15,7 +15,6 @@
 #include <util/system.h>
 #include <version.h>
 
-#include <iostream>
 
 #include <boost/test/unit_test.hpp>
 
