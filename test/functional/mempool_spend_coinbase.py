@@ -25,17 +25,18 @@ class MempoolSpendCoinbaseTest(BGLTestFramework):
     def run_test(self):
         wallet = MiniWallet(self.nodes[0])
 
-        wallet.generate(200)
-        chain_height = self.nodes[0].getblockcount()
-        assert_equal(chain_height, 200)
+        # Invalidate two blocks, so that miniwallet has access to a coin that will mature in the next block
+        chain_height = 198
+        self.nodes[0].invalidateblock(self.nodes[0].getblockhash(chain_height + 1))
+        assert_equal(chain_height, self.nodes[0].getblockcount())
+        wallet.rescan_utxos()
 
         # Coinbase at height chain_height-100+1 ok in mempool, should
         # get mined. Coinbase at height chain_height-100+2 is
         # too immature to spend.
-        b = [self.nodes[0].getblockhash(n) for n in range(101, 103)]
-        coinbase_txids = [self.nodes[0].getblock(h)['tx'][0] for h in b]
-        utxo_101 = wallet.get_utxo(txid=coinbase_txids[0])
-        utxo_102 = wallet.get_utxo(txid=coinbase_txids[1])
+        coinbase_txid = lambda h: self.nodes[0].getblock(self.nodes[0].getblockhash(h))['tx'][0]
+        utxo_mature = wallet.get_utxo(txid=coinbase_txid(chain_height - 100 + 1))
+        utxo_immature = wallet.get_utxo(txid=coinbase_txid(chain_height - 100 + 2))
 
         spend_101_id = wallet.send_self_transfer(from_node=self.nodes[0], utxo_to_spend=utxo_101)["txid"]
 
