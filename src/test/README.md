@@ -78,7 +78,7 @@ gdb src/test/test_BGL
 #### Segmentation faults
 
 If you hit a segmentation fault during a test run, you can diagnose where the fault
-is happening by running `gdb ./src/test/test_bitcoin` and then using the `bt` command
+is happening by running `gdb ./src/test/test_BGL` and then using the `bt` command
 within gdb.
 
 Another tool that can be used to resolve segmentation faults is
