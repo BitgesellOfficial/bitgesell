@@ -178,6 +178,7 @@ BGL_CORE_H = \
   netbase.h \
   netmessagemaker.h \
   node/blockstorage.h \
+  node/chainstate.h \
   node/coin.h \
   node/coinstats.h \
   node/context.h \
@@ -343,6 +344,7 @@ libBGL_server_a_SOURCES = \
   net.cpp \
   net_processing.cpp \
   node/blockstorage.cpp \
+  node/chainstate.cpp \
   node/coin.cpp \
   node/coinstats.cpp \
   node/context.cpp \
