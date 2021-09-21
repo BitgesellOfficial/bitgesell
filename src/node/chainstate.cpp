@@ -17,6 +17,8 @@ std::optional<ChainstateLoadingError> LoadChainstate(bool fReset,
                                                      int64_t nBlockTreeDBCache,
                                                      int64_t nCoinDBCache,
                                                      int64_t nCoinCacheUsage,
+                                                     bool block_tree_db_in_memory,
+                                                     bool coins_db_in_memory,
                                                      std::function<bool()> shutdown_requested,
                                                      std::function<void()> coins_error_cb)
 {
@@ -24,10 +26,26 @@ std::optional<ChainstateLoadingError> LoadChainstate(bool fReset,
         return fReset || fReindexChainState || chainstate->CoinsTip().GetBestBlock().IsNull();
     };
 
-    LOCK(cs_main);
-    chainman.InitializeChainstate(mempool);
-    chainman.m_total_coinstip_cache = nCoinCacheUsage;
-    chainman.m_total_coinsdb_cache = nCoinDBCache;
+    {
+        LOCK(cs_main);
+        chainman.InitializeChainstate(mempool);
+        chainman.m_total_coinstip_cache = nCoinCacheUsage;
+        chainman.m_total_coinsdb_cache = nCoinDBCache;
+
+        UnloadBlockIndex(mempool, chainman);
+
+        auto& pblocktree{chainman.m_blockman.m_block_tree_db};
+        // new CBlockTreeDB tries to delete the existing file, which
+        // fails if it's still open from the previous loop. Close it first:
+        pblocktree.reset();
+        pblocktree.reset(new CBlockTreeDB(nBlockTreeDBCache, block_tree_db_in_memory, fReset));
+
+        if (fReset) {
+            pblocktree->WriteReindexing(true);
+            //If we're reindexing in prune mode, wipe away unusable block files and all undo data files
+            if (fPruneMode)
+                CleanupBlockRevFiles();
+        }
 
     UnloadBlockIndex(mempool, chainman);
 
@@ -60,11 +78,11 @@ std::optional<ChainstateLoadingError> LoadChainstate(bool fReset,
         return ChainstateLoadingError::ERROR_BAD_GENESIS_BLOCK;
     }
 
-    // Check for changed -prune state.  What we are concerned about is a user who has pruned blocks
-    // in the past, but is now trying to run unpruned.
-    if (fHavePruned && !fPruneMode) {
-        return ChainstateLoadingError::ERROR_PRUNED_NEEDS_REINDEX;
-    }
+        for (CChainState* chainstate : chainman.GetAll()) {
+            chainstate->InitCoinsDB(
+                /* cache_size_bytes */ nCoinDBCache,
+                /* in_memory */ coins_db_in_memory,
+                /* should_wipe */ fReset || fReindexChainState);
 
     // At this point blocktree args are consistent with what's on disk.
     // If we're not mid-reindex (based on disk + args), add a genesis block on disk
