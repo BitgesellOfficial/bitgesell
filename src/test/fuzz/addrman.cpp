@@ -74,6 +74,41 @@ CNetAddr RandAddr(FuzzedDataProvider& fuzzed_data_provider, FastRandomContext& f
     return addr;
 }
 
+/** Fill addrman with lots of addresses from lots of sources.  */
+void FillAddrman(AddrMan& addrman, FuzzedDataProvider& fuzzed_data_provider)
+{
+    // Add a fraction of the addresses to the "tried" table.
+    // 0, 1, 2, 3 corresponding to 0%, 100%, 50%, 33%
+    const size_t n = fuzzed_data_provider.ConsumeIntegralInRange<size_t>(0, 3);
+
+    const size_t num_sources = fuzzed_data_provider.ConsumeIntegralInRange<size_t>(1, 50);
+    CNetAddr prev_source;
+    // Generate a FastRandomContext seed to use inside the loops instead of
+    // fuzzed_data_provider. When fuzzed_data_provider is exhausted it
+    // just returns 0.
+    FastRandomContext fast_random_context{ConsumeUInt256(fuzzed_data_provider)};
+    for (size_t i = 0; i < num_sources; ++i) {
+        const auto source = RandAddr(fuzzed_data_provider, fast_random_context);
+        const size_t num_addresses = fast_random_context.randrange(500) + 1; // [1..500]
+
+        for (size_t j = 0; j < num_addresses; ++j) {
+            const auto addr = CAddress{CService{RandAddr(fuzzed_data_provider, fast_random_context), 8333}, NODE_NETWORK};
+            const auto time_penalty = fast_random_context.randrange(100000001);
+            addrman.Add({addr}, source, time_penalty);
+
+            if (n > 0 && addrman.size() % n == 0) {
+                addrman.Good(addr, GetTime());
+            }
+
+            // Add 10% of the addresses from more than one source.
+            if (fast_random_context.randrange(10) == 0 && prev_source.IsValid()) {
+                addrman.Add({addr}, prev_source, time_penalty);
+            }
+        }
+        prev_source = source;
+    }
+}
+
 class AddrManDeterministic : public AddrMan
 {
 public:
