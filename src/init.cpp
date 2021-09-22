@@ -1487,8 +1487,9 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
                                              fReset,
                                              fReindexChainState,
                                              chainparams,
-                                             args.GetIntArg("-checkblocks", DEFAULT_CHECKBLOCKS),
-                                             args.GetIntArg("-checklevel", DEFAULT_CHECKLEVEL));
+                                             check_blocks,
+                                             args.GetIntArg("-checklevel", DEFAULT_CHECKLEVEL),
+                                             static_cast<int64_t(*)()>(GetTime));
             } catch (const std::exception& e) {
                 LogPrintf("%s\n", e.what());
                 rv2 = ChainstateLoadVerifyError::ERROR_GENERIC_FAILURE;
