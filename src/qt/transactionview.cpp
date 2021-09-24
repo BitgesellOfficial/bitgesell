@@ -221,15 +221,18 @@ void TransactionView::setModel(WalletModel *_model)
         if (_model->getOptionsModel())
         {
             // Add third party transaction URLs to context menu
-            QStringList listUrls = _model->getOptionsModel()->getThirdPartyTxUrls().split("|", QString::SkipEmptyParts);
+            QStringList listUrls = GUIUtil::SplitSkipEmptyParts(_model->getOptionsModel()->getThirdPartyTxUrls(), "|");
+            bool actions_created = false;
             for (int i = 0; i < listUrls.size(); ++i)
             {
                 QString url = listUrls[i].trimmed();
                 QString host = QUrl(url, QUrl::StrictMode).host();
                 if (!host.isEmpty())
                 {
-                    if (i == 0)
+                    if (!actions_created) {
                         contextMenu->addSeparator();
+                        actions_created = true;
+                    }
                     /*: Transactions table context menu action to show the
                         selected transaction in a third-party block explorer.
                         %1 is a stand-in argument for the URL of the explorer. */
