@@ -6,6 +6,7 @@
 #define BGL_BLOOM_H
 
 #include <serialize.h>
+#include <span.h>
 
 #include <vector>
 
