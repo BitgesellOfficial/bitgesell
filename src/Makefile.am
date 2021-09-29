@@ -128,7 +128,6 @@ BGL_CORE_H = \
   bech32.h \
   blockencodings.h \
   blockfilter.h \
-  common/bloom.h \
   chain.h \
   chainparams.h \
   chainparamsbase.h \
@@ -136,6 +135,7 @@ BGL_CORE_H = \
   checkqueue.h \
   clientversion.h \
   coins.h \
+  common/bloom.h \
   compat.h \
   compat/assumptions.h \
   compat/byteswap.h \
@@ -550,9 +550,9 @@ libBGL_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_common_a_SOURCES = \
   base58.cpp \
   bech32.cpp \
-  common/bloom.cpp \
   chainparams.cpp \
   coins.cpp \
+  common/bloom.cpp \
   compressor.cpp \
   core_read.cpp \
   core_write.cpp \
