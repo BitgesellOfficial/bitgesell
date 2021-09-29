@@ -140,8 +140,9 @@ See the [open issues](https://github.com/BitgesellOfficial/bitgesell/issues) for
     $ mkdir -p coverage
     $ gcovr --exclude 'src/bench*' --html --html-details -o coverage/coverage.html
 
-<!-- CONTRIBUTING -->
-## Contributing
+If you don't mind more setup in return for more speed, replace
+`autocomplete-clang` and `linter-clang` with `you-complete-me`. This requires
+[setting up ycmd](https://github.com/ycm-core/ycmd#building).
 
 Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
