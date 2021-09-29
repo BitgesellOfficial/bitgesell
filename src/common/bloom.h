@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BGL_BLOOM_H
-#define BGL_BLOOM_H
+#ifndef BGL_COMMON_BLOOM_H
+#define BGL_COMMON_BLOOM_H
 
 #include <serialize.h>
 #include <span.h>
@@ -113,4 +113,4 @@ private:
     int nHashFuncs;
 };
 
-#endif // BGL_BLOOM_H
+#endif // BGL_COMMON_BLOOM_H
