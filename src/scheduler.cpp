@@ -5,6 +5,8 @@
 #include <scheduler.h>
 
 #include <random.h>
+#include <util/syscall_sandbox.h>
+#include <util/time.h>
 
 #include <assert.h>
 #include <functional>
@@ -23,6 +25,7 @@ CScheduler::~CScheduler()
 
 void CScheduler::serviceQueue()
 {
+    SetSyscallSandboxPolicy(SyscallSandboxPolicy::SCHEDULER);
     WAIT_LOCK(newTaskMutex, lock);
     ++nThreadsServicingQueue;
 

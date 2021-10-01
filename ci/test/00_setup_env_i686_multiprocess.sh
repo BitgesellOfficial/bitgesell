@@ -12,6 +12,7 @@ export DOCKER_NAME_TAG=ubuntu:20.04
 export PACKAGES="cmake python3 python3-pip llvm clang g++-multilib"
 export DEP_OPTS="DEBUG=1 MULTIPROCESS=1"
 export GOAL="install"
-export BGL_CONFIG="--enable-debug CC='clang -m32' CXX='clang++ -m32' LDFLAGS='--rtlib=compiler-rt -lgcc_s'"
+export BITCOIN_CONFIG="--enable-debug CC='clang -m32' CXX='clang++ -m32' LDFLAGS='--rtlib=compiler-rt -lgcc_s'"
 export TEST_RUNNER_ENV="BGLD=BGL-node"
+export TEST_RUNNER_EXTRA="--nosandbox"
 export PIP_PACKAGES="lief"

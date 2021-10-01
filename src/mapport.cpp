@@ -14,6 +14,7 @@
 #include <netaddress.h>
 #include <netbase.h>
 #include <threadinterrupt.h>
+#include <util/syscall_sandbox.h>
 #include <util/system.h>
 
 #ifdef USE_NATPMP
@@ -221,6 +222,7 @@ static bool ProcessUpnp()
 
 static void ThreadMapPort()
 {
+    SetSyscallSandboxPolicy(SyscallSandboxPolicy::INITIALIZATION_MAP_PORT);
     bool ok;
     do {
         ok = false;
