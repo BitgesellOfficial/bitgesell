@@ -19,7 +19,7 @@
 namespace wallet {
 //! Check whether transaction has descendant in wallet or mempool, or has been
 //! mined, or conflicts with a mined transaction. Return a feebumper::Result.
-static feebumper::Result PreconditionChecks(const CWallet& wallet, const CWalletTx& wtx, std::vector<bilingual_str>& errors) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet)
+static feebumper::Result PreconditionChecks(const CWallet& wallet, const CWalletTx& wtx, bool require_mine, std::vector<bilingual_str>& errors) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet)
 {
     if (wallet.HasWalletSpend(wtx.tx)) {
         errors.push_back(Untranslated("Transaction has descendants in the wallet"));
@@ -48,14 +48,15 @@ static feebumper::Result PreconditionChecks(const CWallet& wallet, const CWallet
         return feebumper::Result::WALLET_ERROR;
     }
 
-    // check that original tx consists entirely of our inputs
-    // if not, we can't bump the fee, because the wallet has no way of knowing the value of the other inputs (thus the fee)
-    isminefilter filter = wallet.GetLegacyScriptPubKeyMan() && wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS) ? ISMINE_WATCH_ONLY : ISMINE_SPENDABLE;
-    if (!AllInputsMine(wallet, *wtx.tx, filter)) {
-        errors.push_back(Untranslated("Transaction contains inputs that don't belong to this wallet"));
-        return feebumper::Result::WALLET_ERROR;
+    if (require_mine) {
+        // check that original tx consists entirely of our inputs
+        // if not, we can't bump the fee, because the wallet has no way of knowing the value of the other inputs (thus the fee)
+        isminefilter filter = wallet.GetLegacyScriptPubKeyMan() && wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS) ? ISMINE_WATCH_ONLY : ISMINE_SPENDABLE;
+        if (!AllInputsMine(wallet, *wtx.tx, filter)) {
+            errors.push_back(Untranslated("Transaction contains inputs that don't belong to this wallet"));
+            return feebumper::Result::WALLET_ERROR;
+        }
     }
-
 
     return feebumper::Result::OK;
 }
@@ -150,12 +151,12 @@ bool TransactionCanBeBumped(const CWallet& wallet, const uint256& txid)
     if (wtx == nullptr) return false;
 
     std::vector<bilingual_str> errors_dummy;
-    feebumper::Result res = PreconditionChecks(wallet, *wtx, errors_dummy);
+    feebumper::Result res = PreconditionChecks(wallet, *wtx, /* require_mine=*/ true, errors_dummy);
     return res == feebumper::Result::OK;
 }
 
 Result CreateRateBumpTransaction(CWallet& wallet, const uint256& txid, const CCoinControl& coin_control, std::vector<bilingual_str>& errors,
-                                 CAmount& old_fee, CAmount& new_fee, CMutableTransaction& mtx)
+                                 CAmount& old_fee, CAmount& new_fee, CMutableTransaction& mtx, bool require_mine)
 {
     // We are going to modify coin control later, copy to re-use
     CCoinControl new_coin_control(coin_control);
@@ -169,7 +170,55 @@ Result CreateRateBumpTransaction(CWallet& wallet, const uint256& txid, const CCo
     }
     const CWalletTx& wtx = it->second;
 
-    Result result = PreconditionChecks(wallet, wtx, errors);
+    // Retrieve all of the UTXOs and add them to coin control
+    // While we're here, calculate the input amount
+    std::map<COutPoint, Coin> coins;
+    CAmount input_value = 0;
+    std::vector<CTxOut> spent_outputs;
+    for (const CTxIn& txin : wtx.tx->vin) {
+        coins[txin.prevout]; // Create empty map entry keyed by prevout.
+    }
+    wallet.chain().findCoins(coins);
+    for (const CTxIn& txin : wtx.tx->vin) {
+        const Coin& coin = coins.at(txin.prevout);
+        if (coin.out.IsNull()) {
+            errors.push_back(Untranslated(strprintf("%s:%u is already spent", txin.prevout.hash.GetHex(), txin.prevout.n)));
+            return Result::MISC_ERROR;
+        }
+        if (wallet.IsMine(txin.prevout)) {
+            new_coin_control.Select(txin.prevout);
+        } else {
+            new_coin_control.SelectExternal(txin.prevout, coin.out);
+        }
+        input_value += coin.out.nValue;
+        spent_outputs.push_back(coin.out);
+    }
+
+    // Figure out if we need to compute the input weight, and do so if necessary
+    PrecomputedTransactionData txdata;
+    txdata.Init(*wtx.tx, std::move(spent_outputs), /* force=*/ true);
+    for (unsigned int i = 0; i < wtx.tx->vin.size(); ++i) {
+        const CTxIn& txin = wtx.tx->vin.at(i);
+        const Coin& coin = coins.at(txin.prevout);
+
+        if (new_coin_control.IsExternalSelected(txin.prevout)) {
+            // For external inputs, we estimate the size using the size of this input
+            int64_t input_weight = GetTransactionInputWeight(txin);
+            // Because signatures can have different sizes, we need to figure out all of the
+            // signature sizes and replace them with the max sized signature.
+            // In order to do this, we verify the script with a special SignatureChecker which
+            // will observe the signatures verified and record their sizes.
+            SignatureWeights weights;
+            TransactionSignatureChecker tx_checker(wtx.tx.get(), i, coin.out.nValue, txdata, MissingDataBehavior::FAIL);
+            SignatureWeightChecker size_checker(weights, tx_checker);
+            VerifyScript(txin.scriptSig, coin.out.scriptPubKey, &txin.scriptWitness, STANDARD_SCRIPT_VERIFY_FLAGS, size_checker);
+            // Add the difference between max and current to input_weight so that it represents the largest the input could be
+            input_weight += weights.GetWeightDiffToMax();
+            new_coin_control.SetInputWeight(txin.prevout, input_weight);
+        }
+    }
+
+    Result result = PreconditionChecks(wallet, wtx, require_mine, errors);
     if (result != Result::OK) {
         return result;
     }
@@ -254,7 +303,7 @@ Result CommitTransaction(CWallet& wallet, const uint256& txid, CMutableTransacti
     const CWalletTx& oldWtx = it->second;
 
     // make sure the transaction still has no descendants and hasn't been mined in the meantime
-    Result result = PreconditionChecks(wallet, oldWtx, errors);
+    Result result = PreconditionChecks(wallet, oldWtx, /* require_mine=*/ false, errors);
     if (result != Result::OK) {
         return result;
     }
