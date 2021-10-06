@@ -62,7 +62,7 @@ static feebumper::Result PreconditionChecks(const CWallet& wallet, const CWallet
 }
 
 //! Check if the user provided a valid feeRate
-static feebumper::Result CheckFeeRate(const CWallet& wallet, const CWalletTx& wtx, const CFeeRate& newFeerate, const int64_t maxTxSize, std::vector<bilingual_str>& errors)
+static feebumper::Result CheckFeeRate(const CWallet& wallet, const CWalletTx& wtx, const CFeeRate& newFeerate, const int64_t maxTxSize, CAmount old_fee, std::vector<bilingual_str>& errors)
 {
     // check that fee rate is higher than mempool's minimum fee
     // (no point in bumping fee if we know that the new tx won't be accepted to the mempool)
@@ -84,8 +84,6 @@ static feebumper::Result CheckFeeRate(const CWallet& wallet, const CWalletTx& wt
     CFeeRate incrementalRelayFee = std::max(wallet.chain().relayIncrementalFee(), CFeeRate(WALLET_INCREMENTAL_RELAY_FEE));
 
     // Given old total fee and transaction size, calculate the old feeRate
-    isminefilter filter = wallet.GetLegacyScriptPubKeyMan() && wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS) ? ISMINE_WATCH_ONLY : ISMINE_SPENDABLE;
-    CAmount old_fee = CachedTxGetDebit(wallet, wtx, filter) - wtx.tx->GetValueOut();
     const int64_t txSize = GetVirtualTransactionSize(*(wtx.tx));
     CFeeRate nOldFeeRate(old_fee, txSize);
     // Min total fee is old fee + relay fee
@@ -174,7 +172,6 @@ Result CreateRateBumpTransaction(CWallet& wallet, const uint256& txid, const CCo
     // While we're here, calculate the input amount
     std::map<COutPoint, Coin> coins;
     CAmount input_value = 0;
-    std::vector<CTxOut> spent_outputs;
     for (const CTxIn& txin : wtx.tx->vin) {
         coins[txin.prevout]; // Create empty map entry keyed by prevout.
     }
@@ -191,40 +188,17 @@ Result CreateRateBumpTransaction(CWallet& wallet, const uint256& txid, const CCo
             new_coin_control.SelectExternal(txin.prevout, coin.out);
         }
         input_value += coin.out.nValue;
-        spent_outputs.push_back(coin.out);
     }
 
-    // Figure out if we need to compute the input weight, and do so if necessary
-    PrecomputedTransactionData txdata;
-    txdata.Init(*wtx.tx, std::move(spent_outputs), /* force=*/ true);
-    for (unsigned int i = 0; i < wtx.tx->vin.size(); ++i) {
-        const CTxIn& txin = wtx.tx->vin.at(i);
-        const Coin& coin = coins.at(txin.prevout);
-
-        if (new_coin_control.IsExternalSelected(txin.prevout)) {
-            // For external inputs, we estimate the size using the size of this input
-            int64_t input_weight = GetTransactionInputWeight(txin);
-            // Because signatures can have different sizes, we need to figure out all of the
-            // signature sizes and replace them with the max sized signature.
-            // In order to do this, we verify the script with a special SignatureChecker which
-            // will observe the signatures verified and record their sizes.
-            SignatureWeights weights;
-            TransactionSignatureChecker tx_checker(wtx.tx.get(), i, coin.out.nValue, txdata, MissingDataBehavior::FAIL);
-            SignatureWeightChecker size_checker(weights, tx_checker);
-            VerifyScript(txin.scriptSig, coin.out.scriptPubKey, &txin.scriptWitness, STANDARD_SCRIPT_VERIFY_FLAGS, size_checker);
-            // Add the difference between max and current to input_weight so that it represents the largest the input could be
-            input_weight += weights.GetWeightDiffToMax();
-            new_coin_control.SetInputWeight(txin.prevout, input_weight);
-        }
-    }
-
-    Result result = PreconditionChecks(wallet, wtx, require_mine, errors);
+    Result result = PreconditionChecks(wallet, wtx, errors);
     if (result != Result::OK) {
         return result;
     }
 
     // Fill in recipients(and preserve a single change key if there is one)
+    // While we're here, calculate the output amount
     std::vector<CRecipient> recipients;
+    CAmount output_value = 0;
     for (const auto& output : wtx.tx->vout) {
         if (!OutputIsChange(wallet, output)) {
             CRecipient recipient = {output.scriptPubKey, output.nValue, false};
@@ -234,21 +208,15 @@ Result CreateRateBumpTransaction(CWallet& wallet, const uint256& txid, const CCo
             ExtractDestination(output.scriptPubKey, change_dest);
             new_coin_control.destChange = change_dest;
         }
+        output_value += output.nValue;
     }
 
-    isminefilter filter = wallet.GetLegacyScriptPubKeyMan() && wallet.IsWalletFlagSet(WALLET_FLAG_DISABLE_PRIVATE_KEYS) ? ISMINE_WATCH_ONLY : ISMINE_SPENDABLE;
-    old_fee = CachedTxGetDebit(wallet, wtx, filter) - wtx.tx->GetValueOut();
+    old_fee = input_value - output_value;
 
     if (coin_control.m_feerate) {
         // The user provided a feeRate argument.
         // We calculate this here to avoid compiler warning on the cs_wallet lock
-        // We need to make a temporary transaction with no input witnesses as the dummy signer expects them to be empty for external inputs
-        CMutableTransaction mtx{*wtx.tx};
-        for (auto& txin : mtx.vin) {
-            txin.scriptSig.clear();
-            txin.scriptWitness.SetNull();
-        }
-        const int64_t maxTxSize{CalculateMaximumSignedTxSize(CTransaction(mtx), &wallet, &new_coin_control).vsize};
+        const int64_t maxTxSize{CalculateMaximumSignedTxSize(*wtx.tx, &wallet, &new_coin_control).vsize};
         Result res = CheckFeeRate(wallet, wtx, *new_coin_control.m_feerate, maxTxSize, old_fee, errors);
         if (res != Result::OK) {
             return res;
