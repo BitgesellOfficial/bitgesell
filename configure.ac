@@ -1,17 +1,10 @@
-AC_PREREQ([2.69])
-define(_CLIENT_VERSION_MAJOR, 22)
-define(_CLIENT_VERSION_MINOR, 99)
-define(_CLIENT_VERSION_BUILD, 0)
-define(_CLIENT_VERSION_RC, 0)
-define(_CLIENT_VERSION_IS_RELEASE, true)
-define(_COPYRIGHT_YEAR, 2021)
-define(_COPYRIGHT_HOLDERS,[The %s developers])
-define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[BGL Core]])
-AC_INIT([BGL Core],m4_join([.], _CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MINOR, _CLIENT_VERSION_BUILD)m4_if(_CLIENT_VERSION_RC, [0], [], [rc]_CLIENT_VERSION_RC),[https://github.com/BGL/BGL/issues],[BGL],[https://BGLcore.org/])
-AC_CONFIG_SRCDIR([src/validation.cpp])
-AC_CONFIG_HEADERS([src/config/BGL-config.h])
-AC_CONFIG_AUX_DIR([build-aux])
-AC_CONFIG_MACRO_DIR([build-aux/m4])
+m4_define([libunivalue_major_version], [1])
+m4_define([libunivalue_minor_version], [1])
+m4_define([libunivalue_micro_version], [4])
+m4_define([libunivalue_interface_age], [4])
+# If you need a modifier for the version number. 
+# Normally empty, but can be used to make "fixup" releases.
+m4_define([libunivalue_extraversion], [])
 
 m4_ifndef([PKG_PROG_PKG_CONFIG], [AC_MSG_ERROR([PKG_PROG_PKG_CONFIG macro not found. Please install pkg-config and re-run autogen.sh])])
 PKG_PROG_PKG_CONFIG
@@ -29,11 +22,8 @@ dnl Multi Process
 BGL_MP_NODE_NAME=BGL-node
 BGL_MP_GUI_NAME=BGL-gui
 
-dnl Unless the user specified ARFLAGS, force it to be cr
-AC_ARG_VAR(ARFLAGS, [Flags for the archiver, defaults to <cr> if not set])
-if test "x${ARFLAGS+set}" != "xset"; then
-  ARFLAGS="cr"
-fi
+AC_INIT([univalue], [1.0.4],
+        [http://github.com/jgarzik/univalue/])
 
 AC_CANONICAL_HOST
 
@@ -52,17 +42,9 @@ AM_MAINTAINER_MODE([enable])
 dnl make the compilation flags quiet unless V=1 is used
 AM_SILENT_RULES([yes])
 
-dnl Compiler checks (here before libtool).
-if test "x${CXXFLAGS+set}" = "xset"; then
-  CXXFLAGS_overridden=yes
-else
-  CXXFLAGS_overridden=no
-fi
-AC_PROG_CXX
+dnl Require C++11 compiler (no GNU extensions)
+AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory], [nodefault])
 
-dnl By default, libtool for mingw refuses to link static libs into a dll for
-dnl fear of mixing pic/non-pic objects, and import/export complications. Since
-dnl we have those under control, re-enable that functionality.
 case $host in
   *mingw*)
      lt_cv_deplibs_check_method="pass_all"
