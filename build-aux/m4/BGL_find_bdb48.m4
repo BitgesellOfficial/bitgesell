@@ -90,8 +90,7 @@ AC_DEFUN([BGL_FIND_BDB48],[
         AC_MSG_WARN([Passing --without-bdb will suppress this warning])
     fi
   fi
-  if test "x$use_bdb" != "xno"; then
-    AC_SUBST(BDB_LIBS)
+  if test "$use_bdb" != "no"; then
     AC_DEFINE([USE_BDB], [1], [Define if BDB support should be compiled in])
     use_bdb=yes
   fi
