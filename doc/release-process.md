@@ -60,7 +60,7 @@ Release Process
 
 To tag the version (or release candidate) in git, use the `make-tag.py` script from [BGL-maintainer-tools](https://github.com/bitcoin-core/bitcoin-maintainer-tools). From the root of the repository run:
 
-    ../BGL-maintainer-tools/make-tag.py v(new version, e.g. 0.20.0)
+    ../BGL-maintainer-tools/make-tag.py v(new version, e.g. 23.0)
 
 This will perform a few last-minute consistency checks in the build system files, and if they pass, create a signed tag.
 
@@ -90,7 +90,7 @@ Generate list of authors:
 
 ### Setup and perform Guix builds
 
-Checkout the Bitcoin Core version you'd like to build:
+Checkout the Bitgesell Core version you'd like to build:
 
 ```sh
 pushd ./BGL
@@ -256,7 +256,11 @@ cat "$VERSION"/*/all.SHA256SUMS.asc > SHA256SUMS.asc
   - BGLcore.org maintained versions update:
     [table](https://github.com/BGL-core/BGLcore.org/commits/master/_includes/posts/maintenance-table.md)
 
-  - BGLcore.org RPC documentation update
+  - Delete post-EOL [release branches](https://github.com/bitcoin/bitcoin/branches/all) and create a tag `v${branch_name}-final`.
+
+  - Delete ["Needs backport" labels](https://github.com/bitcoin/bitcoin/labels?q=backport) for non-existing branches.
+
+  - bitcoincore.org RPC documentation update
 
       - Install [golang](https://golang.org/doc/install)
 
