@@ -6384,6 +6384,53 @@ pr 2021-04-28 07:06:43 +0100 edf679503c55f4a119e6c64b76ba20e71a46d27a Merge bitc
 v  2021-04-28 07:34:20 +0100 545404e7e1c72985557ccffe865cea269143e5dd fuzz: Add RPC interface fuzzing. Increase fuzzing coverage from 65% to 70%.
 pr 2021-04-28 08:45:30 +0100 e45863166f5e44cc2c380f4667812fcd3cddc73b Merge bitcoin/bitcoin#21169: fuzz: Add RPC interface fuzzing. Increase fuzzing coverage from 65% to 70%.
 pr 2021-04-28 10:02:25 +0100 549d20a31beaf71c722970af32d0076b70b5ffcb Merge bitcoin/bitcoin#20772: fuzz: bolster ExtractDestination(s) checks
+v  2021-04-28 07:13:05 +0100 fa37116c820f6a84642d57ce709a5977fd5616c4 test: Use self.send_addr_msg
+cr 2021-04-28 07:16:29 +0100 faa51ef4d33034f8c14cfd18f1c01c90883a1bb4 test: Fix intermittent issue in p2p_addr_relay.py
+v  2021-04-28 09:00:28 +0100 9fc68faf35c700ae955af194dd7f8c1aee85a05b script: match multisigs with up to MAX_PUBKEYS_PER_MULTISIG keys
+v  2021-04-28 09:00:29 +0100 ae0429d3af6de48f6191f144dff4ad4ab672dcd6 script: allow up to 20 keys in wsh() descriptors
+cr 2021-04-28 09:00:30 +0100 063df9e89730fd2c92646577e2fab894e1692130 test/functional: standardness sanity checks for P2(W)SH multisig
+pr 2021-04-28 09:00:30 +0100 5aa50ab9cc7994b16cf13e4c73af80f0098f1bea rpc/util: multisig: only check redeemScript size is <= 520 for P2SH
+v  2021-04-28 09:00:31 +0100 ebd4be43cc945e643f91d3a91007b5a35bbbd5a1 doc: add release notes for 20867
+v  2021-04-28 10:27:50 +0100 54549dda310e2becee9cb4997d1408a90e91934f fuzz: RPC fuzzer post-merge follow-ups. Remove unused includes. Update list of fuzzed RPC commands.
+pr 2021-04-28 18:57:52 +0100 328da3355787e76184d6bb16e6cf04eca760cbc6 Merge bitcoin-core/gui#18: Add peertablesortproxy module
+v  2021-04-28 19:52:29 +0100 fae2c8bc54e6c0fe69a82bd1b232c52edd1acd34 fuzz: Allow to pass min/max to ConsumeTime
+v  2021-04-28 19:53:50 +0100 fab646b8ea293bb2b03707c6ef6790982625e492 fuzz: Use correct variant of ConsumeRandomLengthString instead of hardcoding a maximum size
+v  2021-04-28 19:54:07 +0100 fa61ce5cf5c1d73d352173806571bcd7799ed2ee fuzz: Limit mocktime to MTP in tx_pool targets
+pr 2021-04-28 20:13:44 +0100 4cfe6c37d956be58e6228f50833d25b84aafe55a Merge bitcoin/bitcoin#18847: compressor: use a prevector in CompressScript serialization [ZAP1]
+cr 2021-04-28 23:58:11 +0100 3bccd50ad2f384e6c8c97c7f44bda7ae0d777696 qt: Set flag after inital load on transaction table model
+cr 2021-04-29 00:18:19 +0100 c6cbdf1a90a253fef0259b365a782bf88cd437f2 qt: Refactor ShowProgress to DispatchNotifications
+cr 2021-04-29 00:18:55 +0100 57785fb7f61e51e8a8a459486a594443665ea8c9 qt: Early subscribe core signals in transaction table model
+cr 2021-04-29 00:18:55 +0100 cafef080a2e59c2bcae6baeee3c3c7e187e931ae qt: Refactor to remove unnecessary block in DispatchNotifications
+pr 2021-04-29 02:12:15 +0100 2cbb4ab7a92a281d7d7b4821654515dd59383ff3 Merge bitcoin/bitcoin#21658: build: fix make deploy for arm64-darwin
+pr 2021-04-29 03:08:27 +0100 7f37a1d560a86aa0a4397c3dcdaa974337594c00 Merge bitcoin/bitcoin#21785: test: Fix intermittent issue in p2p_addr_relay.py
+pr 2021-04-29 06:13:49 +0100 fb66dbe786ff3028d8f2b0be503ddd3b36541798 Merge bitcoin/bitcoin#21762: test: Speed up mempool_spend_coinbase.py
+v  2021-04-29 06:17:32 +0100 fa5f938cfe4264054e9017fbe710c81e7b3bb150 test: Remove new_tx reference
+v  2021-04-29 06:17:36 +0100 fa5591d38cfc917235a3dffd61c36dbf1f781a4d test: Hide tx rehash in helper
+cr 2021-04-29 06:18:28 +0100 fa066f1b66ab75e6c88e11922bbd085c9d3211de test: Run feature_cltv with MiniWallet
+v  2021-04-29 09:17:56 +0100 a33bdb52d192d3e1f4697c98d0e80b2fa2bbe53a [tests] Speed up p2p_segwit.py
+v  2021-04-29 10:38:18 +0100 fa098713201a6999ec4c12d0a8bde0adcf47b095 refactor: Avoid sign-compare compiler warning in util/asmap
+v  2021-04-29 10:40:45 +0100 cf971c9ea0e8637d36a7ab8b7b8804d9b89f1d9a build: use -isysroot over --sysroot on macOS
+pr 2021-04-29 11:13:29 +0100 1daca9f9a9d026bcc6f2f8aa80348992e1f716e5 Merge bitcoin/bitcoin#21738: test: Use clang-12 for ASAN, Add missing suppression
+pr 2021-04-29 11:47:18 +0100 a7a193789eea669d207a8ba8e447c4458b2814fe Merge bitcoin/bitcoin#21804: [tests] Speed up p2p_segwit.py
+pr 2021-04-29 11:56:49 +0100 16d0051c6a55858e81df346990893d8c3e014635 Merge bitcoin/bitcoin#21688: doc: note on SDK for macOS depends cross-compile
+v  2021-04-29 12:02:33 +0100 faecb72c3ca744f1adb77bd910c643cedec3b445 test: Fix intermittent issue in p2p_segwit.py
+cr 2021-04-29 12:03:12 +0100 fad6269916dbf8adc14d757a18f19c74e95cf659 test: Assert that exit code indicates failure
+pr 2021-04-29 15:18:28 +0100 d9ae6ec8929e739187740baab206daa55cde61d1 Merge bitcoin/bitcoin#21759: wallet: document coin selection code
+cr 2021-04-29 16:39:01 +0100 a508f718f3e087c96a306399582a85df2e1d53ae refactor: Use appropriate thread constructor
+cr 2021-04-29 16:39:31 +0100 792be53d3e9e366b9f6aeee7a1eeb912fa28062e refactor: Replace std::bind with lambdas
+v  2021-04-29 19:40:25 +0100 5252f86eb616a1112e427c268c8e8825f2a63d67 fuzz: Reduce maintenance requirements by allowing RPC annotations also for conditionally available RPC commands (such as wallet commands) without the fragility of #ifdef forests
+pr 2021-04-29 19:44:24 +0100 40310f5e8cd783a8114dc07224b435497bae6817 Merge bitcoin/bitcoin#21792: test: Fix intermittent issue in p2p_segwit.py
+pr 2021-04-29 21:14:34 +0100 298fd02e4a34666f049a02b63381692cde636658 Merge bitcoin/bitcoin#21045: build: adds switch to enable/disable randomized base address in MSVC builds
+pr 2021-04-29 21:47:11 +0100 e1e1e708fa0fbc0c51460305da5d401ed8f218f3 Merge bitcoin-core/gui#125: Enable changing the autoprune block space size in intro dialog
+cr 2021-04-29 22:00:44 +0100 cdbc2bd1f1c171848c1fef7f217afe140e1afb06 qt: Use template function qOverload in signal-slot connections
+v  2021-04-30 01:00:58 +0100 46b025e00df40724175735eb5606ac73067cb3b8 test: add new python linter to check file names and permissions
+pr 2021-04-30 06:51:53 +0100 480bf01c295527bd212964efe4df3bb886db5654 Merge bitcoin-core/gui#300: Remove progress bar on modal overlay
+pr 2021-04-30 07:33:07 +0100 faeabef4f386009847a0f91041d44e6f31eec618 ci: Enable D_GLIBCXX_DEBUG for multiprocess task
+
+
+
+
+
 
 
 
