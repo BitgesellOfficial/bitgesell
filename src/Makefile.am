@@ -720,7 +720,18 @@ BGL_wallet_SOURCES += init/BGL-wallet.cpp
 BGL_wallet_CPPFLAGS = $(BGL_bin_cppflags)
 BGL_wallet_CXXFLAGS = $(BGL_bin_cxxflags)
 BGL_wallet_LDFLAGS = $(BGL_bin_ldflags)
-BGL_wallet_LDADD = $(LIBBGL_WALLET_TOOL) $(BGL_bin_ldadd)
+BGL_wallet_LDADD = \
+  $(LIBBGL_WALLET_TOOL) \
+  $(LIBBGL_WALLET) \
+  $(LIBBGL_COMMON) \
+  $(LIBBGL_UTIL) \
+  $(LIBUNIVALUE) \
+  $(LIBBGL_CONSENSUS) \
+  $(LIBBGL_CRYPTO) \
+  $(LIBSECP256K1) \
+  $(BOOST_LIBS) \
+  $(BDB_LIBS) \
+  $(SQLITE_LIBS)
 
 if TARGET_WINDOWS
 BGL_wallet_SOURCES += BGL-wallet-res.rc
