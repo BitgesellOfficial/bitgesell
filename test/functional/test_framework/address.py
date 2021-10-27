@@ -10,7 +10,6 @@
 
 import enum
 import unittest
-
 from .script import (
     CScript,
     OP_0,
@@ -56,6 +55,21 @@ def create_deterministic_address_bcrt1_p2tr_op_true():
     """
     internal_key = (1).to_bytes(32, 'big')
     address = output_key_to_p2tr(taproot_construct(internal_key, [(None, CScript([OP_TRUE]))]).output_pubkey)
+    assert_equal(address, 'rbgl1p9yfmy5h72durp7zrhlw9lf7jpwjgvwdg0jr0lqmmjtgg83266lqsylg5sy')
+    return (address, internal_key)
+
+
+def create_deterministic_address_bcrt1_p2tr_op_true():
+    """
+    Generates a deterministic bech32m address (segwit v1 output) that
+    can be spent with a witness stack of OP_TRUE and the control block
+    with internal public key (script-path spending).
+
+    Returns a tuple with the generated address and the internal key.
+    """
+    internal_key = (1).to_bytes(32, 'big')
+    scriptPubKey = taproot_construct(internal_key, [(None, CScript([OP_TRUE]))]).scriptPubKey
+    address = encode_segwit_address("rbgl", 1, scriptPubKey[2:])
     assert_equal(address, 'rbgl1p9yfmy5h72durp7zrhlw9lf7jpwjgvwdg0jr0lqmmjtgg83266lqsylg5sy')
     return (address, internal_key)
 
