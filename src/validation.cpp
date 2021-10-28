@@ -588,6 +588,9 @@ private:
     // in-mempool conflicts; see below).
     size_t m_limit_descendants;
     size_t m_limit_descendant_size;
+
+    /** Whether the transaction(s) would replace any mempool transactions. If so, RBF rules apply. */
+    bool m_rbf{false};
 };
 
 bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
@@ -830,7 +833,7 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
 
     m_rbf = !setConflicts.empty();
     if (m_rbf) {
-        CFeeRate newFeeRate(nModifiedFees, ws.m_vsize);
+        CFeeRate newFeeRate(nModifiedFees, nSize);
         // It's possible that the replacement pays more fees than its direct conflicts but not more
         // than all conflicts (i.e. the direct conflicts have high-fee descendants). However, if the
         // replacement doesn't pay more fees than its direct conflicts, then we can be sure it's not
