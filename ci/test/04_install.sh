@@ -88,7 +88,7 @@ if [[ $HOST == *-apple-* ]]; then
 else
   DOCKER_EXEC free -m -h
   DOCKER_EXEC echo "Number of CPUs \(nproc\):" \$\(nproc\)
-  DOCKER_EXEC echo $(lscpu | grep Endian)
+  DOCKER_EXEC echo "$(lscpu | grep Endian)"
 fi
 DOCKER_EXEC echo "Free disk space:"
 DOCKER_EXEC df -h
