@@ -6,12 +6,10 @@
 
 export LC_ALL=C
 
-if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then
-  # TRAVIS_BRANCH will be present in a Travis environment. For builds triggered
-  # by a pull request this is the name of the branch targeted by the pull request.
-  # https://docs.travis-ci.com/user/environment-variables/
-  COMMIT_RANGE="$TRAVIS_BRANCH..HEAD"
-  test/lint/commit-script-check.sh $COMMIT_RANGE
+GIT_HEAD=$(git rev-parse HEAD)
+if [ -n "$CIRRUS_PR" ]; then
+  COMMIT_RANGE="${CIRRUS_BASE_SHA}..$GIT_HEAD"
+  test/lint/commit-script-check.sh "$COMMIT_RANGE"
 fi
 
 test/lint/git-subtree-check.sh src/crypto/ctaes
@@ -32,4 +30,9 @@ if [ "$CIRRUS_REPO_FULL_NAME" = "BGL/BGL" ] && [ "$CIRRUS_PR" = "" ] ; then
     git log HEAD~10 -1 --format='%H' > ./contrib/verify-commits/trusted-git-root
     ${CI_RETRY_EXE}  gpg --keyserver hkps://keys.openpgp.org --recv-keys $(<contrib/verify-commits/trusted-keys) &&
     ./contrib/verify-commits/verify-commits.py;
+fi
+
+if [ -n "$COMMIT_RANGE" ]; then
+  echo
+  git log --no-merges --oneline "$COMMIT_RANGE"
 fi
