@@ -194,7 +194,7 @@ class BlockchainTest(BGLTestFramework):
                         'count': HEIGHT - 143,
                         'possible': True,
                     },
-                    'min_activation_height': 0,
+                    'signalling': '#'*(height-143),
                 },
                 'active': False
             },
