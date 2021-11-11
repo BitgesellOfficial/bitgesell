@@ -8767,6 +8767,80 @@ pr 2021-10-22 15:26:48 +0100 a1d55ced099f97e6bf6a2527627826797ed05bcb Merge bitc
 pr 2021-10-22 16:16:58 +0100 224e90d9fdf895d3ee212edcf7dec3eb4d94ce91 Merge bitcoin/bitcoin#23336: refactor: Make GenTxid boolean constructor private
 pr 2021-10-22 21:50:20 +0100 bdbefdcd5cce6d95896d7fcd25df49bfe2984af5 Merge bitcoin-core/gui#454: Use only Qt translation primitives in GUI code
 pr 2021-10-23 02:42:53 +0100 04437ee721e66a7b76bef5ec2f88dd1efcd03b84 Merge bitcoin/bitcoin#23215: ci: Add vcpkg tools cache
+v  2021-10-22 22:49:43 +0100 a52f1d13409e4ef46277596ec13fa8b421fa1329 walletdb: Use SQLiteDatabase for mock wallet databases
+v  2021-10-22 22:49:43 +0100 a78c2298080f173d0266e708267458a72eb2f600 tests: Place into mapWallet in coinselector_tests
+v  2021-10-25 08:12:19 +0100 96461989a2de737151bc4fb216221bf49cb53ce6 refactor: const shared_ptrs
+v  2021-10-25 08:12:21 +0100 54011e7aa274bdc1b921440cc8b4623aa1e0d89e refactor: use CWallet const shared pointers when possible
+pr 2021-10-25 12:28:38 +0100 b9cf505bdfade074f3d2b0473d56d2cbc2711cb3 Merge bitcoin/bitcoin#23338: tests: speed up coinselector_tests
+pr 2021-10-25 13:53:40 +0100 49e40f5704db5e59fef834cac5d6b5395c75b091 Merge bitcoin/bitcoin#22711: test: check for specific block reject reasons in p2p_segwit.py
+pr 2021-10-25 14:21:27 +0100 1847ce2d49e13f76824bb6b52985e8ef5fbcd1db Merge bitcoin/bitcoin#23157: txmempool -/-> validation 1/2: improve performance of check() and remove dependency on validation
+pr 2021-10-25 14:24:00 +0100 beb45b8b141f8b3ebaa4ea8cb2f35f9ba03efbaf Merge bitcoin/bitcoin#23311: wallet: Use PACKAGE_NAME to mention our software
+pr 2021-10-25 14:32:27 +0100 d565d9b56daecb9381ad602fe404f877edd6a0b5 Merge bitcoin/bitcoin#23312: tests: reduce feature_segwit.py usage of the legacy wallet
+pr 2021-10-25 15:44:17 +0100 22a90186496aea8025316bc5616905ffcf1aeb29 Merge bitcoin/bitcoin#23306: Make AddrMan support multiple ports per IP
+cr 2021-10-25 15:44:17 +0100 26a50ab322614bceb5bc62e2c282f83e5987bad8 refactor: Split InterpretOption into Interpret{Key,Value} functions
+v  2021-10-25 15:44:17 +0100 b8c069b7a952e326d2d974cc671889d1a3b38aa4 refactor: Add explicit DISALLOW_NEGATION ArgsManager flag to clarify flag usage
+cr 2021-10-25 15:44:17 +0100 c5d7e34bd9a4ad752c5ec88032420e2e90ab17ab scripted-diff: disable unimplemented ArgsManager BOOL/INT/STRING flags
+v  2021-10-25 18:48:21 +0100 d891ae768185b464cae476c16c74c365372d4a3c Introduce new V4 format addrman
+pr 2021-10-26 13:50:15 +0100 af4275e8dbde0fd85b590175f1e932164762d741 Merge bitcoin/bitcoin#23332: doc: Fix CWalletTx::Confirmation doc
+cr 2021-10-26 13:51:18 +0100 4718897ce3a7c728ff7aebbadabcc8ed7a0b8d6e test: add script_util helper for creating bare multisig scripts
+pr 2021-10-26 15:54:52 +0100 e77d9679fd0c6ad3be997e6160ccdbfc11ac7be7 Merge bitcoin/bitcoin#23006: multiprocess: Add new bitcoin-gui, bitcoin-qt, bitcoin-wallet init implementations
+v  2021-10-27 09:41:03 +0100 96c7db9373014ce232ab01d11333650c9ddf9ee5 test: Add ios_base::width tsan suppression
+pr 2021-10-27 11:49:01 +0100 ab25ef8c7f767258d5fe44f53b35ad8bd51ed5cd Merge bitcoin/bitcoin#23305: test: refactor: add `script_util` helper for creating bare multisig scripts
+v  2021-10-27 16:49:53 +0100 d2c4904ef707e2023ceb8dfbfe61a92c4060e100 test: MiniWallet: more deterministic coin selection for coinbase UTXOs (oldest first)
+v  2021-10-28 12:51:19 +0100 e58598e833d5737900fe3c4369e26f2a08166892 [addrman] Add doxygen comment to AddrMan::Add()
+v  2021-10-28 12:52:27 +0100 2658eb6d68460272deefb3fcc653b03f6ec6e7cf [addrman] Rename Add_() to AddSingle()
+cr 2021-10-28 13:32:47 +0100 11115169a14d0d0be5b7b1c3f6fdc9673a9098d9 ci: Build fuzz with libsqlite3-dev
+v  2021-10-28 14:00:21 +0100 2095df7b7bfcb9ab0c5710a93112f7f341e753c9 [addrman] Add Add_() inner function, fix Add() return semantics
+cr 2021-10-28 14:01:40 +0100 61ec0539b26a902a41a2602187a71f9dba3c6935 [MOVEONLY] reorder functions in addrman_impl.h and addrman.cpp
+v  2021-10-28 15:57:26 +0100 0a79eaba729e60a83b0e604e6a18e9ba1ca1bc88 [validation] case-based constructors for ATMPArgs
+v  2021-10-28 15:58:53 +0100 cbb3598b5ce2bea58a8cb1ad2167d7d1d079acf7 [validation/refactor] store precomputed txdata in workspace
+cr 2021-10-28 15:58:54 +0100 36a8441912bf84b4da9c74826dcd42533d8abaaa [validation/rpc] cache + use vsize calculated in PreChecks
+cr 2021-10-28 15:58:54 +0100 8fa2936b34fda9c0bea963311fa80a04b4bf5867 [validation] re-introduce bool for whether a transaction is RBF
+pr 2021-10-29 09:52:37 +0100 baa9fc941cac76b35630da16d77fa2a8b0cc1755 Merge bitcoin/bitcoin#22787: refactor: actual immutable pointing
+pr 2021-10-29 11:33:04 +0100 c426e0dc6f051b4020a6eef1fd815f430fec4832 Merge bitcoin/bitcoin#22972: test: fix misleading fee unit in mempool_limit.py
+pr 2021-10-29 11:55:51 +0100 8bac3b1096410960c19957b16c544058726b51cc Merge bitcoin/bitcoin#23375: test: MiniWallet: more deterministic coin selection for coinbase UTXOs (oldest first)
+pr 2021-10-29 12:13:03 +0100 5574881ce329f91cc5bbc2b9585860a45fde7c3c Merge bitcoin/bitcoin#23354: Introduce new V4 format addrman
+cr 2021-10-29 12:34:52 +0100 facc352648e4fe1ed9b406400b6e4a9d51f30349 test: Implicitly sync after generate*, unless opted out
+v  2021-10-29 15:36:32 +0100 9ba7c44265a47880585e39d0167d057ba935ff16 refactor: get wallet path relative to wallet_dir
+pr 2021-10-30 08:20:27 +0100 7efc628539573af4b4a76d93b853cc46e9e52eae Merge bitcoin/bitcoin#23385: refactor: get wallet path relative to wallet_dir
+v  2021-10-31 12:48:00 +0100 68018e4c3e76f7e5bebf5f90ffd972c7bf01e0a0 test: Avoid excessive locking of `cs_wallet`
+v  2021-10-31 12:48:00 +0100 7986faf2e09ea85b1d4564ce910f07a4c4de8685 test: Fix segfault in the psbt_wallet_tests/psbt_updater_test
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
