@@ -112,12 +112,28 @@ include builders/$(build_os).mk
 include builders/default.mk
 include packages/packages.mk
 
-full_env=$(shell printenv)
-
-build_id_string:=$(BUILD_ID_SALT)
-
-# GCC only prints COLLECT_LTO_WRAPPER when invoked with just "-v", but we want
-# the information from "-v -E -" as well, so just include both.
+# Previously, we directly invoked the well-known programs using $(shell ...)
+# to construct build_id_string. However, that was problematic because:
+#
+# 1. When invoking a shell, GNU Make special-cases exit code 127 (command not
+#    found) by not capturing the output but instead passing it through. This is
+#    not done for any other exit code.
+#
+# 2. Characters like '#' (from these programs' output) would end up in make
+#    variables like build_id_string, which would be wrongly interpreted by make
+#    when these variables were used.
+#
+# Therefore, we should avoid having arbitrary strings in make variables where
+# possible. The gen_id script used here hashes the output to construct a
+# "make-safe" id.
+#
+# Also note that these lines need to be:
+#
+#     1. After including {hosts,builders}/*.mk, since they rely on the tool
+#        variables (e.g. build_CC, host_STRIP, etc.) to be set.
+#
+#     2. Before including packages/*.mk (excluding packages/packages.mk), since
+#        they rely on the build_id variables
 #
 # '3>&1 1>&2 2>&3 > /dev/null' is supposed to swap stdin and stdout and silence
 # stdin, since we only want the stderr output
