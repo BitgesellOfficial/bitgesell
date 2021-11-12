@@ -1474,13 +1474,24 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
                 break;
             }
         } else {
-            uiInterface.InitMessage(_("Verifying blocks…").translated);
-            auto rv2 = VerifyLoadedChainstate(chainman,
-                                              fReset,
-                                              fReindexChainState,
-                                              chainparams,
-                                              args.GetIntArg("-checkblocks", DEFAULT_CHECKBLOCKS),
-                                              args.GetIntArg("-checklevel", DEFAULT_CHECKLEVEL));
+            std::optional<ChainstateLoadVerifyError> rv2;
+            try {
+                uiInterface.InitMessage(_("Verifying blocks…").translated);
+                auto check_blocks = args.GetIntArg("-checkblocks", DEFAULT_CHECKBLOCKS);
+                if (fHavePruned && check_blocks > MIN_BLOCKS_TO_KEEP) {
+                    LogPrintf("Prune: pruned datadir may not have more than %d blocks; only checking available blocks\n",
+                              MIN_BLOCKS_TO_KEEP);
+                }
+                rv2 = VerifyLoadedChainstate(chainman,
+                                             fReset,
+                                             fReindexChainState,
+                                             chainparams,
+                                             check_blocks,
+                                             args.GetIntArg("-checklevel", DEFAULT_CHECKLEVEL));
+            } catch (const std::exception& e) {
+                LogPrintf("%s\n", e.what());
+                rv2 = ChainstateLoadVerifyError::ERROR_GENERIC_FAILURE;
+            }
             if (rv2.has_value()) {
                 switch (rv2.value()) {
                 case ChainstateLoadVerifyError::ERROR_BLOCK_FROM_FUTURE:
