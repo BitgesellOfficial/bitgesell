@@ -104,3 +104,4 @@ template <typename T1, size_t PREFIX_LEN>
 }
 
 #endif // BGL_UTIL_STRENCODINGS_H
+

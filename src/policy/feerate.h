@@ -67,3 +67,4 @@ public:
 };
 
 #endif //  BGL_POLICY_FEERATE_H
+

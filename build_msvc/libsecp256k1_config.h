@@ -30,3 +30,4 @@
 #define ECMULT_WINDOW_SIZE 15
 
 #endif /* BGL_LIBSECP256K1_CONFIG_H */
+

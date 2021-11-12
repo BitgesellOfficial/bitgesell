@@ -32,4 +32,4 @@ bool ShutdownRequested();
  */
 void WaitForShutdown();
 
-#endif
+#endif // BGL_SHUTDOWN_H

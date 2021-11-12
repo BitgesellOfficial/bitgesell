@@ -21,3 +21,4 @@ void SetfLargeWorkInvalidChainFound(bool flag);
 bilingual_str GetWarnings(bool verbose);
 
 #endif //  BGL_WARNINGS_H
+

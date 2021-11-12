@@ -146,4 +146,4 @@ public:
     size_t CallbacksPending();
 };
 
-#endif
+#endif // BGL_SCHEDULER_H
