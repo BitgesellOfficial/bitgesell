@@ -31,6 +31,7 @@
 
 using interfaces::FoundBlock;
 
+namespace wallet {
 std::string static EncodeDumpString(const std::string &str) {
     std::stringstream ret;
     for (const unsigned char c : str) {
@@ -1901,3 +1902,4 @@ RPCHelpMan restorewallet()
 },
     };
 }
+} // namespace wallet

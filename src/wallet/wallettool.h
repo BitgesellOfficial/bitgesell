@@ -7,11 +7,13 @@
 
 #include <wallet/wallet.h>
 
+namespace wallet {
 namespace WalletTool {
 
 void WalletShowInfo(CWallet* wallet_instance);
 bool ExecuteWalletToolFunc(const ArgsManager& args, const std::string& command);
 
 } // namespace WalletTool
+} // namespace wallet
 
 #endif // BGL_WALLET_WALLETTOOL_H
