@@ -171,6 +171,7 @@ BGL_CORE_H = \
   memusage.h \
   merkleblock.h \
   miner.h \
+  node/minisketchwrapper.h \
   net.h \
   net_permissions.h \
   net_processing.h \
@@ -338,6 +339,7 @@ libBGL_server_a_SOURCES = \
   init.cpp \
   mapport.cpp \
   miner.cpp \
+  node/minisketchwrapper.cpp \
   net.cpp \
   net_processing.cpp \
   node/blockstorage.cpp \
