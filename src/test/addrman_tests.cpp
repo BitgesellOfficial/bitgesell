@@ -94,14 +94,14 @@ public:
     // Simulates connection failure so that we can test eviction of offline nodes
     void SimConnFail(const CService& addr)
     {
-         int64_t nLastSuccess = 1;
-         // Set last good connection in the deep past.
-         Good(addr, nLastSuccess);
+        int64_t nLastSuccess = 1;
+        // Set last good connection in the deep past.
+        Good(addr, nLastSuccess);
 
-         bool count_failure = false;
-         int64_t nLastTry = GetAdjustedTime()-61;
-         Attempt(addr, count_failure, nLastTry);
-     }
+        bool count_failure = false;
+        int64_t nLastTry = GetAdjustedTime() - 61;
+        Attempt(addr, count_failure, nLastTry);
+    }
 };
 
 static CNetAddr ResolveIP(const std::string& ip)
@@ -119,7 +119,8 @@ static CService ResolveService(const std::string& ip, uint16_t port = 0)
 }
 
 
-static std::vector<bool> FromBytes(const unsigned char* source, int vector_size) {
+static std::vector<bool> FromBytes(const unsigned char* source, int vector_size)
+{
     std::vector<bool> result(vector_size);
     for (int byte_i = 0; byte_i < vector_size / 8; ++byte_i) {
         unsigned char cur_byte = source[byte_i];
@@ -275,15 +276,15 @@ BOOST_AUTO_TEST_CASE(addrman_new_collisions)
 
     BOOST_CHECK_EQUAL(addrman.size(), num_addrs);
 
-    while (num_addrs < 22) {  // Magic number! 250.1.1.1 - 250.1.1.22 do not collide with deterministic key = 1
+    while (num_addrs < 22) { // Magic number! 250.1.1.1 - 250.1.1.22 do not collide with deterministic key = 1
         CService addr = ResolveService("250.1.1." + ToString(++num_addrs));
         BOOST_CHECK(addrman.Add({CAddress(addr, NODE_NONE)}, source));
 
-        //Test: No collision in new table yet.
+        // Test: No collision in new table yet.
         BOOST_CHECK_EQUAL(addrman.size(), num_addrs);
     }
 
-    //Test: new table collision!
+    // Test: new table collision!
     CService addr1 = ResolveService("250.1.1." + ToString(++num_addrs));
     uint32_t collisions{1};
     BOOST_CHECK(addrman.Add({CAddress(addr1, NODE_NONE)}, source));
@@ -304,16 +305,16 @@ BOOST_AUTO_TEST_CASE(addrman_tried_collisions)
 
     BOOST_CHECK_EQUAL(addrman.size(), num_addrs);
 
-    while (num_addrs < 64) {  // Magic number! 250.1.1.1 - 250.1.1.64 do not collide with deterministic key = 1
+    while (num_addrs < 64) { // Magic number! 250.1.1.1 - 250.1.1.64 do not collide with deterministic key = 1
         CService addr = ResolveService("250.1.1." + ToString(++num_addrs));
         BOOST_CHECK(addrman.Add({CAddress(addr, NODE_NONE)}, source));
         addrman.Good(CAddress(addr, NODE_NONE));
 
-        //Test: No collision in tried table yet.
+        // Test: No collision in tried table yet.
         BOOST_CHECK_EQUAL(addrman.size(), num_addrs);
     }
 
-    //Test: tried table collision!
+    // Test: tried table collision!
     CService addr1 = ResolveService("250.1.1." + ToString(++num_addrs));
     uint32_t collisions{1};
     BOOST_CHECK(addrman.Add({CAddress(addr1, NODE_NONE)}, source));
@@ -722,7 +723,6 @@ BOOST_AUTO_TEST_CASE(caddrinfo_get_new_bucket)
     // Test: IP addresses in the different source /16 prefixes sometimes map to NO MORE
     // than 1 bucket.
     BOOST_CHECK(buckets.size() == 1);
-
 }
 
 BOOST_AUTO_TEST_CASE(addrman_serialization)
@@ -843,7 +843,7 @@ BOOST_AUTO_TEST_CASE(addrman_selecttriedcollision)
     // Add twenty two addresses.
     CNetAddr source = ResolveIP("252.2.2.2");
     for (unsigned int i = 1; i < 23; i++) {
-        CService addr = ResolveService("250.1.1."+ToString(i));
+        CService addr = ResolveService("250.1.1." + ToString(i));
         BOOST_CHECK(addrman.Add({CAddress(addr, NODE_NONE)}, source));
         addrman.Good(addr);
 
@@ -854,13 +854,12 @@ BOOST_AUTO_TEST_CASE(addrman_selecttriedcollision)
 
     // Ensure Good handles duplicates well.
     for (unsigned int i = 1; i < 23; i++) {
-        CService addr = ResolveService("250.1.1."+ToString(i));
+        CService addr = ResolveService("250.1.1." + ToString(i));
         addrman.Good(addr);
 
         BOOST_CHECK(addrman.size() == 22);
         BOOST_CHECK(addrman.SelectTriedCollision().first.ToString() == "[::]:0");
     }
-
 }
 
 BOOST_AUTO_TEST_CASE(addrman_noevict)
@@ -870,7 +869,7 @@ BOOST_AUTO_TEST_CASE(addrman_noevict)
     // Add 35 addresses.
     CNetAddr source = ResolveIP("252.2.2.2");
     for (unsigned int i = 1; i < 36; i++) {
-        CService addr = ResolveService("250.1.1."+ToString(i));
+        CService addr = ResolveService("250.1.1." + ToString(i));
         BOOST_CHECK(addrman.Add({CAddress(addr, NODE_NONE)}, source));
         addrman.Good(addr);
 
@@ -893,7 +892,7 @@ BOOST_AUTO_TEST_CASE(addrman_noevict)
 
     // Lets create two collisions.
     for (unsigned int i = 37; i < 59; i++) {
-        CService addr = ResolveService("250.1.1."+ToString(i));
+        CService addr = ResolveService("250.1.1." + ToString(i));
         BOOST_CHECK(addrman.Add({CAddress(addr, NODE_NONE)}, source));
         addrman.Good(addr);
 
@@ -931,7 +930,7 @@ BOOST_AUTO_TEST_CASE(addrman_evictionworks)
     // Add 35 addresses
     CNetAddr source = ResolveIP("252.2.2.2");
     for (unsigned int i = 1; i < 36; i++) {
-        CService addr = ResolveService("250.1.1."+ToString(i));
+        CService addr = ResolveService("250.1.1." + ToString(i));
         BOOST_CHECK(addrman.Add({CAddress(addr, NODE_NONE)}, source));
         addrman.Good(addr);
 
