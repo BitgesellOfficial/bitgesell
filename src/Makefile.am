@@ -171,7 +171,6 @@ BGL_CORE_H = \
   memusage.h \
   merkleblock.h \
   miner.h \
-  node/minisketchwrapper.h \
   net.h \
   net_permissions.h \
   net_processing.h \
@@ -183,6 +182,7 @@ BGL_CORE_H = \
   node/coin.h \
   node/coinstats.h \
   node/context.h \
+  node/minisketchwrapper.h \
   node/psbt.h \
   node/transaction.h \
   node/ui_interface.h \
@@ -339,7 +339,6 @@ libBGL_server_a_SOURCES = \
   init.cpp \
   mapport.cpp \
   miner.cpp \
-  node/minisketchwrapper.cpp \
   net.cpp \
   net_processing.cpp \
   node/blockstorage.cpp \
@@ -347,6 +346,7 @@ libBGL_server_a_SOURCES = \
   node/coinstats.cpp \
   node/context.cpp \
   node/interfaces.cpp \
+  node/minisketchwrapper.cpp \
   node/psbt.cpp \
   node/transaction.cpp \
   node/ui_interface.cpp \
