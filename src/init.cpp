@@ -1427,7 +1427,7 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
         const int64_t load_block_index_start_time = GetTimeMillis();
         auto rv = LoadChainstate(fReset,
                                  chainman,
-                                 node,
+                                 Assert(node.mempool.get()),
                                  fPruneMode,
                                  chainparams,
                                  args,
