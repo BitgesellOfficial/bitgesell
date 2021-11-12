@@ -8,6 +8,8 @@
 #include <util/system.h>
 #include <validation.h>
 
+using node::OpenBlockFile;
+
 constexpr uint8_t DB_TXINDEX{'t'};
 
 std::unique_ptr<TxIndex> g_txindex;

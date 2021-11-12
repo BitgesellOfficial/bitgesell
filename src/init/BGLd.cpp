@@ -12,6 +12,8 @@
 
 #include <memory>
 
+using node::NodeContext;
+
 namespace init {
 namespace {
 class BGLdInit : public interfaces::Init
