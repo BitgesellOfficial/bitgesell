@@ -173,7 +173,13 @@ class BlockchainTest(BGLTestFramework):
         assert_equal(res['prune_target_size'], 576716800)
         assert_greater_than(res['size_on_disk'], 0)
 
-        assert_equal(res['softforks'], {
+    def check_signalling_deploymentinfo_result(self, gdi_result, height, blockhash, status_next):
+        assert height >= 144 and height <= 287
+
+        assert_equal(gdi_result, {
+          "hash": blockhash,
+          "height": height,
+          "deployments": {
             'bip34': {'type': 'buried', 'active': True, 'height': 2},
             'bip66': {'type': 'buried', 'active': True, 'height': 3},
             'bip65': {'type': 'buried', 'active': True, 'height': 4},
