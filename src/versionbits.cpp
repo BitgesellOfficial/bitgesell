@@ -105,30 +105,23 @@ BIP9Stats AbstractThresholdConditionChecker::GetStateStatisticsFor(const CBlockI
     stats.period = Period(params);
     stats.threshold = Threshold(params);
 
-    if (pindex == nullptr)
-        return stats;
+    if (pindex == nullptr) return stats;
 
     // Find beginning of period
-    int blocks_in_period = 1 + (pindex->nHeight % stats.period);
-
-    // Reset signalling_blocks
-    if (signalling_blocks) {
-        signalling_blocks->assign(blocks_in_period, false);
-    }
+    int start_height = pindex->nHeight - (pindex->nHeight % stats.period);
 
     // Count from current block to beginning of period
+    int elapsed = 0;
     int count = 0;
     const CBlockIndex* currentIndex = pindex;
-    do {
+    for(;;) {
         ++elapsed;
-        --blocks_in_period;
-        if (Condition(currentIndex, params)) {
-            ++count;
-            if (signalling_blocks) signalling_blocks->at(blocks_in_period) = true;
-        }
+        if (Condition(currentIndex, params)) ++count;
+        if (currentIndex->nHeight <= start_height) break;
         currentIndex = currentIndex->pprev;
     } while(blocks_in_period > 0);
 
+    stats.elapsed = elapsed;
     stats.count = count;
     stats.possible = (stats.period - stats.threshold ) >= (stats.elapsed - count);
 
@@ -204,9 +197,9 @@ ThresholdState VersionBitsCache::State(const CBlockIndex* pindexPrev, const Cons
     return VersionBitsConditionChecker(pos).GetStateFor(pindexPrev, params, m_caches[pos]);
 }
 
-BIP9Stats VersionBitsCache::Statistics(const CBlockIndex* pindex, const Consensus::Params& params, Consensus::DeploymentPos pos, std::vector<bool>* signalling_blocks)
+BIP9Stats VersionBitsCache::Statistics(const CBlockIndex* pindex, const Consensus::Params& params, Consensus::DeploymentPos pos)
 {
-    return VersionBitsConditionChecker(pos).GetStateStatisticsFor(pindex, params, signalling_blocks);
+    return VersionBitsConditionChecker(pos).GetStateStatisticsFor(pindex, params);
 }
 
 int VersionBitsCache::StateSinceHeight(const CBlockIndex* pindexPrev, const Consensus::Params& params, Consensus::DeploymentPos pos)

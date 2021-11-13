@@ -51,7 +51,7 @@ public:
 
     ThresholdState GetStateFor(const CBlockIndex* pindexPrev) const { return AbstractThresholdConditionChecker::GetStateFor(pindexPrev, dummy_params, m_cache); }
     int GetStateSinceHeightFor(const CBlockIndex* pindexPrev) const { return AbstractThresholdConditionChecker::GetStateSinceHeightFor(pindexPrev, dummy_params, m_cache); }
-    BIP9Stats GetStateStatisticsFor(const CBlockIndex* pindex, std::vector<bool>* signals=nullptr) const { return AbstractThresholdConditionChecker::GetStateStatisticsFor(pindex, dummy_params, signals); }
+    BIP9Stats GetStateStatisticsFor(const CBlockIndex* pindex) const { return AbstractThresholdConditionChecker::GetStateStatisticsFor(pindex, dummy_params); }
 
     bool Condition(int32_t version) const
     {
@@ -227,7 +227,6 @@ FUZZ_TARGET_INIT(versionbits, initialize)
     last_stats.threshold = threshold;
     last_stats.count = last_stats.elapsed = 0;
     last_stats.possible = (period >= threshold);
-    std::vector<bool> last_signals{};
 
     int prev_next_height = (prev == nullptr ? 0 : prev->nHeight + 1);
     assert(exp_since <= prev_next_height);
@@ -247,9 +246,6 @@ FUZZ_TARGET_INIT(versionbits, initialize)
         const int since = checker.GetStateSinceHeightFor(current_block);
         assert(state == exp_state);
         assert(since == exp_since);
-
-        // GetStateStatistics may crash when state is not STARTED
-        if (state != ThresholdState::STARTED) continue;
 
         // check that after mining this block stats change as expected
         std::vector<bool> signals;
@@ -283,14 +279,12 @@ FUZZ_TARGET_INIT(versionbits, initialize)
     CBlockIndex* current_block = blocks.mine_block(signal);
     assert(checker.Condition(current_block) == signal);
 
-    // GetStateStatistics is safe on a period boundary
-    // and has progressed to a new period
     const BIP9Stats stats = checker.GetStateStatisticsFor(current_block);
     assert(stats.period == period);
     assert(stats.threshold == threshold);
-    assert(stats.elapsed == 0);
-    assert(stats.count == 0);
-    assert(stats.possible == true);
+    assert(stats.elapsed == period);
+    assert(stats.count == blocks_sig);
+    assert(stats.possible == (stats.count + period >= stats.elapsed + threshold));
 
     // More interesting is whether the state changed.
     const ThresholdState state = checker.GetStateFor(current_block);
