@@ -95,7 +95,7 @@ but these will install Berkeley DB 5.1 or later. This will break binary wallet c
 executables, which are based on BerkeleyDB 4.8. If you do not care about wallet compatibility, pass
 `--with-incompatible-bdb` to configure. Otherwise, you can build Berkeley DB [yourself](#berkeley-db).
 
-To build Bitcoin Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mode)
+To build Bitgesell Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mode)
 
 Optional port mapping libraries (see: `--with-miniupnpc`, `--enable-upnp-default`, and `--with-natpmp`, `--enable-natpmp-default`):
 
@@ -156,7 +156,7 @@ Berkeley DB 5.3 or later. This will break binary wallet compatibility with the d
 are based on Berkeley DB 4.8. If you do not care about wallet compatibility,
 pass `--with-incompatible-bdb` to configure. Otherwise, you can build Berkeley DB [yourself](#berkeley-db).
 
-To build Bitcoin Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mode)
+To build Bitgesell Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mode)
 
 Optional port mapping libraries (see: `--with-miniupnpc`, `--enable-upnp-default`, and `--with-natpmp`, `--enable-natpmp-default`):
 
@@ -172,7 +172,7 @@ User-Space, Statically Defined Tracing (USDT) dependencies:
 
 GUI dependencies:
 
-If you want to build bitcoin-qt, make sure that the required packages for Qt development
+If you want to build BGL-qt, make sure that the required packages for Qt development
 are installed. Qt 5 is necessary to build the GUI.
 To build without GUI pass `--without-gui`.
 
@@ -188,7 +188,7 @@ libqrencode (optional) can be installed with:
 
     sudo dnf install qrencode-devel
 
-Once these are installed, they will be found by configure and a bitcoin-qt executable will be
+Once these are installed, they will be found by configure and a BGL-qt executable will be
 built by default.
 
 Notes
@@ -232,7 +232,7 @@ like so:
 
 from the root of the repository.
 
-Otherwise, you can build Bitcoin Core from self-compiled [depends](/depends/README.md).
+Otherwise, you can build Bitgesell Core from self-compiled [depends](/depends/README.md).
 
 **Note**: You only need Berkeley DB if the wallet is enabled (see [*Disable-wallet mode*](#disable-wallet-mode)).
 
@@ -314,8 +314,8 @@ This example lists the steps necessary to setup and build a command line only, n
 Note:
 Enabling wallet support requires either compiling against a Berkeley DB newer than 4.8 (package `db`) using `--with-incompatible-bdb`,
 or building and depending on a local version of Berkeley DB 4.8. The readily available Arch Linux packages are currently built using
-`--with-incompatible-bdb` according to the [PKGBUILD](https://projects.archlinux.org/svntogit/community.git/tree/BGL/trunk/PKGBUILD).
-As mentioned above, when maintaining portability of the wallet between the standard BGL Core distributions and independently built
+`--with-incompatible-bdb` according to the [PKGBUILD](https://github.com/archlinux/svntogit-community/blob/packages/bitcoin/trunk/PKGBUILD).
+As mentioned above, when maintaining portability of the wallet between the standard Bitgesell Core distributions and independently built
 node software is desired, Berkeley DB 4.8 must be used.
 
 
