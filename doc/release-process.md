@@ -19,8 +19,8 @@ Release Process
 
 * On both the master branch and the new release branch:
   - update `CLIENT_VERSION_MAJOR` in [`configure.ac`](../configure.ac)
-  - update `CLIENT_VERSION_MAJOR`, `PACKAGE_VERSION`, and `PACKAGE_STRING` in [`build_msvc/BGL_config.h`](/build_msvc/BGL_config.h)
-* On the new release branch in [`configure.ac`](../configure.ac) and [`build_msvc/BGL_config.h`](/build_msvc/BGL_config.h) (see [this commit](https://github.com/bitcoin/bitcoin/commit/742f7dd)):
+* On the new release branch in [`configure.ac`](../configure.ac)(see [this commit](https://github.com/bitcoin/bitcoin/commit/742f7dd)):
+>>>>>>> 410f99faed... build_msvc/bitcoin_config.h is generated using build_msvc/msvc-autogen.py
   - set `CLIENT_VERSION_MINOR` to `0`
   - set `CLIENT_VERSION_BUILD` to `0`
   - set `CLIENT_VERSION_IS_RELEASE` to `true`
