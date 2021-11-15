@@ -124,8 +124,7 @@ class BIP65Test(BGLTestFramework):
 
         tip = self.nodes[0].getbestblockhash()
         block_time = self.nodes[0].getblockheader(tip)['mediantime'] + 1
-        block = create_block(int(tip, 16), create_coinbase(CLTV_HEIGHT - 1), block_time)
-        block.nVersion = 3
+        block = create_block(int(tip, 16), create_coinbase(CLTV_HEIGHT - 1), block_time, version=3)
         block.vtx.extend(invalid_cltv_txs)
         block.hashMerkleRoot = block.calc_merkle_root()
         block.solve()
@@ -138,8 +137,7 @@ class BIP65Test(BGLTestFramework):
         self.log.info("Test that blocks must now be at least version 4")
         tip = block.sha256
         block_time += 1
-        block = create_block(tip, create_coinbase(CLTV_HEIGHT), block_time)
-        block.nVersion = 3
+        block = create_block(tip, create_coinbase(CLTV_HEIGHT), block_time, version=3)
         block.solve()
 
         with self.nodes[0].assert_debug_log(expected_msgs=[f'{block.hash}, bad-version(0x00000003)']):
