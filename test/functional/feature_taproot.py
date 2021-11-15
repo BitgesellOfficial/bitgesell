@@ -97,8 +97,8 @@ from test_framework.address import (
     hash160,
     program_to_witness
 )
-
-from collections import namedtuple
+from collections import OrderedDict, namedtuple
+from enum import Enum
 from io import BytesIO
 import random
 
@@ -454,7 +454,7 @@ def spend(tx, idx, utxos, **kwargs):
 # Each spender is a tuple of:
 # - A scriptPubKey which is to be spent from (CScript)
 # - A comment describing the test (string)
-# - Whether the spending (on itself) is expected to be standard (bool)
+# - Whether the spending (on itself) is expected to be standard (Enum.Standard)
 # - A tx-signing lambda returning (scriptsig, witness_stack), taking as inputs:
 #   - A transaction to sign (CTransaction)
 #   - An input position (int)
@@ -466,8 +466,14 @@ def spend(tx, idx, utxos, **kwargs):
 # - Whether this test demands being placed in a txin with no corresponding txout (for testing SIGHASH_SINGLE behavior)
 
 Spender = namedtuple("Spender", "script,comment,is_standard,sat_function,err_msg,sigops_weight,no_fail,need_vin_vout_mismatch")
+# The full node versions that treat the tx standard.
+# ALL means any version
+# V23 means the major version 23.0 and any later version
+# NONE means no version
+Standard = Enum('Standard', 'ALL V23 NONE')
 
-def make_spender(comment, *, tap=None, witv0=False, script=None, pkh=None, p2sh=False, spk_mutate_pre_p2sh=None, failure=None, standard=True, err_msg=None, sigops_weight=0, need_vin_vout_mismatch=False, **kwargs):
+
+def make_spender(comment, *, tap=None, witv0=False, script=None, pkh=None, p2sh=False, spk_mutate_pre_p2sh=None, failure=None, standard=Standard.ALL, err_msg=None, sigops_weight=0, need_vin_vout_mismatch=False, **kwargs):
     """Helper for constructing Spender objects using the context signing framework.
 
     * tap: a TaprootInfo object (see taproot_construct), for Taproot spends (cannot be combined with pkh, witv0, or script)
@@ -477,12 +483,17 @@ def make_spender(comment, *, tap=None, witv0=False, script=None, pkh=None, p2sh=
     * p2sh: whether the output is P2SH wrapper (this is supported even for Taproot, where it makes the output unencumbered)
     * spk_mutate_pre_psh: a callable to be applied to the script (before potentially P2SH-wrapping it)
     * failure: a dict of entries to override in the context when intentionally failing to spend (if None, no_fail will be set)
-    * standard: whether the (valid version of) spending is expected to be standard
+    * standard: whether the (valid version of) spending is expected to be standard (True is mapped to Standard.ALL, False is mapped to Standard.NONE)
     * err_msg: a string with an expected error message for failure (or None, if not cared about)
     * sigops_weight: the pre-taproot sigops weight consumed by a successful spend
     * need_vin_vout_mismatch: whether this test requires being tested in a transaction input that has no corresponding
                               transaction output.
     """
+
+    if standard == True:
+        standard = Standard.ALL
+    elif standard == False:
+        standard = Standard.NONE
 
     conf = dict()
 
@@ -1168,12 +1179,12 @@ def spenders_taproot_inactive():
     tap = taproot_construct(pub, scripts)
 
     # Test that keypath spending is valid & non-standard, regardless of validity.
-    add_spender(spenders, "inactive/keypath_valid", key=sec, tap=tap, standard=False)
+    add_spender(spenders, "inactive/keypath_valid", key=sec, tap=tap, standard=Standard.V23)
     add_spender(spenders, "inactive/keypath_invalidsig", key=sec, tap=tap, standard=False, sighash=bitflipper(default_sighash))
     add_spender(spenders, "inactive/keypath_empty", key=sec, tap=tap, standard=False, witness=[])
 
     # Same for scriptpath spending (and features like annex, leaf versions, or OP_SUCCESS don't change this)
-    add_spender(spenders, "inactive/scriptpath_valid", key=sec, tap=tap, leaf="pk", standard=False, inputs=[getter("sign")])
+    add_spender(spenders, "inactive/scriptpath_valid", key=sec, tap=tap, leaf="pk", standard=Standard.V23, inputs=[getter("sign")])
     add_spender(spenders, "inactive/scriptpath_invalidsig", key=sec, tap=tap, leaf="pk", standard=False, inputs=[getter("sign")], sighash=bitflipper(default_sighash))
     add_spender(spenders, "inactive/scriptpath_invalidcb", key=sec, tap=tap, leaf="pk", standard=False, inputs=[getter("sign")], controlblock=bitflipper(default_controlblock))
     add_spender(spenders, "inactive/scriptpath_valid_unkleaf", key=sec, tap=tap, leaf="future_leaf", standard=False, inputs=[getter("sign")])
@@ -1183,6 +1194,44 @@ def spenders_taproot_inactive():
 
     return spenders
 
+# Consensus validation flags to use in dumps for tests with "legacy/" or "inactive/" prefix.
+LEGACY_FLAGS = "P2SH,DERSIG,CHECKLOCKTIMEVERIFY,CHECKSEQUENCEVERIFY,WITNESS,NULLDUMMY"
+# Consensus validation flags to use in dumps for all other tests.
+TAPROOT_FLAGS = "P2SH,DERSIG,CHECKLOCKTIMEVERIFY,CHECKSEQUENCEVERIFY,WITNESS,NULLDUMMY,TAPROOT"
+
+def dump_json_test(tx, input_utxos, idx, success, failure):
+    spender = input_utxos[idx].spender
+    # Determine flags to dump
+    flags = LEGACY_FLAGS if spender.comment.startswith("legacy/") or spender.comment.startswith("inactive/") else TAPROOT_FLAGS
+
+    fields = [
+        ("tx", tx.serialize().hex()),
+        ("prevouts", [x.output.serialize().hex() for x in input_utxos]),
+        ("index", idx),
+        ("flags", flags),
+        ("comment", spender.comment)
+    ]
+
+    # The "final" field indicates that a spend should be always valid, even with more validation flags enabled
+    # than the listed ones. Use standardness as a proxy for this (which gives a conservative underestimate).
+    if spender.is_standard == Standard.ALL:
+        fields.append(("final", True))
+
+    def dump_witness(wit):
+        return OrderedDict([("scriptSig", wit[0].hex()), ("witness", [x.hex() for x in wit[1]])])
+    if success is not None:
+        fields.append(("success", dump_witness(success)))
+    if failure is not None:
+        fields.append(("failure", dump_witness(failure)))
+
+    # Write the dump to $TEST_DUMP_DIR/x/xyz... where x,y,z,... are the SHA1 sum of the dump (which makes the
+    # file naming scheme compatible with fuzzing infrastructure).
+    dump = json.dumps(OrderedDict(fields)) + ",\n"
+    sha1 = hashlib.sha1(dump.encode("utf-8")).hexdigest()
+    dirname = os.environ.get("TEST_DUMP_DIR", ".") + ("/%s" % sha1[0])
+    os.makedirs(dirname, exist_ok=True)
+    with open(dirname + ("/%s" % sha1), 'w', encoding="utf8") as f:
+        f.write(dump)
 
 # Data type to keep track of UTXOs, where they were created, and how to spend them.
 UTXOData = namedtuple('UTXOData', 'outpoint,output,spender')
@@ -1415,8 +1464,13 @@ class TaprootTest(BGLTestFramework):
                 for i in range(len(input_utxos)):
                     tx.vin[i].scriptSig = input_data[i][i != fail_input][0]
                     tx.wit.vtxinwit[i].scriptWitness.stack = input_data[i][i != fail_input][1]
+                taproot_spend_policy = Standard.V23 if node.version is None else Standard.ALL
                 # Submit to mempool to check standardness
-                is_standard_tx = fail_input is None and all(utxo.spender.is_standard for utxo in input_utxos) and tx.nVersion >= 1 and tx.nVersion <= 2
+                is_standard_tx = (
+                    fail_input is None  # Must be valid to be standard
+                    and (all(utxo.spender.is_standard == Standard.ALL or utxo.spender.is_standard == taproot_spend_policy for utxo in input_utxos))  # All inputs must be standard
+                    and tx.nVersion >= 1  # The tx version must be standard
+                    and tx.nVersion <= 2)
                 tx.rehash()
                 msg = ','.join(utxo.spender.comment + ("*" if n == fail_input else "") for n, utxo in enumerate(input_utxos))
                 if is_standard_tx:
