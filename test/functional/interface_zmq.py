@@ -90,6 +90,7 @@ class ZMQTestSetupBlock:
 
 class ZMQTest (BGLTestFramework):
     def set_test_params(self):
+        self.setup()
         self.num_nodes = 2
         if self.is_wallet_compiled():
             self.requires_wallet = True
