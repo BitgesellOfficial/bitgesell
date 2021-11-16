@@ -339,17 +339,17 @@ def rpc_url(datadir, i, chain, rpchost):
 ################
 
 
-def initialize_datadir(dirname, n, chain):
+def initialize_datadir(dirname, n, chain, disable_autoconnect=True):
     datadir = get_datadir_path(dirname, n)
     if not os.path.isdir(datadir):
         os.makedirs(datadir)
-    write_config(os.path.join(datadir, "BGL.conf"), n=n, chain=chain)
+    write_config(os.path.join(datadir, "BGL.conf"), n=n, chain=chain, disable_autoconnect=disable_autoconnect)
     os.makedirs(os.path.join(datadir, 'stderr'), exist_ok=True)
     os.makedirs(os.path.join(datadir, 'stdout'), exist_ok=True)
     return datadir
 
 
-def write_config(config_path, *, n, chain, extra_config=""):
+def write_config(config_path, *, n, chain, extra_config="", disable_autoconnect=True):
     # Translate chain subdirectory name to config name
     if chain == 'testnet3':
         chain_name_conf_arg = 'testnet'
@@ -371,12 +371,19 @@ def write_config(config_path, *, n, chain, extra_config=""):
         f.write("dnsseed=0\n")
         f.write("fixedseeds=0\n")
         f.write("listenonion=0\n")
+        # Increase peertimeout to avoid disconnects while using mocktime.
+        # peertimeout is measured in wall clock time, so setting it to the
+        # duration of the longest test is sufficient. It can be overridden in
+        # tests.
+        f.write("peertimeout=999999\n")
         f.write("printtoconsole=0\n")
         f.write("upnp=0\n")
         f.write("natpmp=0\n")
         f.write("shrinkdebugfile=0\n")
         # To improve SQLite wallet performance so that the tests don't timeout, use -unsafesqlitesync
         f.write("unsafesqlitesync=1\n")
+        if disable_autoconnect:
+            f.write("connect=0\n")
         f.write(extra_config)
 
 
