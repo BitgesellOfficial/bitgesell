@@ -36,8 +36,8 @@ class TxnMallTest(BGLTestFramework):
         else:
             output_type = "legacy"
 
-        # All nodes should start with 1,250 BTC:
-        starting_balance = 1250
+        # All nodes should start with 5000 BGL:
+        starting_balance = 5000
         for i in range(3):
             assert_equal(self.nodes[i].getbalance(), starting_balance)
 
