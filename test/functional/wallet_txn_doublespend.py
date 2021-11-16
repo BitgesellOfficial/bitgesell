@@ -29,8 +29,8 @@ class TxnMallTest(BGLTestFramework):
         self.disconnect_nodes(1, 2)
 
     def run_test(self):
-        # All nodes should start with 1,250 BTC:
-        starting_balance = 1250
+        # All nodes should start with 5000 BGL:
+        starting_balance = 5000
 
         # All nodes should be out of IBD.
         # If the nodes are not all out of IBD, that can interfere with
@@ -132,8 +132,8 @@ class TxnMallTest(BGLTestFramework):
         expected = starting_balance + 100 - 1240 + fund_foo_tx["fee"] + fund_bar_tx["fee"] + doublespend_fee
         assert_equal(self.nodes[0].getbalance(), expected)
 
-        # Node1's balance should be its initial balance (1250 for 25 block rewards) plus the doublespend:
-        assert_equal(self.nodes[1].getbalance(), 1250 + 1240)
+        # Node1's balance should be its initial balance (5000 for 25 block rewards) plus the doublespend:
+        assert_equal(self.nodes[1].getbalance(), 5000 + 1240)
 
 
 if __name__ == '__main__':
