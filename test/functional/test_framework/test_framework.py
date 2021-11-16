@@ -113,6 +113,9 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         # By default the wallet is not required. Set to true by skip_if_no_wallet().
         # When False, we ignore wallet_names regardless of what it is.
         self.requires_wallet = False
+        # Disable ThreadOpenConnections by default, so that adding entries to
+        # addrman will not result in automatic connections to them.
+        self.disable_autoconnect = True
         self.set_test_params()
         assert self.wallet_names is None or len(self.wallet_names) <= self.num_nodes
         if self.options.timeout_factor == 0 :
@@ -554,18 +557,19 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         self.nodes[i].process.wait(timeout)
 
     def connect_nodes(self, a, b):
-        def connect_nodes_helper(from_connection, node_num):
-            ip_port = "127.0.0.1:" + str(p2p_port(node_num))
-            from_connection.addnode(ip_port, "onetry")
-            # poll until version handshake complete to avoid race conditions
-            # with transaction relaying
-            # See comments in net_processing:
-            # * Must have a version message before anything else
-            # * Must have a verack message before anything else
-            wait_until_helper(lambda: all(peer['version'] != 0 for peer in from_connection.getpeerinfo()))
-            wait_until_helper(lambda: all(peer['bytesrecv_per_msg'].pop('verack', 0) == 24 for peer in from_connection.getpeerinfo()))
-
-        connect_nodes_helper(self.nodes[a], b)
+        from_connection = self.nodes[a]
+        to_connection = self.nodes[b]
+        ip_port = "127.0.0.1:" + str(p2p_port(b))
+        from_connection.addnode(ip_port, "onetry")
+        # poll until version handshake complete to avoid race conditions
+        # with transaction relaying
+        # See comments in net_processing:
+        # * Must have a version message before anything else
+        # * Must have a verack message before anything else
+        wait_until_helper(lambda: all(peer['version'] != 0 for peer in from_connection.getpeerinfo()))
+        wait_until_helper(lambda: all(peer['version'] != 0 for peer in to_connection.getpeerinfo()))
+        wait_until_helper(lambda: all(peer['bytesrecv_per_msg'].pop('verack', 0) == 24 for peer in from_connection.getpeerinfo()))
+        wait_until_helper(lambda: all(peer['bytesrecv_per_msg'].pop('verack', 0) == 24 for peer in to_connection.getpeerinfo()))
 
     def disconnect_nodes(self, a, b):
         def disconnect_nodes_helper(from_connection, node_num):
@@ -612,6 +616,29 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         """
         self.connect_nodes(1, 2)
         self.sync_all()
+
+    def no_op(self):
+        pass
+
+    def generate(self, generator, *args, sync_fun=None, **kwargs):
+        blocks = generator.generate(*args, invalid_call=False, **kwargs)
+        sync_fun() if sync_fun else self.sync_all()
+        return blocks
+
+    def generateblock(self, generator, *args, sync_fun=None, **kwargs):
+        blocks = generator.generateblock(*args, invalid_call=False, **kwargs)
+        sync_fun() if sync_fun else self.sync_all()
+        return blocks
+
+    def generatetoaddress(self, generator, *args, sync_fun=None, **kwargs):
+        blocks = generator.generatetoaddress(*args, invalid_call=False, **kwargs)
+        sync_fun() if sync_fun else self.sync_all()
+        return blocks
+
+    def generatetodescriptor(self, generator, *args, sync_fun=None, **kwargs):
+        blocks = generator.generatetodescriptor(*args, invalid_call=False, **kwargs)
+        sync_fun() if sync_fun else self.sync_all()
+        return blocks
 
     def sync_blocks(self, nodes=None, wait=1, timeout=60):
         """
@@ -708,7 +735,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         if not os.path.isdir(cache_node_dir):
             self.log.debug("Creating cache directory {}".format(cache_node_dir))
 
-            initialize_datadir(self.options.cachedir, CACHE_NODE_ID, self.chain)
+            initialize_datadir(self.options.cachedir, CACHE_NODE_ID, self.chain, self.disable_autoconnect)
             self.nodes.append(
                 TestNode(
                     CACHE_NODE_ID,
@@ -765,7 +792,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             self.log.debug("Copy cache directory {} to node {}".format(cache_node_dir, i))
             to_dir = get_datadir_path(self.options.tmpdir, i)
             shutil.copytree(cache_node_dir, to_dir)
-            initialize_datadir(self.options.tmpdir, i, self.chain)  # Overwrite port/rpcport in BGL.conf
+            initialize_datadir(self.options.tmpdir, i, self.chain, self.disable_autoconnect)  # Overwrite port/rpcport in bitcoin.conf
 
     def _initialize_chain_clean(self):
         """Initialize empty blockchain for use by the test.
@@ -773,7 +800,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         Create an empty blockchain and num_nodes wallets.
         Useful if a test case wants complete control over initialization."""
         for i in range(self.num_nodes):
-            initialize_datadir(self.options.tmpdir, i, self.chain)
+            initialize_datadir(self.options.tmpdir, i, self.chain, self.disable_autoconnect)
 
     def skip_if_no_py3_zmq(self):
         """Attempt to import the zmq package and skip the test if the import fails."""
