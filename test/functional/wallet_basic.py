@@ -593,9 +593,9 @@ class WalletTest(BGLTestFramework):
 
         # Test getaddressinfo on external address. Note that these addresses are taken from disablewallet.py
         assert_raises_rpc_error(-5, "Invalid prefix for Base58-encoded address", self.nodes[0].getaddressinfo, "3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy")
-        address_info = self.nodes[0].getaddressinfo("mneYUmWYsuk7kySiURxCi3AGxrAqZxLgPZ")
-        assert_equal(address_info['address'], "mneYUmWYsuk7kySiURxCi3AGxrAqZxLgPZ")
-        assert_equal(address_info["scriptPubKey"], "76a9144e3854046c7bd1594ac904e4793b6a45b36dea0988ac")
+        address_info = self.nodes[0].getaddressinfo("rbgl1qmevj8zfx0wdvp05cqwkmr6mxkfx60yezhdmczp")
+        assert_equal(address_info['address'], "rbgl1qmevj8zfx0wdvp05cqwkmr6mxkfx60yezhdmczp")
+        assert_equal(address_info["scriptPubKey"], "0014de592389267b9ac0be9803adb1eb66b24da79322")
         assert not address_info["ismine"]
         assert not address_info["iswatchonly"]
         assert not address_info["isscript"]
