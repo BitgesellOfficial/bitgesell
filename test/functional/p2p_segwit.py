@@ -276,11 +276,7 @@ class SegWitTest(BGLTestFramework):
         self.test_non_witness_transaction()
         self.test_v0_outputs_arent_spendable()
         self.test_block_relay()
-        self.test_getblocktemplate_before_lockin()
-        self.test_unnecessary_witness_before_segwit_activation()
-        self.test_witness_tx_relay_before_segwit_activation()
-        self.test_standardness_v0()
-
+        
         self.log.info("Advancing to segwit activation")
         self.advance_to_segwit_active()
 
