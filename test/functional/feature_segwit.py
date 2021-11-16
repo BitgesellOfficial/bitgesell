@@ -17,7 +17,7 @@ from test_framework.address import (
 from test_framework.blocktools import witness_script, send_to_witness
 from test_framework.messages import COIN, COutPoint, CTransaction, CTxIn, CTxOut, FromHex, sha256, ToHex
 from test_framework.script import CScript, OP_HASH160, OP_CHECKSIG, OP_0, hash160, OP_EQUAL, OP_DUP, OP_EQUALVERIFY, OP_1, OP_2, OP_CHECKMULTISIG, OP_TRUE, OP_DROP
-from test_framework.test_framework import BGLTestFramework
+from test_framework.test_framework import BGLTestFramework, SkipTest
 from test_framework.util import (
     assert_equal,
     assert_is_hex_string,
@@ -25,6 +25,7 @@ from test_framework.util import (
     hex_str_to_bytes,
     try_rpc,
 )
+
 
 NODE_0 = 0
 NODE_2 = 2
@@ -95,7 +96,12 @@ class SegWitTest(BGLTestFramework):
     def fail_accept(self, node, error_msg, txid, sign, redeem_script=""):
         assert_raises_rpc_error(-26, error_msg, send_to_witness, use_p2wsh=1, node=node, utxo=getutxo(txid), pubkey=self.pubkey[0], encode_p2sh=False, amount=Decimal("49.998"), sign=sign, insert_redeem_script=redeem_script)
 
+    def skip_test_bgl_fork(self):
+        raise SkipTest("Forked after segwit.")
+
     def run_test(self):
+        self.skip_test_bgl_fork()
+
         self.nodes[0].generate(161)  # block 161
 
         self.log.info("Verify sigops are counted in GBT with pre-BIP141 rules before the fork")
