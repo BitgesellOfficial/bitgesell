@@ -16,6 +16,7 @@ import sys
 import tempfile
 import urllib
 
+from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.test_framework import (
     BGLTestFramework,
 )
@@ -30,15 +31,14 @@ class LoadblockTest(BGLTestFramework):
 
     def run_test(self):
         self.nodes[1].setnetworkactive(state=False)
-        self.nodes[0].generate(100)
-
+        self.nodes[0].generate(1, COINBASE_MATURITY)[0]
         # Parsing the url of our node to get settings for config file
         data_dir = self.nodes[0].datadir
         node_url = urllib.parse.urlparse(self.nodes[0].url)
         cfg_file = os.path.join(data_dir, "linearize.cfg")
         bootstrap_file = os.path.join(self.options.tmpdir, "bootstrap.dat")
         genesis_block = self.nodes[0].getblockhash(0)
-        blocks_dir = os.path.join(data_dir, "regtest", "blocks")
+        blocks_dir = os.path.join(data_dir, self.chain, "blocks")
         hash_list = tempfile.NamedTemporaryFile(dir=data_dir,
                                                 mode='w',
                                                 delete=False,
@@ -46,17 +46,17 @@ class LoadblockTest(BGLTestFramework):
 
         self.log.info("Create linearization config file")
         with open(cfg_file, "a", encoding="utf-8") as cfg:
-            cfg.write("datadir={}\n".format(data_dir))
-            cfg.write("rpcuser={}\n".format(node_url.username))
-            cfg.write("rpcpassword={}\n".format(node_url.password))
-            cfg.write("port={}\n".format(node_url.port))
-            cfg.write("host={}\n".format(node_url.hostname))
-            cfg.write("output_file={}\n".format(bootstrap_file))
-            cfg.write("max_height=100\n")
-            cfg.write("netmagic=fabfb5da\n")
-            cfg.write("input={}\n".format(blocks_dir))
-            cfg.write("genesis={}\n".format(genesis_block))
-            cfg.write("hashlist={}\n".format(hash_list.name))
+            cfg.write(f"datadir={data_dir}\n")
+            cfg.write(f"rpcuser={node_url.username}\n")
+            cfg.write(f"rpcpassword={node_url.password}\n")
+            cfg.write(f"port={node_url.port}\n")
+            cfg.write(f"host={node_url.hostname}\n")
+            cfg.write(f"output_file={bootstrap_file}\n")
+            cfg.write(f"max_height=100\n")
+            cfg.write(f"netmagic=fabfb5da\n")
+            cfg.write(f"input={blocks_dir}\n")
+            cfg.write(f"genesis={genesis_block}\n")
+            cfg.write(f"hashlist={hash_list.name}\n")
 
         base_dir = self.config["environment"]["SRCDIR"]
         linearize_dir = os.path.join(base_dir, "contrib", "linearize")
@@ -73,7 +73,7 @@ class LoadblockTest(BGLTestFramework):
                        check=True)
 
         self.log.info("Restart second, unsynced node with bootstrap file")
-        self.restart_node(1, extra_args=["-loadblock=" + bootstrap_file])
+        self.restart_node(1, extra_args=[f"-loadblock={bootstrap_file}"])
         assert_equal(self.nodes[1].getblockcount(), 100)  # start_node is blocking on all block files being imported
 
         assert_equal(self.nodes[1].getblockchaininfo()['blocks'], 100)
