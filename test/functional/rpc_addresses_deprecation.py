@@ -50,7 +50,7 @@ class AddressesDeprecationTest(BGLTestFramework):
 
         self.log.info("Test RPCResult scriptPubKey returns the addresses field with -deprecatedrpc=addresses")
         script_pub_key = self.nodes[1].getblock(blockhash=hash, verbose=2)['tx'][-1]['vout'][0]['scriptPubKey']
-        assert_equal(script_pub_key['addresses'], ['mvKDK6D54HU8wQumJBLHY95eq5iHFqXSBz', 'mv3rHCQSwKp2BLSuMHD8uCS32LW5xiNAA5', 'mirrsyhAQYzo5CwVhcaYJKwUJu1WJRCRJe'])
+        assert_equal(script_pub_key['addresses'], ['EwHmVjFtPPnfy3B6QsgkCV85NEseUTVLvx', 'Ew2QTqTGGS8ZCxiETyZbZYUTZVfTG44d9U', 'EjqR4cjyjfKL6qCppJvzxfytr4AsU4WonJ'])
         assert_equal(script_pub_key['reqSigs'], 2)
 
 
