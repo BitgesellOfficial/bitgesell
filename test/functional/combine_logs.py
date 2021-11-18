@@ -9,6 +9,7 @@ to write to an outputfile.
 
 If no argument is provided, the most recent test directory will be used."""
 
+#Importing required modules
 import argparse
 from collections import defaultdict, namedtuple
 import heapq
@@ -30,6 +31,7 @@ TIMESTAMP_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{6})?Z
 
 LogEvent = namedtuple('LogEvent', ['timestamp', 'source', 'event'])
 
+#creating main function
 def main():
     """Main function. Parses args, reads the log files and renders them as text or html."""
     parser = argparse.ArgumentParser(
@@ -54,6 +56,9 @@ def main():
 
     if not args.testdir:
         print("Opening latest test directory: {}".format(testdir), file=sys.stderr)
+     
+    else:
+        sys.exit(1)
 
     colors = defaultdict(lambda: '')
     if args.color:
@@ -72,7 +77,7 @@ def main():
         print_logs_plain(log_events, colors)
         print_node_warnings(testdir, colors)
 
-
+#Creating function read_logs
 def read_logs(tmp_dir):
     """Reads log files.
 
@@ -98,24 +103,9 @@ def read_logs(tmp_dir):
     return heapq.merge(*[get_log_events(source, f) for source, f in files])
 
 
-def print_node_warnings(tmp_dir, colors):
-    """Print nodes' errors and warnings"""
-
-    warnings = []
-    for stream in ['stdout', 'stderr']:
-        for i in itertools.count():
-            folder = "{}/node{}/{}".format(tmp_dir, i, stream)
-            if not os.path.isdir(folder):
-                break
-            for (_, _, fns) in os.walk(folder):
-                for fn in fns:
-                    warning = pathlib.Path('{}/{}'.format(folder, fn)).read_text().strip()
-                    if warning:
-                        warnings.append(("node{} {}".format(i, stream), warning))
-
-    print()
-    for w in warnings:
-        print("{} {} {} {}".format(colors[w[0].split()[0]], w[0], w[1], colors["reset"]))
+''' No need to give any warnings 
+Can instead use try, except and print exception methods 
+to specify errors'''
 
 
 def find_latest_test_dir():
@@ -189,8 +179,11 @@ def print_logs_html(log_events):
     """Renders the iterator of log events into html."""
     try:
         import jinja2
-    except ImportError:
-        print("jinja2 not found. Try `pip install jinja2`")
+    except Excpetion as e:
+        #Handle any available kind of exception and print it
+        print(e)
+        #Give user time to read the exception before exiting
+        print("Press Enter to exit....")
         sys.exit(1)
     print(jinja2.Environment(loader=jinja2.FileSystemLoader('./'))
                     .get_template('combined_log_template.html')
