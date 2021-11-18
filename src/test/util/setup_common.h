@@ -227,4 +227,4 @@ private:
     const std::string m_reason;
 };
 
-#endif // BITCOIN_TEST_UTIL_SETUP_COMMON_H
+#endif // BGL_TEST_UTIL_SETUP_COMMON_H
