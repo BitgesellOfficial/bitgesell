@@ -1,4 +1,12 @@
-# macOS Build Instructions and Notes
+# macOS Build Guide
+
+**Updated for MacOS [11.2](https://www.apple.com/macos/big-sur/)**
+
+This guide describes how to build BGLd, command-line utilities, and GUI on macOS
+
+**Note:** The following is for Intel Macs only!
+
+## Preparation
 
 The commands in this guide should be executed in a Terminal application.
 The built-in one is located in
@@ -31,6 +39,9 @@ Note: If you run into issues while installing Homebrew or pulling packages, refe
 
 The first step is to download the required dependencies.
 These dependencies represent the packages required to get a barebones installation up and running.
+
+See [dependencies.md](dependencies.md) for a complete overview.
+
 To install, run the following from your terminal:
 
 ``` bash
