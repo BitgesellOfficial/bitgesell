@@ -5,8 +5,8 @@
 #ifndef BGL_ADDRMAN_IMPL_H
 #define BGL_ADDRMAN_IMPL_H
 
-
 #include <logging.h>
+#include <logging/timer.h>
 #include <netaddress.h>
 #include <protocol.h>
 #include <serialize.h>
@@ -43,7 +43,6 @@ public:
     //! last counted attempt (memory only)
     int64_t nLastCountAttempt{0};
 
-private:
     //! where knowledge about this address first came from
     CNetAddr source;
 
@@ -124,7 +123,7 @@ public:
 
     void ResolveCollisions() EXCLUSIVE_LOCKS_REQUIRED(!cs);
 
-    CAddrInfo SelectTriedCollision() EXCLUSIVE_LOCKS_REQUIRED(!cs);
+    std::pair<CAddress, int64_t> SelectTriedCollision() EXCLUSIVE_LOCKS_REQUIRED(!cs);
 
     std::pair<CAddress, int64_t> Select(bool newOnly) const
         EXCLUSIVE_LOCKS_REQUIRED(!cs);
@@ -182,8 +181,8 @@ private:
     //! table with information about all nIds
     std::unordered_map<int, AddrInfo> mapInfo GUARDED_BY(cs);
 
-    //! find an nId based on its network address
-    std::unordered_map<CNetAddr, int, CNetAddrHash> mapAddr GUARDED_BY(cs);
+    //! find an nId based on its network address and port.
+    std::unordered_map<CService, int, CServiceHash> mapAddr GUARDED_BY(cs);
 
     //! randomly-ordered vector of all nIds
     //! This is mutable because it is unobservable outside the class, so any
@@ -228,10 +227,10 @@ private:
     const std::vector<bool> m_asmap;
 
     //! Find an entry.
-    AddrInfo* Find(const CNetAddr& addr, int *pnId = nullptr) EXCLUSIVE_LOCKS_REQUIRED(cs);
+    AddrInfo* Find(const CService& addr, int* pnId = nullptr) EXCLUSIVE_LOCKS_REQUIRED(cs);
 
     //! Create a new entry and add it to the internal data structures mapInfo, mapAddr and vRandom.
-    AddrInfo* Create(const CAddress &addr, const CNetAddr &addrSource, int *pnId = nullptr) EXCLUSIVE_LOCKS_REQUIRED(cs);
+    AddrInfo* Create(const CAddress& addr, const CNetAddr& addrSource, int* pnId = nullptr) EXCLUSIVE_LOCKS_REQUIRED(cs);
 
     //! Swap two elements in vRandom.
     void SwapRandom(unsigned int nRandomPos1, unsigned int nRandomPos2) const EXCLUSIVE_LOCKS_REQUIRED(cs);
@@ -255,46 +254,25 @@ private:
 
     void Attempt_(const CService& addr, bool fCountFailure, int64_t nTime) EXCLUSIVE_LOCKS_REQUIRED(cs);
 
-    //! Select an address to connect to, if newOnly is set to true, only the new table is selected from.
-    CAddrInfo Select_(bool newOnly) const EXCLUSIVE_LOCKS_REQUIRED(cs);
+    std::pair<CAddress, int64_t> Select_(bool newOnly) const EXCLUSIVE_LOCKS_REQUIRED(cs);
 
-    /**
-     * Return all or many randomly selected addresses, optionally by network.
-     *
-     * @param[out] vAddr         Vector of randomly selected addresses from vRandom.
-     * @param[in] max_addresses  Maximum number of addresses to return (0 = all).
-     * @param[in] max_pct        Maximum percentage of addresses to return (0 = all).
-     * @param[in] network        Select only addresses of this network (nullopt = all).
-     */
-    void GetAddr_(std::vector<CAddress>& vAddr, size_t max_addresses, size_t max_pct, std::optional<Network> network) const EXCLUSIVE_LOCKS_REQUIRED(cs);
+    std::vector<CAddress> GetAddr_(size_t max_addresses, size_t max_pct, std::optional<Network> network) const EXCLUSIVE_LOCKS_REQUIRED(cs);
 
-    /** We have successfully connected to this peer. Calling this function
-     *  updates the CAddress's nTime, which is used in our IsTerrible()
-     *  decisions and gossiped to peers. Callers should be careful that updating
-     *  this information doesn't leak topology information to network spies.
-     *
-     *  net_processing calls this function when it *disconnects* from a peer to
-     *  not leak information about currently connected peers.
-     *
-     * @param[in]   addr     The address of the peer we were connected to
-     * @param[in]   nTime    The time that we were last connected to this peer
-     */
     void Connected_(const CService& addr, int64_t nTime) EXCLUSIVE_LOCKS_REQUIRED(cs);
 
     void SetServices_(const CService& addr, ServiceFlags nServices) EXCLUSIVE_LOCKS_REQUIRED(cs);
 
-    //! See if any to-be-evicted tried table entries have been tested and if so resolve the collisions.
     void ResolveCollisions_() EXCLUSIVE_LOCKS_REQUIRED(cs);
 
-    //! Return a random to-be-evicted tried table address.
-    CAddrInfo SelectTriedCollision_() EXCLUSIVE_LOCKS_REQUIRED(cs);
+    std::pair<CAddress, int64_t> SelectTriedCollision_() EXCLUSIVE_LOCKS_REQUIRED(cs);
 
-    //! Consistency check, taking into account m_consistency_check_ratio. Will std::abort if an inconsistency is detected.
+    //! Consistency check, taking into account m_consistency_check_ratio.
+    //! Will std::abort if an inconsistency is detected.
     void Check() const EXCLUSIVE_LOCKS_REQUIRED(cs);
 
     //! Perform consistency check, regardless of m_consistency_check_ratio.
     //! @returns an error code or zero.
-    int ForceCheckAddrman() const EXCLUSIVE_LOCKS_REQUIRED(cs);
+    int CheckAddrman() const EXCLUSIVE_LOCKS_REQUIRED(cs);
 };
 
 #endif // BGL_ADDRMAN_IMPL_H

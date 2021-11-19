@@ -1,67 +1,15 @@
-include sources.mk
+# Copyright (c) 2013-2020 The Bitcoin Core developers
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+# Pattern rule to print variables, e.g. make print-top_srcdir
+print-%: FORCE
+	@echo '$*'='$($*)'
+
 ACLOCAL_AMFLAGS = -I build-aux/m4
-.PHONY: gen FORCE
-.INTERMEDIATE: $(GENBIN)
-
-include_HEADERS = $(UNIVALUE_DIST_HEADERS_INT)
-noinst_HEADERS = $(UNIVALUE_LIB_HEADERS_INT)
-
-lib_LTLIBRARIES = libsecp256k1.la
-include_HEADERS = include/secp256k1.h
-include_HEADERS += include/secp256k1_preallocated.h
-noinst_HEADERS =
-noinst_HEADERS += src/scalar.h
-noinst_HEADERS += src/scalar_4x64.h
-noinst_HEADERS += src/scalar_8x32.h
-noinst_HEADERS += src/scalar_low.h
-noinst_HEADERS += src/scalar_impl.h
-noinst_HEADERS += src/scalar_4x64_impl.h
-noinst_HEADERS += src/scalar_8x32_impl.h
-noinst_HEADERS += src/scalar_low_impl.h
-noinst_HEADERS += src/group.h
-noinst_HEADERS += src/group_impl.h
-noinst_HEADERS += src/ecdsa.h
-noinst_HEADERS += src/ecdsa_impl.h
-noinst_HEADERS += src/eckey.h
-noinst_HEADERS += src/eckey_impl.h
-noinst_HEADERS += src/ecmult.h
-noinst_HEADERS += src/ecmult_impl.h
-noinst_HEADERS += src/ecmult_const.h
-noinst_HEADERS += src/ecmult_const_impl.h
-noinst_HEADERS += src/ecmult_gen.h
-noinst_HEADERS += src/ecmult_gen_impl.h
-noinst_HEADERS += src/field_10x26.h
-noinst_HEADERS += src/field_10x26_impl.h
-noinst_HEADERS += src/field_5x52.h
-noinst_HEADERS += src/field_5x52_impl.h
-noinst_HEADERS += src/field_5x52_int128_impl.h
-noinst_HEADERS += src/field_5x52_asm_impl.h
-noinst_HEADERS += src/modinv32.h
-noinst_HEADERS += src/modinv32_impl.h
-noinst_HEADERS += src/modinv64.h
-noinst_HEADERS += src/modinv64_impl.h
-noinst_HEADERS += src/assumptions.h
-noinst_HEADERS += src/util.h
-noinst_HEADERS += src/scratch.h
-noinst_HEADERS += src/scratch_impl.h
-noinst_HEADERS += src/selftest.h
-noinst_HEADERS += src/testrand.h
-noinst_HEADERS += src/testrand_impl.h
-noinst_HEADERS += src/hash.h
-noinst_HEADERS += src/hash_impl.h
-noinst_HEADERS += src/field.h
-noinst_HEADERS += src/field_impl.h
-noinst_HEADERS += src/bench.h
-noinst_HEADERS += contrib/lax_der_parsing.h
-noinst_HEADERS += contrib/lax_der_parsing.c
-noinst_HEADERS += contrib/lax_der_privatekey_parsing.h
-noinst_HEADERS += contrib/lax_der_privatekey_parsing.c
-
-if USE_EXTERNAL_ASM
-COMMON_LIB = libsecp256k1_common.la
-noinst_LTLIBRARIES = $(COMMON_LIB)
-else
-COMMON_LIB =
+SUBDIRS = src
+if ENABLE_MAN
+SUBDIRS += doc/man
 endif
 .PHONY: deploy FORCE
 .INTERMEDIATE: $(OSX_TEMP_ISO) $(COVERAGE_INFO)
@@ -151,49 +99,118 @@ $(OSX_APP)/Contents/PkgInfo:
 	$(MKDIR_P) $(@D)
 	@echo "APPL????" > $@
 
-libunivalue_la_SOURCES = $(UNIVALUE_LIB_SOURCES_INT)
+$(OSX_APP)/Contents/Resources/empty.lproj:
+	$(MKDIR_P) $(@D)
+	@touch $@
 
-libunivalue_la_LDFLAGS = \
-	-version-info $(LIBUNIVALUE_CURRENT):$(LIBUNIVALUE_REVISION):$(LIBUNIVALUE_AGE) \
-	-no-undefined
-libunivalue_la_CXXFLAGS = -I$(top_srcdir)/include
+$(OSX_APP)/Contents/Info.plist: $(OSX_PLIST)
+	$(MKDIR_P) $(@D)
+	$(INSTALL_DATA) $< $@
 
-TESTS = test/object test/unitester test/no_nul
+$(OSX_APP)/Contents/Resources/BGL.icns: $(OSX_INSTALLER_ICONS)
+	$(MKDIR_P) $(@D)
+	$(INSTALL_DATA) $< $@
 
-GENBIN = gen/gen$(BUILD_EXEEXT)
-GEN_SRCS = gen/gen.cpp
+$(OSX_APP)/Contents/MacOS/BGL-Qt: all-recursive
+	$(MKDIR_P) $(@D)
+	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM)  $(BGL_QT_BIN) $@
 
-$(GENBIN): $(GEN_SRCS)
-	@echo Building $@
-	$(AM_V_at)c++ -I$(top_srcdir)/include -o $@ $<
+$(OSX_APP)/Contents/Resources/Base.lproj/InfoPlist.strings:
+	$(MKDIR_P) $(@D)
+	echo '{	CFBundleDisplayName = "$(PACKAGE_NAME)"; CFBundleName = "$(PACKAGE_NAME)"; }' > $@
 
-gen: $(GENBIN) FORCE
-	@echo Updating lib/univalue_escapes.h
-	$(AM_V_at)$(GENBIN) > lib/univalue_escapes.h
+OSX_APP_BUILT=$(OSX_APP)/Contents/PkgInfo $(OSX_APP)/Contents/Resources/empty.lproj \
+  $(OSX_APP)/Contents/Resources/BGL.icns $(OSX_APP)/Contents/Info.plist \
+  $(OSX_APP)/Contents/MacOS/BGL-Qt $(OSX_APP)/Contents/Resources/Base.lproj/InfoPlist.strings
 
-noinst_PROGRAMS = $(TESTS) test/test_json
+osx_volname:
+	echo $(OSX_VOLNAME) >$@
 
-test_unitester_SOURCES = $(UNIVALUE_TEST_UNITESTER_INT)
-test_unitester_LDADD = libunivalue.la
-test_unitester_CXXFLAGS = -I$(top_srcdir)/include -DJSON_TEST_SRC=\"$(srcdir)/$(UNIVALUE_TEST_DATA_DIR_INT)\"
-test_unitester_LDFLAGS = -static $(LIBTOOL_APP_LDFLAGS)
+if BUILD_DARWIN
+$(OSX_DMG): $(OSX_APP_BUILT) $(OSX_PACKAGING) $(OSX_BACKGROUND_IMAGE)
+	$(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) $(OSX_VOLNAME) -translations-dir=$(QT_TRANSLATION_DIR) -dmg
 
-test_test_json_SOURCES = $(UNIVALUE_TEST_JSON_INT)
-test_test_json_LDADD = libunivalue.la
-test_test_json_CXXFLAGS = -I$(top_srcdir)/include
-test_test_json_LDFLAGS = -static $(LIBTOOL_APP_LDFLAGS)
+$(OSX_BACKGROUND_IMAGE).png: contrib/macdeploy/$(OSX_BACKGROUND_SVG)
+	sed 's/PACKAGE_NAME/$(PACKAGE_NAME)/' < "$<" | $(RSVG_CONVERT) -f png -d 36 -p 36 -o $@
+$(OSX_BACKGROUND_IMAGE)@2x.png: contrib/macdeploy/$(OSX_BACKGROUND_SVG)
+	sed 's/PACKAGE_NAME/$(PACKAGE_NAME)/' < "$<" | $(RSVG_CONVERT) -f png -d 72 -p 72 -o $@
+$(OSX_BACKGROUND_IMAGE): $(OSX_BACKGROUND_IMAGE).png $(OSX_BACKGROUND_IMAGE)@2x.png
+	tiffutil -cathidpicheck $^ -out $@
 
-test_no_nul_SOURCES = $(UNIVALUE_TEST_NO_NUL_INT)
-test_no_nul_LDADD = libunivalue.la
-test_no_nul_CXXFLAGS = -I$(top_srcdir)/include
-test_no_nul_LDFLAGS = -static $(LIBTOOL_APP_LDFLAGS)
+deploydir: $(OSX_DMG)
+else !BUILD_DARWIN
+APP_DIST_DIR=$(top_builddir)/dist
+APP_DIST_EXTRAS=$(APP_DIST_DIR)/.background/$(OSX_BACKGROUND_IMAGE) $(APP_DIST_DIR)/.DS_Store $(APP_DIST_DIR)/Applications
 
-test_object_SOURCES = $(UNIVALUE_TEST_OBJECT_INT)
-test_object_LDADD = libunivalue.la
-test_object_CXXFLAGS = -I$(top_srcdir)/include
-test_object_LDFLAGS = -static $(LIBTOOL_APP_LDFLAGS)
+$(APP_DIST_DIR)/Applications:
+	@rm -f $@
+	@cd $(@D); $(LN_S) /Applications $(@F)
 
-TEST_FILES = $(UNIVALUE_TEST_FILES_INT)
+$(APP_DIST_EXTRAS): $(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/BGL-Qt
+
+$(OSX_TEMP_ISO): $(APP_DIST_EXTRAS)
+	$(XORRISOFS) -D -l -V "$(OSX_VOLNAME)" -no-pad -r -dir-mode 0755 -o $@ $(APP_DIST_DIR) -- $(if $(SOURCE_DATE_EPOCH),-volume_date all_file_dates =$(SOURCE_DATE_EPOCH))
+
+$(OSX_DMG): $(OSX_TEMP_ISO)
+	$(DMG) dmg "$<" "$@"
+
+dpi%.$(OSX_BACKGROUND_IMAGE): contrib/macdeploy/$(OSX_BACKGROUND_SVG)
+	sed 's/PACKAGE_NAME/$(PACKAGE_NAME)/' < "$<" | $(RSVG_CONVERT) -f png -d $* -p $* | $(IMAGEMAGICK_CONVERT) - $@
+OSX_BACKGROUND_IMAGE_DPIFILES := $(foreach dpi,$(OSX_BACKGROUND_IMAGE_DPIS),dpi$(dpi).$(OSX_BACKGROUND_IMAGE))
+$(APP_DIST_DIR)/.background/$(OSX_BACKGROUND_IMAGE): $(OSX_BACKGROUND_IMAGE_DPIFILES)
+	$(MKDIR_P) $(@D)
+	$(TIFFCP) -c none $(OSX_BACKGROUND_IMAGE_DPIFILES) $@
+
+$(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/BGL-Qt: $(OSX_APP_BUILT) $(OSX_PACKAGING)
+	INSTALLNAMETOOL=$(INSTALLNAMETOOL) OTOOL=$(OTOOL) STRIP=$(STRIP) $(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) $(OSX_VOLNAME) -translations-dir=$(QT_TRANSLATION_DIR)
+
+deploydir: $(APP_DIST_EXTRAS)
+endif !BUILD_DARWIN
+
+appbundle: $(OSX_APP_BUILT)
+deploy: $(OSX_DMG)
+endif
+
+$(BGL_QT_BIN): FORCE
+	$(MAKE) -C src qt/$(@F)
+
+$(BGLD_BIN): FORCE
+	$(MAKE) -C src $(@F)
+
+$(BGL_CLI_BIN): FORCE
+	$(MAKE) -C src $(@F)
+
+$(BGL_TX_BIN): FORCE
+	$(MAKE) -C src $(@F)
+
+$(BGL_UTIL_BIN): FORCE
+	$(MAKE) -C src $(@F)
+
+$(BGL_WALLET_BIN): FORCE
+	$(MAKE) -C src $(@F)
+
+$(BGL_NODE_BIN): FORCE
+	$(MAKE) -C src $(@F)
+
+$(BGL_GUI_BIN): FORCE
+	$(MAKE) -C src $(@F)
+
+if USE_LCOV
+LCOV_FILTER_PATTERN = \
+	-p "/usr/local/" \
+	-p "/usr/include/" \
+	-p "/usr/lib/" \
+	-p "/usr/lib64/" \
+	-p "src/leveldb/" \
+	-p "src/crc32c/" \
+	-p "src/bench/" \
+	-p "src/univalue" \
+	-p "src/crypto/ctaes" \
+	-p "src/minisketch" \
+	-p "src/secp256k1" \
+	-p "depends"
+
+DIR_FUZZ_SEED_CORPUS ?= qa-assets/fuzz_seed_corpus
 
 $(COV_TOOL_WRAPPER):
 	@echo 'exec $(COV_TOOL) "$$@"' > $(COV_TOOL_WRAPPER)

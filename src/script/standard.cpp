@@ -48,8 +48,7 @@ WitnessV0ScriptHash::WitnessV0ScriptHash(const CScript& in)
 
 std::string GetTxnOutputType(TxoutType t)
 {
-    switch (t)
-    {
+    switch (t) {
     case TxoutType::NONSTANDARD: return "nonstandard";
     case TxoutType::PUBKEY: return "pubkey";
     case TxoutType::PUBKEYHASH: return "pubkeyhash";
@@ -216,7 +215,8 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
     std::vector<valtype> vSolutions;
     TxoutType whichType = Solver(scriptPubKey, vSolutions);
 
-    if (whichType == TxoutType::PUBKEY) {
+    switch (whichType) {
+    case TxoutType::PUBKEY: {
         CPubKey pubKey(vSolutions[0]);
         if (!pubKey.IsValid())
             return false;
@@ -224,21 +224,21 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
         addressRet = PKHash(pubKey);
         return true;
     }
-    else if (whichType == TxoutType::PUBKEYHASH)
-    {
+    case TxoutType::PUBKEYHASH: {
         addressRet = PKHash(uint160(vSolutions[0]));
         return true;
     }
-    else if (whichType == TxoutType::SCRIPTHASH)
-    {
+    case TxoutType::SCRIPTHASH: {
         addressRet = ScriptHash(uint160(vSolutions[0]));
         return true;
-    } else if (whichType == TxoutType::WITNESS_V0_KEYHASH) {
+    }
+    case TxoutType::WITNESS_V0_KEYHASH: {
         WitnessV0KeyHash hash;
         std::copy(vSolutions[0].begin(), vSolutions[0].end(), hash.begin());
         addressRet = hash;
         return true;
-    } else if (whichType == TxoutType::WITNESS_V0_SCRIPTHASH) {
+    }
+    case TxoutType::WITNESS_V0_SCRIPTHASH: {
         WitnessV0ScriptHash hash;
         std::copy(vSolutions[0].begin(), vSolutions[0].end(), hash.begin());
         addressRet = hash;
@@ -258,8 +258,12 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
         addressRet = unk;
         return true;
     }
-    // Multisig txns have more than one address...
-    return false;
+    case TxoutType::MULTISIG:
+    case TxoutType::NULL_DATA:
+    case TxoutType::NONSTANDARD:
+        return false;
+    } // no default case, so the compiler can warn about missing cases
+    assert(false);
 }
 
 namespace {
@@ -344,9 +348,9 @@ bool IsValidDestination(const CTxDestination& dest) {
     }
     /* Lexicographically sort a and b's hash, and compute parent hash. */
     if (a.hash < b.hash) {
-        ret.hash = (CHashWriter(HASHER_TAPBRANCH) << a.hash << b.hash).GetSHA256();
+        ret.hash = (CHashWriterSHA256(HASHER_TAPBRANCH) << a.hash << b.hash).GetSHA256();
     } else {
-        ret.hash = (CHashWriter(HASHER_TAPBRANCH) << b.hash << a.hash).GetSHA256();
+        ret.hash = (CHashWriterSHA256(HASHER_TAPBRANCH) << b.hash << a.hash).GetSHA256();
     }
     return ret;
 }
@@ -427,7 +431,7 @@ TaprootBuilder& TaprootBuilder::Add(int depth, const CScript& script, int leaf_v
     if (!IsValid()) return *this;
     /* Construct NodeInfo object with leaf hash and (if track is true) also leaf information. */
     NodeInfo node;
-    node.hash = (CHashWriter{HASHER_TAPLEAF} << uint8_t(leaf_version) << script).GetSHA256();
+    node.hash = (CHashWriterSHA256(HASHER_TAPLEAF) << uint8_t(leaf_version) << script).GetSHA256();
     if (track) node.leaves.emplace_back(LeafInfo{script, leaf_version, {}});
     /* Insert into the branch. */
     Insert(std::move(node), depth);
@@ -584,7 +588,7 @@ std::optional<std::vector<std::tuple<int, CScript, int>>> InferTaprootTree(const
             node.done = true;
             stack.pop_back();
         } else if (node.sub[0]->done && !node.sub[1]->done && !node.sub[1]->explored && !node.sub[1]->hash.IsNull() &&
-                   (CHashWriter{HASHER_TAPBRANCH} << node.sub[1]->hash << node.sub[1]->hash).GetSHA256() == node.hash) {
+                   (CHashWriterSHA256(HASHER_TAPBRANCH) << node.sub[1]->hash << node.sub[1]->hash).GetSHA256() == node.hash) {
             // Whenever there are nodes with two identical subtrees under it, we run into a problem:
             // the control blocks for the leaves underneath those will be identical as well, and thus
             // they will all be matched to the same path in the tree. The result is that at the location

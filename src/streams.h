@@ -6,8 +6,9 @@
 #ifndef BGL_STREAMS_H
 #define BGL_STREAMS_H
 
-#include <support/allocators/zeroafterfree.h>
 #include <serialize.h>
+#include <span.h>
+#include <support/allocators/zeroafterfree.h>
 
 #include <algorithm>
 #include <assert.h>
@@ -16,8 +17,8 @@
 #include <optional>
 #include <stdint.h>
 #include <stdio.h>
-#include <string>
 #include <string.h>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -203,7 +204,7 @@ public:
 class CDataStream
 {
 protected:
-    typedef CSerializeData vector_type;
+    using vector_type = SerializeData;
     vector_type vch;
     unsigned int nReadPos{0};
 
@@ -258,8 +259,8 @@ public:
     const_reference operator[](size_type pos) const  { return vch[pos + nReadPos]; }
     reference operator[](size_type pos)              { return vch[pos + nReadPos]; }
     void clear()                                     { vch.clear(); nReadPos = 0; }
-    iterator insert(iterator it, const char x=char()) { return vch.insert(it, x); }
-    void insert(iterator it, size_type n, const char x) { vch.insert(it, n, x); }
+    iterator insert(iterator it, const uint8_t x) { return vch.insert(it, x); }
+    void insert(iterator it, size_type n, const uint8_t x) { vch.insert(it, n, x); }
     value_type* data()                               { return vch.data() + nReadPos; }
     const value_type* data() const                   { return vch.data() + nReadPos; }
 
@@ -426,11 +427,6 @@ public:
         // Unserialize from this stream
         ::Unserialize(*this, obj);
         return (*this);
-    }
-
-    void GetAndClear(CSerializeData &d) {
-        d.insert(d.end(), begin(), end());
-        clear();
     }
 
     /**

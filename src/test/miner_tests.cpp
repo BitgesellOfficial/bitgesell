@@ -52,7 +52,7 @@ BlockAssembler MinerTestingSetup::AssemblerForTest(const CChainParams& params)
 constexpr static struct {
     unsigned char extranonce;
     unsigned int nonce;
-} blockinfo[] = {
+} BLOCKINFO[] = {
     {4, 0x06EA7922}, {2, 0x03F59DF1}, {1, 0x053F50CF}, {1, 0x243878FF},
     {2, 0x02C129D3}, {2, 0x029416F1}, {1, 0x01ED052B}, {2, 0x06258218},
     {2, 0x02864404}, {1, 0x19D40442}, {1, 0x02C2F9BB}, {2, 0x05FCE085},
@@ -235,8 +235,6 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
             txCoinbase.vin[0].scriptSig = CScript{} << (m_node.chainman->ActiveChain().Height() + 1) << bi.extranonce;
             txCoinbase.vout.resize(1); // Ignore the (optional) segwit commitment added by CreateNewBlock (as the hardcoded nonces don't account for this)
             txCoinbase.vout[0].scriptPubKey = CScript();
-            txCoinbase.vin[0].scriptWitness.stack.resize(0); // Ignore the scriptWitness added by CreateNewBlock (as the hardcoded nonces don't account for this)
-
             pblock->vtx[0] = MakeTransactionRef(std::move(txCoinbase));
             if (txFirst.size() == 0)
                 baseheight = m_node.chainman->ActiveChain().Height();
@@ -503,16 +501,13 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
     tx.vin[0].nSequence = CTxIn::SEQUENCE_LOCKTIME_TYPE_FLAG | 1;
     BOOST_CHECK(!TestSequenceLocks(CTransaction(tx), flags)); // Sequence locks fail
 
-    // BOOST_CHECK(pblocktemplate = AssemblerForTest(chainparams).CreateNewBlock(scriptPubKey));
-    // This is failing EvaluateSequenceLocks, which returns false instead of truth
-    // lockPair.second >= nBlockTime Todo: investigate
-    
+    BOOST_CHECK(pblocktemplate = AssemblerForTest(chainparams).CreateNewBlock(scriptPubKey));
+
     // None of the of the absolute height/time locked tx should have made
     // it into the template because we still check IsFinalTx in CreateNewBlock,
     // but relative locked txs will if inconsistently added to mempool.
     // For now these will still generate a valid template until BIP68 soft fork
-    // BOOST_CHECK_EQUAL(pblocktemplate->block.vtx.size(), 3U);
-    // pblocktemplate is null until EvaluateSequenceLocks true
+    BOOST_CHECK_EQUAL(pblocktemplate->block.vtx.size(), 3U);
     // However if we advance height by 1 and time by 512, all of them should be mined
     for (int i = 0; i < CBlockIndex::nMedianTimeSpan; i++)
         m_node.chainman->ActiveChain().Tip()->GetAncestor(m_node.chainman->ActiveChain().Tip()->nHeight - i)->nTime += 512; //Trick the MedianTimePast

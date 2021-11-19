@@ -32,7 +32,7 @@ bool SerializeDB(Stream& stream, const Data& data)
 {
     // Write and commit header, data
     try {
-        CHashWriterKeccak hasher(tream.GetType(), stream.GetVersion());
+        CHashWriterKeccak hasher(stream.GetType(), stream.GetVersion());
         stream << Params().MessageStart() << data;
         hasher << Params().MessageStart() << data;
         stream << hasher.GetHash();

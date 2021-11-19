@@ -1483,9 +1483,9 @@ template void PrecomputedTransactionData::Init(const CMutableTransaction& txTo, 
 template PrecomputedTransactionData::PrecomputedTransactionData(const CTransaction& txTo);
 template PrecomputedTransactionData::PrecomputedTransactionData(const CMutableTransaction& txTo);
 
-static const CHashWriter HASHER_TAPSIGHASH = TaggedHash("TapSighash");
-const CHashWriter HASHER_TAPLEAF = TaggedHash("TapLeaf");
-const CHashWriter HASHER_TAPBRANCH = TaggedHash("TapBranch");
+static const CHashWriterSHA256 HASHER_TAPSIGHASH = TaggedHash("TapSighash");
+const CHashWriterSHA256 HASHER_TAPLEAF = TaggedHash("TapLeaf");
+const CHashWriterSHA256 HASHER_TAPBRANCH = TaggedHash("TapBranch");
 
 static bool HandleMissingData(MissingDataBehavior mdb)
 {
@@ -1849,7 +1849,7 @@ static bool ExecuteWitnessScript(const Span<const valtype>& stack_span, const CS
 
 uint256 ComputeTapleafHash(uint8_t leaf_version, const CScript& script)
 {
-    return (CHashWriter(HASHER_TAPLEAF) << leaf_version << script).GetSHA256();
+    return (CHashWriterSHA256(HASHER_TAPLEAF) << leaf_version << script).GetSHA256();
 }
 
 uint256 ComputeTaprootMerkleRoot(Span<const unsigned char> control, const uint256& tapleaf_hash)

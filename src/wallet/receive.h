@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_WALLET_RECEIVE_H
-#define BITCOIN_WALLET_RECEIVE_H
+#ifndef BGL_WALLET_RECEIVE_H
+#define BGL_WALLET_RECEIVE_H
 
 #include <consensus/amount.h>
 #include <wallet/ismine.h>
@@ -61,4 +61,4 @@ Balance GetBalance(const CWallet& wallet, int min_depth = 0, bool avoid_reuse = 
 std::map<CTxDestination, CAmount> GetAddressBalances(const CWallet& wallet);
 std::set<std::set<CTxDestination>> GetAddressGroupings(const CWallet& wallet) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet);
 
-#endif // BITCOIN_WALLET_RECEIVE_H
+#endif // BGL_WALLET_RECEIVE_H

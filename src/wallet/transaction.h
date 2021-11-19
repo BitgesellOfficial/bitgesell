@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_WALLET_TRANSACTION_H
-#define BITCOIN_WALLET_TRANSACTION_H
+#ifndef BGL_WALLET_TRANSACTION_H
+#define BGL_WALLET_TRANSACTION_H
 
 #include <consensus/amount.h>
 #include <primitives/transaction.h>
@@ -162,7 +162,8 @@ public:
         int block_height;
         uint256 hashBlock;
         int nIndex;
-        Confirmation(Status s = UNCONFIRMED, int b = 0, uint256 h = uint256(), int i = 0) : status(s), block_height(b), hashBlock(h), nIndex(i) {}
+        Confirmation(Status status = UNCONFIRMED, int block_height = 0, uint256 block_hash = uint256(), int block_index = 0)
+            : status{status}, block_height{block_height}, hashBlock{block_hash}, nIndex{block_index} {}
     };
 
     Confirmation m_confirm;
@@ -273,4 +274,4 @@ public:
     void operator=(CWalletTx const &x) = delete;
 };
 
-#endif // BITCOIN_WALLET_TRANSACTION_H
+#endif // BGL_WALLET_TRANSACTION_H

@@ -1,10 +1,17 @@
-m4_define([libunivalue_major_version], [1])
-m4_define([libunivalue_minor_version], [1])
-m4_define([libunivalue_micro_version], [4])
-m4_define([libunivalue_interface_age], [4])
-# If you need a modifier for the version number. 
-# Normally empty, but can be used to make "fixup" releases.
-m4_define([libunivalue_extraversion], [])
+AC_PREREQ([2.69])
+define(_CLIENT_VERSION_MAJOR, 22)
+define(_CLIENT_VERSION_MINOR, 99)
+define(_CLIENT_VERSION_BUILD, 0)
+define(_CLIENT_VERSION_RC, 0)
+define(_CLIENT_VERSION_IS_RELEASE, false)
+define(_COPYRIGHT_YEAR, 2021)
+define(_COPYRIGHT_HOLDERS,[The %s developers])
+define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[Bitcoin Core]])
+AC_INIT([BGL Core],m4_join([.], _CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MINOR, _CLIENT_VERSION_BUILD)m4_if(_CLIENT_VERSION_RC, [0], [], [rc]_CLIENT_VERSION_RC),[https://github.com/bitcoin/bitcoin/issues],[bitcoin],[https://bitcoincore.org/])
+AC_CONFIG_SRCDIR([src/validation.cpp])
+AC_CONFIG_HEADERS([src/config/BGL-config.h])
+AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_MACRO_DIR([build-aux/m4])
 
 m4_ifndef([PKG_PROG_PKG_CONFIG], [AC_MSG_ERROR([PKG_PROG_PKG_CONFIG macro not found. Please install pkg-config and re-run autogen.sh])])
 PKG_PROG_PKG_CONFIG
@@ -22,12 +29,17 @@ dnl Multi Process
 BGL_MP_NODE_NAME=BGL-node
 BGL_MP_GUI_NAME=BGL-gui
 
-AC_INIT([univalue], [1.0.4],
-        [http://github.com/jgarzik/univalue/])
+dnl Unless the user specified ARFLAGS, force it to be cr
+AC_ARG_VAR(ARFLAGS, [Flags for the archiver, defaults to <cr> if not set])
+if test "x${ARFLAGS+set}" != "xset"; then
+  ARFLAGS="cr"
+fi
 
 AC_CANONICAL_HOST
 
-LT_INIT
+AH_TOP([#ifndef BGL_CONFIG_H])
+AH_TOP([#define BGL_CONFIG_H])
+AH_BOTTOM([#endif //BGL_CONFIG_H])
 
 dnl faketime breaks configure and is only needed for make. Disable it here.
 unset FAKETIME
@@ -42,9 +54,17 @@ AM_MAINTAINER_MODE([enable])
 dnl make the compilation flags quiet unless V=1 is used
 AM_SILENT_RULES([yes])
 
-dnl Require C++11 compiler (no GNU extensions)
-AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory], [nodefault])
+dnl Compiler checks (here before libtool).
+if test "x${CXXFLAGS+set}" = "xset"; then
+  CXXFLAGS_overridden=yes
+else
+  CXXFLAGS_overridden=no
+fi
+AC_PROG_CXX
 
+dnl By default, libtool for mingw refuses to link static libs into a dll for
+dnl fear of mixing pic/non-pic objects, and import/export complications. Since
+dnl we have those under control, re-enable that functionality.
 case $host in
   *mingw*)
      lt_cv_deplibs_check_method="pass_all"
@@ -150,7 +170,7 @@ AC_ARG_ENABLE([natpmp-default],
 AC_ARG_ENABLE(tests,
     AS_HELP_STRING([--disable-tests],[do not compile tests (default is to compile)]),
     [use_tests=$enableval],
-    [use_tests=no])
+    [use_tests=yes])
 
 AC_ARG_ENABLE(gui-tests,
     AS_HELP_STRING([--disable-gui-tests],[do not compile GUI tests (default is to compile if GUI and tests enabled)]),
@@ -160,7 +180,7 @@ AC_ARG_ENABLE(gui-tests,
 AC_ARG_ENABLE(bench,
     AS_HELP_STRING([--disable-bench],[do not compile benchmarks (default is to compile)]),
     [use_bench=$enableval],
-    [use_bench=no])
+    [use_bench=yes])
 
 AC_ARG_ENABLE([extended-functional-tests],
     AS_HELP_STRING([--enable-extended-functional-tests],[enable expensive functional tests when using lcov (default no)]),
@@ -189,7 +209,7 @@ AC_ARG_ENABLE([hardening],
   [AS_HELP_STRING([--disable-hardening],
   [do not attempt to harden the resulting executables (default is to harden when possible)])],
   [use_hardening=$enableval],
-  [use_hardening=no])
+  [use_hardening=auto])
 
 AC_ARG_ENABLE([reduce-exports],
   [AS_HELP_STRING([--enable-reduce-exports],
@@ -205,7 +225,7 @@ AC_ARG_ENABLE([ccache],
 
 dnl Suppress warnings from external headers (e.g. Boost, Qt).
 dnl May be useful if warnings from external headers clutter the build output
-dnl too much, so that it becomes difficult to spot BGL Core warnings
+dnl too much, so that it becomes difficult to spot Bitcoin Core warnings
 dnl or if they cause a build failure with --enable-werror.
 AC_ARG_ENABLE([suppress-external-warnings],
   [AS_HELP_STRING([--enable-suppress-external-warnings],
@@ -346,6 +366,7 @@ if test "x$enable_debug" = xyes; then
 
   AX_CHECK_PREPROC_FLAG([-DDEBUG],[[DEBUG_CPPFLAGS="$DEBUG_CPPFLAGS -DDEBUG"]],,[[$CXXFLAG_WERROR]])
   AX_CHECK_PREPROC_FLAG([-DDEBUG_LOCKORDER],[[DEBUG_CPPFLAGS="$DEBUG_CPPFLAGS -DDEBUG_LOCKORDER"]],,[[$CXXFLAG_WERROR]])
+  AX_CHECK_PREPROC_FLAG([-DABORT_ON_FAILED_ASSUME],[[DEBUG_CPPFLAGS="$DEBUG_CPPFLAGS -DABORT_ON_FAILED_ASSUME"]],,[[$CXXFLAG_WERROR]])
   AX_CHECK_COMPILE_FLAG([-ftrapv],[DEBUG_CXXFLAGS="$DEBUG_CXXFLAGS -ftrapv"],,[[$CXXFLAG_WERROR]])
 fi
 
@@ -634,29 +655,29 @@ case $host in
   *darwin*)
      TARGET_OS=darwin
      if  test x$cross_compiling != xyes; then
-       AC_CHECK_PROG([BREW], brew, brew)
+       BUILD_OS=darwin
+       AC_PATH_PROGS([RSVG_CONVERT], [rsvg-convert rsvg],rsvg-convert)
+       AC_CHECK_PROG([BREW],brew, brew)
        if test x$BREW = xbrew; then
-         # These Homebrew packages may be keg-only, meaning that they won't be found
-         # in expected paths because they may conflict with system files. Ask
-         # Homebrew where each one is located, then adjust paths accordingly.
-         openssl_prefix=`$BREW --prefix openssl 2>/dev/null`
-         valgrind_prefix=`$BREW --prefix valgrind 2>/dev/null`
-         if test x$openssl_prefix != x; then
-           PKG_CONFIG_PATH="$openssl_prefix/lib/pkgconfig:$PKG_CONFIG_PATH"
-           export PKG_CONFIG_PATH
-           CRYPTO_CPPFLAGS="-I$openssl_prefix/include"
+         dnl These Homebrew packages may be keg-only, meaning that they won't be found
+         dnl in expected paths because they may conflict with system files. Ask
+         dnl Homebrew where each one is located, then adjust paths accordingly.
+         dnl It's safe to add these paths even if the functionality is disabled by
+         dnl the user (--without-wallet or --without-gui for example).
+
+         if test "x$use_bdb" != xno && $BREW list --versions berkeley-db4 >/dev/null && test "x$BDB_CFLAGS" = "x" && test "x$BDB_LIBS" = "x"; then
+           bdb_prefix=$($BREW --prefix berkeley-db4 2>/dev/null)
+           dnl This must precede the call to BGL_FIND_BDB48 below.
+           BDB_CFLAGS="-I$bdb_prefix/include"
+           BDB_LIBS="-L$bdb_prefix/lib -ldb_cxx-4.8"
          fi
 
          if test "x$use_sqlite" != xno && $BREW list --versions sqlite3 >/dev/null; then
            export PKG_CONFIG_PATH="$($BREW --prefix sqlite3 2>/dev/null)/lib/pkgconfig:$PKG_CONFIG_PATH"
          fi
-       else
-         AC_CHECK_PROG([PORT], port, port)
-         # If homebrew isn't installed and macports is, add the macports default paths
-         # as a last resort.
-         if test x$PORT = xport; then
-           CPPFLAGS="$CPPFLAGS -isystem /opt/local/include"
-           LDFLAGS="$LDFLAGS -L/opt/local/lib"
+
+         if $BREW list --versions qt5 >/dev/null; then
+           export PKG_CONFIG_PATH="$($BREW --prefix qt5 2>/dev/null)/lib/pkgconfig:$PKG_CONFIG_PATH"
          fi
 
          case $host in
@@ -738,41 +759,55 @@ case $host in
      ;;
 esac
 
-# Try if some desirable compiler flags are supported and append them to SECP_CFLAGS.
-#
-# These are our own flags, so we append them to our own SECP_CFLAGS variable (instead of CFLAGS) as
-# recommended in the automake manual (Section "Flag Variables Ordering"). CFLAGS belongs to the user
-# and we are not supposed to touch it. In the Makefile, we will need to ensure that SECP_CFLAGS
-# is prepended to CFLAGS when invoking the compiler so that the user always has the last word (flag).
-#
-# Another advantage of not touching CFLAGS is that the contents of CFLAGS will be picked up by
-# libtool for compiling helper executables. For example, when compiling for Windows, libtool will
-# generate entire wrapper executables (instead of simple wrapper scripts as on Unix) to ensure
-# proper operation of uninstalled programs linked by libtool against the uninstalled shared library.
-# These executables are compiled from C source file for which our flags may not be appropriate,
-# e.g., -std=c89 flag has lead to undesirable warnings in the past.
-#
-# TODO We should analogously not touch CPPFLAGS and LDFLAGS but currently there are no issues.
-AC_DEFUN([SECP_TRY_APPEND_DEFAULT_CFLAGS], [
-    # Try to append -Werror=unknown-warning-option to CFLAGS temporarily. Otherwise clang will
-    # not error out if it gets unknown warning flags and the checks here will always succeed
-    # no matter if clang knows the flag or not.
-    SECP_TRY_APPEND_DEFAULT_CFLAGS_saved_CFLAGS="$CFLAGS"
-    SECP_TRY_APPEND_CFLAGS([-Werror=unknown-warning-option], CFLAGS)
+if test x$use_extended_functional_tests != xno; then
+  AC_SUBST(EXTENDED_FUNCTIONAL_TESTS, --extended)
+fi
 
-    SECP_TRY_APPEND_CFLAGS([-std=c89 -pedantic -Wno-long-long -Wnested-externs -Wshadow -Wstrict-prototypes -Wundef], $1) # GCC >= 3.0, -Wlong-long is implied by -pedantic.
-    SECP_TRY_APPEND_CFLAGS([-Wno-overlength-strings], $1) # GCC >= 4.2, -Woverlength-strings is implied by -pedantic.
-    SECP_TRY_APPEND_CFLAGS([-Wall], $1) # GCC >= 2.95 and probably many other compilers
-    SECP_TRY_APPEND_CFLAGS([-Wno-unused-function], $1) # GCC >= 3.0, -Wunused-function is implied by -Wall.
-    SECP_TRY_APPEND_CFLAGS([-Wextra], $1) # GCC >= 3.4, this is the newer name of -W, which we don't use because older GCCs will warn about unused functions.
-    SECP_TRY_APPEND_CFLAGS([-Wcast-align], $1) # GCC >= 2.95
-    SECP_TRY_APPEND_CFLAGS([-Wcast-align=strict], $1) # GCC >= 8.0
-    SECP_TRY_APPEND_CFLAGS([-Wconditional-uninitialized], $1) # Clang >= 3.0 only
-    SECP_TRY_APPEND_CFLAGS([-fvisibility=hidden], $1) # GCC >= 4.0
+if test x$use_lcov = xyes; then
+  if test x$LCOV = x; then
+    AC_MSG_ERROR("lcov testing requested but lcov not found")
+  fi
+  if test x$PYTHON = x; then
+    AC_MSG_ERROR("lcov testing requested but python not found")
+  fi
+  if test x$GENHTML = x; then
+    AC_MSG_ERROR("lcov testing requested but genhtml not found")
+  fi
 
-    CFLAGS="$SECP_TRY_APPEND_DEFAULT_CFLAGS_saved_CFLAGS"
-])
-SECP_TRY_APPEND_DEFAULT_CFLAGS(SECP_CFLAGS)
+  AC_MSG_CHECKING([whether compiler is Clang])
+  AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
+      #if defined(__clang__) && defined(__llvm__)
+      // Compiler is Clang
+      #else
+      #  error Compiler is not Clang
+      #endif
+    ]])],[
+      AC_MSG_RESULT([yes])
+      if test x$LLVM_COV = x; then
+        AC_MSG_ERROR([lcov testing requested but llvm-cov not found])
+      fi
+      COV_TOOL="$LLVM_COV gcov"
+    ],[
+      AC_MSG_RESULT([no])
+      if test x$GCOV = x; then
+        AC_MSG_ERROR([lcov testing requested but gcov not found])
+      fi
+      COV_TOOL="$GCOV"
+  ])
+  AC_SUBST(COV_TOOL)
+  AC_SUBST(COV_TOOL_WRAPPER, "cov_tool_wrapper.sh")
+  LCOV="$LCOV --gcov-tool $(pwd)/$COV_TOOL_WRAPPER"
+
+  AX_CHECK_LINK_FLAG([[--coverage]], [LDFLAGS="$LDFLAGS --coverage"],
+    [AC_MSG_ERROR("lcov testing requested but --coverage linker flag does not work")])
+  AX_CHECK_COMPILE_FLAG([--coverage],[CXXFLAGS="$CXXFLAGS --coverage"],
+    [AC_MSG_ERROR("lcov testing requested but --coverage flag does not work")])
+  CXXFLAGS="$CXXFLAGS -Og"
+fi
+
+if test x$use_lcov_branch != xno; then
+  AC_SUBST(LCOV_OPTS, "$LCOV_OPTS --rc lcov_branch_coverage=1")
+fi
 
 dnl Check for __int128
 AC_CHECK_TYPES([__int128])
@@ -821,16 +856,9 @@ if test "x$enable_gprof" = xyes; then
         [AC_MSG_ERROR(gprof profiling requested but not available)], [[$GPROF_LDFLAGS]])
 fi
 
-if test x"$enable_coverage" = x"yes"; then
-    AC_DEFINE(COVERAGE, 1, [Define this symbol to compile out all VERIFY code])
-    SECP_CFLAGS="-O0 --coverage $SECP_CFLAGS"
-    LDFLAGS="--coverage $LDFLAGS"
-else
-    # Most likely the CFLAGS already contain -O2 because that is autoconf's default.
-    # We still add it here because passing it twice is not an issue, and handling
-    # this case would just add unnecessary complexity (see #896).
-    SECP_CFLAGS="-O2 $SECP_CFLAGS"
-    SECP_CFLAGS_FOR_BUILD="-O2 $SECP_CFLAGS_FOR_BUILD"
+if test x$TARGET_OS != xwindows; then
+  dnl All windows code is PIC, forcing it on just adds useless compile warnings
+  AX_CHECK_COMPILE_FLAG([-fPIC],[PIC_FLAGS="-fPIC"])
 fi
 
 dnl All versions of gcc that we commonly use for building are subject to bug
@@ -903,9 +931,7 @@ AC_CHECK_DECLS([getifaddrs, freeifaddrs],[CHECK_SOCKET],,
 )
 AC_CHECK_DECLS([strnlen])
 
-dnl Check for daemon(3), unrelated to --with-daemon (although used by it)
-AC_CHECK_DECLS([daemon])
-
+dnl These are used for daemonization in BGLd
 AC_CHECK_DECLS([fork])
 AC_CHECK_DECLS([setsid])
 
@@ -1218,7 +1244,6 @@ if test "x$enable_fuzz" = "xyes"; then
   BGL_enable_qt=no
   BGL_enable_qt_test=no
   BGL_enable_qt_dbus=no
-  enable_wallet=no
   use_bench=no
   use_external_signer=no
   use_upnp=no
@@ -1262,9 +1287,11 @@ fi
 
 if test x$enable_wallet != xno; then
     dnl Check for libdb_cxx only if wallet enabled
-    BGL_FIND_BDB48
-    if test x$suppress_external_warnings != xno ; then
+    if test "x$use_bdb" != "xno"; then
+      BGL_FIND_BDB48
+      if test x$suppress_external_warnings != xno ; then
         BDB_CPPFLAGS=SUPPRESS_WARNINGS($BDB_CPPFLAGS)
+      fi
     fi
 
     dnl Check for sqlite3
@@ -1345,7 +1372,7 @@ if test "x$use_natpmp" != xno; then
 fi
 
 if test x$build_BGL_wallet$build_BGL_cli$build_BGL_tx$build_BGLd$BGL_enable_qt$use_tests$use_bench = xnonononononono; then
-    use_boost=no
+  use_boost=no
 else
   use_boost=yes
 fi
@@ -1355,7 +1382,7 @@ if test x$use_boost = xyes; then
   dnl Check for Boost headers
   AX_BOOST_BASE([1.64.0],[],[AC_MSG_ERROR([Boost is not available!])])
   if test x$want_boost = xno; then
-    AC_MSG_ERROR([[only libbBGLconsensus can be built without boost]])
+    AC_MSG_ERROR([[only libBGLconsensus can be built without boost]])
   fi
   AX_BOOST_SYSTEM
   AX_BOOST_FILESYSTEM
@@ -1866,16 +1893,16 @@ if test "x$enable_wallet" != "xno"; then
     echo "    with sqlite   = $use_sqlite"
     echo "    with bdb      = $use_bdb"
 fi
-echo "  with gui / qt = $BGL_enable_qt"
+echo "  with gui / qt   = $BGL_enable_qt"
 if test x$BGL_enable_qt != xno; then
-    echo "    with qr     = $use_qr"
+    echo "    with qr       = $use_qr"
 fi
 echo "  with zmq        = $use_zmq"
 if test x$enable_fuzz == xno; then
     echo "  with test       = $use_tests"
 else
-    echo "  with test     = not building test_BGL because fuzzing is enabled"
-    echo "    with fuzz   = $enable_fuzz"
+    echo "  with test       = not building test_BGL because fuzzing is enabled"
+    echo "    with fuzz     = $enable_fuzz"
 fi
 echo "  with bench      = $use_bench"
 echo "  with upnp       = $use_upnp"
@@ -1887,17 +1914,14 @@ echo "  debug enabled   = $enable_debug"
 echo "  gprof enabled   = $enable_gprof"
 echo "  werror          = $enable_werror"
 echo
-echo "  valgrind                = $enable_valgrind"
-echo "  CC                      = $CC"
-echo "  CPPFLAGS                = $CPPFLAGS"
-echo "  SECP_CFLAGS             = $SECP_CFLAGS"
-echo "  CFLAGS                  = $CFLAGS"
-echo "  LDFLAGS                 = $LDFLAGS"
+echo "  target os       = $TARGET_OS"
+echo "  build os        = $build_os"
 echo
-if test x"$set_precomp" = x"yes"; then
-echo "  CC_FOR_BUILD            = $CC_FOR_BUILD"
-echo "  CPPFLAGS_FOR_BUILD      = $CPPFLAGS_FOR_BUILD"
-echo "  SECP_CFLAGS_FOR_BUILD   = $SECP_CFLAGS_FOR_BUILD"
-echo "  CFLAGS_FOR_BUILD        = $CFLAGS_FOR_BUILD"
-echo "  LDFLAGS_FOR_BUILD       = $LDFLAGS_FOR_BUILD"
-fi
+echo "  CC              = $CC"
+echo "  CFLAGS          = $PTHREAD_CFLAGS $CFLAGS"
+echo "  CPPFLAGS        = $DEBUG_CPPFLAGS $HARDENED_CPPFLAGS $CPPFLAGS"
+echo "  CXX             = $CXX"
+echo "  CXXFLAGS        = $DEBUG_CXXFLAGS $HARDENED_CXXFLAGS $WARN_CXXFLAGS $NOWARN_CXXFLAGS $ERROR_CXXFLAGS $GPROF_CXXFLAGS $CXXFLAGS"
+echo "  LDFLAGS         = $PTHREAD_LIBS $HARDENED_LDFLAGS $GPROF_LDFLAGS $LDFLAGS"
+echo "  ARFLAGS         = $ARFLAGS"
+echo

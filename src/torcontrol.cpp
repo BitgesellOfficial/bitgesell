@@ -16,6 +16,7 @@
 #include <util/strencodings.h>
 #include <util/syscall_sandbox.h>
 #include <util/system.h>
+#include <util/thread.h>
 #include <util/time.h>
 
 #include <deque>
@@ -605,7 +606,7 @@ void StartTorControl(CService onion_service_target)
         return;
     }
 
-    torControlThread = std::thread(&TraceThread<std::function<void()>>, "torcontrol", [onion_service_target] {
+    torControlThread = std::thread(&util::TraceThread, "torcontrol", [onion_service_target] {
         TorControlThread(onion_service_target);
     });
 }

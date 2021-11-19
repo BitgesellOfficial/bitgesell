@@ -5,9 +5,16 @@
 
 #include <pubkey.h>
 
+#include <hash.h>
 #include <secp256k1.h>
+#include <secp256k1_extrakeys.h>
 #include <secp256k1_recovery.h>
 #include <secp256k1_schnorrsig.h>
+#include <span.h>
+#include <uint256.h>
+
+#include <algorithm>
+#include <cassert>
 
 namespace
 {
@@ -21,7 +28,7 @@ secp256k1_context* secp256k1_context_verify = nullptr;
  *
  *  Supported violations include negative integers, excessive padding, garbage
  *  at the end, and overly long length descriptors. This is safe to use in
- *  BGL because since the activation of BIP66, signatures are verified to be
+ *  Bitcoin because since the activation of BIP66, signatures are verified to be
  *  strict DER before being passed to this module, and we know it supports all
  *  violations present in the blockchain before that point.
  */
@@ -201,19 +208,19 @@ bool XOnlyPubKey::VerifySchnorr(const uint256& msg, Span<const unsigned char> si
     assert(sigbytes.size() == 64);
     secp256k1_xonly_pubkey pubkey;
     if (!secp256k1_xonly_pubkey_parse(secp256k1_context_verify, &pubkey, m_keydata.data())) return false;
-    return secp256k1_schnorrsig_verify(secp256k1_context_verify, sigbytes.data(), msg.begin(), &pubkey);
+    return secp256k1_schnorrsig_verify(secp256k1_context_verify, sigbytes.data(), msg.begin(), 32, &pubkey);
 }
 
-static const CHashWriter HASHER_TAPTWEAK = TaggedHash("TapTweak");
+static const CHashWriterSHA256 HASHER_TAPTWEAK = TaggedHash("TapTweak");
 
 uint256 XOnlyPubKey::ComputeTapTweakHash(const uint256* merkle_root) const
 {
     if (merkle_root == nullptr) {
         // We have no scripts. The actual tweak does not matter, but follow BIP341 here to
         // allow for reproducible tweaking.
-        return (CHashWriter(HASHER_TAPTWEAK) << m_keydata).GetSHA256();
+        return (CHashWriterSHA256(HASHER_TAPTWEAK) << m_keydata).GetSHA256();
     } else {
-        return (CHashWriter(HASHER_TAPTWEAK) << m_keydata << *merkle_root).GetSHA256();
+        return (CHashWriterSHA256(HASHER_TAPTWEAK) << m_keydata << *merkle_root).GetSHA256();
     }
 }
 
@@ -256,7 +263,7 @@ bool CPubKey::Verify(const uint256 &hash, const std::vector<unsigned char>& vchS
         return false;
     }
     /* libsecp256k1's ECDSA verification requires lower-S signatures, which have
-     * not historically been enforced in BGL, so normalize them first. */
+     * not historically been enforced in Bitcoin, so normalize them first. */
     secp256k1_ecdsa_signature_normalize(secp256k1_context_verify, &sig, &sig);
     return secp256k1_ecdsa_verify(secp256k1_context_verify, &sig, hash.begin(), &pubkey);
 }

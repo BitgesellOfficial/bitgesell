@@ -194,6 +194,16 @@ CScript GetScriptForRawPubKey(const CPubKey& pubkey);
 /** Generate a multisig script. */
 CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys);
 
+struct ShortestVectorFirstComparator
+{
+    bool operator()(const std::vector<unsigned char>& a, const std::vector<unsigned char>& b) const
+    {
+        if (a.size() < b.size()) return true;
+        if (a.size() > b.size()) return false;
+        return a < b;
+    }
+};
+
 struct TaprootSpendData
 {
     /** The BIP341 internal key. */

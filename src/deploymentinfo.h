@@ -3,7 +3,11 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BGL_DEPLOYMENTINFO_H
-#define Bgl_DEPLOYMENTINFO_H
+#define BGL_DEPLOYMENTINFO_H
+
+#include <consensus/params.h>
+
+#include <string>
 
 struct VBDeploymentInfo {
     /** Deployment name */
@@ -22,4 +26,4 @@ inline std::string DeploymentName(Consensus::DeploymentPos pos)
     return VersionBitsDeploymentInfo[pos].name;
 }
 
-#endif // BGL_VERSIONBITSINFO_H
+#endif // BGL_DEPLOYMENTINFO_H

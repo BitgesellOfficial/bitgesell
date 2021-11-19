@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 //
-#ifndef BITCOIN_TEST_UTIL_CHAINSTATE_H
-#define BITCOIN_TEST_UTIL_CHAINSTATE_H
+#ifndef BGL_TEST_UTIL_CHAINSTATE_H
+#define BGL_TEST_UTIL_CHAINSTATE_H
 
 #include <clientversion.h>
 #include <fs.h>
@@ -51,4 +51,4 @@ CreateAndActivateUTXOSnapshot(NodeContext& node, const fs::path root, F malleati
 }
 
 
-#endif // BITCOIN_TEST_UTIL_CHAINSTATE_H
+#endif // BGL_TEST_UTIL_CHAINSTATE_H

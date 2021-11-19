@@ -83,11 +83,11 @@ static const std::array<uint8_t, 6> TORV2_IN_IPV6_PREFIX{
 
 /// Prefix of an IPv6 address when it contains an embedded "internal" address.
 /// Used when (un)serializing addresses in ADDRv1 format (pre-BIP155).
-/// The prefix comes from 0xFD + SHA256("BGL")[0:5].
+/// The prefix comes from 0xFD + SHA256("bitcoin")[0:5].
 /// Such dummy IPv6 addresses are guaranteed to not be publicly routable as they
 /// fall under RFC4193's fc00::/7 subnet allocated to unique-local addresses.
 static const std::array<uint8_t, 6> INTERNAL_IN_IPV6_PREFIX{
-    0xFD, 0x6B, 0x88, 0xC0, 0x87, 0x24 // 0xFD + sha256("BGL")[0:5].
+    0xFD, 0x6B, 0x88, 0xC0, 0x87, 0x24 // 0xFD + sha256("bitcoin")[0:5].
 };
 
 /// Size of IPv4 address (in bytes).
@@ -253,7 +253,6 @@ public:
         }
     }
 
-    friend class CNetAddrHash;
     friend class CSubNet;
 
 private:
@@ -467,22 +466,6 @@ private:
     }
 };
 
-class CNetAddrHash
-{
-public:
-    size_t operator()(const CNetAddr& a) const noexcept
-    {
-        CSipHasher hasher(m_salt_k0, m_salt_k1);
-        hasher.Write(a.m_net);
-        hasher.Write(a.m_addr.data(), a.m_addr.size());
-        return static_cast<size_t>(hasher.Finalize());
-    }
-
-private:
-    const uint64_t m_salt_k0 = GetRand(std::numeric_limits<uint64_t>::max());
-    const uint64_t m_salt_k1 = GetRand(std::numeric_limits<uint64_t>::max());
-};
-
 class CSubNet
 {
 protected:
@@ -565,6 +548,25 @@ public:
         READWRITEAS(CNetAddr, obj);
         READWRITE(Using<BigEndianFormatter<2>>(obj.port));
     }
+
+    friend class CServiceHash;
+};
+
+class CServiceHash
+{
+public:
+    size_t operator()(const CService& a) const noexcept
+    {
+        CSipHasher hasher(m_salt_k0, m_salt_k1);
+        hasher.Write(a.m_net);
+        hasher.Write(a.port);
+        hasher.Write(a.m_addr.data(), a.m_addr.size());
+        return static_cast<size_t>(hasher.Finalize());
+    }
+
+private:
+    const uint64_t m_salt_k0 = GetRand(std::numeric_limits<uint64_t>::max());
+    const uint64_t m_salt_k1 = GetRand(std::numeric_limits<uint64_t>::max());
 };
 
 #endif // BGL_NETADDRESS_H

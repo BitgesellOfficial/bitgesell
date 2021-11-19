@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_UTIL_SYSCALL_SANDBOX_H
-#define BITCOIN_UTIL_SYSCALL_SANDBOX_H
+#ifndef BGL_UTIL_SYSCALL_SANDBOX_H
+#define BGL_UTIL_SYSCALL_SANDBOX_H
 
 enum class SyscallSandboxPolicy {
     // 1. Initialization
@@ -54,4 +54,4 @@ void SetSyscallSandboxPolicy(SyscallSandboxPolicy syscall_policy);
 void TestDisallowedSandboxCall();
 #endif // defined(USE_SYSCALL_SANDBOX)
 
-#endif // BITCOIN_UTIL_SYSCALL_SANDBOX_H
+#endif // BGL_UTIL_SYSCALL_SANDBOX_H
