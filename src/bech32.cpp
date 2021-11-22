@@ -133,6 +133,37 @@ inline unsigned char LowerCase(unsigned char c)
     return (c >= 'A' && c <= 'Z') ? (c - 'A') + 'a' : c;
 }
 
+void push_range(int from, int to, std::vector<int>& vec)
+{
+    for (int i = from; i < to; i++) {
+        vec.push_back(i);
+    }
+}
+
+/** Return indices of invalid characters in a Bech32 string. */
+bool CheckCharacters(const std::string& str, std::vector<int>& errors) {
+    bool lower = false, upper = false;
+    for (size_t i = 0; i < str.size(); ++i) {
+        unsigned char c = str[i];
+        if (c >= 'a' && c <= 'z') {
+            if (upper) {
+                errors.push_back(i);
+            } else {
+                lower = true;
+            }
+        } else if (c >= 'A' && c <= 'Z') {
+            if (lower) {
+                errors.push_back(i);
+            } else {
+                upper = true;
+            }
+        } else if (c < 33 || c > 126) {
+            errors.push_back(i);
+        }
+    }
+    return errors.empty();
+}
+
 /** Expand a HRP for use in checksum computation. */
 data ExpandHRP(const std::string& hrp)
 {
