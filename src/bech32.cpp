@@ -6,6 +6,7 @@
 #include <util/vector.h>
 
 #include <assert.h>
+#include <optional>
 
 namespace bech32
 {
@@ -256,6 +257,170 @@ DecodeResult Decode(const std::string& str) {
     Encoding result = VerifyChecksum(hrp, values);
     if (result == Encoding::INVALID) return {};
     return {result, std::move(hrp), data(values.begin(), values.end() - 6)};
+}
+
+/** Find index of an incorrect character in a Bech32 string. */
+std::string LocateErrors(const std::string& str, std::vector<int>& error_locations) {
+    if (str.size() > 90) {
+        push_range(90, str.size(), error_locations);
+        return "Bech32 string too long";
+    }
+    if (!CheckCharacters(str, error_locations)){
+        return "Invalid character or mixed case";
+    }
+    size_t pos = str.rfind('1');
+    if (pos == str.npos) {
+        return "Missing separator";
+    }
+    if (pos == 0 || pos + 7 > str.size()) {
+        error_locations.push_back(pos);
+        return "Invalid separator position";
+    }
+    std::string hrp;
+    for (size_t i = 0; i < pos; ++i) {
+        hrp += LowerCase(str[i]);
+    }
+
+    size_t length = str.size() - 1 - pos; // length of data part
+    data values(length);
+    for (size_t i = pos + 1; i < str.size(); ++i) {
+        unsigned char c = str[i];
+        int8_t rev = CHARSET_REV[c];
+        if (rev == -1) {
+            error_locations.push_back(i);
+            return "Invalid Base 32 character";
+        }
+        values[i - pos - 1] = rev;
+    }
+
+    // We attempt error detection with both bech32 and bech32m, and choose the one with the fewest errors
+    // We can't simply use the segwit version, because that may be one of the errors
+    std::optional<Encoding> error_encoding;
+    for (Encoding encoding : {Encoding::BECH32, Encoding::BECH32M}) {
+        std::vector<int> possible_errors;
+        // Recall that (ExpandHRP(hrp) ++ values) is interpreted as a list of coefficients of a polynomial
+        // over GF(32). PolyMod computes the "remainder" of this polynomial modulo the generator G(x).
+        uint32_t residue = PolyMod(Cat(ExpandHRP(hrp), values)) ^ EncodingConstant(encoding);
+
+        // All valid codewords should be multiples of G(x), so this remainder (after XORing with the encoding
+        // constant) should be 0 - hence 0 indicates there are no errors present.
+        if (residue != 0) {
+            // If errors are present, our polynomial must be of the form C(x) + E(x) where C is the valid
+            // codeword (a multiple of G(x)), and E encodes the errors.
+            uint32_t syn = Syndrome(residue);
+
+            // Unpack the three 10-bit syndrome values
+            int s0 = syn & 0x3FF;
+            int s1 = (syn >> 10) & 0x3FF;
+            int s2 = syn >> 20;
+
+            // Get the discrete logs of these values in GF1024 for more efficient computation
+            int l_s0 = GF1024_LOG[s0];
+            int l_s1 = GF1024_LOG[s1];
+            int l_s2 = GF1024_LOG[s2];
+
+            // First, suppose there is only a single error. Then E(x) = e1*x^p1 for some position p1
+            // Then s0 = E((e)^997) = e1*(e)^(997*p1) and s1 = E((e)^998) = e1*(e)^(998*p1)
+            // Therefore s1/s0 = (e)^p1, and by the same logic, s2/s1 = (e)^p1 too.
+            // Hence, s1^2 == s0*s2, which is exactly the condition we check first:
+            if (l_s0 != -1 && l_s1 != -1 && l_s2 != -1 && (2 * l_s1 - l_s2 - l_s0 + 2046) % 1023 == 0) {
+                // Compute the error position p1 as l_s1 - l_s0 = p1 (mod 1023)
+                size_t p1 = (l_s1 - l_s0 + 1023) % 1023; // the +1023 ensures it is positive
+                // Now because s0 = e1*(e)^(997*p1), we get e1 = s0/((e)^(997*p1)). Remember that (e)^1023 = 1,
+                // so 1/((e)^997) = (e)^(1023-997).
+                int l_e1 = l_s0 + (1023 - 997) * p1;
+                // Finally, some sanity checks on the result:
+                // - The error position should be within the length of the data
+                // - e1 should be in GF(32), which implies that e1 = (e)^(33k) for some k (the 31 non-zero elements
+                // of GF(32) form an index 33 subgroup of the 1023 non-zero elements of GF(1024)).
+                if (p1 < length && !(l_e1 % 33)) {
+                    // Polynomials run from highest power to lowest, so the index p1 is from the right.
+                    // We don't return e1 because it is dangerous to suggest corrections to the user,
+                    // the user should check the address themselves.
+                    possible_errors.push_back(str.size() - p1 - 1);
+                }
+            // Otherwise, suppose there are two errors. Then E(x) = e1*x^p1 + e2*x^p2.
+            } else {
+                // For all possible first error positions p1
+                for (size_t p1 = 0; p1 < length; ++p1) {
+                    // We have guessed p1, and want to solve for p2. Recall that E(x) = e1*x^p1 + e2*x^p2, so
+                    // s0 = E((e)^997) = e1*(e)^(997^p1) + e2*(e)^(997*p2), and similar for s1 and s2.
+                    //
+                    // Consider s2 + s1*(e)^p1
+                    //          = 2e1*(e)^(999^p1) + e2*(e)^(999*p2) + e2*(e)^(998*p2)*(e)^p1
+                    //          = e2*(e)^(999*p2) + e2*(e)^(998*p2)*(e)^p1
+                    //    (Because we are working in characteristic 2.)
+                    //          = e2*(e)^(998*p2) ((e)^p2 + (e)^p1)
+                    //
+                    int s2_s1p1 = s2 ^ (s1 == 0 ? 0 : GF1024_EXP[(l_s1 + p1) % 1023]);
+                    if (s2_s1p1 == 0) continue;
+                    int l_s2_s1p1 = GF1024_LOG[s2_s1p1];
+
+                    // Similarly, s1 + s0*(e)^p1
+                    //          = e2*(e)^(997*p2) ((e)^p2 + (e)^p1)
+                    int s1_s0p1 = s1 ^ (s0 == 0 ? 0 : GF1024_EXP[(l_s0 + p1) % 1023]);
+                    if (s1_s0p1 == 0) continue;
+                    int l_s1_s0p1 = GF1024_LOG[s1_s0p1];
+
+                    // So, putting these together, we can compute the second error position as
+                    // (e)^p2 = (s2 + s1^p1)/(s1 + s0^p1)
+                    // p2 = log((e)^p2)
+                    size_t p2 = (l_s2_s1p1 - l_s1_s0p1 + 1023) % 1023;
+
+                    // Sanity checks that p2 is a valid position and not the same as p1
+                    if (p2 >= length || p1 == p2) continue;
+
+                    // Now we want to compute the error values e1 and e2.
+                    // Similar to above, we compute s1 + s0*(e)^p2
+                    //          = e1*(e)^(997*p1) ((e)^p1 + (e)^p2)
+                    int s1_s0p2 = s1 ^ (s0 == 0 ? 0 : GF1024_EXP[(l_s0 + p2) % 1023]);
+                    if (s1_s0p2 == 0) continue;
+                    int l_s1_s0p2 = GF1024_LOG[s1_s0p2];
+
+                    // And compute (the log of) 1/((e)^p1 + (e)^p2))
+                    int inv_p1_p2 = 1023 - GF1024_LOG[GF1024_EXP[p1] ^ GF1024_EXP[p2]];
+
+                    // Then (s1 + s0*(e)^p1) * (1/((e)^p1 + (e)^p2)))
+                    //         = e2*(e)^(997*p2)
+                    // Then recover e2 by dividing by (e)^(997*p2)
+                    int l_e2 = l_s1_s0p1 + inv_p1_p2 + (1023 - 997) * p2;
+                    // Check that e2 is in GF(32)
+                    if (l_e2 % 33) continue;
+
+                    // In the same way, (s1 + s0*(e)^p2) * (1/((e)^p1 + (e)^p2)))
+                    //         = e1*(e)^(997*p1)
+                    // So recover e1 by dividing by (e)^(997*p1)
+                    int l_e1 = l_s1_s0p2 + inv_p1_p2 + (1023 - 997) * p1;
+                    // Check that e1 is in GF(32)
+                    if (l_e1 % 33) continue;
+
+                    // Again, we do not return e1 or e2 for safety.
+                    // Order the error positions from the left of the string and return them
+                    if (p1 > p2) {
+                        possible_errors.push_back(str.size() - p1 - 1);
+                        possible_errors.push_back(str.size() - p2 - 1);
+                    } else {
+                        possible_errors.push_back(str.size() - p2 - 1);
+                        possible_errors.push_back(str.size() - p1 - 1);
+                    }
+                    break;
+                }
+            }
+        } else {
+            // No errors
+            error_locations.clear();
+            return "";
+        }
+
+        if (error_locations.empty() || (!possible_errors.empty() && possible_errors.size() < error_locations.size())) {
+            error_locations = std::move(possible_errors);
+            if (!error_locations.empty()) error_encoding = encoding;
+        }
+    }
+    return error_encoding == Encoding::BECH32M ? "Invalid Bech32m checksum"
+            : error_encoding == Encoding::BECH32 ? "Invalid Bech32 checksum"
+            : "Invalid checksum";
+
 }
 
 } // namespace bech32
