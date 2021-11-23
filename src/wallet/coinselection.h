@@ -176,6 +176,7 @@ struct OutputGroup
 
 struct SelectionResult
 {
+private:
     /** Set of inputs selected by the algorithm to use in the transaction */
     std::set<CInputCoin> m_selected_inputs;
     /** The target the algorithm selected for. Note that this may not be equal to the recipient amount as it can include non-input fees */
@@ -185,6 +186,7 @@ struct SelectionResult
     /** The computed waste */
     std::optional<CAmount> m_waste;
 
+public:
     explicit SelectionResult(const CAmount target)
         : m_target(target) {}
 
