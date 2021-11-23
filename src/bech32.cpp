@@ -7,6 +7,7 @@
 
 #include <assert.h>
 #include <optional>
+#include <array>
 
 namespace bech32
 {
@@ -30,6 +31,90 @@ const int8_t CHARSET_REV[128] = {
     -1, 29, -1, 24, 13, 25,  9,  8, 23, -1, 18, 22, 31, 27, 19, -1,
      1,  0,  3, 16, 11, 28, 12, 14,  6,  4,  2, -1, -1, -1, -1, -1
 };
+
+/** We work with the finite field GF(1024) defined as a degree 2 extension of the base field GF(32)
+ * The defining polynomial of the extension is x^2 + 9x + 23.
+ * Let (e) be a root of this defining polynomial. Then (e) is a primitive element of GF(1024),
+ * that is, a generator of the field. Every non-zero element of the field can then be represented
+ * as (e)^k for some power k.
+ * The array GF1024_EXP contains all these powers of (e) - GF1024_EXP[k] = (e)^k in GF(1024).
+ * Conversely, GF1024_LOG contains the discrete logarithms of these powers, so
+ * GF1024_LOG[GF1024_EXP[k]] == k.
+ * The following function generates the two tables GF1024_EXP and GF1024_LOG as constexprs. */
+constexpr std::pair<std::array<int16_t, 1023>, std::array<int16_t, 1024>> GenerateGFTables()
+{
+    // Build table for GF(32).
+    // We use these tables to perform arithmetic in GF(32) below, when constructing the
+    // tables for GF(1024).
+    std::array<int8_t, 31> GF32_EXP{};
+    std::array<int8_t, 32> GF32_LOG{};
+
+    // fmod encodes the defining polynomial of GF(32) over GF(2), x^5 + x^3 + 1.
+    // Because coefficients in GF(2) are binary digits, the coefficients are packed as 101001.
+    const int fmod = 41;
+
+    // Elements of GF(32) are encoded as vectors of length 5 over GF(2), that is,
+    // 5 binary digits. Each element (b_4, b_3, b_2, b_1, b_0) encodes a polynomial
+    // b_4*x^4 + b_3*x^3 + b_2*x^2 + b_1*x^1 + b_0 (modulo fmod).
+    // For example, 00001 = 1 is the multiplicative identity.
+    GF32_EXP[0] = 1;
+    GF32_LOG[0] = -1;
+    GF32_LOG[1] = 0;
+    int v = 1;
+    for (int i = 1; i < 31; ++i) {
+        // Multiplication by x is the same as shifting left by 1, as
+        // every coefficient of the polynomial is moved up one place.
+        v = v << 1;
+        // If the polynomial now has an x^5 term, we subtract fmod from it
+        // to remain working modulo fmod. Subtraction is the same as XOR in characteristic
+        // 2 fields.
+        if (v & 32) v ^= fmod;
+        GF32_EXP[i] = v;
+        GF32_LOG[v] = i;
+    }
+
+    // Build table for GF(1024)
+    std::array<int16_t, 1023> GF1024_EXP{};
+    std::array<int16_t, 1024> GF1024_LOG{};
+
+    GF1024_EXP[0] = 1;
+    GF1024_LOG[0] = -1;
+    GF1024_LOG[1] = 0;
+
+    // Each element v of GF(1024) is encoded as a 10 bit integer in the following way:
+    // v = v1 || v0 where v0, v1 are 5-bit integers (elements of GF(32)).
+    // The element (e) is encoded as 9 || 15. Given (v), we
+    // compute (e)*(v) by multiplying in the following way:
+    //
+    // v0' = 27*v1 + 15*v0
+    // v1' = 6*v1 + 9*v0
+    // e*v = v1' || v0'
+    //
+    // Multiplication in GF(32) is done using the log/exp tables:
+    // e^x * e^y = e^(x + y) so a * b = EXP[ LOG[a] + LOG [b] ]
+    // for non-zero a and b.
+
+    v = 1;
+    for (int i = 1; i < 1023; ++i) {
+        int v0 = v & 31;
+        int v1 = v >> 5;
+
+        int v0n = (v1 ? GF32_EXP.at((GF32_LOG.at(v1) + GF32_LOG.at(27)) % 31) : 0) ^
+                    (v0 ? GF32_EXP.at((GF32_LOG.at(v0) + GF32_LOG.at(15)) % 31) : 0);
+        int v1n = (v1 ? GF32_EXP.at((GF32_LOG.at(v1) + GF32_LOG.at(6)) % 31) : 0) ^
+                    (v0 ? GF32_EXP.at((GF32_LOG.at(v0) + GF32_LOG.at(9)) % 31) : 0);
+
+        v = v1n << 5 | v0n;
+        GF1024_EXP[i] = v;
+        GF1024_LOG[v] = i;
+    }
+
+    return std::make_pair(GF1024_EXP, GF1024_LOG);
+}
+
+constexpr auto tables = GenerateGFTables();
+constexpr const std::array<int16_t, 1023>& GF1024_EXP = tables.first;
+constexpr const std::array<int16_t, 1024>& GF1024_LOG = tables.second;
 
 /* Determine the final constant to use for the specified encoding. */
 uint32_t EncodingConstant(Encoding encoding) {
@@ -126,6 +211,68 @@ uint32_t PolyMod(const data& v)
 
     }
     return c;
+}
+
+/** Syndrome computes the values s_j = R(e^j) for j in [997, 998, 999]. As described above, the
+ * generator polynomial G is the LCM of the minimal polynomials of (e)^997, (e)^998, and (e)^999.
+ *
+ * Consider a codeword with errors, of the form R(x) = C(x) + E(x). The residue is the bit-packed
+ * result of computing R(x) mod G(X), where G is the generator of the code. Because C(x) is a valid
+ * codeword, it is a multiple of G(X), so the residue is in fact just E(x) mod G(x). Note that all
+ * of the (e)^j are roots of G(x) by definition, so R((e)^j) = E((e)^j).
+ *
+ * Let R(x) = r1*x^5 + r2*x^4 + r3*x^3 + r4*x^2 + r5*x + r6
+ *
+ * To compute R((e)^j), we are really computing:
+ * r1*(e)^(j*5) + r2*(e)^(j*4) + r3*(e)^(j*3) + r4*(e)^(j*2) + r5*(e)^j + r6
+ *
+ * Now note that all of the (e)^(j*i) for i in [5..0] are constants and can be precomputed.
+ * But even more than that, we can consider each coefficient as a bit-string.
+ * For example, take r5 = (b_5, b_4, b_3, b_2, b_1) written out as 5 bits. Then:
+ * r5*(e)^j = b_1*(e)^j + b_2*(2*(e)^j) + b_3*(4*(e)^j) + b_4*(8*(e)^j) + b_5*(16*(e)^j)
+ * where all the (2^i*(e)^j) are constants and can be precomputed.
+ *
+ * Then we just add each of these corresponding constants to our final value based on the
+ * bit values b_i. This is exactly what is done in the Syndrome function below.
+ */
+constexpr std::array<uint32_t, 25> GenerateSyndromeConstants() {
+    std::array<uint32_t, 25> SYNDROME_CONSTS{};
+    for (int k = 1; k < 6; ++k) {
+        for (int shift = 0; shift < 5; ++shift) {
+            int16_t b = GF1024_LOG.at(1 << shift);
+            int16_t c0 = GF1024_EXP.at((997*k + b) % 1023);
+            int16_t c1 = GF1024_EXP.at((998*k + b) % 1023);
+            int16_t c2 = GF1024_EXP.at((999*k + b) % 1023);
+            uint32_t c = c2 << 20 | c1 << 10 | c0;
+            int ind = 5*(k-1) + shift;
+            SYNDROME_CONSTS[ind] = c;
+        }
+    }
+    return SYNDROME_CONSTS;
+}
+constexpr std::array<uint32_t, 25> SYNDROME_CONSTS = GenerateSyndromeConstants();
+
+/**
+ * Syndrome returns the three values s_997, s_998, and s_999 described above,
+ * packed into a 30-bit integer, where each group of 10 bits encodes one value.
+ */
+uint32_t Syndrome(const uint32_t residue) {
+    // low is the first 5 bits, corresponding to the r6 in the residue
+    // (the constant term of the polynomial).
+    uint32_t low = residue & 0x1f;
+
+    // We begin by setting s_j = low = r6 for all three values of j, because these are unconditional.
+    uint32_t result = low ^ (low << 10) ^ (low << 20);
+
+    // Then for each following bit, we add the corresponding precomputed constant if the bit is 1.
+    // For example, 0x31edd3c4 is 1100011110 1101110100 1111000100 when unpacked in groups of 10
+    // bits, corresponding exactly to a^999 || a^998 || a^997 (matching the corresponding values in
+    // GF1024_EXP above). In this way, we compute all three values of s_j for j in (997, 998, 999)
+    // simultaneously. Recall that XOR corresponds to addition in a characteristic 2 field.
+    for (int i = 0; i < 25; ++i) {
+        result ^= ((residue >> (5+i)) & 1 ? SYNDROME_CONSTS.at(i) : 0);
+    }
+    return result;
 }
 
 /** Convert to lower case. */
