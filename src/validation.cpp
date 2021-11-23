@@ -1517,7 +1517,7 @@ void CChainState::InvalidBlockFound(CBlockIndex* pindex, const BlockValidationSt
 {
     if (state.GetResult() != BlockValidationResult::BLOCK_MUTATED) {
         pindex->nStatus |= BLOCK_FAILED_VALID;
-        m_blockman.m_failed_blocks.insert(pindex);
+        m_chainman.m_failed_blocks.insert(pindex);
         setDirtyBlockIndex.insert(pindex);
         setBlockIndexCandidates.erase(pindex);
         InvalidChainFound(pindex);
@@ -3068,7 +3068,7 @@ bool CChainState::InvalidateBlock(BlockValidationState& state, CBlockIndex* pind
         to_mark_failed->nStatus |= BLOCK_FAILED_VALID;
         setDirtyBlockIndex.insert(to_mark_failed);
         setBlockIndexCandidates.erase(to_mark_failed);
-        m_blockman.m_failed_blocks.insert(to_mark_failed);
+        m_chainman.m_failed_blocks.insert(to_mark_failed);
 
         // If any new blocks somehow arrived while we were disconnecting
         // (above), then the pre-calculation of what should go into
@@ -3113,7 +3113,7 @@ void CChainState::ResetBlockFailureFlags(CBlockIndex *pindex) {
                 // Reset invalid block marker if it was pointing to one of those.
                 pindexBestInvalid = nullptr;
             }
-            m_blockman.m_failed_blocks.erase(it->second);
+            m_chainman.m_failed_blocks.erase(it->second);
         }
         it++;
     }
@@ -3123,7 +3123,7 @@ void CChainState::ResetBlockFailureFlags(CBlockIndex *pindex) {
         if (pindex->nStatus & BLOCK_FAILED_MASK) {
             pindex->nStatus &= ~BLOCK_FAILED_MASK;
             setDirtyBlockIndex.insert(pindex);
-            m_blockman.m_failed_blocks.erase(pindex);
+            m_chainman.m_failed_blocks.erase(pindex);
         }
         pindex = pindex->pprev;
     }
@@ -4042,7 +4042,6 @@ bool BlockManager::LoadBlockIndex(
 }
 
 void BlockManager::Unload() {
-    m_failed_blocks.clear();
     m_blocks_unlinked.clear();
 
     for (const BlockMap::value_type& entry : m_block_index) {
@@ -5357,6 +5356,7 @@ void ChainstateManager::Unload()
         chainstate->UnloadBlockIndex();
     }
 
+    m_failed_blocks.clear();
     m_blockman.Unload();
 }
 
