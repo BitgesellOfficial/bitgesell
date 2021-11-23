@@ -9,6 +9,7 @@
 #include <wallet/external_signer_scriptpubkeyman.h>
 
 #include <iostream>
+#include <key_io.h>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -52,25 +53,19 @@ ExternalSigner ExternalSignerScriptPubKeyMan::GetExternalSigner() {
     return signers[0];
 }
 
-util::Result<void> ExternalSignerScriptPubKeyMan::DisplayAddress(const CTxDestination& dest, const ExternalSigner &signer) const
+bool ExternalSignerScriptPubKeyMan::DisplayAddress(const CTxDestination& dest, const ExternalSigner &signer) const
 {
     // TODO: avoid the need to infer a descriptor from inside a descriptor wallet
+    const CScript& scriptPubKey = GetScriptForDestination(dest);
     auto provider = GetSolvingProvider(scriptPubKey);
     auto descriptor = InferDescriptor(scriptPubKey, *provider);
 
     const UniValue& result = signer.DisplayAddress(descriptor->ToString());
 
-    const UniValue& error = result.find_value("error");
-    if (error.isStr()) return util::Error{strprintf(_("Signer returned error: %s"), error.getValStr())};
-
     const UniValue& ret_address = result.find_value("address");
-    if (!ret_address.isStr()) return util::Error{_("Signer did not echo address")};
+    if (!ret_address.isStr()) return false;
 
-    if (ret_address.getValStr() != EncodeDestination(dest)) {
-        return util::Error{strprintf(_("Signer echoed unexpected address %s"), ret_address.getValStr())};
-    }
-
-    return util::Result<void>();
+    return ret_address.getValStr() == EncodeDestination(dest);
 }
 
 // If sign is true, transaction must previously have been filled
