@@ -9,6 +9,7 @@ to write to an outputfile.
 
 If no argument is provided, the most recent test directory will be used."""
 
+#Importing required modules
 import argparse
 from collections import defaultdict, namedtuple
 import heapq
@@ -44,7 +45,8 @@ def main():
 
     if args.html and args.color:
         print("Only one out of --color or --html should be specified")
-        sys.exit(1)
+        print("Press Enter to exit") #Giving the user time to read the above printed statement
+        sys.exit(1) #Exiting the system
 
     testdir = args.testdir or find_latest_test_dir()
 
@@ -114,14 +116,18 @@ def print_node_warnings(tmp_dir, colors):
                         warnings.append(("node{} {}".format(i, stream), warning))
 
     print()
+    #Let's print each warning
     for w in warnings:
         print("{} {} {} {}".format(colors[w[0].split()[0]], w[0], w[1], colors["reset"]))
 
 
 def find_latest_test_dir():
     """Returns the latest tmpfile test directory prefix."""
-    tmpdir = tempfile.gettempdir()
-
+    try:
+        tmpdir = tempfile.gettempdir() #Getting temp directory
+    except:
+        print("TEMP directory not found.") #Printing the exception
+    
     def join_tmp(basename):
         return os.path.join(tmpdir, basename)
 
@@ -147,8 +153,8 @@ def get_log_events(source, logfile):
     regex match as the marker for a new log event."""
     try:
         with open(logfile, 'r', encoding='utf-8') as infile:
-            event = ''
-            timestamp = ''
+            event = '' #Creating an empty string for storing event
+            timestamp = '' #Creating an empty string for storing timestamp
             for line in infile:
                 # skip blank lines
                 if line == '\n':
@@ -172,9 +178,9 @@ def get_log_events(source, logfile):
             # Flush the final event
             yield LogEvent(timestamp=timestamp, source=source, event=event.rstrip())
     except FileNotFoundError:
-        print("File %s could not be opened. Continuing without it." % logfile, file=sys.stderr)
+        print("File %s could not be opened. Continuing without it." % logfile, file=sys.stderr) #Printing the exception 
 
-
+#Let's print the log events
 def print_logs_plain(log_events, colors):
     """Renders the iterator of log events into text."""
     for event in log_events:
@@ -183,19 +189,23 @@ def print_logs_plain(log_events, colors):
         if len(lines) > 1:
             for line in lines[1:]:
                 print("{0}{1}{2}".format(colors[event.source.rstrip()], line, colors["reset"]))
+        else:
+            print("Less than one log events occured.")
 
 
 def print_logs_html(log_events):
     """Renders the iterator of log events into html."""
     try:
-        import jinja2
-    except ImportError:
-        print("jinja2 not found. Try `pip install jinja2`")
-        sys.exit(1)
+        import jinja2 #Trying to import the jinja2 module
+    #If any kind of exception occurs, below code is executed
+    except Exception as e:
+        print("Following exception has occured:-")
+        print(e) #Printing the exception
+    #The above code handles every kind of exception
     print(jinja2.Environment(loader=jinja2.FileSystemLoader('./'))
                     .get_template('combined_log_template.html')
                     .render(title="Combined Logs from testcase", log_events=[event._asdict() for event in log_events]))
 
 
 if __name__ == '__main__':
-    main()
+    main() #Calling the main() function
