@@ -21,15 +21,8 @@ class CTransaction;
 struct PartiallySignedTransaction;
 struct WalletContext;
 
-namespace interfaces {
-class Chain;
-}
+extern const std::string HELP_REQUIRING_PASSPHRASE;
 
-//! Pointer to chain interface that needs to be declared as a global to be
-//! accessible loadwallet and createwallet methods. Due to limitations of the
-//! RPC framework, there's currently no direct way to pass in state to RPC
-//! methods without globals.
-extern interfaces::Chain* g_rpc_chain;
 Span<const CRPCCommand> GetWalletRPCCommands();
 
 /**
