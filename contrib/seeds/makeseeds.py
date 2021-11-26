@@ -16,7 +16,7 @@ SUSPICIOUS_HOSTS = set([
 
 import re
 import sys
-# import dns.resolver
+import dns.resolver
 import collections
 
 PATTERN_IPV4 = re.compile(r"^((\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})):(\d+)$")
