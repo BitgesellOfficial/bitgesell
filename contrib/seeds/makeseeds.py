@@ -156,9 +156,9 @@ def main():
 
     for ip in ips:
         if ip['net'] == 'ipv6':
-            print '[%s]:%i' % (ip['ip'], ip['port'])
+            print('[%s]:%i' % (ip['ip'], ip['port']))
         else:
-            print '%s:%i' % (ip['ip'], ip['port'])
+            print('%s:%i' % (ip['ip'], ip['port']))
 
 if __name__ == '__main__':
     main()
