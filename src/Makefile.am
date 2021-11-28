@@ -714,6 +714,7 @@ BGL_tx_LDADD += $(BOOST_LIBS)
 
 # BGL-wallet binary #
 BGL_wallet_SOURCES = BGL-wallet.cpp
+BGL_wallet_SOURCES += init/BGL-wallet.cpp
 BGL_wallet_CPPFLAGS = $(BGL_bin_cppflags)
 BGL_wallet_CXXFLAGS = $(BGL_bin_cxxflags)
 BGL_wallet_LDFLAGS = $(BGL_bin_ldflags)

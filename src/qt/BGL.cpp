@@ -13,7 +13,6 @@
 #include <interfaces/handler.h>
 #include <interfaces/init.h>
 #include <interfaces/node.h>
-#include <node/context.h>
 #include <node/ui_interface.h>
 #include <noui.h>
 #include <qt/BGLgui.h>
@@ -137,11 +136,11 @@ static void initTranslations(QTranslator &qtTranslatorBase, QTranslator &qtTrans
     if (qtTranslator.load("qt_" + lang_territory, QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
         QApplication::installTranslator(&qtTranslator);
 
-    // Load e.g. BGL_de.qm (shortcut "de" needs to be defined in BGL.qrc)
+    // Load e.g. bitcoin_de.qm (shortcut "de" needs to be defined in bitcoin.qrc)
     if (translatorBase.load(lang, ":/translations/"))
         QApplication::installTranslator(&translatorBase);
 
-    // Load e.g. BGL_de_DE.qm (shortcut "de_DE" needs to be defined in BGL.qrc)
+    // Load e.g. bitcoin_de_DE.qm (shortcut "de_DE" needs to be defined in bitcoin.qrc)
     if (translator.load(lang_territory, ":/translations/"))
         QApplication::installTranslator(&translator);
 }
@@ -154,8 +153,8 @@ static bool InitSettings()
 
     std::vector<std::string> errors;
     if (!gArgs.ReadSettingsFile(&errors)) {
-        std::string error = QT_TRANSLATE_NOOP("bitcoin-core", "Settings file could not be read");
-        std::string error_translated = QCoreApplication::translate("bitcoin-core", error.c_str()).toStdString();
+        std::string error = QT_TRANSLATE_NOOP("bitgesell-core", "Settings file could not be read");
+        std::string error_translated = QCoreApplication::translate("bitgesell-core", error.c_str()).toStdString();
         InitError(Untranslated(strprintf("%s:\n%s\n", error, MakeUnorderedList(errors))));
 
         QMessageBox messagebox(QMessageBox::Critical, PACKAGE_NAME, QString::fromStdString(strprintf("%s.", error_translated)), QMessageBox::Reset | QMessageBox::Abort);
@@ -177,8 +176,8 @@ static bool InitSettings()
 
     errors.clear();
     if (!gArgs.WriteSettingsFile(&errors)) {
-        std::string error = QT_TRANSLATE_NOOP("bitcoin-core", "Settings file could not be written");
-        std::string error_translated = QCoreApplication::translate("bitcoin-core", error.c_str()).toStdString();
+        std::string error = QT_TRANSLATE_NOOP("bitgesell-core", "Settings file could not be written");
+        std::string error_translated = QCoreApplication::translate("bitgesell-core", error.c_str()).toStdString();
         InitError(Untranslated(strprintf("%s:\n%s\n", error, MakeUnorderedList(errors))));
 
         QMessageBox messagebox(QMessageBox::Critical, PACKAGE_NAME, QString::fromStdString(strprintf("%s.", error_translated)), QMessageBox::Ok);
@@ -226,7 +225,7 @@ BGLApplication::BGLApplication():
 void BGLApplication::setupPlatformStyle()
 {
     // UI per-platform customization
-    // This must be done inside the BGLApplication constructor, or after it, because
+    // This must be done inside the BitcoinApplication constructor, or after it, because
     // PlatformStyle::instantiate requires a QApplication
     std::string platformName;
     platformName = gArgs.GetArg("-uiplatform", BGLGUI::DEFAULT_UIPLATFORM);
@@ -260,9 +259,9 @@ void BGLApplication::createOptionsModel(bool resetSettings)
 
 void BGLApplication::createWindow(const NetworkStyle *networkStyle)
 {
-
     window = new BGLGUI(node(), platformStyle, networkStyle, nullptr);
     connect(window, &BGLGUI::quitRequested, this, &BGLApplication::requestShutdown);
+
     pollShutdownTimer = new QTimer(window);
     connect(pollShutdownTimer, &QTimer::timeout, window, &BGLGUI::detectShutdown);
 }
@@ -315,11 +314,9 @@ void BGLApplication::parameterSetup()
     InitParameterInteraction(gArgs);
 }
 
-void BGLApplication::InitializePruneSetting(bool prune)
+void BGLApplication::InitPruneSetting(int64_t prune_MiB)
 {
-    // If prune is set, intentionally override existing prune size with
-    // the default size since this is called when choosing a new datadir.
-    optionsModel->SetPruneTargetGB(prune ? DEFAULT_PRUNE_TARGET_GB : 0, true);
+    optionsModel->SetPruneTargetGB(PruneMiBtoGB(prune_MiB), true);
 }
 
 void BGLApplication::requestInitialize()
@@ -405,7 +402,7 @@ void BGLApplication::initializeResult(bool success, interfaces::BlockAndHeaderTi
 
 #ifdef ENABLE_WALLET
         // Now that initialization/startup is done, process any command-line
-        // BGL: URIs or payment requests:
+        // bitcoin: URIs or payment requests:
         if (paymentServer) {
             connect(paymentServer, &PaymentServer::receivedPaymentRequest, window, &BGLGUI::handlePaymentRequest);
             connect(window, &BGLGUI::receivedURI, paymentServer, &PaymentServer::handleURIOrFile);
@@ -466,9 +463,7 @@ int GuiMain(int argc, char* argv[])
     std::tie(argc, argv) = winArgs.get();
 #endif
 
-    NodeContext node_context;
-    int unused_exit_status;
-    std::unique_ptr<interfaces::Init> init = interfaces::MakeNodeInit(node_context, argc, argv, unused_exit_status);
+    std::unique_ptr<interfaces::Init> init = interfaces::MakeGuiInit(argc, argv);
 
     SetupEnvironment();
     util::ThreadSetInternalName("main");
@@ -540,12 +535,12 @@ int GuiMain(int argc, char* argv[])
     /// 5. Now that settings and translations are available, ask user for data directory
     // User language is set up: pick a data directory
     bool did_show_intro = false;
-    bool prune = false; // Intro dialog prune check box
+    int64_t prune_MiB = 0;  // Intro dialog prune configuration
     // Gracefully exit if the user cancels
-    if (!Intro::showIfNeeded(did_show_intro, prune)) return EXIT_SUCCESS;
+    if (!Intro::showIfNeeded(did_show_intro, prune_MiB)) return EXIT_SUCCESS;
 
-    /// 6. Determine availability of data directory and parse BGL.conf
-    /// - Do not call GetDataDir(true) before this step finishes
+    /// 6. Determine availability of data directory and parse bitcoin.conf
+    /// - Do not call gArgs.GetDataDirNet() before this step finishes
     if (!CheckDataDirOption()) {
         InitError(strprintf(Untranslated("Specified data directory \"%s\" does not exist.\n"), gArgs.GetArg("-datadir", "")));
         QMessageBox::critical(nullptr, PACKAGE_NAME,
@@ -600,7 +595,7 @@ int GuiMain(int argc, char* argv[])
         exit(EXIT_SUCCESS);
 
     // Start up the payment server early, too, so impatient users that click on
-    // BGL: links repeatedly have their payment requests routed to this process:
+    // bitcoin: links repeatedly have their payment requests routed to this process:
     if (WalletModel::isWalletEnabled()) {
         app.createPaymentServer();
     }
@@ -623,7 +618,7 @@ int GuiMain(int argc, char* argv[])
 
     if (did_show_intro) {
         // Store intro dialog settings other than datadir (network specific)
-        app.InitializePruneSetting(prune);
+        app.InitPruneSetting(prune_MiB);
     }
 
     if (gArgs.GetBoolArg("-splash", DEFAULT_SPLASHSCREEN) && !gArgs.GetBoolArg("-min", false))

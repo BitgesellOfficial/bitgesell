@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The BGL Core developers
+// Copyright (c) 2011-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #include <qt/guiutil.h>
@@ -117,7 +117,7 @@ void setupAddressWidget(QValidatedLineEdit *widget, QWidget *parent)
     widget->setFont(fixedPitchFont());
     // We don't want translators to use own addresses in translations
     // and this is the only place, where this address is supplied.
-    widget->setPlaceholderText(QObject::tr("Enter a BGL address (e.g. %1)").arg(
+    widget->setPlaceholderText(QObject::tr("Enter a Bitgesell address (e.g. %1)").arg(
         QString::fromStdString(DummyAddress(Params()))));
     widget->setValidator(new BGLAddressEntryValidator(parent));
     widget->setCheckValidator(new BGLAddressCheckValidator(parent));
@@ -128,9 +128,9 @@ void AddButtonShortcut(QAbstractButton* button, const QKeySequence& shortcut)
     QObject::connect(new QShortcut(shortcut, button), &QShortcut::activated, [button]() { button->animateClick(); });
 }
 
-bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out)
+bool parseBGLURI(const QUrl &uri, SendCoinsRecipient *out)
 {
-    // return if URI is not valid or is no BGL: URI
+    // return if URI is not valid or is no bitcoin: URI
     if(!uri.isValid() || uri.scheme() != QString("bgl"))
         return false;
 
@@ -431,7 +431,7 @@ bool openBGLConf()
 
     configFile.close();
 
-    /* Open BGL.conf with the associated application */
+    /* Open bitcoin.conf with the associated application */
     bool res = QDesktopServices::openUrl(QUrl::fromLocalFile(boostPathToQString(pathConfig)));
 #ifdef Q_OS_MAC
     // Workaround for macOS-specific behavior; see #15409.
@@ -503,7 +503,7 @@ fs::path static StartupShortcutPath()
 
 bool GetStartOnSystemStartup()
 {
-    // check for BGL*.lnk
+    // check for Bitcoin*.lnk
     return fs::exists(StartupShortcutPath());
 }
 
@@ -619,7 +619,7 @@ bool SetStartOnSystemStartup(bool fAutoStart)
         if (!optionFile.good())
             return false;
         std::string chain = gArgs.GetChainName();
-        // Write a BGL.desktop file to the autostart directory:
+        // Write a bitcoin.desktop file to the autostart directory:
         optionFile << "[Desktop Entry]\n";
         optionFile << "Type=Application\n";
         if (chain == CBaseChainParams::MAIN)
@@ -837,6 +837,11 @@ void ThemedLabel::changeEvent(QEvent* e)
 void ThemedLabel::updateThemedPixmap()
 {
     setPixmap(m_platform_style->SingleColorIcon(m_image_filename).pixmap(m_pixmap_width, m_pixmap_height));
+}
+
+ClickableLabel::ClickableLabel(const PlatformStyle* platform_style, QWidget* parent)
+    : ThemedLabel{platform_style, parent}
+{
 }
 
 void ClickableLabel::mouseReleaseEvent(QMouseEvent *event)

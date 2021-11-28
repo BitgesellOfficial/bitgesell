@@ -8,6 +8,7 @@
 
 #include <chainparams.h>
 #include <chainparamsbase.h>
+#include <interfaces/init.h>
 #include <logging.h>
 #include <util/system.h>
 #include <util/translation.h>
@@ -49,17 +50,17 @@ static bool WalletAppInit(ArgsManager& args, int argc, char* argv[])
         tfm::format(std::cerr, "Error parsing command line arguments: %s\n", error_message);
         return false;
     }
-    if (argc < 2 || HelpRequested(gArgs) || gArgs.IsArgSet("-version")) {
+    if (argc < 2 || HelpRequested(args) || args.IsArgSet("-version")) {
         std::string strUsage = strprintf("%s BGL-wallet version", PACKAGE_NAME) + " " + FormatFullVersion() + "\n";
-            if (!gArgs.IsArgSet("-version")) {
-                strUsage += "\n"
-                    "BGL-wallet is an offline tool for creating and interacting with " PACKAGE_NAME " wallet files.\n"
-                    "By default BGL-wallet will act on wallets in the default mainnet wallet directory in the datadir.\n"
-                    "To change the target wallet, use the -datadir, -wallet and -testnet/-regtest arguments.\n\n"
-                    "Usage:\n"
-                    "  BGL-wallet [options] <command>\n";
-                strUsage += "\n" + gArgs.GetHelpMessage();
-            }
+        if (!args.IsArgSet("-version")) {
+            strUsage += "\n"
+                        "BGL-wallet is an offline tool for creating and interacting with " PACKAGE_NAME " wallet files.\n"
+                        "By default BGL-wallet will act on wallets in the default mainnet wallet directory in the datadir.\n"
+                        "To change the target wallet, use the -datadir, -wallet and -testnet/-regtest arguments.\n\n"
+                        "Usage:\n"
+                        "  BGL-wallet [options] <command>\n";
+            strUsage += "\n" + args.GetHelpMessage();
+        }
         tfm::format(std::cout, "%s", strUsage);
         return false;
     }
@@ -84,6 +85,13 @@ int main(int argc, char* argv[])
     util::WinCmdLineArgs winArgs;
     std::tie(argc, argv) = winArgs.get();
 #endif
+
+    int exit_status;
+    std::unique_ptr<interfaces::Init> init = interfaces::MakeWalletInit(argc, argv, exit_status);
+    if (!init) {
+        return exit_status;
+    }
+
     SetupEnvironment();
     RandomInit();
     try {

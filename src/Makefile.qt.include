@@ -10,7 +10,7 @@ endif
 
 EXTRA_LIBRARIES += qt/libBGLqt.a
 
-# BGL qt core #
+# bitcoin qt core #
 include Makefile.qt_locale.include
 
 QT_FORMS_UI = \
@@ -62,6 +62,7 @@ QT_MOC_CPP = \
   qt/moc_optionsmodel.cpp \
   qt/moc_overviewpage.cpp \
   qt/moc_peertablemodel.cpp \
+  qt/moc_peertablesortproxy.cpp \
   qt/moc_paymentserver.cpp \
   qt/moc_psbtoperationsdialog.cpp \
   qt/moc_qrimagewidget.cpp \
@@ -136,6 +137,7 @@ BGL_QT_H = \
   qt/overviewpage.h \
   qt/paymentserver.h \
   qt/peertablemodel.h \
+  qt/peertablesortproxy.h \
   qt/platformstyle.h \
   qt/psbtoperationsdialog.h \
   qt/qrimagewidget.h \
@@ -172,12 +174,10 @@ QT_RES_FONTS = \
 QT_RES_ICONS = \
   qt/res/icons/add.png \
   qt/res/icons/address-book.png \
-  qt/res/icons/BGL16.png \
   qt/res/icons/BGL.ico \
   qt/res/icons/BGL_testnet.ico \
   qt/res/icons/BGL.png \
   qt/res/icons/chevron.png \
-  qt/res/icons/configure.png \
   qt/res/icons/clock1.png \
   qt/res/icons/clock2.png \
   qt/res/icons/clock3.png \
@@ -188,7 +188,6 @@ QT_RES_ICONS = \
   qt/res/icons/connect2.png \
   qt/res/icons/connect3.png \
   qt/res/icons/connect4.png \
-  qt/res/icons/debugwindow.png \
   qt/res/icons/edit.png \
   qt/res/icons/editcopy.png \
   qt/res/icons/editpaste.png \
@@ -196,21 +195,16 @@ QT_RES_ICONS = \
   qt/res/icons/eye.png \
   qt/res/icons/eye_minus.png \
   qt/res/icons/eye_plus.png \
-  qt/res/icons/filesave.png \
   qt/res/icons/fontbigger.png \
   qt/res/icons/fontsmaller.png \
   qt/res/icons/hd_disabled.png \
   qt/res/icons/hd_enabled.png \
   qt/res/icons/history.png \
-  qt/res/icons/info.png \
-  qt/res/icons/key.png \
   qt/res/icons/lock_closed.png \
   qt/res/icons/lock_open.png \
   qt/res/icons/network_disabled.png \
-  qt/res/icons/open.png \
   qt/res/icons/overview.png \
   qt/res/icons/proxy.png \
-  qt/res/icons/quit.png \
   qt/res/icons/receive.png \
   qt/res/icons/remove.png \
   qt/res/icons/send.png \
@@ -243,6 +237,7 @@ BGL_QT_BASE_CPP = \
   qt/optionsdialog.cpp \
   qt/optionsmodel.cpp \
   qt/peertablemodel.cpp \
+  qt/peertablesortproxy.cpp \
   qt/platformstyle.cpp \
   qt/qvalidatedlineedit.cpp \
   qt/qvaluecombobox.cpp \
@@ -319,7 +314,7 @@ QT_FORMS_H=$(join $(dir $(QT_FORMS_UI)),$(addprefix ui_, $(notdir $(QT_FORMS_UI:
 $(QT_MOC): $(QT_FORMS_H)
 $(qt_libBGLqt_a_OBJECTS) $(qt_BGL_qt_OBJECTS) $(BGL_gui_OBJECTS) : | $(QT_MOC)
 
-# BGL-qt and BGL-gui binaries #
+# bitcoin-qt and bitcoin-gui binaries #
 BGL_qt_cppflags = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BGL_QT_INCLUDES) \
   $(QT_INCLUDES) $(QR_CFLAGS)
 BGL_qt_cxxflags = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
@@ -343,15 +338,15 @@ BGL_qt_libtoolflags = $(AM_LIBTOOLFLAGS) --tag CXX
 
 qt_BGL_qt_CPPFLAGS = $(BGL_qt_cppflags)
 qt_BGL_qt_CXXFLAGS = $(BGL_qt_cxxflags)
-qt_BGL_qt_SOURCES = $(BGL_qt_sources) init/BGLd.cpp
+qt_BGL_qt_SOURCES = $(BGL_qt_sources) init/BGL-qt.cpp
 qt_BGL_qt_LDADD = $(BGL_qt_ldadd)
 qt_BGL_qt_LDFLAGS = $(BGL_qt_ldflags)
 qt_BGL_qt_LIBTOOLFLAGS = $(BGL_qt_libtoolflags)
 
 BGL_gui_CPPFLAGS = $(BGL_qt_cppflags)
 BGL_gui_CXXFLAGS = $(BGL_qt_cxxflags)
-BGL_gui_SOURCES = $(BGL_qt_sources) init/BGLd.cpp
-BGL_gui_LDADD = $(BGL_qt_ldadd)
+BGL_gui_SOURCES = $(BGL_qt_sources) init/BGL-gui.cpp
+BGL_gui_LDADD = $(BGL_qt_ldadd) $(LIBBGL_IPC) $(LIBBGL_UTIL) $(LIBMULTIPROCESS_LIBS)
 BGL_gui_LDFLAGS = $(BGL_qt_ldflags)
 BGL_gui_LIBTOOLFLAGS = $(BGL_qt_libtoolflags)
 
@@ -364,7 +359,7 @@ $(srcdir)/qt/BGLstrings.cpp: FORCE
 	@test -n $(XGETTEXT) || echo "xgettext is required for updating translations"
 	$(AM_V_GEN) cd $(srcdir); XGETTEXT=$(XGETTEXT) COPYRIGHT_HOLDERS="$(COPYRIGHT_HOLDERS)" $(PYTHON) ../share/qt/extract_strings_qt.py $(libBGL_server_a_SOURCES) $(libBGL_wallet_a_SOURCES) $(libBGL_common_a_SOURCES) $(libBGL_zmq_a_SOURCES) $(libBGL_consensus_a_SOURCES) $(libBGL_util_a_SOURCES)
 
-translate: $(srcdir)/qt/BGLstrings.cpp $(QT_FORMS_UI) $(QT_FORMS_UI) $(BGL_QT_BASE_CPP) qt/BGL.cpp $(BGL_QT_WINDOWS_CPP) $(BGL_QT_WALLET_CPP) $(BGL_QT_H) $(BGL_MM)
+translate: $(srcdir)/qt/BGLstrings.cpp $(QT_FORMS_UI) $(QT_FORMS_UI) $(BGL_QT_BASE_CPP) qt/BGL.cpp $(BGL_QT_WINDOWS_CPP) $(BGL_QT_WALLET_CPP) $(BGL_QT_H) $(BITCOIN_MM)
 	@test -n $(LUPDATE) || echo "lupdate is required for updating translations"
 	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(LUPDATE) -no-obsolete -I $(srcdir) -locations relative $^ -ts $(srcdir)/qt/locale/BGL_en.ts
 	@test -n $(LCONVERT) || echo "lconvert is required for updating translations"
@@ -385,7 +380,7 @@ CLEAN_QT = $(nodist_qt_libBGLqt_a_SOURCES) $(QT_QM) $(QT_FORMS_H) qt/*.gcda qt/*
 CLEANFILES += $(CLEAN_QT)
 
 BGL_qt_clean: FORCE
-	rm -f $(CLEAN_QT) $(qt_libBGLqt_a_OBJECTS) $(qt_BGL_qt_OBJECTS) qt/BGL-qt$(EXEEXT) $(LIBBGLQT)
+	rm -f $(CLEAN_QT) $(qt_libBGLqt_a_OBJECTS) $(qt_BGL_qt_OBJECTS) qt/BGL-qt$(EXEEXT) $(LIBBITCOINQT)
 
 BGL_qt : qt/BGL-qt$(EXEEXT)
 
@@ -410,12 +405,10 @@ ui_%.h: %.ui
 	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(UIC) -o $@ $< || (echo "Error creating $@"; false)
 
 %.moc: %.cpp
-	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(MOC) $(DEFAULT_INCLUDES) $(QT_INCLUDES_UNSUPPRESSED) $(MOC_DEFS) $< | \
-	  $(SED) -e '/^\*\*.*Created:/d' -e '/^\*\*.*by:/d' > $@
+	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(MOC) $(DEFAULT_INCLUDES) $(QT_INCLUDES_UNSUPPRESSED) $(MOC_DEFS) $< > $@
 
 moc_%.cpp: %.h
-	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(MOC) $(DEFAULT_INCLUDES) $(QT_INCLUDES_UNSUPPRESSED) $(MOC_DEFS) $< | \
-	  $(SED) -e '/^\*\*.*Created:/d' -e '/^\*\*.*by:/d' > $@
+	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(MOC) $(DEFAULT_INCLUDES) $(QT_INCLUDES_UNSUPPRESSED) $(MOC_DEFS) $< > $@
 
 %.qm: %.ts
 	@test -f $(LRELEASE)

@@ -9,7 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\qt\main.cpp" />
-    <ClCompile Include="..\..\src\init\BGLd.cpp" />
+    <ClCompile Include="..\..\src\init\BGL-qt.cpp" />
     <ResourceCompile Include="..\..\src\qt\res\bgl-qt-res.rc" />
   </ItemGroup>
   <ItemGroup>

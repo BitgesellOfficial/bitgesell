@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BGL_QT_GUIUTIL_H
-#define BGL_QT_GUIUTIL_H
+#ifndef BITCOIN_QT_GUIUTIL_H
+#define BITCOIN_QT_GUIUTIL_H
 
 #include <consensus/amount.h>
 #include <fs.h>
@@ -239,26 +239,6 @@ namespace GUIUtil
     qreal calculateIdealFontSize(int width, const QString& text, QFont font, qreal minPointSize = 4, qreal startPointSize = 14);
 
     class ThemedLabel : public QLabel
-
-    {
-        Q_OBJECT
-
-    public:
-        explicit ThemedLabel(const PlatformStyle* platform_style, QWidget* parent = nullptr);
-        void setThemedPixmap(const QString& image_filename, int width, int height);
-
-    protected:
-        void changeEvent(QEvent* e) override;
-
-    private:
-        const PlatformStyle* m_platform_style;
-        QString m_image_filename;
-        int m_pixmap_width;
-        int m_pixmap_height;
-        void updateThemedPixmap();
-    };
-
-    class ClickableLabel : public QLabel
     {
         Q_OBJECT
 
@@ -345,7 +325,7 @@ namespace GUIUtil
     /**
      * Returns the start-moment of the day in local time.
      *
-     * QDateTime::GUIUtil::StartOfDay(const QDate& date) is deprecated since Qt 5.15.
+     * QDateTime::QDateTime(const QDate& date) is deprecated since Qt 5.15.
      * QDate::startOfDay() was introduced in Qt 5.14.
      */
     QDateTime StartOfDay(const QDate& date);

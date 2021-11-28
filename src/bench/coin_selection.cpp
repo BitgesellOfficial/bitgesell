@@ -27,7 +27,7 @@ static void addCoin(const CAmount& nValue, const CWallet& wallet, std::vector<st
 // the hardest, as you need a wider selection of scenarios, just testing the
 // same one over and over isn't too useful. Generating random isn't useful
 // either for measurements."
-// (https://github.com/BGL/BGL/issues/7883#issuecomment-224807484)
+// (https://github.com/bitcoin/bitcoin/issues/7883#issuecomment-224807484)
 static void CoinSelection(benchmark::Bench& bench)
 {
     NodeContext node;
@@ -42,8 +42,8 @@ static void CoinSelection(benchmark::Bench& bench)
     }
     addCoin(3 * COIN, wallet, wtxs);
 
-    // Create groups
-    std::vector<OutputGroup> groups;
+    // Create coins
+    std::vector<COutput> coins;
     for (const auto& wtx : wtxs) {
         coins.emplace_back(wallet, *wtx, 0 /* iIn */, 6 * 24 /* nDepthIn */, true /* spendable */, true /* solvable */, true /* safe */);
     }

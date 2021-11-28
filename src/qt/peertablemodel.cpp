@@ -11,7 +11,6 @@
 
 #include <utility>
 
-#include <QDebug>
 #include <QList>
 #include <QTimer>
 
@@ -113,10 +112,7 @@ QVariant PeerTableModel::data(const QModelIndex& index, int role) const
         } // no default case, so the compiler can warn about missing cases
         assert(false);
     } else if (role == StatsRole) {
-        switch (index.column()) {
-        case NetNodeId: return QVariant::fromValue(rec);
-        default: return QVariant();
-        }
+        return QVariant::fromValue(rec);
     }
 
     return QVariant();
@@ -192,20 +188,4 @@ void PeerTableModel::refresh()
     const auto top_left = index(0, 0);
     const auto bottom_right = index(rowCount() - 1, columnCount() - 1);
     Q_EMIT dataChanged(top_left, bottom_right);
-}
-
-int PeerTableModel::getRowByNodeId(NodeId nodeid)
-{
-    std::map<NodeId, int>::iterator it = priv->mapNodeRows.find(nodeid);
-    if (it == priv->mapNodeRows.end())
-        return -1;
-
-    return it->second;
-}
-
-void PeerTableModel::sort(int column, Qt::SortOrder order)
-{
-    priv->sortColumn = column;
-    priv->sortOrder = order;
-    refresh();
 }

@@ -9,13 +9,14 @@
 #include <qt/rpcconsole.h>
 #include <qt/forms/ui_debugwindow.h>
 
-#include <qt/bantablemodel.h>
-#include <qt/clientmodel.h>
-#include <qt/platformstyle.h>
-#include <qt/walletmodel.h>
 #include <chainparams.h>
 #include <interfaces/node.h>
 #include <netbase.h>
+#include <qt/bantablemodel.h>
+#include <qt/clientmodel.h>
+#include <qt/peertablesortproxy.h>
+#include <qt/platformstyle.h>
+#include <qt/walletmodel.h>
 #include <rpc/client.h>
 #include <rpc/server.h>
 #include <util/strencodings.h>
@@ -475,9 +476,19 @@ RPCConsole::RPCConsole(interfaces::Node& node, const PlatformStyle *_platformSty
 {
     ui->setupUi(this);
     QSettings settings;
-    if (!restoreGeometry(settings.value("RPCConsoleWindowGeometry").toByteArray())) {
-        // Restore failed (perhaps missing setting), center the window
-        move(QGuiApplication::primaryScreen()->availableGeometry().center() - frameGeometry().center());
+#ifdef ENABLE_WALLET
+    if (WalletModel::isWalletEnabled()) {
+        // RPCConsole widget is a window.
+        if (!restoreGeometry(settings.value("RPCConsoleWindowGeometry").toByteArray())) {
+            // Restore failed (perhaps missing setting), center the window
+            move(QGuiApplication::primaryScreen()->availableGeometry().center() - frameGeometry().center());
+        }
+        ui->splitter->restoreState(settings.value("RPCConsoleWindowPeersTabSplitterSizes").toByteArray());
+    } else
+#endif // ENABLE_WALLET
+    {
+        // RPCConsole is a child widget.
+        ui->splitter->restoreState(settings.value("RPCConsoleWidgetPeersTabSplitterSizes").toByteArray());
     }
 
     m_peer_widget_header_state = settings.value("PeersTabPeerHeaderState").toByteArray();
@@ -511,9 +522,9 @@ RPCConsole::RPCConsole(interfaces::Node& node, const PlatformStyle *_platformSty
     const QString list{"<ul><li>" + Join(CONNECTION_TYPE_DOC, QString("</li><li>")) + "</li></ul>"};
     ui->peerConnectionTypeLabel->setToolTip(ui->peerConnectionTypeLabel->toolTip().arg(list));
     const QString hb_list{"<ul><li>\""
-        + tr("To") + "\" – " + tr("we selected the peer for high bandwidth relay") + "</li><li>\""
-        + tr("From") + "\" – " + tr("the peer selected us for high bandwidth relay") + "</li><li>\""
-        + tr("No") + "\" – " + tr("no high bandwidth relay selected") + "</li></ul>"};
+        + ts.to + "\" – " + tr("we selected the peer for high bandwidth relay") + "</li><li>\""
+        + ts.from + "\" – " + tr("the peer selected us for high bandwidth relay") + "</li><li>\""
+        + ts.no + "\" – " + tr("no high bandwidth relay selected") + "</li></ul>"};
     ui->peerHighBandwidthLabel->setToolTip(ui->peerHighBandwidthLabel->toolTip().arg(hb_list));
     ui->dataDir->setToolTip(ui->dataDir->toolTip().arg(QString(nonbreaking_hyphen) + "datadir"));
     ui->blocksDir->setToolTip(ui->blocksDir->toolTip().arg(QString(nonbreaking_hyphen) + "blocksdir"));
@@ -668,7 +679,7 @@ void RPCConsole::setClientModel(ClientModel *model, int bestblock_height, int64_
         connect(model, &ClientModel::mempoolSizeChanged, this, &RPCConsole::setMempoolSize);
 
         // set up peer table
-        ui->peerWidget->setModel(model->getPeerTableModel());
+        ui->peerWidget->setModel(model->peerTableSortProxy());
         ui->peerWidget->verticalHeader()->hide();
         ui->peerWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
         ui->peerWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -833,20 +844,15 @@ void RPCConsole::setFontSize(int newSize)
 
     // clear console (reset icon sizes, default stylesheet) and re-add the content
     float oldPosFactor = 1.0 / ui->messagesWidget->verticalScrollBar()->maximum() * ui->messagesWidget->verticalScrollBar()->value();
-    clear(false);
+    clear(/* keep_prompt */ true);
     ui->messagesWidget->setHtml(str);
     ui->messagesWidget->verticalScrollBar()->setValue(oldPosFactor * ui->messagesWidget->verticalScrollBar()->maximum());
 }
 
-void RPCConsole::clear(bool clearHistory)
+void RPCConsole::clear(bool keep_prompt)
 {
     ui->messagesWidget->clear();
-    if(clearHistory)
-    {
-        history.clear();
-        historyPtr = 0;
-    }
-    ui->lineEdit->clear();
+    if (!keep_prompt) ui->lineEdit->clear();
     ui->lineEdit->setFocus();
 
     // Add smoothly scaled icon images.
@@ -1140,67 +1146,6 @@ void RPCConsole::updateTrafficStats(quint64 totalBytesIn, quint64 totalBytesOut)
     ui->lblBytesOut->setText(GUIUtil::formatBytes(totalBytesOut));
 }
 
-void RPCConsole::peerLayoutAboutToChange()
-{
-    cachedNodeids.clear();
-    for (const QModelIndex& peer : GUIUtil::getEntryData(ui->peerWidget, PeerTableModel::NetNodeId)) {
-        const auto stats = peer.data(PeerTableModel::StatsRole).value<CNodeCombinedStats*>();
-        cachedNodeids.append(stats->nodeStats.nodeid);
-    }
-}
-
-void RPCConsole::peerLayoutChanged()
-{
-    if (!clientModel || !clientModel->getPeerTableModel())
-        return;
-
-    bool fUnselect = false;
-    bool fReselect = false;
-
-    if (cachedNodeids.empty()) // no node selected yet
-        return;
-
-    // find the currently selected row
-    int selectedRow = -1;
-    QModelIndexList selectedModelIndex = ui->peerWidget->selectionModel()->selectedIndexes();
-    if (!selectedModelIndex.isEmpty()) {
-        selectedRow = selectedModelIndex.first().row();
-    }
-
-    // check if our detail node has a row in the table (it may not necessarily
-    // be at selectedRow since its position can change after a layout change)
-    int detailNodeRow = clientModel->getPeerTableModel()->getRowByNodeId(cachedNodeids.first());
-
-    if (detailNodeRow < 0)
-    {
-        // detail node disappeared from table (node disconnected)
-        fUnselect = true;
-    }
-    else
-    {
-        if (detailNodeRow != selectedRow)
-        {
-            // detail node moved position
-            fUnselect = true;
-            fReselect = true;
-        }
-    }
-
-    if (fUnselect && selectedRow >= 0) {
-        clearSelectedNode();
-    }
-
-    if (fReselect)
-    {
-        for(int i = 0; i < cachedNodeids.size(); i++)
-        {
-            ui->peerWidget->selectRow(clientModel->getPeerTableModel()->getRowByNodeId(cachedNodeids.at(i)));
-        }
-    }
-
-    updateDetailWidget();
-}
-
 void RPCConsole::updateDetailWidget()
 {
     const QList<QModelIndex> selected_peers = GUIUtil::getEntryData(ui->peerWidget, PeerTableModel::NetNodeId);
@@ -1217,11 +1162,11 @@ void RPCConsole::updateDetailWidget()
         peerAddrDetails += "<br />" + tr("via %1").arg(QString::fromStdString(stats->nodeStats.addrLocal));
     ui->peerHeading->setText(peerAddrDetails);
     ui->peerServices->setText(GUIUtil::formatServicesStr(stats->nodeStats.nServices));
-    ui->peerRelayTxes->setText(stats->nodeStats.fRelayTxes ? "Yes" : "No");
+    ui->peerRelayTxes->setText(stats->nodeStats.fRelayTxes ? ts.yes : ts.no);
     QString bip152_hb_settings;
-    if (stats->nodeStats.m_bip152_highbandwidth_to) bip152_hb_settings += "To";
-    if (stats->nodeStats.m_bip152_highbandwidth_from) bip152_hb_settings += (bip152_hb_settings == "" ? "From" : "/From");
-    if (bip152_hb_settings == "") bip152_hb_settings = "No";
+    if (stats->nodeStats.m_bip152_highbandwidth_to) bip152_hb_settings = ts.to;
+    if (stats->nodeStats.m_bip152_highbandwidth_from) bip152_hb_settings += (bip152_hb_settings.isEmpty() ? ts.from : QLatin1Char('/') + ts.from);
+    if (bip152_hb_settings.isEmpty()) bip152_hb_settings = ts.no;
     ui->peerHighBandwidth->setText(bip152_hb_settings);
     const int64_t time_now{GetTimeSeconds()};
     ui->peerConnTime->setText(GUIUtil::formatDurationStr(time_now - stats->nodeStats.nTimeConnected));
@@ -1247,23 +1192,23 @@ void RPCConsole::updateDetailWidget()
         }
         ui->peerPermissions->setText(permissions.join(" & "));
     }
-    ui->peerMappedAS->setText(stats->nodeStats.m_mapped_as != 0 ? QString::number(stats->nodeStats.m_mapped_as) : tr("N/A"));
+    ui->peerMappedAS->setText(stats->nodeStats.m_mapped_as != 0 ? QString::number(stats->nodeStats.m_mapped_as) : ts.na);
 
     // This check fails for example if the lock was busy and
     // nodeStateStats couldn't be fetched.
     if (stats->fNodeStateStatsAvailable) {
         // Sync height is init to -1
-        if (stats->nodeStateStats.nSyncHeight > -1)
+        if (stats->nodeStateStats.nSyncHeight > -1) {
             ui->peerSyncHeight->setText(QString("%1").arg(stats->nodeStateStats.nSyncHeight));
-        else
-            ui->peerSyncHeight->setText(tr("Unknown"));
-
+        } else {
+            ui->peerSyncHeight->setText(ts.unknown);
+        }
         // Common height is init to -1
-        if (stats->nodeStateStats.nCommonHeight > -1)
+        if (stats->nodeStateStats.nCommonHeight > -1) {
             ui->peerCommonHeight->setText(QString("%1").arg(stats->nodeStateStats.nCommonHeight));
-        else
-            ui->peerCommonHeight->setText(tr("Unknown"));
-
+        } else {
+            ui->peerCommonHeight->setText(ts.unknown);
+        }
         ui->peerHeight->setText(QString::number(stats->nodeStateStats.m_starting_height));
         ui->peerPingWait->setText(GUIUtil::formatPingTime(stats->nodeStateStats.m_ping_wait));
     }

@@ -17,6 +17,7 @@
 
 #include <interfaces/node.h>
 #include <util/system.h>
+#include <validation.h>
 
 #include <QFileDialog>
 #include <QSettings>
@@ -119,7 +120,7 @@ int GetPruneTargetGB()
 } // namespace
 
 Intro::Intro(QWidget *parent, int64_t blockchain_size_gb, int64_t chain_state_size_gb) :
-    QDialog(parent),
+    QDialog(parent, GUIUtil::dialog_flags),
     ui(new Ui::Intro),
     thread(nullptr),
     signalled(false),
@@ -134,8 +135,8 @@ Intro::Intro(QWidget *parent, int64_t blockchain_size_gb, int64_t chain_state_si
     ui->lblExplanation1->setText(ui->lblExplanation1->text()
         .arg(PACKAGE_NAME)
         .arg(m_blockchain_size_gb)
-        .arg(2020)
-        .arg(tr("BGL"))
+        .arg(2009)
+        .arg(tr("Bitgesell"))
     );
     ui->lblExplanation2->setText(ui->lblExplanation2->text().arg(PACKAGE_NAME));
 
@@ -145,7 +146,9 @@ Intro::Intro(QWidget *parent, int64_t blockchain_size_gb, int64_t chain_state_si
         ui->prune->setChecked(true);
         ui->prune->setEnabled(false);
     }
-    ui->prune->setText(tr("Discard blocks after verification, except most recent %1 GB (prune)").arg(m_prune_target_gb));
+    ui->pruneGB->setValue(m_prune_target_gb);
+    ui->pruneGB->setToolTip(ui->prune->toolTip());
+    ui->lblPruneSuffix->setToolTip(ui->prune->toolTip());
     UpdatePruneLabels(ui->prune->isChecked());
 
     connect(ui->prune, &QCheckBox::toggled, [this](bool prune_checked) {
@@ -189,7 +192,17 @@ void Intro::setDataDirectory(const QString &dataDir)
     }
 }
 
-bool Intro::showIfNeeded(bool& did_show_intro, bool& prune)
+int64_t Intro::getPruneMiB() const
+{
+    switch (ui->prune->checkState()) {
+    case Qt::Checked:
+        return PruneGBtoMiB(m_prune_target_gb);
+    case Qt::Unchecked: default:
+        return 0;
+    }
+}
+
+bool Intro::showIfNeeded(bool& did_show_intro, int64_t& prune_MiB)
 {
     did_show_intro = false;
 
@@ -240,14 +253,14 @@ bool Intro::showIfNeeded(bool& did_show_intro, bool& prune)
         }
 
         // Additional preferences:
-        prune = intro.ui->prune->isChecked();
+        prune_MiB = intro.getPruneMiB();
 
         settings.setValue("strDataDir", dataDir);
         settings.setValue("fReset", false);
     }
     /* Only override -datadir if different from the default, to make it possible to
-     * override -datadir in the BGL.conf file in the default data directory
-     * (to be consistent with BGLd behavior)
+     * override -datadir in the bitcoin.conf file in the default data directory
+     * (to be consistent with bitcoind behavior)
      */
     if(dataDir != GUIUtil::getDefaultDataDirectory()) {
         gArgs.SoftSetArg("-datadir", fs::PathToString(GUIUtil::qstringToBoostPath(dataDir))); // use OS locale for path setting
@@ -285,12 +298,12 @@ void Intro::setStatus(int status, const QString &message, quint64 bytesAvailable
 
 void Intro::UpdateFreeSpaceLabel()
 {
-    QString freeString = tr("%n GB of free space available", "", m_bytes_available / GB_BYTES);
+    QString freeString = tr("%1 GB of free space available").arg(m_bytes_available / GB_BYTES);
     if (m_bytes_available < m_required_space_gb * GB_BYTES) {
-        freeString += " " + tr("(of %n GB needed)", "", m_required_space_gb);
+        freeString += " " + tr("(of %1 GB needed)").arg(m_required_space_gb);
         ui->freeSpace->setStyleSheet("QLabel { color: #800000 }");
     } else if (m_bytes_available / GB_BYTES - m_required_space_gb < 10) {
-        freeString += " " + tr("(%n GB needed for full chain)", "", m_required_space_gb);
+        freeString += " " + tr("(%1 GB needed for full chain)").arg(m_required_space_gb);
         ui->freeSpace->setStyleSheet("QLabel { color: #999900 }");
     } else {
         ui->freeSpace->setStyleSheet("");
@@ -376,7 +389,7 @@ void Intro::UpdatePruneLabels(bool prune_checked)
         //: Explanatory text on the capability of the current prune target.
         tr("(sufficient to restore backups %n day(s) old)", "", expected_backup_days));
     ui->sizeWarningLabel->setText(
-        tr("%1 will download and store a copy of the Bitcoin block chain.").arg(PACKAGE_NAME) + " " +
+        tr("%1 will download and store a copy of the Bitgesell block chain.").arg(PACKAGE_NAME) + " " +
         storageRequiresMsg.arg(m_required_space_gb) + " " +
         tr("The wallet will also be stored in this directory.")
     );

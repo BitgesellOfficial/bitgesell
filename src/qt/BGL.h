@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The BGL Core developers
+// Copyright (c) 2011-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -37,7 +37,6 @@ class BGLApplication: public QApplication
 {
     Q_OBJECT
 public:
-
     explicit BGLApplication();
     ~BGLApplication();
 
@@ -50,7 +49,7 @@ public:
     /// Create options model
     void createOptionsModel(bool resetSettings);
     /// Initialize prune setting
-    void InitializePruneSetting(bool prune);
+    void InitPruneSetting(int64_t prune_MiB);
     /// Create main window
     void createWindow(const NetworkStyle *networkStyle);
     /// Create splash screen
@@ -66,7 +65,7 @@ public:
     /// Get process return value
     int getReturnValue() const { return returnValue; }
 
-    /// Get window identifier of QMainWindow (BGLGUI)
+    /// Get window identifier of QMainWindow (BitcoinGUI)
     WId getMainWinId() const;
 
     /// Setup platform style
