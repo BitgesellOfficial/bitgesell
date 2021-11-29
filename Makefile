@@ -2,6 +2,7 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #Hello
+#Hello
 # Pattern rule to print variables, e.g. make print-top_srcdir
 print-%:
 	@echo $* = $($*)
