@@ -44,10 +44,10 @@ BOOST_AUTO_TEST_CASE(bloom_create_insert_serialize)
     stream << filter;
 
     std::vector<unsigned char> vch = ParseHex("03614e9b050000000000000001");
-    std::vector<char> expected(vch.size());
+    std::vector<unsigned char> expected(vch.size());
 
     for (unsigned int i = 0; i < vch.size(); i++)
-        expected[i] = (char)vch[i];
+        expected[i] = vch[i];
 
     BOOST_CHECK_EQUAL_COLLECTIONS(stream.begin(), stream.end(), expected.begin(), expected.end());
 
@@ -74,10 +74,10 @@ BOOST_AUTO_TEST_CASE(bloom_create_insert_serialize_with_tweak)
     stream << filter;
 
     std::vector<unsigned char> vch = ParseHex("03ce4299050000000100008001");
-    std::vector<char> expected(vch.size());
+    std::vector<unsigned char> expected(vch.size());
 
     for (unsigned int i = 0; i < vch.size(); i++)
-        expected[i] = (char)vch[i];
+        expected[i] = vch[i];
 
     BOOST_CHECK_EQUAL_COLLECTIONS(stream.begin(), stream.end(), expected.begin(), expected.end());
 }
@@ -98,10 +98,10 @@ BOOST_AUTO_TEST_CASE(bloom_create_insert_key)
     stream << filter;
 
     std::vector<unsigned char> vch = ParseHex("038fc16b080000000000000001");
-    std::vector<char> expected(vch.size());
+    std::vector<unsigned char> expected(vch.size());
 
     for (unsigned int i = 0; i < vch.size(); i++)
-        expected[i] = (char)vch[i];
+        expected[i] = vch[i];
 
     BOOST_CHECK_EQUAL_COLLECTIONS(stream.begin(), stream.end(), expected.begin(), expected.end());
 }
@@ -377,10 +377,10 @@ BOOST_AUTO_TEST_CASE(merkle_block_3_and_serialize)
     merkleStream << merkleBlock;
 
     std::vector<unsigned char> vch = ParseHex("0100000079cda856b143d9db2c1caff01d1aecc8630d30625d10e8b4b8b000000000000048d548434a07b3a05651302acae61551c5df997dc3be1d95e24117f3b9972e7067291b4d4c86041b8fa45d63010000000148d548434a07b3a05651302acae61551c5df997dc3be1d95e24117f3b9972e700101");
-    std::vector<char> expected(vch.size());
+    std::vector<unsigned char> expected(vch.size());
 
     for (unsigned int i = 0; i < vch.size(); i++)
-        expected[i] = (char)vch[i];
+        expected[i] = vch[i];
 
     BOOST_CHECK_EQUAL_COLLECTIONS(expected.begin(), expected.end(), merkleStream.begin(), merkleStream.end());
 }
