@@ -23,4 +23,5 @@ std::string ConnectionTypeAsString(ConnectionType conn_type)
     } // no default case, so the compiler can warn about missing cases
 
     assert(false);
+
 }
