@@ -421,6 +421,7 @@ libBGL_wallet_a_SOURCES = \
   wallet/receive.cpp \
   wallet/rpc/addresses.cpp \
   wallet/rpc/backup.cpp \
+  wallet/rpc/coins.cpp \
   wallet/rpc/encrypt.cpp \
   wallet/rpc/signmessage.cpp \
   wallet/rpc/transactions.cpp \
