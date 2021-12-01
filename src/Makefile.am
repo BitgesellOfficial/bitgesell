@@ -419,6 +419,7 @@ libBGL_wallet_a_SOURCES = \
   wallet/interfaces.cpp \
   wallet/load.cpp \
   wallet/receive.cpp \
+  wallet/rpc/addresses.cpp \
   wallet/rpc/backup.cpp \
   wallet/rpc/encrypt.cpp \
   wallet/rpc/signmessage.cpp \
