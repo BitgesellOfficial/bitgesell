@@ -134,6 +134,7 @@ bool ExecuteWalletToolFunc(const ArgsManager& args, const std::string& command)
 
     if (command == "create") {
         DatabaseOptions options;
+        ReadDatabaseArgs(args, options);
         options.require_create = true;
         // If -legacy is set, use it. Otherwise default to false.
         bool make_legacy = args.GetBoolArg("-legacy", false);
@@ -159,6 +160,7 @@ bool ExecuteWalletToolFunc(const ArgsManager& args, const std::string& command)
         }
     } else if (command == "info") {
         DatabaseOptions options;
+        ReadDatabaseArgs(args, options);
         options.require_existing = true;
         const std::shared_ptr<CWallet> wallet_instance = MakeWallet(name, path, args, options);
         if (!wallet_instance) return false;
@@ -168,7 +170,7 @@ bool ExecuteWalletToolFunc(const ArgsManager& args, const std::string& command)
 #ifdef USE_BDB
         bilingual_str error;
         std::vector<bilingual_str> warnings;
-        bool ret = RecoverDatabaseFile(path, error, warnings);
+        bool ret = RecoverDatabaseFile(args, path, error, warnings);
         if (!ret) {
             for (const auto& warning : warnings) {
                 tfm::format(std::cerr, "%s\n", warning.original);
@@ -184,11 +186,12 @@ bool ExecuteWalletToolFunc(const ArgsManager& args, const std::string& command)
 #endif
     } else if (command == "dump") {
         DatabaseOptions options;
+        ReadDatabaseArgs(args, options);
         options.require_existing = true;
         const std::shared_ptr<CWallet> wallet_instance = MakeWallet(name, path, args, options);
         if (!wallet_instance) return false;
         bilingual_str error;
-        bool ret = DumpWallet(*wallet_instance, error);
+        bool ret = DumpWallet(args, *wallet_instance, error);
         if (!ret && !error.empty()) {
             tfm::format(std::cerr, "%s\n", error.original);
             return ret;
@@ -198,7 +201,7 @@ bool ExecuteWalletToolFunc(const ArgsManager& args, const std::string& command)
     } else if (command == "createfromdump") {
         bilingual_str error;
         std::vector<bilingual_str> warnings;
-        bool ret = CreateFromDump(name, path, error, warnings);
+        bool ret = CreateFromDump(args, name, path, error, warnings);
         for (const auto& warning : warnings) {
             tfm::format(std::cout, "%s\n", warning.original);
         }
