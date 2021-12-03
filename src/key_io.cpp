@@ -184,9 +184,10 @@ CTxDestination DecodeDestination(const std::string& str, const CChainParams& par
         }
     }
 
-    // Set error message if address can't be interpreted as Base58 or Bech32.
-    if (error_str.empty()) error_str = "Invalid address format";
-
+    // Perform Bech32 error location
+    auto res = bech32::LocateErrors(str);
+    error_str = res.first;
+    if (error_locations) *error_locations = std::move(res.second);
     return CNoDestination();
 }
 } // namespace
