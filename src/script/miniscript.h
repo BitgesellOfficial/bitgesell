@@ -779,11 +779,8 @@ public:
     //! Check whether there is no satisfaction path that contains both timelocks and heightlocks
     bool CheckTimeLocksMix() const { return GetType() << "k"_mst; }
 
-    //! Whether successful non-malleable satisfactions are guaranteed to be valid.
-    bool ValidSatisfactions() const { return IsValid() && CheckOpsLimit() && CheckStackSize(); }
-
-    //! Whether the apparent policy of this node matches its script semantics.
-    bool IsSane() const { return ValidSatisfactions() && IsNonMalleable() && CheckTimeLocksMix(); }
+    //! Do all sanity checks.
+    bool IsSane() const { return IsValid() && IsNonMalleable() && CheckTimeLocksMix() && CheckOpsLimit() && CheckStackSize(); }
 
     //! Check whether this node is safe as a script on its own.
     bool IsSaneTopLevel() const { return IsValidTopLevel() && IsSane() && NeedsSignature(); }
