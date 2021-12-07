@@ -175,7 +175,7 @@ CService LookupNumeric(const std::string& name, uint16_t portDefault = 0, DNSLoo
  *
  * @returns Whether the operation succeeded or not.
  */
-bool LookupSubNet(const std::string& strSubnet, CSubNet& subnet, DNSLookupFn dns_lookup_function = g_dns_lookup);
+bool LookupSubNet(const std::string& subnet_str, CSubNet& subnet_out);
 
 /**
  * Create a TCP socket in the given address family.
