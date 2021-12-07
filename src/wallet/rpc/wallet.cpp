@@ -592,7 +592,22 @@ static RPCHelpMan upgradewallet()
     };
 }
 
-RPCHelpMan abortrescan();
+// addresses
+RPCHelpMan getaddressinfo();
+RPCHelpMan getnewaddress();
+RPCHelpMan getrawchangeaddress();
+RPCHelpMan setlabel();
+RPCHelpMan listaddressgroupings();
+RPCHelpMan addmultisigaddress();
+RPCHelpMan keypoolrefill();
+RPCHelpMan newkeypool();
+RPCHelpMan getaddressesbylabel();
+RPCHelpMan listlabels();
+#ifdef ENABLE_EXTERNAL_SIGNER
+RPCHelpMan walletdisplayaddress();
+#endif // ENABLE_EXTERNAL_SIGNER
+
+// backup
 RPCHelpMan dumpprivkey();
 RPCHelpMan importprivkey();
 RPCHelpMan importaddress();
@@ -657,6 +672,7 @@ RPCHelpMan listsinceblock();
 RPCHelpMan gettransaction();
 RPCHelpMan abandontransaction();
 RPCHelpMan rescanblockchain();
+RPCHelpMan abortrescan();
 
 Span<const CRPCCommand> GetWalletRPCCommands()
 {
