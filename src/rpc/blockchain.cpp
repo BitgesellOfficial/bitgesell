@@ -790,10 +790,15 @@ static RPCHelpMan getblockfrompeer()
     ChainstateManager& chainman = EnsureChainman(node);
     PeerManager& peerman = EnsurePeerman(node);
 
-    const uint256& block_hash{ParseHashV(request.params[0], "block_hash")};
-    const NodeId peer_id{request.params[1].get_int64()};
+    const uint256 hash(ParseHashV(request.params[0], "hash"));
+    const NodeId nodeid{request.params[1].get_int64()};
 
-    const CBlockIndex* const index = WITH_LOCK(cs_main, return chainman.m_blockman.LookupBlockIndex(block_hash););
+    // Check that the peer with nodeid exists
+    if (!connman.ForNode(nodeid, [](CNode* node) {return true;})) {
+        throw JSONRPCError(RPC_MISC_ERROR, strprintf("Peer nodeid %d does not exist", nodeid));
+    }
+
+    const CBlockIndex* const index = WITH_LOCK(cs_main, return chainman.m_blockman.LookupBlockIndex(hash););
 
     if (!index) {
         throw JSONRPCError(RPC_MISC_ERROR, "Block header missing");
@@ -802,11 +807,9 @@ static RPCHelpMan getblockfrompeer()
     UniValue result = UniValue::VOBJ;
 
     if (index->nStatus & BLOCK_HAVE_DATA) {
-        throw JSONRPCError(RPC_MISC_ERROR, "Block already downloaded");
-    }
-
-    if (const auto err{peerman.FetchBlock(peer_id, *index)}) {
-        throw JSONRPCError(RPC_MISC_ERROR, err.value());
+        result.pushKV("warnings", "Block already downloaded");
+    } else if (!peerman.FetchBlock(nodeid, *index)) {
+        throw JSONRPCError(RPC_MISC_ERROR, "Failed to fetch block from peer");
     }
     return result;
 },
