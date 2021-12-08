@@ -80,9 +80,19 @@ void ReceiveCoinsDialog::setModel(WalletModel *_model)
             &QItemSelectionModel::selectionChanged, this,
             &ReceiveCoinsDialog::recentRequestsView_selectionChanged);
 
-        // always generate segwit address and hide it
-        ui->useBech32->setCheckState(Qt::Checked);
-        ui->useBech32->setVisible(false);
+        // Populate address type dropdown and select default
+        auto add_address_type = [&](OutputType type, const QString& text, const QString& tooltip) {
+            const auto index = ui->addressType->count();
+            ui->addressType->addItem(text, (int) type);
+            ui->addressType->setItemData(index, tooltip, Qt::ToolTipRole);
+            if (model->wallet().getDefaultAddressType() == type) ui->addressType->setCurrentIndex(index);
+        };
+        add_address_type(OutputType::LEGACY, "Base58 (Legacy)", "Not recommended due to higher fees and less protection against typos.");
+        add_address_type(OutputType::P2SH_SEGWIT, "Base58 (P2SH-SegWit)", "Generates an address compatible with older wallets.");
+        add_address_type(OutputType::BECH32, "Bech32 (SegWit)", "Generates a native segwit address (BIP-173). Some old wallets don't support it.");
+        if (model->wallet().taprootEnabled()) {
+            add_address_type(OutputType::BECH32M, "Bech32m (Taproot)", "Bech32m (BIP-350) is an upgrade to Bech32, wallet support is still limited.");
+        }
 
         // Set the button to be enabled or disabled based on whether the wallet can give out new addresses.
         ui->receiveButton->setEnabled(model->wallet().canGetAddresses());
@@ -135,15 +145,7 @@ void ReceiveCoinsDialog::on_receiveButton_clicked()
     QString address;
     QString label = ui->reqLabel->text();
     /* Generate new receiving address */
-    OutputType address_type;
-    if (ui->useBech32->isChecked()) {
-        address_type = OutputType::BECH32;
-    } else {
-        address_type = model->wallet().getDefaultAddressType();
-        if (address_type == OutputType::BECH32) {
-            address_type = OutputType::P2SH_SEGWIT;
-        }
-    }
+    const OutputType address_type = (OutputType)ui->addressType->currentData().toInt();
     address = model->getAddressTableModel()->addRow(AddressTableModel::Receive, label, "", address_type);
 
     switch(model->getAddressTableModel()->getEditStatus())
