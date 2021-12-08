@@ -1466,7 +1466,9 @@ bool PeerManagerImpl::FetchBlock(NodeId id, const CBlockIndex& block_index)
     // Ignore pre-segwit peers
     if (!state->fHaveWitness) return "Pre-SegWit peer";
 
-    // Mark block as in-flight unless it already is
+    // Mark block as in-flight unless it already is (for this peer).
+    // If a block was already in-flight for a different peer, its BLOCKTXN
+    // response will be dropped.
     if (!BlockRequested(id, block_index)) return false;
 
     // Construct message to request the block
