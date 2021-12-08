@@ -40,7 +40,6 @@
 
 #include <functional>
 
-
 const std::function<std::string(const char*)> G_TRANSLATION_FUN = nullptr;
 UrlDecodeFn* const URL_DECODE = nullptr;
 
@@ -316,7 +315,7 @@ CMutableTransaction TestChain100Setup::CreateValidMempoolTransaction(CTransactio
     // If submit=true, add transaction to the mempool.
     if (submit) {
         LOCK(cs_main);
-        const MempoolAcceptResult result = AcceptToMemoryPool(m_node.chainman->ActiveChainstate(), *m_node.mempool.get(), MakeTransactionRef(mempool_txn), /* bypass_limits */ false);
+        const MempoolAcceptResult result = m_node.chainman->ProcessTransaction(MakeTransactionRef(mempool_txn));
         assert(result.m_result_type == MempoolAcceptResult::ResultType::VALID);
     }
 
@@ -338,14 +337,6 @@ CTxMemPoolEntry TestMemPoolEntryHelper::FromTx(const CTransactionRef& tx) const
  * @returns a real block (0000000000013b8ab2cd513b0261a14096412195a72a0c4827d229dcc7e0f7af)
  *      with 9 txs.
  */ 
- //changed merkleroot (reverse) 5275289558f51c9966699404ae2294730c3c9f9bda53523ce50e9b95e558da2f to
- // (reverse) e83d439d0dde2edcdc2b162974cfcae458316aa98966a115c57d096b22fdb0cf
- // This means that this block nonce is no more correct for POW. 
- // However, this block is not verified so this is okay.
- // The new value of merkleroot is correct one based on BGL hash algo.
-
- 
- //e83d439d0dde2edcdc2b162974cfcae458316aa98966a115c57d096b22fdb0cf
 CBlock getBlock13b8a()
 {
     CBlock block;
