@@ -22,61 +22,6 @@
 
 using namespace std::literals;
 
-class AddrManSerializationMock : public AddrMan
-{
-public:
-    virtual void Serialize(CDataStream& s) const = 0;
-
-    AddrManSerializationMock()
-        : AddrMan(/* asmap */ std::vector<bool>(), /* deterministic */ true, /* consistency_check_ratio */ 100)
-    {}
-};
-
-class AddrManUncorrupted : public AddrManSerializationMock
-{
-public:
-    void Serialize(CDataStream& s) const override
-    {
-        AddrMan::Serialize(s);
-    }
-};
-
-static CDataStream AddrmanToStream(const AddrManSerializationMock& _addrman)
-{
-    CDataStream ssPeersIn(SER_DISK, CLIENT_VERSION);
-    ssPeersIn << Params().MessageStart();
-    ssPeersIn << _addrman;
-    std::string str = ssPeersIn.str();
-    std::vector<unsigned char> vchData(str.begin(), str.end());
-    return CDataStream(vchData, SER_DISK, CLIENT_VERSION);
-}
-
-class AddrManTest : public AddrMan
-{
-public:
-    explicit AddrManTest(std::vector<bool> asmap = std::vector<bool>())
-        : AddrMan(asmap, /*deterministic=*/true, /*consistency_check_ratio=*/100)
-    {}
-
-    AddrInfo* Find(const CService& addr)
-    {
-        LOCK(m_impl->cs);
-        return m_impl->Find(addr);
-    }
-
-    AddrInfo* Create(const CAddress& addr, const CNetAddr& addrSource, int* pnId)
-    {
-        LOCK(m_impl->cs);
-        return m_impl->Create(addr, addrSource, pnId);
-    }
-
-    void Delete(int nId)
-    {
-        LOCK(m_impl->cs);
-        m_impl->Delete(nId);
-    }
-};
-
 static CNetAddr ResolveIP(const std::string& ip)
 {
     CNetAddr addr;
