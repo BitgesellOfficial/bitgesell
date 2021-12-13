@@ -776,10 +776,7 @@ static RPCHelpMan getblockfrompeer()
             {"block_hash", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The block hash to try to fetch"},
             {"peer_id", RPCArg::Type::NUM, RPCArg::Optional::NO, "The peer to fetch it from (see getpeerinfo for peer IDs)"},
         },
-        RPCResult{RPCResult::Type::OBJ, "", "",
-        {
-            {RPCResult::Type::STR, "warnings", /*optional=*/true, "any warnings"},
-        }},
+        RPCResult{RPCResult::Type::OBJ_EMPTY, "", /*optional=*/ false, "", {}},
         RPCExamples{
             HelpExampleCli("getblockfrompeer", "\"00000000c937983704a73af28acdec37b049d214adbda81d7e2a3dd146f6ed09\" 0")
             + HelpExampleRpc("getblockfrompeer", "\"00000000c937983704a73af28acdec37b049d214adbda81d7e2a3dd146f6ed09\" 0")
@@ -804,14 +801,14 @@ static RPCHelpMan getblockfrompeer()
         throw JSONRPCError(RPC_MISC_ERROR, "Block header missing");
     }
 
-    UniValue result = UniValue::VOBJ;
-
     if (index->nStatus & BLOCK_HAVE_DATA) {
-        result.pushKV("warnings", "Block already downloaded");
-    } else if (!peerman.FetchBlock(nodeid, *index)) {
+        throw JSONRPCError(RPC_MISC_ERROR, "Block already downloaded");
+    }
+
+    if (!peerman.FetchBlock(nodeid, *index)) {
         throw JSONRPCError(RPC_MISC_ERROR, "Failed to fetch block from peer");
     }
-    return result;
+    return UniValue::VOBJ;
 },
     };
 }
