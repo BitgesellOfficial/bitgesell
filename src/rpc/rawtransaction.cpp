@@ -492,7 +492,7 @@ static RPCHelpMan decoderawtransaction()
                                     {RPCResult::Type::STR, "asm", "the asm"},
                                     {RPCResult::Type::STR_HEX, "hex", "the hex"},
                                     {RPCResult::Type::STR, "type", "The type, eg 'pubkeyhash'"},
-                                    {RPCResult::Type::STR, "address", /* optional */ true, "The Bitcgesell address (only if a well-defined address exists)"},
+                                    {RPCResult::Type::STR, "address", /* optional */ true, "The Bitgesell address (only if a well-defined address exists)"},
                                 }},
                             }},
                         }},
@@ -552,7 +552,7 @@ static RPCHelpMan decodescript()
                             {RPCResult::Type::STR, "asm", "String representation of the script public key"},
                             {RPCResult::Type::STR_HEX, "hex", "Hex string of the script public key"},
                             {RPCResult::Type::STR, "type", "The type of the script public key (e.g. witness_v0_keyhash or witness_v0_scripthash)"},
-                            {RPCResult::Type::STR, "address", /* optional */ true, "The Bitcoin address (only if a well-defined address exists)"},
+                            {RPCResult::Type::STR, "address", /* optional */ true, "The Bitgesell address (only if a well-defined address exists)"},
                             {RPCResult::Type::STR, "p2sh-segwit", "address of the P2SH script wrapping this witness redeem script"},
                         }},
                     }
@@ -946,12 +946,13 @@ static RPCHelpMan testmempoolaccept()
 
     NodeContext& node = EnsureAnyNodeContext(request.context);
     CTxMemPool& mempool = EnsureMemPool(node);
-    CChainState& chainstate = EnsureChainman(node).ActiveChainstate();
+    ChainstateManager& chainman = EnsureChainman(node);
+    CChainState& chainstate = chainman.ActiveChainstate();
     const PackageMempoolAcceptResult package_result = [&] {
         LOCK(::cs_main);
         if (txns.size() > 1) return ProcessNewPackage(chainstate, mempool, txns, /* test_accept */ true);
         return PackageMempoolAcceptResult(txns[0]->GetWitnessHash(),
-               AcceptToMemoryPool(chainstate, mempool, txns[0], /* bypass_limits */ false, /* test_accept*/ true));
+               chainman.ProcessTransaction(txns[0], /*test_accept=*/ true));
     }();
 
     UniValue rpc_result(UniValue::VARR);
@@ -977,7 +978,7 @@ static RPCHelpMan testmempoolaccept()
         if (tx_result.m_result_type == MempoolAcceptResult::ResultType::VALID) {
             const CAmount fee = tx_result.m_base_fees.value();
             // Check that fee does not exceed maximum fee
-            const int64_t virtual_size = tx_result.m_vsize.value();
+            const int64_t virtual_size = GetVirtualTransactionSize(*tx);
             const CAmount max_raw_tx_fee = max_raw_tx_fee_rate.GetFee(virtual_size);
             if (max_raw_tx_fee && fee > max_raw_tx_fee) {
                 result_inner.pushKV("allowed", false);
@@ -1162,7 +1163,7 @@ static RPCHelpMan decodepsbt()
             txout = input.witness_utxo;
 
             UniValue o(UniValue::VOBJ);
-            ScriptPubKeyToUniv(txout.scriptPubKey, o, /* fIncludeHex */ true);
+            ScriptPubKeyToUniv(txout.scriptPubKey, o, /* include_hex */ true);
 
             UniValue out(UniValue::VOBJ);
             out.pushKV("amount", ValueFromAmount(txout.nValue));
@@ -1365,7 +1366,7 @@ static RPCHelpMan combinepsbt()
 
     CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
     ssTx << merged_psbt;
-    return EncodeBase64(ssTx.str());
+    return EncodeBase64(ssTx);
 },
     };
 }
@@ -1504,7 +1505,7 @@ static RPCHelpMan createpsbt()
     CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
     ssTx << psbtx;
 
-    return EncodeBase64(ssTx.str());
+    return EncodeBase64(ssTx);
 },
     };
 }
@@ -1573,7 +1574,7 @@ static RPCHelpMan converttopsbt()
     CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
     ssTx << psbtx;
 
-    return EncodeBase64(ssTx.str());
+    return EncodeBase64(ssTx);
 },
     };
 }
@@ -1667,7 +1668,7 @@ static RPCHelpMan utxoupdatepsbt()
 
     CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
     ssTx << psbtx;
-    return EncodeBase64(ssTx.str());
+    return EncodeBase64(ssTx);
 },
     };
 }
@@ -1763,7 +1764,7 @@ static RPCHelpMan joinpsbts()
 
     CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
     ssTx << shuffled_psbt;
-    return EncodeBase64(ssTx.str());
+    return EncodeBase64(ssTx);
 },
     };
 }
