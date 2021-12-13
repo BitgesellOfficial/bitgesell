@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE(stale_tip_peer_management)
     // on the next check (since we're mocking the time to be in the future, the
     // required time connected check should be satisfied).
     SetMockTime(time_init);
-    AddRandomOutboundPeer(vNodes, *peerLogic, *connman, ConnectionType::OUTBOUND_FULL_RELAY);
+    AddRandomOutboundPeer(vNodes, *peerLogic, *connman);
     SetMockTime(time_later);
 
     peerLogic->CheckForStaleTipAndEvictPeers();
