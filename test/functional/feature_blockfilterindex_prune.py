@@ -28,8 +28,10 @@ class FeatureBlockfilterindexPruneTest(BGLTestFramework):
         self.sync_index(height=700)
 
         self.log.info("prune some blocks")
-        pruneheight = self.nodes[0].pruneblockchain(1000)
-        assert_equal(pruneheight, 506)
+        pruneheight = self.nodes[0].pruneblockchain(400)
+        # the prune heights used here and below are magic numbers that are determined by the
+        # thresholds at which block files wrap, so they depend on disk serialization and default block file size.
+        assert_equal(pruneheight, 248)
 
         self.log.info("check if we can access the tips blockfilter when we have pruned some blocks")
         assert_greater_than(len(self.nodes[0].getblockfilter(self.nodes[0].getbestblockhash())['filter']), 0)
