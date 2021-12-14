@@ -6,7 +6,10 @@
 
 from test_framework.p2p import P2PInterface
 from test_framework.test_framework import BGLTestFramework
-from test_framework.util import check_node_connections
+from test_framework.util import (
+    assert_equal,
+    check_node_connections,
+)
 
 
 class P2PAddConnections(BGLTestFramework):
