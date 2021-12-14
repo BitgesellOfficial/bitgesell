@@ -5,6 +5,7 @@
 
 #include <random.h>
 
+#include <cmath>
 #include <compat/cpuid.h>
 #include <crypto/sha256.h>
 #include <crypto/sha512.h>
