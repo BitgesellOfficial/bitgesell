@@ -97,6 +97,10 @@ PSBTAnalysis AnalyzePSBT(PartiallySignedTransaction psbtx)
                 return a += b.nValue;
             }
         );
+        if (!MoneyRange(out_amt)) {
+            result.SetInvalid("PSBT is not valid. Output amount invalid");
+            return result;
+        }
 
         // Get the fee
         CAmount fee = in_amt - out_amt;
