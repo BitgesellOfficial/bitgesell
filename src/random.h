@@ -10,7 +10,7 @@
 #include <crypto/common.h>
 #include <uint256.h>
 
-#include <chrono> // For std::chrono::microseconds
+#include <chrono>
 #include <cstdint>
 #include <limits>
 
@@ -92,7 +92,7 @@ constexpr auto GetRandMillis = GetRandomDuration<std::chrono::milliseconds>;
  * The probability of an event occuring before time x is 1 - e^-(x/a) where a
  * is the average interval between events.
  * */
-std::chrono::microseconds GetExponentialRand(std::chrono::microseconds now, std::chrono::seconds average_interval);
+std::chrono::microseconds PoissonNextSend(std::chrono::microseconds now, std::chrono::seconds average_interval);
 
 int GetRandInt(int nMax) noexcept;
 uint256 GetRandHash() noexcept;

@@ -20,6 +20,7 @@
 #include <sync.h>     // for Mutex
 #include <util/time.h> // for GetTimeMicros()
 
+#include <cmath>
 #include <stdlib.h>
 #include <thread>
 
@@ -715,8 +716,9 @@ void RandomInit()
 
     ReportHardwareRand();
 }
-std::chrono::microseconds GetExponentialRand(std::chrono::microseconds now, std::chrono::seconds average_interval)
+
+std::chrono::microseconds PoissonNextSend(std::chrono::microseconds now, std::chrono::seconds average_interval)
 {
-    double unscaled = -std::log1p(GetRand(uint64_t{1} << 48) * -0.0000000000000035527136788 /* -1/2^48 */);
+    double unscaled = -log1p(GetRand(1ULL << 48) * -0.0000000000000035527136788 /* -1/2^48 */);
     return now + std::chrono::duration_cast<std::chrono::microseconds>(unscaled * average_interval + 0.5us);
 }
