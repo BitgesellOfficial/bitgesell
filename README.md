@@ -69,7 +69,7 @@ Features:
   ```sh
   nFees*0.1 + GetBlockSubsidy()  
   ```
-* Block Weight [10 times smaller than Bitcoin]
+* Block Weight [10 times smaller than Bitgesell]
   ```sh
   <= 400,000
   ```
@@ -103,21 +103,14 @@ Features:
 
 Visit official website: [click here](https://bitgesell.ca/) <br>
 
-The https://github.com/BGL-core/gui repository is used exclusively for the development of the GUI. Its master branch is identical in all monotree repositories. Release branches and tags do not exist, so please do not fork that repository unless it is for development reasons.
+    $ ./autogen.sh
+    $ ./configure
+    $ make
+    $ make check  # run the test suite
+    $ sudo make install  # optional
 
-Official thread: [click here](https://bitcointalk.org/index.php?topic=5238559.0)
-
-
-## Automated Testing
-
-Developers are strongly encouraged to write [unit tests](https://github.com/BitgesellOfficial/bitgesell/blob/master/src/test/README.md) for new code, and to
-submit new unit tests for old code. Unit tests can be compiled and run
-(assuming they weren't disabled in configure) with: `make check`. Further details on running
-and extending unit tests can be found in [src/test/README.md](https://github.com/BitgesellOfficial/bitgesell/blob/master/src/test/README.md). <br>
-
-There are also [regression and integration tests](https://github.com/BitgesellOfficial/bitgesell/tree/master/test), written
-in Python. <br>
-These tests can be run (if the [test dependencies](https://github.com/BitgesellOfficial/bitgesell/tree/master/test) with: `test/functional/test_runner.py` <br>
+Test coverage
+-----------
 
 The CI (Continuous Integration) systems make sure that every pull request is built for Windows, Linux, and macOS,
 and that unit/sanity tests are run automatically. <br>
@@ -140,49 +133,18 @@ See the [open issues](https://github.com/BitgesellOfficial/bitgesell/issues) for
     $ mkdir -p coverage
     $ gcovr --exclude 'src/bench*' --html --html-details -o coverage/coverage.html
 
-If you don't mind more setup in return for more speed, replace
-`autocomplete-clang` and `linter-clang` with `you-complete-me`. This requires
-[setting up ycmd](https://github.com/ycm-core/ycmd#building).
+Benchmark
+------------
+If configured with `--enable-benchmark` (which is the default), binaries for benchmarking the libsecp256k1 functions will be present in the root directory after the build.
 
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+To print the benchmark result to the command line:
 
-1. Fork the Project
-2. Create your Feature Branch 
-3. Commit your Changes 
-4. Push to the Branch  
-5. Open a Pull Request
+    $ ./bench_name
 
+To create a CSV file for the benchmark result :
 
+    $ ./bench_name | sed '2d;s/ \{1,\}//g' > bench_name.csv
 
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See [LICENSE](https://github.com/BitgesellOfficial/bitgesell/blob/master/COPYING) for more information.
-
-
-
-<!-- CONTACT -->
-## Contact
-
-Discord - [Bitgesell](https://discord.com/invite/Ubp359vZEF)
-
-Twitter: [Bitgesell](https://twitter.com/Bitgesell)
-
-Medium: [Bitgesell](https://bitgesell.medium.com/)
-
-Facebook: [Bitgesell](https://www.facebook.com/Bitgesell)
-
-
-<!-- ACKNOWLEDGEMENTS -->
-## Translations
-
-Changes to translations as well as new translations can be submitted to
-[BGL Core's Transifex page](https://www.transifex.com/bitcoin/bitcoin/).
-
-Translations are periodically pulled from Transifex and merged into the git repository. See the
-[translation process](doc/translation_process.md) for details on how this works.
-
-**Important**: We do not accept translation changes as GitHub pull requests because the next
-pull from Transifex would automatically overwrite them again.
-
+Reporting a vulnerability
+------------
 

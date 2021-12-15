@@ -1,15 +1,70 @@
-# Copyright (c) 2013-2020 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
-
-# Pattern rule to print variables, e.g. make print-top_srcdir
-print-%: FORCE
-	@echo '$*'='$($*)'
+.PHONY: clean-precomp precomp
 
 ACLOCAL_AMFLAGS = -I build-aux/m4
-SUBDIRS = src
-if ENABLE_MAN
-SUBDIRS += doc/man
+
+# AM_CFLAGS will be automatically prepended to CFLAGS by Automake when compiling some foo
+# which does not have an explicit foo_CFLAGS variable set.
+AM_CFLAGS = $(SECP_CFLAGS)
+
+lib_LTLIBRARIES = libsecp256k1.la
+include_HEADERS = include/secp256k1.h
+include_HEADERS += include/secp256k1_preallocated.h
+noinst_HEADERS =
+noinst_HEADERS += src/scalar.h
+noinst_HEADERS += src/scalar_4x64.h
+noinst_HEADERS += src/scalar_8x32.h
+noinst_HEADERS += src/scalar_low.h
+noinst_HEADERS += src/scalar_impl.h
+noinst_HEADERS += src/scalar_4x64_impl.h
+noinst_HEADERS += src/scalar_8x32_impl.h
+noinst_HEADERS += src/scalar_low_impl.h
+noinst_HEADERS += src/group.h
+noinst_HEADERS += src/group_impl.h
+noinst_HEADERS += src/ecdsa.h
+noinst_HEADERS += src/ecdsa_impl.h
+noinst_HEADERS += src/eckey.h
+noinst_HEADERS += src/eckey_impl.h
+noinst_HEADERS += src/ecmult.h
+noinst_HEADERS += src/ecmult_impl.h
+noinst_HEADERS += src/ecmult_const.h
+noinst_HEADERS += src/ecmult_const_impl.h
+noinst_HEADERS += src/ecmult_gen.h
+noinst_HEADERS += src/ecmult_gen_impl.h
+noinst_HEADERS += src/ecmult_gen_prec.h
+noinst_HEADERS += src/ecmult_gen_prec_impl.h
+noinst_HEADERS += src/field_10x26.h
+noinst_HEADERS += src/field_10x26_impl.h
+noinst_HEADERS += src/field_5x52.h
+noinst_HEADERS += src/field_5x52_impl.h
+noinst_HEADERS += src/field_5x52_int128_impl.h
+noinst_HEADERS += src/field_5x52_asm_impl.h
+noinst_HEADERS += src/modinv32.h
+noinst_HEADERS += src/modinv32_impl.h
+noinst_HEADERS += src/modinv64.h
+noinst_HEADERS += src/modinv64_impl.h
+noinst_HEADERS += src/assumptions.h
+noinst_HEADERS += src/util.h
+noinst_HEADERS += src/scratch.h
+noinst_HEADERS += src/scratch_impl.h
+noinst_HEADERS += src/selftest.h
+noinst_HEADERS += src/testrand.h
+noinst_HEADERS += src/testrand_impl.h
+noinst_HEADERS += src/hash.h
+noinst_HEADERS += src/hash_impl.h
+noinst_HEADERS += src/field.h
+noinst_HEADERS += src/field_impl.h
+noinst_HEADERS += src/bench.h
+noinst_HEADERS += src/basic-config.h
+noinst_HEADERS += contrib/lax_der_parsing.h
+noinst_HEADERS += contrib/lax_der_parsing.c
+noinst_HEADERS += contrib/lax_der_privatekey_parsing.h
+noinst_HEADERS += contrib/lax_der_privatekey_parsing.c
+
+if USE_EXTERNAL_ASM
+COMMON_LIB = libsecp256k1_common.la
+noinst_LTLIBRARIES = $(COMMON_LIB)
+else
+COMMON_LIB =
 endif
 .PHONY: deploy FORCE
 .INTERMEDIATE: $(OSX_TEMP_ISO) $(COVERAGE_INFO)
@@ -21,29 +76,26 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libBGLconsensus.pc
 endif
 
-BGLD_BIN=$(top_builddir)/src/$(BGL_DAEMON_NAME)$(EXEEXT)
-BGL_QT_BIN=$(top_builddir)/src/qt/$(BGL_GUI_NAME)$(EXEEXT)
-BGL_CLI_BIN=$(top_builddir)/src/$(BGL_CLI_NAME)$(EXEEXT)
-BGL_TX_BIN=$(top_builddir)/src/$(BGL_TX_NAME)$(EXEEXT)
-BGL_UTIL_BIN=$(top_builddir)/src/$(BGL_UTIL_NAME)$(EXEEXT)
-BGL_WALLET_BIN=$(top_builddir)/src/$(BGL_WALLET_TOOL_NAME)$(EXEEXT)
-BGL_NODE_BIN=$(top_builddir)/src/$(BGL_MP_NODE_NAME)$(EXEEXT)
-BGL_GUI_BIN=$(top_builddir)/src/$(BGL_MP_GUI_NAME)$(EXEEXT)
-BGL_WIN_INSTALLER=$(PACKAGE)-$(PACKAGE_VERSION)-win64-setup$(EXEEXT)
+libsecp256k1_la_SOURCES = src/secp256k1.c
+libsecp256k1_la_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/src $(SECP_INCLUDES)
+libsecp256k1_la_LIBADD = $(SECP_LIBS) $(COMMON_LIB)
+libsecp256k1_la_LDFLAGS = -no-undefined
 
 empty :=
 space := $(empty) $(empty)
 
-OSX_APP=BGL-Qt.app
-OSX_VOLNAME = $(subst $(space),-,$(PACKAGE_NAME))
-OSX_DMG = $(OSX_VOLNAME).dmg
-OSX_TEMP_ISO = $(OSX_DMG:.dmg=).temp.iso
-OSX_BACKGROUND_SVG=background.svg
-OSX_BACKGROUND_IMAGE=background.tiff
-OSX_BACKGROUND_IMAGE_DPIS=36 72
-OSX_DEPLOY_SCRIPT=$(top_srcdir)/contrib/macdeploy/macdeployqtplus
-OSX_INSTALLER_ICONS=$(top_srcdir)/src/qt/res/icons/BGL.icns
-OSX_PLIST=$(top_builddir)/share/qt/Info.plist #not installed
+noinst_PROGRAMS =
+if USE_BENCHMARK
+noinst_PROGRAMS += bench bench_internal bench_ecmult
+bench_SOURCES = src/bench.c
+bench_LDADD = libsecp256k1.la $(SECP_LIBS) $(SECP_TEST_LIBS) $(COMMON_LIB)
+bench_internal_SOURCES = src/bench_internal.c
+bench_internal_LDADD = $(SECP_LIBS) $(COMMON_LIB)
+bench_internal_CPPFLAGS = $(SECP_INCLUDES)
+bench_ecmult_SOURCES = src/bench_ecmult.c
+bench_ecmult_LDADD = $(SECP_LIBS) $(COMMON_LIB)
+bench_ecmult_CPPFLAGS = $(SECP_INCLUDES)
+endif
 
 DIST_CONTRIB = \
 	       $(top_srcdir)/test/sanitizer_suppressions/lsan \
@@ -52,64 +104,57 @@ DIST_CONTRIB = \
 	       $(top_srcdir)/contrib/linearize/linearize-data.py \
 	       $(top_srcdir)/contrib/linearize/linearize-hashes.py
 
-DIST_SHARE = \
-  $(top_srcdir)/share/genbuild.sh \
-  $(top_srcdir)/share/rpcauth
-
-BIN_CHECKS=$(top_srcdir)/contrib/devtools/symbol-check.py \
-           $(top_srcdir)/contrib/devtools/security-check.py \
-           $(top_srcdir)/contrib/devtools/utils.py
-
-WINDOWS_PACKAGING = $(top_srcdir)/share/pixmaps/BGL.ico \
-  $(top_srcdir)/share/pixmaps/nsis-header.bmp \
-  $(top_srcdir)/share/pixmaps/nsis-wizard.bmp \
-  $(top_srcdir)/doc/README_windows.txt
-
-OSX_PACKAGING = $(OSX_DEPLOY_SCRIPT) $(OSX_INSTALLER_ICONS) \
-  $(top_srcdir)/contrib/macdeploy/$(OSX_BACKGROUND_SVG) \
-  $(top_srcdir)/contrib/macdeploy/detached-sig-apply.sh \
-  $(top_srcdir)/contrib/macdeploy/detached-sig-create.sh
-
-COVERAGE_INFO = $(COV_TOOL_WRAPPER) baseline.info \
-  test_BGL_filtered.info total_coverage.info \
-  baseline_filtered.info functional_test.info functional_test_filtered.info \
-  test_BGL_coverage.info test_BGL.info fuzz.info fuzz_filtered.info fuzz_coverage.info
-
-dist-hook:
-	-$(GIT) archive --format=tar HEAD -- src/clientversion.cpp | $(AMTAR) -C $(top_distdir) -xf -
-
-if TARGET_WINDOWS
-$(BGL_WIN_INSTALLER): all-recursive
-	$(MKDIR_P) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGLD_BIN) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_QT_BIN) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_CLI_BIN) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_TX_BIN) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_WALLET_BIN) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_UTIL_BIN) $(top_builddir)/release
-	@test -f $(MAKENSIS) && echo 'OutFile "$@"' | cat $(top_builddir)/share/setup.nsi - | $(MAKENSIS) -V2 - || \
-	  echo error: could not build $@
-	@echo built $@
-
-deploy: $(BGL_WIN_INSTALLER)
+if USE_EXHAUSTIVE_TESTS
+noinst_PROGRAMS += exhaustive_tests
+exhaustive_tests_SOURCES = src/tests_exhaustive.c
+exhaustive_tests_CPPFLAGS = $(SECP_INCLUDES)
+if !ENABLE_COVERAGE
+exhaustive_tests_CPPFLAGS += -DVERIFY
+endif
+exhaustive_tests_LDADD = $(SECP_LIBS) $(COMMON_LIB)
+exhaustive_tests_LDFLAGS = -static
+TESTS += exhaustive_tests
 endif
 
-if TARGET_DARWIN
-$(OSX_APP)/Contents/PkgInfo:
-	$(MKDIR_P) $(@D)
-	@echo "APPL????" > $@
+### Precomputed tables
+EXTRA_PROGRAMS = gen_ecmult_static_pre_g gen_ecmult_gen_static_prec_table
+CLEANFILES = $(EXTRA_PROGRAMS)
 
-$(OSX_APP)/Contents/Resources/empty.lproj:
-	$(MKDIR_P) $(@D)
-	@touch $@
+gen_ecmult_static_pre_g_SOURCES = src/gen_ecmult_static_pre_g.c
+gen_ecmult_static_pre_g_CPPFLAGS = $(SECP_INCLUDES)
+gen_ecmult_static_pre_g_LDADD = $(SECP_LIBS) $(COMMON_LIB)
 
-$(OSX_APP)/Contents/Info.plist: $(OSX_PLIST)
-	$(MKDIR_P) $(@D)
-	$(INSTALL_DATA) $< $@
+gen_ecmult_gen_static_prec_table_SOURCES = src/gen_ecmult_gen_static_prec_table.c
+gen_ecmult_gen_static_prec_table_CPPFLAGS = $(SECP_INCLUDES)
+gen_ecmult_gen_static_prec_table_LDADD = $(SECP_LIBS) $(COMMON_LIB)
 
-$(OSX_APP)/Contents/Resources/BGL.icns: $(OSX_INSTALLER_ICONS)
-	$(MKDIR_P) $(@D)
-	$(INSTALL_DATA) $< $@
+# See Automake manual, Section "Errors with distclean".
+# We don't list any dependencies for the prebuilt files here because
+# otherwise make's decision whether to rebuild them (even in the first
+# build by a normal user) depends on mtimes, and thus is very fragile.
+# This means that rebuilds of the prebuilt files always need to be
+# forced by deleting them, e.g., by invoking `make clean-precomp`.
+src/ecmult_static_pre_g.h:
+	$(MAKE) $(AM_MAKEFLAGS) gen_ecmult_static_pre_g$(EXEEXT)
+	./gen_ecmult_static_pre_g$(EXEEXT)
+src/ecmult_gen_static_prec_table.h:
+	$(MAKE) $(AM_MAKEFLAGS) gen_ecmult_gen_static_prec_table$(EXEEXT)
+	./gen_ecmult_gen_static_prec_table$(EXEEXT)
+
+PRECOMP = src/ecmult_gen_static_prec_table.h src/ecmult_static_pre_g.h
+noinst_HEADERS += $(PRECOMP)
+precomp: $(PRECOMP)
+
+# Ensure the prebuilt files will be build first (only if they don't exist,
+# e.g., after `make maintainer-clean`).
+BUILT_SOURCES = $(PRECOMP)
+
+maintainer-clean-local: clean-precomp
+
+clean-precomp:
+	rm -f $(PRECOMP)
+
+EXTRA_DIST = autogen.sh SECURITY.md
 
 $(OSX_APP)/Contents/MacOS/BGL-Qt: all-recursive
 	$(MKDIR_P) $(@D)

@@ -1,9 +1,28 @@
 env:
-  MAKEJOBS: "-j4"
-  TEST_RUNNER_PORT_MIN: "14000"  # Must be larger than 12321, which is used for the http cache. See https://cirrus-ci.org/guide/writing-tasks/#http-cache
-  CCACHE_SIZE: "200M"
-  CCACHE_DIR: "/tmp/ccache_dir"
-  CCACHE_NOHASHDIR: "1"  # Debug info might contain a stale path if the build dir changes, but this is fine
+  ### compiler options
+  HOST:
+  # Specific warnings can be disabled with -Wno-error=foo.
+  # -pedantic-errors is not equivalent to -Werror=pedantic and thus not implied by -Werror according to the GCC manual.
+  WERROR_CFLAGS: -Werror -pedantic-errors
+  MAKEFLAGS: -j2
+  BUILD: check
+  ### secp256k1 config
+  STATICPRECOMPUTATION: yes
+  ECMULTGENPRECISION: auto
+  ASM: no
+  WIDEMUL: auto
+  WITH_VALGRIND: yes
+  EXTRAFLAGS:
+  ### secp256k1 modules
+  EXPERIMENTAL: no
+  ECDH: no
+  RECOVERY: no
+  SCHNORRSIG: no
+  ### test options
+  SECP256K1_TEST_ITERS:
+  BENCH: yes
+  SECP256K1_BENCH_ITERS: 2
+  CTIMETEST: yes
 
 cirrus_ephemeral_worker_template_env: &CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
   DANGER_RUN_CI_ON_HOST: "1"  # Containers will be discarded after the run, so there is no risk that the ci scripts modify the system
@@ -177,8 +196,21 @@ task:
   container:
     image: ubuntu:focal
   env:
-    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-    FILE_ENV: "./ci/test/00_setup_env_win64.sh"
+    WRAPPER_CMD: qemu-s390x
+    SECP256K1_TEST_ITERS: 16
+    HOST: s390x-linux-gnu
+    WITH_VALGRIND: no
+    ECDH: yes
+    RECOVERY: yes
+    EXPERIMENTAL: yes
+    SCHNORRSIG: yes
+    CTIMETEST: no
+  << : *MERGE_BASE
+  test_script:
+    # https://sourceware.org/bugzilla/show_bug.cgi?id=27008
+    - rm /etc/ld.so.cache
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
 
 task:
   name: '32-bit + dash [gui] [CentOS 8]'
@@ -197,8 +229,22 @@ task:
   << : *GLOBAL_TASK_TEMPLATE
   << : *PERSISTENT_WORKER_TEMPLATE
   env:
-    << : *PERSISTENT_WORKER_TEMPLATE_ENV
-    FILE_ENV: "./ci/test/00_setup_env_native_qt5.sh"
+    WRAPPER_CMD: qemu-arm
+    SECP256K1_TEST_ITERS: 16
+    HOST: arm-linux-gnueabihf
+    WITH_VALGRIND: no
+    ECDH: yes
+    RECOVERY: yes
+    EXPERIMENTAL: yes
+    SCHNORRSIG: yes
+    CTIMETEST: no
+  matrix:
+    - env: {}
+    - env: {ASM: arm}
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
 
 task:
   name: '[TSan, depends, no gui] [jammy]'
@@ -208,9 +254,19 @@ task:
     cpu: 6  # Increase CPU and Memory to avoid timeout
     memory: 24G
   env:
-    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-    MAKEJOBS: "-j8"
-    FILE_ENV: "./ci/test/00_setup_env_native_tsan.sh"
+    WRAPPER_CMD: qemu-aarch64
+    SECP256K1_TEST_ITERS: 16
+    HOST: aarch64-linux-gnu
+    WITH_VALGRIND: no
+    ECDH: yes
+    RECOVERY: yes
+    EXPERIMENTAL: yes
+    SCHNORRSIG: yes
+    CTIMETEST: no
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
 
 task:
   name: '[MSan, depends] [focal]'
@@ -218,8 +274,19 @@ task:
   container:
     image: ubuntu:focal
   env:
-    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-    FILE_ENV: "./ci/test/00_setup_env_native_msan.sh"
+    WRAPPER_CMD: qemu-ppc64le
+    SECP256K1_TEST_ITERS: 16
+    HOST: powerpc64le-linux-gnu
+    WITH_VALGRIND: no
+    ECDH: yes
+    RECOVERY: yes
+    EXPERIMENTAL: yes
+    SCHNORRSIG: yes
+    CTIMETEST: no
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
 
 task:
   name: '[ASan + LSan + UBSan + integer, no depends] [jammy]'
@@ -227,21 +294,66 @@ task:
   container:
     image: ubuntu:jammy
   env:
-    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-    FILE_ENV: "./ci/test/00_setup_env_native_asan.sh"
+    WRAPPER_CMD: wine64-stable
+    SECP256K1_TEST_ITERS: 16
+    HOST: x86_64-w64-mingw32
+    WITH_VALGRIND: no
+    ECDH: yes
+    RECOVERY: yes
+    EXPERIMENTAL: yes
+    SCHNORRSIG: yes
+    CTIMETEST: no
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
 
 task:
   name: '[fuzzer,address,undefined,integer, no depends] [focal]'
   only_if: $CIRRUS_BRANCH == $CIRRUS_DEFAULT_BRANCH || $CIRRUS_BASE_BRANCH == $CIRRUS_DEFAULT_BRANCH
   << : *GLOBAL_TASK_TEMPLATE
   container:
-    image: ubuntu:focal
-    cpu: 4  # Increase CPU and memory to avoid timeout
-    memory: 16G
+    dockerfile: ci/linux-debian.Dockerfile
+    cpu: 1
+    memory: 2G
   env:
-    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-    MAKEJOBS: "-j8"
-    FILE_ENV: "./ci/test/00_setup_env_native_fuzz.sh"
+    ECDH: yes
+    RECOVERY: yes
+    EXPERIMENTAL: yes
+    SCHNORRSIG: yes
+    CTIMETEST: no
+  matrix:
+    - name: "Valgrind (memcheck)"
+      env:
+        # The `--error-exitcode` is required to make the test fail if valgrind found errors, otherwise it'll return 0 (https://www.valgrind.org/docs/manual/manual-core.html)
+        WRAPPER_CMD: "valgrind --error-exitcode=42"
+        SECP256K1_TEST_ITERS: 2
+    - name: "UBSan, ASan, LSan"
+      env:
+        CFLAGS: "-fsanitize=undefined,address -g"
+        UBSAN_OPTIONS: "print_stacktrace=1:halt_on_error=1"
+        ASAN_OPTIONS: "strict_string_checks=1:detect_stack_use_after_return=1:detect_leaks=1"
+        LSAN_OPTIONS: "use_unaligned=1"
+        SECP256K1_TEST_ITERS: 32
+  # Try to cover many configurations with just a tiny matrix.
+  matrix:
+    - env:
+        ASM: auto
+        STATICPRECOMPUTATION: yes
+    - env:
+        ASM: no
+        STATICPRECOMPUTATION: no
+        ECMULTGENPRECISION: 2
+  matrix:
+    - env:
+        CC: clang
+    - env:
+        HOST: i686-linux-gnu
+        CC: i686-linux-gnu-gcc
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
 
 task:
   name: '[multiprocess, i686, DEBUG] [focal]'
@@ -305,5 +417,16 @@ task:
   container:
     image: ubuntu:focal
   env:
-    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-    FILE_ENV: "./ci/test/00_setup_env_android.sh"
+    # ./configure correctly errors out when given CC=g++.
+    # We hack around this by passing CC=g++ only to make.
+    CC: gcc
+    MAKEFLAGS: -j2 CC=g++ CFLAGS=-fpermissive\ -g
+    WERROR_CFLAGS:
+    EXPERIMENTAL: yes
+    ECDH: yes
+    RECOVERY: yes
+    SCHNORRSIG: yes
+  << : *MERGE_BASE
+  test_script:
+    - ./ci/cirrus.sh
+  << : *CAT_LOGS
