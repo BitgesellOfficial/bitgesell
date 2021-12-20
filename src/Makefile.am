@@ -15,14 +15,14 @@ AM_LIBTOOLFLAGS = --preserve-dup-deps
 PTHREAD_FLAGS = $(PTHREAD_CFLAGS) $(PTHREAD_LIBS)
 EXTRA_LIBRARIES =
 
-BGL_INCLUDES=-I$(builddir) -I$(srcdir)/secp256k1/include -I$(srcdir)/$(UNIVALUE_INCLUDE_DIR_INT) $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
+BGL_INCLUDES=-I$(builddir) -I$(srcdir)/$(MINISKETCH_INCLUDE_DIR_INT) -I$(srcdir)/secp256k1/include -I$(srcdir)/$(UNIVALUE_INCLUDE_DIR_INT) $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
 
-LIBBGL_SERVER=libBGL_server.a
+LIBBGL_NODE=libBGL_node.a
 LIBBGL_COMMON=libBGL_common.a
 LIBBGL_CONSENSUS=libBGL_consensus.a
 LIBBGL_CLI=libBGL_cli.a
 LIBBGL_UTIL=libBGL_util.a
-LIBBGL_CRYPTO_BASE=crypto/libBGL_crypto_base.a
+LIBBBGL_CRYPTO_BASE=crypto/libBGL_crypto_base.a
 LIBBGLQT=qt/libBGLqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 
@@ -65,14 +65,14 @@ EXTRA_LIBRARIES += \
   $(LIBBGL_UTIL) \
   $(LIBBGL_COMMON) \
   $(LIBBGL_CONSENSUS) \
-  $(LIBBGL_SERVER) \
+  $(LIBBGL_NODE) \
   $(LIBBGL_CLI) \
   $(LIBBGL_IPC) \
   $(LIBBGL_WALLET) \
   $(LIBBGL_WALLET_TOOL) \
   $(LIBBGL_ZMQ)
 
-lib_LTLIBRARIES = $(LIBBGLCONSENSUS)
+lib_LTLIBRARIES = $(LIBBGLSENSUS)
 noinst_LTLIBRARIES =
 
 bin_PROGRAMS =
@@ -320,10 +320,10 @@ ipc/capnp/libBGL_ipc_a-ipc.$(OBJEXT): $(libBGL_ipc_mpgen_input:=.h)
 # server: shared between BGLd and BGL-qt
 # Contains code accessing mempool and chain state that is meant to be separated
 # from wallet and gui code (see node/README.md). Shared code should go in
-# libBGL_common or libBGL_util libraries, instead.
-libBGL_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(NATPMP_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
-libBGL_server_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libBGL_server_a_SOURCES = \
+# libbitcoin_common or libbitcoin_util libraries, instead.
+libBGL_node_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(NATPMP_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
+libBGL_node_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libBGL_node_a_SOURCES = \
   addrdb.cpp \
   addrman.cpp \
   banman.cpp \
@@ -386,10 +386,10 @@ libBGL_server_a_SOURCES = \
   $(BGL_CORE_H)
 
 if ENABLE_WALLET
-libBGL_server_a_SOURCES += wallet/init.cpp
+libBGL_node_a_SOURCES += wallet/init.cpp
 endif
 if !ENABLE_WALLET
-libBGL_server_a_SOURCES += dummywallet.cpp
+libBGL_node_a_SOURCES += dummywallet.cpp
 endif
 
 if ENABLE_ZMQ
@@ -681,13 +681,13 @@ BGLd_SOURCES = $(BGL_daemon_sources) init/BGLd.cpp
 BGLd_CPPFLAGS = $(BGL_bin_cppflags)
 BGLd_CXXFLAGS = $(BGL_bin_cxxflags)
 BGLd_LDFLAGS = $(BGL_bin_ldflags)
-BGLd_LDADD = $(LIBBGL_SERVER) $(BGL_bin_ldadd)
+BGLd_LDADD = $(LIBBGL_NODE) $(BGL_bin_ldadd)
 
 BGL_node_SOURCES = $(BGL_daemon_sources) init/BGL-node.cpp
 BGL_node_CPPFLAGS = $(BGL_bin_cppflags)
 BGL_node_CXXFLAGS = $(BGL_bin_cxxflags)
 BGL_node_LDFLAGS = $(BGL_bin_ldflags)
-BGL_node_LDADD = $(LIBBGL_SERVER) $(BGL_bin_ldadd) $(LIBBGL_IPC) $(LIBMULTIPROCESS_LIBS)
+BGL_node_LDADD = $(LIBBGL_NODE) $(BGL_bin_ldadd) $(LIBBGL_IPC) $(LIBMULTIPROCESS_LIBS)
 
 # BGL-cli binary #
 BGL_cli_SOURCES = BGL-cli.cpp

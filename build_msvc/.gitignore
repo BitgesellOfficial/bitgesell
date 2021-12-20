@@ -13,7 +13,7 @@ packages/*
 libBGL_cli/libBGL_cli.vcxproj
 libBGL_common/libBGL_common.vcxproj
 libBGL_crypto/libBGL_crypto.vcxproj
-libBGL_server/libBGL_server.vcxproj
+libBGL_node/libBGL_node.vcxproj
 libBGL_util/libBGL_util.vcxproj
 libBGL_wallet_tool/libBGL_wallet_tool.vcxproj
 libBGL_wallet/libBGL_wallet.vcxproj

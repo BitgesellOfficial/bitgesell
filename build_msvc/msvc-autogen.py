@@ -12,7 +12,7 @@ libs = [
     'libBGL_cli',
     'libBGL_common',
     'libBGL_crypto',
-    'libBGL_server',
+    'libBGL_node',
     'libBGL_util',
     'libBGL_wallet_tool',
     'libBGL_wallet',

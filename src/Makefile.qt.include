@@ -323,7 +323,7 @@ BGL_qt_sources = qt/main.cpp
 if TARGET_WINDOWS
   BGL_qt_sources += $(BGL_QT_RC)
 endif
-BGL_qt_ldadd = qt/libBGLqt.a $(LIBBGL_SERVER)
+BGL_qt_ldadd = qt/libBGLqt.a $(LIBBGL_NODE)
 if ENABLE_WALLET
 BGL_qt_ldadd += $(LIBBGL_UTIL) $(LIBBGL_WALLET)
 endif
@@ -357,7 +357,7 @@ SECONDARY: $(QT_QM)
 
 $(srcdir)/qt/BGLstrings.cpp: FORCE
 	@test -n $(XGETTEXT) || echo "xgettext is required for updating translations"
-	$(AM_V_GEN) cd $(srcdir); XGETTEXT=$(XGETTEXT) COPYRIGHT_HOLDERS="$(COPYRIGHT_HOLDERS)" $(PYTHON) ../share/qt/extract_strings_qt.py $(libBGL_server_a_SOURCES) $(libBGL_wallet_a_SOURCES) $(libBGL_common_a_SOURCES) $(libBGL_zmq_a_SOURCES) $(libBGL_consensus_a_SOURCES) $(libBGL_util_a_SOURCES)
+	$(AM_V_GEN) cd $(srcdir); XGETTEXT=$(XGETTEXT) COPYRIGHT_HOLDERS="$(COPYRIGHT_HOLDERS)" $(PYTHON) ../share/qt/extract_strings_qt.py $(libBGL_node_a_SOURCES) $(libBGL_wallet_a_SOURCES) $(libBGL_common_a_SOURCES) $(libBGL_zmq_a_SOURCES) $(libBGL_consensus_a_SOURCES) $(libBGL_util_a_SOURCES)
 
 # The resulted bitcoin_en.xlf source file should follow Transifex requirements.
 # See: https://docs.transifex.com/formats/xliff#how-to-distinguish-between-a-source-file-and-a-translation-file
