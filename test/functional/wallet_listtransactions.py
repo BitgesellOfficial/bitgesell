@@ -15,6 +15,7 @@ from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_array_result,
     assert_equal,
+    assert_raises_rpc_error,
 )
 
 class ListTransactionsTest(BGLTestFramework):
@@ -104,7 +105,8 @@ class ListTransactionsTest(BGLTestFramework):
                                 {"txid": txid, "label": "watchonly"})
 
         self.run_rbf_opt_in_test()
-
+        self.run_externally_generated_address_test()
+        self.run_invalid_parameters_test()
 
     def run_rbf_opt_in_test(self):
         """Test the opt-in-rbf flag for sent and received transactions."""
@@ -272,6 +274,13 @@ class ListTransactionsTest(BGLTestFramework):
         assert_equal(['pizza1'], self.nodes[0].getaddressinfo(addr1)['labels'])
         assert_equal(['pizza2'], self.nodes[0].getaddressinfo(addr2)['labels'])
         assert_equal(['pizza3'], self.nodes[0].getaddressinfo(addr3)['labels'])
+
+    def run_invalid_parameters_test(self):
+        self.log.info("Test listtransactions RPC parameter validity")
+        assert_raises_rpc_error(-8, 'Label argument must be a valid label name or "*".', self.nodes[0].listtransactions, label="")
+        self.nodes[0].listtransactions(label="*")
+        assert_raises_rpc_error(-8, "Negative count", self.nodes[0].listtransactions, count=-1)
+        assert_raises_rpc_error(-8, "Negative from", self.nodes[0].listtransactions, skip=-1)
 
 
 if __name__ == '__main__':
