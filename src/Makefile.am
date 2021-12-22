@@ -29,6 +29,7 @@ LIBBGL_NODE=libBGL_node.a
 LIBBGL_COMMON=libBGL_common.a
 LIBBGL_CONSENSUS=libBGL_consensus.a
 LIBBGL_CLI=libBGL_cli.a
+LIBBGL_KERNEL=libBGL_kernel.a
 LIBBGL_UTIL=libBGL_util.a
 LIBBGL_CRYPTO_BASE=crypto/libBGL_crypto_base.la
 LIBBGLQT=qt/libBGLqt.a
@@ -39,6 +40,9 @@ LIBBGL_ZMQ=libBGL_zmq.a
 endif
 if BUILD_BGL_LIBS
 LIBBGLCONSENSUS=libBGLconsensus.la
+endif
+if BUILD_BGL_KERNEL_LIB
+LIBBGLKERNEL=libBGLkernel.la
 endif
 if ENABLE_WALLET
 LIBBGL_WALLET=libBGL_wallet.a
@@ -811,8 +815,39 @@ BGL_util_LDADD = \
 #
 
 # bitcoin-chainstate binary #
-BGL_chainstate_SOURCES = \
-  BGL-chainstate.cpp \
+BGL_chainstate_SOURCES = BGL-chainstate.cpp
+BGL_chainstate_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
+BGL_chainstate_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+BGL_chainstate_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
+BGL_chainstate_LDADD = $(LIBBGLKERNEL)
+#
+
+# bitcoinkernel library #
+if BUILD_BGL_KERNEL_LIB
+lib_LTLIBRARIES += $(LIBBGLKERNEL)
+
+libBGLkernel_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(PTHREAD_FLAGS)
+libBGLkernel_la_LIBADD = $(LIBBGL_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) $(LIBSECP256K1)
+libBGLkernel_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BGL_INTERNAL $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) -I$(srcdir)/$(UNIVALUE_INCLUDE_DIR_INT)
+
+# libbitcoinkernel requires default symbol visibility, explicitly specify that
+# here so that things still work even when user configures with
+#   --enable-reduce-exports
+#
+# Note this is a quick hack that will be removed as we incrementally define what
+# to export from the library.
+libBGLkernel_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -fvisibility=default
+
+# TODO: For now, Specify -static in both CXXFLAGS and LDFLAGS when building for
+#       windows targets so libtool will only build a static version of this
+#       library. There are unresolved problems when building dll's for mingw-w64
+#       and attempting to statically embed libstdc++, libpthread, etc.
+if TARGET_WINDOWS
+libBGLkernel_la_LDFLAGS += -static
+libBGLkernel_la_CXXFLAGS += -static
+endif
+
+libBGLkernel_la_SOURCES = \
   kernel/BGLkernel.cpp \
   arith_uint256.cpp \
   blockfilter.cpp \
@@ -892,19 +927,11 @@ BGL_chainstate_SOURCES = \
   validationinterface.cpp \
   versionbits.cpp \
   warnings.cpp
-BGL_chainstate_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
-BGL_chainstate_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-BGL_chainstate_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
-BGL_chainstate_LDADD = \
-  $(LIBBGL_CRYPTO) \
-  $(LIBUNIVALUE) \
-  $(LIBSECP256K1) \
-  $(LIBLEVELDB) \
-  $(LIBMEMENV)
 
 # Required for obj/build.h to be generated first.
 # More details: https://www.gnu.org/software/automake/manual/html_node/Built-Sources-Example.html
-BGL_chainstate-clientversion.$(OBJEXT): obj/build.h
+libBGLkernel_la-clientversion.l$(OBJEXT): obj/build.h
+endif # BUILD_BGL_KERNEL_LIB
 #
 
 # bitcoinconsensus library #

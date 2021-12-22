@@ -461,6 +461,12 @@ AC_ARG_WITH([libs],
   [build_BGL_libs=$withval],
   [build_BGL_libs=yes])
 
+AC_ARG_WITH([experimental-kernel-lib],
+  [AS_HELP_STRING([--with-experimental-kernel-lib],
+  [build experimental BGLkernel library (default is to build if we're building libraries and the experimental build-chainstate executable)])],
+  [build_experimental_kernel_lib=$withval],
+  [build_experimental_kernel_lib=auto])
+
 AC_ARG_WITH([daemon],
   [AS_HELP_STRING([--with-daemon],
   [build BGLd daemon (default=yes)])],
@@ -1258,11 +1264,103 @@ elif test "$with_libmultiprocess" != "no"; then
   AC_MSG_ERROR([--with-libmultiprocess=$with_libmultiprocess value is not yes, auto, or no])
 fi
 
-if test x"$enable_experimental" = x"yes"; then
-  AC_MSG_NOTICE([******])
-  AC_MSG_NOTICE([WARNING: experimental build])
-  AC_MSG_NOTICE([Experimental features do not have stable APIs or properties, and may not be safe for production use.])
-  AC_MSG_NOTICE([******])
+dnl Enable multiprocess check
+
+if test "$enable_multiprocess" = "yes"; then
+  if test "$libmultiprocess_found" != "yes"; then
+    AC_MSG_ERROR([--enable-multiprocess=yes option specified but libmultiprocess library was not found. May need to install libmultiprocess library, or specify install path with PKG_CONFIG_PATH environment variable. Running 'pkg-config --debug libmultiprocess' may be helpful for debugging.])
+  fi
+  build_multiprocess=yes
+elif test "$enable_multiprocess" = "auto"; then
+  build_multiprocess=$libmultiprocess_found
+else
+  build_multiprocess=no
+fi
+
+AM_CONDITIONAL([BUILD_MULTIPROCESS], [test "$build_multiprocess" = "yes"])
+AM_CONDITIONAL([BUILD_BGL_NODE], [test "$build_multiprocess" = "yes"])
+AM_CONDITIONAL([BUILD_BGL_GUI], [test "$build_multiprocess" = "yes"])
+
+dnl codegen tools check
+
+if test "$build_multiprocess" != "no"; then
+  if test "$with_mpgen" = "yes" || test "$with_mpgen" = "auto"; then
+    MPGEN_PREFIX="$libmultiprocess_prefix"
+  elif test "$with_mpgen" != "no"; then
+    MPGEN_PREFIX="$with_mpgen";
+  fi
+  AC_SUBST(MPGEN_PREFIX)
+fi
+
+AC_MSG_CHECKING([whether to build BGLd])
+AM_CONDITIONAL([BUILD_BGLD], [test $build_BGLd = "yes"])
+AC_MSG_RESULT($build_BGLd)
+
+AC_MSG_CHECKING([whether to build BGL-cli])
+AM_CONDITIONAL([BUILD_BGL_CLI], [test $build_BGL_cli = "yes"])
+AC_MSG_RESULT($build_BGL_cli)
+
+AC_MSG_CHECKING([whether to build BGL-tx])
+AM_CONDITIONAL([BUILD_BGL_TX], [test $build_BGL_tx = "yes"])
+AC_MSG_RESULT($build_BGL_tx)
+
+AC_MSG_CHECKING([whether to build BGL-wallet])
+AM_CONDITIONAL([BUILD_BGL_WALLET], [test $build_BGL_wallet = "yes"])
+AC_MSG_RESULT($build_BGL_wallet)
+
+AC_MSG_CHECKING([whether to build BGL-util])
+AM_CONDITIONAL([BUILD_BGL_UTIL], [test $build_BGL_util = "yes"])
+AC_MSG_RESULT($build_BGL_util)
+
+AC_MSG_CHECKING([whether to build experimental BGL-chainstate])
+if test "$build_experimental_kernel_lib" = "no"; then
+AC_MSG_ERROR([experimental BGL-chainstate cannot be built without the experimental BGLkernel library. Use --with-experimental-kernel-lib]);
+else
+  AM_CONDITIONAL([BUILD_BGL_CHAINSTATE], [test $build_BGL_chainstate = "yes"])
+fi
+AC_MSG_RESULT($build_BGL_chainstate)
+
+AC_MSG_CHECKING([whether to build libraries])
+AM_CONDITIONAL([BUILD_BGL_LIBS], [test $build_BGL_libs = "yes"])
+
+if test "$build_BGL_libs" = "yes"; then
+  AC_DEFINE([HAVE_CONSENSUS_LIB], [1], [Define this symbol if the consensus lib has been built])
+  AC_CONFIG_FILES([libBGLconsensus.pc:libBGLconsensus.pc.in])
+fi
+
+AM_CONDITIONAL([BUILD_BGL_KERNEL_LIB], [test "$build_experimental_kernel_lib" != "no" && ( test "$build_experimental_kernel_lib" = "yes" || test "$build_BGL_chainstate" = "yes" )])
+
+AC_MSG_RESULT($build_BGL_libs)
+
+AC_LANG_POP
+
+if test "$use_ccache" != "no"; then
+  AC_MSG_CHECKING([if ccache should be used])
+  if test "$CCACHE" = ""; then
+    if test "$use_ccache" = "yes"; then
+      AC_MSG_ERROR([ccache not found.]);
+    else
+      use_ccache=no
+    fi
+  else
+    use_ccache=yes
+    CC="$ac_cv_path_CCACHE $CC"
+    CXX="$ac_cv_path_CCACHE $CXX"
+  fi
+  AC_MSG_RESULT($use_ccache)
+  if test "$use_ccache" = "yes"; then
+    AX_CHECK_COMPILE_FLAG([-fdebug-prefix-map=A=B], [DEBUG_CXXFLAGS="$DEBUG_CXXFLAGS -fdebug-prefix-map=\$(abs_top_srcdir)=."], [], [$CXXFLAG_WERROR])
+    AX_CHECK_PREPROC_FLAG([-fmacro-prefix-map=A=B], [DEBUG_CPPFLAGS="$DEBUG_CPPFLAGS -fmacro-prefix-map=\$(abs_top_srcdir)=."], [], [$CXXFLAG_WERROR])
+  fi
+fi
+
+dnl enable wallet
+AC_MSG_CHECKING([if wallet should be enabled])
+if test "$enable_wallet" != "no"; then
+  AC_MSG_RESULT([yes])
+  AC_DEFINE_UNQUOTED([ENABLE_WALLET],[1],[Define to 1 to enable wallet functions])
+  enable_wallet=yes
+
 else
   AC_MSG_RESULT([no])
 fi
