@@ -778,8 +778,6 @@ class P2PTxInvStore(P2PInterface):
                 # save txid
                 self.tx_invs_received[i.hash] += 1
 
-        super().on_inv(message)
-
     def get_invs(self):
         with p2p_lock:
             return list(self.tx_invs_received.keys())
