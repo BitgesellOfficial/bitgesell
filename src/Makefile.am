@@ -15,6 +15,14 @@ AM_LIBTOOLFLAGS = --preserve-dup-deps
 PTHREAD_FLAGS = $(PTHREAD_CFLAGS) $(PTHREAD_LIBS)
 EXTRA_LIBRARIES =
 
+lib_LTLIBRARIES = $(LIBBGLCONSENSUS)
+noinst_LTLIBRARIES =
+
+bin_PROGRAMS =
+noinst_PROGRAMS =
+TESTS =
+BENCHMARKS =
+
 BGL_INCLUDES=-I$(builddir) -I$(srcdir)/$(MINISKETCH_INCLUDE_DIR_INT) -I$(srcdir)/secp256k1/include -I$(srcdir)/$(UNIVALUE_INCLUDE_DIR_INT) $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
 
 LIBBGL_NODE=libBGL_node.a
@@ -22,7 +30,7 @@ LIBBGL_COMMON=libBGL_common.a
 LIBBGL_CONSENSUS=libBGL_consensus.a
 LIBBGL_CLI=libBGL_cli.a
 LIBBGL_UTIL=libBGL_util.a
-LIBBBGL_CRYPTO_BASE=crypto/libBGL_crypto_base.a
+LIBBGL_CRYPTO_BASE=crypto/libBGL_crypto_base.la
 LIBBGLQT=qt/libBGLqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 
@@ -37,23 +45,24 @@ LIBBGL_WALLET=libBGL_wallet.a
 LIBBGL_WALLET_TOOL=libBGL_wallet_tool.a
 endif
 
-LIBBGL_CRYPTO= $(LIBBGL_CRYPTO_BASE)
+LIBBGL_CRYPTO = $(LIBBGL_CRYPTO_BASE)
 if ENABLE_SSE41
-LIBBGL_CRYPTO_SSE41 = crypto/libBGL_crypto_sse41.a
+LIBBGL_CRYPTO_SSE41 = crypto/libBGL_crypto_sse41.la
 LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_SSE41)
 endif
 if ENABLE_AVX2
-LIBBGL_CRYPTO_AVX2 = crypto/libBGL_crypto_avx2.a
+LIBBGL_CRYPTO_AVX2 = crypto/libBGL_crypto_avx2.la
 LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_AVX2)
 endif
 if ENABLE_X86_SHANI
-LIBBGL_CRYPTO_X86_SHANI = crypto/libBGL_crypto_x86_shani.a
+LIBBGL_CRYPTO_X86_SHANI = crypto/libBGL_crypto_x86_shani.la
 LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_X86_SHANI)
 endif
 if ENABLE_ARM_SHANI
-LIBBGL_CRYPTO_ARM_SHANI = crypto/libBGL_crypto_arm_shani.a
+LIBBGL_CRYPTO_ARM_SHANI = crypto/libBGL_crypto_arm_shani.la
 LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_ARM_SHANI)
 endif
+noinst_LTLIBRARIES += $(LIBBGL_CRYPTO)
 
 # Add SHA3 support
 LIBBGL_CRYPTO_SHA3 = crypto/sha3/libBGL_crypto_sha3.a
@@ -65,7 +74,6 @@ $(LIBSECP256K1): $(wildcard secp256k1/src/*.h) $(wildcard secp256k1/src/*.c) $(w
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
 EXTRA_LIBRARIES += \
-  $(LIBBGL_CRYPTO) \
   $(LIBBGL_UTIL) \
   $(LIBBGL_COMMON) \
   $(LIBBGL_CONSENSUS) \
@@ -75,14 +83,6 @@ EXTRA_LIBRARIES += \
   $(LIBBGL_WALLET) \
   $(LIBBGL_WALLET_TOOL) \
   $(LIBBGL_ZMQ)
-
-lib_LTLIBRARIES = $(LIBBGLSENSUS)
-noinst_LTLIBRARIES =
-
-bin_PROGRAMS =
-noinst_PROGRAMS =
-TESTS =
-BENCHMARKS =
 
 if BUILD_BGLD
   bin_PROGRAMS += BGLd
@@ -475,9 +475,16 @@ crypto_sha3_libBGL_crypto_sha3_a_SOURCES = \
   crypto/sha3/sha3.h
 
 # crypto primitives library
-crypto_libBGL_crypto_base_a_CPPFLAGS = $(AM_CPPFLAGS)
-crypto_libBGL_crypto_base_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-crypto_libBGL_crypto_base_a_SOURCES = \
+crypto_libBGL_crypto_base_la_CPPFLAGS = $(AM_CPPFLAGS)
+
+# Specify -static in both CXXFLAGS and LDFLAGS so libtool will only build a
+# static version of this library. We don't need a dynamic version, and a dynamic
+# version can't be used on windows anyway because the library doesn't currently
+# export DLL symbols.
+crypto_libBGL_crypto_base_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -static
+crypto_libBGL_crypto_base_la_LDFLAGS = $(AM_LDFLAGS) -static
+
+crypto_libBGL_crypto_base_la_SOURCES = \
   crypto/aes.cpp \
   crypto/aes.h \
   crypto/chacha_poly_aead.h \
@@ -509,32 +516,44 @@ crypto_libBGL_crypto_base_a_SOURCES = \
   crypto/siphash.h
 
 if USE_ASM
-crypto_libBGL_crypto_base_a_SOURCES += crypto/sha256_sse4.cpp
+crypto_libBGL_crypto_base_la_SOURCES += crypto/sha256_sse4.cpp
 endif
 
-crypto_libBGL_crypto_sse41_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-crypto_libBGL_crypto_sse41_a_CPPFLAGS = $(AM_CPPFLAGS)
-crypto_libBGL_crypto_sse41_a_CXXFLAGS += $(SSE41_CXXFLAGS)
-crypto_libBGL_crypto_sse41_a_CPPFLAGS += -DENABLE_SSE41
-crypto_libBGL_crypto_sse41_a_SOURCES = crypto/sha256_sse41.cpp
+# See explanation for -static in crypto_libBGL_crypto_base_la's LDFLAGS and
+# CXXFLAGS above
+crypto_libBGL_crypto_sse41_la_LDFLAGS = $(AM_LDFLAGS) -static
+crypto_libBGL_crypto_sse41_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -static
+crypto_libBGL_crypto_sse41_la_CPPFLAGS = $(AM_CPPFLAGS)
+crypto_libBGL_crypto_sse41_la_CXXFLAGS += $(SSE41_CXXFLAGS)
+crypto_libBGL_crypto_sse41_la_CPPFLAGS += -DENABLE_SSE41
+crypto_libBGL_crypto_sse41_la_SOURCES = crypto/sha256_sse41.cpp
 
-crypto_libBGL_crypto_avx2_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-crypto_libBGL_crypto_avx2_a_CPPFLAGS = $(AM_CPPFLAGS)
-crypto_libBGL_crypto_avx2_a_CXXFLAGS += $(AVX2_CXXFLAGS)
-crypto_libBGL_crypto_avx2_a_CPPFLAGS += -DENABLE_AVX2
-crypto_libBGL_crypto_avx2_a_SOURCES = crypto/sha256_avx2.cpp
+# See explanation for -static in crypto_libBGL_crypto_base_la's LDFLAGS and
+# CXXFLAGS above
+crypto_libBGL_crypto_avx2_la_LDFLAGS = $(AM_LDFLAGS) -static
+crypto_libBGL_crypto_avx2_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -static
+crypto_libBGL_crypto_avx2_la_CPPFLAGS = $(AM_CPPFLAGS)
+crypto_libBGL_crypto_avx2_la_CXXFLAGS += $(AVX2_CXXFLAGS)
+crypto_libBGL_crypto_avx2_la_CPPFLAGS += -DENABLE_AVX2
+crypto_libBGL_crypto_avx2_la_SOURCES = crypto/sha256_avx2.cpp
 
-crypto_libBGL_crypto_x86_shani_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-crypto_libBGL_crypto_x86_shani_a_CPPFLAGS = $(AM_CPPFLAGS)
-crypto_libBGL_crypto_x86_shani_a_CXXFLAGS += $(X86_SHANI_CXXFLAGS)
-crypto_libBGL_crypto_x86_shani_a_CPPFLAGS += -DENABLE_X86_SHANI
-crypto_libBGL_crypto_x86_shani_a_SOURCES = crypto/sha256_x86_shani.cpp
+# See explanation for -static in crypto_libBGL_crypto_base_la's LDFLAGS and
+# CXXFLAGS above
+crypto_libBGL_crypto_x86_shani_la_LDFLAGS = $(AM_LDFLAGS) -static
+crypto_libBGL_crypto_x86_shani_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -static
+crypto_libBGL_crypto_x86_shani_la_CPPFLAGS = $(AM_CPPFLAGS)
+crypto_libBGL_crypto_x86_shani_la_CXXFLAGS += $(X86_SHANI_CXXFLAGS)
+crypto_libBGL_crypto_x86_shani_la_CPPFLAGS += -DENABLE_X86_SHANI
+crypto_libBGL_crypto_x86_shani_la_SOURCES = crypto/sha256_x86_shani.cpp
 
-crypto_libBGL_crypto_arm_shani_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-crypto_libBGL_crypto_arm_shani_a_CPPFLAGS = $(AM_CPPFLAGS)
-crypto_libBGL_crypto_arm_shani_a_CXXFLAGS += $(ARM_SHANI_CXXFLAGS)
-crypto_libBGL_crypto_arm_shani_a_CPPFLAGS += -DENABLE_ARM_SHANI
-crypto_libBGL_crypto_arm_shani_a_SOURCES = crypto/sha256_arm_shani.cpp
+# See explanation for -static in crypto_libBGL_crypto_base_la's LDFLAGS and
+# CXXFLAGS above
+crypto_libBGL_crypto_arm_shani_la_LDFLAGS = $(AM_LDFLAGS) -static
+crypto_libBGL_crypto_arm_shani_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -static
+crypto_libBGL_crypto_arm_shani_la_CPPFLAGS = $(AM_CPPFLAGS)
+crypto_libBGL_crypto_arm_shani_la_CXXFLAGS += $(ARM_SHANI_CXXFLAGS)
+crypto_libBGL_crypto_arm_shani_la_CPPFLAGS += -DENABLE_ARM_SHANI
+crypto_libBGL_crypto_arm_shani_la_SOURCES = crypto/sha256_arm_shani.cpp
 
 # consensus: shared between all executables that validate any consensus rules.
 libBGL_consensus_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
@@ -884,13 +903,13 @@ BGL_chainstate_LDADD = \
 
 # Required for obj/build.h to be generated first.
 # More details: https://www.gnu.org/software/automake/manual/html_node/Built-Sources-Example.html
-bitcoin_chainstate-clientversion.$(OBJEXT): obj/build.h
+BGL_chainstate-clientversion.$(OBJEXT): obj/build.h
 #
 
 # bitcoinconsensus library #
 if BUILD_BGL_LIBS
 include_HEADERS = script/BGLconsensus.h
-libBGLconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libBGL_crypto_base_a_SOURCES) $(libBGL_consensus_a_SOURCES)
+libBGLconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libBGL_crypto_base_la_SOURCES) $(libBGL_consensus_a_SOURCES)
 
 libBGLconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS)
 libBGLconsensus_la_LIBADD = $(LIBSECP256K1)
