@@ -276,7 +276,7 @@ class RESTTest (BGLTestFramework):
         # Test number parsing
         for num in ['5a', '-5', '0', '2001', '99999999999999999999999999999999999']:
             assert_equal(
-                bytes(f'Header count out of range: {num}\r\n', 'ascii'),
+                bytes(f'Header count is invalid or out of acceptable range (1-2000): {num}\r\n', 'ascii'),
                 self.test_rest_request(f"/headers/{num}/{bb_hash}", ret_type=RetType.BYTES, status=400),
             )
 
