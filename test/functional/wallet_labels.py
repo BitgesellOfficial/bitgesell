@@ -152,7 +152,7 @@ class WalletLabelsTest(BGLTestFramework):
         for l in BECH32_VALID:
             ad = BECH32_VALID[l]
             wallet_watch_only.importaddress(label=l, rescan=False, address=ad)
-            node.generatetoaddress(1, ad)
+            self.generatetoaddress(node, 1, ad)
             assert_equal(wallet_watch_only.getaddressesbylabel(label=l), {ad: {'purpose': 'receive'}})
             assert_equal(wallet_watch_only.getreceivedbylabel(label=l), 0)
         for l in BECH32_INVALID:
