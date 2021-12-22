@@ -451,10 +451,10 @@ def find_output(node, txid, amount, *, blockhash=None):
 
 # Helper to create at least "count" utxos
 # Pass in a fee that is sufficient for relay and mining new transactions.
-def create_confirmed_utxos(test_framework, fee, node, count, **kwargs):
+def create_confirmed_utxos(test_framework, fee, node, count):
     to_generate = int(0.5 * count) + 101
     while to_generate > 0:
-        test_framework.generate(node, min(25, to_generate), **kwargs)
+        test_framework.generate(node, min(25, to_generate))
         to_generate -= 25
     utxos = node.listunspent()
     iterations = count - len(utxos)
@@ -475,16 +475,20 @@ def create_confirmed_utxos(test_framework, fee, node, count, **kwargs):
         node.sendrawtransaction(signed_tx)
 
     while (node.getmempoolinfo()['size'] > 0):
-        test_framework.generate(node, 1, **kwargs)
+        test_framework.generate(node, 1)
 
     utxos = node.listunspent()
     assert len(utxos) >= count
     return utxos
 
 
-# Build a transaction that spends parent_txid:vout
-# Return amount sent
 def chain_transaction(node, parent_txids, vouts, value, fee, num_outputs):
+    """Build and send a transaction that spends the given inputs (specified
+    by lists of parent_txid:vout each), with the desired total value and fee,
+    equally divided up to the desired number of outputs.
+
+    Returns a tuple with the txid and the amount sent per output.
+    """
     send_value = satoshi_round((value - fee)/num_outputs)
     inputs = []
     for (txid, vout) in zip(parent_txids, vouts):
