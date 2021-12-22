@@ -121,7 +121,7 @@ class TxnMallTest(BGLTestFramework):
             return
 
         # ... mine a block...
-        self.generate(self.nodes[2], 1, sync_fun=self.no_op)
+        self.generate(self.nodes[2], 1)
 
         # Reconnect the split network, and sync chain:
         self.connect_nodes(1, 2)

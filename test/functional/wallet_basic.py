@@ -60,7 +60,7 @@ class WalletTest(BGLTestFramework):
 
         self.log.info("Mining blocks...")
 
-        self.generate(self.nodes[0], 1, sync_fun=self.no_op)
+        self.generate(self.nodes[0], 1)
 
         walletinfo = self.nodes[0].getwalletinfo()
         assert_equal(walletinfo['immature_balance'], 200)
@@ -592,13 +592,13 @@ class WalletTest(BGLTestFramework):
         # Get all non-zero utxos together
         chain_addrs = [self.nodes[0].getnewaddress(), self.nodes[0].getnewaddress()]
         singletxid = self.nodes[0].sendtoaddress(chain_addrs[0], self.nodes[0].getbalance(), "", "", True)
-        self.generate(self.nodes[0], 1, sync_fun=self.no_op)
+        self.generate(self.nodes[0], 1)
         node0_balance = self.nodes[0].getbalance()
         # Split into two chains
         rawtx = self.nodes[0].createrawtransaction([{"txid": singletxid, "vout": 0}], {chain_addrs[0]: node0_balance / 2 - Decimal('0.01'), chain_addrs[1]: node0_balance / 2 - Decimal('0.01')})
         signedtx = self.nodes[0].signrawtransactionwithwallet(rawtx)
         singletxid = self.nodes[0].sendrawtransaction(hexstring=signedtx["hex"], maxfeerate=0)
-        self.generate(self.nodes[0], 1, sync_fun=self.no_op)
+        self.generate(self.nodes[0], 1)
 
         # Make a long chain of unconfirmed payments without hitting mempool limit
         # Each tx we make leaves only one output of change on a chain 1 longer
@@ -649,7 +649,7 @@ class WalletTest(BGLTestFramework):
         assert not address_info["ischange"]
 
         # Test getaddressinfo 'ischange' field on change address.
-        self.generate(self.nodes[0], 1, sync_fun=self.no_op)
+        self.generate(self.nodes[0], 1)
         destination = self.nodes[1].getnewaddress()
         txid = self.nodes[0].sendtoaddress(destination, 0.123)
         tx = self.nodes[0].gettransaction(txid=txid, verbose=True)['decoded']

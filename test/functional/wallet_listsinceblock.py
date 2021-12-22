@@ -231,8 +231,8 @@ class ListSinceBlockTest(BGLTestFramework):
                 self.nodes[2].createrawtransaction(utxo_dicts, recipient_dict2))['hex'])
 
         # generate on both sides
-        lastblockhash = self.generate(self.nodes[1], 3, sync_fun=self.no_op)[2]
-        self.generate(self.nodes[2], 4, sync_fun=self.no_op)
+        lastblockhash = self.generate(self.nodes[1], 3)[2]
+        self.generate(self.nodes[2], 4)
 
         self.join_network()
 
@@ -303,7 +303,7 @@ class ListSinceBlockTest(BGLTestFramework):
         txid1 = self.nodes[1].sendrawtransaction(signedtx)
 
         # generate bb1-bb2 on right side
-        self.generate(self.nodes[2], 2, sync_fun=self.no_op)
+        self.generate(self.nodes[2], 2)
 
         # send from nodes[2]; this will end up in bb3
         txid2 = self.nodes[2].sendrawtransaction(signedtx)
@@ -311,8 +311,8 @@ class ListSinceBlockTest(BGLTestFramework):
         assert_equal(txid1, txid2)
 
         # generate on both sides
-        lastblockhash = self.generate(self.nodes[1], 3, sync_fun=self.no_op)[2]
-        self.generate(self.nodes[2], 2, sync_fun=self.no_op)
+        lastblockhash = self.generate(self.nodes[1], 3)[2]
+        self.generate(self.nodes[2], 2)
 
         self.join_network()
 

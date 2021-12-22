@@ -166,7 +166,7 @@ class AbandonConflictTest(BGLTestFramework):
         tx = self.nodes[0].createrawtransaction(inputs, outputs)
         signed = self.nodes[0].signrawtransactionwithwallet(tx)
         self.nodes[1].sendrawtransaction(signed["hex"])
-        self.generate(self.nodes[1], 1, sync_fun=self.no_op)
+        self.generate(self.nodes[1], 1)
 
         self.connect_nodes(0, 1)
         self.sync_blocks()

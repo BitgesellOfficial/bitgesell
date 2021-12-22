@@ -217,7 +217,7 @@ class ChainstateWriteCrashTest(BGLTestFramework):
 
         # Start by creating a lot of utxos on node3
         initial_height = self.nodes[3].getblockcount()
-        utxo_list = create_confirmed_utxos(self, self.nodes[3].getnetworkinfo()['relayfee'], self.nodes[3], 5000, sync_fun=self.no_op)
+        utxo_list = create_confirmed_utxos(self, self.nodes[3].getnetworkinfo()['relayfee'], self.nodes[3], 5000)
         self.log.info(f"Prepped {len(utxo_list)} utxo entries")
 
         # Sync these blocks with the other nodes

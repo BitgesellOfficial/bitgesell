@@ -118,7 +118,7 @@ class TxnMallTest(BGLTestFramework):
         self.nodes[2].sendrawtransaction(fund_bar_tx["hex"])
         doublespend_txid = self.nodes[2].sendrawtransaction(doublespend["hex"])
         # ... mine a block...
-        self.generate(self.nodes[2], 1, sync_fun=self.no_op)
+        self.generate(self.nodes[2], 1)
 
         # Reconnect the split network, and sync chain:
         self.connect_nodes(1, 2)

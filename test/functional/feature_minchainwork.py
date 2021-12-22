@@ -51,7 +51,7 @@ class MinimumChainWorkTest(BGLTestFramework):
 
         num_blocks_to_generate = int((self.node_min_work[1] - starting_chain_work) / REGTEST_WORK_PER_BLOCK)
         self.log.info(f"Generating {num_blocks_to_generate} blocks on node0")
-        hashes = self.generate(self.nodes[0], num_blocks_to_generate, sync_fun=self.no_op)
+        hashes = self.generate(self.nodes[0], num_blocks_to_generate)
 
         self.log.info(f"Node0 current chain work: {self.nodes[0].getblockheader(hashes[-1])['chainwork']}")
 

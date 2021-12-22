@@ -109,7 +109,7 @@ class MempoolUnbroadcastTest(BGLTestFramework):
         # a block
         removal_reason = "Removed {} from set of unbroadcast txns before confirmation that txn was sent out".format(txhsh)
         with node.assert_debug_log([removal_reason]):
-            self.generate(node, 1, sync_fun=self.no_op)
+            self.generate(node, 1)
 
 
 if __name__ == "__main__":
