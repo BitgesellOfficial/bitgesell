@@ -64,7 +64,7 @@ def cli_get_info_string_to_dict(cli_get_info_string):
     return cli_get_info
 
 
-class TestBitcoinCli(BitcoinTestFramework):
+class TestBitcoinCli(BGLTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1
