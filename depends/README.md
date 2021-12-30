@@ -46,7 +46,7 @@ The paths are automatically configured and no other options are needed unless ta
 
 #### For macOS cross compilation
 
-    sudo apt-get install curl librsvg2-bin libtiff-tools bsdmainutils cmake imagemagick libz-dev python3-setuptools libtinfo5 xorriso
+    sudo apt-get install curl bsdmainutils cmake libz-dev python3-setuptools libtinfo5 xorriso
 
 #### For Win64 cross compilation
 

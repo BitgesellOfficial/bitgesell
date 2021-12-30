@@ -116,7 +116,6 @@ Makefile
 !depends/Makefile
 src/qt/BGL-qt
 BGL-Qt.app
-background.tiff*
 
 # Qt Creator
 Makefile.am.user
@@ -169,7 +168,6 @@ db4/
 
 osx_volname
 dist/
-*.background.tiff
 
 .gdb_history
 

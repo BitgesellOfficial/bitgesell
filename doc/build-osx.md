@@ -121,13 +121,7 @@ brew install automake libtool boost miniupnpc libnatpmp pkg-config python qt@5 l
 If you run into issues, check [Homebrew's troubleshooting page](https://docs.brew.sh/Troubleshooting).
 See [dependencies.md](dependencies.md) for a complete overview.
 
-If you want to build the disk image with `make deploy` (.dmg / optional), you need RSVG:
-```shell
-brew install librsvg
-```
-
-and [`macdeployqtplus`](../contrib/macdeploy/README.md) dependencies:
-```shell
+``` bash
 pip3 install ds_store mac_alias
 ```
 

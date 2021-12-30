@@ -84,18 +84,14 @@ libsecp256k1_la_LDFLAGS = -no-undefined
 empty :=
 space := $(empty) $(empty)
 
-noinst_PROGRAMS =
-if USE_BENCHMARK
-noinst_PROGRAMS += bench bench_internal bench_ecmult
-bench_SOURCES = src/bench.c
-bench_LDADD = libsecp256k1.la $(SECP_LIBS) $(SECP_TEST_LIBS) $(COMMON_LIB)
-bench_internal_SOURCES = src/bench_internal.c
-bench_internal_LDADD = $(SECP_LIBS) $(COMMON_LIB)
-bench_internal_CPPFLAGS = $(SECP_INCLUDES)
-bench_ecmult_SOURCES = src/bench_ecmult.c
-bench_ecmult_LDADD = $(SECP_LIBS) $(COMMON_LIB)
-bench_ecmult_CPPFLAGS = $(SECP_INCLUDES)
-endif
+OSX_APP=BGL-Qt.app
+OSX_VOLNAME = $(subst $(space),-,$(PACKAGE_NAME))
+OSX_DMG = $(OSX_VOLNAME).dmg
+OSX_TEMP_ISO = $(OSX_DMG:.dmg=).temp.iso
+OSX_BACKGROUND_IMAGE=$(top_srcdir)/contrib/macdeploy/background.tiff
+OSX_DEPLOY_SCRIPT=$(top_srcdir)/contrib/macdeploy/macdeployqtplus
+OSX_INSTALLER_ICONS=$(top_srcdir)/src/qt/res/icons/BGL.icns
+OSX_PLIST=$(top_builddir)/share/qt/Info.plist #not installed
 
 DIST_CONTRIB = \
 	       $(top_srcdir)/test/sanitizer_suppressions/lsan \
@@ -124,9 +120,9 @@ gen_ecmult_static_pre_g_SOURCES = src/gen_ecmult_static_pre_g.c
 gen_ecmult_static_pre_g_CPPFLAGS = $(SECP_INCLUDES)
 gen_ecmult_static_pre_g_LDADD = $(SECP_LIBS) $(COMMON_LIB)
 
-gen_ecmult_gen_static_prec_table_SOURCES = src/gen_ecmult_gen_static_prec_table.c
-gen_ecmult_gen_static_prec_table_CPPFLAGS = $(SECP_INCLUDES)
-gen_ecmult_gen_static_prec_table_LDADD = $(SECP_LIBS) $(COMMON_LIB)
+OSX_PACKAGING = $(OSX_DEPLOY_SCRIPT) $(OSX_INSTALLER_ICONS) \
+  $(top_srcdir)/contrib/macdeploy/detached-sig-apply.sh \
+  $(top_srcdir)/contrib/macdeploy/detached-sig-create.sh
 
 # See Automake manual, Section "Errors with distclean".
 # We don't list any dependencies for the prebuilt files here because
@@ -172,20 +168,13 @@ osx_volname:
 	echo $(OSX_VOLNAME) >$@
 
 if BUILD_DARWIN
-$(OSX_DMG): $(OSX_APP_BUILT) $(OSX_PACKAGING) $(OSX_BACKGROUND_IMAGE)
+$(OSX_DMG): $(OSX_APP_BUILT) $(OSX_PACKAGING)
 	$(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) $(OSX_VOLNAME) -translations-dir=$(QT_TRANSLATION_DIR) -dmg
-
-$(OSX_BACKGROUND_IMAGE).png: contrib/macdeploy/$(OSX_BACKGROUND_SVG)
-	sed 's/PACKAGE_NAME/$(PACKAGE_NAME)/' < "$<" | $(RSVG_CONVERT) -f png -d 36 -p 36 -o $@
-$(OSX_BACKGROUND_IMAGE)@2x.png: contrib/macdeploy/$(OSX_BACKGROUND_SVG)
-	sed 's/PACKAGE_NAME/$(PACKAGE_NAME)/' < "$<" | $(RSVG_CONVERT) -f png -d 72 -p 72 -o $@
-$(OSX_BACKGROUND_IMAGE): $(OSX_BACKGROUND_IMAGE).png $(OSX_BACKGROUND_IMAGE)@2x.png
-	tiffutil -cathidpicheck $^ -out $@
 
 deploydir: $(OSX_DMG)
 else !BUILD_DARWIN
 APP_DIST_DIR=$(top_builddir)/dist
-APP_DIST_EXTRAS=$(APP_DIST_DIR)/.background/$(OSX_BACKGROUND_IMAGE) $(APP_DIST_DIR)/.DS_Store $(APP_DIST_DIR)/Applications
+APP_DIST_EXTRAS=$(APP_DIST_DIR)/.background/background.tiff $(APP_DIST_DIR)/.DS_Store $(APP_DIST_DIR)/Applications
 
 $(APP_DIST_DIR)/Applications:
 	@rm -f $@
@@ -199,12 +188,9 @@ $(OSX_TEMP_ISO): $(APP_DIST_EXTRAS)
 $(OSX_DMG): $(OSX_TEMP_ISO)
 	$(DMG) dmg "$<" "$@"
 
-dpi%.$(OSX_BACKGROUND_IMAGE): contrib/macdeploy/$(OSX_BACKGROUND_SVG)
-	sed 's/PACKAGE_NAME/$(PACKAGE_NAME)/' < "$<" | $(RSVG_CONVERT) -f png -d $* -p $* | $(IMAGEMAGICK_CONVERT) - $@
-OSX_BACKGROUND_IMAGE_DPIFILES := $(foreach dpi,$(OSX_BACKGROUND_IMAGE_DPIS),dpi$(dpi).$(OSX_BACKGROUND_IMAGE))
-$(APP_DIST_DIR)/.background/$(OSX_BACKGROUND_IMAGE): $(OSX_BACKGROUND_IMAGE_DPIFILES)
+$(APP_DIST_DIR)/.background/background.tiff:
 	$(MKDIR_P) $(@D)
-	$(TIFFCP) -c none $(OSX_BACKGROUND_IMAGE_DPIFILES) $@
+	cp $(OSX_BACKGROUND_IMAGE) $@
 
 $(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/BGL-Qt: $(OSX_APP_BUILT) $(OSX_PACKAGING)
 	INSTALLNAMETOOL=$(INSTALLNAMETOOL) OTOOL=$(OTOOL) STRIP=$(STRIP) $(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) $(OSX_VOLNAME) -translations-dir=$(QT_TRANSLATION_DIR)
@@ -409,7 +395,7 @@ clean-docs:
 clean-local: clean-docs
 	rm -rf coverage_percent.txt test_BGL.coverage/ total.coverage/ fuzz.coverage/ test/tmp/ cache/ $(OSX_APP)
 	rm -rf test/functional/__pycache__ test/functional/test_framework/__pycache__ test/cache share/rpcauth/__pycache__
-	rm -rf osx_volname dist/ dpi36.background.tiff dpi72.background.tiff
+	rm -rf osx_volname dist/
 
 test-security-check:
 if TARGET_DARWIN
