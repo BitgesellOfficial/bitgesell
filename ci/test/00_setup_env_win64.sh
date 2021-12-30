@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 #
+<<<<<<< HEAD
 # Copyright (c) 2019-2020 The BGL Core developers
+=======
+# Copyright (c) 2019-2021 The Bitcoin Core developers
+>>>>>>> f47dda2c58... scripted-diff: Bump copyright headers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
