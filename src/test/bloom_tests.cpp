@@ -43,13 +43,10 @@ BOOST_AUTO_TEST_CASE(bloom_create_insert_serialize)
     CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);
     stream << filter;
 
-    std::vector<unsigned char> vch = ParseHex("03614e9b050000000000000001");
-    std::vector<unsigned char> expected(vch.size());
+    std::vector<uint8_t> expected = ParseHex("03614e9b050000000000000001");
+    auto result{MakeUCharSpan(stream)};
 
-    for (unsigned int i = 0; i < vch.size(); i++)
-        expected[i] = vch[i];
-
-    BOOST_CHECK_EQUAL_COLLECTIONS(stream.begin(), stream.end(), expected.begin(), expected.end());
+    BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(), expected.begin(), expected.end());
 
     BOOST_CHECK_MESSAGE( filter.contains(ParseHex("99108ad8ed9bb6274d3980bab5a85c048f0950c8")), "Bloom filter doesn't contain just-inserted object!");
 }
@@ -73,13 +70,10 @@ BOOST_AUTO_TEST_CASE(bloom_create_insert_serialize_with_tweak)
     CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);
     stream << filter;
 
-    std::vector<unsigned char> vch = ParseHex("03ce4299050000000100008001");
-    std::vector<unsigned char> expected(vch.size());
+    std::vector<uint8_t> expected = ParseHex("03ce4299050000000100008001");
+    auto result{MakeUCharSpan(stream)};
 
-    for (unsigned int i = 0; i < vch.size(); i++)
-        expected[i] = vch[i];
-
-    BOOST_CHECK_EQUAL_COLLECTIONS(stream.begin(), stream.end(), expected.begin(), expected.end());
+    BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(), expected.begin(), expected.end());
 }
 
 BOOST_AUTO_TEST_CASE(bloom_create_insert_key)
@@ -97,13 +91,10 @@ BOOST_AUTO_TEST_CASE(bloom_create_insert_key)
     CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);
     stream << filter;
 
-    std::vector<unsigned char> vch = ParseHex("038fc16b080000000000000001");
-    std::vector<unsigned char> expected(vch.size());
+    std::vector<unsigned char> expected = ParseHex("038fc16b080000000000000001");
+    auto result{MakeUCharSpan(stream)};
 
-    for (unsigned int i = 0; i < vch.size(); i++)
-        expected[i] = vch[i];
-
-    BOOST_CHECK_EQUAL_COLLECTIONS(stream.begin(), stream.end(), expected.begin(), expected.end());
+    BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(), expected.begin(), expected.end());
 }
 
 BOOST_AUTO_TEST_CASE(bloom_match)
@@ -376,13 +367,10 @@ BOOST_AUTO_TEST_CASE(merkle_block_3_and_serialize)
     CDataStream merkleStream(SER_NETWORK, PROTOCOL_VERSION);
     merkleStream << merkleBlock;
 
-    std::vector<unsigned char> vch = ParseHex("0100000079cda856b143d9db2c1caff01d1aecc8630d30625d10e8b4b8b000000000000048d548434a07b3a05651302acae61551c5df997dc3be1d95e24117f3b9972e7067291b4d4c86041b8fa45d63010000000148d548434a07b3a05651302acae61551c5df997dc3be1d95e24117f3b9972e700101");
-    std::vector<unsigned char> expected(vch.size());
+    std::vector<uint8_t> expected = ParseHex("0100000079cda856b143d9db2c1caff01d1aecc8630d30625d10e8b4b8b0000000000000b50cc069d6a3e33e3ff84a5c41d9d3febe7c770fdcc96b2c3ff60abe184f196367291b4d4c86041b8fa45d630100000001b50cc069d6a3e33e3ff84a5c41d9d3febe7c770fdcc96b2c3ff60abe184f19630101");
+    auto result{MakeUCharSpan(merkleStream)};
 
-    for (unsigned int i = 0; i < vch.size(); i++)
-        expected[i] = vch[i];
-
-    BOOST_CHECK_EQUAL_COLLECTIONS(expected.begin(), expected.end(), merkleStream.begin(), merkleStream.end());
+    BOOST_CHECK_EQUAL_COLLECTIONS(expected.begin(), expected.end(), result.begin(), result.end());
 }
 
 BOOST_AUTO_TEST_CASE(merkle_block_4)
