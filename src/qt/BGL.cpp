@@ -417,7 +417,7 @@ void BGLApplication::initializeResult(bool success, interfaces::BlockAndHeaderTi
             QTimer::singleShot(100ms, paymentServer, &PaymentServer::uiReady);
         }
 #endif
-        pollShutdownTimer->start(200ms);
+        pollShutdownTimer->start(SHUTDOWN_POLLING_DELAY);
     } else {
         Q_EMIT splashFinished(); // Make sure splash screen doesn't stick around during shutdown
         requestShutdown();
