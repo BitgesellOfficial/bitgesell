@@ -202,12 +202,12 @@ include funcs.mk
 final_build_id_long+=$(shell $(build_SHA256SUM) config.site.in)
 final_build_id+=$(shell echo -n "$(final_build_id_long)" | $(build_SHA256SUM) | cut -c-$(HASH_LENGTH))
 $(host_prefix)/.stamp_$(final_build_id): $(native_packages) $(packages)
-	$(AT)rm -rf $(@D)
-	$(AT)mkdir -p $(@D)
-	$(AT)echo copying packages: $^
-	$(AT)echo to: $(@D)
-	$(AT)cd $(@D); $(foreach package,$^, tar xf $($(package)_cached); )
-	$(AT)touch $@
+	rm -rf $(@D)
+	mkdir -p $(@D)
+	echo copying packages: $^
+	echo to: $(@D)
+	cd $(@D); $(foreach package,$^, $(build_TAR) xf $($(package)_cached); )
+	touch $@
 
 # $PATH is not preserved between ./configure and make by convention. Its
 # modification and overriding at ./configure time is (as I understand it)
