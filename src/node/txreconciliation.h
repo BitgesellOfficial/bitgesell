@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_NODE_TXRECONCILIATION_H
-#define BITCOIN_NODE_TXRECONCILIATION_H
+#ifndef BGL_NODE_TXRECONCILIATION_H
+#define BGL_NODE_TXRECONCILIATION_H
 
 #include <net.h>
 #include <sync.h>
@@ -61,6 +61,17 @@ public:
      * This function must be called only once per peer.
      */
     uint64_t PreRegisterPeer(NodeId peer_id);
+
+    /**
+     * Attempts to forget txreconciliation-related state of the peer (if we previously stored any).
+     * After this, we won't be able to reconcile transactions with the peer.
+     */
+    void ForgetPeer(NodeId peer_id);
+
+    /**
+     * Check if a peer is registered to reconcile transactions with us.
+     */
+    bool IsPeerRegistered(NodeId peer_id) const;
 };
 
-#endif // BITCOIN_NODE_TXRECONCILIATION_H
+#endif // BGL_NODE_TXRECONCILIATION_H
