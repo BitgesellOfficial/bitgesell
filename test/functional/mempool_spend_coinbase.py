@@ -39,7 +39,8 @@ class MempoolSpendCoinbaseTest(BGLTestFramework):
 
         spend_101_id = wallet.send_self_transfer(from_node=self.nodes[0], utxo_to_spend=utxo_101)["txid"]
 
-        # coinbase at height 102 should be too immature to spend
+        # other coinbase should be too immature to spend
+        immature_tx = wallet.create_self_transfer(utxo_to_spend=utxo_immature, mempool_valid=False)
         assert_raises_rpc_error(-26,
                                 "bad-txns-premature-spend-of-coinbase",
                                 lambda: wallet.send_self_transfer(from_node=self.nodes[0], utxo_to_spend=utxo_102))

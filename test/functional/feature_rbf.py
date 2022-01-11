@@ -114,7 +114,7 @@ class ReplaceByFeeTest(BGLTestFramework):
         """Simple doublespend"""
         # we use MiniWallet to create a transaction template with inputs correctly set,
         # and modify the output (amount, scriptPubKey) according to our needs
-        tx_template = self.wallet.create_self_transfer(from_node=self.nodes[0])['tx']
+        tx_template = self.wallet.create_self_transfer()['tx']
 
         tx1a = deepcopy(tx_template)
         tx1a.vout = [CTxOut(1 * COIN, DUMMY_P2WPKH_SCRIPT)]
@@ -562,7 +562,6 @@ class ReplaceByFeeTest(BGLTestFramework):
         assert_equal(True, self.nodes[0].getmempoolentry(optin_parent_tx['txid'])['bip125-replaceable'])
 
         replacement_parent_tx = self.wallet.create_self_transfer(
-            from_node=self.nodes[0],
             utxo_to_spend=confirmed_utxo,
             sequence=BIP125_SEQUENCE_NUMBER,
             fee_rate=Decimal('0.02'),
@@ -587,7 +586,6 @@ class ReplaceByFeeTest(BGLTestFramework):
         assert_equal(True, self.nodes[0].getmempoolentry(optout_child_tx['txid'])['bip125-replaceable'])
 
         replacement_child_tx = self.wallet.create_self_transfer(
-            from_node=self.nodes[0],
             utxo_to_spend=parent_utxo,
             sequence=0xffffffff,
             fee_rate=Decimal('0.02'),

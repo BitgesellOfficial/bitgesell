@@ -66,22 +66,19 @@ class GenerateBlockTest(BGLTestFramework):
         assert_equal(block['tx'][1], txid)
 
         self.log.info('Generate block with raw tx')
-        utxos = node.listunspent(addresses=[address])
-        raw = node.createrawtransaction([{'txid':utxos[0]['txid'], 'vout':utxos[0]['vout']}],[{address:1}])
-        signed_raw = node.signrawtransactionwithwallet(raw)['hex']
-        hash = self.generateblock(node, address, [signed_raw])['hash']
+        rawtx = miniwallet.create_self_transfer()['hex']
+        hash = self.generateblock(node, address, [rawtx])['hash']
+
         block = node.getblock(hash, 1)
         assert_equal(len(block['tx']), 2)
         txid = block['tx'][1]
         assert_equal(node.gettransaction(txid)['hex'], signed_raw)
 
         self.log.info('Fail to generate block with out of order txs')
-        raw1 = node.createrawtransaction([{'txid':txid, 'vout':0}],[{address:0.9999}])
-        signed_raw1 = node.signrawtransactionwithwallet(raw1)['hex']
-        txid1 = node.sendrawtransaction(signed_raw1)
-        raw2 = node.createrawtransaction([{'txid':txid1, 'vout':0}],[{address:0.999}])
-        signed_raw2 = node.signrawtransactionwithwallet(raw2)['hex']
-        assert_raises_rpc_error(-25, 'TestBlockValidity failed: bad-txns-inputs-missingorspent', self.generateblock, node, address, [signed_raw2, txid1])
+        txid1 = miniwallet.send_self_transfer(from_node=node)['txid']
+        utxo1 = miniwallet.get_utxo(txid=txid1)
+        rawtx2 = miniwallet.create_self_transfer(utxo_to_spend=utxo1)['hex']
+        assert_raises_rpc_error(-25, 'TestBlockValidity failed: bad-txns-inputs-missingorspent', self.generateblock, node, address, [rawtx2, txid1])
 
         self.log.info('Fail to generate block with txid not in mempool')
         missing_txid = '0000000000000000000000000000000000000000000000000000000000000000'
