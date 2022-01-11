@@ -4149,6 +4149,15 @@ void CChainState::UnloadBlockIndex()
     setBlockIndexCandidates.clear();
 }
 
+// May NOT be used after any connections are up as much
+// of the peer-processing logic assumes a consistent
+// block index state
+void UnloadBlockIndex(ChainstateManager& chainman)
+{
+    AssertLockHeld(::cs_main);
+    chainman.Unload();
+}
+
 bool ChainstateManager::LoadBlockIndex()
 {
     AssertLockHeld(cs_main);
@@ -5213,6 +5222,7 @@ void ChainstateManager::MaybeRebalanceCaches()
 ChainstateManager::~ChainstateManager()
 {
     LOCK(::cs_main);
+    UnloadBlockIndex(*this);
 
     // TODO: The version bits cache and warning cache should probably become
     // non-globals
