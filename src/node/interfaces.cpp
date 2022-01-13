@@ -768,6 +768,13 @@ public:
             notifications.transactionAddedToMempool(entry.GetSharedTx(), 0 /* mempool_sequence */);
         }
     }
+
+    bool hasAssumedValidChain() override
+    {
+        return Assert(m_node.chainman)->IsSnapshotActive();
+    }
+
+    NodeContext* context() override { return &m_node; }
     NodeContext& m_node;
 };
 } // namespace

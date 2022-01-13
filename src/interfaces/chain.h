@@ -283,6 +283,13 @@ public:
     //! to be prepared to handle this by ignoring notifications about unknown
     //! removed transactions and already added new transactions.
     virtual void requestMempoolTransactions(Notifications& notifications) = 0;
+
+    //! Return true if an assumed-valid chain is in use.
+    virtual bool hasAssumedValidChain() = 0;
+
+    //! Get internal node context. Useful for testing, but not
+    //! accessible across processes.
+    virtual node::NodeContext* context() { return nullptr; }
 };
 
 //! Interface to let node manage chain clients (wallets, or maybe tools for
