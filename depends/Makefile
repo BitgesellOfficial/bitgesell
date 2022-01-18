@@ -161,7 +161,7 @@ endif
 build_id_string+=GUIX_ENVIRONMENT=$(realpath $(GUIX_ENVIRONMENT))
 $(host_arch)_$(host_os)_id_string+=GUIX_ENVIRONMENT=$(realpath $(GUIX_ENVIRONMENT))
 
-qrencode_packages_$(NO_QR) = $(qrencode_packages)
+qrencode_packages_$(NO_QR) = $(qrencode_$(host_os)_packages)
 
 qt_packages_$(NO_QT) = $(qt_packages) $(qt_$(host_os)_packages) $(qt_$(host_arch)_$(host_os)_packages) $(qrencode_packages_)
 
