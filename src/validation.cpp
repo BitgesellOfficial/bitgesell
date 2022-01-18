@@ -3581,14 +3581,14 @@ static bool ContextualCheckBlock(const CBlock& block, BlockValidationState& stat
     return true;
 }
 
-bool BlockManager::AcceptBlockHeader(const CBlockHeader& block, BlockValidationState& state, const CChainParams& chainparams, CBlockIndex** ppindex)
+bool ChainstateManager::AcceptBlockHeader(const CBlockHeader& block, BlockValidationState& state, CBlockIndex** ppindex)
 {
     AssertLockHeld(cs_main);
     // Check for duplicate
     uint256 hash = block.GetHash();
-    BlockMap::iterator miSelf = m_block_index.find(hash);
-    if (hash != chainparams.GetConsensus().hashGenesisBlock) {
-        if (miSelf != m_block_index.end()) {
+    BlockMap::iterator miSelf{m_blockman.m_block_index.find(hash)};
+    if (hash != GetConsensus().hashGenesisBlock) {
+        if (miSelf != m_blockman.m_block_index.end()) {
             // Block header is already known.
             CBlockIndex* pindex = &(miSelf->second);
             if (ppindex)
@@ -3600,7 +3600,7 @@ bool BlockManager::AcceptBlockHeader(const CBlockHeader& block, BlockValidationS
             return true;
         }
 
-        if (!CheckBlockHeader(block, state, chainparams.GetConsensus())) {
+        if (!CheckBlockHeader(block, state, GetConsensus())) {
             LogPrint(BCLog::VALIDATION, "%s: Consensus::CheckBlockHeader: %s, %s\n", __func__, hash.ToString(), state.ToString());
             return false;
         }
@@ -3617,7 +3617,7 @@ bool BlockManager::AcceptBlockHeader(const CBlockHeader& block, BlockValidationS
             LogPrint(BCLog::VALIDATION, "%s: %s prev block invalid\n", __func__, hash.ToString());
             return state.Invalid(BlockValidationResult::BLOCK_INVALID_PREV, "bad-prevblk");
         }
-        if (!ContextualCheckBlockHeader(block, state, *this, chainparams, pindexPrev, GetAdjustedTime())) {
+        if (!ContextualCheckBlockHeader(block, state, m_blockman, GetParams(), pindexPrev, GetAdjustedTime())) {
             LogPrint(BCLog::VALIDATION, "%s: Consensus::ContextualCheckBlockHeader: %s, %s\n", __func__, hash.ToString(), state.ToString());
             return false;
         }
@@ -3670,15 +3670,14 @@ bool BlockManager::AcceptBlockHeader(const CBlockHeader& block, BlockValidationS
 }
 
 // Exposed wrapper for AcceptBlockHeader
-bool ChainstateManager::ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, BlockValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex)
+bool ChainstateManager::ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, BlockValidationState& state, const CBlockIndex** ppindex)
 {
     AssertLockNotHeld(cs_main);
     {
         LOCK(cs_main);
         for (const CBlockHeader& header : headers) {
             CBlockIndex *pindex = nullptr; // Use a temp pindex instead of ppindex to avoid a const_cast
-            bool accepted = m_blockman.AcceptBlockHeader(
-                header, state, chainparams, &pindex);
+            bool accepted{AcceptBlockHeader(header, state, &pindex)};
             ActiveChainstate().CheckBlockIndex();
 
             if (!accepted) {
@@ -3692,7 +3691,7 @@ bool ChainstateManager::ProcessNewBlockHeaders(const std::vector<CBlockHeader>& 
     if (NotifyHeaderTip(ActiveChainstate())) {
         if (ActiveChainstate().IsInitialBlockDownload() && ppindex && *ppindex) {
             const CBlockIndex& last_accepted{**ppindex};
-            const int64_t blocks_left{(GetTime() - last_accepted.GetBlockTime()) / chainparams.GetConsensus().nPowTargetSpacing};
+            const int64_t blocks_left{(GetTime() - last_accepted.GetBlockTime()) / GetConsensus().nPowTargetSpacing};
             const double progress{100.0 * last_accepted.nHeight / (last_accepted.nHeight + blocks_left)};
             LogPrintf("Synchronizing blockheaders, height: %d (~%.2f%%)\n", last_accepted.nHeight, progress);
         }
@@ -3711,7 +3710,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, Block
     CBlockIndex *pindexDummy = nullptr;
     CBlockIndex *&pindex = ppindex ? *ppindex : pindexDummy;
 
-    bool accepted_header = m_blockman.AcceptBlockHeader(block, state, m_params, &pindex);
+    bool accepted_header{m_chainman.AcceptBlockHeader(block, state, &pindex)};
     CheckBlockIndex();
 
     if (!accepted_header)
@@ -3784,7 +3783,7 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, Block
     return true;
 }
 
-bool ChainstateManager::ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<const CBlock>& block, bool force_processing, bool* new_block)
+bool ChainstateManager::ProcessNewBlock(const std::shared_ptr<const CBlock>& block, bool force_processing, bool* new_block)
 {
     AssertLockNotHeld(cs_main);
 
@@ -3802,7 +3801,7 @@ bool ChainstateManager::ProcessNewBlock(const CChainParams& chainparams, const s
         // malleability that cause CheckBlock() to fail; see e.g. CVE-2012-2459 and
         // https://lists.linuxfoundation.org/pipermail/bitcoin-dev/2019-February/016697.html.  Because CheckBlock() is
         // not very expensive, the anti-DoS benefits of caching failure (of a definitely-invalid block) are not substantial.
-        bool ret = CheckBlock(*block, state, chainparams.GetConsensus());
+        bool ret = CheckBlock(*block, state, GetConsensus());
         if (ret) {
             // Store to disk
             ret = ActiveChainstate().AcceptBlock(block, state, &pindex, force_processing, nullptr, new_block);
