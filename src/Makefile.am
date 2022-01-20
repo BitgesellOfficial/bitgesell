@@ -46,9 +46,9 @@ if ENABLE_AVX2
 LIBBGL_CRYPTO_AVX2 = crypto/libBGL_crypto_avx2.a
 LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_AVX2)
 endif
-if ENABLE_SHANI
-LIBBGL_CRYPTO_SHANI = crypto/libBGL_crypto_shani.a
-LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_SHANI)
+if ENABLE_X86_SHANI
+LIBBGL_CRYPTO_X86_SHANI = crypto/libBGL_crypto_x86_shani.a
+LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_X86_SHANI)
 endif
 
 # Add SHA3 support
@@ -509,11 +509,11 @@ crypto_libBGL_crypto_avx2_a_CXXFLAGS += $(AVX2_CXXFLAGS)
 crypto_libBGL_crypto_avx2_a_CPPFLAGS += -DENABLE_AVX2
 crypto_libBGL_crypto_avx2_a_SOURCES = crypto/sha256_avx2.cpp
 
-crypto_libBGL_crypto_shani_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-crypto_libBGL_crypto_shani_a_CPPFLAGS = $(AM_CPPFLAGS)
-crypto_libBGL_crypto_shani_a_CXXFLAGS += $(SHANI_CXXFLAGS)
-crypto_libBGL_crypto_shani_a_CPPFLAGS += -DENABLE_SHANI
-crypto_libBGL_crypto_shani_a_SOURCES = crypto/sha256_shani.cpp
+crypto_libBGL_crypto_x86_shani_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+crypto_libBGL_crypto_x86_shani_a_CPPFLAGS = $(AM_CPPFLAGS)
+crypto_libBGL_crypto_x86_shani_a_CXXFLAGS += $(X86_SHANI_CXXFLAGS)
+crypto_libBGL_crypto_x86_shani_a_CPPFLAGS += -DENABLE_X86_SHANI
+crypto_libBGL_crypto_x86_shani_a_SOURCES = crypto/sha256_x86_shani.cpp
 
 # consensus: shared between all executables that validate any consensus rules.
 libBGL_consensus_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
