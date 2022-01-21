@@ -60,7 +60,7 @@ int AddrInfo::GetNewBucket(const uint256& nKey, const CNetAddr& src, const std::
 
 int AddrInfo::GetBucketPosition(const uint256& nKey, bool fNew, int nBucket) const
 {
-    uint64_t hash1 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << (fNew ? uint8_t{'N'} : uint8_t{'K'}) << nBucket << GetKey()).GetCheapHash();
+    uint64_t hash1 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << (fNew ? uint8_t{'D'} : uint8_t{'T'}) << nBucket << GetKey()).GetCheapHash();
     return hash1 % ADDRMAN_BUCKET_SIZE;
 }
 
