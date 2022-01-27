@@ -3,6 +3,9 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <rest.h>
+
+#include <blockfilter.h>
 #include <chain.h>
 #include <chainparams.h>
 #include <core_io.h>
@@ -25,6 +28,7 @@
 #include <version.h>
 
 #include <any>
+#include <string>
 
 #include <boost/algorithm/string.hpp>
 
@@ -36,13 +40,6 @@ using node::NodeContext;
 using node::ReadBlockFromDisk;
 
 static const size_t MAX_GETUTXOS_OUTPOINTS = 15; //allow a max of 15 outpoints to be queried at once
-
-enum class RetFormat {
-    UNDEF,
-    BINARY,
-    HEX,
-    JSON,
-};
 
 static const struct {
     RetFormat rf;
@@ -134,7 +131,7 @@ static ChainstateManager* GetChainman(const std::any& context, HTTPRequest* req)
     return node_context->chainman.get();
 }
 
-static RetFormat ParseDataFormat(std::string& param, const std::string& strReq)
+RetFormat ParseDataFormat(std::string& param, const std::string& strReq)
 {
     const std::string::size_type pos = strReq.rfind('.');
     if (pos == std::string::npos)
