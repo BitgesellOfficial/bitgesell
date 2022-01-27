@@ -42,13 +42,13 @@ using node::ReadBlockFromDisk;
 static const size_t MAX_GETUTXOS_OUTPOINTS = 15; //allow a max of 15 outpoints to be queried at once
 
 static const struct {
-    RetFormat rf;
+    RESTResponseFormat rf;
     const char* name;
 } rf_names[] = {
-      {RetFormat::UNDEF, ""},
-      {RetFormat::BINARY, "bin"},
-      {RetFormat::HEX, "hex"},
-      {RetFormat::JSON, "json"},
+      {RESTResponseFormat::UNDEF, ""},
+      {RESTResponseFormat::BINARY, "bin"},
+      {RESTResponseFormat::HEX, "hex"},
+      {RESTResponseFormat::JSON, "json"},
 };
 
 struct CCoin {
@@ -131,7 +131,7 @@ static ChainstateManager* GetChainman(const std::any& context, HTTPRequest* req)
     return node_context->chainman.get();
 }
 
-RetFormat ParseDataFormat(std::string& param, const std::string& strReq)
+RESTResponseFormat ParseDataFormat(std::string& param, const std::string& strReq)
 {
     const std::string::size_type pos = strReq.rfind('.');
     if (pos == std::string::npos)
@@ -185,7 +185,7 @@ static bool rest_headers(const std::any& context,
     if (!CheckWarmup(req))
         return false;
     std::string param;
-    const RetFormat rf = ParseDataFormat(param, strURIPart);
+    const RESTResponseFormat rf = ParseDataFormat(param, strURIPart);
     std::vector<std::string> path;
     boost::split(path, param, boost::is_any_of("/"));
 
@@ -223,7 +223,7 @@ static bool rest_headers(const std::any& context,
     }
 
     switch (rf) {
-    case RetFormat::BINARY: {
+    case RESTResponseFormat::BINARY: {
         CDataStream ssHeader(SER_NETWORK, PROTOCOL_VERSION);
         for (const CBlockIndex *pindex : headers) {
             ssHeader << pindex->GetBlockHeader();
@@ -235,7 +235,7 @@ static bool rest_headers(const std::any& context,
         return true;
     }
 
-    case RetFormat::HEX: {
+    case RESTResponseFormat::HEX: {
         CDataStream ssHeader(SER_NETWORK, PROTOCOL_VERSION);
         for (const CBlockIndex *pindex : headers) {
             ssHeader << pindex->GetBlockHeader();
@@ -246,7 +246,7 @@ static bool rest_headers(const std::any& context,
         req->WriteReply(HTTP_OK, strHex);
         return true;
     }
-    case RetFormat::JSON: {
+    case RESTResponseFormat::JSON: {
         UniValue jsonHeaders(UniValue::VARR);
         for (const CBlockIndex *pindex : headers) {
             jsonHeaders.push_back(blockheaderToJSON(tip, pindex));
@@ -270,7 +270,7 @@ static bool rest_block(const std::any& context,
     if (!CheckWarmup(req))
         return false;
     std::string hashStr;
-    const RetFormat rf = ParseDataFormat(hashStr, strURIPart);
+    const RESTResponseFormat rf = ParseDataFormat(hashStr, strURIPart);
 
     uint256 hash;
     if (!ParseHashStr(hashStr, hash))
@@ -298,7 +298,7 @@ static bool rest_block(const std::any& context,
     }
 
     switch (rf) {
-    case RetFormat::BINARY: {
+    case RESTResponseFormat::BINARY: {
         CDataStream ssBlock(SER_NETWORK, PROTOCOL_VERSION | RPCSerializationFlags());
         ssBlock << block;
         std::string binaryBlock = ssBlock.str();
@@ -307,7 +307,7 @@ static bool rest_block(const std::any& context,
         return true;
     }
 
-    case RetFormat::HEX: {
+    case RESTResponseFormat::HEX: {
         CDataStream ssBlock(SER_NETWORK, PROTOCOL_VERSION | RPCSerializationFlags());
         ssBlock << block;
         std::string strHex = HexStr(ssBlock) + "\n";
@@ -316,7 +316,7 @@ static bool rest_block(const std::any& context,
         return true;
     }
 
-    case RetFormat::JSON: {
+    case RESTResponseFormat::JSON: {
         UniValue objBlock = blockToJSON(block, tip, pblockindex, tx_verbosity);
         std::string strJSON = objBlock.write() + "\n";
         req->WriteHeader("Content-Type", "application/json");
@@ -345,7 +345,7 @@ static bool rest_filter_header(const std::any& context, HTTPRequest* req, const 
     if (!CheckWarmup(req)) return false;
 
     std::string param;
-    const RetFormat rf = ParseDataFormat(param, strURIPart);
+    const RESTResponseFormat rf = ParseDataFormat(param, strURIPart);
 
     std::vector<std::string> uri_parts;
     boost::split(uri_parts, param, boost::is_any_of("/"));
@@ -411,7 +411,7 @@ static bool rest_filter_header(const std::any& context, HTTPRequest* req, const 
     }
 
     switch (rf) {
-    case RetFormat::BINARY: {
+    case RESTResponseFormat::BINARY: {
         CDataStream ssHeader{SER_NETWORK, PROTOCOL_VERSION};
         for (const uint256& header : filter_headers) {
             ssHeader << header;
@@ -422,7 +422,7 @@ static bool rest_filter_header(const std::any& context, HTTPRequest* req, const 
         req->WriteReply(HTTP_OK, binaryHeader);
         return true;
     }
-    case RetFormat::HEX: {
+    case RESTResponseFormat::HEX: {
         CDataStream ssHeader{SER_NETWORK, PROTOCOL_VERSION};
         for (const uint256& header : filter_headers) {
             ssHeader << header;
@@ -433,7 +433,7 @@ static bool rest_filter_header(const std::any& context, HTTPRequest* req, const 
         req->WriteReply(HTTP_OK, strHex);
         return true;
     }
-    case RetFormat::JSON: {
+    case RESTResponseFormat::JSON: {
         UniValue jsonHeaders(UniValue::VARR);
         for (const uint256& header : filter_headers) {
             jsonHeaders.push_back(header.GetHex());
@@ -455,7 +455,7 @@ static bool rest_block_filter(const std::any& context, HTTPRequest* req, const s
     if (!CheckWarmup(req)) return false;
 
     std::string param;
-    const RetFormat rf = ParseDataFormat(param, strURIPart);
+    const RESTResponseFormat rf = ParseDataFormat(param, strURIPart);
 
     // request is sent over URI scheme /rest/blockfilter/filtertype/blockhash
     std::vector<std::string> uri_parts;
@@ -511,7 +511,7 @@ static bool rest_block_filter(const std::any& context, HTTPRequest* req, const s
     }
 
     switch (rf) {
-    case RetFormat::BINARY: {
+    case RESTResponseFormat::BINARY: {
         CDataStream ssResp{SER_NETWORK, PROTOCOL_VERSION};
         ssResp << filter;
 
@@ -520,7 +520,7 @@ static bool rest_block_filter(const std::any& context, HTTPRequest* req, const s
         req->WriteReply(HTTP_OK, binaryResp);
         return true;
     }
-    case RetFormat::HEX: {
+    case RESTResponseFormat::HEX: {
         CDataStream ssResp{SER_NETWORK, PROTOCOL_VERSION};
         ssResp << filter;
 
@@ -529,7 +529,7 @@ static bool rest_block_filter(const std::any& context, HTTPRequest* req, const s
         req->WriteReply(HTTP_OK, strHex);
         return true;
     }
-    case RetFormat::JSON: {
+    case RESTResponseFormat::JSON: {
         UniValue ret(UniValue::VOBJ);
         ret.pushKV("filter", HexStr(filter.GetEncodedFilter()));
         std::string strJSON = ret.write() + "\n";
@@ -551,10 +551,10 @@ static bool rest_chaininfo(const std::any& context, HTTPRequest* req, const std:
     if (!CheckWarmup(req))
         return false;
     std::string param;
-    const RetFormat rf = ParseDataFormat(param, strURIPart);
+    const RESTResponseFormat rf = ParseDataFormat(param, strURIPart);
 
     switch (rf) {
-    case RetFormat::JSON: {
+    case RESTResponseFormat::JSON: {
         JSONRPCRequest jsonRequest;
         jsonRequest.context = context;
         jsonRequest.params = UniValue(UniValue::VARR);
@@ -577,10 +577,10 @@ static bool rest_mempool_info(const std::any& context, HTTPRequest* req, const s
     const CTxMemPool* mempool = GetMemPool(context, req);
     if (!mempool) return false;
     std::string param;
-    const RetFormat rf = ParseDataFormat(param, strURIPart);
+    const RESTResponseFormat rf = ParseDataFormat(param, strURIPart);
 
     switch (rf) {
-    case RetFormat::JSON: {
+    case RESTResponseFormat::JSON: {
         UniValue mempoolInfoObject = MempoolInfoToJSON(*mempool);
 
         std::string strJSON = mempoolInfoObject.write() + "\n";
@@ -600,10 +600,10 @@ static bool rest_mempool_contents(const std::any& context, HTTPRequest* req, con
     const CTxMemPool* mempool = GetMemPool(context, req);
     if (!mempool) return false;
     std::string param;
-    const RetFormat rf = ParseDataFormat(param, strURIPart);
+    const RESTResponseFormat rf = ParseDataFormat(param, strURIPart);
 
     switch (rf) {
-    case RetFormat::JSON: {
+    case RESTResponseFormat::JSON: {
         UniValue mempoolObject = MempoolToJSON(*mempool, true);
 
         std::string strJSON = mempoolObject.write() + "\n";
@@ -622,7 +622,7 @@ static bool rest_tx(const std::any& context, HTTPRequest* req, const std::string
     if (!CheckWarmup(req))
         return false;
     std::string hashStr;
-    const RetFormat rf = ParseDataFormat(hashStr, strURIPart);
+    const RESTResponseFormat rf = ParseDataFormat(hashStr, strURIPart);
 
     uint256 hash;
     if (!ParseHashStr(hashStr, hash))
@@ -641,7 +641,7 @@ static bool rest_tx(const std::any& context, HTTPRequest* req, const std::string
     }
 
     switch (rf) {
-    case RetFormat::BINARY: {
+    case RESTResponseFormat::BINARY: {
         CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION | RPCSerializationFlags());
         ssTx << tx;
 
@@ -651,7 +651,7 @@ static bool rest_tx(const std::any& context, HTTPRequest* req, const std::string
         return true;
     }
 
-    case RetFormat::HEX: {
+    case RESTResponseFormat::HEX: {
         CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION | RPCSerializationFlags());
         ssTx << tx;
 
@@ -661,7 +661,7 @@ static bool rest_tx(const std::any& context, HTTPRequest* req, const std::string
         return true;
     }
 
-    case RetFormat::JSON: {
+    case RESTResponseFormat::JSON: {
         UniValue objTx(UniValue::VOBJ);
         TxToUniv(*tx, hashBlock, objTx);
         std::string strJSON = objTx.write() + "\n";
@@ -681,7 +681,7 @@ static bool rest_getutxos(const std::any& context, HTTPRequest* req, const std::
     if (!CheckWarmup(req))
         return false;
     std::string param;
-    const RetFormat rf = ParseDataFormat(param, strURIPart);
+    const RESTResponseFormat rf = ParseDataFormat(param, strURIPart);
 
     std::vector<std::string> uriParts;
     if (param.length() > 1)
@@ -728,14 +728,14 @@ static bool rest_getutxos(const std::any& context, HTTPRequest* req, const std::
     }
 
     switch (rf) {
-    case RetFormat::HEX: {
+    case RESTResponseFormat::HEX: {
         // convert hex to bin, continue then with bin part
         std::vector<unsigned char> strRequestV = ParseHex(strRequestMutable);
         strRequestMutable.assign(strRequestV.begin(), strRequestV.end());
         [[fallthrough]];
     }
 
-    case RetFormat::BINARY: {
+    case RESTResponseFormat::BINARY: {
         try {
             //deserialize only if user sent a request
             if (strRequestMutable.size() > 0)
@@ -755,7 +755,7 @@ static bool rest_getutxos(const std::any& context, HTTPRequest* req, const std::
         break;
     }
 
-    case RetFormat::JSON: {
+    case RESTResponseFormat::JSON: {
         if (!fInputParsed)
             return RESTERR(req, HTTP_BAD_REQUEST, "Error: empty request");
         break;
@@ -809,7 +809,7 @@ static bool rest_getutxos(const std::any& context, HTTPRequest* req, const std::
     }
 
     switch (rf) {
-    case RetFormat::BINARY: {
+    case RESTResponseFormat::BINARY: {
         // serialize data
         // use exact same output as mentioned in Bip64
         CDataStream ssGetUTXOResponse(SER_NETWORK, PROTOCOL_VERSION);
@@ -821,7 +821,7 @@ static bool rest_getutxos(const std::any& context, HTTPRequest* req, const std::
         return true;
     }
 
-    case RetFormat::HEX: {
+    case RESTResponseFormat::HEX: {
         CDataStream ssGetUTXOResponse(SER_NETWORK, PROTOCOL_VERSION);
         ssGetUTXOResponse << chainman.ActiveChain().Height() << chainman.ActiveChain().Tip()->GetBlockHash() << bitmap << outs;
         std::string strHex = HexStr(ssGetUTXOResponse) + "\n";
@@ -831,7 +831,7 @@ static bool rest_getutxos(const std::any& context, HTTPRequest* req, const std::
         return true;
     }
 
-    case RetFormat::JSON: {
+    case RESTResponseFormat::JSON: {
         UniValue objGetUTXOResponse(UniValue::VOBJ);
 
         // pack in some essentials
@@ -871,7 +871,7 @@ static bool rest_blockhash_by_height(const std::any& context, HTTPRequest* req,
 {
     if (!CheckWarmup(req)) return false;
     std::string height_str;
-    const RetFormat rf = ParseDataFormat(height_str, str_uri_part);
+    const RESTResponseFormat rf = ParseDataFormat(height_str, str_uri_part);
 
     int32_t blockheight = -1; // Initialization done only to prevent valgrind false positive, see https://github.com/bitcoin/bitcoin/pull/18785
     if (!ParseInt32(height_str, &blockheight) || blockheight < 0) {
@@ -891,19 +891,19 @@ static bool rest_blockhash_by_height(const std::any& context, HTTPRequest* req,
         pblockindex = active_chain[blockheight];
     }
     switch (rf) {
-    case RetFormat::BINARY: {
+    case RESTResponseFormat::BINARY: {
         CDataStream ss_blockhash(SER_NETWORK, PROTOCOL_VERSION);
         ss_blockhash << pblockindex->GetBlockHash();
         req->WriteHeader("Content-Type", "application/octet-stream");
         req->WriteReply(HTTP_OK, ss_blockhash.str());
         return true;
     }
-    case RetFormat::HEX: {
+    case RESTResponseFormat::HEX: {
         req->WriteHeader("Content-Type", "text/plain");
         req->WriteReply(HTTP_OK, pblockindex->GetBlockHash().GetHex() + "\n");
         return true;
     }
-    case RetFormat::JSON: {
+    case RESTResponseFormat::JSON: {
         req->WriteHeader("Content-Type", "application/json");
         UniValue resp = UniValue(UniValue::VOBJ);
         resp.pushKV("blockhash", pblockindex->GetBlockHash().GetHex());
