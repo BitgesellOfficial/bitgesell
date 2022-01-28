@@ -1516,7 +1516,7 @@ static void SoftForkDescPushBack(const CBlockIndex* active_chain_tip, UniValue& 
 }
 
 namespace {
-/* TODO: when -dprecatedrpc=softforks is removed, drop these */
+/* TODO: when -deprecatedrpc=softforks is removed, drop these */
 UniValue DeploymentInfo(const CBlockIndex* tip, const Consensus::Params& consensusParams);
 extern const std::vector<RPCResult> RPCHelpForDeployment;
 }

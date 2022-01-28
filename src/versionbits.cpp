@@ -107,8 +107,13 @@ BIP9Stats AbstractThresholdConditionChecker::GetStateStatisticsFor(const CBlockI
 
     if (pindex == nullptr) return stats;
 
-    // Find beginning of period
-    int start_height = pindex->nHeight - (pindex->nHeight % stats.period);
+    // Find how many blocks are in the current period
+    int blocks_in_period = 1 + (pindex->nHeight % stats.period);
+
+    // Reset signalling_blocks
+    if (signalling_blocks) {
+        signalling_blocks->assign(blocks_in_period, false);
+    }
 
     // Count from current block to beginning of period
     int elapsed = 0;
