@@ -681,17 +681,17 @@ bool CNode::ReceiveMsgBytes(Span<const uint8_t> msg_bytes, bool& complete)
 
         if (m_deserializer->Complete()) {
             // decompose a transport agnostic CNetMessage from the deserializer
-            uint32_t out_err_raw_size{0};
-            std::optional<CNetMessage> result{m_deserializer->GetMessage(time, out_err_raw_size)};
-            if (!result) {
-                // Message deserialization failed.  Drop the message but don't disconnect the peer.
+            bool reject_message{false};
+            CNetMessage msg = m_deserializer->GetMessage(time, reject_message);
+            if (reject_message) {
+                // Message deserialization failed. Drop the message but don't disconnect the peer.
                 // store the size of the corrupt message
                 mapRecvBytesPerMsgType.at(NET_MESSAGE_TYPE_OTHER) += msg.m_raw_message_size;
                 continue;
             }
 
-            // Store received bytes per message command
-            // to prevent a memory DOS, only allow valid commands
+            // Store received bytes per message type.
+            // To prevent a memory DOS, only allow known message types.
             auto i = mapRecvBytesPerMsgType.find(msg.m_type);
             if (i == mapRecvBytesPerMsgType.end()) {
                 i = mapRecvBytesPerMsgType.find(NET_MESSAGE_TYPE_OTHER);
@@ -779,7 +779,7 @@ std::optional<CNetMessage> V1TransportDeserializer::GetMessage(const std::chrono
     // decompose a single CNetMessage from the TransportDeserializer
     std::optional<CNetMessage> msg(std::move(vRecv));
 
-    // store command string, time, and sizes
+    // store message type string, time, and sizes
     msg.m_type = hdr.GetCommand();
     msg.m_time = time;
     msg.m_message_size = hdr.nMessageSize;
@@ -790,7 +790,7 @@ std::optional<CNetMessage> V1TransportDeserializer::GetMessage(const std::chrono
     // We just received a message off the wire, harvest entropy from the time (and the message checksum)
     RandAddEvent(ReadLE32(hash.begin()));
 
-    // Check checksum and header command string
+    // Check checksum and header message type string
     if (memcmp(hash.begin(), hdr.pchChecksum, CMessageHeader::CHECKSUM_SIZE) != 0) {
         LogPrint(BCLog::NET, "Header error: Wrong checksum (%s, %u bytes), expected %s was %s, peer=%d\n",
                  SanitizeString(msg.m_type), msg.m_message_size,
