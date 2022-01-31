@@ -197,8 +197,8 @@ BOOST_AUTO_TEST_CASE(key_key_negation)
 {
     // create a dummy hash for signature comparison
     unsigned char rnd[8];
-    std::string str = "BGL key verification\n";
-    GetRandBytes(rnd, sizeof(rnd));
+    std::string str = "Bitgesell key verification\n";
+    GetRandBytes(rnd);
     uint256 hash;
     CHash256().Write(MakeUCharSpan(str)).Write(rnd).Finalize(hash);
 
