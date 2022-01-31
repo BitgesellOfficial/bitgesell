@@ -51,7 +51,10 @@ def filter_output_indices_by_value(vouts, value):
 class RESTTest (BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 2
-        self.extra_args = [["-rest"], []]
+        self.extra_args = [["-rest", "-blockfilterindex=1"], []]
+        # whitelist peers to speed up tx relay / mempool sync
+        for args in self.extra_args:
+            args.append("-whitelist=noban@127.0.0.1")
         self.supports_cli = False
 
     def test_rest_request(self, uri, http_method='GET', req_type=ReqType.JSON, body='', status=200, ret_type=RetType.JSON):
