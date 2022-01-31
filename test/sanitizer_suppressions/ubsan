@@ -55,9 +55,8 @@ unsigned-integer-overflow:MurmurHash3
 unsigned-integer-overflow:CBlockPolicyEstimator::processBlockTx
 unsigned-integer-overflow:TxConfirmStats::EstimateMedianVal
 unsigned-integer-overflow:prevector.h
-unsigned-integer-overflow:EvalScript
-unsigned-integer-overflow:XoRoShiRo128PlusPlus::operator()
-unsigned-integer-overflow:XoRoShiRo128PlusPlus::SplitMix64
+unsigned-integer-overflow:InsecureRandomContext::rand64
+unsigned-integer-overflow:InsecureRandomContext::SplitMix64
 unsigned-integer-overflow:bitset_detail::PopCount
 implicit-integer-sign-change:CBlockPolicyEstimator::processBlockTx
 implicit-integer-sign-change:SetStdinEcho
