@@ -21,6 +21,8 @@ libBGL_zmq/libBGL_zmq.vcxproj
 bench_BGL/bench_BGL.vcxproj
 libtest_util/libtest_util.vcxproj
 
+/bitcoin_config.h
+
 */Win32
 libBGL_qt/QtGeneratedFiles/*
 test_BGL-qt/QtGeneratedFiles/*
