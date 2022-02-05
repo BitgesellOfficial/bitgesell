@@ -1290,7 +1290,7 @@ else
   BGL_QT_INIT
 
   dnl sets $BGL_enable_qt, $BGL_enable_qt_test, $BGL_enable_qt_dbus
-  BGL_QT_CONFIGURE([5.9.5])
+  BGL_QT_CONFIGURE([5.11.3])
 
   dnl Keep a copy of the original $QT_INCLUDES and use it when invoking qt's moc
   QT_INCLUDES_UNSUPPRESSED=$QT_INCLUDES
