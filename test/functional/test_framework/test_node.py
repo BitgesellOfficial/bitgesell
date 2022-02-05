@@ -671,7 +671,7 @@ class TestNode():
                     assert_msg = "BGLd should have exited with expected error " + expected_msg
                 self._raise_assertion_error(assert_msg)
 
-    def add_p2p_connection(self, p2p_conn, *, wait_for_verack=True, send_version=True, **kwargs):
+    def add_p2p_connection(self, p2p_conn, *, wait_for_verack=True, send_version=True, supports_v2_p2p=False, **kwargs):
         """Add an inbound p2p connection to the node.
 
         This method adds the p2p connection to the self.p2ps list and also
@@ -682,7 +682,8 @@ class TestNode():
             kwargs['dstaddr'] = '127.0.0.1'
 
         p2p_conn.p2p_connected_to_node = True
-        p2p_conn.peer_connect(**kwargs, send_version=send_version, net=self.chain, timeout_factor=self.timeout_factor)()
+        p2p_conn.peer_connect(**kwargs, send_version=send_version, net=self.chain, timeout_factor=self.timeout_factor, supports_v2_p2p=supports_v2_p2p)()
+
         self.p2ps.append(p2p_conn)
         p2p_conn.wait_until(lambda: p2p_conn.is_connected, check_connected=False)
         if send_version:
@@ -713,7 +714,7 @@ class TestNode():
 
         return p2p_conn
 
-    def add_outbound_p2p_connection(self, p2p_conn, *, wait_for_verack=True, p2p_idx, connection_type="outbound-full-relay", **kwargs):
+    def add_outbound_p2p_connection(self, p2p_conn, *, wait_for_verack=True, p2p_idx, connection_type="outbound-full-relay", supports_v2_p2p=False, **kwargs):
         """Add an outbound p2p connection from node. Must be an
         "outbound-full-relay", "block-relay-only" or "addr-fetch" connection.
 
@@ -730,7 +731,7 @@ class TestNode():
             self.addconnection('%s:%d' % (address, port), connection_type)
 
         p2p_conn.p2p_connected_to_node = False
-        p2p_conn.peer_accept_connection(connect_cb=addconnection_callback, connect_id=p2p_idx + 1, net=self.chain, timeout_factor=self.timeout_factor, **kwargs)()
+        p2p_conn.peer_accept_connection(connect_cb=addconnection_callback, connect_id=p2p_idx + 1, net=self.chain, timeout_factor=self.timeout_factor, supports_v2_p2p=supports_v2_p2p, **kwargs)()
 
         p2p_conn.wait_for_connect()
         self.p2ps.append(p2p_conn)
