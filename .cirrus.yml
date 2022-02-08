@@ -261,12 +261,12 @@ task:
     MAKEJOBS: "-j4"  # Avoid excessive memory use
 
 task:
-  name: '[fuzzer,address,undefined,integer, no depends] [focal]'
+  name: '[fuzzer,address,undefined,integer, no depends] [jammy]'
   << : *GLOBAL_TASK_TEMPLATE
   container:
-    dockerfile: ci/linux-debian.Dockerfile
-    cpu: 1
-    memory: 2G
+    image: ubuntu:jammy
+    cpu: 4  # Increase CPU and memory to avoid timeout
+    memory: 16G
   env:
     << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
     FILE_ENV: "./ci/test/00_setup_env_native_fuzz.sh"
