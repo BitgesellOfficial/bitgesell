@@ -789,7 +789,12 @@ void BGLGUI::createTrayIconMenu()
         return;
 
     trayIcon->setContextMenu(trayIconMenu.get());
-    connect(trayIcon, &QSystemTrayIcon::activated, this, &BGLGUI::trayIconActivated);
+    connect(trayIcon, &QSystemTrayIcon::activated, [this](QSystemTrayIcon::ActivationReason reason) {
+        if (reason == QSystemTrayIcon::Trigger) {
+            // Click on system tray icon triggers show/hide of the main window
+            toggleHidden();
+        }
+    });
 #else
     // Note: On macOS, the Dock icon is used to provide the tray's functionality.
     MacDockIconHandler *dockIconHandler = MacDockIconHandler::instance();
@@ -822,18 +827,7 @@ void BGLGUI::createTrayIconMenu()
 #endif
 }
 
-#ifndef Q_OS_MAC
-void BGLGUI::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
-{
-    if(reason == QSystemTrayIcon::Trigger)
-    {
-        // Click on system tray icon triggers show/hide of the main window
-        toggleHidden();
-    }
-}
-#endif
-
-void BGLGUI::optionsClicked()
+void BitcoinGUI::optionsClicked()
 {
     openOptionsDialogWithTab(OptionsDialog::TAB_MAIN);
 }
