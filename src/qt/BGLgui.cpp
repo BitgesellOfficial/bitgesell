@@ -315,8 +315,6 @@ void BGLGUI::createActions()
     optionsAction->setStatusTip(tr("Modify configuration options for %1").arg(PACKAGE_NAME));
     optionsAction->setMenuRole(QAction::PreferencesRole);
     optionsAction->setEnabled(false);
-    toggleHideAction = new QAction(tr("&Show / Hide"), this);
-    toggleHideAction->setStatusTip(tr("Show or hide the main Window"));
 
     encryptWalletAction = new QAction(tr("&Encrypt Wallet…"), this);
     encryptWalletAction->setStatusTip(tr("Encrypt the private keys that belong to your wallet"));
@@ -376,7 +374,6 @@ void BGLGUI::createActions()
     connect(aboutAction, &QAction::triggered, this, &BGLGUI::aboutClicked);
     connect(aboutQtAction, &QAction::triggered, qApp, QApplication::aboutQt);
     connect(optionsAction, &QAction::triggered, this, &BGLGUI::optionsClicked);
-    connect(toggleHideAction, &QAction::triggered, this, &BGLGUI::toggleHidden);
     connect(showHelpMessageAction, &QAction::triggered, this, &BGLGUI::showHelpMessageClicked);
     connect(openRPCConsoleAction, &QAction::triggered, this, &BGLGUI::showDebugWindow);
     // prevents an open debug window from becoming stuck/unusable on client shutdown
@@ -627,8 +624,6 @@ void BGLGUI::setClientModel(ClientModel *_clientModel, interfaces::BlockAndHeade
             trayIcon->setVisible(optionsModel->getShowTrayIcon());
         }
     } else {
-        // Disable possibility to show main window via action
-        toggleHideAction->setEnabled(false);
         if(trayIconMenu)
         {
             // Disable context menu on tray icon
@@ -788,9 +783,10 @@ void BGLGUI::createTrayIconMenu()
 #endif // Q_OS_MAC
 
     // Configuration of the tray icon (or Dock icon) menu.
+    QAction* show_hide_action{nullptr};
 #ifndef Q_OS_MAC
     // Note: On macOS, the Dock icon's menu already has Show / Hide action.
-    trayIconMenu->addAction(toggleHideAction);
+    show_hide_action = trayIconMenu->addAction(tr("Show / &Hide"), this, &BGLGUI::toggleHidden);
     trayIconMenu->addSeparator();
 #endif // Q_OS_MAC
 
@@ -827,7 +823,7 @@ void BGLGUI::createTrayIconMenu()
 #endif // Q_OS_MAC
 }
 
-void BitcoinGUI::optionsClicked()
+void BGLGUI::optionsClicked()
 {
     openOptionsDialogWithTab(OptionsDialog::TAB_MAIN);
 }
