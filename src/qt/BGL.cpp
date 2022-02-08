@@ -268,7 +268,11 @@ void BGLApplication::createWindow(const NetworkStyle *networkStyle)
     connect(window, &BGLGUI::quitRequested, this, &BGLApplication::requestShutdown);
 
     pollShutdownTimer = new QTimer(window);
-    connect(pollShutdownTimer, &QTimer::timeout, window, &BGLGUI::detectShutdown);
+    connect(pollShutdownTimer, &QTimer::timeout, [this]{
+        if (!QApplication::activeModalWidget()) {
+            window->detectShutdown();
+        }
+    });
 }
 
 void BGLApplication::createSplashScreen(const NetworkStyle *networkStyle)
@@ -451,7 +455,7 @@ WId BGLApplication::getMainWinId() const
     return window->winId();
 }
 
-bool BitcoinApplication::event(QEvent* e)
+bool BGLApplication::event(QEvent* e)
 {
     if (e->type() == QEvent::Quit) {
         requestShutdown();
