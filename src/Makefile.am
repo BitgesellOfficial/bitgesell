@@ -51,8 +51,8 @@ LIBBGL_CRYPTO_X86_SHANI = crypto/libBGL_crypto_x86_shani.a
 LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_X86_SHANI)
 endif
 if ENABLE_ARM_SHANI
-LIBBITCOIN_CRYPTO_ARM_SHANI = crypto/libbitcoin_crypto_arm_shani.a
-LIBBITCOIN_CRYPTO += $(LIBBITCOIN_CRYPTO_ARM_SHANI)
+LIBBGL_CRYPTO_ARM_SHANI = crypto/libBGL_crypto_arm_shani.a
+LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_ARM_SHANI)
 endif
 
 # Add SHA3 support
@@ -519,11 +519,11 @@ crypto_libBGL_crypto_x86_shani_a_CXXFLAGS += $(X86_SHANI_CXXFLAGS)
 crypto_libBGL_crypto_x86_shani_a_CPPFLAGS += -DENABLE_X86_SHANI
 crypto_libBGL_crypto_x86_shani_a_SOURCES = crypto/sha256_x86_shani.cpp
 
-crypto_libbitcoin_crypto_arm_shani_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-crypto_libbitcoin_crypto_arm_shani_a_CPPFLAGS = $(AM_CPPFLAGS)
-crypto_libbitcoin_crypto_arm_shani_a_CXXFLAGS += $(ARM_SHANI_CXXFLAGS)
-crypto_libbitcoin_crypto_arm_shani_a_CPPFLAGS += -DENABLE_ARM_SHANI
-crypto_libbitcoin_crypto_arm_shani_a_SOURCES = crypto/sha256_arm_shani.cpp
+crypto_libBGL_crypto_arm_shani_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+crypto_libBGL_crypto_arm_shani_a_CPPFLAGS = $(AM_CPPFLAGS)
+crypto_libBGL_crypto_arm_shani_a_CXXFLAGS += $(ARM_SHANI_CXXFLAGS)
+crypto_libBGL_crypto_arm_shani_a_CPPFLAGS += -DENABLE_ARM_SHANI
+crypto_libBGL_crypto_arm_shani_a_SOURCES = crypto/sha256_arm_shani.cpp
 
 # consensus: shared between all executables that validate any consensus rules.
 libBGL_consensus_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
@@ -686,7 +686,7 @@ BGL_bin_ldadd = \
   $(LIBMEMENV) \
   $(LIBSECP256K1)
 
-BGL_bin_ldadd += $(BOOST_LIBS) $(BDB_LIBS) $(MINIUPNPC_LIBS) $(NATPMP_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS) $(SQLITE_LIBS)
+BGL_bin_ldadd += $(BDB_LIBS) $(MINIUPNPC_LIBS) $(NATPMP_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS) $(SQLITE_LIBS)
 
 BGLd_SOURCES = $(BGL_daemon_sources) init/BGLd.cpp
 BGLd_CPPFLAGS = $(BGL_bin_cppflags)
@@ -716,7 +716,7 @@ BGL_cli_LDADD = \
   $(LIBBGL_UTIL) \
   $(LIBBGL_CRYPTO)
 
-BGL_cli_LDADD += $(BOOST_LIBS) $(EVENT_LIBS)
+BGL_cli_LDADD += $(EVENT_LIBS)
 #
 
 # BGL-tx binary #
@@ -736,8 +736,6 @@ BGL_tx_LDADD = \
   $(LIBBGL_CONSENSUS) \
   $(LIBBGL_CRYPTO) \
   $(LIBSECP256K1)
-
-BGL_tx_LDADD += $(BOOST_LIBS)
 #
 
 # BGL-wallet binary #
@@ -755,7 +753,6 @@ BGL_wallet_LDADD = \
   $(LIBBGL_CONSENSUS) \
   $(LIBBGL_CRYPTO) \
   $(LIBSECP256K1) \
-  $(BOOST_LIBS) \
   $(BDB_LIBS) \
   $(SQLITE_LIBS)
 
@@ -781,8 +778,6 @@ BGL_util_LDADD = \
   $(LIBBGL_CONSENSUS) \
   $(LIBBGL_CRYPTO) \
   $(LIBSECP256K1)
-
-BGL_util_LDADD += $(BOOST_LIBS)
 #
 
 # BGLconsensus library #
