@@ -14,7 +14,7 @@ export LC_ALL=C.UTF-8
 
 
 export CONTAINER_NAME=ci_win64
-export DOCKER_NAME_TAG=ubuntu:20.04  # Check that Focal can cross-compile to win64
+export DOCKER_NAME_TAG=ubuntu:22.04  # Check that Jammy can cross-compile to win64
 export HOST=x86_64-w64-mingw32
 #export CONTAINER_NAME #?????
 #export DOCKER_NAME_TAG #?????
