@@ -813,6 +813,7 @@ BGL_util_LDADD = \
 # bitcoin-chainstate binary #
 BGL_chainstate_SOURCES = \
   BGL-chainstate.cpp \
+  kernel/BGLkernel.cpp \
   arith_uint256.cpp \
   blockfilter.cpp \
   chain.cpp \
