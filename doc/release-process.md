@@ -98,7 +98,7 @@ Checkout the Bitgesell Core version you'd like to build:
 pushd ./BGL
 SIGNER='(your builder key, ie bluematt, sipa, etc)'
 VERSION='(new version without v-prefix, e.g. 0.20.0)'
-git fetch "v${VERSION}"
+git fetch origin "v${VERSION}"
 git checkout "v${VERSION}"
 popd
 ```
