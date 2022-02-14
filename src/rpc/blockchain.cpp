@@ -861,8 +861,8 @@ static RPCHelpMan gettxoutsetinfo()
 
     const CBlockIndex* pindex{nullptr};
     const CoinStatsHashType hash_type{request.params[0].isNull() ? CoinStatsHashType::HASH_SERIALIZED : ParseHashType(request.params[0].get_str())};
-    CCoinsStats stats{hash_type};
-    stats.index_requested = request.params[2].isNull() || request.params[2].get_bool();
+    CCoinsStats stats{};
+    bool index_requested = request.params[2].isNull() || request.params[2].get_bool();
 
     NodeContext& node = EnsureAnyNodeContext(request.context);
     ChainstateManager& chainman = EnsureChainman(node);
@@ -890,7 +890,7 @@ static RPCHelpMan gettxoutsetinfo()
         pindex = ParseHashOrHeight(request.params[1], chainman);
     }
 
-    if (stats.index_requested && g_coin_stats_index) {
+    if (index_requested && g_coin_stats_index) {
         if (!g_coin_stats_index->BlockUntilSyncedToCurrentChain()) {
             const IndexSummary summary{g_coin_stats_index->GetSummary()};
 
@@ -902,7 +902,7 @@ static RPCHelpMan gettxoutsetinfo()
         }
     }
 
-    if (GetUTXOStats(coins_view, *blockman, stats, node.rpc_interruption_point, pindex)) {
+    if (GetUTXOStats(coins_view, *blockman, stats, hash_type, node.rpc_interruption_point, pindex, index_requested)) {
         ret.pushKV("height", (int64_t)stats.nHeight);
         ret.pushKV("bestblock", stats.hashBlock.GetHex());
         ret.pushKV("txouts", (int64_t)stats.nTransactionOutputs);
@@ -924,7 +924,11 @@ static RPCHelpMan gettxoutsetinfo()
             CCoinsStats prev_stats{hash_type};
 
             if (pindex->nHeight > 0) {
+<<<<<<< HEAD
                 GetUTXOStats(coins_view, *blockman, prev_stats, node.rpc_interruption_point, pindex->pprev);
+=======
+                GetUTXOStats(coins_view, *blockman, prev_stats, hash_type, node.rpc_interruption_point, pindex->pprev, index_requested);
+>>>>>>> 46eb9fc56a... coinstats: Extract index_requested in-member to in-param
             }
 
             UniValue block_info(UniValue::VOBJ);
