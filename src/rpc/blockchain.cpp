@@ -862,7 +862,7 @@ static RPCHelpMan gettxoutsetinfo()
     const CBlockIndex* pindex{nullptr};
     const CoinStatsHashType hash_type{request.params[0].isNull() ? CoinStatsHashType::HASH_SERIALIZED : ParseHashType(request.params[0].get_str())};
     CCoinsStats stats{};
-    bool index_requested = request.params[2].isNull() || request.params[2].get_bool();
+    stats.index_requested = request.params[2].isNull() || request.params[2].get_bool();
 
     NodeContext& node = EnsureAnyNodeContext(request.context);
     ChainstateManager& chainman = EnsureChainman(node);
@@ -883,7 +883,7 @@ static RPCHelpMan gettxoutsetinfo()
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Querying specific block heights requires coinstatsindex");
         }
 
-        if (stats.m_hash_type == CoinStatsHashType::HASH_SERIALIZED) {
+        if (hash_type == CoinStatsHashType::HASH_SERIALIZED) {
             throw JSONRPCError(RPC_INVALID_PARAMETER, "hash_serialized_2 hash type cannot be queried for a specific block");
         }
 
@@ -902,7 +902,7 @@ static RPCHelpMan gettxoutsetinfo()
         }
     }
 
-    if (GetUTXOStats(coins_view, *blockman, stats, hash_type, node.rpc_interruption_point, pindex, index_requested)) {
+    if (GetUTXOStats(coins_view, *blockman, stats, hash_type, node.rpc_interruption_point, pindex)) {
         ret.pushKV("height", (int64_t)stats.nHeight);
         ret.pushKV("bestblock", stats.hashBlock.GetHex());
         ret.pushKV("txouts", (int64_t)stats.nTransactionOutputs);
@@ -921,14 +921,10 @@ static RPCHelpMan gettxoutsetinfo()
         } else {
             ret.pushKV("total_unspendable_amount", ValueFromAmount(stats.total_unspendable_amount));
 
-            CCoinsStats prev_stats{hash_type};
+            CCoinsStats prev_stats{};
 
             if (pindex->nHeight > 0) {
-<<<<<<< HEAD
-                GetUTXOStats(coins_view, *blockman, prev_stats, node.rpc_interruption_point, pindex->pprev);
-=======
-                GetUTXOStats(coins_view, *blockman, prev_stats, hash_type, node.rpc_interruption_point, pindex->pprev, index_requested);
->>>>>>> 46eb9fc56a... coinstats: Extract index_requested in-member to in-param
+                GetUTXOStats(coins_view, *blockman, prev_stats, hash_type, node.rpc_interruption_point, pindex->pprev);
             }
 
             UniValue block_info(UniValue::VOBJ);
@@ -2289,7 +2285,7 @@ UniValue CreateUTXOSnapshot(
     const fs::path& temppath)
 {
     std::unique_ptr<CCoinsViewCursor> pcursor;
-    CCoinsStats stats{CoinStatsHashType::HASH_SERIALIZED};
+    CCoinsStats stats{};
     const CBlockIndex* tip;
 
     {
@@ -2309,7 +2305,7 @@ UniValue CreateUTXOSnapshot(
 
         chainstate.ForceFlushStateToDisk();
 
-        if (!GetUTXOStats(&chainstate.CoinsDB(), chainstate.m_blockman, stats, node.rpc_interruption_point)) {
+        if (!GetUTXOStats(&chainstate.CoinsDB(), chainstate.m_blockman, stats, CoinStatsHashType::HASH_SERIALIZED, node.rpc_interruption_point)) {
             throw JSONRPCError(RPC_INTERNAL_ERROR, "Unable to read UTXO set");
         }
 
