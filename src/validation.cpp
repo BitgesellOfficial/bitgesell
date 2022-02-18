@@ -60,15 +60,12 @@
 
 using kernel::CCoinsStats;
 using kernel::CoinStatsHashType;
-using kernel::ComputeUTXOStats;
 
 using node::BLOCKFILE_CHUNK_SIZE;
 using node::BlockManager;
 using node::BlockMap;
 using node::CBlockIndexHeightOnlyComparator;
 using node::CBlockIndexWorkComparator;
-using kernel::CCoinsStats;
-using kernel::CoinStatsHashType;
 using node::fImporting;
 using node::fPruneMode;
 using node::fReindex;
