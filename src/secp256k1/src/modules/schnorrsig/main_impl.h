@@ -1,4 +1,3 @@
-
 /***********************************************************************
  * Copyright (c) 2018-2020 Andrew Poelstra, Jonas Nick                 *
  * Distributed under the MIT software license, see the accompanying    *
