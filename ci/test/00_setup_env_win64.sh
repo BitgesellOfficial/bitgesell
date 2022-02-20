@@ -23,4 +23,4 @@ export HOST=x86_64-w64-mingw32
 #export NO_DEPENDS #default
 export DEP_OPTS #default
 export GOAL="deploy"
-export BGL_CONFIG="--enable-reduce-exports --disable-gui-tests"
+export BGL_CONFIG="--enable-reduce-exports --disable-external-signer --disable-gui-tests"
