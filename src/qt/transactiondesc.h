@@ -31,7 +31,7 @@ public:
 private:
     TransactionDesc() {}
 
-    static QString FormatTxStatus(const interfaces::WalletTx& wtx, const interfaces::WalletTxStatus& status, bool inMempool, int numBlocks);
+    static QString FormatTxStatus(const interfaces::WalletTxStatus& status, bool inMempool);
 };
 
 #endif // BGL_QT_TRANSACTIONDESC_H
