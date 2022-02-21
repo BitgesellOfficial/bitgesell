@@ -45,8 +45,8 @@ struct TransactionStatus {
 
     /** @name Reported status
        @{*/
-    Status status{Unconfirmed};
-    qint64 depth{0};
+    Status status;
+    qint64 depth;
     /**@}*/
 
     /** Current block hash (to know whether cached status is still valid) */
