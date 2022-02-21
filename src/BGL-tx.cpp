@@ -100,11 +100,17 @@ static int AppInitRawTx(int argc, char* argv[])
 
     if (argc < 2 || HelpRequested(gArgs)) {
         // First part of help message is specific to this utility
-        std::string strUsage = PACKAGE_NAME " BGL-tx utility version " + FormatFullVersion() + "\n\n" +
-            "Usage:  BGL-tx [options] <hex-tx> [commands]  Update hex-encoded BGL transaction\n" +
-            "or:     BGL-tx [options] -create [commands]   Create hex-encoded BGL transaction\n" +
-            "\n";
-        strUsage += gArgs.GetHelpMessage();
+        std::string strUsage = PACKAGE_NAME " BGL-tx utility version " + FormatFullVersion() + "\n";
+
+        if (gArgs.IsArgSet("-version")) {
+            strUsage += FormatParagraph(LicenseInfo());
+        } else {
+            strUsage += "\n"
+                "Usage:  BGL-tx [options] <hex-tx> [commands]  Update hex-encoded BGL transaction\n"
+                "or:     BGL-tx [options] -create [commands]   Create hex-encoded BGL transaction\n"
+                "\n";
+            strUsage += gArgs.GetHelpMessage();
+        }
 
         tfm::format(std::cout, "%s", strUsage);
 

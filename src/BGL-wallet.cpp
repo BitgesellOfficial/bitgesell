@@ -52,7 +52,10 @@ static bool WalletAppInit(ArgsManager& args, int argc, char* argv[])
     }
     if (argc < 2 || HelpRequested(args) || args.IsArgSet("-version")) {
         std::string strUsage = strprintf("%s BGL-wallet version", PACKAGE_NAME) + " " + FormatFullVersion() + "\n";
-        if (!args.IsArgSet("-version")) {
+
+        if (args.IsArgSet("-version")) {
+            strUsage += FormatParagraph(LicenseInfo());
+        } else {
             strUsage += "\n"
                         "BGL-wallet is an offline tool for creating and interacting with " PACKAGE_NAME " wallet files.\n"
                         "By default BGL-wallet will act on wallets in the default mainnet wallet directory in the datadir.\n"
