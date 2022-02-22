@@ -5,9 +5,10 @@ Utility to generate the seeds.txt list that is compiled into the client
 
 The seeds compiled into the release are created from sipa's DNS seed data, like this:
 
-    curl -s http://BGL.sipa.be/seeds.txt.gz | gzip -dc > seeds_main.txt
-    python makeseeds.py < seeds_main.txt > nodes_main.txt
-    python generate-seeds.py . > ../../src/chainparamsseeds.h
+    curl https://bitcoin.sipa.be/seeds.txt.gz | gzip -dc > seeds_main.txt
+    python3 makeseeds.py < seeds_main.txt > nodes_main.txt
+    cat nodes_main_manual.txt >> nodes_main.txt
+    python3 generate-seeds.py . > ../../src/chainparamsseeds.h
 
 ## Dependencies
 
