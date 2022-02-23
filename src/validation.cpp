@@ -4127,7 +4127,6 @@ void UnloadBlockIndex(CTxMemPool* mempool, ChainstateManager& chainman)
 {
     AssertLockHeld(::cs_main);
     chainman.Unload();
-    chainman.pindexBestHeader = nullptr;
     if (mempool) mempool->clear();
     g_versionbitscache.Clear();
     for (int b = 0; b < VERSIONBITS_NUM_BITS; b++) {
@@ -5175,6 +5174,7 @@ void ChainstateManager::Unload()
 
     m_failed_blocks.clear();
     m_blockman.Unload();
+    pindexBestHeader = nullptr;
     m_best_invalid = nullptr;
 }
 
