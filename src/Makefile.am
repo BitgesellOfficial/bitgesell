@@ -264,6 +264,7 @@ BGL_CORE_H = \
   undo.h \
   util/asmap.h \
   util/bip32.h \
+  util/bitdeque.h \
   util/bytevectorhash.h \
   util/check.h \
   util/epochguard.h \
