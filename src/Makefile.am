@@ -175,6 +175,7 @@ BGL_CORE_H = \
   interfaces/ipc.h \
   interfaces/node.h \
   interfaces/wallet.h \
+  kernel/chainstatemanager_opts.h \
   key.h \
   key_io.h \
   logging.h \
