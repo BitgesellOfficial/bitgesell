@@ -507,7 +507,7 @@ fs::path static StartupShortcutPath()
         return GetSpecialFolderPath(CSIDL_STARTUP) / "BGL.lnk";
     if (chain == CBaseChainParams::TESTNET) // Remove this special case when CBaseChainParams::TESTNET = "testnet4"
         return GetSpecialFolderPath(CSIDL_STARTUP) / "BGL (testnet).lnk";
-    return GetSpecialFolderPath(CSIDL_STARTUP) / strprintf("BGL (%s).lnk", chain);
+    return GetSpecialFolderPath(CSIDL_STARTUP) / fs::u8path(strprintf("BGL (%s).lnk", chain));
 }
 
 bool GetStartOnSystemStartup()
@@ -588,7 +588,7 @@ fs::path static GetAutostartFilePath()
     std::string chain = gArgs.GetChainName();
     if (chain == CBaseChainParams::MAIN)
         return GetAutostartDir() / "BGL.desktop";
-    return GetAutostartDir() / strprintf("BGL-%s.desktop", chain);
+    return GetAutostartDir() / fs::u8path(strprintf("BGL-%s.desktop", chain));
 }
 
 bool GetStartOnSystemStartup()
