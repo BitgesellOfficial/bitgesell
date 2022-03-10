@@ -18,8 +18,3 @@ libtest_fuzz_a_SOURCES = \
   test/fuzz/fuzz.cpp \
   test/fuzz/util.cpp \
   $(TEST_FUZZ_H)
-
-LIBTEST_FUZZ += $(LIBBGL_NODE)
-LIBTEST_FUZZ += $(LIBBGL_COMMON)
-LIBTEST_FUZZ += $(LIBBGL_UTIL)
-LIBTEST_FUZZ += $(LIBBGL_CRYPTO_BASE)
