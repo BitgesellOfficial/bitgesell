@@ -197,7 +197,7 @@ class BlockchainTest(BGLTestFramework):
                     'timeout': 0x7fffffffffffffff,  # testdummy does not have a timeout so is set to the max int64 value
                     'min_activation_height': 0,
                     'status': 'started',
-                    'status-next': status_next,
+                    'status_next': status_next,
                     'since': 144,
                     'statistics': {
                         'period': 144,
@@ -216,7 +216,7 @@ class BlockchainTest(BGLTestFramework):
                     'timeout': 9223372036854775807,
                     'min_activation_height': 0,
                     'status': 'active',
-                    'status-next': 'active',
+                    'status_next': 'active',
                     'since': 0,
                 },
                 'height': 0,
