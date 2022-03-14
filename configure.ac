@@ -1421,6 +1421,9 @@ if test "$use_boost" = "yes"; then
   fi
   AX_BOOST_SYSTEM
 
+  dnl we don't use multi_index serialization
+  BOOST_CPPFLAGS="$BOOST_CPPFLAGS -DBOOST_MULTI_INDEX_DISABLE_SERIALIZATION"
+
   if test "$suppress_external_warnings" != "no"; then
     BOOST_CPPFLAGS=SUPPRESS_WARNINGS($BOOST_CPPFLAGS)
   fi
