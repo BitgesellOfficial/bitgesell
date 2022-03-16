@@ -692,7 +692,6 @@ BGL_bin_ldadd = \
   $(LIBBGL_CONSENSUS) \
   $(LIBBGL_CRYPTO) \
   $(LIBLEVELDB) \
-  $(LIBLEVELDB_SSE42) \
   $(LIBMEMENV) \
   $(LIBSECP256K1)
 
@@ -879,7 +878,6 @@ BGL_chainstate_LDADD = \
   $(LIBUNIVALUE) \
   $(LIBSECP256K1) \
   $(LIBLEVELDB) \
-  $(LIBLEVELDB_SSE42) \
   $(LIBMEMENV)
 
 # Required for obj/build.h to be generated first.
