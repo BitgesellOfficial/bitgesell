@@ -1161,38 +1161,38 @@ RPCHelpMan getblockchaininfo()
 {
     /* TODO: from v24, remove -deprecatedrpc=softforks */
     return RPCHelpMan{"getblockchaininfo",
-                "Returns an object containing various state info regarding blockchain processing.\n",
-                {},
-                RPCResult{
-                    RPCResult::Type::OBJ, "", "",
-                    {
-                        {RPCResult::Type::STR, "chain", "current network name (main, test, signet, regtest)"},
-                        {RPCResult::Type::NUM, "blocks", "the height of the most-work fully-validated chain. The genesis block has height 0"},
-                        {RPCResult::Type::NUM, "headers", "the current number of headers we have validated"},
-                        {RPCResult::Type::STR, "bestblockhash", "the hash of the currently best block"},
-                        {RPCResult::Type::NUM, "difficulty", "the current difficulty"},
-                        {RPCResult::Type::NUM_TIME, "time", "The block time expressed in " + UNIX_EPOCH_TIME},
-                        {RPCResult::Type::NUM_TIME, "mediantime", "The median block time expressed in " + UNIX_EPOCH_TIME},
-                        {RPCResult::Type::NUM, "verificationprogress", "estimate of verification progress [0..1]"},
-                        {RPCResult::Type::BOOL, "initialblockdownload", "(debug information) estimate of whether this node is in Initial Block Download mode"},
-                        {RPCResult::Type::STR_HEX, "chainwork", "total amount of work in active chain, in hexadecimal"},
-                        {RPCResult::Type::NUM, "size_on_disk", "the estimated size of the block and undo files on disk"},
-                        {RPCResult::Type::BOOL, "pruned", "if the blocks are subject to pruning"},
-                        {RPCResult::Type::NUM, "pruneheight", /*optional=*/true, "lowest-height complete block stored (only present if pruning is enabled)"},
-                        {RPCResult::Type::BOOL, "automatic_pruning", /*optional=*/true, "whether automatic pruning is enabled (only present if pruning is enabled)"},
-                        {RPCResult::Type::NUM, "prune_target_size", /*optional=*/true, "the target size used by pruning (only present if automatic pruning is enabled)"},
-                        {RPCResult::Type::OBJ_DYN, "softforks", "(DEPRECATED, returned only if config option -deprecatedrpc=softforks is passed) status of softforks",
-                        {
-                            {RPCResult::Type::OBJ, "xxxx", "name of the softfork",
-                                RPCHelpForDeployment
-                            },
-                        }},
-                        {RPCResult::Type::STR, "warnings", "any network and blockchain warnings"},
-                    }},
-                RPCExamples{
-                    HelpExampleCli("getblockchaininfo", "")
+        "Returns an object containing various state info regarding blockchain processing.\n",
+        {},
+        RPCResult{
+            RPCResult::Type::OBJ, "", "",
+            {
+                {RPCResult::Type::STR, "chain", "current network name (main, test, signet, regtest)"},
+                {RPCResult::Type::NUM, "blocks", "the height of the most-work fully-validated chain. The genesis block has height 0"},
+                {RPCResult::Type::NUM, "headers", "the current number of headers we have validated"},
+                {RPCResult::Type::STR, "bestblockhash", "the hash of the currently best block"},
+                {RPCResult::Type::NUM, "difficulty", "the current difficulty"},
+                {RPCResult::Type::NUM_TIME, "time", "The block time expressed in " + UNIX_EPOCH_TIME},
+                {RPCResult::Type::NUM_TIME, "mediantime", "The median block time expressed in " + UNIX_EPOCH_TIME},
+                {RPCResult::Type::NUM, "verificationprogress", "estimate of verification progress [0..1]"},
+                {RPCResult::Type::BOOL, "initialblockdownload", "(debug information) estimate of whether this node is in Initial Block Download mode"},
+                {RPCResult::Type::STR_HEX, "chainwork", "total amount of work in active chain, in hexadecimal"},
+                {RPCResult::Type::NUM, "size_on_disk", "the estimated size of the block and undo files on disk"},
+                {RPCResult::Type::BOOL, "pruned", "if the blocks are subject to pruning"},
+                {RPCResult::Type::NUM, "pruneheight", /*optional=*/true, "lowest-height complete block stored (only present if pruning is enabled)"},
+                {RPCResult::Type::BOOL, "automatic_pruning", /*optional=*/true, "whether automatic pruning is enabled (only present if pruning is enabled)"},
+                {RPCResult::Type::NUM, "prune_target_size", /*optional=*/true, "the target size used by pruning (only present if automatic pruning is enabled)"},
+                {RPCResult::Type::OBJ_DYN, "softforks", /*optional=*/true, "(DEPRECATED, returned only if config option -deprecatedrpc=softforks is passed) status of softforks",
+                {
+                    {RPCResult::Type::OBJ, "xxxx", "name of the softfork",
+                        RPCHelpForDeployment
+                    },
+                }},
+                {RPCResult::Type::STR, "warnings", "any network and blockchain warnings"},
+            }},
+        RPCExamples{
+            HelpExampleCli("getblockchaininfo", "")
             + HelpExampleRpc("getblockchaininfo", "")
-                },
+        },
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
     const ArgsManager& args{EnsureAnyArgsman(request.context)};
@@ -1265,6 +1265,7 @@ const std::vector<RPCResult> RPCHelpForDeployment{
             {RPCResult::Type::NUM, "count", "the number of blocks with the version bit set in the current period"},
             {RPCResult::Type::BOOL, "possible", /*optional=*/true, "returns false if there are not enough blocks left in this period to pass activation threshold (only for \"started\" status)"},
         }},
+        {RPCResult::Type::STR, "signalling", /*optional=*/true, "indicates blocks that signalled with a # and blocks that did not with a -"},
     }},
     {RPCResult::Type::NUM, "height", /*optional=*/true, "height of the first block which the rules are or will be enforced (only for \"buried\" type, or \"bip9\" type with \"active\" status)"},
     {RPCResult::Type::BOOL, "active", "true if the rules are enforced for the mempool and the next block"},
@@ -1293,7 +1294,9 @@ static RPCHelpMan getdeploymentinfo()
         },
         RPCResult{
             RPCResult::Type::OBJ, "", "", {
-                {RPCResult::Type::OBJ, "deployments", "", {
+                {RPCResult::Type::STR, "hash", "requested block hash (or tip)"},
+                {RPCResult::Type::NUM, "height", "requested block height (or tip)"},
+                {RPCResult::Type::OBJ_DYN, "deployments", "", {
                     {RPCResult::Type::OBJ, "xxxx", "name of the deployment", RPCHelpForDeployment}
                 }},
             }
