@@ -178,6 +178,13 @@ if USE_BDB
 BGL_TESTS += wallet/test/db_tests.cpp
 endif
 
+FUZZ_WALLET_SRC = \
+ wallet/test/fuzz/coinselection.cpp
+
+if USE_SQLITE
+FUZZ_WALLET_SRC += \
+ wallet/test/fuzz/notifications.cpp
+endif # USE_SQLITE
 
 BGL_TEST_SUITE += \
   wallet/test/util.cpp \
