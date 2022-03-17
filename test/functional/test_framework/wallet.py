@@ -8,7 +8,10 @@ from copy import deepcopy
 from decimal import Decimal
 from enum import Enum
 from random import choice
-from typing import Optional
+from typing import (
+    Any,
+    Optional,
+)
 from test_framework.address import ADDRESS_BCRT1_P2WSH_OP_TRUE
 from test_framework.descriptors import descsum_create
 from test_framework.key import ECKey
@@ -134,11 +137,12 @@ class MiniWallet:
         Args:
         txid: get the first utxo we find from a specific transaction
         """
-        index = -1  # by default the last utxo
         self._utxos = sorted(self._utxos, key=lambda k: (k['value'], -k['height']))  # Put the largest utxo last
         if txid:
-            utxo = next(filter(lambda utxo: txid == utxo['txid'], self._utxos))
-            index = self._utxos.index(utxo)
+            utxo_filter: Any = filter(lambda utxo: txid == utxo['txid'], self._utxos)
+        else:
+            utxo_filter = reversed(self._utxos)  # By default the largest utxo
+        index = self._utxos.index(next(utxo_filter))
         if mark_as_spent:
             return self._utxos.pop(index)
         else:
