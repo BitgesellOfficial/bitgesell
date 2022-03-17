@@ -121,7 +121,6 @@ gen_ecmult_static_pre_g_CPPFLAGS = $(SECP_INCLUDES)
 gen_ecmult_static_pre_g_LDADD = $(SECP_LIBS) $(COMMON_LIB)
 
 OSX_PACKAGING = $(OSX_DEPLOY_SCRIPT) $(OSX_INSTALLER_ICONS) \
-  $(top_srcdir)/contrib/macdeploy/detached-sig-apply.sh \
   $(top_srcdir)/contrib/macdeploy/detached-sig-create.sh
 
 # See Automake manual, Section "Errors with distclean".
