@@ -177,11 +177,13 @@ BGL_CORE_H = \
   kernel/checks.h \
   kernel/coinstats.h \
   kernel/context.h \
+  kernel/mempool_options.h \
   key.h \
   key_io.h \
   logging.h \
   logging/timer.h \
   mapport.h \
+  mempool_args.h \
   memusage.h \
   merkleblock.h \
   net.h \
@@ -365,6 +367,7 @@ libBGL_node_a_SOURCES = \
   kernel/coinstats.cpp \
   kernel/context.cpp \
   mapport.cpp \
+  mempool_args.cpp \
   net.cpp \
   netgroup.cpp \
   net_processing.cpp \
