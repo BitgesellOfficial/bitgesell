@@ -10063,6 +10063,1104 @@ pr 2022-02-04 11:39:07 +0100 5c6b3d5b350888b2a5ab93c757205f22601f95a2 Merge bitc
 pr 2022-02-04 13:43:36 +0100 a5edd191be93aff8f9c0f60f04e711e2e78ecc77 Merge bitcoin/bitcoin#22151: build: Follow Transifex docs to prepare XLIFF source
 v  2022-02-04 15:09:09 +0100 80cd64e84296f1166e133c237fa0afc046b01ce2 Re-enable util_datadir check disabled in #20744
 v  2022-02-04 15:10:19 +0100 d216bc8d76d7f4e9dce58b0bb732a2d4deaf23b6 Re-enable walletinit_verify_walletdir_no_trailing2 test disabled in #20744
+v  2022-02-04 15:33:41 +0100 824e1ffa9fd957d05e34f36abe381c2465d89702 bench: Represents paths with fs::path instead of std::string
+ff 2022-02-04 15:47:49 +0100 4382d098964c4eee09505d74eac9e2d05b2945ce Update minisketch subtree to latest upstream
+cr 2022-02-04 15:47:49 +0100 8fcb19fb47ae4629f40cd7ef04b5993855ddb462 Squashed 'src/minisketch/' changes from 89629eb2c7..7eeb778fef
+pr 2022-02-04 16:28:29 +0100 b2a8371913a85701759b5a2d59d46e15f28ba68f Merge bitcoin/bitcoin#24262: upstream: Update minisketch subtree
+v  2022-02-04 16:33:05 +0100 fa086d891b912d30fd4b8748ef4fd816ffad51d7 test: Properly skip feature_syscall_sandbox in valgrind
+v  2022-02-04 16:33:36 +0100 faccb2d7fe3c03f8d9c8a9078d1608948b4f62b0 test: Exclude broken feature_init for now
+cr 2022-02-04 16:35:15 +0100 fa4b61911d54840e9a24bfcabafec159f013ee9a test: Remove unused valgrind suppressions
+cr 2022-02-04 17:03:31 +0100 42c202893b879d1bda54624d44c90b28143fc167 doc: Fix gen-manpages, rewrite in Python
+v  2022-02-04 17:03:31 +0100 87f54060ffffdb56c97594efdca378bace5323df doc: Swap gen-manpages and update RC steps in release process
+pr 2022-02-05 03:58:35 +0100 372cb6c18642e2f2c9c2c7215c1f8c3af7d638f6 Merge bitcoin/bitcoin#24252: bench: Represent paths with fs::path instead of std::string
+v  2022-02-05 11:48:21 +0100 d570f26e173391fb63ced03773edbffae22b77af Add bitcoin_config.h to build_msvc/.gitignore
+pr 2022-02-05 12:47:53 +0100 b23e0379610dde49e18c7e3e66edd23ebbcdcb45 Merge bitcoin/bitcoin#24268: Add bitcoin_config.h to build_msvc/.gitignore
+pr 2022-02-05 13:02:41 +0100 1e7564eca8a688f39c75540877ec3bdfdde766b1 Merge bitcoin/bitcoin#24251: Re-enable windows path tests disabled by #20744
+v  2022-02-05 17:32:39 +0100 b9c113af754540341d9529532fbadb7525168102 util: Avoid buggy std::filesystem:::create_directories() call
+v  2022-02-05 22:53:37 +0100 e22d10b936eb7563b2b6611332d9e4c73a2f59d4 ci: Switch from bionic to buster
+cr 2022-02-05 22:53:46 +0100 956f7322f60db7b8be551c9074b4c633e514079d build: Bump minimum Qt version to 5.11.3
+cr 2022-02-06 12:15:00 +0100 4bb7821ab243325467a89ff8ffc1bed290f2cb58 build, refactor: Use conventional version notation for boost package
+v  2022-02-06 12:19:35 +0100 edc9a6afdc6926b40de2fed897b9b866d58f28d2 build, refactor: Reuse expat package version in its download path
+cr 2022-02-06 12:34:49 +0100 a5f67b4ca809666661b9dfc773806523e487ea66 build: Fix `make deploy` for Windows when building out of source tree
+v  2022-02-07 07:24:42 +0100 bac30e85f384ced16ab81eca755d81cc0a72d00b docs: Move explanation of hardened key syntax closer to KEY section
+pr 2022-02-07 09:26:35 +0100 5034b7fa3b97c1cbaf93b337d462777f3e25d256 Merge bitcoin/bitcoin#24217: Fix unsigned integer overflow in tapscript validation weight calculation
+cr 2022-02-07 12:13:30 +0100 e644591426fb4ee1bba5c4bfdde85eb378258272 build, refactor: Drop useless `call` Make function
+pr 2022-02-07 14:03:56 +0100 fa65f26f4dd6135abb88410023f5ada753d5b257 Merge bitcoin/bitcoin#24237: test: Avoid testing negative block heights
+pr 2022-02-07 14:06:33 +0100 f7a36477a61b3719859ee4bb0795821c2aa6bd16 Merge bitcoin/bitcoin#24227: Fix unsigned integer overflow in LoadMempool
+v  2022-02-07 15:20:36 +0100 fac62056b56e0a28baf0b6f285752d83fbf96074 Fix integer sanitizer suppressions in validation.cpp
+cr 2022-02-07 15:35:43 +0100 d1fab9d5d27a2db2546db0f610e0f6929ec4864e test: Call ceildiv helper with integer
+pr 2022-02-07 16:57:50 +0100 9392e1350cd8091677d728c72dd2ea842604227b Merge bitcoin/bitcoin#24195: test: Fix failfast option for functional test runner
+pr 2022-02-07 17:08:26 +0100 eca694a4e78d54ce4e29b388b3e81b06e55c2293 Merge bitcoin/bitcoin#24239: test: fix ceildiv division by using integers
+v  2022-02-08 10:16:51 +0100 d644c45e39c45118df86692f9365d25dbba49461 build, refactor: Drop redundant `$(package)_download_file` assignments
+pr 2022-02-08 14:19:49 +0100 87b5b002ad1d4182a4e0ffb1225c843324b25866 Merge bitcoin/bitcoin#24259: test: Remove unused valgrind suppressions
+pr 2022-02-08 14:46:15 +0100 8afcc89a8f96692dd880b6102c9a85fac18b9021 Merge bitcoin/bitcoin#24282: docs: Move explanation of hardened key syntax closer to KEY section
+cr 2022-02-08 15:19:12 +0100 c3ca8364b2a8de8c73ecc0c7eed9608bd30e7e02 qt, refactor: Replace BitcoinGUI::macosDockIconActivated with a lambda
+cr 2022-02-08 15:21:45 +0100 66afa286e519deda2fcfd580f190b7af13407e72 qt, refactor: Replace BitcoinGUI::trayIconActivated with a lambda
+pr 2022-02-08 15:46:34 +0100 8edb0416dd4a13f6fae0c7f2f2061dd6f9365a0e Merge bitcoin/bitcoin#24266: util: Avoid buggy std::filesystem:::create_directories() call
+pr 2022-02-08 15:53:49 +0100 280a7777d3a368101d667a80ebc536e95abb2f8c Merge bitcoin/bitcoin#24235: validation: use stronger EXCLUSIVE_LOCKS_REQUIRED()
+v  2022-02-08 17:41:29 +0100 78189daac8d13870ab6ed8421b9ed067cf7ebac5 qt, refactor: Fill up trayIconMenu before connections
+cr 2022-02-08 17:41:41 +0100 ee151d032789fa03daa44ab44dd0fd70e51b145c qt: Drop BitcoinGUI::toggleHideAction member
+cr 2022-02-08 17:41:41 +0100 fd667e73cd109bbfc14011f8c2c08556648b4c50 qt: Make show_hide_action dependent on the main window actual state
+cr 2022-02-08 17:41:42 +0100 58e16035c1fc513fce0b09e02c7d863c63ec990d qt, refactor: Drop BitcoinGUI::{send,receive}CoinsMenuAction members
+v  2022-02-08 20:18:10 +0100 fab8cd5f8764883dc48695c0e0916bae42f1cfdc Revert "ci: Run fuzzer task for the master branch only"
+cr 2022-02-08 20:23:21 +0100 fa27745ccbdf8df7949a2e79dba18de49dc89169 ci: Bump fuzz tasks to jammy
+pr 2022-02-09 05:23:44 +0100 b7942c94824e4e06489417ee587d1f3ac631fce0 Merge bitcoin-core/gui#404: Fix various edge case bugs in QValidatedLineEdit
+pr 2022-02-09 08:30:38 +0100 8ac79973f8e923e9f1f560f4909b912ccea34035 Merge bitcoin/bitcoin#24196: Fix integer sanitizer suppressions in validation.cpp
+v  2022-02-09 08:38:48 +0100 8e9699cb10db9cce9f03675c4a5b625ff2f34fd0 Update doc to match new default wallet type
+pr 2022-02-09 12:59:43 +0100 6ac637f97f0ccdf0c6ab8565f68d37aeffe62090 Merge bitcoin/bitcoin#24288: build, refactor: Drop redundant `$(package)_download_file` assignments
+v  2022-02-09 13:24:55 +0100 fac9fe5d051264fcd16e8e36d30f28c05c999837 Fix unintended unsigned integer overflow in strencodings
+v  2022-02-09 14:38:22 +0100 fa2f7d005932bff9b7d27744ae517b9e7910df8d fuzz: Avoid unsigned integer overflow in FormatParagraph
+v  2022-02-09 15:38:36 +0100 daad0093e3d1466789d0ce687902636c80cd74a1 validation: replace lock with annotation in UnloadBlockIndex()
+pr 2022-02-09 16:04:43 +0100 5e8e0b3d7f6055e326bda61e60712b530e8920f0 Merge bitcoin/bitcoin#24253: Remove broken and unused CDataStream methods
+v  2022-02-09 17:20:22 +0100 fab02f799194c75af7def3a2ab45c443b75de230 streams: Fix read-past-the-end and integer overflows
+cr 2022-02-09 17:21:01 +0100 fa56c79df91e5d87533af38b64f4f4148a48a276 Make CDataStream work properly on 64-bit systems
+v  2022-02-09 17:21:04 +0100 fa1b89a6bdbab50bdb0504782afd4bb3375d1b57 scripted-diff: Rename nReadPos to m_read_pos in streams.h
+v  2022-02-09 18:04:54 +0100 ae9ceed3e23288b163b7d7b1840b06b8d332f4ce validation, refactoring: remove ChainstateManager::Reset()
+v  2022-02-09 18:31:16 +0100 540ca5111f7dc91a9808e41ccb4446d8dc0a1bec util: Add ArgsManager::GetPathArg() function
+v  2022-02-09 18:31:22 +0100 15b632bf169f6272ca90faba8d8036e3e822542f Use ArgsManager::GetPathArg() for "-datadir" option
+v  2022-02-09 18:31:23 +0100 06fed4c21ec64cd224231d15cbbeb985b8fba5f2 Use ArgsManager::GetPathArg() for "-blocksdir" option
+v  2022-02-09 18:31:23 +0100 ecd094e2b1e1eb7dba24dafef3640a9b6cc55f82 Use ArgsManager::GetPathArg() for "-walletdir" option
+v  2022-02-09 18:33:24 +0100 ebda2b8c819d989327c6b3e29237dfb43628e647 util: Drop no longer needed StripRedundantLastElementsOfPath() function
+v  2022-02-09 19:13:49 +0100 37af8a20cf39ed8ee4b3ba4e1d8d55178eaacb78 Add missing thread safety lock assertions in validation.cpp
+v  2022-02-09 19:13:50 +0100 f485a0745455b46390f1c14260643ad69c8fe2ad Add missing thread safety lock assertions in validation.h
+v  2022-02-09 21:26:25 +0100 fa2807ef19307e42676928ebbec6e43d7235e2d8 test: Remove unused integer sanitizer suppressions
+pr 2022-02-09 22:41:36 +0100 8c0f02c69d50761c3a6d4dfb5d7cba43a00a55ae Merge bitcoin/bitcoin#24265: Drop StripRedundantLastElementsOfPath() function
+pr 2022-02-10 01:15:19 +0100 2d596bce6fefeff6033b21b391e81f1dda846937 doc: add wtxid info in release-notes
+v  2022-02-10 01:15:24 +0100 7abd8b21ba34f6a42db2cd2d59a4c0e08561f609 doc: include wtxid in TransactionDescriptionString
+v  2022-02-10 02:23:47 +0100 b75f4c89ec4d33a3014ccd5151964881b5e0aa1c RPC: Return external_signer in getwalletinfo
+pr 2022-02-10 08:14:24 +0100 3dc0bb95520edcfe1a074cd2745bc1705bec0699 Merge bitcoin/bitcoin#24298: fuzz: Avoid unsigned integer overflow in FormatParagraph
+pr 2022-02-10 08:15:37 +0100 8796c2f5688d87be6580e28d7f5d1a235c338e6d Merge bitcoin/bitcoin#24302: test: Remove unused integer sanitizer suppressions
+pr 2022-02-10 08:17:32 +0100 243a9c39250dee95b6fe62ac5ae2f8e3eafecf1b Merge bitcoin/bitcoin#24297: Fix unintended unsigned integer overflow in strencodings
+v  2022-02-10 09:16:05 +0100 ee822d85d6de7db85416190cf843ad74147519cf util: use stronger-guarantee rename method
+v  2022-02-10 09:51:48 +0100 34d0e07e929c9dd12727d77896cc47f7ac4be680 Test that OP_1-OP_16 (but not lower/higher) start witness programs
+pr 2022-02-10 10:00:51 +0100 a7e80449c0811b361cdaea39b6bab78ca5fbf668 Merge bitcoin/bitcoin#24238: random: use arc4random on OpenBSD
+cr 2022-02-10 13:33:02 +0100 75ae39eeec22e56c92f1241ff2ae87ad9a974625 build: add a default build tar in depends
+v  2022-02-10 13:33:10 +0100 471d15536f12889077578884fca33d1b0930fd66 build: add support for OpenBSD to depends
+v  2022-02-11 05:50:16 +0100 ddcac22f092de6f3a2a67acb3288a990fd13cb01 doc: cleanup doc on need of Developer Account to obtain macOS SDK
+pr 2022-02-11 09:39:54 +0100 5f7f2f7ffad18cb66a21f2dbddcd6a1194a2fae1 Merge bitcoin/bitcoin#24241: doc: cleanup doc on need of Developer Account to obtain macOS SDK
+v  2022-02-11 12:52:22 +0100 c49e7db8ae771ab97f24e0bf74359ee474a17ddc ci: Follow Cirrus CI docs
+pr 2022-02-11 13:21:01 +0100 bcecde64b4ad7bb8e717d5709af8fd17532755ab Merge bitcoin/bitcoin#24316: ci: Rename Cirrus CI osx_instance to macos_instance
+cr 2022-02-11 15:21:49 +0100 97208634b96f2d9a55f2ead7b0ef407da729d7bd net: open p2p connections to nodes that listen on non-default ports
+v  2022-02-11 15:21:50 +0100 2e38a0e6865187d1f0d0f016d3df7cce414a7c4f net: add CServiceHash constructor so the caller can provide the salts
+v  2022-02-11 15:21:51 +0100 d0abce9a50dd4f507e3a30348eabffb7552471d5 net: include the port when deciding a relay destination
+v  2022-02-11 15:21:52 +0100 36ee76d1afbb278500fc8aa01606ec933b52c17d net: remove unused CNetAddr::GetHash()
+pr 2022-02-11 16:41:25 +0100 b79c40b057ec39045d0036d978b3c01a5cf9f712 Merge bitcoin/bitcoin#24308: util: use stronger-guarantee rename method
+v  2022-02-11 17:21:44 +0100 fa6065661a86656a29e89ed1a3529cb7103f5394 refactor: Avoid unsigned integer overflow in core_write
+pr 2022-02-11 18:20:22 +0100 2d7ea201fc17ebf2cc65778e4adaa71a4e221fe3 Merge bitcoin/bitcoin#24307: RPC: Return external_signer in getwalletinfo
+pr 2022-02-11 22:18:53 +0100 3bb93940703e9d0f4bffda98f4fe22fb1487db34 Merge bitcoin/bitcoin#23998: build: support OpenBSD in depends
+pr 2022-02-12 14:09:45 +0100 b6b7815ddcff53177bb1f6318b39a4134cf42cb1 Merge bitcoin/bitcoin#24277: build: Fix `make deploy` for Windows when building out of source tree
+v  2022-02-12 15:04:57 +0100 e7fc50681e99e3c726db2bc4d3d425ed8a0fc6b3 qt: Override BitcoinApplication::event() to handle QEvent::Quit
+v  2022-02-12 22:00:31 +0100 92427354dd5f80cb5c042e7afbcd386968161be4 qt, refactor: Use local QAction instances for the tray icon menu
+v  2022-02-12 22:00:44 +0100 8c0eb80f41bca7b08c94de0f08692fac23e3e9f0 qt: Disable tray icon menu when a modal dialog is active
+v  2022-02-12 22:00:45 +0100 5d7666b15164a16aaf3af49af8f73ff4bd392f6a qt: Revert 7fa91e831227e556bd8a7ae3da64bd59d4f30d5f partially
+cr 2022-02-12 22:00:45 +0100 89c277a6fca1149f10f8b55874c702c341679765 qt: Delay shutdown while a modal dialog is active
+v  2022-02-12 22:00:45 +0100 f730bd7d580502ae3c3b5953ada3724b59f5cd9b scripted-diff: Rename ShowModalDialogAndDeleteOnClose
+v  2022-02-13 07:02:25 +0100 876b91c3833d388279baeae82e3efcb3d462f2ca release-process: Specify remote name in "git fetch"
+pr 2022-02-13 08:58:09 +0100 b1aa3b1959cab1ad8bb6d0a6a5d05c87c1271cdb Merge bitcoin/bitcoin#24330: doc: release-process: Specify remote name in "git fetch"
+pr 2022-02-13 12:22:36 +0100 25a91a571a4f3453f7e0e9299ee7a40a61d04f19 Merge bitcoin/bitcoin#24276: build, refactor: Improve package version usage
+v  2022-02-13 18:29:31 +0100 7c7dbe43983ea8408ece8e483320ec55083d6c09 improved getcoins.py
+cr 2022-02-13 21:59:02 +0100 39e66e938fb688f5400ad94a1b317fcc2a87bc31 build: use header-only Boost unit test
+cr 2022-02-13 21:59:07 +0100 2037a3b6c1222d2802ff7c8463f2bb79ba8b57d8 build: header-only Boost
+v  2022-02-13 21:59:07 +0100 5d399f9f3df513a0400049238f5ef0ef2352d57e build: remove native B2 package
+pr 2022-02-14 09:12:00 +0100 3eec29ed3aa1c8eb293a7a7a6be356fc014f8813 Merge bitcoin/bitcoin#24180: script: Handle request exception and check svg image in getcoins.py
+pr 2022-02-14 10:08:38 +0100 fd25d3493d6ebde5ef5a68f5d8a27ec4b910ef2f Merge bitcoin/bitcoin#24319: refactor: Avoid unsigned integer overflow in core_write
+cr 2022-02-14 10:17:12 +0100 faef344f84a566436ffe2a277dec2cd6c7e1664b Print enable_fuzz_binary in configure
+pr 2022-02-14 11:04:17 +0100 e0367e84b3f2eb223f970ff164f02a152028c894 Merge bitcoin/bitcoin#24301: build: header-only Boost
+v  2022-02-14 11:04:51 +0100 5ae187f8761f5f85a1ef41d24f75afb7eecf366f [validation] look up transaction by txid
+v  2022-02-14 11:04:51 +0100 77202f0554dcbbbb167d0ed3927cca0bf4609ce8 [doc] package deduplication
+v  2022-02-14 11:04:51 +0100 d35a3cb3968d7584c7d5c42b121a80f34ea656bf [doc] clarify inaccurate comment about replacements paying higher feerate
+pr 2022-02-14 11:17:59 +0100 af0b578041b76bd2f8ad2f69f15bd41cfce794cf Merge bitcoin/bitcoin#24187: Followups for getdeploymentinfo
+pr 2022-02-14 11:40:11 +0100 3ce40e64d4ae9419658555fd1fb250b93f52684a Merge bitcoin/bitcoin#24309: test: test that OP_1-OP_16 (but not lower/higher) start witness programs
+v  2022-02-14 12:48:43 +0100 f11dad22a506e10fbbfbcb6ccf32754bf8e72b72 test: refactor: remove unneeded bytes<->hex conversions in `byte_to_base58`
+v  2022-02-14 14:34:04 +0100 d970a85d335202cc85f6604f794c43af6645673f Move `GetAllOutputTypes` function from `rpc/rawtransaction.cpp` to `rpc/util.{h|cpp}`
+v  2022-02-14 14:59:09 +0100 dbcaba835d04043528874c999e7c729f5c513ee9 build: remove unused include dir from clang package
+v  2022-02-14 14:59:44 +0100 4255b46693591ab930cc3c7f992ccfb6f250db8c build: remove -f from clang cp invocation
+v  2022-02-14 15:56:35 +0100 d4999d40b9bd04dc20111aaaa6ed2d3db1a5caf9 util: Revert back MoveFileExW call for MinGW-w64
+v  2022-02-14 15:56:40 +0100 dc01cbc538765f64326bca30952c83e3862d0d54 test: Add fs_tests/rename unit test
+v  2022-02-14 17:12:34 +0100 fa455975e52db3296a36fde827755cf91321fc2f util: Add missing unlinkat to syscall sandbox
+v  2022-02-14 17:52:23 +0100 7b06ffce9c50110b475c722918c55a14402346a5 build: add NetBSD support to depends
+v  2022-02-14 17:52:26 +0100 bcd36e14f0a2b89445f1436094de40696d6ad76c build: correct depends FreeBSD C{XX}FLAGS
+v  2022-02-14 18:34:00 +0100 abc057c6030b2a0ddab46835a7801054da677781 build: Add Boost.Process usage check
+cr 2022-02-14 20:53:46 +0100 095aa6ca37bf0bd5c5e221bab779978a99b2a34c build: Add example bitcoin-chainstate executable
+cr 2022-02-14 20:54:01 +0100 2c03cec2ff8cdbfd5da92bfb507d218e5c6435b0 ci: Build bitcoin-chainstate
+pr 2022-02-14 21:12:39 +0100 c23bf06492dddacfc0eece3d4dd12cce81496dd0 Merge bitcoin/bitcoin#24115: ARMv8 SHA2 Intrinsics
+pr 2022-02-14 21:17:13 +0100 9011d4d8ae610d75f12a36aabf6c5ea6f97a8840 Merge bitcoin/bitcoin#23955: build: add support for NetBSD in depends
+pr 2022-02-14 21:21:10 +0100 988058defbb654c256c0e48d7489e19975060c5f Merge bitcoin/bitcoin#24254: build: Add Boost.Process usage check
+pr 2022-02-14 21:24:53 +0100 8fe6f5a6fbcd8083d916cb630f35f8f5980d6825 Merge bitcoin/bitcoin#24326: build: minor cleanups to native_clang package
+cr 2022-02-14 22:01:26 +0100 e50a9be1540c769a99fcdc1f7a109a6bf1c7516b Remove outdated comment on CFeeRate
+v  2022-02-14 23:27:33 +0100 460fa8e0d9c1d08b5b5bca3fa02ba2763337aaf1 test: remove `import socket` in test_ipv6_local
+v  2022-02-15 00:02:32 +0100 64645fa3e045ec30a57dbd416fcf66d4755f37c6 Release process: fix broken link to Guix building docs
+v  2022-02-15 00:14:10 +0100 18ad54c3b21804ad540631dd4527cbad6d6ccc75 Bugfix: set x-only flag when inferring pk() inside tr()
+v  2022-02-15 00:48:02 +0100 6f2593dc23565abaa3d176595cba6e07883f512e gui, refactor: use std::chrono for formatDurationStr() helper
+pr 2022-02-15 07:38:57 +0100 1695d6661bf25d82694774011164ddbfbfb51fdd Merge bitcoin-core/gui#509: Respect dialog modality and fix a regression in wallet unlock
+pr 2022-02-15 08:47:21 +0100 6b8e4977b8323b35856ea9f6892cda98c8a2ba58 Merge bitcoin/bitcoin#24342: test: remove `import socket` in test_ipv6_local
+pr 2022-02-15 09:02:57 +0100 493b1156d84377428450632340bfde887ca7a25a Merge bitcoin/bitcoin#24345: doc: Release process: fix broken link to Guix building docs
+pr 2022-02-15 09:26:44 +0100 444b6b342df61f08f958f084aeb9ef3aa81d76d7 Merge bitcoin/bitcoin#24340: util: Add missing unlinkat to syscall sandbox
+pr 2022-02-15 09:30:16 +0100 566df80624b0a4bd77a2184c0a7ca43c514d80cd Merge bitcoin/bitcoin#24336: Print enable_fuzz_binary in configure
+pr 2022-02-15 09:31:58 +0100 7164e00e1bc4e30e69b38a7ba9c557d4fc5d5f87 Merge bitcoin/bitcoin#24324: test: refactor: remove unneeded bytes<->hex conversions in `byte_to_base58`
+v  2022-02-15 11:12:05 +0100 fa8dad0e078c577d740a9667636733957586c035 rpc: Fix implicit-integer-sign-change in verifychain
+v  2022-02-15 12:19:34 +0100 fae3f178238df96554dc2495e040f5580b55408a fuzz: Split script formatting from script fuzz target
+v  2022-02-15 12:27:08 +0100 d4b3483cece9c27d58e4026df35725655ce06cf5 Primitives: Correct CTransaction deserialization docstring
+v  2022-02-15 14:28:31 +0100 7f2f35fe20c7706d547fa22a62521fe926f9c12b build: Fix gcc-cross-x86_64-w64-mingw32-10.3.0 in Guix
+v  2022-02-15 14:29:00 +0100 b3617a99c141d09cdec3b4dc07b6c876edf68bce build: Point Guix to recent commit on the master branch
+cr 2022-02-15 15:29:53 +0100 dc1e7ad7a5713d885f70ccc6c93e7a4c07e76559 Add doc/design/libraries.md
+v  2022-02-15 17:57:25 +0100 4b2e31a7ae630e68735e9c8e32f1df422ef4aff0 Bugfix: make ToPrivateString work with x-only keys
+cr 2022-02-15 19:57:25 +0100 1e8aa02ec5cc2819c67ef40a7573c4b23a4c11cc Merge bitcoin/bitcoin#24117: index: make indices robust against init aborts
+v  2022-02-16 00:34:02 +0100 0683f377e1588758da86368f82efee765f89d890 Add tr() descriptor unit tests
+v  2022-02-16 13:59:20 +0100 1633f5ec8846408182cceb60dc88f022635f4002 util, refactor: Add UNIQUE_NAME helper macro
+v  2022-02-16 14:02:26 +0100 5f213213cb17429353ef7ec3e97b185af06d236f tests: add tests for cross-chain wallet use prevention
+v  2022-02-16 14:02:26 +0100 968765973b5bfde1ee4ad2fb5c19e24bce63ad0e wallet: ensure wallet files are not reused across chains
+cr 2022-02-16 18:38:37 +0100 a4da16fbd43ea1fff344f1602f7a5ace3d4a8a95 Improve -netinfo help based on feedback from users and devs
+v  2022-02-16 19:42:08 +0100 ba4906f951d9f436d9669701fdb3b6e2884121f3 doc: Fix typos
+v  2022-02-17 00:34:37 +0100 38ed58b8503f2809e555036f4e98ff9b40a950c8 index: remove txindex references from base index
+v  2022-02-17 00:36:47 +0100 820c03aff5295fff68a4577aa51667198036e372 index: check muhash is in sync on coinstatsindex launch
+v  2022-02-17 04:53:27 +0100 3d985d4f43b5344f998bcf6db22d02782e647a2a wallet: Don't generate keys when privkeys disabled when upgrading
+pr 2022-02-17 07:58:31 +0100 b304b657828cc47237b8a51fbe638336dc0fa1d3 Merge bitcoin/bitcoin#24359: doc: Fix typos
+pr 2022-02-17 08:01:52 +0100 03c8c6937ee03787c36ce374c50201f85a0a6c61 Merge bitcoin/bitcoin#24177: validation, refactor: add missing thread safety lock assertions
+pr 2022-02-17 11:51:08 +0100 97611921bed83ff4779cf4827bd0e51a321df4b5 Merge bitcoin/bitcoin#24348: build: Fix Guix build for Windows (attempt 2)
+pr 2022-02-17 12:29:41 +0100 df0825046acc7cb496c47666e36af18118beb030 Merge bitcoin/bitcoin#24331: util: Revert back `MoveFileExW` call for MinGW-w64
+v  2022-02-17 12:30:11 +0100 1f46b6e46e1454b91ff7ceb31853bc440952f8eb util: Work around libstdc++ create_directories issue
+v  2022-02-17 12:30:59 +0100 ddb75c2e87a60ed24065bdf0c3bfabf4e058cef1 test: Add fs_tests/create_directories unit test
+v  2022-02-17 12:33:30 +0100 b223c3c21e89f6af76b5401413880923f7c444d6 test: Add functional test for symlinked blocks directory
+v  2022-02-17 12:59:30 +0100 e670edd43441ecb6e5978d65348501c57d856030 User-facing content fixups from transifex translator feedback
+v  2022-02-17 13:10:11 +0100 c26a0a5af76bed9c2eb65f1a19725508c55299e8 build, qt: Align frameworks with macOS codesign tool requirements
+cr 2022-02-17 13:10:17 +0100 1513727e2b38800c694d1204cb454cc6fabc4937 build, qt: (Re-)sign package
+pr 2022-02-17 14:10:13 +0100 922c49a1389531d9fba30168257c466bd413f625 Merge bitcoin/bitcoin#23819: ConnectBlock: don't serialize block hash twice
+v  2022-02-17 15:01:43 +0100 6c4fd36089d016447c8199d752a328979f0d56d5 util: Add missing rseq to syscall sandbox
+v  2022-02-17 17:25:57 +0100 9999f891d1c9093e552492cf8ccc3168370c7a39 bench: Avoid deprecated use of volatile +=
+pr 2022-02-17 17:29:10 +0100 003523d239aa41533482313aa3fd97c00641d69e Merge bitcoin/bitcoin#24338: util: Work around libstdc++ create_directories issue
+pr 2022-02-17 17:48:44 +0100 edc0d327f1a07a00274066162871cc90f1220522 Merge bitcoin/bitcoin#24349: fuzz: Split script formatting from script fuzz target
+v  2022-02-17 22:28:15 +0100 3f863cfff1ec902454d64f82b12eb09bdb1eee04 contrib: refactor: simplify block header string routine in linearize-data.py
+cr 2022-02-17 22:38:10 +0100 254a63e097def1bf7e157c72ea9e4fff1eeb7a28 contrib: refactor: replace `hex_switchEndian` in linearize scripts
+pr 2022-02-17 23:06:05 +0100 3a618c1e3b793b387a9d38ffe1498883cd4be35c Merge bitcoin/bitcoin#24281: docs: Update to match new default wallet type
+cr 2022-02-18 06:29:06 +0100 0db3ad3ba41a76dff80bcb5f292e587da400ebf1 Mention -signet in bitcoin-wallet help output
+v  2022-02-18 06:30:05 +0100 62cc138ecb9cc7afcbe6fdb42b060a8f149826de Rename wallet-tool to bitcoin-wallet in code comment
+pr 2022-02-18 07:32:06 +0100 66636ca438cb65fb18bcaa4540856cef0cee2029 Merge bitcoin/bitcoin#24360: doc: improve -netinfo help based on feedback from users and devs
+v  2022-02-18 13:12:57 +0100 5d7f22595ff2de9b9883e468e3ce7182fc3f183b Do not use `LocalTestingSetup` in getarg_tests test file.
+v  2022-02-18 15:07:55 +0100 54d817c5b9f6adbcd19d24ce9bee6751b9cd0fd2 ci: remove boost_cxxflags from MSAN CIs
+v  2022-02-18 15:10:59 +0100 7e02adf78d8a5816ec1490d0528a625d149b7d1e ci: add missing sqlite_cflags to MSAN fuzz job
+v  2022-02-18 15:27:08 +0100 fad7ddf9e3710405d727f61d8200d5efed1e705b test: Run symlink regression tests on Windows
+v  2022-02-18 16:13:09 +0100 07dcf1a76e34a6f7c919e7d5c57fa61caea6007b build: remove boost dep from libmultiprocess
+v  2022-02-18 16:18:52 +0100 799968e8b38833dc7fd7b6d488a66a14580ef674 tracing: misc follow-ups to 22902
+v  2022-02-18 16:19:05 +0100 a1515cdd9683942d733ff509b785cb3ca73c7a30 ci: use Ubuntu Jammy for Windows CI
+pr 2022-02-18 17:47:58 +0100 5d254a234d8c1569b0161264cc6d5d8d0ce0d864 Merge bitcoin/bitcoin#24384: ci: remove `boost_cxxflags` from MSAN CIs
+pr 2022-02-19 09:35:10 +0100 a6c3da131c855650e8888a9403776cfda0d0ee2e Merge bitcoin/bitcoin#24350: Primitives: Correct CTransaction deserialization docstring
+pr 2022-02-19 11:22:09 +0100 28aa0e3ca0a6cfeb5b2b63929d4bc58de6ee6f02 Merge bitcoin/bitcoin#24385: build: remove boost dep from libmultiprocess
+v  2022-02-19 11:39:43 +0100 a84650ebd5ac2cbb49f14eb7c98736a3f8215bf1 util: Fix ReadBinaryFile reading beyond maxsize
+v  2022-02-19 11:40:00 +0100 81738d2881253f28b69666ada2a01ebb353f503a test: Remove suppression no longer needed with headers-only Boost.Test
+pr 2022-02-19 20:54:20 +0100 98b9d607a8c235bb44efc8d205d0bfba3bd2a3ab Merge bitcoin/bitcoin#24390: test: Remove suppression no longer needed with headers-only Boost.Test
+pr 2022-02-20 12:27:54 +0100 2b0735d183111a4e40c0d188bc91d0539faca5b7 Merge bitcoin/bitcoin#23907: tracing: utxocache tracepoints follow up for #22902
+pr 2022-02-20 12:29:29 +0100 ffcbaf569eaad68049852fcb349e2e5021412616 Merge bitcoin/bitcoin#24369: util: Add missing rseq to syscall sandbox
+pr 2022-02-20 12:30:42 +0100 5f44c5c428b696af4214b2519cb2bbeb0e4a1027 Merge bitcoin/bitcoin#24133: index: Improve robustness of coinstatsindex at restart
+cr 2022-02-20 14:59:08 +0100 c934087b627f7d368458781944f990b0eb479634 test: checks for tracepoint tests
+v  2022-02-20 14:59:12 +0100 34b27bac684f2f373c5e1d90697d6bc8a014f45a test: net:in/out_message tracepoint tests
+v  2022-02-20 14:59:13 +0100 260e28ece87ba2e732ff8d8a379c4b27e77e3c0d test: utxocache:* tracepoint tests
+v  2022-02-20 14:59:15 +0100 76c60d7b31ccc50b226cdbc5e38be0bd67603408 test: validation:block_connected tracepoint test
+v  2022-02-20 16:38:57 +0100 2199ef79cba865af7949c3a55938ad54519ca5b8 build: Fix a non-portable use of `test`
+v  2022-02-20 16:38:57 +0100 d436c488d4216298016b09f8f97e10eada489bda build, refactor: Replace tabs with spaces
+v  2022-02-20 20:04:23 +0100 7f3a6a9495fafbf77f221297615fa56dc3ecc64a wallet: Add external-signer-support specific error message
+pr 2022-02-21 07:52:57 +0100 7cc39b1838792d92a169c38a3bb676c8c43e165f Merge bitcoin/bitcoin#24347: rpc: Fix implicit-integer-sign-change in verifychain
+pr 2022-02-21 07:55:36 +0100 3de5fcc94fcdf3b2b597399809c92065c1997fcf Merge bitcoin/bitcoin#24296: ci: use Ubuntu Jammy for Windows cross-compilation CI
+pr 2022-02-21 08:09:18 +0100 abaf943477ada2c78ed99b5208287d9959a43769 Merge bitcoin/bitcoin#24231: streams: Fix read-past-the-end and integer overflows
+pr 2022-02-21 08:14:44 +0100 4acf2332d49dd9ef3fcde2480e2342134b53d688 Merge bitcoin/bitcoin#24376: doc: bitcoin-wallet fixes (help output and code comment)
+pr 2022-02-21 08:16:31 +0100 cf22191fd8cf7fae22e561e14b3a68e49e39b15c Merge bitcoin/bitcoin#24072: doc: fix wording of alertnotify to match behaviour
+v  2022-02-21 10:29:37 +0100 fa462ea787d124c56d6ba7ef79a9b5b23f0411c5 Avoid implicit-integer-sign-change in VerifyLoadedChainstate
+v  2022-02-21 10:39:41 +0100 fa7991601c93761bc12ef33b672a927d48a95569 Fixup style of VerifyDB
+cr 2022-02-21 11:02:20 +0100 fa30e62cc609ff29f0acaa5047d3f437cb04a67b doc: Rework generate* doc
+pr 2022-02-21 11:16:42 +0100 72f97289c431d333bb7484f88c1b8b508d45c01d Merge bitcoin/bitcoin#24343: Add descriptor_tests covering tr(), and fix minor bugs
+cr 2022-02-21 12:56:43 +0100 c821ab8be8dffb749853c05e05cb515c11e6328a Use `GetAllOutputTypes` in `getblock` RPC function
+pr 2022-02-21 13:19:11 +0100 85ae549a46872323f20baf2cfd83422453648974 Merge bitcoin/bitcoin#24137: doc: Rework generate* doc
+pr 2022-02-21 13:58:09 +0100 1337b93f50d9874fa3bce7c0b5bb141aad9b1c49 Merge bitcoin/bitcoin#24339: rpc: Improve RPC help by explicitly mentioning output types
+pr 2022-02-21 14:12:36 +0100 2ab4fbe375571fb8f102c35841e6dc9fb670d5b7 Merge bitcoin/bitcoin#24292: Revert "ci: Run fuzzer task for the master branch only"
+v  2022-02-21 14:16:34 +0100 7c975614c0fc6ff2084a1708a4c1f0368a4bc98f rpc: describe quality/recency filtering in getnodeaddresses
+v  2022-02-21 14:16:48 +0100 ce690847b69eb80b0232f818152dbb1db7c4c61a cli: describe quality/recency filtering in -addrinfo
+v  2022-02-21 14:32:53 +0100 faa7d8a3f7cba02eca7e247108a6b98ea9daf373 util: Add SaturatingAdd helper
+v  2022-02-21 15:13:03 +0100 ff4a38a32766942ce5c4be6d6510f800a9f8e0d9 build: Fix configuring depends with cmake
+pr 2022-02-21 15:17:40 +0100 bd6b1d023878178b317e559b97d7695246374bb1 Merge bitcoin/bitcoin#24263: doc: Fix gen-manpages, rewrite in Python
+pr 2022-02-21 15:51:15 +0100 e44423c9d364eba9199b7097eeb20b0dfa91284e Merge bitcoin/bitcoin#24224: util: Add SaturatingAdd helper
+v  2022-02-21 16:36:59 +0100 fafc4eb3637be0a85644c89c355fe68678a62c17 test: Fix Wambiguous-reversed-operator compiler warnings
+pr 2022-02-21 16:44:22 +0100 48a90c61e2269e6de78416001dd28bf3e12d9ebe Merge bitcoin/bitcoin#24370: rpc, cli: describe quality/recency filtering in getnodeaddresses and -addrinfo
+v  2022-02-21 17:37:19 +0100 eb6cc05da32c5bde122725a0bc907d3767a791cd index: Commit DB_MUHASH and DB_BEST_BLOCK to disk together
+v  2022-02-21 19:07:29 +0100 48742693acc9de837735674057c9aae2fe90bd1d Replace "can not" with "cannot" in docs, user messages, and tests
+pr 2022-02-22 09:35:15 +0100 00f8492eebfc2882705f6c34e952033f21667cba Merge bitcoin-core/gui#547: Override BitcoinApplication::event() to handle QEvent::Quit
+pr 2022-02-22 10:17:02 +0100 bc49650b7c1240b076849bd805ac10e403764c33 Merge bitcoin/bitcoin#24310: docs / fixups from RBF and packages
+pr 2022-02-22 11:19:38 +0100 e200919cbe243133fd3b6db516263592549175ae Merge bitcoin/bitcoin#24305: Docs: [policy] Remove outdated confusing comment
+v  2022-02-22 12:00:42 +0100 69978858a4d8a9c34070f96133b8f95737a6505b build: Fix Boost.Process check for Boost 1.73 and older
+pr 2022-02-22 13:08:08 +0100 8add59d77dd621be57059229f378822e4b707318 Merge bitcoin/bitcoin#24367: User-facing content and codebase doc fixups from transifex translator feedback
+cr 2022-02-22 13:12:20 +0100 c5158290aff5d5e38d351c4f77340f9b17f44cb4 qt: Update translation source file
+pr 2022-02-22 13:22:54 +0100 c44e734dca64a15fae92255a5d848c04adaad2fa Merge bitcoin/bitcoin#24377: qt: Update translation source file
+cr 2022-02-22 13:27:30 +0100 774323e378acea998069980edf50e1a26f4b6b9e ci: Force `--enable-external-signer` to prevent future regressions
+v  2022-02-22 14:25:51 +0100 52a797bfe5ced4329f2272be417c35730ec8839f doc: Avoid ADL for function calls
+cr 2022-02-22 15:04:46 +0100 9f27157894ee689736d0d0936d1af1620fd8f7d8 contrib: make-seeds updates for 23.x
+cr 2022-02-22 15:15:27 +0100 d80dc12097ee2f16e3edfcf39363cc4d240e5c57 net: Update hardcoded seeds for 23.x
+cr 2022-02-22 16:36:19 +0100 2618fb8d15d01dca967856c92ebf3e4cc09699a2 Output license info when binaries are passed -version
+cr 2022-02-22 16:36:19 +0100 4c3e3c57463b029d335e685d3dcdaf26456666cf refactor: shift CopyrightHolders() and LicenseInfo() to clientversion.cpp
+v  2022-02-22 16:36:19 +0100 5a89bed410d724360b8f90bd9d7d28d6e62331c0 contrib: address gen-manpages feedback from #24263
+v  2022-02-22 16:37:13 +0100 80e78b6a0479094cae642726f74a17d09b708ddc build: pass win32-dll to LT_INIT()
+v  2022-02-22 16:51:27 +0100 5b8f2484baad451b5c24725bf3387c79213b0695 lint: remove no-longer used exceptions from lint-format-strings.py
+v  2022-02-22 16:53:45 +0100 4bba7ab2ffc3a79acfec48727d3c8b35d8ee3f8f build: upgrade depends Boost to 1.77.0
+cr 2022-02-22 16:53:49 +0100 e97e3ded69ba1341154bbbea0c75bfe6c09c02e0 doc: Update bips.md for 23.x
+cr 2022-02-22 17:34:05 +0100 a35f963edf1a14ee572abea106fb0147575e4694 Add test for getheaders behavior
+v  2022-02-22 17:34:05 +0100 ef6dbe6863d92710fd2da7781e5b2aac87578751 Respond to getheaders if we have sufficient chainwork
+v  2022-02-22 17:52:19 +0100 bec86ae32683ac56b4e6ba9c9b7d21cfbdf4ac03 blockstorage: Make m_block_index own CBlockIndex's
+v  2022-02-22 17:56:49 +0100 531dce034718523967808a89c18ba69a1e3e5a1f tests: Remove now-unnecessary manual Unload's
+v  2022-02-22 17:56:49 +0100 6c23c415613d8b847e6f6a2f872be893da9f4384 refactor: Rewrite AddToBlockIndex with try_emplace
+v  2022-02-22 17:56:49 +0100 c05cf7aa1e1c15089753897a10c14762027d4b99 style: Modernize range-based loops over m_block_index
+v  2022-02-22 17:56:49 +0100 c2a1655799c5d5dab9b14bd2a6b2d2296efd6964 style-only: Use using instead of typedef for BlockMap
+v  2022-02-22 17:56:49 +0100 dd79dad17545424d145e846026518d70da594380 refactor: Rewrite InsertBlockIndex with try_emplace
+v  2022-02-22 18:16:43 +0100 03bc08e16325f43905f6e6f8d5e0ce69aa8a30a4 doc: Mention missing BIP157 in bips.md
+v  2022-02-22 19:52:40 +0100 c7376cc8d728f3a7c40f79bd57e7cef685def723 tests: Test upgrading wallet with privkeys disabled
+v  2022-02-22 20:41:52 +0100 c4d76c6faa3adf06f192649e169ca860ce420d30 tests: Tests for inactive HD chains
+cr 2022-02-22 22:50:30 +0100 0554251d660caa1c3f5f44ae1d9fa3c23d2aac18 qt: Skip displayUnitChanged signal if unit is not actually changed
+cr 2022-02-22 22:50:30 +0100 0e5dedbc9eb54105ab9b0c4ce1f57afa55bcb5b6 qt/wallettests: sort includes
+cr 2022-02-22 22:50:30 +0100 152d5bad50f145af922011f6ec1fd9afd9076ceb qt, refactor: Remove BitcoinUnits::valid function
+cr 2022-02-22 22:50:30 +0100 75832fdc37ea3fe9cf515bd1946e220fe07a440b qt: Use QVariant instead of int for BitcoinUnit in QSettings
+cr 2022-02-22 22:50:30 +0100 aa23960fdf1deff321ecea435026c87db78498fb qt, refactor: Make BitcoinUnits::Unit a scoped enum
+cr 2022-02-22 22:50:30 +0100 ffbc2fe459034024cb2fce9fd94bff457b7a7d49 qt, refactor: Remove default cases for scoped enum
+v  2022-02-23 00:12:01 +0100 0c64401324b03f5576149bf27138cdb103dae934 Revert "qt: Do not use QObject::tr plural syntax for numbers with a unit symbol"
+pr 2022-02-23 09:06:00 +0100 f062abe5293b94ee4816491fe6caab23dbff41ba Merge bitcoin/bitcoin#24419: lint: remove no-longer used exceptions from lint-format-strings.py
+v  2022-02-23 09:34:20 +0100 fa7e1471c0dcd6770a724da4a63d433fc9b4cbc1 test: Fix intermittent Tsan issue
+pr 2022-02-23 09:39:42 +0100 3c565302aaa91ae46aa09b8aeb95206711d9d8a6 Merge bitcoin/bitcoin#24409: Always output license/copyright info with `-version`
+v  2022-02-23 10:15:26 +0100 faa1aec26b3f354c832e6b995323c9429b178931 Remove confusing P1008R1 violation in ATMPArgs
+pr 2022-02-23 10:19:55 +0100 b6a2670e29786db8a4555d17c2667bbc4ee08fd7 Merge bitcoin/bitcoin#24420: doc: Update bips.md for 23.x
+v  2022-02-23 10:26:54 +0100 faa329fd46b4d688a5aa728b8b22a8d098987588 refactor: Release cs_main before MaybeSendFeefilter
+v  2022-02-23 11:55:05 +0100 40e871d9b4e55f5b5f7ce2a89157cd3d9f152037 [miner] always assume we can create witness blocks
+pr 2022-02-23 12:19:02 +0100 16d05cf6b9187fc47bab446a533ea140fe32b8e2 Merge bitcoin/bitcoin#24406: test: Fix Wambiguous-reversed-operator compiler warnings
+pr 2022-02-23 12:29:39 +0100 9977e1658c82efc705feb7ab001c371733077bcb Merge bitcoin/bitcoin#24372: bench: Avoid deprecated use of volatile +=
+pr 2022-02-23 12:48:49 +0100 f9b522e50ddb8087a61d1a3212c5a8f9de713b61 Merge bitcoin/bitcoin#24426: test: Fix intermittent Tsan issue
+pr 2022-02-23 15:17:15 +0100 5a8d56680b615a3eaa4496ae636db8f65e719284 Merge bitcoin/bitcoin#24112: build: pass win32-dll to LT_INIT()
+pr 2022-02-23 15:48:55 +0100 358fe779cbb2681666ae5ab23a19662db21a2c46 Merge bitcoin/bitcoin#24381: test: Run symlink regression tests on Windows
+pr 2022-02-23 16:44:43 +0100 077cfffebd1b12ec4e2efb949fd9a79fb5be3748 Merge bitcoin/bitcoin#22546: build, qt: Fix `make deploy` on M1-based macOS with system frameworks
+pr 2022-02-23 18:12:19 +0100 0a76bf848c72211f986a6cc5b1c13de820b861dd Merge bitcoin/bitcoin#24383: build: upgrade depends Boost to 1.77.0
+cr 2022-02-23 19:18:53 +0100 fa2b65b3583e7e7ffa892bf2453720b0d2bd7904 doc: Add link to release-process.md in CONTRIBUTING.md
+v  2022-02-23 19:20:06 +0100 fa0819eea380047c9d7404895d3e4e8ea37930bb doc: Move peer-review paragraph to right section
+pr 2022-02-23 23:19:49 +0100 8d6f9210d90b350a9248f853ed8c559ef5e12505 Merge bitcoin/bitcoin#24401: wallet: Add external-signer-support specific error message
+v  2022-02-24 01:59:38 +0100 ff33c5ae633191df94759a5f3deead43863cd8fd Add missed word to error message
+pr 2022-02-24 12:34:39 +0100 37637bea3a9a48c0d52d68d3f78f154f8249a009 Merge bitcoin/bitcoin#24434: Add missed word to error message
+cr 2022-02-24 12:40:00 +0100 38020c4f2eb6aae05a4745695f718034fb769c1b qt: English (source) translations update
+cr 2022-02-24 12:41:47 +0100 026b5b4523317fdefc69cf5cec55f76f18ad0c0a move-only: helper function to present PSBT
+v  2022-02-24 13:47:47 +0100 fa694f61ab21cb973843e5234a6aeacd4a957e05 doc: Explain that feedback needs to be addressed
+v  2022-02-24 14:06:53 +0100 37282dcf789fac0bcc4c3445ac9deec33797bb93 Update m_assumed_* chain parameters for 23.x
+cr 2022-02-24 15:33:05 +0100 c07287d34cac772693686774b82fad7d352e98e4 Merge bitcoin/bitcoin#24438: qt: English (source) translations update
+v  2022-02-24 16:19:09 +0100 85e71a3baab613eab059c99485bf04c2ab2ce621 Update chainTxData for 23.x
+cr 2022-02-24 16:19:09 +0100 dca693e08e66279c5497cb3d30285ed41ae6983c Update nMinimumChainWork, defaultAssumeValid for 23.x
+pr 2022-02-24 17:42:28 +0100 f1ce67f09fbaba4013443bce416e46e5b2d37c19 Merge bitcoin/bitcoin#19013: test: add v0.20.1, v0.21.0 and v22.0 to backwards compatibility test
+cr 2022-02-24 17:47:53 +0100 045f8d0310d2340aa32db6f7e582dea45950d28a scripted-diff: rename nDepth -> depth
+v  2022-02-24 17:47:53 +0100 ad6adedb46e25870bcdabeca93c51c3ac2a33de7 qt, refactor: remove unused parameters in `TransactionDesc::FormatTxStatus()`
+cr 2022-02-24 17:47:53 +0100 b1bc1431db1e86eefaf4a91e08663628d94656fc qt, refactor: remove redundant scope in `TransactionDesc::FormatTxStatus()`
+v  2022-02-25 01:53:10 +0100 d41ed3215355582879c8eb6c99c2da33852f6cb1 p2p: Avoid InitError when downgrading peers.dat
+pr 2022-02-25 08:45:11 +0100 b00b60ed4f27066656e45635f1386e6b1550c6ed Merge bitcoin/bitcoin#24201: p2p: Avoid InitError when downgrading peers.dat
+v  2022-02-25 09:41:05 +0100 fae6b26758fff0dd52a9f4f37bb8325907a48589 test: Remove no longer needed suppressions
+v  2022-02-25 09:43:54 +0100 aaaa4dbab4ec06d69645de919810ccd0da836a0e Avoid implicit-integer-sign-change in bech32.cpp
+v  2022-02-25 12:46:26 +0100 3fadafd0db0adb995cf3a462caca1e336ebdc1ee doc: update maintainer list in REVIEWERS
+pr 2022-02-25 12:50:10 +0100 0dc1002c30124a67a3146e10b16dd1d391445066 Merge bitcoin/bitcoin#24433: doc: Explain that feedback needs to be addressed
+pr 2022-02-25 13:31:37 +0100 07e1464fc9b300f9aa6432a392769dc990f8f27d Merge bitcoin/bitcoin#24440: doc: update maintainer list in REVIEWERS
+pr 2022-02-25 14:08:29 +0100 ee8c99712561bfbe823d9cd787a421b5424a75d9 Merge bitcoin/bitcoin#24402: refactor: Avoid implicit-integer-sign-change in bech32.cpp
+v  2022-02-25 14:16:32 +0100 fa097d074bc1afcc2a52976796bb618f7c6a68b3 addrman: Log too low compat value
+v  2022-02-25 17:09:37 +0100 bbbbeaf9c87030eb6b033b6a22002ca8d6635d51 fuzz: Limit script_format to 100kB
+cr 2022-02-25 22:06:27 +0100 691d45fdc83ec14f87a400f548553168ac70263f Add coinstatsindex_unclean_shutdown test
+v  2022-02-27 23:03:35 +0100 fc471814dc34abb4d5479803ebb1033b572eda43 fuzz: FuzzedFileProvider::write should not return negative value
+pr 2022-02-28 08:34:30 +0100 292a841553c0acc5c9d74eb8795a82862ee8729e Merge bitcoin/bitcoin#24449: fuzz: FuzzedFileProvider::write should not return negative value
+pr 2022-02-28 12:09:41 +0100 40ab879f11d3ce5eba86a7f36b059fe721702b80 Merge bitcoin/bitcoin#24418: Chainparams update for 23.x
+pr 2022-02-28 12:20:51 +0100 b71a07778fac3153f8163cfd0a01ffdf2415095e Merge bitcoin/bitcoin#24417: net: Update hardcoded seeds for 23.x
+pr 2022-02-28 12:33:32 +0100 c7da61dcc37411f7d6dc848cef1ae997703bd37b Merge bitcoin/bitcoin#24403: Avoid implicit-integer-sign-change in VerifyLoadedChainstate
+pr 2022-02-28 13:15:11 +0100 159f89c118645c0f9e23e453f01cede84abac795 Merge bitcoin/bitcoin#24365: wallet: Don't generate keys for wallets with private keys disabled during upgradewallet
+pr 2022-02-28 14:06:16 +0100 25290071c434638e2719a99784572deef44542ad Merge bitcoin/bitcoin#24397: build: Fix Boost.Process check for Boost 1.73 and older
+cr 2022-02-28 16:59:56 +0100 b67ef6d59b832035aae85f8f59ca27bcbc8bc531 qt: Pre-branch translation updates for 23.x
+v  2022-03-01 00:27:38 +0100 9d5e693c9de57ec9ef7e96cdd2f47fdc45431748 Bugfix: doc: Correct type of change_address/changeAddress in wallet RPC help (STR, not STR_HEX)
+v  2022-03-01 00:28:22 +0100 e8272024ab6ed0817fe5027d8d800acbb87bc9ff doc: Use human-friendly DefaultHint for change_address/changeAddress in wallet RPC help
+pr 2022-03-01 14:48:24 +0100 024b8e12a54c677d87fdb2cc4be7b8ec9900584d Merge bitcoin/bitcoin#24451: qt: Pre-branch translation updates for 23.x
+pr 2022-03-01 18:32:01 +0100 848b11615b67a3c49f76ebbcaa241a322d8014d8 Merge bitcoin/bitcoin#22834: net: respect -onlynet= when making outbound connections
+v  2022-03-01 21:03:18 +0100 2b7a8180a94738c2fcb21232a2eca07a7b27656d net, init: assert each network reachability is true by default
+v  2022-03-01 21:04:58 +0100 bd57dcbaf2b5e5f50833912c894a1f1239ceb25b test: hoist proxy out of 2 network loops in feature_proxy.py
+pr 2022-03-02 09:33:03 +0100 ba11eb354b9f3420ebb8608227062fb639a07496 Merge bitcoin/bitcoin#23542: net: open p2p connections to nodes that listen on non-default ports
+pr 2022-03-02 09:35:07 +0100 267917f5632a99bb51fc3fe516d8308e79d31ed1 Merge bitcoin/bitcoin#23304: wallet: Derive inactive HD chains in additional places
+pr 2022-03-02 12:00:58 +0100 8b6cd42c6226dea28c182a48a214d1c091b9b5bb Merge bitcoin/bitcoin#24165: p2p: extend inbound eviction protection by network to CJDNS peers
+pr 2022-03-02 12:09:27 +0100 08bcfa27675da5c65e4c9eab7e7764eab0599298 Merge bitcoin/bitcoin#24375: Do not use `LocalTestingSetup` in getarg_tests test file.
+cr 2022-03-02 12:09:27 +0100 5b946edd73640c6ecdfb4cbac1d4351e634678dc util, refactor: Use GetPathArg to read "-settings" value
+cr 2022-03-02 12:09:27 +0100 60aa179d8f9a675efa2d78eaadc09e3ba450f50f Use GetPathArg where possible
+v  2022-03-02 12:09:27 +0100 687e655ae2970f2f13aca0267c7de86dc69be763 util: Add GetPathArg default path argument
+cr 2022-03-02 13:18:47 +0100 fa7dada1fc7e389296e2a543a6a67eb07fa3659b build: update ax_cxx_compile_stdcxx to serial 14
+v  2022-03-02 15:24:44 +0100 1b20109b04061304eab84cf921a030300b4f9fe3 Squashed 'src/leveldb/' changes from f8ae182c1e..330dd6235f
+ff 2022-03-02 15:25:48 +0100 fa0c32eb74f448c67d0ff9d91dfdd66e2f1e4c48 build: Minor leveldb subtree update
+cr 2022-03-02 15:40:30 +0100 60da1eaa1113e7318e273144e7ef9c8895d7ed54 timedata: make it possible to reset the state
+cr 2022-03-02 15:40:35 +0100 43868ba416727effd515a471e2a337c3b8cacc37 timedata: rename variables to match the coding style
+v  2022-03-02 15:40:36 +0100 3cb9d9c861710c0cff018bee90b1969193d3ed68 net: make CaptureMessage() mockable
+v  2022-03-02 15:40:36 +0100 f98cdcb3574ee661223e1a09e1762b2cc85fab2f net: pass Span by value to CaptureMessage()
+v  2022-03-02 15:42:37 +0100 0cfc0cd32239d3c08d2121e028b297022450b320 net: fix GetListenPort() to derive the proper port
+v  2022-03-02 15:42:40 +0100 7d64ea4a01920bb55bc6de0de6766712ec792a11 net: only assume all local addresses if listening on any
+pr 2022-03-03 13:49:01 +0100 30308cc380a8176a5ec0e0bd2beed8b9c482ccf7 Merge bitcoin/bitcoin#20196: net: fix GetListenPort() to derive the proper port
+pr 2022-03-03 15:31:15 +0100 d5edb087082a50e6f7d413c3b43fdf1e6a20d29b test: passing invalid -proxy raises expected init error
+v  2022-03-03 15:31:30 +0100 8332e6e4cf45455fea0bf1f7527256cdb7bb1e6d test: passing invalid -onion raises expected init error
+v  2022-03-03 15:31:37 +0100 7000f66d367123d1de303fc15ce2ce60df379c11 test: passing -onlynet=onion without -proxy/-onion raises expected init error
+v  2022-03-03 15:31:44 +0100 58a14795b89a6bd812e0b71cb8b3088b8ab55c11 test: passing -onlynet=onion with -onion=0/-noonion raises expected init error
+v  2022-03-03 16:14:01 +0100 a1db99adea36dbee1ec97ca1851edad12137feea init, doc: improve -onlynet help and tor/i2p documentation
+v  2022-03-03 18:09:56 +0100 9b526727000509dc6ef90f2ce6a9049edebf959c For descriptor pubkey parse errors, include context information
+v  2022-03-03 18:56:45 +0100 e0cb7b371f90e7bd46d2389bdb4c2d544fe5204d build: Bump version to 23.99
+cr 2022-03-03 19:05:37 +0100 727b0cb59259ac63c627b09b503faada1a89bfb8 doc: Clean out release notes
+v  2022-03-03 20:12:07 +0100 2f5fd3cf9225aed439d1de767312bb340972d665 test: Correctly decode UTF-8 literal string paths
+pr 2022-03-03 20:31:36 +0100 619f8a27ad0f6a44f0ad1a1e55a0aaaef7a91312 Merge bitcoin/bitcoin#24304: [kernel 0/n] Introduce `bitcoin-chainstate`
+pr 2022-03-04 10:33:24 +0100 4fae737f4b749b0e2e3cf3fd4dc28db7a1a93b19 Merge bitcoin/bitcoin#24441: fuzz: Limit script_format to 100kB
+pr 2022-03-04 13:28:23 +0100 bada9636d7f2efbc620fd89107baa2bf3e64a6b8 Merge bitcoin/bitcoin#24043: Add (sorted)multi_a descriptor for k-of-n multisig inside tr
+cr 2022-03-04 15:13:21 +0100 fab53b5fd45cf55a1d4d313e46ffce7396c9590e ci/doc: Set minimum required clang/libc++ version to 8.0
+v  2022-03-04 15:13:55 +0100 fae20e6b50306f91c74037e915aa0ab75a0a6b3b Revert "Avoid the use of P0083R3 std::set::merge"
+pr 2022-03-04 16:39:34 +0100 cc70f65d212ba282f862f860622e2a987703f7ac Merge bitcoin/bitcoin#24460: build: update ax_cxx_compile_stdcxx to serial 14
+pr 2022-03-05 17:20:55 +0100 c8f2817bd6b8eb57ba377d7cbc5469c6866822c6 Merge bitcoin-core/gui#549: refactor: use std::chrono for formatDurationStr() helper
+v  2022-03-06 11:18:22 +0100 29862bdd402112a98d5da08cb9909bd427b955ad guix: use same commit for codesigning time-machine
+pr 2022-03-06 13:50:55 +0100 4774b753bb3e69208649dc08637ccc29725ddde3 Merge bitcoin/bitcoin#24484: guix: use same commit for codesigning time-machine
+v  2022-03-06 17:48:26 +0100 77f24aac52288532f2a818e49482b0d4761dff27 gui: improve "Address Relay" translator comments and tooltip in peers tab
+v  2022-03-06 17:49:01 +0100 81ef1f7ef182050efaed7ab40b1b159a8ada3739 gui: improve "Addresses Processed" translator comments and tooltip in peers tab
+v  2022-03-06 17:49:20 +0100 4d2b503d6cbb593cf75cf053fd480de64b3f4fc0 gui: improve "Addresses Rate-Limited" translator comments and tooltip in peers tab
+v  2022-03-06 20:43:16 +0100 8ea6167099ddfe9a42464c3c8ae2acd895329d4f wallet: refactor: dedup sqlite blob binding
+v  2022-03-07 07:51:20 +0100 68c4a9ed3885c26ac1e7a7296ca9693b3f8cde96 ci: Bump vcpkg to the latest version
+pr 2022-03-07 08:47:05 +0100 384866e870b6f50dab6951f1e81e5fda92679510 Merge bitcoin/bitcoin#24427: refactor: Release cs_main before MaybeSendFeefilter
+pr 2022-03-07 10:00:53 +0100 6687bb24ae88c9f48070dbeafc5f00ce7a56d4d8 Merge bitcoin/bitcoin#24306: util: Make ArgsManager::GetPathArg more widely usable
+pr 2022-03-07 10:56:06 +0100 3b08427b58007351cc94ab099123af13ef590e56 Merge bitcoin/bitcoin#24488: ci: Bump vcpkg to the latest version
+v  2022-03-07 11:08:46 +0100 6833aceac97dd170970338f0bde5029f7d7aaa03 build: Move guix time machine to prelude
+pr 2022-03-07 11:42:36 +0100 f6d335e82822ed8f2da56c1bcaddf7f99acd4997 Merge bitcoin/bitcoin#24468: init, doc: improve -onlynet help and related tor/i2p documentation
+v  2022-03-07 12:06:16 +0100 db27ac935480aeec40a1cfc9d5f10a48be55d61b tests: Ensure sorted/multi_a descriptors always generate different addrs
+pr 2022-03-07 12:13:32 +0100 cba41db327a241f992f9329b214d9070888255b8 Merge bitcoin/bitcoin#24299: validation, refactor: UnloadBlockIndex and ChainstateManager::Reset thread safety cleanups
+pr 2022-03-07 12:39:41 +0100 b9894a13083c6ad7085d735c9c514edf3c8e6471 Merge bitcoin/bitcoin#24461: build: Minor leveldb subtree update
+v  2022-03-07 12:51:11 +0100 e4e9dd3a287f134356044f636e189da704de8ed4 contrib: fix implicit function decleration in win symbol check
+pr 2022-03-07 13:15:27 +0100 5e49b2a2529adc737175ebdcbf312635c52b05f6 Merge bitcoin/bitcoin#24050: validation: Give `m_block_index` ownership of `CBlockIndex`s
+pr 2022-03-07 15:50:36 +0100 bda692d246d7a352d4761f850ddbf85d7d95d298 Merge bitcoin/bitcoin#24489: build: Move guix time machine to prelude
+pr 2022-03-07 15:53:23 +0100 c9ed9927bbb7c422c4e01c0c1adc9722b8671009 Merge bitcoin/bitcoin#24132: build: Bump minimum Qt version to 5.11.3
+cr 2022-03-07 16:18:41 +0100 bb12870bac230960bbe2df35f579570e465d8ea4 guix: only use native GCC 7 toolchain for Linux builds
+v  2022-03-07 18:40:17 +0100 31846b006da46852cfce91e53427dc8f871b3fda test: refactor: use `random.sample` for choosing random keys in wallet_taproot.py
+cr 2022-03-07 19:29:46 +0100 5b1aae12ca4a99c6b09349981a4902717a6a5d3e qt: Avoid crash on startup if int specified in settings.json
+cr 2022-03-07 19:29:46 +0100 84b0973e35dae63cd1b60199b481e24d54e58c97 test: Add tests for GetArg methods / settings.json type coercion
+pr 2022-03-08 15:00:40 +0100 64a4483dc6798a9a7d8327d320a17b3c4d7d4ee0 Merge bitcoin/bitcoin#24496: test: refactor: use `random.sample` for choosing random keys in wallet_taproot.py
+pr 2022-03-08 16:48:22 +0100 b07fdd7f9eef5f1498af056f3ef11e44795578c0 Merge bitcoin/bitcoin#24312: addrman: Log too low compat value
+v  2022-03-08 17:09:24 +0100 40894f6771682b242b3f4c8ca2839513cb6f0eed guix: use latest upstream signapple
+v  2022-03-08 17:09:24 +0100 cbc3f63f4184336521b981087840f3f16a1cd11d guix: use latest upstream python-certvalidator
+pr 2022-03-08 20:32:10 +0100 9d22dbe2e15594846b92c629c2d4d972150e2684 Merge bitcoin/bitcoin#24198: wallet, rpc: add wtxid in WalletTxToJSON
+v  2022-03-08 22:12:03 +0100 7a68fe4831787a66986a76306180c7876ecba37f bitcoin-chainstate: Lock cs_main to UnloadBlockIndex
+pr 2022-03-09 10:06:39 +0100 0cc5a19205f8cf915f7e3c894abef46a9ba3b170 Merge bitcoin/bitcoin#24503: guix: use the latest version of signapple
+v  2022-03-09 10:19:36 +0100 e857f0bb55b1cd119f1cface8476dcaddc7b6b2f guix: Drop unneeded openssl dependency for signapple
+pr 2022-03-09 11:16:50 +0100 05e5af5a6c884d2ade3d7acc766ad5380cb85b64 Merge bitcoin/bitcoin#24507: fix CI: bitcoin-chainstate: Lock `cs_main` to `UnloadBlockIndex`
+pr 2022-03-09 11:24:53 +0100 fe5fdbd687db610aa004f0a7299fe326a5a2794a Merge bitcoin/bitcoin#24495: guix: only use native GCC 7 toolchain for Linux builds
+pr 2022-03-09 11:33:03 +0100 aa83bbb1fe4807e3cd018ca3185f14ae2fd5120f Merge bitcoin/bitcoin#24490: tests: Ensure sorted/multi_a descriptors always generate different addrs
+v  2022-03-09 11:35:17 +0100 f1f994a122b135160216b6fc56c095b83eeaf812 doc: Add `guix` prefix for changes to reproducible builds
+pr 2022-03-09 11:43:13 +0100 7003b6ab24f6adfffd71d7b7d4182afde52ff859 Merge bitcoin/bitcoin#24138: index: Commit MuHash and best block together for coinstatsindex
+cr 2022-03-09 16:16:07 +0100 7573789925f6b5c3d73f43d2ebf8c732945c1824 test: check for importprunedfunds RPC errors
+cr 2022-03-09 16:38:24 +0100 0189df1d3171082caf743ef3b0968f43c71303f5 build, mac: Include arch in codesignature tarball
+v  2022-03-09 16:38:24 +0100 6e9308c6d4ed9fbf909c7234ae31245747183be3 guix: use latest signapple
+pr 2022-03-09 16:54:48 +0100 47bbd3ff4f5e0c04da4731c5d26d23d97cfa0bf1 Merge bitcoin/bitcoin#24498: qt: Avoid crash on startup if int specified in settings.json
+pr 2022-03-09 18:57:08 +0100 430acb7d2a3272977d5a66bf9a09bcd55ffd15cc Merge bitcoin/bitcoin#24506: build, mac: Include arch in codesignature tarball
+v  2022-03-09 20:32:47 +0100 5be9ee3c54dcb396ff52fc8c8b7e4e6e39ec4a3b refactor: more const annotations for uses of CBlockIndex*
+v  2022-03-09 20:32:49 +0100 3bbb6fea051f4e19bd2448e401a6c4e9b4cc7a41 style-only: Various blockstorage.cpp cleanups
+v  2022-03-10 08:36:05 +0100 20b6c871178f20661b849ad5677bd8ecae55cf19 build: Specify `zeromq` port explicitly for MSVC builds
+v  2022-03-10 08:36:13 +0100 7ff43e5372c4606ecb75d6892b4bb0ccb4165b80 ci: Invalidate vcpkg binary cache if dependencies changed
+v  2022-03-10 08:36:13 +0100 c3296b21e40be3a5cb7060ceb8f1b6db1fd79e65 build: Drop `double-conversion` from MSVC dependencies
+pr 2022-03-10 10:24:05 +0100 5e33620ad81363d817a0050f29c68e4c3cf594b5 Merge bitcoin/bitcoin#24371: util: Fix `ReadBinaryFile` reading beyond maxsize
+pr 2022-03-10 11:19:44 +0100 05957a888de98aa4b946b62747030d6c77cac488 Merge bitcoin/bitcoin#24516: build, ci: Fix MSVC builds and other improvements
+cr 2022-03-10 11:24:15 +0100 9f1c54787c81177dd56a31c881a9ad2834a122dc Refactoring: move declarations to rest.h
+v  2022-03-10 11:29:09 +0100 c1aad1b3b95b7c6bdf05e0c2095aba2f2db8310b scripted-diff: rename RetFormat to RESTResponseFormat
+v  2022-03-10 12:01:53 +0100 fff771ee864975cee8c831651239bac95503c37a Handle query string when parsing data format
+v  2022-03-10 12:01:54 +0100 a09497614e9bb603fff36286d9611a25b23eeb02 Add GetQueryParameter helper function
+v  2022-03-10 12:14:26 +0100 e8023100be7ab2e32addfff75a133fb429b8492b guix: only check for the macOS SDK once
+pr 2022-03-10 12:30:58 +0100 d1a940f729a7186f055526eddfa84445000d8881 Merge bitcoin/bitcoin#24520: guix: only check for the macOS SDK once
+pr 2022-03-10 12:49:50 +0100 76d44e832f5b9a86c5d37b583825f6ddb6096e7e Merge bitcoin/bitcoin#24469: test: Correctly decode UTF-8 literal string paths
+v  2022-03-10 12:50:34 +0100 5347c9732ff24bfcdcd62d0291972c86c80558dc doc: update multisig-tutorial.md to default wallet type
+cr 2022-03-10 12:56:19 +0100 b7dbc83f23f67048cd6f66f5587381d73fad4894 qt: Remove network detection based on address in BIP21
+cr 2022-03-10 13:05:29 +0100 fa9112aac07dc371bfda437d40eb1b841f36f392 Remove utxo db upgrade code
+v  2022-03-10 13:07:42 +0100 1d4157a42b77411579eb721b5c6fb533a357959d build: Fix Boost.Process detection on macOS arm64
+v  2022-03-10 13:32:02 +0100 61152183ab18960c8b42cf22ff7168762946678e wallet: Add a deprecation warning for newly created legacy wallets
+pr 2022-03-10 13:40:20 +0100 4f5d3ce5a059218ec03cf0b0d12e3e4026dc9939 Merge bitcoin/bitcoin#24486: wallet: refactor: dedup sqlite blob binding
+v  2022-03-10 13:48:21 +0100 3566353c5e8c699f5da80cb3f8081e407f1b5813 ci: remove compiled-but-unused BDB from MSAN job
+pr 2022-03-10 14:57:36 +0100 6c37eae0ad9430c6a7e0c4818b94305f271b19e2 Merge bitcoin/bitcoin#24404: refactor: Remove confusing P1008R1 violation in ATMPArgs
+pr 2022-03-10 15:22:07 +0100 597ee30b5e2361a91e319fed65c0ece4ff30a5c9 Merge bitcoin/bitcoin#24522: ci: remove compiled-but-unused BDB from MSAN job
+v  2022-03-10 15:30:09 +0100 8336a06dbdc772b6ee1581fb88d480842fe604db doc: remove Boost LDFLAGS from netBSD build docs
+pr 2022-03-10 15:57:03 +0100 93feabcb30e34bfc458742e0e8b327b404599f29 Merge bitcoin-core/gui#563: qt: Remove network detection based on address in BIP21
+v  2022-03-10 16:52:26 +0100 339b4a51f6d3558c3489b14efe0c8c195295cf86 build: don't install deprecated libevent headers
+v  2022-03-10 20:24:11 +0100 5ce3057c8e8f192921fd5e4bdb95bb15e3f7dbad test: set segwit height back to 0 on regtest
+v  2022-03-11 10:21:48 +0100 5d7c69b8871aad747969247c7a047b439c5ca59e rpc: rename getdeploymentinfo status-next to status_next
+pr 2022-03-11 11:24:12 +0100 f661da70b93273d8ddd64758eb3d5eff73640ab8 Merge bitcoin/bitcoin#24521: build: Fix Boost.Process detection on macOS arm64
+pr 2022-03-11 11:27:05 +0100 ce1fabe5454dfd01fe95b4a948704fcd3a155859 Merge bitcoin/bitcoin#24509: doc: Add `guix` prefix for changes to reproducible builds
+pr 2022-03-11 12:25:58 +0100 bb0b39ce6fdee0d1b379a3006528293b7f205f15 Merge bitcoin/bitcoin#24524: doc: remove Boost LDFLAGS from netBSD build docs
+v  2022-03-11 13:22:34 +0100 ec7d73628a6397fca3b5b852d4e97ff918b6d3a6 [wallet] assert BnB internally calculated waste is the same as GetSelectionWaste()
+pr 2022-03-11 16:00:38 +0100 23e8c702bc95459861183cd9eb927272494a79ca Merge bitcoin/bitcoin#24421: miner: always assume we can build witness blocks
+pr 2022-03-11 16:11:17 +0100 a81717443f042b28604d5b19783bc0b5591ccee5 Merge bitcoin/bitcoin#24453: Bugfix: doc: Correct change_address/changeAddress in wallet RPC help
+cr 2022-03-11 16:14:48 +0100 aab552fa3073f27bcedee1d5890e7e8d9e67ffb4 test: use MiniWallet for feature_maxuploadtarget.py
+pr 2022-03-11 17:40:17 +0100 c109e7d51c9c5614aafce184c63b52ad2e859eb2 Merge bitcoin/bitcoin#24530: wallet: assert BnB's internally calculated waste is the same as GetSelectionWaste
+v  2022-03-11 17:46:58 +0100 fa2a5f301aa678aa7b6be4bb7987f2bcbdaf2be2 rpc: Move mempool RPCs to new file
+v  2022-03-11 17:52:48 +0100 fafd40b5413aea5f8ec47c24fdb2ccc702e7cdd7 refactor: Avoid int64_t -> size_t -> int64_t conversion
+cr 2022-03-12 03:20:33 +0100 3a53927f037bb4ab72a2900c6d0a5d7577a669ed ci: Integrate ccache into MSVC build
+pr 2022-03-12 10:37:05 +0100 e7db4e245abadfc3120f22e7290bdce45750ca49 Merge bitcoin/bitcoin#24164: build: Bump minimum required clang/libc++ to 8.0
+v  2022-03-12 12:35:56 +0100 1868a17e5a46c96bfd2d3f28e876bbaa74d1417f contrib: macdeploy: make gen-sdk deterministic
+v  2022-03-12 12:35:56 +0100 ba30a5407e065e9d6dd037351e83f56a43f38f19 contrib: macdeploy: monkey-patch gen-sdk to be deterministic
+pr 2022-03-12 21:16:49 +0100 fd381d86b1ad5f443b5365751e9087dda9d7e6bf Merge bitcoin/bitcoin#24526: build: don't install deprecated libevent headers
+pr 2022-03-13 09:23:50 +0100 deb847b75710d600e5b0d3d5c77fa5166d80808a Merge bitcoin/bitcoin#24491: contrib: fix implicit function decleration in win symbol check
+pr 2022-03-13 09:46:14 +0100 f94784f5bcfd0adf5d20f9631cde454348b4ff71 Merge bitcoin/bitcoin#24533: test: use MiniWallet for feature_maxuploadtarget.py
+pr 2022-03-13 10:20:15 +0100 2860a91df0d7a284644d20db92748e7954b67a25 Merge bitcoin/bitcoin#24527: test: set segwit height back to 0 on regtest
+pr 2022-03-13 10:23:20 +0100 e04720ec3336e3df7fce522e3b1da972aa65ff62 Merge bitcoin/bitcoin#24528: rpc: rename getdeploymentinfo status-next to status_next
+v  2022-03-13 11:04:52 +0100 933a43018f0f1c0b72acbfa9de5e0f84bf49d0a2 guix: Use $HOST instead of generic osx{64} for macOS artifacts
+v  2022-03-13 16:40:36 +0100 77ccb7fce15e340080f14c7626cf3dc63fcdee88 Use std::chrono for salting when randomizing ADDR destination
+cr 2022-03-13 16:54:43 +0100 2ff8f4dd81dc484fe38ddd9db63cc8fd30192245 Add tests for addr destination rotation
+pr 2022-03-14 08:37:46 +0100 e0881aa5f0cde01b0590770f3202dfaf0919e2d4 Merge bitcoin/bitcoin#24505: wallet: Add a deprecation warning for newly created legacy wallets
+pr 2022-03-14 11:31:25 +0100 25d045a9ecc24a2752685d176c28f8f75bb100f6 Merge bitcoin/bitcoin#24225: wallet: Add sanity checks to DiscourageFeeSniping
+v  2022-03-14 11:54:50 +0100 12cc0201c26f4214d9e1dee1e6d0ddb97b7ab20f contrib: fix signet miner (sighash mismatch)
+v  2022-03-14 12:11:33 +0100 77773b061cb13229a8afb46f6f3ab89fc70eabe3 wallet: Pass FastRandomContext& to DiscourageFeeSniping
+v  2022-03-14 13:19:51 +0100 1dd092367789749527777ac2b256e639f5706584 refactor: Track BnB selection by index
+v  2022-03-14 13:20:08 +0100 def43a4d888b4a21c082404d1b25707c481d7625 refactor: Rename i to curr_try in SelectCoinsBnB
+v  2022-03-14 13:20:09 +0100 9d2005285c77f6c4148bccfa0b8b9135abfa021c doc: Revise comments and whitespace to clarify
+v  2022-03-14 15:17:04 +0100 fa7deaa0464576a229b5a6ab13ad033c16d0dada wallet: Pass FastRandomContext& to coin selection
+v  2022-03-14 16:05:42 +0100 fae5d06eed7f766926b1dc6d2320a68c8e4375bc Remove unused feebumper code
+pr 2022-03-14 16:32:23 +0100 28bdaa3f7697eef6c3d97e952228ce92e5d18aae Merge bitcoin/bitcoin#24080: policy: Remove unused locktime flags
+v  2022-03-14 17:02:51 +0100 0f9a44461c294cf21a335e8a8c13e498baac110f MOVEONLY: group miner tests into MinerTestingSetup functions
+v  2022-03-14 17:02:53 +0100 7a8d60676bc0eec289687b2dfd5d2b00b83c0eaa [miner] bug fix: update for parent inclusion using modified fee
+v  2022-03-14 17:03:10 +0100 e4303c337c8423f21c2c72ee1bcca3aaf46fa1cb [unit test] prioritisation in mining
+v  2022-03-15 02:33:52 +0100 b2774fc0bed53dfaf98206d353d42c474c5bbb1a torcontrol: Query Tor for correct -onion configuration
+v  2022-03-15 14:35:09 +0100 af74e061c052fa8b260ee71bf048fe22028962ae guix: make it possible to override gpg binary
+pr 2022-03-15 16:04:17 +0100 7b83c7d609ba61c5726650208b53111eb11a4b0e Merge bitcoin/bitcoin#24510: test: check for importprunedfunds RPC errors
+v  2022-03-15 18:24:16 +0100 fa43933e3b3f8bd2992340bdd744fdab680565f8 ci: Temporarily use clang-13 to work around clang-14 TSan bug
+v  2022-03-15 19:16:35 +0100 fa76d8d4d71d844e217686881d4f630eac3a8e10 test: Actually print TSan tracebacks
+v  2022-03-15 19:29:59 +0100 fad4c8934c7b4342076bd01daa4abf4d83617b17 Add RegisterMempoolRPCCommands helper
+v  2022-03-16 00:40:51 +0100 42e56d9b188f97c077ed2269e24acc0be35ece17 style-only: No need for std::pair for vSortedByHeight
+v  2022-03-16 00:42:41 +0100 c600ee38168a460d3026eae0e289c976194aad14 Only load BlockMan in BlockMan member functions
+v  2022-03-16 00:42:43 +0100 12eb05df63f930969115af6dc66e2e5d02f2a517 move-only: Move CBlockIndexWorkComparator to blockstorage
+v  2022-03-16 00:42:43 +0100 28ba0313eac37e4a900b7e97af7169ce999c4024 Add and use CBlockIndexHeightOnlyComparator
+v  2022-03-16 00:42:43 +0100 f865cf8ded2b2fbc82a6fbc41226d991909a6880 Add and use BlockManager::GetAllBlockIndices
+v  2022-03-16 07:37:35 +0100 4b4b04a66d8f088f6aa9ec6398db49d40481910f guix: Drop "-signed" suffix for signed macOS .dmg files
+pr 2022-03-16 08:21:57 +0100 760651214cd205b91804bc1c40a31c614d3aa26c Merge bitcoin/bitcoin#24572: ci: Temporarily use clang-13 to work around clang-14 TSan bug
+cr 2022-03-16 08:26:28 +0100 39b1763730177cd7d6a32fd9321da640b0d65e0e Replace use of `ArgsManager` with `DatabaseOptions`
+cr 2022-03-16 09:17:35 +0100 facd5d92e185cde608289462b400b19bba2b901c doc: Fix getblockchaininfo/getdeploymentinfo RPC docs
+pr 2022-03-16 09:26:19 +0100 310ba924949b0052105a7937ac69d65a3864692b Merge bitcoin/bitcoin#24537: rpc: Split mempool RPCs from blockchain.cpp
+v  2022-03-16 09:54:52 +0100 127de22c5fb396e1670d2a911faf7a9adc9241e2 gui: add FormatPeerAge() utility helper
+v  2022-03-16 09:54:52 +0100 209301a442512579d57f79c82417dc7c496248b6 gui: add Age column to peers tab
+v  2022-03-16 09:54:52 +0100 51708c4516cb9d52e84dc8850d93f556dda1a75b gui: peersWidget - ResizeToContents Age and IP/Netmask columns
+v  2022-03-16 10:28:37 +0100 4b5a6cd14967b8ec3cb525e4cb18628de6c15091 refactor: helper function signWithExternalSigner()
+cr 2022-03-16 10:28:39 +0100 2efdfb88aab6496dcf2b98e0de30635bc6bade85 gui: restore Send for external signer
+cr 2022-03-16 11:18:47 +0100 893e18059f1f92a254aa2026312a769c0e711db6 doc: rework dependencies.md
+v  2022-03-16 12:03:22 +0100 53dd6165b8994301d638298906b006032e0bbe48 guix: Use "win64" for Windows artifacts consistently
+v  2022-03-16 14:10:50 +0100 3c74f775ac956de4da4fc076b2360b687531cd63 Update signapple for platform identifier fix
+pr 2022-03-16 16:45:47 +0100 ee4780028d9b6ab9bc2fdb5873be86ea0bd95454 Merge bitcoin/bitcoin#23565: doc: rewrite dependencies.md
+pr 2022-03-16 16:56:29 +0100 e4d61d9759d9cc6a3386c8a59fa3753cabb315a9 Merge bitcoin/bitcoin#18815: bench: Add logging benchmark
+cr 2022-03-16 17:28:28 +0100 bf846779caf13673d4daca190a652c4e14b2200b doc: cleanup wallet docs in build-osx.md
+v  2022-03-16 17:30:05 +0100 57f3f5cecfac45b3f399ff174905dca25ca556b5 doc: s/Compiler/Dependency in dependencies.md
+pr 2022-03-16 17:44:47 +0100 4bdc990daf2876cb0cdc40b21a845063676defbc Merge bitcoin/bitcoin#24573: Update signapple for platform identifier fix
+pr 2022-03-16 17:47:56 +0100 3617d225628f629bbfa686937edf63f66f12e138 Merge bitcoin/bitcoin#14752: tests: Unit tests for IsPayToWitnessScriptHash and IsWitnessProgram
+v  2022-03-16 18:09:06 +0100 e359ba6b35edebf02b968fe60cae48473ed88826 doc: Drop a note about Intel-based Macs
+v  2022-03-16 19:56:31 +0100 d6b24e14d2a828ba7328f0cae1d0d7c5f4f6b3bd test: Fix intermittent failure in feature_segwit
+v  2022-03-16 20:33:52 +0100 9a5b4d78921ffd16c78d3661447faa065426da67 doc: Delete old line of code that was commented out
+pr 2022-03-16 21:19:02 +0100 b8992f2d4ae4abcbc4bb26919163e5a90ccfb04c Merge bitcoin/bitcoin#24592: doc: Delete old line of code that was commented out
+pr 2022-03-16 21:25:57 +0100 114754adf45524b7fd8d0e3a9ebc8966b2995069 Merge bitcoin/bitcoin#24519: doc: update multisig-tutorial.md to descriptor wallet by default
+pr 2022-03-16 21:39:07 +0100 9b56b2e2a7f565561c7498fbc63bbd69df18c289 Merge bitcoin/bitcoin#24588: doc: Drop a note about Intel-based Macs
+pr 2022-03-16 21:41:36 +0100 d6cb4e8ff0d0772fd549240c21cf08e5213259be Merge bitcoin/bitcoin#24549: guix: Use $HOST instead of generic osx{64} for macOS artifacts
+v  2022-03-16 22:27:00 +0100 f59bee3fb242c9e02781a35272cf9644f37e7fc1 fuzz: execute each file in dir without fuzz engine
+pr 2022-03-17 07:10:27 +0100 74f8c551e9ba76ad21b39226d9792210d3704c59 Merge bitcoin/bitcoin#24553: contrib: fix signet miner (sighash mismatch)
+pr 2022-03-17 07:21:07 +0100 aece56624941bc6284a01a4df7881e73cdf4290f Merge bitcoin-core/gui#555: Restore Send button when using external signer
+pr 2022-03-17 07:23:43 +0100 601bfc417d1fb3ac78cda9477814df319182599f Merge bitcoin/bitcoin#24515: Only load BlockMan in BlockMan member functions
+pr 2022-03-17 08:26:57 +0100 bf2c0fb2a26432762bf98e19a98e252b7bdd7d30 Merge bitcoin/bitcoin#24472: fuzz: execute each file in dir without fuzz engine
+v  2022-03-17 08:42:14 +0100 fa2d176016683eac82dabfbfc276b8a7b07b7499 Move txoutproof RPCs to txoutproof.cpp
+v  2022-03-17 08:55:07 +0100 1f4801b6b197657b81daba52ef62c146fc6bd584 doc, guix: Include arm64-apple-darwin into codesigned archs
+pr 2022-03-17 09:37:45 +0100 8435d7f11a89bb3f93306646f62cc2179693e072 Merge bitcoin/bitcoin#24597: doc, guix: Include `arm64-apple-darwin` into codesigned archs
+v  2022-03-17 10:59:34 +0100 682962d9f642d1ec5ed56cd7ffc5085d14d3e06b guix: point to latest upstream commit
+v  2022-03-17 10:59:34 +0100 946b86cf573530f355707bcf6af10beae34a83b8 Revert "build: Fix gcc-cross-x86_64-w64-mingw32-10.3.0 in Guix"
+v  2022-03-17 13:38:36 +0100 979271a5d9ff887cb2efb199feaf9602c9b2086d macdeploy: remove unused detached-sig-apply
+cr 2022-03-17 14:09:06 +0100 31ec6ae92a5d9910a26d90a6ff20bab27dee5826 script: make IsPushdataOp non-static
+cr 2022-03-17 14:09:06 +0100 f4e289f384efdda6c3f56e1e1c30820a91ac2612 script: move CheckMinimalPush from interpreter to script.h
+v  2022-03-17 14:09:07 +0100 1ddaa66eae67b102f5e37d212d366a5dcad4aa26 Miniscript: type system, script creation, text notation, tests
+cr 2022-03-17 14:09:07 +0100 4fe29368c0ded0e62f437cab3a7c904f7fd3ad67 script: expose getter for CScriptNum, add a BuildScript helper
+v  2022-03-17 14:09:08 +0100 2e55e88f86d0dd49b35d04af3f57e863498aabae Miniscript: conversion from script
+v  2022-03-17 14:09:08 +0100 f8369996e76dbc41a12f7b7eea14a7e7990a81c1 Miniscript: ops limit and stack size computation
+v  2022-03-17 14:09:09 +0100 2da94a4c6f55f7a3621f4a6f70902c52f735c868 fuzz: add a fuzz target for Miniscript decoding from Script
+v  2022-03-17 14:11:33 +0100 28f17c1a6de7b50482d8f55fe03698126862e8eb build: fix copypasta in OpenBSD C{XX} flags
+cr 2022-03-17 14:15:07 +0100 fa4943e8df2e1048a5030f1d93776ca2b9da7b8a doc: Add template for empty release notes
+v  2022-03-17 15:49:16 +0100 c7c64db41e1718584aa2f30ff27f60ab0966de62 wallet: cleanup COutput constructor
+v  2022-03-17 15:53:30 +0100 10379f007fd2c18f4cd24d0a0783d6d929f45556 scripted-diff: Rename COutput member variables
+v  2022-03-17 15:57:08 +0100 46022953ee2e8113167bafd1fd48a383a578b13c wallet: Remove use_max_sig default value
+v  2022-03-17 16:00:45 +0100 b799814bbd53736b79495072f3c9e05989a465e8 wallet: Store tx time in COutput
+v  2022-03-17 16:04:22 +0100 d51f27d3bb0d6e3ca55bcd23ce53e4fe413a9360 wallet: Store whether a COutput is from the wallet
+v  2022-03-17 20:48:43 +0100 fab61437f68d2fa9c791f09ab6d53e3c7be535e0 test: Refactor MiniWallet get_utxo helper
+v  2022-03-17 20:49:10 +0100 fa48ea3067698954dd6630748964429686d8eaba Use MiniWallet in feature_coinstatsindex
+pr 2022-03-17 21:13:39 +0100 e09cf64c48286176e7d080edfe901f47baa0a418 Merge bitcoin/bitcoin#24585: doc: mention that BDB is for the legacy wallet in build-osx.md
+pr 2022-03-18 10:53:48 +0100 a17df4e876f9a24b4c24023b9346d2392db53c4d Merge bitcoin/bitcoin#24603: macdeploy: remove unused detached-sig-apply.sh
+cr 2022-03-18 11:27:49 +0100 307215b6c5e4a4689fabb37f246a410767c8a3f4 doc: clarify that BDB is only required for the legacy wallet
+v  2022-03-18 11:38:45 +0100 3a463992b981be382200004d5c44c130fc7a509f build: remove unused QMAKE_* VARs
+v  2022-03-18 12:21:48 +0100 36346703f8558d6781c079c29ddece5a97477beb [net] Add CNode.m_relays_txs and CNode.m_bloom_filter_loaded
+v  2022-03-18 12:21:48 +0100 785f55f7eeab0dedbeb8e0d0b459f3bdc538b621 [net processing] Move m_wtxid_relay to Peer
+v  2022-03-18 12:32:34 +0100 1bba72d824224f8a2625f529963d8982a00dfe14 Clarify in -maxtimeadjustment that only outbound peers influence time data
+cr 2022-03-18 12:35:56 +0100 575bbd0dea6d12510fdf3220d0f0e47d969da6e9 [net processing] Move tx relay data to Peer
+v  2022-03-18 12:35:58 +0100 1066d10f71e6800c78012d789ff6ae19df0243fe scripted-diff: rename TxRelay members
+pr 2022-03-18 14:10:15 +0100 a7b3123feadbbd3447d102f1c4e84631f7434092 Merge bitcoin/bitcoin#24609: Clarify -maxtimeadjustment that only outbound peers influence timedata
+pr 2022-03-18 14:14:06 +0100 66e2d21ef203e422eea8f0a3c7029ac59b210668 Merge bitcoin/bitcoin#24578: test: Fix intermittent failure in feature_segwit
+v  2022-03-18 14:47:17 +0100 702759588d62869321b3359f0716247d8c4a1471 add ci/scratch dir to gitignore
+v  2022-03-18 16:23:43 +0100 fa8593f89892ddb09b64a7740087b725b3d7b5eb test: Fix generate calls and comments in feature_segwit
+pr 2022-03-18 19:18:51 +0100 2320d31aaacd2bc05fc26482108d30d5d897250a Merge bitcoin/bitcoin#24608: doc: clarify that BDB is only required for the legacy wallet in build-unix.md
+pr 2022-03-20 09:38:41 +0100 ae005a647ffa1d457c5c7a0528cb29f3b1937b96 Merge bitcoin-core/gui#554: Add and improve translator comments and tooltips for peers tab address fields
+pr 2022-03-21 09:04:45 +0100 75e34ed718fd24fa742e0355d69fbb60bafdb02e Merge bitcoin/bitcoin#24601: ci: add ci/scratch dir to .gitignore
+pr 2022-03-21 10:00:40 +0100 6c72f3192a2b4e6851b03e1ec34c53fc014ba24a Merge bitcoin/bitcoin#23880: p2p: Serialize cmpctblock at most once in NewPoWValidBlock
+pr 2022-03-21 10:09:30 +0100 91d12344b1e51809c1ef6b630b631a6da00267c3 Merge bitcoin/bitcoin#24613: build: remove unused QMAKE_* VARs
+v  2022-03-21 11:38:44 +0100 fa8857c3f7863d5cfa9a9e62db7f95aad80ea48e Replace struct update_fee_delta with lambda
+v  2022-03-21 13:38:08 +0100 fa84a49526fcf76e98b0b2f4d4b00b34a8dddf46 Use CAmount for fee delta and modified fee
+v  2022-03-21 16:27:44 +0100 fa9086d085f664a96561eeb5dd29fc1a4e4f926a test: Limit scope of id global which is shared between subtests
+v  2022-03-21 17:52:27 +0100 532c64a7264dd3c7329e8839547837c57da7dbe8 build: Fix Boost.Process test for Boost 1.78
+pr 2022-03-21 22:44:54 +0100 e66630cc87c017f40ec29f6c1edf2ed5a286e49d Merge bitcoin/bitcoin#13226: Optimize SelectCoinsBnB by tracking the selection by index rather than by position
+v  2022-03-22 00:54:50 +0100 556ee6f2fa0e2da2bb12fe05a885431f61db2e47 Bugfix: configure: Quote SUPPRESS_WARNINGS sufficiently to preserve brackets
+pr 2022-03-22 07:56:29 +0100 e3206c9445f8d8e2bdb36d98af609985e8809908 Merge bitcoin/bitcoin#24605: test: Use MiniWallet in feature_coinstatsindex
+v  2022-03-22 08:11:46 +0100 fa7a576391ad5d61af937dd62496ded44105c671 test: Run non-wallet tests only once
+v  2022-03-22 08:58:25 +0100 d8641f04e4350755e5264e55730392730ab7c9ee qt: Use human-readable strings in preference to hard-coded integers
+pr 2022-03-22 09:10:55 +0100 b8f498f80dbba53f50ed3f6daf91474ff312509f Merge bitcoin/bitcoin#24535: test: Fix generate calls and comments in feature_segwit
+pr 2022-03-22 09:16:24 +0100 138d55e6a0241f126916fde6ac9177c7e2a119c4 Merge bitcoin/bitcoin#24579: doc: Fix getblockchaininfo/getdeploymentinfo RPC docs
+v  2022-03-22 09:47:51 +0100 2726b60a3ac098b44f2970bed21147b70e12a1c2 test: use MiniWallet for rpc_createmultisig.py
+pr 2022-03-22 10:02:34 +0100 44dbf918d3ab073c3d0d1d78627e1201af582d3c Merge bitcoin/bitcoin#24627: test: Limit scope of id global which is shared between subtests
+pr 2022-03-22 11:57:14 +0100 2948d6dea098bf722828b969838668f833c2cb00 Merge bitcoin/bitcoin#15423: torcontrol: Query Tor for correct -onion configuration
+v  2022-03-22 12:36:25 +0100 acd98adaf1d83b71eda235c49d41a92f30c16313 qt: Avoid potential -Wdeprecated-enum-enum-conversion warning
+v  2022-03-22 12:54:19 +0100 ed15848475a10fcacaef4eeb38cd7f93ce038c47 doc: create initial doc/cjdns.md for cjdns how-to documentation
+cr 2022-03-22 12:54:21 +0100 3bf6f0cf2cb3a958e7cc346760009af50c2fa304 doc: update tor.md with cjdns and getnodeaddresses, fix tor grep,
+v  2022-03-22 12:54:23 +0100 f44efc3e2c5664825d7bd071f9dc38b5b9111ae1 doc: update i2p.md with cjdns, improve local addresses section
+pr 2022-03-22 13:39:55 +0100 f05cf59d91eb03857dd9bdcc77607764da0349d2 Merge bitcoin/bitcoin#24624: qt: Avoid potential -Wdeprecated-enum-enum-conversion warnings
+cr 2022-03-22 14:20:01 +0100 97af6527885c3b2dac183350f6095c98f8980e49 guix: Drop code for the unsupported `i686-linux-gnu` host
+v  2022-03-22 14:41:04 +0100 06822f86545a0e946fdc266c57955f98d163a8bc Bugfix: RPC/blockchain: Correct description of getblockchaininfo's pruneheight result
+v  2022-03-22 15:13:13 +0100 5a157eb3703e1e65ed285f13a824562ab12aa3ff Bugfix: configure: Only avoid -isystem for exact /usr/include path
+v  2022-03-22 18:43:51 +0100 eb3c5c4ef2eeb1d37d729d4487ed067a24cf81c8 test: MiniWallet: add helper methods `{send,create}_self_transfer_multi`
+cr 2022-03-22 18:44:27 +0100 2b6dd4e75b3ad2daff553fde018fe4c8f1187878 test: use MiniWallet for mempool_package_onemore.py
+cr 2022-03-22 20:07:01 +0100 89bb25d22a0e1c700dba4e3b754984c9b2b14836 test: check localaddresses in getnetworkinfo for nodes with proxy
+v  2022-03-23 01:33:02 +0100 38a1b0b1967272cbb984f37bcc86b6640930319f doc: remove unneeded documentation on basic package management on FreeBSD
+pr 2022-03-23 09:38:54 +0100 d6f225f5c9f8382878e6970b707e57838e312f8c Merge bitcoin/bitcoin#24462: For descriptor pubkey parse errors, include context information
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
