@@ -133,9 +133,8 @@ public:
 
     std::string ToString() const;
 
-    inline CInputCoin GetInputCoin() const
-    {
-        return CInputCoin(outpoint, txout, input_bytes);
+    bool operator<(const COutput& rhs) const {
+        return outpoint < rhs.outpoint;
     }
 };
 
