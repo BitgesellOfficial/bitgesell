@@ -27,10 +27,6 @@ class DisableWalletTest (BGLTestFramework):
         x = self.nodes[0].validateaddress('rbgl1qmevj8zfx0wdvp05cqwkmr6mxkfx60yezhdmczp')
         assert x['isvalid'] == True
 
-        # Checking mining to an address without a wallet. Generating to a valid address should succeed
-        # but generating to an invalid address will fail.
-        self.nodes[0].generatetoaddress(1, 'rbgl1qmevj8zfx0wdvp05cqwkmr6mxkfx60yezhdmczp')
-        assert_raises_rpc_error(-5, "Invalid address", self.nodes[0].generatetoaddress, 1, '3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy')
 
 if __name__ == '__main__':
-    DisableWalletTest ().main ()
+    DisableWalletTest().main()
