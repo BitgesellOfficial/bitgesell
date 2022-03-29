@@ -40,14 +40,9 @@ AC_CANONICAL_HOST
 
 LT_INIT([win32-dll])
 
-dnl faketime breaks configure and is only needed for make. Disable it here.
-unset FAKETIME
-
 dnl Automake init set-up and checks
 AM_INIT_AUTOMAKE([1.13 no-define subdir-objects foreign])
 
-dnl faketime messes with timestamps and causes configure to be re-run.
-dnl --disable-maintainer-mode can be used to bypass this.
 AM_MAINTAINER_MODE([enable])
 
 AM_PROG_CC_C_O
