@@ -37,16 +37,16 @@ class DumptxoutsetTest(BGLTestFramework):
         # Blockhash should be deterministic based on mocked time.
         assert_equal(
             out['base_hash'],
-            '57ccea06777257714f3cb5af00dd58f8e0a33865b98239ad120523685bad8712')
+            '09abf0e7b510f61ca6cf33bab104e9ee99b3528b371d27a2d4b39abb800fba7e')
 
         with open(str(expected_path), 'rb') as f:
             digest = hashlib.sha256(f.read()).hexdigest()
             # UTXO snapshot hash should be deterministic based on mocked time.
             assert_equal(
-                digest, 'f5ebe73124394aae25d4b6151caa6dbc51355233d1b7cde4a31780035c230f5c')
+                digest, 'b1bacb602eacf5fbc9a7c2ef6eeb0d229c04e98bdf0c2ea5929012cd0eae3830')
 
         assert_equal(
-            out['txoutset_hash'], 'd4b614f476b99a6e569973bf1c0120d88b1a168076f8ce25691fb41dd1cef149')
+            out['txoutset_hash'], '1f7e3befd45dc13ae198dfbb22869a9c5c4196f8e9ef9735831af1288033f890')
         assert_equal(out['nchaintx'], 101)
 
         # Specifying a path to an existing file will fail.
