@@ -43,12 +43,8 @@ To compile for Windows on Linux 18.04:
 Or follow the steps below:
 ------------------------------------------------------------
 
-<<<<<<< HEAD
 
 The steps below can be performed on Ubuntu (including in a VM) or WSL. The depends system
-=======
-The steps below can be performed on Ubuntu or WSL. The depends system
->>>>>>> f58f697c9... doc: remove WSL install instructions and point to upstream
 will also work on other Linux distributions, however the commands for
 installing the toolchain will be different.
 
