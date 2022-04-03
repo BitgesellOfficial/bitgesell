@@ -234,6 +234,7 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
+        vSeeds.emplace_back("seedtest.satoshithefirst.com");  // BGL primary seed node
         // nodes with support for servicebits filtering should be at the top
         // -- no seeds defined for now --
 
