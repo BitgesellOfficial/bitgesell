@@ -377,13 +377,12 @@ std::string PSBTRoleName(PSBTRole role) {
 
 bool DecodeBase64PSBT(PartiallySignedTransaction& psbt, const std::string& base64_tx, std::string& error)
 {
-    bool invalid;
-    std::string tx_data = DecodeBase64(base64_tx, &invalid);
-    if (invalid) {
+    auto tx_data = DecodeBase64(base64_tx);
+    if (!tx_data) {
         error = "invalid base64";
         return false;
     }
-    return DecodeRawPSBT(psbt, tx_data, error);
+    return DecodeRawPSBT(psbt, MakeByteSpan(*tx_data), error);
 }
 
 bool DecodeRawPSBT(PartiallySignedTransaction& psbt, const std::string& tx_data, std::string& error)
