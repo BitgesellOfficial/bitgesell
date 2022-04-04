@@ -234,7 +234,8 @@ bool CNetAddr::SetTor(const std::string& addr)
         return false;
     }
 
-    auto input = DecodeBase32(std::string_view{addr}.substr(0, addr.size() - suffix_len));
+    bool invalid;
+    const auto& input = DecodeBase32(addr.substr(0, addr.size() - suffix_len), &invalid);
 
     if (!input) {
         return false;

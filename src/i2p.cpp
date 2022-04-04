@@ -69,8 +69,9 @@ static std::string SwapBase64(const std::string& from)
 static Binary DecodeI2PBase64(const std::string& i2p_b64)
 {
     const std::string& std_b64 = SwapBase64(i2p_b64);
-    auto decoded = DecodeBase64(std_b64);
-    if (!decoded) {
+    bool invalid;
+    Binary decoded = DecodeBase64(std_b64, &invalid);
+    if (invalid) {
         throw std::runtime_error(strprintf("Cannot decode Base64: \"%s\"", i2p_b64));
     }
     return std::move(*decoded);
