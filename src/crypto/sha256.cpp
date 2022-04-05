@@ -10,12 +10,12 @@
 
 #include <compat/cpuid.h>
 
-#if defined(__linux__) && defined(ENABLE_ARM_SHANI) && !defined(BUILD_BITCOIN_INTERNAL)
+#if defined(__linux__) && defined(ENABLE_ARM_SHANI) && !defined(BUILD_BGL_INTERNAL)
 #include <sys/auxv.h>
 #include <asm/hwcap.h>
 #endif
 
-#if defined(MAC_OSX) && defined(ENABLE_ARM_SHANI) && !defined(BUILD_BITCOIN_INTERNAL)
+#if defined(MAC_OSX) && defined(ENABLE_ARM_SHANI) && !defined(BUILD_BGL_INTERNAL)
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #endif
@@ -586,17 +586,9 @@ std::string SHA256AutoDetect()
     bool have_sse4 = false;
     bool have_xsave = false;
     bool have_avx = false;
-    bool have_avx2 = false;
-    bool have_x86_shani = false;
-    bool enabled_avx = false;
-
-    (void)AVXEnabled;
-    (void)have_sse4;
-    (void)have_avx;
-    (void)have_xsave;
-    (void)have_avx2;
-    (void)have_x86_shani;
-    (void)enabled_avx;
+    [[maybe_unused]] bool have_avx2 = false;
+    [[maybe_unused]] bool have_x86_shani = false;
+    [[maybe_unused]] bool enabled_avx = false;
 
     uint32_t eax, ebx, ecx, edx;
     GetCPUID(1, 0, eax, ebx, ecx, edx);
@@ -643,7 +635,7 @@ std::string SHA256AutoDetect()
 #endif
 #endif
 
-#if defined(ENABLE_ARM_SHANI) && !defined(BUILD_BITCOIN_INTERNAL)
+#if defined(ENABLE_ARM_SHANI) && !defined(BUILD_BGL_INTERNAL)
     bool have_arm_shani = false;
 
 #if defined(__linux__)
