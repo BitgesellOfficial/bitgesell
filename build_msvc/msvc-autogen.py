@@ -93,6 +93,11 @@ def parse_config_into_bgl_config():
     with open(os.path.join(SOURCE_DIR,'../build_msvc/BGL_config.h'), "w", encoding="utf8") as btc_config:
         btc_config.writelines(template)
 
+def set_properties(vcxproj_filename, placeholder, content):
+    with open(vcxproj_filename + '.in', 'r', encoding='utf-8') as vcxproj_in_file:
+        with open(vcxproj_filename, 'w', encoding='utf-8') as vcxproj_file:
+            vcxproj_file.write(vcxproj_in_file.read().replace(placeholder, content))
+
 def main():
     parser = argparse.ArgumentParser(description='BGL-core msbuild configuration initialiser.')
     parser.add_argument('-toolset', nargs='?',help='Optionally sets the msbuild platform toolset, e.g. v142 for Visual Studio 2019.'
@@ -111,11 +116,8 @@ def main():
             content += '    <ClCompile Include="..\\..\\src\\' + source_filename + '">\n'
             content += '      <ObjectFileName>$(IntDir)' + object_filename + '</ObjectFileName>\n'
             content += '    </ClCompile>\n'
-        with open(vcxproj_filename + '.in', 'r', encoding='utf-8') as vcxproj_in_file:
-            with open(vcxproj_filename, 'w', encoding='utf-8') as vcxproj_file:
-                vcxproj_file.write(vcxproj_in_file.read().replace(
-                    '@SOURCE_FILES@\n', content))
-    parse_config_into_bgl_config()
+        set_properties(vcxproj_filename, '@SOURCE_FILES@\n', content):
+    parse_config_into_btc_config()
     copyfile(os.path.join(SOURCE_DIR,'../build_msvc/BGL_config.h'), os.path.join(SOURCE_DIR, 'config/BGL-config.h'))
     copyfile(os.path.join(SOURCE_DIR,'../build_msvc/libsecp256k1_config.h'), os.path.join(SOURCE_DIR, 'secp256k1/src/libsecp256k1-config.h'))
 
