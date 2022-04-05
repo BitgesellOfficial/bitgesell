@@ -1276,6 +1276,7 @@ RPCHelpMan getblockchaininfo()
     }
 
     obj.pushKV("warnings", GetWarnings(false).original);
+
     return obj;
 },
     };

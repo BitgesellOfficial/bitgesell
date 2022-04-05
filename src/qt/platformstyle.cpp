@@ -83,14 +83,8 @@ QColor PlatformStyle::TextColor() const
 QColor PlatformStyle::SingleColor() const
 {
     if (colorizeIcons) {
-        const QColor colorHighlightBg(QApplication::palette().color(QPalette::Highlight));
-        const QColor colorHighlightFg(QApplication::palette().color(QPalette::HighlightedText));
-        const QColor colorText(QApplication::palette().color(QPalette::WindowText));
-        const int colorTextLightness = colorText.lightness();
-        if (abs(colorHighlightBg.lightness() - colorTextLightness) < abs(colorHighlightFg.lightness() - colorTextLightness)) {
-            return colorHighlightBg;
-        }
-        return colorHighlightFg;
+	// return BGL accent color, it should be contrast enough for both light/dark color schemes
+	return {111, 57, 229};
     }
     return {0, 0, 0};
 }
