@@ -15,6 +15,7 @@ Only v0.15.2 is required by this test. The rest is used in other backwards compa
 
 import os
 
+from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.test_framework import BGLTestFramework
 from test_framework.wallet import MiniWallet
 
@@ -40,8 +41,8 @@ class MempoolCompatibilityTest(BGLTestFramework):
 
         old_node, new_node = self.nodes
         new_wallet = MiniWallet(new_node)
-        new_wallet.generate(1)
-        new_node.generate(100)
+        self.generate(new_wallet, 1, sync_fun=self.no_op)
+        self.generate(new_node, COINBASE_MATURITY, sync_fun=self.no_op)
         # Sync the nodes to ensure old_node has the block that contains the coinbase that new_wallet will spend.
         # Otherwise, because coinbases are only valid in a block and not as loose txns, if the nodes aren't synced
         # unbroadcasted_tx won't pass old_node's `MemPoolAccept::PreChecks`.
@@ -67,8 +68,7 @@ class MempoolCompatibilityTest(BGLTestFramework):
         self.log.info("Add unbroadcasted tx to mempool on new node and shutdown")
         unbroadcasted_tx_hash = new_wallet.send_self_transfer(from_node=new_node)['txid']
         assert unbroadcasted_tx_hash in new_node.getrawmempool()
-        mempool = new_node.getrawmempool(True)
-        assert mempool[unbroadcasted_tx_hash]['unbroadcast']
+        assert new_node.getmempoolentry(unbroadcasted_tx_hash)['unbroadcast']
         self.stop_node(1)
 
         self.log.info("Move mempool.dat from new to old node")

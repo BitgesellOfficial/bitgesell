@@ -9,12 +9,9 @@ if [[ $QEMU_USER_CMD == qemu-s390* ]]; then
   export LC_ALL=C
 fi
 
-if [[ $HOST == *-apple-* ]]; then
-
-  export PATH="/usr/local/opt/ccache/libexec:$PATH"
-
-  ${CI_RETRY_EXE} pip3 install $PIP_PACKAGES --user
-
+if [ "$CI_OS_NAME" == "macos" ]; then
+  sudo -H pip3 install --upgrade pip
+  IN_GETOPT_BIN="/usr/local/opt/gnu-getopt/bin/getopt" ${CI_RETRY_EXE} pip3 install --user $PIP_PACKAGES
 fi
 
 # Create folders that are mounted into the docker
@@ -72,6 +69,9 @@ if [[ $DOCKER_NAME_TAG == centos* ]]; then
 elif [[ $HOST != *-apple-* ]]; then
   ${CI_RETRY_EXE} DOCKER_EXEC apt-get update
   ${CI_RETRY_EXE} DOCKER_EXEC apt-get install --no-install-recommends --no-upgrade -y $PACKAGES $DOCKER_PACKAGES
+  if [ -n "$PIP_PACKAGES" ]; then
+    ${CI_RETRY_EXE} pip3 install --user $PIP_PACKAGES
+  fi
 fi
 
 if [[ $HOST == *-apple-* ]]; then
@@ -85,16 +85,25 @@ fi
 DOCKER_EXEC echo "Free disk space:"
 DOCKER_EXEC df -h
 
+if [ "$RUN_FUZZ_TESTS" = "true" ] || [ "$RUN_UNIT_TESTS" = "true" ] || [ "$RUN_UNIT_TESTS_SEQUENTIAL" = "true" ]; then
+  if [ ! -d ${DIR_QA_ASSETS} ]; then
+    DOCKER_EXEC git clone --depth=1 https://github.com/bitcoin-core/qa-assets ${DIR_QA_ASSETS}
+  fi
+
+  export DIR_FUZZ_IN=${DIR_QA_ASSETS}/fuzz_seed_corpus/
+  export DIR_UNIT_TEST_DATA=${DIR_QA_ASSETS}/unit_test_data/
+fi
+
 DOCKER_EXEC mkdir -p "${BASE_SCRATCH_DIR}/sanitizer-output/"
 
-#if [[ ${USE_MEMORY_SANITIZER} == "true" ]]; then
-#  DOCKER_EXEC "update-alternatives --install /usr/bin/clang++ clang++ \$(which clang++-9) 100"
-#  DOCKER_EXEC "update-alternatives --install /usr/bin/clang clang \$(which clang-9) 100"
-#  DOCKER_EXEC "mkdir -p ${BASE_SCRATCH_DIR}/msan/build/"
-#  DOCKER_EXEC "git clone --depth=1 https://github.com/llvm/llvm-project -b llvmorg-10.0.0 ${BASE_SCRATCH_DIR}/msan/llvm-project"
-#  DOCKER_EXEC "cd ${BASE_SCRATCH_DIR}/msan/build/ && cmake -DLLVM_ENABLE_PROJECTS='libcxx;libcxxabi' -DCMAKE_BUILD_TYPE=Release -DLLVM_USE_SANITIZER=Memory -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_TARGETS_TO_BUILD=X86 ../llvm-project/llvm/"
-#  DOCKER_EXEC "cd ${BASE_SCRATCH_DIR}/msan/build/ && make $MAKEJOBS cxx"
-#fi
+if [[ ${USE_MEMORY_SANITIZER} == "true" ]]; then
+  DOCKER_EXEC "update-alternatives --install /usr/bin/clang++ clang++ \$(which clang++-9) 100"
+  DOCKER_EXEC "update-alternatives --install /usr/bin/clang clang \$(which clang-9) 100"
+  DOCKER_EXEC "mkdir -p ${BASE_SCRATCH_DIR}/msan/build/"
+  DOCKER_EXEC "git clone --depth=1 https://github.com/llvm/llvm-project -b llvmorg-12.0.0 ${BASE_SCRATCH_DIR}/msan/llvm-project"
+  DOCKER_EXEC "cd ${BASE_SCRATCH_DIR}/msan/build/ && cmake -DLLVM_ENABLE_PROJECTS='libcxx;libcxxabi' -DCMAKE_BUILD_TYPE=Release -DLLVM_USE_SANITIZER=Memory -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_TARGETS_TO_BUILD=X86 ../llvm-project/llvm/"
+  DOCKER_EXEC "cd ${BASE_SCRATCH_DIR}/msan/build/ && make $MAKEJOBS cxx"
+fi
 
 if [ -z "$DANGER_RUN_CI_ON_HOST" ]; then
   echo "Create $BASE_ROOT_DIR"

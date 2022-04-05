@@ -9,6 +9,7 @@ from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
     find_output,
+    find_vout_for_address
 )
 
 class TxnMallTest(BGLTestFramework):
@@ -28,6 +29,13 @@ class TxnMallTest(BGLTestFramework):
         super().setup_network()
         self.disconnect_nodes(1, 2)
 
+    def spend_txid(self, txid, vout, outputs):
+        inputs = [{"txid": txid, "vout": vout}]
+        tx = self.nodes[0].createrawtransaction(inputs, outputs)
+        tx = self.nodes[0].fundrawtransaction(tx)
+        tx = self.nodes[0].signrawtransactionwithwallet(tx['hex'])
+        return self.nodes[0].sendrawtransaction(tx['hex'])
+
     def run_test(self):
         # All nodes should start with 1,250 BTC:
         starting_balance = 1250
@@ -46,6 +54,7 @@ class TxnMallTest(BGLTestFramework):
         node0_address_foo = self.nodes[0].getnewaddress()
         fund_foo_txid = self.nodes[0].sendtoaddress(node0_address_foo, 1219)
         fund_foo_tx = self.nodes[0].gettransaction(fund_foo_txid)
+        self.nodes[0].lockunspent(False, [{"txid":fund_foo_txid, "vout": find_vout_for_address(self.nodes[0], fund_foo_txid, node0_address_foo)}])
 
         node0_address_bar = self.nodes[0].getnewaddress()
         fund_bar_txid = self.nodes[0].sendtoaddress(node0_address_bar, 29)
@@ -76,13 +85,12 @@ class TxnMallTest(BGLTestFramework):
         assert_equal(doublespend["complete"], True)
 
         # Create two spends using 1 50 BTC coin each
-        txid1 = self.nodes[0].sendtoaddress(node1_address, 40)
-        txid2 = self.nodes[0].sendtoaddress(node1_address, 20)
+        txid1 = self.spend_txid(fund_foo_txid, find_vout_for_address(self.nodes[0], fund_foo_txid, node0_address_foo), {node1_address: 40})
+        txid2 = self.spend_txid(fund_bar_txid, find_vout_for_address(self.nodes[0], fund_bar_txid, node0_address_bar), {node1_address: 20})
 
         # Have node0 mine a block:
         if (self.options.mine_block):
-            self.nodes[0].generate(1)
-            self.sync_blocks(self.nodes[0:2])
+            self.generate(self.nodes[0], 1, sync_fun=lambda: self.sync_blocks(self.nodes[0:2]))
 
         tx1 = self.nodes[0].gettransaction(txid1)
         tx2 = self.nodes[0].gettransaction(txid2)
@@ -110,11 +118,11 @@ class TxnMallTest(BGLTestFramework):
         self.nodes[2].sendrawtransaction(fund_bar_tx["hex"])
         doublespend_txid = self.nodes[2].sendrawtransaction(doublespend["hex"])
         # ... mine a block...
-        self.nodes[2].generate(1)
+        self.generate(self.nodes[2], 1, sync_fun=self.no_op)
 
         # Reconnect the split network, and sync chain:
         self.connect_nodes(1, 2)
-        self.nodes[2].generate(1)  # Mine another block to make sure we sync
+        self.generate(self.nodes[2], 1)  # Mine another block to make sure we sync
         self.sync_blocks()
         assert_equal(self.nodes[0].gettransaction(doublespend_txid)["confirmations"], 2)
 

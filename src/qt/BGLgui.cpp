@@ -43,6 +43,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QComboBox>
+#include <QCursor>
 #include <QDateTime>
 #include <QDragEnterEvent>
 #include <QListWidget>
@@ -104,6 +105,14 @@ BGLGUI::BGLGUI(interfaces::Node& node, const PlatformStyle *_platformStyle, cons
     {
         /** Create wallet frame and make it the central widget */
         walletFrame = new WalletFrame(_platformStyle, this);
+        connect(walletFrame, &WalletFrame::createWalletButtonClicked, [this] {
+            auto activity = new CreateWalletActivity(getWalletController(), this);
+            activity->create();
+        });
+        connect(walletFrame, &WalletFrame::message, [this](const QString& title, const QString& message, unsigned int style) {
+            this->message(title, message, style);
+        });
+        connect(walletFrame, &WalletFrame::currentWalletSet, [this] { updateWalletStatus(); });
         setCentralWidget(walletFrame);
     } else
 #endif // ENABLE_WALLET
@@ -150,18 +159,20 @@ BGLGUI::BGLGUI(interfaces::Node& node, const PlatformStyle *_platformStyle, cons
     frameBlocksLayout->setContentsMargins(3,0,3,0);
     frameBlocksLayout->setSpacing(3);
     unitDisplayControl = new UnitDisplayStatusBarControl(platformStyle);
-    labelWalletEncryptionIcon = new QLabel();
-    labelWalletHDStatusIcon = new QLabel();
-    labelProxyIcon = new GUIUtil::ClickableLabel();
-    connectionsControl = new GUIUtil::ClickableLabel();
-    labelBlocksIcon = new GUIUtil::ClickableLabel();
+    labelWalletEncryptionIcon = new GUIUtil::ThemedLabel(platformStyle);
+    labelWalletHDStatusIcon = new GUIUtil::ThemedLabel(platformStyle);
+    labelProxyIcon = new GUIUtil::ClickableLabel(platformStyle);
+    connectionsControl = new GUIUtil::ClickableLabel(platformStyle);
+    labelBlocksIcon = new GUIUtil::ClickableLabel(platformStyle);
     if(enableWallet)
     {
         frameBlocksLayout->addStretch();
         frameBlocksLayout->addWidget(unitDisplayControl);
         frameBlocksLayout->addStretch();
         frameBlocksLayout->addWidget(labelWalletEncryptionIcon);
+        labelWalletEncryptionIcon->hide();
         frameBlocksLayout->addWidget(labelWalletHDStatusIcon);
+        labelWalletHDStatusIcon->hide();
     }
     frameBlocksLayout->addWidget(labelProxyIcon);
     frameBlocksLayout->addStretch();
@@ -199,20 +210,12 @@ BGLGUI::BGLGUI(interfaces::Node& node, const PlatformStyle *_platformStyle, cons
     // Subscribe to notifications from core
     subscribeToCoreSignals();
 
-    connect(connectionsControl, &GUIUtil::ClickableLabel::clicked, [this] {
-        m_node.setNetworkActive(!m_node.getNetworkActive());
-    });
     connect(labelProxyIcon, &GUIUtil::ClickableLabel::clicked, [this] {
         openOptionsDialogWithTab(OptionsDialog::TAB_NETWORK);
     });
 
     connect(labelBlocksIcon, &GUIUtil::ClickableLabel::clicked, this, &BGLGUI::showModalOverlay);
     connect(progressBar, &GUIUtil::ClickableProgressBar::clicked, this, &BGLGUI::showModalOverlay);
-#ifdef ENABLE_WALLET
-    if(enableWallet) {
-        connect(walletFrame, &WalletFrame::requestedSyncWarningInfo, this, &BGLGUI::showModalOverlay);
-    }
-#endif
 
 #ifdef Q_OS_MAC
     m_app_nap_inhibitor = new CAppNapInhibitor;
@@ -252,7 +255,7 @@ void BGLGUI::createActions()
     tabGroup->addAction(overviewAction);
 
     sendCoinsAction = new QAction(platformStyle->SingleColorIcon(":/icons/send"), tr("&Send"), this);
-    sendCoinsAction->setStatusTip(tr("Send coins to a BGL address"));
+    sendCoinsAction->setStatusTip(tr("Send coins to a Bitgesell address"));
     sendCoinsAction->setToolTip(sendCoinsAction->statusTip());
     sendCoinsAction->setCheckable(true);
     sendCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_2));
@@ -297,39 +300,39 @@ void BGLGUI::createActions()
     connect(historyAction, &QAction::triggered, this, &BGLGUI::gotoHistoryPage);
 #endif // ENABLE_WALLET
 
-    quitAction = new QAction(QIcon(":/icons/quit"), tr("E&xit"), this);
+    quitAction = new QAction(tr("E&xit"), this);
     quitAction->setStatusTip(tr("Quit application"));
     quitAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
     quitAction->setMenuRole(QAction::QuitRole);
-    aboutAction = new QAction(QIcon(":/icons/BGL16"), tr("&About %1").arg(PACKAGE_NAME), this);
+    aboutAction = new QAction(tr("&About %1").arg(PACKAGE_NAME), this);
     aboutAction->setStatusTip(tr("Show information about %1").arg(PACKAGE_NAME));
     aboutAction->setMenuRole(QAction::AboutRole);
     aboutAction->setEnabled(false);
-    aboutQtAction = new QAction(QIcon(":/icons/about_qt"), tr("About &Qt"), this);
+    aboutQtAction = new QAction(tr("About &Qt"), this);
     aboutQtAction->setStatusTip(tr("Show information about Qt"));
     aboutQtAction->setMenuRole(QAction::AboutQtRole);
-    optionsAction = new QAction(QIcon(":/icons/configure"), tr("&Options..."), this);
+    optionsAction = new QAction(tr("&Options…"), this);
     optionsAction->setStatusTip(tr("Modify configuration options for %1").arg(PACKAGE_NAME));
     optionsAction->setMenuRole(QAction::PreferencesRole);
     optionsAction->setEnabled(false);
-    toggleHideAction = new QAction(QIcon(":/icons/add"), tr("&Show / Hide"), this);
+    toggleHideAction = new QAction(tr("&Show / Hide"), this);
     toggleHideAction->setStatusTip(tr("Show or hide the main Window"));
 
-    encryptWalletAction = new QAction(QIcon(":/icons/lock_closed"), tr("&Encrypt Wallet..."), this);
+    encryptWalletAction = new QAction(tr("&Encrypt Wallet…"), this);
     encryptWalletAction->setStatusTip(tr("Encrypt the private keys that belong to your wallet"));
     encryptWalletAction->setCheckable(true);
-    backupWalletAction = new QAction(QIcon(":/icons/filesave"), tr("&Backup Wallet..."), this);
+    backupWalletAction = new QAction(tr("&Backup Wallet…"), this);
     backupWalletAction->setStatusTip(tr("Backup wallet to another location"));
-    changePassphraseAction = new QAction(QIcon(":/icons/key"), tr("&Change Passphrase..."), this);
+    changePassphraseAction = new QAction(tr("&Change Passphrase…"), this);
     changePassphraseAction->setStatusTip(tr("Change the passphrase used for wallet encryption"));
-    signMessageAction = new QAction(QIcon(":/icons/edit"), tr("Sign &message..."), this);
-    signMessageAction->setStatusTip(tr("Sign messages with your BGL addresses to prove you own them"));
-    verifyMessageAction = new QAction(QIcon(":/icons/transaction_0"), tr("&Verify message..."), this);
-    verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified BGL addresses"));
-    m_load_psbt_action = new QAction(tr("&Load PSBT from file..."), this);
-    m_load_psbt_action->setStatusTip(tr("Load Partially Signed BGL Transaction"));
-    m_load_psbt_clipboard_action = new QAction(tr("Load PSBT from clipboard..."), this);
-    m_load_psbt_clipboard_action->setStatusTip(tr("Load Partially Signed BGL Transaction from clipboard"));
+    signMessageAction = new QAction(tr("Sign &message…"), this);
+    signMessageAction->setStatusTip(tr("Sign messages with your Bitgesell addresses to prove you own them"));
+    verifyMessageAction = new QAction(tr("&Verify message…"), this);
+    verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified Bitgesell addresses"));
+    m_load_psbt_action = new QAction(tr("&Load PSBT from file…"), this);
+    m_load_psbt_action->setStatusTip(tr("Load Partially Signed Bitgesell Transaction"));
+    m_load_psbt_clipboard_action = new QAction(tr("Load PSBT from &clipboard…"), this);
+    m_load_psbt_clipboard_action->setStatusTip(tr("Load Partially Signed Bitgesell Transaction from clipboard"));
 
     openRPCConsoleAction = new QAction(tr("Node window"), this);
     openRPCConsoleAction->setStatusTip(tr("Open node debugging and diagnostic console"));
@@ -337,39 +340,39 @@ void BGLGUI::createActions()
     openRPCConsoleAction->setEnabled(false);
     openRPCConsoleAction->setObjectName("openRPCConsoleAction");
 
-    usedSendingAddressesAction = new QAction(QIcon(":/icons/address-book"), tr("&Sending addresses"), this);
+    usedSendingAddressesAction = new QAction(tr("&Sending addresses"), this);
     usedSendingAddressesAction->setStatusTip(tr("Show the list of used sending addresses and labels"));
-    usedReceivingAddressesAction = new QAction(QIcon(":/icons/address-book"), tr("&Receiving addresses"), this);
+    usedReceivingAddressesAction = new QAction(tr("&Receiving addresses"), this);
     usedReceivingAddressesAction->setStatusTip(tr("Show the list of used receiving addresses and labels"));
 
-    openAction = new QAction(QIcon(":/icons/open"), tr("Open &URI..."), this);
+    openAction = new QAction(tr("Open &URI…"), this);
     openAction->setStatusTip(tr("Open a BGL: URI"));
 
-    m_open_wallet_action = new QAction(QIcon(":/icons/open"), tr("Open Wallet"), this);
+    m_open_wallet_action = new QAction(tr("Open Wallet"), this);
     m_open_wallet_action->setEnabled(false);
     m_open_wallet_action->setStatusTip(tr("Open a wallet"));
     m_open_wallet_menu = new QMenu(this);
 
-    m_close_wallet_action = new QAction(QIcon(":/icons/remove"), tr("Close Wallet..."), this);
+    m_close_wallet_action = new QAction(tr("Close Wallet…"), this);
     m_close_wallet_action->setStatusTip(tr("Close wallet"));
 
-    m_create_wallet_action = new QAction(QIcon(":/icons/add"), tr("Create Wallet..."), this);
+    m_create_wallet_action = new QAction(tr("Create Wallet…"), this);
     m_create_wallet_action->setEnabled(false);
     m_create_wallet_action->setStatusTip(tr("Create a new wallet"));
 
-    m_close_all_wallets_action = new QAction(tr("Close All Wallets..."), this);
+    m_close_all_wallets_action = new QAction(tr("Close All Wallets…"), this);
     m_close_all_wallets_action->setStatusTip(tr("Close all wallets"));
 
     showHelpMessageAction = new QAction(tr("&Command-line options"), this);
     showHelpMessageAction->setMenuRole(QAction::NoRole);
-    showHelpMessageAction->setStatusTip(tr("Show the %1 help message to get a list with possible BGL command-line options").arg(PACKAGE_NAME));
+    showHelpMessageAction->setStatusTip(tr("Show the %1 help message to get a list with possible Bitgesell command-line options").arg(PACKAGE_NAME));
 
     m_mask_values_action = new QAction(tr("&Mask values"), this);
     m_mask_values_action->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_M));
     m_mask_values_action->setStatusTip(tr("Mask the values in the Overview tab"));
     m_mask_values_action->setCheckable(true);
 
-    connect(quitAction, &QAction::triggered, qApp, QApplication::quit);
+    connect(quitAction, &QAction::triggered, this, &BGLGUI::quitRequested);
     connect(aboutAction, &QAction::triggered, this, &BGLGUI::aboutClicked);
     connect(aboutQtAction, &QAction::triggered, qApp, QApplication::aboutQt);
     connect(optionsAction, &QAction::triggered, this, &BGLGUI::optionsClicked);
@@ -414,7 +417,6 @@ void BGLGUI::createActions()
                 connect(action, &QAction::triggered, [this, path] {
                     auto activity = new OpenWalletActivity(m_wallet_controller, this);
                     connect(activity, &OpenWalletActivity::opened, this, &BGLGUI::setCurrentWallet);
-                    connect(activity, &OpenWalletActivity::finished, activity, &QObject::deleteLater);
                     activity->open(path);
                 });
             }
@@ -429,7 +431,6 @@ void BGLGUI::createActions()
         connect(m_create_wallet_action, &QAction::triggered, [this] {
             auto activity = new CreateWalletActivity(m_wallet_controller, this);
             connect(activity, &CreateWalletActivity::created, this, &BGLGUI::setCurrentWallet);
-            connect(activity, &CreateWalletActivity::finished, activity, &QObject::deleteLater);
             activity->create();
         });
         connect(m_close_all_wallets_action, &QAction::triggered, [this] {
@@ -485,7 +486,7 @@ void BGLGUI::createMenuBar()
 
     QMenu* window_menu = appMenuBar->addMenu(tr("&Window"));
 
-    QAction* minimize_action = window_menu->addAction(tr("Minimize"));
+    QAction* minimize_action = window_menu->addAction(tr("&Minimize"));
     minimize_action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_M));
     connect(minimize_action, &QAction::triggered, [] {
         QApplication::activeWindow()->showMinimized();
@@ -561,7 +562,7 @@ void BGLGUI::createToolBars()
 
         m_wallet_selector = new QComboBox();
         m_wallet_selector->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-        connect(m_wallet_selector, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &BGLGUI::setCurrentWalletBySelectorIndex);
+        connect(m_wallet_selector, qOverload<int>(&QComboBox::currentIndexChanged), this, &BGLGUI::setCurrentWalletBySelectorIndex);
 
         m_wallet_selector_label = new QLabel();
         m_wallet_selector_label->setText(tr("Wallet:") + " ");
@@ -586,12 +587,15 @@ void BGLGUI::setClientModel(ClientModel *_clientModel, interfaces::BlockAndHeade
         createTrayIconMenu();
 
         // Keep up to date with client
-        updateNetworkState();
+        setNetworkActive(m_node.getNetworkActive());
+        connect(connectionsControl, &GUIUtil::ClickableLabel::clicked, [this] {
+            GUIUtil::PopupMenu(m_network_context_menu, QCursor::pos());
+        });
         connect(_clientModel, &ClientModel::numConnectionsChanged, this, &BGLGUI::setNumConnections);
         connect(_clientModel, &ClientModel::networkActiveChanged, this, &BGLGUI::setNetworkActive);
 
-        modalOverlay->setKnownBestHeight(tip_info->header_height, QDateTime::fromTime_t(tip_info->header_time));
-        setNumBlocks(tip_info->block_height, QDateTime::fromTime_t(tip_info->block_time), tip_info->verification_progress, false, SynchronizationState::INIT_DOWNLOAD);
+        modalOverlay->setKnownBestHeight(tip_info->header_height, QDateTime::fromSecsSinceEpoch(tip_info->header_time));
+        setNumBlocks(tip_info->block_height, QDateTime::fromSecsSinceEpoch(tip_info->block_time), tip_info->verification_progress, false, SynchronizationState::INIT_DOWNLOAD);
         connect(_clientModel, &ClientModel::numBlocksChanged, this, &BGLGUI::setNumBlocks);
 
         // Receive and report messages from client model
@@ -617,10 +621,10 @@ void BGLGUI::setClientModel(ClientModel *_clientModel, interfaces::BlockAndHeade
         OptionsModel* optionsModel = _clientModel->getOptionsModel();
         if (optionsModel && trayIcon) {
             // be aware of the tray icon disable state change reported by the OptionsModel object.
-            connect(optionsModel, &OptionsModel::showTrayIconChanged, this, &BGLGUI::setTrayIconVisible);
+            connect(optionsModel, &OptionsModel::showTrayIconChanged, trayIcon, &QSystemTrayIcon::setVisible);
 
             // initialize the disable state of the tray icon with the current value in the model.
-            setTrayIconVisible(optionsModel->getShowTrayIcon());
+            trayIcon->setVisible(optionsModel->getShowTrayIcon());
         }
     } else {
         // Disable possibility to show main window via action
@@ -657,9 +661,8 @@ void BGLGUI::setWalletController(WalletController* wallet_controller)
     GUIUtil::ExceptionSafeConnect(wallet_controller, &WalletController::walletAdded, this, &BGLGUI::addWallet);
     connect(wallet_controller, &WalletController::walletRemoved, this, &BGLGUI::removeWallet);
 
-    for (WalletModel* wallet_model : m_wallet_controller->getOpenWallets()) {
-        addWallet(wallet_model);
-    }
+    auto activity = new LoadWalletsActivity(m_wallet_controller, this);
+    activity->load();
 }
 
 WalletController* BGLGUI::getWalletController()
@@ -670,7 +673,10 @@ WalletController* BGLGUI::getWalletController()
 void BGLGUI::addWallet(WalletModel* walletModel)
 {
     if (!walletFrame) return;
-    if (!walletFrame->addWallet(walletModel)) return;
+
+    WalletView* wallet_view = new WalletView(walletModel, platformStyle, walletFrame);
+    if (!walletFrame->addView(wallet_view)) return;
+
     rpcConsole->addWallet(walletModel);
     if (m_wallet_selector->count() == 0) {
         setWalletActionsEnabled(true);
@@ -678,6 +684,17 @@ void BGLGUI::addWallet(WalletModel* walletModel)
         m_wallet_selector_label_action->setVisible(true);
         m_wallet_selector_action->setVisible(true);
     }
+
+    connect(wallet_view, &WalletView::outOfSyncWarningClicked, this, &BGLGUI::showModalOverlay);
+    connect(wallet_view, &WalletView::transactionClicked, this, &BGLGUI::gotoHistoryPage);
+    connect(wallet_view, &WalletView::coinsSent, this, &BGLGUI::gotoHistoryPage);
+    connect(wallet_view, &WalletView::message, [this](const QString& title, const QString& message, unsigned int style) {
+        this->message(title, message, style);
+    });
+    connect(wallet_view, &WalletView::encryptionStatusChanged, this, &BGLGUI::updateWalletStatus);
+    connect(wallet_view, &WalletView::incomingTransaction, this, &BGLGUI::incomingTransaction);
+    connect(this, &BGLGUI::setPrivacy, wallet_view, &WalletView::setPrivacy);
+    wallet_view->setPrivacy(isPrivacyModeActivated());
     const QString display_name = walletModel->getDisplayName();
     m_wallet_selector->addItem(display_name, QVariant::fromValue(walletModel));
 }
@@ -829,8 +846,8 @@ void BGLGUI::aboutClicked()
     if(!clientModel)
         return;
 
-    HelpMessageDialog dlg(this, true);
-    dlg.exec();
+    auto dlg = new HelpMessageDialog(this, /* about */ true);
+    GUIUtil::ShowModalDialogAndDeleteOnClose(dlg);
 }
 
 void BGLGUI::showDebugWindow()
@@ -915,17 +932,21 @@ void BGLGUI::updateNetworkState()
     QString tooltip;
 
     if (m_node.getNetworkActive()) {
-        tooltip = tr("%n active connection(s) to BGL network", "", count) + QString(".<br>") + tr("Click to disable network activity.");
+        //: A substring of the tooltip.
+        tooltip = tr("%n active connection(s) to Bitgesell network.", "", count);
     } else {
-        tooltip = tr("Network activity disabled.") + QString("<br>") + tr("Click to enable network activity again.");
+        //: A substring of the tooltip.
+        tooltip = tr("Network activity disabled.");
         icon = ":/icons/network_disabled";
     }
 
     // Don't word-wrap this (fixed-width) tooltip
-    tooltip = QString("<nobr>") + tooltip + QString("</nobr>");
+    tooltip = QLatin1String("<nobr>") + tooltip + QLatin1String("<br>") +
+              //: A substring of the tooltip. "More actions" are available via the context menu.
+              tr("Click for more actions.") + QLatin1String("</nobr>");
     connectionsControl->setToolTip(tooltip);
 
-    connectionsControl->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+    connectionsControl->setThemedPixmap(icon, STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE);
 }
 
 void BGLGUI::setNumConnections(int count)
@@ -933,9 +954,24 @@ void BGLGUI::setNumConnections(int count)
     updateNetworkState();
 }
 
-void BGLGUI::setNetworkActive(bool networkActive)
+void BGLGUI::setNetworkActive(bool network_active)
 {
     updateNetworkState();
+    m_network_context_menu->clear();
+    m_network_context_menu->addAction(
+        //: A context menu item. The "Peers tab" is an element of the "Node window".
+        tr("Show Peers tab"),
+        [this] {
+            rpcConsole->setTabFocus(RPCConsole::TabTypes::PEERS);
+            showDebugWindow();
+        });
+    m_network_context_menu->addAction(
+        network_active ?
+            //: A context menu item.
+            tr("Disable network activity") :
+            //: A context menu item. The network activity was disabled previously.
+            tr("Enable network activity"),
+        [this, new_state = !network_active] { m_node.setNetworkActive(new_state); });
 }
 
 void BGLGUI::updateHeadersSyncProgressLabel()
@@ -944,7 +980,7 @@ void BGLGUI::updateHeadersSyncProgressLabel()
     int headersTipHeight = clientModel->getHeaderTipHeight();
     int estHeadersLeft = (GetTime() - headersTipTime) / Params().GetConsensus().nPowTargetSpacing;
     if (estHeadersLeft > HEADER_HEIGHT_DELTA_SYNC)
-        progressBarLabel->setText(tr("Syncing Headers (%1%)...").arg(QString::number(100.0 / (headersTipHeight+estHeadersLeft)*headersTipHeight, 'f', 1)));
+        progressBarLabel->setText(tr("Syncing Headers (%1%)…").arg(QString::number(100.0 / (headersTipHeight+estHeadersLeft)*headersTipHeight, 'f', 1)));
 }
 
 void BGLGUI::openOptionsDialogWithTab(OptionsDialog::Tab tab)
@@ -952,10 +988,11 @@ void BGLGUI::openOptionsDialogWithTab(OptionsDialog::Tab tab)
     if (!clientModel || !clientModel->getOptionsModel())
         return;
 
-    OptionsDialog dlg(this, enableWallet);
-    dlg.setCurrentTab(tab);
-    dlg.setModel(clientModel->getOptionsModel());
-    dlg.exec();
+    auto dlg = new OptionsDialog(this, enableWallet);
+    connect(dlg, &OptionsDialog::quitOnReset, this, &BGLGUI::quitRequested);
+    dlg->setCurrentTab(tab);
+    dlg->setModel(clientModel->getOptionsModel());
+    GUIUtil::ShowModalDialogAndDeleteOnClose(dlg);
 }
 
 void BGLGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVerificationProgress, bool header, SynchronizationState sync_state)
@@ -990,24 +1027,24 @@ void BGLGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVerific
                 updateHeadersSyncProgressLabel();
                 return;
             }
-            progressBarLabel->setText(tr("Synchronizing with network..."));
+            progressBarLabel->setText(tr("Synchronizing with network…"));
             updateHeadersSyncProgressLabel();
             break;
         case BlockSource::DISK:
             if (header) {
-                progressBarLabel->setText(tr("Indexing blocks on disk..."));
+                progressBarLabel->setText(tr("Indexing blocks on disk…"));
             } else {
-                progressBarLabel->setText(tr("Processing blocks on disk..."));
+                progressBarLabel->setText(tr("Processing blocks on disk…"));
             }
             break;
         case BlockSource::REINDEX:
-            progressBarLabel->setText(tr("Reindexing blocks on disk..."));
+            progressBarLabel->setText(tr("Reindexing blocks on disk…"));
             break;
         case BlockSource::NONE:
             if (header) {
                 return;
             }
-            progressBarLabel->setText(tr("Connecting to peers..."));
+            progressBarLabel->setText(tr("Connecting to peers…"));
             break;
     }
 
@@ -1021,7 +1058,7 @@ void BGLGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVerific
     // Set icon state: spinning if catching up, tick otherwise
     if (secs < MAX_BLOCK_TIME_GAP) {
         tooltip = tr("Up to date") + QString(".<br>") + tooltip;
-        labelBlocksIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/synced").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+        labelBlocksIcon->setThemedPixmap(QStringLiteral(":/icons/synced"), STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE);
 
 #ifdef ENABLE_WALLET
         if(walletFrame)
@@ -1044,12 +1081,12 @@ void BGLGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVerific
         progressBar->setValue(nVerificationProgress * 1000000000.0 + 0.5);
         progressBar->setVisible(true);
 
-        tooltip = tr("Catching up...") + QString("<br>") + tooltip;
+        tooltip = tr("Catching up…") + QString("<br>") + tooltip;
         if(count != prevBlocks)
         {
-            labelBlocksIcon->setPixmap(platformStyle->SingleColorIcon(QString(
-                ":/animation/spinner-%1").arg(spinnerFrame, 3, 10, QChar('0')))
-                .pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+            labelBlocksIcon->setThemedPixmap(
+                QString(":/animation/spinner-%1").arg(spinnerFrame, 3, 10, QChar('0')),
+                STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE);
             spinnerFrame = (spinnerFrame + 1) % SPINNER_FRAMES;
         }
         prevBlocks = count;
@@ -1138,7 +1175,15 @@ void BGLGUI::message(const QString& title, QString message, unsigned int style, 
 
 void BGLGUI::changeEvent(QEvent *e)
 {
+    if (e->type() == QEvent::PaletteChange) {
+        overviewAction->setIcon(platformStyle->SingleColorIcon(QStringLiteral(":/icons/overview")));
+        sendCoinsAction->setIcon(platformStyle->SingleColorIcon(QStringLiteral(":/icons/send")));
+        receiveCoinsAction->setIcon(platformStyle->SingleColorIcon(QStringLiteral(":/icons/receiving_addresses")));
+        historyAction->setIcon(platformStyle->SingleColorIcon(QStringLiteral(":/icons/history")));
+    }
+
     QMainWindow::changeEvent(e);
+
 #ifndef Q_OS_MAC // Ignored on Mac
     if(e->type() == QEvent::WindowStateChange)
     {
@@ -1170,7 +1215,7 @@ void BGLGUI::closeEvent(QCloseEvent *event)
             // close rpcConsole in case it was open to make some space for the shutdown window
             rpcConsole->close();
 
-            QApplication::quit();
+            Q_EMIT quitRequested();
         }
         else
         {
@@ -1256,11 +1301,9 @@ bool BGLGUI::handlePaymentRequest(const SendCoinsRecipient& recipient)
 
 void BGLGUI::setHDStatus(bool privkeyDisabled, int hdEnabled)
 {
-    labelWalletHDStatusIcon->setPixmap(platformStyle->SingleColorIcon(privkeyDisabled ? ":/icons/eye" : hdEnabled ? ":/icons/hd_enabled" : ":/icons/hd_disabled").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+    labelWalletHDStatusIcon->setThemedPixmap(privkeyDisabled ? QStringLiteral(":/icons/eye") : hdEnabled ? QStringLiteral(":/icons/hd_enabled") : QStringLiteral(":/icons/hd_disabled"), STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE);
     labelWalletHDStatusIcon->setToolTip(privkeyDisabled ? tr("Private key <b>disabled</b>") : hdEnabled ? tr("HD key generation is <b>enabled</b>") : tr("HD key generation is <b>disabled</b>"));
     labelWalletHDStatusIcon->show();
-    // eventually disable the QLabel to set its opacity to 50%
-    labelWalletHDStatusIcon->setEnabled(hdEnabled);
 }
 
 void BGLGUI::setEncryptionStatus(int status)
@@ -1275,7 +1318,7 @@ void BGLGUI::setEncryptionStatus(int status)
         break;
     case WalletModel::Unlocked:
         labelWalletEncryptionIcon->show();
-        labelWalletEncryptionIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/lock_open").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        labelWalletEncryptionIcon->setThemedPixmap(QStringLiteral(":/icons/lock_open"), STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE);
         labelWalletEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>unlocked</b>"));
         encryptWalletAction->setChecked(true);
         changePassphraseAction->setEnabled(true);
@@ -1283,7 +1326,7 @@ void BGLGUI::setEncryptionStatus(int status)
         break;
     case WalletModel::Locked:
         labelWalletEncryptionIcon->show();
-        labelWalletEncryptionIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/lock_closed").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
+        labelWalletEncryptionIcon->setThemedPixmap(QStringLiteral(":/icons/lock_closed"), STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE);
         labelWalletEncryptionIcon->setToolTip(tr("Wallet is <b>encrypted</b> and currently <b>locked</b>"));
         encryptWalletAction->setChecked(true);
         changePassphraseAction->setEnabled(true);
@@ -1294,9 +1337,8 @@ void BGLGUI::setEncryptionStatus(int status)
 
 void BGLGUI::updateWalletStatus()
 {
-    if (!walletFrame) {
-        return;
-    }
+    assert(walletFrame);
+
     WalletView * const walletView = walletFrame->currentWalletView();
     if (!walletView) {
         return;
@@ -1313,9 +1355,9 @@ void BGLGUI::updateProxyIcon()
     bool proxy_enabled = clientModel->getProxyInfo(ip_port);
 
     if (proxy_enabled) {
-        if (labelProxyIcon->pixmap() == nullptr) {
+        if (!GUIUtil::HasPixmap(labelProxyIcon)) {
             QString ip_port_q = QString::fromStdString(ip_port);
-            labelProxyIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/proxy").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+            labelProxyIcon->setThemedPixmap((":/icons/proxy"), STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE);
             labelProxyIcon->setToolTip(tr("Proxy is <b>enabled</b>: %1").arg(ip_port_q));
         } else {
             labelProxyIcon->show();
@@ -1365,7 +1407,7 @@ void BGLGUI::detectShutdown()
     {
         if(rpcConsole)
             rpcConsole->hide();
-        qApp->quit();
+        Q_EMIT quitRequested();
     }
 }
 
@@ -1375,7 +1417,6 @@ void BGLGUI::showProgress(const QString &title, int nProgress)
         progressDialog = new QProgressDialog(title, QString(), 0, 100);
         GUIUtil::PolishProgressDialog(progressDialog);
         progressDialog->setWindowModality(Qt::ApplicationModal);
-        progressDialog->setMinimumDuration(0);
         progressDialog->setAutoClose(false);
         progressDialog->setValue(0);
     } else if (nProgress == 100) {
@@ -1386,13 +1427,6 @@ void BGLGUI::showProgress(const QString &title, int nProgress)
         }
     } else if (progressDialog) {
         progressDialog->setValue(nProgress);
-    }
-}
-
-void BGLGUI::setTrayIconVisible(bool show_tray_con)
-{
-    if (trayIcon) {
-        trayIcon->setVisible(show_tray_con);
     }
 }
 
@@ -1447,9 +1481,10 @@ bool BGLGUI::isPrivacyModeActivated() const
     return m_mask_values_action->isChecked();
 }
 
-UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle *platformStyle) :
-    optionsModel(nullptr),
-    menu(nullptr)
+UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle *platformStyle)
+    : optionsModel(nullptr),
+      menu(nullptr),
+      m_platform_style{platformStyle}
 {
     createContextMenu();
     setToolTip(tr("Unit to show amounts in. Click to select another unit."));
@@ -1462,13 +1497,25 @@ UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle *pl
     }
     setMinimumSize(max_width, 0);
     setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    setStyleSheet(QString("QLabel { color : %1 }").arg(platformStyle->SingleColor().name()));
+    setStyleSheet(QString("QLabel { color : %1 }").arg(m_platform_style->SingleColor().name()));
 }
 
 /** So that it responds to button clicks */
 void UnitDisplayStatusBarControl::mousePressEvent(QMouseEvent *event)
 {
     onDisplayUnitsClicked(event->pos());
+}
+
+void UnitDisplayStatusBarControl::changeEvent(QEvent* e)
+{
+    if (e->type() == QEvent::PaletteChange) {
+        QString style = QString("QLabel { color : %1 }").arg(m_platform_style->SingleColor().name());
+        if (style != styleSheet()) {
+            setStyleSheet(style);
+        }
+    }
+
+    QLabel::changeEvent(e);
 }
 
 /** Creates context menu, its actions, and wires up all the relevant signals for mouse events. */

@@ -5,7 +5,15 @@ It is possible to run BGL Core as a Tor hidden service, and connect to such serv
 The following directions assume you have a Tor proxy running on port 9050. Many distributions default to having a SOCKS proxy listening on port 9050, but others may not. In particular, the Tor Browser Bundle defaults to listening on port 9150. See [Tor Project FAQ:TBBSocksPort](https://www.torproject.org/docs/faq.html.en#TBBSocksPort) for how to properly
 configure Tor.
 
-## How to see information about your Tor configuration via BGL Core
+## Compatibility
+
+- Starting with version 22.0, Bitcoin Core only supports Tor version 3 hidden
+  services (Tor v3). Tor v2 addresses are ignored by Bitcoin Core and neither
+  relayed nor stored.
+
+- Tor removed v2 support beginning with version 0.4.6.
+
+## How to see information about your Tor configuration via Bitcoin Core
 
 There are several ways to see your local onion address in BGL Core:
 - in the debug log (grep for "tor:" or "AddLocal")
@@ -15,6 +23,9 @@ There are several ways to see your local onion address in BGL Core:
 You may set the `-debug=tor` config logging option to have additional
 information in the debug log about your Tor configuration.
 
+CLI `-addrinfo` returns the number of addresses known to your node per
+network. This can be useful to see how many onion peers your node knows,
+e.g. for `-onlynet=onion`.
 
 ## 1. Run BGL Core behind a Tor proxy
 
@@ -45,11 +56,11 @@ outgoing connections, but more is possible.
     -onlynet=onion  Make outgoing connections only to .onion addresses. Incoming
                     connections are not affected by this option. This option can be
                     specified multiple times to allow multiple network types, e.g.
-                    ipv4, ipv6 or onion. If you use this option with values other
-                    than onion you *cannot* disable onion connections; outgoing onion
-                    connections will be enabled when you use -proxy or -onion. Use
-                    -noonion or -onion=0 if you want to be sure there are no outbound
-                    onion connections over the default proxy or your defined -proxy.
+                    onlynet=ipv4, onlynet=ipv6, onlynet=onion, onlynet=i2p.
+                    Warning: if you use -onlynet with values other than onion, and
+                    the -onion or -proxy option is set, then outgoing onion
+                    connections will still be made; use -noonion or -onion=0 to
+                    disable outbound onion connections in this case.
 
 In a typical situation, this suffices to run behind a Tor proxy:
 
@@ -122,7 +133,7 @@ You can also check the group of the cookie file. On most Linux systems, the Tor
 auth cookie will usually be `/run/tor/control.authcookie`:
 
 ```
-stat -c '%G' /run/tor/control.authcookie
+TORGROUP=$(stat -c '%G' /run/tor/control.authcookie)
 ```
 
 Once you have determined the `${TORGROUP}` and selected the `${USER}` that will

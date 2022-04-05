@@ -19,6 +19,7 @@ import datetime
 import os
 import time
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -39,7 +40,7 @@ except UnicodeDecodeError:
     CROSS = "x "
     CIRCLE = "o "
 
-if os.name != 'nt' or sys.getwindowsversion() >= (10, 0, 14393):
+if os.name != 'nt' or sys.getwindowsversion() >= (10, 0, 14393): #type:ignore
     if os.name == 'nt':
         import ctypes
         kernel32 = ctypes.windll.kernel32  # type: ignore
@@ -97,6 +98,7 @@ BASE_SCRIPTS = [
     'rpc_fundrawtransaction.py --legacy-wallet',
     'rpc_fundrawtransaction.py --descriptors',
     'p2p_compactblocks.py',
+    'p2p_compactblocks_blocksonly.py',
     'feature_segwit.py --legacy-wallet',
     # vv Tests less than 2m vv
     'wallet_basic.py --legacy-wallet',
@@ -108,8 +110,7 @@ BASE_SCRIPTS = [
     'p2p_tx_download.py',
     'mempool_updatefromblock.py',
     'wallet_dump.py --legacy-wallet',
-    'wallet_listtransactions.py --legacy-wallet',
-    'wallet_listtransactions.py --descriptors',
+    'feature_taproot.py --previous_release',
     'feature_taproot.py',
     'rpc_signer.py',
     'wallet_signer.py --descriptors',
@@ -121,10 +122,9 @@ BASE_SCRIPTS = [
     'wallet_listreceivedby.py --legacy-wallet',
     'wallet_listreceivedby.py --descriptors',
     'wallet_abandonconflict.py --legacy-wallet',
+    'p2p_dns_seeds.py',
     'wallet_abandonconflict.py --descriptors',
     'feature_csv_activation.py',
-    'rpc_rawtransaction.py --legacy-wallet',
-    'rpc_rawtransaction.py --descriptors',
     'wallet_address_types.py --legacy-wallet',
     'wallet_address_types.py --descriptors',
     'feature_bip68_sequence.py',
@@ -138,6 +138,7 @@ BASE_SCRIPTS = [
     'interface_zmq.py',
     'rpc_invalid_address_message.py',
     'interface_BGL_cli.py',
+    'feature_bind_extra.py',
     'mempool_resurrect.py',
     'wallet_txn_doublespend.py --mineblock',
     'tool_wallet.py --legacy-wallet',
@@ -158,6 +159,8 @@ BASE_SCRIPTS = [
     'wallet_createwallet.py --legacy-wallet',
     'wallet_createwallet.py --usecli',
     'wallet_createwallet.py --descriptors',
+    'wallet_listtransactions.py --legacy-wallet',
+    'wallet_listtransactions.py --descriptors',
     'wallet_watchonly.py --legacy-wallet',
     'wallet_watchonly.py --usecli --legacy-wallet',
     'wallet_reorgsrestore.py',
@@ -168,9 +171,13 @@ BASE_SCRIPTS = [
     'rpc_users.py',
     'rpc_whitelist.py',
     'feature_proxy.py',
+    'feature_syscall_sandbox.py',
     'rpc_signrawtransaction.py --legacy-wallet',
     'rpc_signrawtransaction.py --descriptors',
+    'rpc_rawtransaction.py --legacy-wallet',
+    'rpc_rawtransaction.py --descriptors',
     'wallet_groups.py --legacy-wallet',
+    'wallet_transactiontime_rescan.py',
     'p2p_addrv2_relay.py',
     'wallet_groups.py --descriptors',
     'p2p_compactblocks_hb.py',
@@ -200,6 +207,7 @@ BASE_SCRIPTS = [
     'feature_assumevalid.py',
     'example_test.py',
     'wallet_txn_doublespend.py --legacy-wallet',
+    'wallet_multisig_descriptor_psbt.py',
     'wallet_txn_doublespend.py --descriptors',
     'feature_backwards_compatibility.py --legacy-wallet',
     'feature_backwards_compatibility.py --descriptors',
@@ -213,13 +221,16 @@ BASE_SCRIPTS = [
     'mempool_package_onemore.py',
     'rpc_createmultisig.py --legacy-wallet',
     'rpc_createmultisig.py --descriptors',
+    'rpc_packages.py',
+    'mempool_package_limits.py',
     'feature_versionbits_warning.py',
     'rpc_preciousblock.py',
     'wallet_importprunedfunds.py --legacy-wallet',
     'wallet_importprunedfunds.py --descriptors',
     'p2p_leak_tx.py',
     'p2p_eviction.py',
-    'rpc_signmessage.py',
+    'wallet_signmessagewithaddress.py',
+    'rpc_signmessagewithprivkey.py',
     'rpc_generateblock.py',
     'rpc_generate.py',
     'wallet_balance.py --legacy-wallet',
@@ -260,6 +271,7 @@ BASE_SCRIPTS = [
     'wallet_create_tx.py --legacy-wallet',
     'wallet_send.py',
     'wallet_create_tx.py --descriptors',
+    'wallet_taproot.py',
     'p2p_fingerprint.py',
     'feature_uacomment.py',
     'wallet_coinbase_category.py --legacy-wallet',
@@ -272,24 +284,28 @@ BASE_SCRIPTS = [
     'p2p_blockfilters.py',
     'p2p_message_capture.py',
     'feature_includeconf.py',
+    'feature_addrman.py',
     'feature_asmap.py',
     'mempool_unbroadcast.py',
     'mempool_compatibility.py',
+    'mempool_accept_wtxid.py',
     'rpc_deriveaddresses.py',
     'rpc_deriveaddresses.py --usecli',
     'p2p_ping.py',
     'rpc_scantxoutset.py',
     'feature_logging.py',
     'feature_anchors.py',
+    'feature_coinstatsindex.py',
+    'wallet_orphanedreward.py',
     'p2p_node_network_limited.py',
     'p2p_permissions.py',
     'feature_blocksdir.py',
     'wallet_startup.py',
     'p2p_i2p_ports.py',
     'feature_config_args.py',
+    'feature_presegwit_node_upgrade.py',
     'feature_settings.py',
     'rpc_getdescriptorinfo.py',
-    'rpc_addresses_deprecation.py',
     'rpc_help.py',
     'feature_help.py',
     'feature_shutdown.py',
@@ -386,8 +402,9 @@ def main():
         for test in tests:
             script = test.split("/")[-1]
             script = script + ".py" if ".py" not in script else script
-            if script in ALL_SCRIPTS:
-                test_list.append(script)
+            matching_scripts = [s for s in ALL_SCRIPTS if s.startswith(script)]
+            if matching_scripts:
+                test_list.extend(matching_scripts)
             else:
                 print("{}WARNING!{} Test '{}' not found in full test list.".format(BOLD[1], BOLD[0], test))
     elif args.extended:
@@ -545,9 +562,11 @@ def run_tests(*, test_list, src_dir, build_dir, tmpdir, jobs=1, enable_coverage=
 
     all_passed = all(map(lambda test_result: test_result.was_successful, test_results)) and coverage_passed
 
-    # This will be a no-op unless failfast is True in which case there may be dangling
-    # processes which need to be killed.
-    job_queue.kill_and_join()
+    # Clean up dangling processes if any. This may only happen with --failfast option.
+    # Killing the process group will also terminate the current process but that is
+    # not an issue
+    if len(job_queue.jobs):
+        os.killpg(os.getpgid(0), signal.SIGKILL)
 
     sys.exit(not all_passed)
 
@@ -643,16 +662,6 @@ class TestHandler:
             if self.use_term_control:
                 print('.', end='', flush=True)
             dot_count += 1
-
-    def kill_and_join(self):
-        """Send SIGKILL to all jobs and block until all have ended."""
-        procs = [i[2] for i in self.jobs]
-
-        for proc in procs:
-            proc.kill()
-
-        for proc in procs:
-            proc.wait()
 
 
 class TestResult():

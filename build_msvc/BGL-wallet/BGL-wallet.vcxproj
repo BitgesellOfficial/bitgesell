@@ -10,6 +10,9 @@
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\BGL-wallet.cpp" />
+        <ClCompile Include="..\..\src\init\BGL-wallet.cpp">
+      <ObjectFileName>$(IntDir)init_BGL-wallet.obj</ObjectFileName>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\libBGLconsensus\libBGLconsensus.vcxproj">

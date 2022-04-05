@@ -5,7 +5,7 @@
 #ifndef BGL_QT_TRANSACTIONRECORD_H
 #define BGL_QT_TRANSACTIONRECORD_H
 
-#include <amount.h>
+#include <consensus/amount.h>
 #include <uint256.h>
 
 #include <QList>

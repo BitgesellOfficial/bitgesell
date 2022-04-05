@@ -3,18 +3,21 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 '''
-A script to check that the executables produced by gitian only contain
-certain symbols and are only linked against allowed libraries.
+A script to check that release executables only contain certain symbols
+and are only linked against allowed libraries.
 
 Example usage:
 
-    find ../gitian-builder/build -type f -executable | xargs python3 contrib/devtools/symbol-check.py
+    find ../path/to/binaries -type f -executable | xargs python3 contrib/devtools/symbol-check.py
 '''
-import subprocess
-import re
 import sys
-import os
-from typing import List, Optional, Tuple
+from typing import List, Dict
+
+import lief #type:ignore
+
+# temporary constant, to be replaced with lief.ELF.ARCH.RISCV
+# https://github.com/lief-project/LIEF/pull/562
+LIEF_ELF_ARCH_RISCV = lief.ELF.ARCH(243)
 
 # Debian 8 (Jessie) EOL: 2020. https://wiki.debian.org/DebianReleases#Production_Releases
 #
@@ -39,21 +42,50 @@ from typing import List, Optional, Tuple
 #
 MAX_VERSIONS = {
 'GCC':       (4,8,0),
-'GLIBC':     (2,17),
-'LIBATOMIC': (1,0)
+'GLIBC': {
+    lief.ELF.ARCH.i386:   (2,17),
+    lief.ELF.ARCH.x86_64: (2,17),
+    lief.ELF.ARCH.ARM:    (2,17),
+    lief.ELF.ARCH.AARCH64:(2,17),
+    lief.ELF.ARCH.PPC64:  (2,17),
+    LIEF_ELF_ARCH_RISCV:  (2,27),
+},
+'LIBATOMIC': (1,0),
+'V':         (0,5,0),  # xkb (bitcoin-qt only)
 }
 # See here for a description of _IO_stdin_used:
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=634261#109
 
 # Ignore symbols that are exported as part of every executable
 IGNORE_EXPORTS = {
-'_edata', '_end', '__end__', '_init', '__bss_start', '__bss_start__', '_bss_end__', '__bss_end__', '_fini', '_IO_stdin_used', 'stdin', 'stdout', 'stderr',
+'_edata', '_end', '__end__', '_init', '__bss_start', '__bss_start__', '_bss_end__',
+'__bss_end__', '_fini', '_IO_stdin_used', 'stdin', 'stdout', 'stderr',
 'environ', '_environ', '__environ',
 }
-READELF_CMD = os.getenv('READELF', '/usr/bin/readelf')
-CPPFILT_CMD = os.getenv('CPPFILT', '/usr/bin/c++filt')
-OBJDUMP_CMD = os.getenv('OBJDUMP', '/usr/bin/objdump')
-OTOOL_CMD = os.getenv('OTOOL', '/usr/bin/otool')
+
+# Expected linker-loader names can be found here:
+# https://sourceware.org/glibc/wiki/ABIList?action=recall&rev=16
+ELF_INTERPRETER_NAMES: Dict[lief.ELF.ARCH, Dict[lief.ENDIANNESS, str]] = {
+    lief.ELF.ARCH.i386:    {
+        lief.ENDIANNESS.LITTLE: "/lib/ld-linux.so.2",
+    },
+    lief.ELF.ARCH.x86_64:  {
+        lief.ENDIANNESS.LITTLE: "/lib64/ld-linux-x86-64.so.2",
+    },
+    lief.ELF.ARCH.ARM:     {
+        lief.ENDIANNESS.LITTLE: "/lib/ld-linux-armhf.so.3",
+    },
+    lief.ELF.ARCH.AARCH64: {
+        lief.ENDIANNESS.LITTLE: "/lib/ld-linux-aarch64.so.1",
+    },
+    lief.ELF.ARCH.PPC64:   {
+        lief.ENDIANNESS.BIG: "/lib64/ld64.so.1",
+        lief.ENDIANNESS.LITTLE: "/lib64/ld64.so.2",
+    },
+    LIEF_ELF_ARCH_RISCV:    {
+        lief.ENDIANNESS.LITTLE: "/lib/ld-linux-riscv64-lp64d.so.1",
+    },
+}
 
 # Allowed NEEDED libraries
 ELF_ALLOWED_LIBRARIES = {
@@ -76,13 +108,6 @@ ELF_ALLOWED_LIBRARIES = {
 'libfontconfig.so.1', # font support
 'libfreetype.so.6', # font parsing
 'libdl.so.2' # programming interface to dynamic linker
-}
-ARCH_MIN_GLIBC_VER = {
-'80386':  (2,1),
-'X86-64': (2,2,5),
-'ARM':    (2,4),
-'AArch64':(2,17),
-'RISC-V': (2,27)
 }
 
 MACHO_ALLOWED_LIBRARIES = {
@@ -131,196 +156,129 @@ PE_ALLOWED_LIBRARIES = {
 'WTSAPI32.dll',
 }
 
-class CPPFilt(object):
-    '''
-    Demangle C++ symbol names.
-
-    Use a pipe to the 'c++filt' command.
-    '''
-    def __init__(self):
-        self.proc = subprocess.Popen(CPPFILT_CMD, stdin=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
-
-    def __call__(self, mangled):
-        self.proc.stdin.write(mangled + '\n')
-        self.proc.stdin.flush()
-        return self.proc.stdout.readline().rstrip()
-
-    def close(self):
-        self.proc.stdin.close()
-        self.proc.stdout.close()
-        self.proc.wait()
-
-def read_symbols(executable, imports=True) -> List[Tuple[str, str, str]]:
-    '''
-    Parse an ELF executable and return a list of (symbol,version, arch) tuples
-    for dynamic, imported symbols.
-    '''
-    p = subprocess.Popen([READELF_CMD, '--dyn-syms', '-W', '-h', executable], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, universal_newlines=True)
-    (stdout, stderr) = p.communicate()
-    if p.returncode:
-        raise IOError('Could not read symbols for {}: {}'.format(executable, stderr.strip()))
-    syms = []
-    for line in stdout.splitlines():
-        line = line.split()
-        if 'Machine:' in line:
-            arch = line[-1]
-        if len(line)>7 and re.match('[0-9]+:$', line[0]):
-            (sym, _, version) = line[7].partition('@')
-            is_import = line[6] == 'UND'
-            if version.startswith('@'):
-                version = version[1:]
-            if is_import == imports:
-                syms.append((sym, version, arch))
-    return syms
-
 def check_version(max_versions, version, arch) -> bool:
-    if '_' in version:
-        (lib, _, ver) = version.rpartition('_')
-    else:
-        lib = version
-        ver = '0'
+    (lib, _, ver) = version.rpartition('_')
     ver = tuple([int(x) for x in ver.split('.')])
     if not lib in max_versions:
         return False
-    return ver <= max_versions[lib] or lib == 'GLIBC' and ver <= ARCH_MIN_GLIBC_VER[arch]
+    if isinstance(max_versions[lib], tuple):
+        return ver <= max_versions[lib]
+    else:
+        return ver <= max_versions[lib][arch]
 
-def elf_read_libraries(filename) -> List[str]:
-    p = subprocess.Popen([READELF_CMD, '-d', '-W', filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, universal_newlines=True)
-    (stdout, stderr) = p.communicate()
-    if p.returncode:
-        raise IOError('Error opening file')
-    libraries = []
-    for line in stdout.splitlines():
-        tokens = line.split()
-        if len(tokens)>2 and tokens[1] == '(NEEDED)':
-            match = re.match(r'^Shared library: \[(.*)\]$', ' '.join(tokens[2:]))
-            if match:
-                libraries.append(match.group(1))
-            else:
-                raise ValueError('Unparseable (NEEDED) specification')
-    return libraries
-
-def check_imported_symbols(filename) -> bool:
-    cppfilt = CPPFilt()
+def check_imported_symbols(binary) -> bool:
     ok: bool = True
 
-    for symbol in elf.dyn_symbols:
-        if not symbol.is_import:
+    for symbol in binary.imported_symbols:
+        if not symbol.imported:
             continue
-        sym = symbol.name.decode()
-        version = symbol.version.decode() if symbol.version is not None else None
-        if version and not check_version(MAX_VERSIONS, version, elf.hdr.e_machine):
-            print('{}: symbol {} from unsupported version {}'.format(filename, cppfilt(sym), version))
-            ok = False
+
+        version = symbol.symbol_version if symbol.has_version else None
+
+        if version:
+            aux_version = version.symbol_version_auxiliary.name if version.has_auxiliary_version else None
+            if aux_version and not check_version(MAX_VERSIONS, aux_version, binary.header.machine_type):
+                print(f'{filename}: symbol {symbol.name} from unsupported version {version}')
+                ok = False
     return ok
 
-def check_exported_symbols(filename) -> bool:
-    cppfilt = CPPFilt()
+def check_exported_symbols(binary) -> bool:
     ok: bool = True
-    for symbol in elf.dyn_symbols:
-        if not symbol.is_export:
+
+    for symbol in binary.dynamic_symbols:
+        if not symbol.exported:
             continue
-        sym = symbol.name.decode()
-        if elf.hdr.e_machine == pixie.EM_RISCV or sym in IGNORE_EXPORTS:
+        name = symbol.name
+        if binary.header.machine_type == LIEF_ELF_ARCH_RISCV or name in IGNORE_EXPORTS:
             continue
-        print('{}: export of symbol {} not allowed'.format(filename, cppfilt(sym)))
+        print(f'{binary.name}: export of symbol {name} not allowed!')
         ok = False
     return ok
 
-def check_ELF_libraries(filename) -> bool:
+def check_ELF_libraries(binary) -> bool:
     ok: bool = True
-    elf = pixie.load(filename)
-    for library_name in elf.query_dyn_tags(pixie.DT_NEEDED):
-        assert(isinstance(library_name, bytes))
-        if library_name.decode() not in ELF_ALLOWED_LIBRARIES:
-            print('{}: NEEDED library {} is not allowed'.format(filename, library_name.decode()))
+    for library in binary.libraries:
+        if library not in ELF_ALLOWED_LIBRARIES:
+            print(f'{filename}: {library} is not in ALLOWED_LIBRARIES!')
             ok = False
     return ok
 
-def macho_read_libraries(filename) -> List[str]:
-    p = subprocess.Popen([OTOOL_CMD, '-L', filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, universal_newlines=True)
-    (stdout, stderr) = p.communicate()
-    if p.returncode:
-        raise IOError('Error opening file')
-    libraries = []
-    for line in stdout.splitlines():
-        tokens = line.split()
-        if len(tokens) == 1: # skip executable name
-            continue
-        libraries.append(tokens[0].split('/')[-1])
-    return libraries
-
-def check_MACHO_libraries(filename) -> bool:
+def check_MACHO_libraries(binary) -> bool:
     ok: bool = True
-    for dylib in macho_read_libraries(filename):
-        if dylib not in MACHO_ALLOWED_LIBRARIES:
-            print('{} is not in ALLOWED_LIBRARIES!'.format(dylib))
+    for dylib in binary.libraries:
+        split = dylib.name.split('/')
+        if split[-1] not in MACHO_ALLOWED_LIBRARIES:
+            print(f'{split[-1]} is not in ALLOWED_LIBRARIES!')
             ok = False
     return ok
 
-def pe_read_libraries(filename) -> List[str]:
-    p = subprocess.Popen([OBJDUMP_CMD, '-x', filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, universal_newlines=True)
-    (stdout, stderr) = p.communicate()
-    if p.returncode:
-        raise IOError('Error opening file')
-    libraries = []
-    for line in stdout.splitlines():
-        if 'DLL Name:' in line:
-            tokens = line.split(': ')
-            libraries.append(tokens[1])
-    return libraries
+def check_MACHO_min_os(binary) -> bool:
+    if binary.build_version.minos == [10,15,0]:
+        return True
+    return False
 
-def check_PE_libraries(filename) -> bool:
+def check_MACHO_sdk(binary) -> bool:
+    if binary.build_version.sdk == [10, 15, 6]:
+        return True
+    return False
+
+def check_PE_libraries(binary) -> bool:
     ok: bool = True
-    for dylib in pe_read_libraries(filename):
+    for dylib in binary.libraries:
         if dylib not in PE_ALLOWED_LIBRARIES:
-            print('{} is not in ALLOWED_LIBRARIES!'.format(dylib))
+            print(f'{dylib} is not in ALLOWED_LIBRARIES!')
             ok = False
     return ok
+
+def check_PE_subsystem_version(binary) -> bool:
+    major: int = binary.optional_header.major_subsystem_version
+    minor: int = binary.optional_header.minor_subsystem_version
+    if major == 6 and minor == 1:
+        return True
+    return False
+
+def check_ELF_interpreter(binary) -> bool:
+    expected_interpreter = ELF_INTERPRETER_NAMES[binary.header.machine_type][binary.abstract.header.endianness]
+
+    return binary.concrete.interpreter == expected_interpreter
 
 CHECKS = {
 'ELF': [
     ('IMPORTED_SYMBOLS', check_imported_symbols),
     ('EXPORTED_SYMBOLS', check_exported_symbols),
-    ('LIBRARY_DEPENDENCIES', check_ELF_libraries)
+    ('LIBRARY_DEPENDENCIES', check_ELF_libraries),
+    ('INTERPRETER_NAME', check_ELF_interpreter),
 ],
 'MACHO': [
-    ('DYNAMIC_LIBRARIES', check_MACHO_libraries)
+    ('DYNAMIC_LIBRARIES', check_MACHO_libraries),
+    ('MIN_OS', check_MACHO_min_os),
+    ('SDK', check_MACHO_sdk),
 ],
 'PE' : [
-    ('DYNAMIC_LIBRARIES', check_PE_libraries)
+    ('DYNAMIC_LIBRARIES', check_PE_libraries),
+    ('SUBSYSTEM_VERSION', check_PE_subsystem_version),
 ]
 }
-
-def identify_executable(executable) -> Optional[str]:
-    with open(filename, 'rb') as f:
-        magic = f.read(4)
-    if magic.startswith(b'MZ'):
-        return 'PE'
-    elif magic.startswith(b'\x7fELF'):
-        return 'ELF'
-    elif magic.startswith(b'\xcf\xfa'):
-        return 'MACHO'
-    return None
 
 if __name__ == '__main__':
     retval: int = 0
     for filename in sys.argv[1:]:
         try:
-            etype = identify_executable(filename)
-            if etype is None:
-                print('{}: unknown format'.format(filename))
+            binary = lief.parse(filename)
+            etype = binary.format.name
+            if etype == lief.EXE_FORMATS.UNKNOWN:
+                print(f'{filename}: unknown executable format')
                 retval = 1
                 continue
 
             failed: List[str] = []
             for (name, func) in CHECKS[etype]:
-                if not func(filename):
+                if not func(binary):
                     failed.append(name)
             if failed:
-                print('{}: failed {}'.format(filename, ' '.join(failed)))
+                print(f'{filename}: failed {" ".join(failed)}')
                 retval = 1
         except IOError:
-            print('{}: cannot open'.format(filename))
+            print(f'{filename}: cannot open')
             retval = 1
     sys.exit(retval)

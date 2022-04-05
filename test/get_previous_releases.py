@@ -104,7 +104,11 @@ def download_binary(tag, args) -> int:
     tarballHash = hasher.hexdigest()
 
     if tarballHash not in SHA256_SUMS or SHA256_SUMS[tarballHash] != tarball:
-        print("Checksum did not match")
+        if tarball in SHA256_SUMS.values():
+            print("Checksum did not match")
+            return 1
+
+        print("Checksum for given version doesn't exist")
         return 1
     print("Checksum matched")
 
@@ -178,6 +182,7 @@ def check_host(args) -> int:
             'aarch64-*-linux*': 'aarch64-linux-gnu',
             'x86_64-*-linux*': 'x86_64-linux-gnu',
             'x86_64-apple-darwin*': 'osx64',
+            'aarch64-apple-darwin*': 'osx64',
         }
         args.platform = ''
         for pattern, target in platforms.items():

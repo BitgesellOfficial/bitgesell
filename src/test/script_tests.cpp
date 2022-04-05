@@ -39,8 +39,7 @@ static const unsigned int gFlags = SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_STRICTENC;
 unsigned int ParseScriptFlags(std::string strFlags);
 std::string FormatScriptFlags(unsigned int flags);
 
-UniValue
-read_json(const std::string& jsondata)
+UniValue read_json(const std::string& jsondata)
 {
     UniValue v;
 
@@ -124,7 +123,7 @@ static ScriptError_t ParseScriptError(const std::string& name)
 
 BOOST_FIXTURE_TEST_SUITE(script_tests, BasicTestingSetup)
 
-void DoTest(const CScript& scriptPubKey, const CScript& scriptSig, const CScriptWitness& scriptWitness, int flags, const std::string& message, int scriptError, CAmount nValue = 0)
+void DoTest(const CScript& scriptPubKey, const CScript& scriptSig, const CScriptWitness& scriptWitness, uint32_t flags, const std::string& message, int scriptError, CAmount nValue = 0)
 {
     bool expect = (scriptError == SCRIPT_ERR_OK);
     if (flags & SCRIPT_VERIFY_CLEANSTACK) {
@@ -140,8 +139,8 @@ void DoTest(const CScript& scriptPubKey, const CScript& scriptSig, const CScript
 
     // Verify that removing flags from a passing test or adding flags to a failing test does not change the result.
     for (int i = 0; i < 16; ++i) {
-        int extra_flags = InsecureRandBits(16);
-        int combined_flags = expect ? (flags & ~extra_flags) : (flags | extra_flags);
+        uint32_t extra_flags(InsecureRandBits(16));
+        uint32_t combined_flags{expect ? (flags & ~extra_flags) : (flags | extra_flags)};
         // Weed out some invalid flag combinations.
         if (combined_flags & SCRIPT_VERIFY_CLEANSTACK && ~combined_flags & (SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_WITNESS)) continue;
         if (combined_flags & SCRIPT_VERIFY_WITNESS && ~combined_flags & SCRIPT_VERIFY_P2SH) continue;
@@ -151,14 +150,14 @@ void DoTest(const CScript& scriptPubKey, const CScript& scriptSig, const CScript
 #if defined(HAVE_CONSENSUS_LIB)
     CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);
     stream << tx2;
-    int libconsensus_flags = flags & BGLconsensus_SCRIPT_FLAGS_VERIFY_ALL;
+    uint32_t libconsensus_flags{flags & BGLconsensus_SCRIPT_FLAGS_VERIFY_ALL};
     if (libconsensus_flags == flags) {
         int expectedSuccessCode = expect ? 1 : 0;
         if (flags & BGLconsensus_SCRIPT_FLAGS_VERIFY_WITNESS) {
-            BOOST_CHECK_MESSAGE(BGLconsensus_verify_script_with_amount(scriptPubKey.data(), scriptPubKey.size(), txCredit.vout[0].nValue, (const unsigned char*)&stream[0], stream.size(), 0, libconsensus_flags, nullptr) == expectedSuccessCode, message);
+            BOOST_CHECK_MESSAGE(BGLconsensus_verify_script_with_amount(scriptPubKey.data(), scriptPubKey.size(), txCredit.vout[0].nValue, stream.data(), stream.size(), 0, libconsensus_flags, nullptr) == expectedSuccessCode, message);
         } else {
-            BOOST_CHECK_MESSAGE(BGLconsensus_verify_script_with_amount(scriptPubKey.data(), scriptPubKey.size(), 0, (const unsigned char*)&stream[0], stream.size(), 0, libconsensus_flags, nullptr) == expectedSuccessCode, message);
-            BOOST_CHECK_MESSAGE(BGLconsensus_verify_script(scriptPubKey.data(), scriptPubKey.size(), (const unsigned char*)&stream[0], stream.size(), 0, libconsensus_flags, nullptr) == expectedSuccessCode, message);
+            BOOST_CHECK_MESSAGE(BGLconsensus_verify_script_with_amount(scriptPubKey.data(), scriptPubKey.size(), 0, stream.data(), stream.size(), 0, libconsensus_flags, nullptr) == expectedSuccessCode, message);
+            BOOST_CHECK_MESSAGE(BGLconsensus_verify_script(scriptPubKey.data(), scriptPubKey.size(), stream.data(), stream.size(), 0, libconsensus_flags, nullptr) == expectedSuccessCode, message);
         }
     }
 #endif
@@ -224,7 +223,7 @@ struct KeyData
         pubkey0 = key0.GetPubKey();
         pubkey0H = key0.GetPubKey();
         pubkey0C = key0C.GetPubKey();
-        *const_cast<unsigned char*>(&pubkey0H[0]) = 0x06 | (pubkey0H[64] & 1);
+        *const_cast<unsigned char*>(pubkey0H.data()) = 0x06 | (pubkey0H[64] & 1);
 
         key1.Set(vchKey1, vchKey1 + 32, false);
         key1C.Set(vchKey1, vchKey1 + 32, true);
@@ -259,7 +258,7 @@ private:
     bool havePush;
     std::vector<unsigned char> push;
     std::string comment;
-    int flags;
+    uint32_t flags;
     int scriptError;
     CAmount nValue;
 
@@ -279,7 +278,7 @@ private:
     }
 
 public:
-    TestBuilder(const CScript& script_, const std::string& comment_, int flags_, bool P2SH = false, WitnessMode wm = WitnessMode::NONE, int witnessversion = 0, CAmount nValue_ = 0) : script(script_), havePush(false), comment(comment_), flags(flags_), scriptError(SCRIPT_ERR_OK), nValue(nValue_)
+    TestBuilder(const CScript& script_, const std::string& comment_, uint32_t flags_, bool P2SH = false, WitnessMode wm = WitnessMode::NONE, int witnessversion = 0, CAmount nValue_ = 0) : script(script_), havePush(false), comment(comment_), flags(flags_), scriptError(SCRIPT_ERR_OK), nValue(nValue_)
     {
         CScript scriptPubKey = script;
         if (wm == WitnessMode::PKH) {
@@ -290,7 +289,7 @@ public:
         } else if (wm == WitnessMode::SH) {
             witscript = scriptPubKey;
             uint256 hash;
-            CSHA256().Write(&witscript[0], witscript.size()).Finalize(hash.begin());
+            CSHA256().Write(witscript.data(), witscript.size()).Finalize(hash.begin());
             scriptPubKey = CScript() << witnessversion << ToByteVector(hash);
         }
         if (P2SH) {
@@ -774,7 +773,7 @@ BOOST_AUTO_TEST_CASE(script_build)
     {
         CScript witscript = CScript() << ToByteVector(keys.pubkey0);
         uint256 hash;
-        CSHA256().Write(&witscript[0], witscript.size()).Finalize(hash.begin());
+        CSHA256().Write(witscript.data(), witscript.size()).Finalize(hash.begin());
         std::vector<unsigned char> hashBytes = ToByteVector(hash);
         hashBytes.pop_back();
         tests.push_back(TestBuilder(CScript() << OP_0 << hashBytes,
@@ -1162,7 +1161,7 @@ SignatureData CombineSignatures(const CTxOut& txout, const CMutableTransaction& 
     SignatureData data;
     data.MergeSignatureData(scriptSig1);
     data.MergeSignatureData(scriptSig2);
-    ProduceSignature(DUMMY_SIGNING_PROVIDER, MutableTransactionSignatureCreator(&tx, 0, txout.nValue), txout.scriptPubKey, data);
+    ProduceSignature(DUMMY_SIGNING_PROVIDER, MutableTransactionSignatureCreator(&tx, 0, txout.nValue, SIGHASH_DEFAULT), txout.scriptPubKey, data);
     return data;
 }
 
@@ -1521,7 +1520,7 @@ BOOST_AUTO_TEST_CASE(BGLconsensus_verify_script_returns_true)
     stream << spendTx;
 
     BGLconsensus_error err;
-    int result = BGLconsensus_verify_script(scriptPubKey.data(), scriptPubKey.size(), (const unsigned char*)&stream[0], stream.size(), nIn, libconsensus_flags, &err);
+    int result = BGLconsensus_verify_script(scriptPubKey.data(), scriptPubKey.size(), stream.data(), stream.size(), nIn, libconsensus_flags, &err);
     BOOST_CHECK_EQUAL(result, 1);
     BOOST_CHECK_EQUAL(err, BGLconsensus_ERR_OK);
 }
@@ -1544,7 +1543,7 @@ BOOST_AUTO_TEST_CASE(BGLconsensus_verify_script_tx_index_err)
     stream << spendTx;
 
     BGLconsensus_error err;
-    int result = BGLconsensus_verify_script(scriptPubKey.data(), scriptPubKey.size(), (const unsigned char*)&stream[0], stream.size(), nIn, libconsensus_flags, &err);
+    int result =BGLconsensus_verify_script(scriptPubKey.data(), scriptPubKey.size(), stream.data(), stream.size(), nIn, libconsensus_flags, &err);
     BOOST_CHECK_EQUAL(result, 0);
     BOOST_CHECK_EQUAL(err, BGLconsensus_ERR_TX_INDEX);
 }
@@ -1567,7 +1566,7 @@ BOOST_AUTO_TEST_CASE(BGLconsensus_verify_script_tx_size)
     stream << spendTx;
 
     BGLconsensus_error err;
-    int result = BGLconsensus_verify_script(scriptPubKey.data(), scriptPubKey.size(), (const unsigned char*)&stream[0], stream.size() * 2, nIn, libconsensus_flags, &err);
+    int result = BGLconsensus_verify_script(scriptPubKey.data(), scriptPubKey.size(), stream.data(), stream.size() * 2, nIn, libconsensus_flags, &err);
     BOOST_CHECK_EQUAL(result, 0);
     BOOST_CHECK_EQUAL(err, BGLconsensus_ERR_TX_SIZE_MISMATCH);
 }
@@ -1590,7 +1589,7 @@ BOOST_AUTO_TEST_CASE(BGLconsensus_verify_script_tx_serialization)
     stream << 0xffffffff;
 
     BGLconsensus_error err;
-    int result = BGLconsensus_verify_script(scriptPubKey.data(), scriptPubKey.size(), (const unsigned char*)&stream[0], stream.size(), nIn, libconsensus_flags, &err);
+    int result = BGLconsensus_verify_script(scriptPubKey.data(), scriptPubKey.size(), stream.data(), stream.size(), nIn, libconsensus_flags, &err);
     BOOST_CHECK_EQUAL(result, 0);
     BOOST_CHECK_EQUAL(err, BGLconsensus_ERR_TX_DESERIALIZE);
 }
@@ -1613,7 +1612,7 @@ BOOST_AUTO_TEST_CASE(BGLconsensus_verify_script_amount_required_err)
     stream << spendTx;
 
     BGLconsensus_error err;
-    int result = BGLconsensus_verify_script(scriptPubKey.data(), scriptPubKey.size(), (const unsigned char*)&stream[0], stream.size(), nIn, libconsensus_flags, &err);
+    int result = BGLconsensus_verify_script(scriptPubKey.data(), scriptPubKey.size(), stream.data(), stream.size(), nIn, libconsensus_flags, &err);
     BOOST_CHECK_EQUAL(result, 0);
     BOOST_CHECK_EQUAL(err, BGLconsensus_ERR_AMOUNT_REQUIRED);
 }
@@ -1636,7 +1635,7 @@ BOOST_AUTO_TEST_CASE(BGLconsensus_verify_script_invalid_flags)
     stream << spendTx;
 
     BGLconsensus_error err;
-    int result = BGLconsensus_verify_script(scriptPubKey.data(), scriptPubKey.size(), (const unsigned char*)&stream[0], stream.size(), nIn, libconsensus_flags, &err);
+    int result = BGLconsensus_verify_script(scriptPubKey.data(), scriptPubKey.size(), stream.data(), stream.size(), nIn, libconsensus_flags, &err);
     BOOST_CHECK_EQUAL(result, 0);
     BOOST_CHECK_EQUAL(err, BGLconsensus_ERR_INVALID_FLAGS);
 }
@@ -1679,7 +1678,7 @@ static void AssetTest(const UniValue& test)
     const std::vector<CTxOut> prevouts = TxOutsFromJSON(test["prevouts"]);
     BOOST_CHECK(prevouts.size() == mtx.vin.size());
     size_t idx = test["index"].get_int64();
-    unsigned int test_flags = ParseScriptFlags(test["flags"].get_str());
+    uint32_t test_flags{ParseScriptFlags(test["flags"].get_str())};
     bool fin = test.exists("final") && test["final"].get_bool();
 
     if (test.exists("success")) {
@@ -1734,7 +1733,7 @@ BOOST_AUTO_TEST_CASE(script_assets_test)
     size_t length = file.tellg();
     file.seekg(0, std::ios::beg);
     std::string data(length, '\0');
-    file.read(&data[0], data.size());
+    file.read(data.data(), data.size());
     UniValue tests = read_json(data);
     BOOST_CHECK(tests.isArray());
     BOOST_CHECK(tests.size() > 0);

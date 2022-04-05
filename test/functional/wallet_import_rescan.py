@@ -99,7 +99,7 @@ class Variant(collections.namedtuple("Variant", "call data address_type rescan p
             assert_equal(tx["label"], self.label)
             assert_equal(tx["txid"], txid)
             assert_equal(tx["confirmations"], 1 + current_height - confirmation_height)
-            assert_equal("trusted" not in tx, True)
+            assert "trusted" not in tx
 
             address, = [ad for ad in addresses if txid in ad["txids"]]
             assert_equal(address["address"], self.address["address"])
@@ -178,10 +178,9 @@ class ImportRescanTest(BGLTestFramework):
             variant.key = self.nodes[1].dumpprivkey(variant.address["address"])
             variant.initial_amount = get_rand_amount()
             variant.initial_txid = self.nodes[0].sendtoaddress(variant.address["address"], variant.initial_amount)
-            self.nodes[0].generate(1)  # Generate one block for each send
+            self.generate(self.nodes[0], 1)  # Generate one block for each send
             variant.confirmation_height = self.nodes[0].getblockcount()
             variant.timestamp = self.nodes[0].getblockheader(self.nodes[0].getbestblockhash())["time"]
-        self.sync_all() # Conclude sync before calling setmocktime to avoid timeouts
 
         # Generate a block further in the future (past the rescan window).
         assert_equal(self.nodes[0].getrawmempool(), [])
@@ -189,7 +188,7 @@ class ImportRescanTest(BGLTestFramework):
             self.nodes,
             self.nodes[0].getblockheader(self.nodes[0].getbestblockhash())["time"] + TIMESTAMP_WINDOW + 1,
         )
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
         self.sync_all()
 
         # For each variation of wallet key import, invoke the import RPC and
@@ -212,7 +211,7 @@ class ImportRescanTest(BGLTestFramework):
         for i, variant in enumerate(IMPORT_VARIANTS):
             variant.sent_amount = get_rand_amount()
             variant.sent_txid = self.nodes[0].sendtoaddress(variant.address["address"], variant.sent_amount)
-            self.nodes[0].generate(1)  # Generate one block for each send
+            self.generate(self.nodes[0], 1)  # Generate one block for each send
             variant.confirmation_height = self.nodes[0].getblockcount()
 
         assert_equal(self.nodes[0].getrawmempool(), [])

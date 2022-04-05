@@ -173,10 +173,17 @@ void SendCoinsDialog::setModel(WalletModel *_model)
         for (const int n : confTargets) {
             ui->confTargetSelector->addItem(tr("%1 (%2 blocks)").arg(GUIUtil::formatNiceTimeOffset(n*Params().GetConsensus().nPowTargetSpacing)).arg(n));
         }
-        connect(ui->confTargetSelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &SendCoinsDialog::updateSmartFeeLabel);
-        connect(ui->confTargetSelector, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &SendCoinsDialog::coinControlUpdateLabels);
-        connect(ui->groupFee, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &SendCoinsDialog::updateFeeSectionControls);
-        connect(ui->groupFee, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &SendCoinsDialog::coinControlUpdateLabels);
+        connect(ui->confTargetSelector, qOverload<int>(&QComboBox::currentIndexChanged), this, &SendCoinsDialog::updateSmartFeeLabel);
+        connect(ui->confTargetSelector, qOverload<int>(&QComboBox::currentIndexChanged), this, &SendCoinsDialog::coinControlUpdateLabels);
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+        connect(ui->groupFee, &QButtonGroup::idClicked, this, &SendCoinsDialog::updateFeeSectionControls);
+        connect(ui->groupFee, &QButtonGroup::idClicked, this, &SendCoinsDialog::coinControlUpdateLabels);
+#else
+        connect(ui->groupFee, qOverload<int>(&QButtonGroup::buttonClicked), this, &SendCoinsDialog::updateFeeSectionControls);
+        connect(ui->groupFee, qOverload<int>(&QButtonGroup::buttonClicked), this, &SendCoinsDialog::coinControlUpdateLabels);
+#endif
+
         connect(ui->customFee, &BGLAmountField::valueChanged, this, &SendCoinsDialog::coinControlUpdateLabels);
         connect(ui->optInRBF, &QCheckBox::stateChanged, this, &SendCoinsDialog::updateSmartFeeLabel);
         connect(ui->optInRBF, &QCheckBox::stateChanged, this, &SendCoinsDialog::coinControlUpdateLabels);
@@ -192,7 +199,18 @@ void SendCoinsDialog::setModel(WalletModel *_model)
         // set default rbf checkbox state
         ui->optInRBF->setCheckState(Qt::Checked);
 
-        if (model->wallet().privateKeysDisabled()) {
+        if (model->wallet().hasExternalSigner()) {
+            //: "device" usually means a hardware wallet.
+            ui->sendButton->setText(tr("Sign on device"));
+            if (gArgs.GetArg("-signer", "") != "") {
+                ui->sendButton->setEnabled(true);
+                ui->sendButton->setToolTip(tr("Connect your hardware wallet first."));
+            } else {
+                ui->sendButton->setEnabled(false);
+                //: "External signer" means using devices such as hardware wallets.
+                ui->sendButton->setToolTip(tr("Set external signer script path in Options -> Wallet"));
+            }
+        } else if (model->wallet().privateKeysDisabled()) {
             ui->sendButton->setText(tr("Cr&eate Unsigned"));
             ui->sendButton->setToolTip(tr("Creates a Partially Signed BGL Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
         }
@@ -361,7 +379,7 @@ bool SendCoinsDialog::PrepareSendText(QString& question_string, QString& informa
 
     if (formatted.size() > 1) {
         question_string = question_string.arg("");
-        informative_text = tr("To review recipient list click \"Show Details...\"");
+        informative_text = tr("To review recipient list click \"Show Details…\"");
         detailed_text = formatted.join("\n\n");
     } else {
         question_string = question_string.arg("<br /><br />" + formatted.at(0));
@@ -379,11 +397,12 @@ void SendCoinsDialog::sendButtonClicked([[maybe_unused]] bool checked)
     if (!PrepareSendText(question_string, informative_text, detailed_text)) return;
     assert(m_current_transaction);
 
-    const QString confirmation = model->wallet().privateKeysDisabled() ? tr("Confirm transaction proposal") : tr("Confirm send coins");
-    const QString confirmButtonText = model->wallet().privateKeysDisabled() ? tr("Create Unsigned") : tr("Send");
-    SendConfirmationDialog confirmationDialog(confirmation, question_string, informative_text, detailed_text, SEND_CONFIRM_DELAY, confirmButtonText, this);
-    confirmationDialog.exec();
-    QMessageBox::StandardButton retval = static_cast<QMessageBox::StandardButton>(confirmationDialog.result());
+    const QString confirmation = model->wallet().privateKeysDisabled() && !model->wallet().hasExternalSigner() ? tr("Confirm transaction proposal") : tr("Confirm send coins");
+    const QString confirmButtonText = model->wallet().privateKeysDisabled() && !model->wallet().hasExternalSigner() ? tr("Create Unsigned") : tr("Sign and send");
+    auto confirmationDialog = new SendConfirmationDialog(confirmation, question_string, informative_text, detailed_text, SEND_CONFIRM_DELAY, confirmButtonText, this);
+    confirmationDialog->setAttribute(Qt::WA_DeleteOnClose);
+    // TODO: Replace QDialog::exec() with safer QDialog::show().
+    const auto retval = static_cast<QMessageBox::StandardButton>(confirmationDialog->exec());
 
     if(retval != QMessageBox::Yes)
     {
@@ -396,9 +415,60 @@ void SendCoinsDialog::sendButtonClicked([[maybe_unused]] bool checked)
         CMutableTransaction mtx = CMutableTransaction{*(m_current_transaction->getWtx())};
         PartiallySignedTransaction psbtx(mtx);
         bool complete = false;
-        const TransactionError err = model->wallet().fillPSBT(SIGHASH_ALL, false /* sign */, true /* bip32derivs */, psbtx, complete, nullptr);
+        // Always fill without signing first. This prevents an external signer
+        // from being called prematurely and is not expensive.
+        TransactionError err = model->wallet().fillPSBT(SIGHASH_ALL, false /* sign */, true /* bip32derivs */, nullptr, psbtx, complete);
         assert(!complete);
         assert(err == TransactionError::OK);
+        if (model->wallet().hasExternalSigner()) {
+            try {
+                err = model->wallet().fillPSBT(SIGHASH_ALL, true /* sign */, true /* bip32derivs */, nullptr, psbtx, complete);
+            } catch (const std::runtime_error& e) {
+                QMessageBox::critical(nullptr, tr("Sign failed"), e.what());
+                send_failure = true;
+                return;
+            }
+            if (err == TransactionError::EXTERNAL_SIGNER_NOT_FOUND) {
+                //: "External signer" means using devices such as hardware wallets.
+                QMessageBox::critical(nullptr, tr("External signer not found"), "External signer not found");
+                send_failure = true;
+                return;
+            }
+            if (err == TransactionError::EXTERNAL_SIGNER_FAILED) {
+                //: "External signer" means using devices such as hardware wallets.
+                QMessageBox::critical(nullptr, tr("External signer failure"), "External signer failure");
+                send_failure = true;
+                return;
+            }
+            if (err != TransactionError::OK) {
+                tfm::format(std::cerr, "Failed to sign PSBT");
+                processSendCoinsReturn(WalletModel::TransactionCreationFailed);
+                send_failure = true;
+                return;
+            }
+            // fillPSBT does not always properly finalize
+            complete = FinalizeAndExtractPSBT(psbtx, mtx);
+        }
+
+        // Broadcast transaction if complete (even with an external signer this
+        // is not always the case, e.g. in a multisig wallet).
+        if (complete) {
+            const CTransactionRef tx = MakeTransactionRef(mtx);
+            m_current_transaction->setWtx(tx);
+            WalletModel::SendCoinsReturn sendStatus = model->sendCoins(*m_current_transaction);
+            // process sendStatus and on error generate message shown to user
+            processSendCoinsReturn(sendStatus);
+
+            if (sendStatus.status == WalletModel::OK) {
+                Q_EMIT coinsSent(m_current_transaction->getWtx()->GetHash());
+            } else {
+                send_failure = true;
+            }
+            return;
+        }
+
+        // Copy PSBT to clipboard and offer to save
+        assert(!complete);
         // Serialize the PSBT
         CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
         ssTx << psbtx;
@@ -425,7 +495,8 @@ void SendCoinsDialog::sendButtonClicked([[maybe_unused]] bool checked)
             fileNameSuggestion.append(".psbt");
             QString filename = GUIUtil::getSaveFileName(this,
                 tr("Save Transaction Data"), fileNameSuggestion,
-                tr("Partially Signed Transaction (Binary) (*.psbt)"), &selectedFilter);
+                //: Expanded name of the binary PSBT file format. See: BIP 174.
+                tr("Partially Signed Transaction (Binary)") + QLatin1String(" (*.psbt)"), &selectedFilter);
             if (filename.isEmpty()) {
                 return;
             }
@@ -842,9 +913,9 @@ void SendCoinsDialog::coinControlFeatureChanged(bool checked)
 // Coin Control: button inputs -> show actual coin control dialog
 void SendCoinsDialog::coinControlButtonClicked()
 {
-    CoinControlDialog dlg(*m_coin_control, model, platformStyle);
-    dlg.exec();
-    coinControlUpdateLabels();
+    auto dlg = new CoinControlDialog(*m_coin_control, model, platformStyle);
+    connect(dlg, &QDialog::finished, this, &SendCoinsDialog::coinControlUpdateLabels);
+    GUIUtil::ShowModalDialogAndDeleteOnClose(dlg);
 }
 
 // Coin Control: checkbox custom change address

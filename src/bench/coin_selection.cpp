@@ -6,6 +6,7 @@
 #include <interfaces/chain.h>
 #include <node/context.h>
 #include <wallet/coinselection.h>
+#include <wallet/spend.h>
 #include <wallet/wallet.h>
 
 #include <set>
@@ -17,7 +18,7 @@ static void addCoin(const CAmount& nValue, const CWallet& wallet, std::vector<st
     tx.nLockTime = nextLockTime++; // so all transactions get different hashes
     tx.vout.resize(1);
     tx.vout[0].nValue = nValue;
-    wtxs.push_back(std::make_unique<CWalletTx>(&wallet, MakeTransactionRef(std::move(tx))));
+    wtxs.push_back(std::make_unique<CWalletTx>(MakeTransactionRef(std::move(tx))));
 }
 
 // Simple benchmark for wallet coin selection. Note that it maybe be necessary
@@ -26,13 +27,12 @@ static void addCoin(const CAmount& nValue, const CWallet& wallet, std::vector<st
 // the hardest, as you need a wider selection of scenarios, just testing the
 // same one over and over isn't too useful. Generating random isn't useful
 // either for measurements."
-// (https://github.com/BGL/BGL/issues/7883#issuecomment-224807484)
+// (https://github.com/bitcoin/bitcoin/issues/7883#issuecomment-224807484)
 static void CoinSelection(benchmark::Bench& bench)
 {
     NodeContext node;
     auto chain = interfaces::MakeChain(node);
     CWallet wallet(chain.get(), "", CreateDummyWalletDatabase());
-    wallet.SetupLegacyScriptPubKeyMan();
     std::vector<std::unique_ptr<CWalletTx>> wtxs;
     LOCK(wallet.cs_wallet);
 
@@ -42,23 +42,21 @@ static void CoinSelection(benchmark::Bench& bench)
     }
     addCoin(3 * COIN, wallet, wtxs);
 
-    // Create groups
-    std::vector<OutputGroup> groups;
+    // Create coins
+    std::vector<COutput> coins;
     for (const auto& wtx : wtxs) {
-        COutput output(wtx.get(), 0 /* iIn */, 6 * 24 /* nDepthIn */, true /* spendable */, true /* solvable */, true /* safe */);
-        groups.emplace_back(output.GetInputCoin(), 6, false, 0, 0);
+        coins.emplace_back(wallet, *wtx, 0 /* iIn */, 6 * 24 /* nDepthIn */, true /* spendable */, true /* solvable */, true /* safe */);
     }
 
     const CoinEligibilityFilter filter_standard(1, 6, 0);
-    const CoinSelectionParams coin_selection_params(/* use_bnb= */ true, /* change_output_size= */ 34,
+    const CoinSelectionParams coin_selection_params(/* change_output_size= */ 34,
                                                     /* change_spend_size= */ 148, /* effective_feerate= */ CFeeRate(0),
                                                     /* long_term_feerate= */ CFeeRate(0), /* discard_feerate= */ CFeeRate(0),
-                                                    /* tx_no_inputs_size= */ 0, /* avoid_partial= */ false);
+                                                    /* tx_noinputs_size= */ 0, /* avoid_partial= */ false);
     bench.run([&] {
         std::set<CInputCoin> setCoinsRet;
         CAmount nValueRet;
-        bool bnb_used;
-        bool success = wallet.SelectCoinsMinConf(1003 * COIN, filter_standard, groups, setCoinsRet, nValueRet, coin_selection_params, bnb_used);
+        bool success = AttemptSelection(wallet, 1003 * COIN, filter_standard, coins, setCoinsRet, nValueRet, coin_selection_params);
         assert(success);
         assert(nValueRet == 1003 * COIN);
         assert(setCoinsRet.size() == 2);
@@ -66,10 +64,6 @@ static void CoinSelection(benchmark::Bench& bench)
 }
 
 typedef std::set<CInputCoin> CoinSet;
-static NodeContext testNode;
-static auto testChain = interfaces::MakeChain(testNode);
-static CWallet testWallet(testChain.get(), "", CreateDummyWalletDatabase());
-std::vector<std::unique_ptr<CWalletTx>> wtxn;
 
 // Copied from src/wallet/test/coinselector_tests.cpp
 static void add_coin(const CAmount& nValue, int nInput, std::vector<OutputGroup>& set)
@@ -77,10 +71,9 @@ static void add_coin(const CAmount& nValue, int nInput, std::vector<OutputGroup>
     CMutableTransaction tx;
     tx.vout.resize(nInput + 1);
     tx.vout[nInput].nValue = nValue;
-    std::unique_ptr<CWalletTx> wtx = std::make_unique<CWalletTx>(&testWallet, MakeTransactionRef(std::move(tx)));
+    CInputCoin coin(MakeTransactionRef(tx), nInput);
     set.emplace_back();
-    set.back().Insert(COutput(wtx.get(), nInput, 0, true, true, true).GetInputCoin(), 0, true, 0, 0, false);
-    wtxn.emplace_back(std::move(wtx));
+    set.back().Insert(coin, 0, true, 0, 0, false);
 }
 // Copied from src/wallet/test/coinselector_tests.cpp
 static CAmount make_hard_case(int utxos, std::vector<OutputGroup>& utxo_pool)
@@ -98,16 +91,14 @@ static CAmount make_hard_case(int utxos, std::vector<OutputGroup>& utxo_pool)
 static void BnBExhaustion(benchmark::Bench& bench)
 {
     // Setup
-    testWallet.SetupLegacyScriptPubKeyMan();
     std::vector<OutputGroup> utxo_pool;
     CoinSet selection;
     CAmount value_ret = 0;
-    CAmount not_input_fees = 0;
 
     bench.run([&] {
         // Benchmark
         CAmount target = make_hard_case(17, utxo_pool);
-        SelectCoinsBnB(utxo_pool, target, 0, selection, value_ret, not_input_fees); // Should exhaust
+        SelectCoinsBnB(utxo_pool, target, 0, selection, value_ret); // Should exhaust
 
         // Cleanup
         utxo_pool.clear();

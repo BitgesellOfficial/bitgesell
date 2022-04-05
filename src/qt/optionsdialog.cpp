@@ -80,8 +80,8 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     /* remove Window tab on Mac */
     ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabWindow));
     /* hide launch at startup option on macOS */
-    ui->BGLAtStartup->setVisible(false);
-    ui->verticalLayout_Main->removeWidget(ui->BGLAtStartup);
+    ui->BitgesellAtStartup->setVisible(false);
+    ui->verticalLayout_Main->removeWidget(ui->BitgesellAtStartup);
     ui->verticalLayout_Main->removeItem(ui->horizontalSpacer_0_Main);
 #endif
 
@@ -92,11 +92,16 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
         ui->thirdPartyTxUrls->setVisible(false);
     }
 
+#ifndef ENABLE_EXTERNAL_SIGNER
+    //: "External signing" means using devices such as hardware wallets.
+    ui->externalSignerPath->setToolTip(tr("Compiled without external signing support (required for external signing)"));
+    ui->externalSignerPath->setEnabled(false);
+#endif
     /* Display elements init */
     QDir translations(":translations");
 
-    ui->BGLAtStartup->setToolTip(ui->BGLAtStartup->toolTip().arg(PACKAGE_NAME));
-    ui->BGLAtStartup->setText(ui->BGLAtStartup->text().arg(PACKAGE_NAME));
+    ui->BitgesellAtStartup->setToolTip(ui->BitgesellAtStartup->toolTip().arg(PACKAGE_NAME));
+    ui->BitgesellAtStartup->setText(ui->BitgesellAtStartup->text().arg(PACKAGE_NAME));
 
     ui->openBGLConfButton->setToolTip(ui->openBGLConfButton->toolTip().arg(PACKAGE_NAME));
 
@@ -197,17 +202,19 @@ void OptionsDialog::setModel(OptionsModel *_model)
     /* Main */
     connect(ui->prune, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     connect(ui->prune, &QCheckBox::clicked, this, &OptionsDialog::togglePruneWarning);
-    connect(ui->pruneSize, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &OptionsDialog::showRestartWarning);
-    connect(ui->databaseCache, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &OptionsDialog::showRestartWarning);
-    connect(ui->threadsScriptVerif, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &OptionsDialog::showRestartWarning);
+    connect(ui->pruneSize, qOverload<int>(&QSpinBox::valueChanged), this, &OptionsDialog::showRestartWarning);
+    connect(ui->databaseCache, qOverload<int>(&QSpinBox::valueChanged), this, &OptionsDialog::showRestartWarning);
+    connect(ui->externalSignerPath, &QLineEdit::textChanged, [this]{ showRestartWarning(); });
+    connect(ui->threadsScriptVerif, qOverload<int>(&QSpinBox::valueChanged), this, &OptionsDialog::showRestartWarning);
     /* Wallet */
     connect(ui->spendZeroConfChange, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     /* Network */
     connect(ui->allowIncoming, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
+    connect(ui->enableServer, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     connect(ui->connectSocks, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     connect(ui->connectSocksTor, &QCheckBox::clicked, this, &OptionsDialog::showRestartWarning);
     /* Display */
-    connect(ui->lang, static_cast<void (QValueComboBox::*)()>(&QValueComboBox::valueChanged), [this]{ showRestartWarning(); });
+    connect(ui->lang, qOverload<>(&QValueComboBox::valueChanged), [this]{ showRestartWarning(); });
     connect(ui->thirdPartyTxUrls, &QLineEdit::textChanged, [this]{ showRestartWarning(); });
 }
 
@@ -224,7 +231,7 @@ void OptionsDialog::setCurrentTab(OptionsDialog::Tab tab)
 void OptionsDialog::setMapper()
 {
     /* Main */
-    mapper->addMapping(ui->BGLAtStartup, OptionsModel::StartAtStartup);
+    mapper->addMapping(ui->BitgesellAtStartup, OptionsModel::StartAtStartup);
     mapper->addMapping(ui->threadsScriptVerif, OptionsModel::ThreadsScriptVerif);
     mapper->addMapping(ui->databaseCache, OptionsModel::DatabaseCache);
     mapper->addMapping(ui->prune, OptionsModel::Prune);
@@ -233,11 +240,14 @@ void OptionsDialog::setMapper()
     /* Wallet */
     mapper->addMapping(ui->spendZeroConfChange, OptionsModel::SpendZeroConfChange);
     mapper->addMapping(ui->coinControlFeatures, OptionsModel::CoinControlFeatures);
+    mapper->addMapping(ui->subFeeFromAmount, OptionsModel::SubFeeFromAmount);
+    mapper->addMapping(ui->externalSignerPath, OptionsModel::ExternalSignerPath);
 
     /* Network */
     mapper->addMapping(ui->mapPortUpnp, OptionsModel::MapPortUPnP);
     mapper->addMapping(ui->mapPortNatpmp, OptionsModel::MapPortNatpmp);
     mapper->addMapping(ui->allowIncoming, OptionsModel::Listen);
+    mapper->addMapping(ui->enableServer, OptionsModel::Server);
 
     mapper->addMapping(ui->connectSocks, OptionsModel::ProxyUse);
     mapper->addMapping(ui->proxyIp, OptionsModel::ProxyIP);
@@ -282,16 +292,29 @@ void OptionsDialog::on_resetButton_clicked()
 
         /* reset all options and close GUI */
         model->Reset();
-        QApplication::quit();
+        close();
+        Q_EMIT quitOnReset();
     }
 }
 
 void OptionsDialog::on_openBGLConfButton_clicked()
 {
-    /* explain the purpose of the config file */
-    QMessageBox::information(this, tr("Configuration options"),
-        tr("The configuration file is used to specify advanced user options which override GUI settings. "
-           "Additionally, any command-line options will override this configuration file."));
+    QMessageBox config_msgbox(this);
+    config_msgbox.setIcon(QMessageBox::Information);
+    //: Window title text of pop-up box that allows opening up of configuration file.
+    config_msgbox.setWindowTitle(tr("Configuration options"));
+    /*: Explanatory text about the priority order of instructions considered by client.
+        The order from high to low being: command-line, configuration file, GUI settings. */
+    config_msgbox.setText(tr("The configuration file is used to specify advanced user options which override GUI settings. "
+                             "Additionally, any command-line options will override this configuration file."));
+
+    QPushButton* open_button = config_msgbox.addButton(tr("Continue"), QMessageBox::ActionRole);
+    config_msgbox.addButton(tr("Cancel"), QMessageBox::RejectRole);
+    open_button->setDefault(true);
+
+    config_msgbox.exec();
+
+    if (config_msgbox.clickedButton() != open_button) return;
 
     /* show an error if there was some problem opening the file */
     if (!GUIUtil::openBGLConf())

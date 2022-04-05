@@ -11,19 +11,27 @@ import time
 from test_framework.messages import (
     CAddress,
     msg_addrv2,
-    NODE_NETWORK,
-    NODE_WITNESS,
 )
-from test_framework.p2p import P2PInterface
+from test_framework.p2p import (
+    P2PInterface,
+    P2P_SERVICES,
+)
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import assert_equal
+
+I2P_ADDR = "c4gfnttsuwqomiygupdqqqyy5y5emnk5c73hrfvatri67prd7vyq.b32.i2p"
 
 ADDRS = []
 for i in range(10):
     addr = CAddress()
     addr.time = int(time.time()) + i
-    addr.nServices = NODE_NETWORK | NODE_WITNESS
-    addr.ip = f"123.123.123.{i % 256}"
+    addr.nServices = P2P_SERVICES
+    # Add one I2P address at an arbitrary position.
+    if i == 5:
+        addr.net = addr.NET_I2P
+        addr.ip = I2P_ADDR
+    else:
+        addr.ip = f"123.123.123.{i % 256}"
     addr.port = 8333 + i
     ADDRS.append(addr)
 
@@ -64,17 +72,15 @@ class AddrTest(BGLTestFramework):
         addr_receiver = self.nodes[0].add_p2p_connection(AddrReceiver())
         msg.addrs = ADDRS
         with self.nodes[0].assert_debug_log([
-                # The I2P address is not added to node's own addrman because it has no
-                # I2P reachability (thus 10 - 1 = 9).
-                'Added 10 addresses from 127.0.0.1: 0 tried',
-                #'received: addrv2 (159 bytes) peer=0',
-                'sending addrv2 (131 bytes) peer=1',
+                'received: addrv2 (159 bytes) peer=0',
+                'sending addrv2 (159 bytes) peer=1',
         ]):
             addr_source.send_and_ping(msg)
             self.nodes[0].setmocktime(int(time.time()) + 30 * 60)
             addr_receiver.wait_for_addrv2()
 
         assert addr_receiver.addrv2_received_and_checked
+        assert_equal(len(self.nodes[0].getnodeaddresses(count=0, network="i2p")), 0)
 
 
 if __name__ == '__main__':

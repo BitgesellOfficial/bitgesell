@@ -5,7 +5,8 @@
 #ifndef BGL_INTERFACES_NODE_H
 #define BGL_INTERFACES_NODE_H
 
-#include <amount.h>     // For CAmount
+#include <consensus/amount.h>
+#include <external_signer.h>
 #include <net.h>        // For NodeId
 #include <net_types.h>  // For banmap_t
 #include <netaddress.h> // For Network
@@ -109,6 +110,9 @@ public:
 
     //! Disconnect node by id.
     virtual bool disconnectById(NodeId id) = 0;
+
+    //! List external signers
+    virtual std::vector<ExternalSigner> externalSigners() = 0;
 
     //! Get total bytes recv.
     virtual int64_t getTotalBytesRecv() = 0;
@@ -226,7 +230,7 @@ public:
 };
 
 //! Return implementation of Node interface.
-std::unique_ptr<Node> MakeNode(NodeContext* context = nullptr);
+std::unique_ptr<Node> MakeNode(NodeContext& context);
 
 //! Block tip (could be a header or not, depends on the subscribed signal).
 struct BlockTip {

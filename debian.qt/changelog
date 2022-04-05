@@ -1,3 +1,11 @@
+bitgesell-qt (0.1.8) UNRELEASED; urgency=low
+
+  * Codebase synced to Bitcoin Core up to 31 Oct 2021
+  * New logo and logo icons
+
+ -- Mathias van Orton <it@bitgesell.ca>  Sun, 31 Mar 2022 10:05:38 +0000
+
+
 bitgesell-qt (0.1.7) UNRELEASED; urgency=low
 
   * Taproot activation rescheduled with relaxed conditions

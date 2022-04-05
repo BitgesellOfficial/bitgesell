@@ -9,7 +9,7 @@
 #include <config/BGL-config.h>
 #endif
 
-#include <amount.h>
+#include <consensus/amount.h>
 #include <serialize.h>
 
 #include <string>

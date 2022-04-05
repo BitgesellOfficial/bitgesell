@@ -8,6 +8,7 @@
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/peertablemodel.h>
+#include <qt/peertablesortproxy.h>
 
 #include <clientversion.h>
 #include <interfaces/handler.h>
@@ -38,7 +39,11 @@ ClientModel::ClientModel(interfaces::Node& node, OptionsModel *_optionsModel, QO
 {
     cachedBestHeaderHeight = -1;
     cachedBestHeaderTime = -1;
+
     peerTableModel = new PeerTableModel(m_node, this);
+    m_peer_table_sort_proxy = new PeerTableSortProxy(this);
+    m_peer_table_sort_proxy->setSourceModel(peerTableModel);
+
     banTableModel = new BanTableModel(m_node, this);
 
     QTimer* timer = new QTimer;
@@ -184,6 +189,11 @@ PeerTableModel *ClientModel::getPeerTableModel()
     return peerTableModel;
 }
 
+PeerTableSortProxy* ClientModel::peerTableSortProxy()
+{
+    return m_peer_table_sort_proxy;
+}
+
 BanTableModel *ClientModel::getBanTableModel()
 {
     return banTableModel;
@@ -206,12 +216,12 @@ bool ClientModel::isReleaseVersion() const
 
 QString ClientModel::formatClientStartupTime() const
 {
-    return QDateTime::fromTime_t(GetStartupTime()).toString();
+    return QDateTime::fromSecsSinceEpoch(GetStartupTime()).toString();
 }
 
 QString ClientModel::dataDir() const
 {
-    return GUIUtil::boostPathToQString(GetDataDir());
+    return GUIUtil::boostPathToQString(gArgs.GetDataDirNet());
 }
 
 QString ClientModel::blocksDir() const
@@ -284,7 +294,7 @@ static void BlockTipChanged(ClientModel* clientmodel, SynchronizationState sync_
 
     bool invoked = QMetaObject::invokeMethod(clientmodel, "numBlocksChanged", Qt::QueuedConnection,
         Q_ARG(int, tip.block_height),
-        Q_ARG(QDateTime, QDateTime::fromTime_t(tip.block_time)),
+        Q_ARG(QDateTime, QDateTime::fromSecsSinceEpoch(tip.block_time)),
         Q_ARG(double, verificationProgress),
         Q_ARG(bool, fHeader),
         Q_ARG(SynchronizationState, sync_state));

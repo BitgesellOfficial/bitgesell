@@ -6,6 +6,8 @@
 #include <banman.h>
 #include <chain.h>
 #include <chainparams.h>
+#include <deploymentstatus.h>
+#include <external_signer.h>
 #include <init.h>
 #include <interfaces/chain.h>
 #include <interfaces/handler.h>
@@ -70,7 +72,7 @@ class NodeImpl : public Node
 private:
     ChainstateManager& chainman() { return *Assert(m_context->chainman); }
 public:
-    explicit NodeImpl(NodeContext* context) { setContext(context); }
+    explicit NodeImpl(NodeContext& context) { setContext(&context); }
     void initLogging() override { InitLogging(*Assert(m_context->args)); }
     void initParameterInteraction() override { InitParameterInteraction(*Assert(m_context->args)); }
     bilingual_str getWarnings() override { return GetWarnings(true); }
@@ -170,6 +172,24 @@ public:
         }
         return false;
     }
+    std::vector<ExternalSigner> externalSigners() override
+    {
+#ifdef ENABLE_EXTERNAL_SIGNER
+        std::vector<ExternalSigner> signers = {};
+        const std::string command = gArgs.GetArg("-signer", "");
+        if (command == "") return signers;
+        ExternalSigner::Enumerate(command, signers, Params().NetworkIDString());
+        return signers;
+#else
+        // This result is indistinguishable from a successful call that returns
+        // no signers. For the current GUI this doesn't matter, because the wallet
+        // creation dialog disables the external signer checkbox in both
+        // cases. The return type could be changed to std::optional<std::vector>
+        // (or something that also includes error messages) if this distinction
+        // becomes important.
+        return {};
+#endif // ENABLE_EXTERNAL_SIGNER
+    }
     int64_t getTotalBytesRecv() override { return m_context->connman ? m_context->connman->GetTotalBytesRecv() : 0; }
     int64_t getTotalBytesSent() override { return m_context->connman ? m_context->connman->GetTotalBytesSent() : 0; }
     size_t getMempoolSize() override { return m_context->mempool ? m_context->mempool->size() : 0; }
@@ -187,26 +207,16 @@ public:
     int getNumBlocks() override
     {
         LOCK(::cs_main);
-        assert(std::addressof(::ChainActive()) == std::addressof(chainman().ActiveChain()));
         return chainman().ActiveChain().Height();
     }
     uint256 getBestBlockHash() override
     {
-        const CBlockIndex* tip;
-        {
-            // TODO: Temporary scope to check correctness of refactored code.
-            // Should be removed manually after merge of
-            // https://github.com/bitcoin/bitcoin/pull/20158
-            LOCK(cs_main);
-            assert(std::addressof(::ChainActive()) == std::addressof(chainman().ActiveChain()));
-            tip = chainman().ActiveChain().Tip();
-        }
+        const CBlockIndex* tip = WITH_LOCK(::cs_main, return chainman().ActiveChain().Tip());
         return tip ? tip->GetBlockHash() : Params().GenesisBlock().GetHash();
     }
     int64_t getLastBlockTime() override
     {
         LOCK(::cs_main);
-        assert(std::addressof(::ChainActive()) == std::addressof(chainman().ActiveChain()));
         if (chainman().ActiveChain().Tip()) {
             return chainman().ActiveChain().Tip()->GetBlockTime();
         }
@@ -217,22 +227,12 @@ public:
         const CBlockIndex* tip;
         {
             LOCK(::cs_main);
-            assert(std::addressof(::ChainActive()) == std::addressof(chainman().ActiveChain()));
             tip = chainman().ActiveChain().Tip();
         }
         return GuessVerificationProgress(Params().TxData(), tip);
     }
     bool isInitialBlockDownload() override {
-        const CChainState* active_chainstate;
-        {
-            // TODO: Temporary scope to check correctness of refactored code.
-            // Should be removed manually after merge of
-            // https://github.com/bitcoin/bitcoin/pull/20158
-            LOCK(::cs_main);
-            active_chainstate = &m_context->chainman->ActiveChainstate();
-            assert(std::addressof(::ChainstateActive()) == std::addressof(*active_chainstate));
-        }
-        return active_chainstate->IsInitialBlockDownload();
+        return chainman().ActiveChainstate().IsInitialBlockDownload();
     }
     bool getReindex() override { return ::fReindex; }
     bool getImporting() override { return ::fImporting; }
@@ -259,7 +259,6 @@ public:
     bool getUnspentOutput(const COutPoint& output, Coin& coin) override
     {
         LOCK(::cs_main);
-        assert(std::addressof(::ChainstateActive()) == std::addressof(chainman().ActiveChainstate()));
         return chainman().ActiveChainstate().CoinsTip().GetCoin(output, coin);
     }
     WalletClient& walletClient() override
@@ -335,6 +334,7 @@ bool FillBlock(const CBlockIndex* index, const FoundBlock& block, UniqueLock<Rec
         REVERSE_LOCK(lock);
         if (!ReadBlockFromDisk(*block.m_data, index, Params().GetConsensus())) block.m_data->SetNull();
     }
+    block.found = true;
     return true;
 }
 
@@ -466,14 +466,12 @@ public:
     bool checkFinalTx(const CTransaction& tx) override
     {
         LOCK(cs_main);
-        assert(std::addressof(::ChainActive()) == std::addressof(chainman().ActiveChain()));
         return CheckFinalTx(chainman().ActiveChain().Tip(), tx);
     }
     std::optional<int> findLocatorFork(const CBlockLocator& locator) override
     {
         LOCK(cs_main);
         const CChain& active = Assert(m_node.chainman)->ActiveChain();
-        assert(std::addressof(g_chainman) == std::addressof(*m_node.chainman));
         if (CBlockIndex* fork = m_node.chainman->m_blockman.FindForkInGlobalIndex(active, locator)) {
             return fork->nHeight;
         }
@@ -483,7 +481,6 @@ public:
     {
         WAIT_LOCK(cs_main, lock);
         const CChain& active = Assert(m_node.chainman)->ActiveChain();
-        assert(std::addressof(g_chainman) == std::addressof(*m_node.chainman));
         return FillBlock(m_node.chainman->m_blockman.LookupBlockIndex(hash), block, lock, active);
     }
     bool findFirstBlockWithTimeAndHeight(int64_t min_time, int min_height, const FoundBlock& block) override
@@ -496,7 +493,6 @@ public:
     {
         WAIT_LOCK(cs_main, lock);
         const CChain& active = Assert(m_node.chainman)->ActiveChain();
-        assert(std::addressof(g_chainman) == std::addressof(*m_node.chainman));
         if (const CBlockIndex* block = m_node.chainman->m_blockman.LookupBlockIndex(block_hash)) {
             if (const CBlockIndex* ancestor = block->GetAncestor(ancestor_height)) {
                 return FillBlock(ancestor, ancestor_out, lock, active);
@@ -508,9 +504,7 @@ public:
     {
         WAIT_LOCK(cs_main, lock);
         const CChain& active = Assert(m_node.chainman)->ActiveChain();
-        assert(std::addressof(g_chainman) == std::addressof(*m_node.chainman));
         const CBlockIndex* block = m_node.chainman->m_blockman.LookupBlockIndex(block_hash);
-        assert(std::addressof(g_chainman) == std::addressof(*m_node.chainman));
         const CBlockIndex* ancestor = m_node.chainman->m_blockman.LookupBlockIndex(ancestor_hash);
         if (block && ancestor && block->GetAncestor(ancestor->nHeight) != ancestor) ancestor = nullptr;
         return FillBlock(ancestor, ancestor_out, lock, active);
@@ -519,9 +513,7 @@ public:
     {
         WAIT_LOCK(cs_main, lock);
         const CChain& active = Assert(m_node.chainman)->ActiveChain();
-        assert(std::addressof(g_chainman) == std::addressof(*m_node.chainman));
         const CBlockIndex* block1 = m_node.chainman->m_blockman.LookupBlockIndex(block_hash1);
-        assert(std::addressof(g_chainman) == std::addressof(*m_node.chainman));
         const CBlockIndex* block2 = m_node.chainman->m_blockman.LookupBlockIndex(block_hash2);
         const CBlockIndex* ancestor = block1 && block2 ? LastCommonAncestor(block1, block2) : nullptr;
         // Using & instead of && below to avoid short circuiting and leaving
@@ -532,7 +524,6 @@ public:
     double guessVerificationProgress(const uint256& block_hash) override
     {
         LOCK(cs_main);
-        assert(std::addressof(g_chainman.m_blockman) == std::addressof(chainman().m_blockman));
         return GuessVerificationProgress(Params().TxData(), chainman().m_blockman.LookupBlockIndex(block_hash));
     }
     bool hasBlocks(const uint256& block_hash, int min_height, std::optional<int> max_height) override
@@ -545,7 +536,6 @@ public:
         // used to limit the range, and passing min_height that's too low or
         // max_height that's too high will not crash or change the result.
         LOCK(::cs_main);
-        assert(std::addressof(g_chainman.m_blockman) == std::addressof(chainman().m_blockman));
         if (CBlockIndex* block = chainman().m_blockman.LookupBlockIndex(block_hash)) {
             if (max_height && block->nHeight >= *max_height) block = block->GetAncestor(*max_height);
             for (; block->nStatus & BLOCK_HAVE_DATA; block = block->pprev) {
@@ -565,7 +555,7 @@ public:
     {
         if (!m_node.mempool) return false;
         LOCK(m_node.mempool->cs);
-        return m_node.mempool->exists(txid);
+        return m_node.mempool->exists(GenTxid::Txid(txid));
     }
     bool hasDescendantsInMempool(const uint256& txid) override
     {
@@ -585,16 +575,16 @@ public:
         // that Chain clients do not need to know about.
         return TransactionError::OK == err;
     }
-    void getTransactionAncestry(const uint256& txid, size_t& ancestors, size_t& descendants) override
+    void getTransactionAncestry(const uint256& txid, size_t& ancestors, size_t& descendants, size_t* ancestorsize, CAmount* ancestorfees) override
     {
         ancestors = descendants = 0;
         if (!m_node.mempool) return;
-        m_node.mempool->GetTransactionAncestry(txid, ancestors, descendants);
+        m_node.mempool->GetTransactionAncestry(txid, ancestors, descendants, ancestorsize, ancestorfees);
     }
     void getPackageLimits(unsigned int& limit_ancestor_count, unsigned int& limit_descendant_count) override
     {
-        limit_ancestor_count = gArgs.GetArg("-limitancestorcount", DEFAULT_ANCESTOR_LIMIT);
-        limit_descendant_count = gArgs.GetArg("-limitdescendantcount", DEFAULT_DESCENDANT_LIMIT);
+        limit_ancestor_count = gArgs.GetIntArg("-limitancestorcount", DEFAULT_ANCESTOR_LIMIT);
+        limit_descendant_count = gArgs.GetIntArg("-limitdescendantcount", DEFAULT_DESCENDANT_LIMIT);
     }
     bool checkChainLimits(const CTransactionRef& tx) override
     {
@@ -602,10 +592,10 @@ public:
         LockPoints lp;
         CTxMemPoolEntry entry(tx, 0, 0, 0, false, 0, lp);
         CTxMemPool::setEntries ancestors;
-        auto limit_ancestor_count = gArgs.GetArg("-limitancestorcount", DEFAULT_ANCESTOR_LIMIT);
-        auto limit_ancestor_size = gArgs.GetArg("-limitancestorsize", DEFAULT_ANCESTOR_SIZE_LIMIT) * 1000;
-        auto limit_descendant_count = gArgs.GetArg("-limitdescendantcount", DEFAULT_DESCENDANT_LIMIT);
-        auto limit_descendant_size = gArgs.GetArg("-limitdescendantsize", DEFAULT_DESCENDANT_SIZE_LIMIT) * 1000;
+        auto limit_ancestor_count = gArgs.GetIntArg("-limitancestorcount", DEFAULT_ANCESTOR_LIMIT);
+        auto limit_ancestor_size = gArgs.GetIntArg("-limitancestorsize", DEFAULT_ANCESTOR_SIZE_LIMIT) * 1000;
+        auto limit_descendant_count = gArgs.GetIntArg("-limitdescendantcount", DEFAULT_DESCENDANT_LIMIT);
+        auto limit_descendant_size = gArgs.GetIntArg("-limitdescendantsize", DEFAULT_DESCENDANT_SIZE_LIMIT) * 1000;
         std::string unused_error_string;
         LOCK(m_node.mempool->cs);
         return m_node.mempool->CalculateMemPoolAncestors(
@@ -625,7 +615,7 @@ public:
     CFeeRate mempoolMinFee() override
     {
         if (!m_node.mempool) return {};
-        return m_node.mempool->GetMinFee(gArgs.GetArg("-maxmempool", DEFAULT_MAX_MEMPOOL_SIZE) * 1000000);
+        return m_node.mempool->GetMinFee(gArgs.GetIntArg("-maxmempool", DEFAULT_MAX_MEMPOOL_SIZE) * 1000000);
     }
     CFeeRate relayMinFee() override { return ::minRelayTxFee; }
     CFeeRate relayIncrementalFee() override { return ::incrementalRelayFee; }
@@ -637,16 +627,7 @@ public:
     }
     bool isReadyToBroadcast() override { return !::fImporting && !::fReindex && !isInitialBlockDownload(); }
     bool isInitialBlockDownload() override {
-        const CChainState* active_chainstate;
-        {
-            // TODO: Temporary scope to check correctness of refactored code.
-            // Should be removed manually after merge of
-            // https://github.com/bitcoin/bitcoin/pull/20158
-            LOCK(::cs_main);
-            active_chainstate = &chainman().ActiveChainstate();
-            assert(std::addressof(::ChainstateActive()) == std::addressof(*active_chainstate));
-        }
-        return active_chainstate->IsInitialBlockDownload();
+        return chainman().ActiveChainstate().IsInitialBlockDownload();
     }
     bool shutdownRequested() override { return ShutdownRequested(); }
     int64_t getAdjustedTime() override { return GetAdjustedTime(); }
@@ -680,6 +661,14 @@ public:
         RPCRunLater(name, std::move(fn), seconds);
     }
     int rpcSerializationFlags() override { return RPCSerializationFlags(); }
+    util::SettingsValue getSetting(const std::string& name) override
+    {
+        return gArgs.GetSetting(name);
+    }
+    std::vector<util::SettingsValue> getSettingsList(const std::string& name) override
+    {
+        return gArgs.GetSettingsList(name);
+    }
     util::SettingsValue getRwSetting(const std::string& name) override
     {
         util::SettingsValue result;
@@ -690,7 +679,7 @@ public:
         });
         return result;
     }
-    bool updateRwSetting(const std::string& name, const util::SettingsValue& value) override
+    bool updateRwSetting(const std::string& name, const util::SettingsValue& value, bool write) override
     {
         gArgs.LockSettings([&](util::Settings& settings) {
             if (value.isNull()) {
@@ -699,7 +688,7 @@ public:
                 settings.rw_settings[name] = value;
             }
         });
-        return gArgs.WriteSettingsFile();
+        return !write || gArgs.WriteSettingsFile();
     }
     void requestMempoolTransactions(Notifications& notifications) override
     {
@@ -709,12 +698,18 @@ public:
             notifications.transactionAddedToMempool(entry.GetSharedTx(), 0 /* mempool_sequence */);
         }
     }
+    bool isTaprootActive() override
+    {
+        LOCK(::cs_main);
+        const CBlockIndex* tip = Assert(m_node.chainman)->ActiveChain().Tip();
+        return DeploymentActiveAfter(tip, Params().GetConsensus(), Consensus::DEPLOYMENT_TAPROOT);
+    }
     NodeContext& m_node;
 };
 } // namespace
 } // namespace node
 
 namespace interfaces {
-std::unique_ptr<Node> MakeNode(NodeContext* context) { return std::make_unique<node::NodeImpl>(context); }
+std::unique_ptr<Node> MakeNode(NodeContext& context) { return std::make_unique<node::NodeImpl>(context); }
 std::unique_ptr<Chain> MakeChain(NodeContext& context) { return std::make_unique<node::ChainImpl>(context); }
 } // namespace interfaces
