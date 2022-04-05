@@ -6,16 +6,16 @@
 #define BGL_BGL_CONFIG_H
 
 /* Version Build */
-#define CLIENT_VERSION_BUILD 6
+#define CLIENT_VERSION_BUILD 0
 
 /* Version is release */
 #define CLIENT_VERSION_IS_RELEASE true
 
 /* Major version */
-#define CLIENT_VERSION_MAJOR 22
+#define CLIENT_VERSION_MAJOR 1
 
 /* Minor version */
-#define CLIENT_VERSION_MINOR 1
+#define CLIENT_VERSION_MINOR 8
 
 /* Copyright holder(s) before %s replacement */
 #define COPYRIGHT_HOLDERS "The %s developers"
@@ -27,7 +27,7 @@
 #define COPYRIGHT_HOLDERS_SUBSTITUTION "BGL Core"
 
 /* Copyright year */
-#define COPYRIGHT_YEAR 2021
+#define COPYRIGHT_YEAR 2022
 
 /* Define to 1 to enable wallet functions */
 #define ENABLE_WALLET 1
@@ -180,13 +180,13 @@
 #define PACKAGE_NAME "BGL Core"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "BGL Core 22.99.0"
+#define PACKAGE_STRING "BGL Core 0.1.8"
 
 /* Define to the home page for this package. */
-#define PACKAGE_URL "https://BGLcore.org/"
+#define PACKAGE_URL "https://bitgesell.ca/"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "22.99.0"
+#define PACKAGE_VERSION "0.1.8"
 
 /* Define this symbol if the minimal qt platform exists */
 #define QT_QPA_PLATFORM_MINIMAL 1
