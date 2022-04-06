@@ -3,23 +3,19 @@ bench_ecmult
 bench_internal
 tests
 exhaustive_tests
-gen_ecmult_gen_static_prec_table
-gen_ecmult_static_pre_g
+precompute_ecmult_gen
+precompute_ecmult
 valgrind_ctime_test
+ecdh_example
+ecdsa_example
+schnorr_example
 *.exe
-*.pdb
-src/BGL
-src/BGLd
-src/BGL-cli
-src/BGL-gui
-src/BGL-node
-src/BGL-tx
-src/BGL-util
-src/BGL-chainstate
-src/BGL-wallet
-src/test/fuzz/fuzz
-src/test/test_BGL
-src/qt/test/test_BGL-qt
+*.so
+*.a
+*.csv
+!.gitignore
+*.log
+*.trs
 
 # autoreconf
 Makefile.in
@@ -48,6 +44,7 @@ coverage.*.html
 
 src/libsecp256k1-config.h
 src/libsecp256k1-config.h.in
+build-aux/ar-lib
 build-aux/config.guess
 build-aux/config.sub
 build-aux/depcomp
