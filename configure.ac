@@ -179,87 +179,12 @@ AC_ARG_ENABLE(coverage,
     AS_HELP_STRING([--enable-coverage],[enable compiler flags to support kcov coverage analysis [default=no]]), [],
     [SECP_SET_DEFAULT([enable_coverage], [no], [no])])
 
-AC_ARG_ENABLE(tests,
-    AS_HELP_STRING([--enable-tests],[compile tests [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_tests], [yes], [yes])])
-
-AC_ARG_ENABLE(experimental,
-    AS_HELP_STRING([--enable-experimental],[allow experimental configure options [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_experimental], [no], [yes])])
-
-AC_ARG_ENABLE(exhaustive_tests,
-    AS_HELP_STRING([--enable-exhaustive-tests],[compile exhaustive tests [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_exhaustive_tests], [yes], [yes])])
-
-AC_ARG_ENABLE(examples,
-    AS_HELP_STRING([--enable-examples],[compile the examples [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_examples], [no], [yes])])
-
-AC_ARG_ENABLE(module_ecdh,
-    AS_HELP_STRING([--enable-module-ecdh],[enable ECDH module [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_module_ecdh], [no], [yes])])
-
-AC_ARG_ENABLE(module_recovery,
-    AS_HELP_STRING([--enable-module-recovery],[enable ECDSA pubkey recovery module [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_module_recovery], [no], [yes])])
-
-AC_ARG_ENABLE(module_extrakeys,
-    AS_HELP_STRING([--enable-module-extrakeys],[enable extrakeys module [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_module_extrakeys], [no], [yes])])
-
-AC_ARG_ENABLE(module_schnorrsig,
-    AS_HELP_STRING([--enable-module-schnorrsig],[enable schnorrsig module [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_module_schnorrsig], [no], [yes])])
-
-AC_ARG_ENABLE(external_default_callbacks,
-    AS_HELP_STRING([--enable-external-default-callbacks],[enable external default callback functions [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_external_default_callbacks], [no], [no])])
-
-# Test-only override of the (autodetected by the C code) "widemul" setting.
-# Legal values are int64 (for [u]int64_t), int128 (for [unsigned] __int128), and auto (the default).
-AC_ARG_WITH([test-override-wide-multiply], [] ,[set_widemul=$withval], [set_widemul=auto])
-
-AC_ARG_WITH([asm], [AS_HELP_STRING([--with-asm=x86_64|arm|no|auto],
-[assembly optimizations to use (experimental: arm) [default=auto]])],[req_asm=$withval], [req_asm=auto])
-
-AC_ARG_WITH([ecmult-window], [AS_HELP_STRING([--with-ecmult-window=SIZE|auto],
-[window size for ecmult precomputation for verification, specified as integer in range [2..24].]
-[Larger values result in possibly better performance at the cost of an exponentially larger precomputed table.]
-[The table will store 2^(SIZE-1) * 64 bytes of data but can be larger in memory due to platform-specific padding and alignment.]
-[A window size larger than 15 will require you delete the prebuilt precomputed_ecmult.c file so that it can be rebuilt.]
-[For very large window sizes, use "make -j 1" to reduce memory use during compilation.]
-["auto" is a reasonable setting for desktop machines (currently 15). [default=auto]]
-)],
-[req_ecmult_window=$withval], [req_ecmult_window=auto])
-
-AC_ARG_WITH([ecmult-gen-precision], [AS_HELP_STRING([--with-ecmult-gen-precision=2|4|8|auto],
-[Precision bits to tune the precomputed table size for signing.]
-[The size of the table is 32kB for 2 bits, 64kB for 4 bits, 512kB for 8 bits of precision.]
-[A larger table size usually results in possible faster signing.]
-["auto" is a reasonable setting for desktop machines (currently 4). [default=auto]]
-)],
-[req_ecmult_gen_precision=$withval], [req_ecmult_gen_precision=auto])
-
-AC_ARG_WITH([valgrind], [AS_HELP_STRING([--with-valgrind=yes|no|auto],
-[Build with extra checks for running inside Valgrind [default=auto]]
-)],
-[req_valgrind=$withval], [req_valgrind=auto])
-
-###
-### Handle config options (except for modules)
-###
-
-if test x"$req_valgrind" = x"no"; then
-  enable_valgrind=no
-else
-  SECP_VALGRIND_CHECK
-  if test x"$has_valgrind" != x"yes"; then
-    if test x"$req_valgrind" = x"yes"; then
-      AC_MSG_ERROR([Valgrind support explicitly requested but valgrind/memcheck.h header not available])
-    fi
-    enable_valgrind=no
-  else
-    enable_valgrind=yes
+if test "$enable_debug" = "yes"; then
+  dnl If debugging is enabled, and the user hasn't overridden CXXFLAGS, clear
+  dnl them, to prevent autoconfs "-g -O2" being added. Otherwise we'd end up
+  dnl with "-O0 -g3 -g -O2".
+  if test "$CXXFLAGS_overridden" = "no"; then
+  CXXFLAGS=""
   fi
 
   dnl Disable all optimizations
@@ -730,7 +655,7 @@ if test "$use_lcov" = "yes"; then
     [AC_MSG_ERROR([lcov testing requested but --coverage linker flag does not work])])
   AX_CHECK_COMPILE_FLAG([--coverage],[CORE_CXXFLAGS="$CORE_CXXFLAGS --coverage"],
     [AC_MSG_ERROR([lcov testing requested but --coverage flag does not work])])
-  dnl If coverage is enabled, and the user hasn't overriden CXXFLAGS, clear
+  dnl If coverage is enabled, and the user hasn't overridden CXXFLAGS, clear
   dnl them, to prevent autoconfs "-g -O2" being added. Otherwise we'd end up
   dnl with "--coverage -Og -O0 -g -O2".
   if test "$CXXFLAGS_overridden" = "no"; then
