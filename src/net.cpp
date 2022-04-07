@@ -103,7 +103,7 @@ enum BindFlags {
 // The sleep time needs to be small to avoid new sockets stalling
 static const uint64_t SELECT_TIMEOUT_MILLISECONDS = 50;
 
-const std::string NET_MESSAGE_COMMAND_OTHER = "*other*";
+const std::string NET_MESSAGE_TYPE_OTHER = "*other*";
 
 static const uint64_t RANDOMIZER_ID_NETGROUP = 0x6c0edd8036ef4036ULL; // SHA256("netgroup")[0:8]
 static const uint64_t RANDOMIZER_ID_LOCALHOSTNONCE = 0xd93e69e2bbfa5735ULL; // SHA256("localhostnonce")[0:8]
@@ -643,12 +643,12 @@ void CNode::CopyStats(CNodeStats& stats)
     X(m_bip152_highbandwidth_from);
     {
         LOCK(cs_vSend);
-        X(mapSendBytesPerMsgCmd);
+        X(mapSendBytesPerMsgType);
         X(nSendBytes);
     }
     {
         LOCK(cs_vRecv);
-        X(mapRecvBytesPerMsgCmd);
+        X(mapRecvBytesPerMsgType);
         X(nRecvBytes);
     }
     X(m_permissionFlags);
@@ -686,17 +686,18 @@ bool CNode::ReceiveMsgBytes(Span<const uint8_t> msg_bytes, bool& complete)
             if (!result) {
                 // Message deserialization failed.  Drop the message but don't disconnect the peer.
                 // store the size of the corrupt message
-                mapRecvBytesPerMsgCmd.find(NET_MESSAGE_COMMAND_OTHER)->second += out_err_raw_size;
+                mapRecvBytesPerMsgType.at(NET_MESSAGE_TYPE_OTHER) += msg.m_raw_message_size;
                 continue;
             }
 
             // Store received bytes per message command
             // to prevent a memory DOS, only allow valid commands
-            auto i = mapRecvBytesPerMsgCmd.find(msg.m_type);
-            if (i == mapRecvBytesPerMsgCmd.end()) {
-                i = mapRecvBytesPerMsgCmd.find(NET_MESSAGE_COMMAND_OTHER);
-            assert(i != mapRecvBytesPerMsgCmd.end());
-            i->second += result->m_raw_message_size;
+            auto i = mapRecvBytesPerMsgType.find(msg.m_type);
+            if (i == mapRecvBytesPerMsgType.end()) {
+                i = mapRecvBytesPerMsgType.find(NET_MESSAGE_TYPE_OTHER);
+            }
+            assert(i != mapRecvBytesPerMsgType.end());
+            i->second += msg.m_raw_message_size;
 
             // push the message to the process queue,
             vRecvMsg.push_back(std::move(*result));
@@ -3012,8 +3013,8 @@ CNode::CNode(NodeId idIn, ServiceFlags nLocalServicesIn, std::shared_ptr<Sock> s
     if (inbound_onion) assert(conn_type_in == ConnectionType::INBOUND);
 
     for (const std::string &msg : getAllNetMessageTypes())
-        mapRecvBytesPerMsgCmd[msg] = 0;
-    mapRecvBytesPerMsgCmd[NET_MESSAGE_COMMAND_OTHER] = 0;
+        mapRecvBytesPerMsgType[msg] = 0;
+    mapRecvBytesPerMsgType[NET_MESSAGE_TYPE_OTHER] = 0;
 
     if (fLogIPs) {
         LogPrint(BCLog::NET, "Added connection to %s peer=%d\n", m_addr_name, id);
@@ -3058,7 +3059,7 @@ void CConnman::PushMessage(CNode* pnode, CSerializedNetMsg&& msg)
         bool optimisticSend(pnode->vSendMsg.empty());
 
         //log total amount of bytes per message type
-        pnode->mapSendBytesPerMsgCmd[msg.m_type] += nTotalSize;
+        pnode->mapSendBytesPerMsgType[msg.m_type] += nTotalSize;
         pnode->nSendSize += nTotalSize;
 
         if (pnode->nSendSize > nSendBufferMaxSize) pnode->fPauseSend = true;
