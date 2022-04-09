@@ -159,15 +159,31 @@ std::optional<std::vector<unsigned char>> DecodeBase64(std::string_view str)
     if (str.size() >= 1 && str.back() == '=') str.remove_suffix(1);
 
     std::vector<unsigned char> ret;
-    ret.reserve((str.size() * 3) / 4);
-    bool valid = ConvertBits<6, 8, false>(
-        [&](unsigned char c) { ret.push_back(c); },
-        str.begin(), str.end(),
-        [](char c) { return decode64_table[uint8_t(c)]; }
-    );
-    if (!valid) return {};
+    ret.reserve((val.size() * 3) / 4);
+    bool valid = ConvertBits<6, 8, false>([&](unsigned char c) { ret.push_back(c); }, val.begin(), val.end());
+
+    const char* q = p;
+    while (valid && *p != 0) {
+        if (*p != '=') {
+            valid = false;
+            break;
+        }
+        ++p;
+    }
+    valid = valid && (p - e) % 4 == 0 && p - q < 4;
+    *pf_invalid = !valid;
 
     return ret;
+}
+
+std::string DecodeBase64(const std::string& str, bool* pf_invalid)
+{
+    if (!ValidAsCString(str)) {
+        *pf_invalid = true;
+        return {};
+    }
+    std::vector<unsigned char> vchRet = DecodeBase64(str.c_str(), pf_invalid);
+    return std::string((const char*)vchRet.data(), vchRet.size());
 }
 
 std::string EncodeBase32(Span<const unsigned char> input, bool pad)
@@ -223,9 +239,28 @@ std::optional<std::vector<unsigned char>> DecodeBase32(std::string_view str)
         [](char c) { return decode32_table[uint8_t(c)]; }
     );
 
-    if (!valid) return {};
+    const char* q = p;
+    while (valid && *p != 0) {
+        if (*p != '=') {
+            valid = false;
+            break;
+        }
+        ++p;
+    }
+    valid = valid && (p - e) % 8 == 0 && p - q < 8;
+    *pf_invalid = !valid;
 
     return ret;
+}
+
+std::string DecodeBase32(const std::string& str, bool* pf_invalid)
+{
+    if (!ValidAsCString(str)) {
+        *pf_invalid = true;
+        return {};
+    }
+    std::vector<unsigned char> vchRet = DecodeBase32(str.c_str(), pf_invalid);
+    return std::string((const char*)vchRet.data(), vchRet.size());
 }
 
 namespace {
