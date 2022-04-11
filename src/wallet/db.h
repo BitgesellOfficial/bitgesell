@@ -112,9 +112,8 @@ public:
     }
     virtual bool ErasePrefix(Span<const std::byte> prefix) = 0;
 
-    virtual bool StartCursor() = 0;
-    virtual bool ReadAtCursor(CDataStream& ssKey, CDataStream& ssValue, bool& complete) = 0;
-    virtual void CloseCursor() = 0;
+    virtual std::unique_ptr<DatabaseCursor> GetNewCursor() = 0;
+    virtual std::unique_ptr<DatabaseCursor> GetNewPrefixCursor(Span<const std::byte> prefix) = 0;
     virtual bool TxnBegin() = 0;
     virtual bool TxnCommit() = 0;
     virtual bool TxnAbort() = 0;

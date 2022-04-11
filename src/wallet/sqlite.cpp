@@ -9,6 +9,7 @@
 #include <logging.h>
 #include <sync.h>
 #include <util/fs_helpers.h>
+#include <util/check.h>
 #include <util/strencodings.h>
 #include <util/translation.h>
 #include <wallet/db.h>
@@ -526,8 +527,51 @@ bool SQLiteBatch::ReadAtCursor(CDataStream& key, CDataStream& value, bool& compl
 
 void SQLiteBatch::CloseCursor()
 {
+    sqlite3_clear_bindings(m_cursor_stmt);
     sqlite3_reset(m_cursor_stmt);
     m_cursor_init = false;
+}
+
+std::unique_ptr<DatabaseCursor> SQLiteBatch::GetNewPrefixCursor(Span<const std::byte> prefix)
+{
+    if (!m_database.m_db) return nullptr;
+
+    // To get just the records we want, the SQL statement does a comparison of the binary data
+    // where the data must be greater than or equal to the prefix, and less than
+    // the prefix incremented by one (when interpreted as an integer)
+    std::vector<std::byte> start_range(prefix.begin(), prefix.end());
+    std::vector<std::byte> end_range(prefix.begin(), prefix.end());
+    auto it = end_range.rbegin();
+    for (; it != end_range.rend(); ++it) {
+        if (*it == std::byte(std::numeric_limits<unsigned char>::max())) {
+            *it = std::byte(0);
+            continue;
+        }
+        *it = std::byte(std::to_integer<unsigned char>(*it) + 1);
+        break;
+    }
+    if (it == end_range.rend()) {
+        // If the prefix is all 0xff bytes, clear end_range as we won't need it
+        end_range.clear();
+    }
+
+    auto cursor = std::make_unique<SQLiteCursor>(start_range, end_range);
+    if (!cursor) return nullptr;
+
+    const char* stmt_text = end_range.empty() ? "SELECT key, value FROM main WHERE key >= ?" :
+                            "SELECT key, value FROM main WHERE key >= ? AND key < ?";
+    int res = sqlite3_prepare_v2(m_database.m_db, stmt_text, -1, &cursor->m_cursor_stmt, nullptr);
+    if (res != SQLITE_OK) {
+        throw std::runtime_error(strprintf(
+            "SQLiteDatabase: Failed to setup cursor SQL statement: %s\n", sqlite3_errstr(res)));
+    }
+
+    if (!BindBlobToStatement(cursor->m_cursor_stmt, 1, cursor->m_prefix_range_start, "prefix_start")) return nullptr;
+    if (!end_range.empty()) {
+        if (!BindBlobToStatement(cursor->m_cursor_stmt, 2, cursor->m_prefix_range_end, "prefix_end")) return nullptr;
+    }
+
+    return cursor;
 }
 
 bool SQLiteBatch::TxnBegin()

@@ -181,12 +181,17 @@ class BerkeleyBatch : public DatabaseBatch
         SafeDbt(void* data, size_t size);
         ~SafeDbt();
 
-        // delegate to Dbt
-        const void* get_data() const;
-        uint32_t get_size() const;
+class BerkeleyCursor : public DatabaseCursor
+{
+private:
+    Dbc* m_cursor;
+    std::vector<std::byte> m_key_prefix;
+    bool m_first{true};
 
 public:
-    explicit BerkeleyCursor(BerkeleyDatabase& database, const BerkeleyBatch& batch);
+    // Constructor for cursor for records matching the prefix
+    // To match all records, an empty prefix may be provided.
+    explicit BerkeleyCursor(BerkeleyDatabase& database, const BerkeleyBatch& batch, Span<const std::byte> prefix = {});
     ~BerkeleyCursor() override;
 
     Status Next(DataStream& key, DataStream& value) override;
@@ -219,9 +224,8 @@ public:
     void Flush() override;
     void Close() override;
 
-    bool StartCursor() override;
-    bool ReadAtCursor(CDataStream& ssKey, CDataStream& ssValue, bool& complete) override;
-    void CloseCursor() override;
+    std::unique_ptr<DatabaseCursor> GetNewCursor() override;
+    std::unique_ptr<DatabaseCursor> GetNewPrefixCursor(Span<const std::byte> prefix) override;
     bool TxnBegin() override;
     bool TxnCommit() override;
     bool TxnAbort() override;
