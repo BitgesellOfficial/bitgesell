@@ -887,6 +887,11 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         if not self.is_wallet_tool_compiled():
             raise SkipTest("BGL-wallet has not been compiled")
 
+    def skip_if_no_bitcoin_util(self):
+        """Skip the running test if bitcoin-util has not been compiled."""
+        if not self.is_bitcoin_util_compiled():
+            raise SkipTest("bitcoin-util has not been compiled")
+
     def skip_if_no_cli(self):
         """Skip the running test if BGL-cli has not been compiled."""
         if not self.is_cli_compiled():
@@ -933,6 +938,10 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
     def is_wallet_tool_compiled(self):
         """Checks whether BGL-wallet was compiled."""
         return self.config["components"].getboolean("ENABLE_WALLET_TOOL")
+
+    def is_bitcoin_util_compiled(self):
+        """Checks whether bitcoin-util was compiled."""
+        return self.config["components"].getboolean("ENABLE_BITCOIN_UTIL")
 
     def is_zmq_compiled(self):
         """Checks whether the zmq module was compiled."""
