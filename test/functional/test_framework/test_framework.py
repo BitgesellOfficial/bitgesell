@@ -245,8 +245,14 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             "src",
             "BGL-cli" + config["environment"]["EXEEXT"]
         )
+        fname_BGLutil = os.path.join(
+            config["environment"]["BUILDDIR"],
+            "src",
+            "BGL-util" + config["environment"]["EXEEXT"],
+        )
         self.options.BGLd = os.getenv("BGLD", default=fname_BGLd)
         self.options.BGLcli = os.getenv("BGLCLI", default=fname_BGLcli)
+        self.options.BGLutil = os.getenv("BGLUTIL", default=fname_BGLutil)
 
         os.environ['PATH'] = os.pathsep.join([
             os.path.join(config['environment']['BUILDDIR'], 'src'),
