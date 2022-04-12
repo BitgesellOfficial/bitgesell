@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_SCRIPT_MINISCRIPT_H
-#define BITCOIN_SCRIPT_MINISCRIPT_H
+#ifndef BGL_SCRIPT_MINISCRIPT_H
+#define BGL_SCRIPT_MINISCRIPT_H
 
 #include <algorithm>
 #include <numeric>
@@ -776,8 +776,14 @@ public:
     //! Check whether this script always needs a signature.
     bool NeedsSignature() const { return GetType() << "s"_mst; }
 
-    //! Do all sanity checks.
-    bool IsSane() const { return IsValid() && GetType() << "mk"_mst && CheckOpsLimit() && CheckStackSize(); }
+    //! Check whether there is no satisfaction path that contains both timelocks and heightlocks
+    bool CheckTimeLocksMix() const { return GetType() << "k"_mst; }
+
+    //! Whether successful non-malleable satisfactions are guaranteed to be valid.
+    bool ValidSatisfactions() const { return IsValid() && CheckOpsLimit() && CheckStackSize(); }
+
+    //! Whether the apparent policy of this node matches its script semantics.
+    bool IsSane() const { return ValidSatisfactions() && IsNonMalleable() && CheckTimeLocksMix(); }
 
     //! Check whether this node is safe as a script on its own.
     bool IsSaneTopLevel() const { return IsValidTopLevel() && IsSane() && NeedsSignature(); }
@@ -1655,4 +1661,4 @@ inline NodeRef<typename Ctx::Key> FromScript(const CScript& script, const Ctx& c
 
 } // namespace miniscript
 
-#endif // BITCOIN_SCRIPT_MINISCRIPT_H
+#endif // BGL_SCRIPT_MINISCRIPT_H
