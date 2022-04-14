@@ -5,7 +5,6 @@
 #include <chain.h>
 #include <chainparams.h>
 #include <consensus/params.h>
-#include <deploymentstatus.h>
 #include <test/util/setup_common.h>
 #include <validation.h>
 #include <versionbits.h>
@@ -418,6 +417,8 @@ static void check_computeblockversion(const Consensus::Params& params, Consensus
 
 BOOST_AUTO_TEST_CASE(versionbits_computeblockversion)
 {
+    VersionBitsCache vbcache; // don't use chainman versionbitscache since we want custom chain params
+
     // check that any deployment on any chain can conceivably reach both
     // ACTIVE and FAILED states in roughly the way we expect
     for (const auto& chain_name : {CBaseChainParams::MAIN, CBaseChainParams::TESTNET, CBaseChainParams::SIGNET, CBaseChainParams::REGTEST}) {
@@ -430,11 +431,20 @@ BOOST_AUTO_TEST_CASE(versionbits_computeblockversion)
             // not take precedence over STARTED/LOCKED_IN. So all softforks on
             // the same bit might overlap, even when non-overlapping start-end
             // times are picked.
-            const uint32_t dep_mask{g_versionbitscache.Mask(chainParams->GetConsensus(), dep)};
+            const uint32_t dep_mask{vbcache.Mask(chainParams->GetConsensus(), dep)};
             BOOST_CHECK(!(chain_all_vbits & dep_mask));
             chain_all_vbits |= dep_mask;
-            check_computeblockversion(chainParams->GetConsensus(), dep);
+            check_computeblockversion(vbcache, chainParams->GetConsensus(), dep);
         }
+    }
+
+    {
+        // Use regtest/testdummy to ensure we always exercise some
+        // deployment that's not always/never active
+        ArgsManager args;
+        args.ForceSetArg("-vbparams", "testdummy:1199145601:1230767999"); // January 1, 2008 - December 31, 2008
+        const auto chainParams = CreateChainParams(args, CBaseChainParams::REGTEST);
+        check_computeblockversion(vbcache, chainParams->GetConsensus(), Consensus::DEPLOYMENT_TESTDUMMY);
     }
 
     {
@@ -444,7 +454,7 @@ BOOST_AUTO_TEST_CASE(versionbits_computeblockversion)
         ArgsManager args;
         args.ForceSetArg("-vbparams", "testdummy:1199145601:1230767999:403200"); // January 1, 2008 - December 31, 2008, min act height 403200
         const auto chainParams = CreateChainParams(args, CBaseChainParams::REGTEST);
-        check_computeblockversion(chainParams->GetConsensus(), Consensus::DEPLOYMENT_TESTDUMMY);
+        check_computeblockversion(vbcache, chainParams->GetConsensus(), Consensus::DEPLOYMENT_TESTDUMMY);
     }
 }
 
