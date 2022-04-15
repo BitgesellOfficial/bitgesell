@@ -45,7 +45,7 @@ def parseline(line: str) -> Union[dict, None]:
     sline = line.split()
     if len(sline) < 11:
         # line too short to be valid, skip it.
-       return None
+        return None
     m = PATTERN_IPV4.match(sline[0])
     sortkey = None
     ip = None
@@ -166,10 +166,6 @@ def filterbyasn(ips: List[Dict], max_per_asn: Dict, max_per_net: int) -> List[Di
     asn_count: Dict[int, int] = collections.defaultdict(int)
 
     for i, ip in enumerate(ips_ipv46):
-        if i % 10 == 0:
-            # give progress update
-            print(f"{i:6d}/{len(ips_ipv46)} [{100*i/len(ips_ipv46):04.1f}%]\r", file=sys.stderr, end='', flush=True)
-
         if net_count[ip['net']] == max_per_net:
             # do not add this ip as we already too many
             # ips from this network
@@ -197,8 +193,16 @@ def ip_stats(ips: List[Dict]) -> str:
     return f"{hist['ipv4']:6d} {hist['ipv6']:6d} {hist['onion']:6d}"
 
 def main():
+    args = parse_args()
+
+    print(f'Loading asmap database "{args.asmap}"…', end='', file=sys.stderr, flush=True)
+    asmap = ASMap(args.asmap)
+    print('Done.', file=sys.stderr)
+
+    print('Loading and parsing DNS seeds…', end='', file=sys.stderr, flush=True)
     lines = sys.stdin.readlines()
     ips = [parseline(line) for line in lines]
+    print('Done.', file=sys.stderr)
 
     print('\x1b[7m  IPv4   IPv6  Onion Pass                                               \x1b[0m', file=sys.stderr)
     print(f'{ip_stats(ips):s} Initial', file=sys.stderr)
@@ -229,7 +233,7 @@ def main():
     ips.sort(key=lambda x: (x['uptime'], x['lastsuccess'], x['ip']), reverse=True)
     # Filter out hosts with multiple ports, these are likely abusive
     ips = filtermultiport(ips)
-    print(f'{ip_stats(ips):s} Filter out hosts with multiple bitcoin ports', file=sys.stderr)
+    print(f'{ip_stats(ips):s} Filter out hosts with multiple BGL ports', file=sys.stderr)
     # Look up ASNs and limit results, both per ASN and globally.
     ips = filterbyasn(ips, MAX_SEEDS_PER_ASN, NSEEDS)
     print(f'{ip_stats(ips):s} Look up ASNs and limit results per ASN and per net', file=sys.stderr)
