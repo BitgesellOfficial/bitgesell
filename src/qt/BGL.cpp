@@ -96,7 +96,7 @@ static void RegisterMetaTypes()
     qRegisterMetaType<QMessageBox::Icon>("QMessageBox::Icon");
     qRegisterMetaType<interfaces::BlockAndHeaderTipInfo>("interfaces::BlockAndHeaderTipInfo");
 
-    qRegisterMetaTypeStreamOperators<BitcoinUnit>("BitcoinUnit");
+    qRegisterMetaTypeStreamOperators<BGLUnit>("BGLUnit");
 }
 
 static QString GetLangTerritory()
@@ -308,7 +308,9 @@ void BGLApplication::startThread()
 
     /*  communication to and from thread */
     connect(&m_executor.value(), &InitExecutor::initializeResult, this, &BGLApplication::initializeResult);
-    connect(&m_executor.value(), &InitExecutor::shutdownResult, this, &QCoreApplication::quit);
+    connect(&m_executor.value(), &InitExecutor::shutdownResult, this, [] {
+        QCoreApplication::exit(0);
+    });
     connect(&m_executor.value(), &InitExecutor::runawayException, this, &BGLApplication::handleRunawayException);
     connect(this, &BGLApplication::requestedInitialize, &m_executor.value(), &InitExecutor::initialize);
     connect(this, &BGLApplication::requestedShutdown, &m_executor.value(), &InitExecutor::shutdown);
