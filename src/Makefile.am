@@ -395,6 +395,7 @@ libBGL_node_a_SOURCES = \
   node/minisketchwrapper.cpp \
   node/psbt.cpp \
   node/transaction.cpp \
+  node/utxo_snapshot.cpp \
   node/validation_cache_args.cpp \
   noui.cpp \
   policy/fees.cpp \
@@ -910,6 +911,7 @@ libBGLkernel_la_SOURCES = \
   node/blockstorage.cpp \
   node/chainstate.cpp \
   node/interface_ui.cpp \
+  node/utxo_snapshot.cpp \
   policy/feerate.cpp \
   policy/fees.cpp \
   policy/packages.cpp \
