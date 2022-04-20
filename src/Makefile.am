@@ -279,6 +279,7 @@ BGL_CORE_H = \
   util/spanparsing.h \
   util/string.h \
   util/syscall_sandbox.h \
+  util/syserror.h \
   util/system.h \
   util/thread.h \
   util/threadnames.h \
@@ -665,6 +666,7 @@ libBGL_util_a_SOURCES = \
   util/getuniquepath.cpp \
   util/hasher.cpp \
   util/sock.cpp \
+  util/syserror.cpp \
   util/system.cpp \
   util/message.cpp \
   util/moneystr.cpp \
@@ -926,6 +928,7 @@ libBGLkernel_la_SOURCES = \
   util/settings.cpp \
   util/strencodings.cpp \
   util/syscall_sandbox.cpp \
+  util/syserror.cpp \
   util/system.cpp \
   util/thread.cpp \
   util/threadnames.cpp \
