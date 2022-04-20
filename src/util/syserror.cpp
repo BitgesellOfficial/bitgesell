@@ -14,11 +14,14 @@
 std::string SysErrorString(int err)
 {
     char buf[256];
+    buf[0] = 0;
     /* Too bad there are three incompatible implementations of the
      * thread-safe strerror. */
-    const char *s = nullptr;
+    const char *s;
 #ifdef WIN32
-    if (strerror_s(buf, sizeof(buf), err) == 0) s = buf;
+    s = buf;
+    if (strerror_s(buf, sizeof(buf), err) != 0)
+        buf[0] = 0;
 #else
 #ifdef STRERROR_R_CHAR_P /* GNU variant can return a pointer outside the passed buffer */
     s = strerror_r(err, buf, sizeof(buf));
@@ -26,9 +29,5 @@ std::string SysErrorString(int err)
     if (strerror_r(err, buf, sizeof(buf)) == 0) s = buf;
 #endif
 #endif
-    if (s != nullptr) {
-        return strprintf("%s (%d)", s, err);
-    } else {
-        return strprintf("Unknown error (%d)", err);
-    }
+    return strprintf("%s (%d)", s, err);
 }
