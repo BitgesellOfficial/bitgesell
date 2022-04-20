@@ -1179,8 +1179,12 @@ std::unique_ptr<WalletDatabase> CreateMockWalletDatabase()
 {
     DatabaseOptions options;
 #ifdef USE_SQLITE
-    return std::make_unique<SQLiteDatabase>("", "", options, true);
-#elif USE_BDB
+        return std::make_unique<SQLiteDatabase>(":memory:", "", options, true);
+#endif
+        assert(false);
+    }
+
+#ifdef USE_BDB
     return std::make_unique<BerkeleyDatabase>(std::make_shared<BerkeleyEnvironment>(), "", options);
 #endif
 }
