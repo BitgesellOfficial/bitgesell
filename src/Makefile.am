@@ -847,6 +847,10 @@ libBGLkernel_la_LDFLAGS += -static
 libBGLkernel_la_CXXFLAGS += -static
 endif
 
+# TODO: libbitcoinkernel is a work in progress consensus engine library, as more
+#       and more modules are decoupled from the consensus engine, this list will
+#       shrink to only those which are absolutely necessary. For example, things
+#       like index/*.cpp will be removed.
 libBGLkernel_la_SOURCES = \
   kernel/BGLkernel.cpp \
   arith_uint256.cpp \
