@@ -548,11 +548,11 @@ case $host in
              if test "$use_upnp" != "no" && $BREW list --versions miniupnpc >/dev/null; then
                miniupnpc_prefix=$($BREW --prefix miniupnpc 2>/dev/null)
                if test "$suppress_external_warnings" != "no"; then
-                 CORE_CPPFLAGS="$CORE_CPPFLAGS -isystem $miniupnpc_prefix/include"
+                 MINIUPNPC_CPPFLAGS="-isystem $miniupnpc_prefix/include"
                else
-                 CORE_CPPFLAGS="$CORE_CPPFLAGS -I$miniupnpc_prefix/include"
+                 MINIUPNPC_CPPFLAGS="-I$miniupnpc_prefix/include"
                fi
-               CORE_LDFLAGS="$CORE_LDFLAGS -L$miniupnpc_prefix/lib"
+               MINIUPNPC_LIBS="-L$miniupnpc_prefix/lib"
              fi
              if test "$use_natpmp" != "no" && $BREW list --versions libnatpmp >/dev/null; then
                libnatpmp_prefix=$($BREW --prefix libnatpmp 2>/dev/null)
@@ -1061,9 +1061,11 @@ fi
 
 dnl Check for libminiupnpc (optional)
 if test "$use_upnp" != "no"; then
+  TEMP_CPPFLAGS="$CPPFLAGS"
+  CPPFLAGS="$CPPFLAGS $MINIUPNPC_CPPFLAGS"
   AC_CHECK_HEADERS(
     [miniupnpc/miniupnpc.h miniupnpc/upnpcommands.h miniupnpc/upnperrors.h],
-    [AC_CHECK_LIB([miniupnpc], [upnpDiscover], [MINIUPNPC_LIBS=-lminiupnpc], [have_miniupnpc=no])],
+    [AC_CHECK_LIB([miniupnpc], [upnpDiscover], [MINIUPNPC_LIBS="$MINIUPNPC_LIBS -lminiupnpc"], [have_miniupnpc=no], [$MINIUPNPC_LIBS])],
     [have_miniupnpc=no]
   )
   dnl The minimum supported miniUPnPc API version is set to 10. This keeps compatibility
@@ -1086,6 +1088,7 @@ if test "$use_upnp" != "no"; then
       have_miniupnpc=no
     ])
   fi
+  CPPFLAGS="$TEMP_CPPFLAGS"
 fi
 
 dnl Check for libnatpmp (optional).
@@ -1258,8 +1261,111 @@ if test x"$enable_experimental" = x"yes"; then
   AC_MSG_NOTICE([Experimental features do not have stable APIs or properties, and may not be safe for production use.])
   AC_MSG_NOTICE([******])
 else
-  if test x"$set_asm" = x"arm"; then
-    AC_MSG_ERROR([ARM assembly optimization is experimental. Use --enable-experimental to allow.])
+  AC_MSG_RESULT([no])
+fi
+
+dnl enable upnp support
+AC_MSG_CHECKING([whether to build with support for UPnP])
+if test "$have_miniupnpc" = "no"; then
+  if test "$use_upnp" = "yes"; then
+     AC_MSG_ERROR([UPnP requested but cannot be built. Use --without-miniupnpc])
+  fi
+  AC_MSG_RESULT([no])
+  use_upnp=no
+else
+  if test "$use_upnp" != "no"; then
+    AC_MSG_RESULT([yes])
+    AC_MSG_CHECKING([whether to build with UPnP enabled by default])
+    use_upnp=yes
+    upnp_setting=0
+    if test "$use_upnp_default" != "no"; then
+      use_upnp_default=yes
+      upnp_setting=1
+    fi
+    AC_MSG_RESULT([$use_upnp_default])
+    AC_DEFINE_UNQUOTED([USE_UPNP],[$upnp_setting],[UPnP support not compiled if undefined, otherwise value (0 or 1) determines default state])
+    if test "$TARGET_OS" = "windows"; then
+      MINIUPNPC_CPPFLAGS="$MINIUPNPC_CPPFLAGS -DSTATICLIB -DMINIUPNP_STATICLIB"
+    fi
+  else
+    AC_MSG_RESULT([no])
+  fi
+fi
+
+dnl Enable NAT-PMP support.
+AC_MSG_CHECKING([whether to build with support for NAT-PMP])
+if test "$have_natpmp" = "no"; then
+  if test "$use_natpmp" = "yes"; then
+     AC_MSG_ERROR([NAT-PMP requested but cannot be built. Use --without-natpmp])
+  fi
+  AC_MSG_RESULT([no])
+  use_natpmp=no
+else
+  if test "$use_natpmp" != "no"; then
+    AC_MSG_RESULT([yes])
+    AC_MSG_CHECKING([whether to build with NAT-PMP enabled by default])
+    use_natpmp=yes
+    natpmp_setting=0
+    if test "$use_natpmp_default" != "no"; then
+      use_natpmp_default=yes
+      natpmp_setting=1
+    fi
+    AC_MSG_RESULT($use_natpmp_default)
+    AC_DEFINE_UNQUOTED([USE_NATPMP], [$natpmp_setting], [NAT-PMP support not compiled if undefined, otherwise value (0 or 1) determines default state])
+    if test "$TARGET_OS" = "windows"; then
+      NATPMP_CPPFLAGS="-DSTATICLIB -DNATPMP_STATICLIB"
+    fi
+  else
+    AC_MSG_RESULT([no])
+  fi
+fi
+
+dnl these are only used when qt is enabled
+BUILD_TEST_QT=""
+if test "$BGL_enable_qt" != "no"; then
+  dnl enable dbus support
+  AC_MSG_CHECKING([whether to build GUI with support for D-Bus])
+  if test "$BGL_enable_qt_dbus" != "no"; then
+    AC_DEFINE([USE_DBUS], [1], [Define if dbus support should be compiled in])
+  fi
+  AC_MSG_RESULT([$BGL_enable_qt_dbus])
+
+  dnl enable qr support
+  AC_MSG_CHECKING([whether to build GUI with support for QR codes])
+  if test "$have_qrencode" = "no"; then
+    if test "$use_qr" = "yes"; then
+      AC_MSG_ERROR([QR support requested but cannot be built. Use --without-qrencode])
+    fi
+    use_qr=no
+  else
+    if test "$use_qr" != "no"; then
+      AC_DEFINE([USE_QRCODE], [1], [Define if QR support should be compiled in])
+      use_qr=yes
+    fi
+  fi
+  AC_MSG_RESULT([$use_qr])
+
+  if test "$XGETTEXT" = ""; then
+    AC_MSG_WARN([xgettext is required to update qt translations])
+  fi
+
+  AC_MSG_CHECKING([whether to build test_BGL-qt])
+  if test "$use_gui_tests$BGL_enable_qt_test" = "yesyes"; then
+    AC_MSG_RESULT([yes])
+    BUILD_TEST_QT="yes"
+  else
+    AC_MSG_RESULT([no])
+  fi
+fi
+
+AM_CONDITIONAL([ENABLE_ZMQ], [test "$use_zmq" = "yes"])
+
+AC_MSG_CHECKING([whether to build test_BGL])
+if test "$use_tests" = "yes"; then
+  if test "$enable_fuzz" = "yes"; then
+    AC_MSG_RESULT([no, because fuzzing is enabled])
+  else
+    AC_MSG_RESULT([yes])
   fi
   BUILD_TEST="yes"
 else
@@ -1395,7 +1501,7 @@ AC_CONFIG_LINKS([contrib/devtools/security-check.py:contrib/devtools/security-ch
 AC_CONFIG_LINKS([contrib/devtools/symbol-check.py:contrib/devtools/symbol-check.py])
 AC_CONFIG_LINKS([contrib/devtools/test-security-check.py:contrib/devtools/test-security-check.py])
 AC_CONFIG_LINKS([contrib/devtools/test-symbol-check.py:contrib/devtools/test-symbol-check.py])
-AC_CONFIG_LINKS([contrib/devtools/iwyu/bitcoin.core.imp:contrib/devtools/iwyu/bitcoin.core.imp])
+AC_CONFIG_LINKS([contrib/devtools/iwyu/BGL.core.imp:contrib/devtools/iwyu/BGL.core.imp])
 AC_CONFIG_LINKS([contrib/filter-lcov.py:contrib/filter-lcov.py])
 AC_CONFIG_LINKS([contrib/macdeploy/background.tiff:contrib/macdeploy/background.tiff])
 AC_CONFIG_LINKS([src/.clang-tidy:src/.clang-tidy])
