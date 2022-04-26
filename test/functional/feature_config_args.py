@@ -247,8 +247,9 @@ class ConfArgsTest(BGLTestFramework):
         # Check that using non-existent datadir in conf file fails
         conf_file = os.path.join(default_data_dir, "BGL.conf")
 
-        # datadir needs to be set before [regtest] section
-        conf_file_contents = open(conf_file, encoding='utf8').read()
+        # datadir needs to be set before [chain] section
+        with open(conf_file, encoding='utf8') as f:
+            conf_file_contents = f.read()
         with open(conf_file, 'w', encoding='utf8') as f:
             f.write(f"datadir={new_data_dir}\n")
             f.write(conf_file_contents)
@@ -256,7 +257,7 @@ class ConfArgsTest(BGLTestFramework):
         self.nodes[0].assert_start_raises_init_error([f'-conf={conf_file}'], f'Error: Error reading configuration file: specified data directory "{new_data_dir}" does not exist.')
 
         # Check that an explicitly specified config file that cannot be opened fails
-        none_existent_conf_file = os.path.join(default_data_dir, "none_existent_bitcoin.conf")
+        none_existent_conf_file = os.path.join(default_data_dir, "none_existent_BGL.conf")
         self.nodes[0].assert_start_raises_init_error(['-conf=' + none_existent_conf_file], 'Error: Error reading configuration file: specified config file "' + none_existent_conf_file + '" could not be opened.')
 
         # Create the directory and ensure the config file now works
