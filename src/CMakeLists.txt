@@ -247,6 +247,7 @@ add_library(BGL_node STATIC EXCLUDE_FROM_ALL
   node/psbt.cpp
   node/timeoffsets.cpp
   node/transaction.cpp
+  node/txdownloadman_impl.cpp
   node/txreconciliation.cpp
   node/utxo_snapshot.cpp
   node/warnings.cpp
