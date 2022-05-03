@@ -864,7 +864,6 @@ endif
 libBGLkernel_la_SOURCES = \
   kernel/BGLkernel.cpp \
   arith_uint256.cpp \
-  blockfilter.cpp \
   chain.cpp \
   chainparamsbase.cpp \
   chainparams.cpp \
@@ -883,7 +882,6 @@ libBGLkernel_la_SOURCES = \
   fs.cpp \
   hash.cpp \
   index/base.cpp \
-  index/blockfilterindex.cpp \
   index/coinstatsindex.cpp \
   init/common.cpp \
   key.cpp \
