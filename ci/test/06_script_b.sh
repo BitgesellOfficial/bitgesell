@@ -58,6 +58,7 @@ if [ "${RUN_TIDY}" = "true" ]; then
           " src/test/fuzz/txorphan.cpp"\
           " src/util/bip32.cpp"\
           " src/util/bytevectorhash.cpp"\
+          " src/util/check.cpp"\
           " src/util/error.cpp"\
           " src/util/getuniquepath.cpp"\
           " src/util/hasher.cpp"\
