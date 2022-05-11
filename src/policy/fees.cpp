@@ -531,9 +531,7 @@ CBlockPolicyEstimator::CBlockPolicyEstimator()
     }
 }
 
-CBlockPolicyEstimator::~CBlockPolicyEstimator()
-{
-}
+CBlockPolicyEstimator::~CBlockPolicyEstimator() = default;
 
 void CBlockPolicyEstimator::processTransaction(const CTxMemPoolEntry& entry, bool validFeeEstimate)
 {
