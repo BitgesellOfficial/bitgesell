@@ -1432,7 +1432,6 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
                                               chainman,
                                               Assert(node.mempool.get()),
                                               fPruneMode,
-                                              chainparams.GetConsensus(),
                                               fReindexChainState,
                                               cache_sizes.block_tree_db,
                                               cache_sizes.coins_db,
@@ -1479,7 +1478,7 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
                 break;
             case ChainstateLoadingError::ERROR_BLOCKS_WITNESS_INSUFFICIENTLY_VALIDATED:
                 strLoadError = strprintf(_("Witness data for blocks after height %d requires validation. Please restart with -reindex."),
-                                         chainparams.GetConsensus().SegwitHeight);
+                                         chainman.GetConsensus().SegwitHeight);
                 break;
             case ChainstateLoadingError::SHUTDOWN_PROBED:
                 break;
@@ -1496,7 +1495,6 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
                 maybe_verify_error = VerifyLoadedChainstate(chainman,
                                                             fReset,
                                                             fReindexChainState,
-                                                            chainparams.GetConsensus(),
                                                             check_blocks,
                                                             args.GetIntArg("-checklevel", DEFAULT_CHECKLEVEL));
             } catch (const std::exception& e) {
