@@ -6,7 +6,6 @@
 #ifndef BGL_OUTPUTTYPE_H
 #define BGL_OUTPUTTYPE_H
 
-#include <attributes.h>
 #include <script/signingprovider.h>
 #include <script/standard.h>
 

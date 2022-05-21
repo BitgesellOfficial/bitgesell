@@ -14,7 +14,6 @@
 #ifndef BGL_BASE58_H
 #define BGL_BASE58_H
 
-#include <attributes.h>
 #include <span.h>
 
 #include <string>

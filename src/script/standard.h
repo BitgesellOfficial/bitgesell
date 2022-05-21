@@ -6,6 +6,7 @@
 #ifndef BGL_SCRIPT_STANDARD_H
 #define BGL_SCRIPT_STANDARD_H
 
+#include <attributes.h>
 #include <pubkey.h>
 #include <script/interpreter.h>
 #include <uint256.h>
