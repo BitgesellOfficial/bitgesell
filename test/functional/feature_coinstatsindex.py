@@ -228,6 +228,20 @@ class CoinStatsIndexTest(BGLTestFramework):
         res10 = index_node.gettxoutsetinfo('muhash')
         assert res8['txouts'] < res10['txouts']
 
+        self.log.info("Test that the index works with -reindex")
+
+        self.restart_node(1, extra_args=["-coinstatsindex", "-reindex"])
+        self.sync_index_node()
+        res11 = index_node.gettxoutsetinfo('muhash')
+        assert_equal(res11, res10)
+
+        self.log.info("Test that the index works with -reindex-chainstate")
+
+        self.restart_node(1, extra_args=["-coinstatsindex", "-reindex-chainstate"])
+        self.sync_index_node()
+        res12 = index_node.gettxoutsetinfo('muhash')
+        assert_equal(res12, res10)
+
     def _test_use_index_option(self):
         self.log.info("Test use_index option for nodes running the index")
 
@@ -245,6 +259,7 @@ class CoinStatsIndexTest(BGLTestFramework):
         index_node = self.nodes[1]
         reorg_blocks = self.generatetoaddress(index_node, 2, getnewdestination()[2])
         reorg_block = reorg_blocks[1]
+        self.sync_index_node()
         res_invalid = index_node.gettxoutsetinfo('muhash')
         index_node.invalidateblock(reorg_blocks[0])
         assert_equal(index_node.gettxoutsetinfo('muhash')['height'], 110)
