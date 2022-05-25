@@ -11,6 +11,8 @@
 //
 // It is part of the libbitcoinkernel project.
 
+#include <kernel/context.h>
+
 #include <chainparams.h>
 #include <consensus/validation.h>
 #include <core_io.h>
@@ -49,7 +51,7 @@ int main(int argc, char* argv[])
     SelectParams(CBaseChainParams::MAIN);
     const CChainParams& chainparams = Params();
 
-    init::SetGlobals(); // ECC_Start, etc.
+    kernel::Context kernel_context{};
 
     // Necessary for CheckInputScripts (eventually called by ProcessNewBlock),
     // which will try the script cache first and fall back to actually
@@ -254,8 +256,4 @@ epilogue:
         }
     }
     GetMainSignals().UnregisterBackgroundSignalScheduler();
-
-    WITH_LOCK(::cs_main, UnloadBlockIndex(chainman));
-
-    init::UnsetGlobals();
 }
