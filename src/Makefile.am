@@ -176,6 +176,7 @@ BGL_CORE_H = \
   interfaces/wallet.h \
   kernel/chainstatemanager_opts.h \
   kernel/coinstats.h \
+  kernel/context.h \
   key.h \
   key_io.h \
   logging.h \
