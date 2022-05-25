@@ -334,7 +334,7 @@ obj/build.h: FORCE
 	  "$(abs_top_srcdir)"
 libBGL_util_a-clientversion.$(OBJEXT): obj/build.h
 
-ipc/capnp/libBGL_ipc_a-ipc.$(OBJEXT): $(libBGL_ipc_mpgen_input:=.h)
+ipc/capnp/libBGL_ipc_a-protocol.$(OBJEXT): $(libBGL_ipc_mpgen_input:=.h)
 
 # server: shared between BGLd and BGL-qt
 # Contains code accessing mempool and chain state that is meant to be separated
