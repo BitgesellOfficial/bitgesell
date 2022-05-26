@@ -5,7 +5,8 @@
 #ifndef BGL_TEST_UTIL_NET_H
 #define BGL_TEST_UTIL_NET_H
 
-#include <compat/compat.h>
+#include <compat.h>
+#include <node/eviction.h>
 #include <netaddress.h>
 #include <net.h>
 #include <util/sock.h>
