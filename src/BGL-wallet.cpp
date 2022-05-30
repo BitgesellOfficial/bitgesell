@@ -8,6 +8,8 @@
 
 #include <chainparams.h>
 #include <chainparamsbase.h>
+#include <clientversion.h>
+#include <compat.h>
 #include <interfaces/init.h>
 #include <logging.h>
 #include <util/system.h>
@@ -81,7 +83,7 @@ static bool WalletAppInit(ArgsManager& args, int argc, char* argv[])
     return true;
 }
 
-int main(int argc, char* argv[])
+MAIN_FUNCTION
 {
     ArgsManager& args = gArgs;
 #ifdef WIN32
