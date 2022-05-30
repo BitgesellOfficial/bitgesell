@@ -23,7 +23,7 @@ noinst_PROGRAMS =
 TESTS =
 BENCHMARKS =
 
-BGL_INCLUDES=-I$(builddir) -I$(srcdir)/$(MINISKETCH_INCLUDE_DIR_INT) -I$(srcdir)/secp256k1/include -I$(srcdir)/$(UNIVALUE_INCLUDE_DIR_INT) $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
+BGL_INCLUDES=-I$(builddir) -I$(srcdir)/$(MINISKETCH_INCLUDE_DIR_INT) -I$(srcdir)/secp256k1/include -I$(srcdir)/$(UNIVALUE_INCLUDE_DIR_INT) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
 
 LIBBGL_NODE=libBGL_node.a
 LIBBGL_COMMON=libBGL_common.a
@@ -410,6 +410,7 @@ libBGL_node_a_SOURCES = \
 
 if ENABLE_WALLET
 libBGL_node_a_SOURCES += wallet/init.cpp
+libBGL_node_a_CPPFLAGS += $(BDB_CPPFLAGS)
 endif
 if !ENABLE_WALLET
 libBGL_node_a_SOURCES += dummywallet.cpp
@@ -429,7 +430,7 @@ endif
 
 # wallet: shared between BGLd and BGL-qt, but only linked
 # when wallet enabled
-libBGL_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(SQLITE_CFLAGS)
+libBGL_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BDB_CPPFLAGS) $(SQLITE_CFLAGS)
 libBGL_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_wallet_a_SOURCES = \
   wallet/coincontrol.cpp \
