@@ -7,7 +7,7 @@
 
 #include <qt/sendcoinsrecipient.h>
 
-#include <QStackedWidget>
+#include <QWidget>
 
 class WalletModel;
 class PlatformStyle;
@@ -21,11 +21,9 @@ namespace Ui {
 }
 
 /**
- * A single entry in the dialog for sending BGLs.
- * Stacked widget, with different UIs for payment requests
- * with a strong payee identity.
+ * A single entry in the dialog for sending bitcoins.
  */
-class SendCoinsEntry : public QStackedWidget
+class SendCoinsEntry : public QWidget
 {
     Q_OBJECT
 
