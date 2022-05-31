@@ -7,18 +7,20 @@
 echo "START SCRIPT A"
 export LC_ALL=C.UTF-8
 
+BGL_CONFIG_ALL="--enable-suppress-external-warnings --disable-dependency-tracking --prefix=$DEPENDS_DIR/$HOST"
+if [ -z "$NO_WERROR" ]; then
+  BGL_CONFIG_ALL="${BGL_CONFIG_ALL} --enable-werror"
+fi
+
 if [ -n "$ANDROID_TOOLS_URL" ]; then
   CI_EXEC make distclean || true
   CI_EXEC ./autogen.sh
-  CI_EXEC ./configure "$BGL_CONFIG" --prefix="${DEPENDS_DIR}/aarch64-linux-android" || ( (CI_EXEC cat config.log) && false)
+  CI_EXEC ./configure "$BGL_CONFIG_ALL" "$BGL_CONFIG" || ( (CI_EXEC cat config.log) && false)
   CI_EXEC "make $MAKEJOBS && cd src/qt && ANDROID_HOME=${ANDROID_HOME} ANDROID_NDK_HOME=${ANDROID_NDK_HOME} make apk"
   exit 0
 fi
 
-BGL_CONFIG_ALL="--enable-external-signer --enable-suppress-external-warnings --disable-dependency-tracking --prefix=$DEPENDS_DIR/$HOST --bindir=$BASE_OUTDIR/bin --libdir=$BASE_OUTDIR/lib"
-if [ -z "$NO_WERROR" ]; then
-  BGL_CONFIG_ALL="${BGL_CONFIG_ALL} --enable-werror"
-fi
+BGL_CONFIG_ALL="${BGL_CONFIG_ALL} --enable-external-signer --bindir=$BASE_OUTDIR/bin --libdir=$BASE_OUTDIR/lib"
 CI_EXEC "ccache --zero-stats --max-size=$CCACHE_SIZE"
 
 
