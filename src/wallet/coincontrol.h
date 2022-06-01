@@ -86,6 +86,8 @@ public:
     int m_max_depth = DEFAULT_MAX_DEPTH;
     //! SigningProvider that has pubkeys and scripts to do spend size estimation for external inputs
     FlatSigningProvider m_external_provider;
+    //! Locktime
+    std::optional<uint32_t> m_locktime;
 
     CCoinControl();
 
