@@ -31,6 +31,8 @@ private:
     std::optional<CTxOut> m_txout;
     //! The input weight for spending this input
     std::optional<int64_t> m_weight;
+    //! The sequence number for this input
+    std::optional<uint32_t> m_sequence;
 
 public:
     /**
@@ -46,9 +48,12 @@ public:
     /** Set the weight for this input. */
     void SetInputWeight(int64_t weight);
     /** Retrieve the input weight for this input. */
-    int64_t GetInputWeight() const;
-    /** Return whether the input weight is set. */
-    bool HasInputWeight() const;
+    std::optional<int64_t> GetInputWeight() const;
+
+    /** Set the sequence for this input. */
+    void SetSequence(uint32_t sequence);
+    /** Retrieve the sequence for this input. */
+    std::optional<uint32_t> GetSequence() const;
 };
 
 /** Coin Control Features. */
@@ -142,7 +147,9 @@ public:
     /**
      * Returns the input weight.
      */
-    int64_t GetInputWeight(const COutPoint& outpoint) const;
+    std::optional<int64_t> GetInputWeight(const COutPoint& outpoint) const;
+    /** Retrieve the sequence for an input */
+    std::optional<uint32_t> GetSequence(const COutPoint& outpoint) const;
 
 private:
     //! Selected inputs (inputs that will be used, regardless of whether they're optimal or not)

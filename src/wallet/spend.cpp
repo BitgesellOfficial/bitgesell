@@ -1156,7 +1156,8 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
     // to avoid conflicting with other possible uses of nSequence,
     // and in the spirit of "smallest possible change from prior
     // behavior."
-    const uint32_t nSequence{coin_control.m_signal_bip125_rbf.value_or(wallet.m_signal_rbf) ? MAX_BIP125_RBF_SEQUENCE : CTxIn::MAX_SEQUENCE_NONFINAL};
+    bool use_anti_fee_sniping = true;
+    const uint32_t default_sequence{coin_control.m_signal_bip125_rbf.value_or(wallet.m_signal_rbf) ? MAX_BIP125_RBF_SEQUENCE : CTxIn::MAX_SEQUENCE_NONFINAL};
     for (const auto& coin : selected_coins) {
         std::optional<uint32_t> sequence = coin_control.GetSequence(coin->outpoint);
         if (sequence) {
@@ -1165,15 +1166,9 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
         }
         txNew.vin.emplace_back(coin->outpoint, CScript(), sequence.value_or(default_sequence));
     }
-    if (coin_control.m_locktime) {
-        txNew.nLockTime = coin_control.m_locktime.value();
-        // If we have a locktime set, we can't use anti-fee-sniping
-        use_anti_fee_sniping = false;
-    }
     if (use_anti_fee_sniping) {
         DiscourageFeeSniping(txNew, rng_fast, wallet.chain(), wallet.GetLastBlockHash(), wallet.GetLastBlockHeight());
     }
-    DiscourageFeeSniping(txNew, rng_fast, wallet.chain(), wallet.GetLastBlockHash(), wallet.GetLastBlockHeight());
 
     // Calculate the transaction fee
     TxSize tx_sizes = CalculateMaximumSignedTxSize(CTransaction(txNew), &wallet, &coin_control);
@@ -1383,6 +1378,7 @@ bool FundTransaction(CWallet& wallet, CMutableTransaction& tx, CAmount& nFeeRet,
             // The input was not in the wallet, but is in the UTXO set, so select as external
             coinControl.SelectExternal(outPoint, coins[outPoint].out);
         }
+        preset_txin.SetSequence(txin.nSequence);
     }
 
     auto res = CreateTransaction(wallet, vecSend, nChangePosInOut, coinControl, false);

@@ -83,6 +83,12 @@ int64_t CCoinControl::GetInputWeight(const COutPoint& outpoint) const
     return m_selected.at(outpoint).GetInputWeight();
 }
 
+std::optional<uint32_t> CCoinControl::GetSequence(const COutPoint& outpoint) const
+{
+    const auto it = m_selected.find(outpoint);
+    return it != m_selected.end() ? it->second.GetSequence() : std::nullopt;
+}
+
 void PreselectedInput::SetTxOut(const CTxOut& txout)
 {
     m_txout = txout;
@@ -113,5 +119,15 @@ int64_t PreselectedInput::GetInputWeight() const
 bool PreselectedInput::HasInputWeight() const
 {
     return m_weight.has_value();
+}
+
+void PreselectedInput::SetSequence(uint32_t sequence)
+{
+    m_sequence = sequence;
+}
+
+std::optional<uint32_t> PreselectedInput::GetSequence() const
+{
+    return m_sequence;
 }
 } // namespace wallet
