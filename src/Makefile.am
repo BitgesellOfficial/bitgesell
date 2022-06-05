@@ -29,7 +29,6 @@ LIBBGL_NODE=libBGL_node.a
 LIBBGL_COMMON=libBGL_common.a
 LIBBGL_CONSENSUS=libBGL_consensus.a
 LIBBGL_CLI=libBGL_cli.a
-LIBBGL_KERNEL=libBGL_kernel.a
 LIBBGL_UTIL=libBGL_util.a
 LIBBGL_CRYPTO_BASE=crypto/libBGL_crypto_base.la
 LIBBGLQT=qt/libBGLqt.a
