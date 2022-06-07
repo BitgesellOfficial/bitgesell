@@ -18,7 +18,7 @@ test/lint/git-subtree-check.sh src/univalue
 test/lint/git-subtree-check.sh src/leveldb
 test/lint/git-subtree-check.sh src/crc32c
 test/lint/check-doc.py
-test/lint/lint-all.py
+test/lint/all-lint.py
 
 if [ "$CIRRUS_REPO_FULL_NAME" = "BGL/BGL" ] && [ "$CIRRUS_PR" = "" ] ; then
     # Sanity check only the last few commits to get notified of missing sigs,
