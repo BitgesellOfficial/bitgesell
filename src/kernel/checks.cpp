@@ -8,6 +8,8 @@
 #include <random.h>
 #include <util/time.h>
 
+#include <memory>
+
 namespace kernel {
 
 std::optional<SanityCheckError> SanityChecks(const Context&)
