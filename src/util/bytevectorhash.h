@@ -5,7 +5,8 @@
 #ifndef BGL_UTIL_BYTEVECTORHASH_H
 #define BGL_UTIL_BYTEVECTORHASH_H
 
-#include <stdint.h>
+#include <cstdint>
+#include <cstddef>
 #include <vector>
 
 /**

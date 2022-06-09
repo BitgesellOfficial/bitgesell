@@ -5,6 +5,7 @@
 #ifndef BGL_UTIL_BIP32_H
 #define BGL_UTIL_BIP32_H
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
