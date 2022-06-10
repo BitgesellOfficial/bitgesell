@@ -685,19 +685,107 @@ fi
 # Select assembly optimization
 enable_external_asm=no
 
-case $set_asm in
-x86_64)
-  AC_DEFINE(USE_ASM_X86_64, 1, [Define this symbol to enable x86_64 assembly optimizations])
-  ;;
-arm)
-  enable_external_asm=yes
-  ;;
-no)
-  ;;
-*)
-  AC_MSG_ERROR([invalid assembly optimizations])
-  ;;
-esac
+AC_CHECK_DECLS([getifaddrs, freeifaddrs],[CHECK_SOCKET],,
+    [#include <sys/types.h>
+    #include <ifaddrs.h>]
+)
+
+dnl These are used for daemonization in BGLd
+AC_CHECK_DECLS([fork])
+AC_CHECK_DECLS([setsid])
+
+AC_CHECK_DECLS([pipe2])
+
+AC_CHECK_FUNCS([timingsafe_bcmp])
+
+AC_CHECK_DECLS([le16toh, le32toh, le64toh, htole16, htole32, htole64, be16toh, be32toh, be64toh, htobe16, htobe32, htobe64],,,
+    [#if HAVE_ENDIAN_H
+                 #include <endian.h>
+                 #elif HAVE_SYS_ENDIAN_H
+                 #include <sys/endian.h>
+                 #endif])
+
+AC_CHECK_DECLS([bswap_16, bswap_32, bswap_64],,,
+    [#if HAVE_BYTESWAP_H
+                 #include <byteswap.h>
+                 #endif])
+
+AC_MSG_CHECKING([for __builtin_clzl])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[ ]], [[
+ (void) __builtin_clzl(0);
+  ]])],
+ [ AC_MSG_RESULT([yes]); have_clzl=yes; AC_DEFINE([HAVE_BUILTIN_CLZL], [1], [Define this symbol if you have __builtin_clzl])],
+ [ AC_MSG_RESULT([no]); have_clzl=no;]
+)
+
+AC_MSG_CHECKING([for __builtin_clzll])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[ ]], [[
+  (void) __builtin_clzll(0);
+  ]])],
+ [ AC_MSG_RESULT([yes]); have_clzll=yes; AC_DEFINE([HAVE_BUILTIN_CLZLL], [1], [Define this symbol if you have __builtin_clzll])],
+ [ AC_MSG_RESULT([no]); have_clzll=no;]
+)
+
+dnl Check for malloc_info (for memory statistics information in getmemoryinfo)
+AC_MSG_CHECKING([for getmemoryinfo])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <malloc.h>]],
+ [[ int f = malloc_info(0, NULL); ]])],
+ [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_MALLOC_INFO], [1], [Define this symbol if you have malloc_info]) ],
+ [ AC_MSG_RESULT([no])]
+)
+
+dnl Check for mallopt(M_ARENA_MAX) (to set glibc arenas)
+AC_MSG_CHECKING([for mallopt M_ARENA_MAX])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <malloc.h>]],
+ [[ mallopt(M_ARENA_MAX, 1); ]])],
+ [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_MALLOPT_ARENA_MAX], [1], [Define this symbol if you have mallopt with M_ARENA_MAX]) ],
+ [ AC_MSG_RESULT([no])]
+)
+
+dnl Check for posix_fallocate
+AC_MSG_CHECKING([for posix_fallocate])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+                   // same as in src/util/system.cpp
+                   #ifdef __linux__
+                   #ifdef _POSIX_C_SOURCE
+                   #undef _POSIX_C_SOURCE
+                   #endif
+                   #define _POSIX_C_SOURCE 200112L
+                   #endif // __linux__
+                   #include <fcntl.h>]],
+                   [[ int f = posix_fallocate(0, 0, 0); ]])],
+ [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_POSIX_FALLOCATE], [1], [Define this symbol if you have posix_fallocate]) ],
+ [ AC_MSG_RESULT([no])]
+)
+
+AC_MSG_CHECKING([for default visibility attribute])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+  int foo(void) __attribute__((visibility("default")));
+  int main(){}
+  ])],
+  [
+    AC_DEFINE([HAVE_DEFAULT_VISIBILITY_ATTRIBUTE], [1], [Define if the visibility attribute is supported.])
+    AC_MSG_RESULT([yes])
+  ],
+  [
+    AC_MSG_RESULT([no])
+    if test "$use_reduce_exports" = "yes"; then
+      AC_MSG_ERROR([Cannot find a working visibility attribute. Use --disable-reduce-exports.])
+    fi
+  ]
+)
+
+AC_MSG_CHECKING([for dllexport attribute])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+  __declspec(dllexport) int foo(void);
+  int main(){}
+  ])],
+  [
+    AC_DEFINE([HAVE_DLLEXPORT_ATTRIBUTE], [1], [Define if the dllexport attribute is supported.])
+    AC_MSG_RESULT([yes])
+  ],
+  [AC_MSG_RESULT([no])]
+)
 
 if test x"$enable_external_asm" = x"yes"; then
   AC_DEFINE(USE_EXTERNAL_ASM, 1, [Define this symbol if an external (non-inline) assembly implementation is used])
