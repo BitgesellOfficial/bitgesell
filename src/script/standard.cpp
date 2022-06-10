@@ -375,9 +375,9 @@ bool IsValidDestination(const CTxDestination& dest) {
     }
     /* Lexicographically sort a and b's hash, and compute parent hash. */
     if (a.hash < b.hash) {
-        ret.hash = (CHashWriterSHA256(HASHER_TAPBRANCH) << a.hash << b.hash).GetSHA256();
+        ret.hash = (CHashWriterSHA256{HASHER_TAPBRANCH} << a.hash << b.hash).GetSHA256();
     } else {
-        ret.hash = (CHashWriterSHA256(HASHER_TAPBRANCH) << b.hash << a.hash).GetSHA256();
+        ret.hash = (CHashWriterSHA256{HASHER_TAPBRANCH} << b.hash << a.hash).GetSHA256();
     }
     return ret;
 }

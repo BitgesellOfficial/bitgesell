@@ -342,7 +342,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0; // No activation delay
 
         // message start is defined as the first 4 bytes of the sha256d of the block script
-        CHashWriterKeccak h(SER_DISK, 0);
+        CHashWriterKeccak h{};
         h << consensus.signet_challenge;
         uint256 hash = h.GetHash();
         memcpy(pchMessageStart, hash.begin(), 4);

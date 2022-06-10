@@ -74,7 +74,7 @@ bool MessageSign(
 
 uint256 MessageHash(const std::string& message)
 {
-    CHashWriterKeccak hasher(SER_GETHASH, 0);
+    CHashWriterKeccak hasher{};
     hasher << MESSAGE_MAGIC << message;
 
     return hasher.GetHash();

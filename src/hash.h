@@ -272,7 +272,7 @@ public:
     }
 
     template <typename T>
-    HashWriter& operator<<(const T& obj)
+    CHashWriterSHA256& operator<<(const T& obj)
     {
         ::Serialize(*this, obj);
         return *this;
@@ -358,11 +358,11 @@ unsigned int MurmurHash3(unsigned int nHashSeed, Span<const unsigned char> vData
 
 void BIP32Hash(const ChainCode &chainCode, unsigned int nChild, unsigned char header, const unsigned char data[32], unsigned char output[64]);
 
-/** Return a CHashWriter primed for tagged hashes (as specified in BIP 340).
+/** Return a HashWriter primed for tagged hashes (as specified in BIP 340).
  *
  * The returned object will have SHA256(tag) written to it twice (= 64 bytes).
  * A tagged hash can be computed by feeding the message into this object, and
- * then calling CHashWriter::GetSHA256().
+ * then calling HashWriter::GetSHA256().
  */
 CHashWriterSHA256 TaggedHash(const std::string& tag);
 

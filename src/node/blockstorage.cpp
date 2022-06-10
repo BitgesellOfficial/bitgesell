@@ -472,7 +472,7 @@ static bool UndoWriteToDisk(const CBlockUndo& blockundo, FlatFilePos& pos, const
     fileout << blockundo;
 
     // calculate & write checksum
-    CHashWriterKeccak hasher(SER_GETHASH, PROTOCOL_VERSION);
+    CHashWriterKeccak hasher{};
     hasher << hashBlock;
     hasher << blockundo;
     fileout << hasher.GetHash();
