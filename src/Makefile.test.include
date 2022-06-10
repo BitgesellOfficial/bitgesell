@@ -162,7 +162,8 @@ BGL_TESTS =\
   test/validation_flush_tests.cpp \
   test/validation_tests.cpp \
   test/validationinterface_tests.cpp \
-  test/versionbits_tests.cpp
+  test/versionbits_tests.cpp \
+  test/xoroshiro128plusplus_tests.cpp
 
 if ENABLE_WALLET
 BGL_TESTS += \
