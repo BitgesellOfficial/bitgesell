@@ -1,6 +1,5 @@
-// Automatically generated file. Do not modify.
-#ifndef BGL_UNIVALUE_UNIVALUE_ESCAPES_H
-#define BGL_UNIVALUE_UNIVALUE_ESCAPES_H
+#ifndef BGL_UNIVALUE_INCLUDE_UNIVALUE_ESCAPES_H
+#define BGL_UNIVALUE_INCLUDE_UNIVALUE_ESCAPES_H
 static const char *escapes[256] = {
 	"\\u0000",
 	"\\u0001",
@@ -259,4 +258,4 @@ static const char *escapes[256] = {
 	nullptr,
 	nullptr,
 };
-#endif // BGL_UNIVALUE_UNIVALUE_ESCAPES_H
+#endif // BGL_UNIVALUE_INCLUDE_UNIVALUE_ESCAPES_H

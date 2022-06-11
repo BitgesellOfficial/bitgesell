@@ -34,7 +34,6 @@ EXCLUDE_DIRS = [
     "src/crypto/ctaes/",
     "src/leveldb/",
     "src/secp256k1/",
-    "src/univalue/",
     "src/crc32c/",
 ]
 
