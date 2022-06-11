@@ -144,8 +144,7 @@ BOOST_AUTO_TEST_CASE(getcoinscachesizestate)
             CoinsCacheSizeState::OK);
     }
 
-    // Flushing the view doesn't take us back to OK because cacheCoins has
-    // preallocated memory that doesn't get reclaimed even after flush.
+    // Flushing the view does take us back to OK because ReallocateCache() is called
 
     BOOST_CHECK_EQUAL(
         chainstate.GetCoinsCacheSizeState(MAX_COINS_CACHE_BYTES, 0),
@@ -157,7 +156,7 @@ BOOST_AUTO_TEST_CASE(getcoinscachesizestate)
 
     BOOST_CHECK_EQUAL(
         chainstate.GetCoinsCacheSizeState(MAX_COINS_CACHE_BYTES, 0),
-        CoinsCacheSizeState::CRITICAL);
+        CoinsCacheSizeState::OK);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
