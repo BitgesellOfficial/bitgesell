@@ -117,17 +117,9 @@ class PrioritiseTransactionTest(BGLTestFramework):
                 assert x not in mempool
 
         # Create a free transaction.  Should be rejected.
-        utxo_list = self.nodes[0].listunspent()
-        assert len(utxo_list) > 0
-        utxo = utxo_list[0]
-
-        inputs = []
-        outputs = {}
-        inputs.append({"txid" : utxo["txid"], "vout" : utxo["vout"]})
-        outputs[self.nodes[0].getnewaddress()] = utxo["amount"]
-        raw_tx = self.nodes[0].createrawtransaction(inputs, outputs)
-        tx_hex = self.nodes[0].signrawtransactionwithwallet(raw_tx)["hex"]
-        tx_id = self.nodes[0].decoderawtransaction(tx_hex)["txid"]
+        tx_res = self.wallet.create_self_transfer(from_node=self.nodes[0], fee_rate=0)
+        tx_hex = tx_res['hex']
+        tx_id = tx_res['txid']
 
         # This will raise an exception due to min relay fee not being met
         assert_raises_rpc_error(-26, "min relay fee not met", self.nodes[0].sendrawtransaction, tx_hex)

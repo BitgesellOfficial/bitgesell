@@ -589,7 +589,6 @@ class ReplaceByFeeTest(BGLTestFramework):
             utxo_to_spend=parent_utxo,
             sequence=0xffffffff,
             fee_rate=Decimal('0.02'),
-            mempool_valid=False,
         )
 
         # Broadcast replacement child tx

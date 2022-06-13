@@ -344,18 +344,8 @@ class RawTransactionsTest(BGLTestFramework):
         self.nodes[2].sendrawtransaction(hexstring=rawTxSigned['hex'])
 
         # Test a transaction with a large fee.
-        txId = self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 1.0)
-        rawTx = self.nodes[0].getrawtransaction(txId, True)
-        vout = next(o for o in rawTx['vout'] if o['value'] == Decimal('1.00000000'))
-
-        self.sync_all()
-        inputs = [{"txid": txId, "vout": vout['n']}]
-        # Fee 2,000,000 satoshis, (1 - (2000000 sat * 0.00000001 BTC/sat)) = 0.98
-        outputs = {self.nodes[0].getnewaddress() : Decimal("0.98000000")}
-        rawTx = self.nodes[2].createrawtransaction(inputs, outputs)
-        rawTxSigned = self.nodes[2].signrawtransactionwithwallet(rawTx)
-        assert_equal(rawTxSigned['complete'], True)
-        # Fee 2,000,000 satoshis, ~100 b transaction, fee rate should land around 20,000 sat/byte = 0.20000000 BTC/kB
+        # Fee rate is 0.20000000 BTC/kvB
+        tx = self.wallet.create_self_transfer(from_node=self.nodes[0], fee_rate=Decimal("0.20000000"))
         # Thus, testmempoolaccept should reject
         testres = self.nodes[2].testmempoolaccept([rawTxSigned['hex']])[0]
         assert_equal(testres['allowed'], False)
