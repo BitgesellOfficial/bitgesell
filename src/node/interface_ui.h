@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BGL_NODE_UI_INTERFACE_H
-#define BGL_NODE_UI_INTERFACE_H
+#ifndef BGL_NODE_INTERFACE_UI_H
+#define BGL_NODE_INTERFACE_UI_H
 
 #include <functional>
 #include <memory>
@@ -120,4 +120,4 @@ constexpr auto AbortError = InitError;
 
 extern CClientUIInterface uiInterface;
 
-#endif // BGL_NODE_UI_INTERFACE_H
+#endif // BGL_NODE_INTERFACE_UI_H
