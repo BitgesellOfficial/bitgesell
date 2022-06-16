@@ -58,11 +58,6 @@ namespace Consensus {
 struct Params;
 } // namespace Consensus
 
-/** Default for -limitdescendantcount, max number of in-mempool descendants */
-static const unsigned int DEFAULT_DESCENDANT_LIMIT = 25;
-/** Default for -limitdescendantsize, maximum kilobytes of in-mempool descendants */
-static const unsigned int DEFAULT_DESCENDANT_SIZE_LIMIT = 101;
-
 // If a package is submitted, it must be within the mempool's ancestor/descendant limits. Since a
 // submitted package must be child-with-unconfirmed-parents (all of the transactions are an ancestor
 // of the child), package limits are ultimately bounded by mempool package limits. Ensure that the
