@@ -60,6 +60,12 @@ static constexpr unsigned int DEFAULT_MIN_RELAY_TX_FEE{1000};
 /** Default for -limitancestorcount, max number of in-mempool ancestors */
 static constexpr unsigned int DEFAULT_ANCESTOR_LIMIT{25};
 /**
+ * An extra transaction can be added to a package, as long as it only has one
+ * ancestor and is no larger than this. Not really any reason to make this
+ * configurable as it doesn't materially change DoS parameters.
+ */
+static constexpr unsigned int EXTRA_DESCENDANT_TX_SIZE_LIMIT{10000};
+/**
  * Standard script verification flags that standard transactions will comply
  * with. However scripts violating these flags may still be present in valid
  * blocks and we must accept those blocks.
