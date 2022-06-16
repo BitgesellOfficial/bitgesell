@@ -1298,7 +1298,7 @@ UniValue DeploymentInfo(const CBlockIndex* blockindex, const ChainstateManager& 
 }
 } // anon namespace
 
-static RPCHelpMan getdeploymentinfo()
+RPCHelpMan getdeploymentinfo()
 {
     return RPCHelpMan{"getdeploymentinfo",
         "Returns an object containing various state info regarding deployments of consensus changes.",
