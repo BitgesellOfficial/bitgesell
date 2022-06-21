@@ -521,6 +521,9 @@ inspecting signatures in Mach-O binaries.")
 (define (make-glibc-without-werror glibc)
   (package-with-extra-configure-variable glibc "enable_werror" "no"))
 
+(define (make-glibc-with-stack-protector glibc)
+  (package-with-extra-configure-variable glibc "--enable-stack-protector" "all"))
+
 (define-public glibc-2.24
   (package
     (inherit glibc-2.31)
@@ -606,7 +609,7 @@ inspecting signatures in Mach-O binaries.")
           ((string-contains target "-linux-")
            (list (cond ((string-contains target "riscv64-")
                         (make-BGL-cross-toolchain target
-                                                      #:base-libc (make-glibc-without-werror glibc-2.27/BGL-patched)))
+                                                      #:base-libc (make-glibc-with-stack-protector (make-glibc-without-werror glibc-2.27/BGL-patched))))
                        (else
                         (make-BGL-cross-toolchain target)))))
           ((string-contains target "darwin")
