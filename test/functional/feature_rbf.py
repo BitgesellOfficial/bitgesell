@@ -396,6 +396,93 @@ class ReplaceByFeeTest(BGLTestFramework):
         double_tx_hex = double_tx.serialize().hex()
         self.nodes[0].sendrawtransaction(double_tx_hex, 0)
 
+    def test_too_many_replacements_with_default_mempool_params(self):
+        """
+        Test rule 5 of BIP125 (do not allow replacements that cause more than 100
+        evictions) without having to rely on non-default mempool parameters.
+
+        In order to do this, create a number of "root" UTXOs, and then hang
+        enough transactions off of each root UTXO to exceed the MAX_REPLACEMENT_LIMIT.
+        Then create a conflicting RBF replacement transaction.
+        """
+        normal_node = self.nodes[1]
+        wallet = MiniWallet(normal_node)
+        wallet.rescan_utxos()
+        # Clear mempools to avoid cross-node sync failure.
+        for node in self.nodes:
+            self.generate(node, 1)
+
+        # This has to be chosen so that the total number of transactions can exceed
+        # MAX_REPLACEMENT_LIMIT without having any one tx graph run into the descendant
+        # limit; 10 works.
+        num_tx_graphs = 10
+
+        # (Number of transactions per graph, BIP125 rule 5 failure expected)
+        cases = [
+            # Test the base case of evicting fewer than MAX_REPLACEMENT_LIMIT
+            # transactions.
+            ((MAX_REPLACEMENT_LIMIT // num_tx_graphs) - 1, False),
+
+            # Test hitting the rule 5 eviction limit.
+            (MAX_REPLACEMENT_LIMIT // num_tx_graphs, True),
+        ]
+
+        for (txs_per_graph, failure_expected) in cases:
+            self.log.debug(f"txs_per_graph: {txs_per_graph}, failure: {failure_expected}")
+            # "Root" utxos of each txn graph that we will attempt to double-spend with
+            # an RBF replacement.
+            root_utxos = []
+
+            # For each root UTXO, create a package that contains the spend of that
+            # UTXO and `txs_per_graph` children tx.
+            for graph_num in range(num_tx_graphs):
+                root_utxos.append(wallet.get_utxo())
+
+                optin_parent_tx = wallet.send_self_transfer_multi(
+                    from_node=normal_node,
+                    sequence=BIP125_SEQUENCE_NUMBER,
+                    utxos_to_spend=[root_utxos[graph_num]],
+                    num_outputs=txs_per_graph,
+                )
+                assert_equal(True, normal_node.getmempoolentry(optin_parent_tx['txid'])['bip125-replaceable'])
+                new_utxos = optin_parent_tx['new_utxos']
+
+                for utxo in new_utxos:
+                    # Create spends for each output from the "root" of this graph.
+                    child_tx = wallet.send_self_transfer(
+                        from_node=normal_node,
+                        utxo_to_spend=utxo,
+                    )
+
+                    assert normal_node.getmempoolentry(child_tx['txid'])
+
+            num_txs_invalidated = len(root_utxos) + (num_tx_graphs * txs_per_graph)
+
+            if failure_expected:
+                assert num_txs_invalidated > MAX_REPLACEMENT_LIMIT
+            else:
+                assert num_txs_invalidated <= MAX_REPLACEMENT_LIMIT
+
+            # Now attempt to submit a tx that double-spends all the root tx inputs, which
+            # would invalidate `num_txs_invalidated` transactions.
+            double_tx = wallet.create_self_transfer_multi(
+                utxos_to_spend=root_utxos,
+                fee_per_output=10_000_000,  # absurdly high feerate
+            )
+            tx_hex = double_tx.serialize().hex()
+
+            if failure_expected:
+                assert_raises_rpc_error(
+                    -26, "too many potential replacements", normal_node.sendrawtransaction, tx_hex, 0)
+            else:
+                txid = normal_node.sendrawtransaction(tx_hex, 0)
+                assert normal_node.getmempoolentry(txid)
+
+        # Clear the mempool once finished, and rescan the other nodes' wallet
+        # to account for the spends we've made on `normal_node`.
+        self.generate(normal_node, 1)
+        self.wallet.rescan_utxos()
+
     def test_opt_in(self):
         """Replacing should only work if orig tx opted in"""
         tx0_outpoint = self.make_utxo(self.nodes[0], int(1.1 * COIN))

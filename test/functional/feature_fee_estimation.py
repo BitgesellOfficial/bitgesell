@@ -68,18 +68,14 @@ def small_txpuzzle_randfee(from_node, conflist, unconflist, amount, min_fee, fee
         total_in += t["amount"]
         tx.vin.append(CTxIn(COutPoint(int(t["txid"], 16), t["vout"]), b""))
     if total_in <= amount + fee:
-        while total_in <= (amount + fee) and len(unconflist) > 0:
-            t = unconflist.pop(0)
-            total_in += t["amount"]
-            tx.vin.append(CTxIn(COutPoint(int(t["txid"], 16), t["vout"]), b""))
-        if total_in <= amount + fee:
-            raise RuntimeError(f"Insufficient funds: need {amount + fee}, have {total_in}")
-    tx.vout.append(CTxOut(int((total_in - amount - fee) * COIN), P2SH_1))
-    tx.vout.append(CTxOut(int(amount * COIN), P2SH_2))
-    # These transactions don't need to be signed, but we still have to insert
-    # the ScriptSig that will satisfy the ScriptPubKey.
-    for inp in tx.vin:
-        inp.scriptSig = SCRIPT_SIG[inp.prevout.n]
+        raise RuntimeError(f"Insufficient funds: need {amount + fee}, have {total_in}")
+    tx = wallet.create_self_transfer_multi(
+        utxos_to_spend=utxos_to_spend,
+        fee_per_output=0)
+    tx.vout[0].nValue = int((total_in - amount - fee) * COIN)
+    tx.vout.append(deepcopy(tx.vout[0]))
+    tx.vout[1].nValue = int(amount * COIN)
+
     txid = from_node.sendrawtransaction(hexstring=tx.serialize().hex(), maxfeerate=0)
     unconflist.append({"txid": txid, "vout": 0, "amount": total_in - amount - fee})
     unconflist.append({"txid": txid, "vout": 1, "amount": amount})

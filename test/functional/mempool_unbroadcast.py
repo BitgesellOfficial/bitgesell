@@ -43,13 +43,7 @@ class MempoolUnbroadcastTest(BGLTestFramework):
         wallet_tx_hsh = node.sendtoaddress(addr, 0.0001)
 
         # generate a txn using sendrawtransaction
-        us0 = utxos.pop()
-        inputs = [{"txid": us0["txid"], "vout": us0["vout"]}]
-        outputs = {addr: 0.0001}
-        tx = node.createrawtransaction(inputs, outputs)
-        node.settxfee(min_relay_fee)
-        txF = node.fundrawtransaction(tx)
-        txFS = node.signrawtransactionwithwallet(txF["hex"])
+        txFS = self.wallet.create_self_transfer()
         rpc_tx_hsh = node.sendrawtransaction(txFS["hex"])
 
         # check transactions are in unbroadcast using rpc

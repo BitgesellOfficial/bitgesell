@@ -528,9 +528,8 @@ def create_lots_of_big_transactions(node, txouts, utxos, num, fee):
     use_internal_utxos = utxos is None
     for _ in range(tx_batch_size):
         tx = mini_wallet.create_self_transfer(
-                from_node=node,
-                utxo_to_spend=None if use_internal_utxos else utxos.pop(),
-                fee_rate=0,
+            utxo_to_spend=None if use_internal_utxos else utxos.pop(),
+            fee_rate=0,
         )["tx"]
         tx.vout[0].nValue -= fee_sats
         tx.vout.extend(txouts)
