@@ -209,8 +209,9 @@ class MiniWallet:
     def send_self_transfer_multi(self, *, from_node, **kwargs):
         """Call create_self_transfer_multi and send the transaction."""
         tx = self.create_self_transfer_multi(**kwargs)
-        self.sendrawtransaction(from_node=from_node, tx_hex=tx["hex"])
-        return tx
+        txid = self.sendrawtransaction(from_node=from_node, tx_hex=tx.serialize().hex())
+        return {'new_utxos': [self.get_utxo(txid=txid, vout=vout) for vout in range(len(tx.vout))],
+                'txid': txid, 'hex': tx.serialize().hex(), 'tx': tx}
 
     def create_self_transfer_multi(
         self,
