@@ -71,15 +71,12 @@ class MempoolPackageLimitsTest(BGLTestFramework):
         chain_txns = []
         value = first_coin["amount"]
 
-        for i in range(mempool_count + package_count):
+        chaintip_utxo = self.wallet.send_self_transfer_chain(from_node=node, chain_length=mempool_count)
+        # in-package transactions
+        for _ in range(package_count):
             (tx, txhex, value, spk) = make_chain(node, self.address, self.privkeys, txid, value, 0, spk)
             txid = tx.rehash()
-            if i < mempool_count:
-                node.sendrawtransaction(txhex)
-                assert_equal(node.getmempoolentry(txid)["ancestorcount"], i + 1)
-            else:
-                chain_hex.append(txhex)
-                chain_txns.append(tx)
+            chain_hex.append(tx["hex"])
         testres_too_long = node.testmempoolaccept(rawtxs=chain_hex)
         for txres in testres_too_long:
             assert_equal(txres["package-error"], "package-mempool-limits")
@@ -138,36 +135,17 @@ class MempoolPackageLimitsTest(BGLTestFramework):
         node.sendrawtransaction(parent_signed["hex"])
 
         package_hex = []
+        # Chain A (M2a... M12a)
+        chain_a_tip_utxo = self.wallet.send_self_transfer_chain(from_node=node, chain_length=11, utxo_to_spend=m1_utxos[0])
+        # Pa
+        pa_hex = self.wallet.create_self_transfer(utxo_to_spend=chain_a_tip_utxo)["hex"]
+        package_hex.append(pa_hex)
 
-        # Chain A
-        spk = parent_tx.vout[0].scriptPubKey.hex()
-        value = parent_value
-        txid = parent_txid
-        for i in range(12):
-            (tx, txhex, value, spk) = make_chain(node, self.address, self.privkeys, txid, value, 0, spk)
-            txid = tx.rehash()
-            if i < 11: # M2a... M12a
-                node.sendrawtransaction(txhex)
-            else: # Pa
-                package_hex.append(txhex)
-
-        # Chain B
-        value = parent_value - Decimal("0.0001")
-        rawtx_b = node.createrawtransaction([{"txid": parent_txid, "vout": 1}], {self.address : value})
-        tx_child_b = tx_from_hex(rawtx_b) # M2b
-        tx_child_b.wit.vtxinwit = [CTxInWitness()]
-        tx_child_b.wit.vtxinwit[0].scriptWitness.stack = [CScript([OP_TRUE])]
-        tx_child_b_hex = tx_child_b.serialize().hex()
-        node.sendrawtransaction(tx_child_b_hex)
-        spk = tx_child_b.vout[0].scriptPubKey.hex()
-        txid = tx_child_b.rehash()
-        for i in range(12):
-            (tx, txhex, value, spk) = make_chain(node, self.address, self.privkeys, txid, value, 0, spk)
-            txid = tx.rehash()
-            if i < 11: # M3b... M13b
-                node.sendrawtransaction(txhex)
-            else: # Pb
-                package_hex.append(txhex)
+        # Chain B (M2b... M13b)
+        chain_b_tip_utxo = self.wallet.send_self_transfer_chain(from_node=node, chain_length=12, utxo_to_spend=m1_utxos[1])
+        # Pb
+        pb_hex = self.wallet.create_self_transfer(utxo_to_spend=chain_b_tip_utxo)["hex"]
+        package_hex.append(pb_hex)
 
         assert_equal(24, node.getmempoolinfo()["size"])
         assert_equal(2, len(package_hex))
@@ -213,13 +191,7 @@ class MempoolPackageLimitsTest(BGLTestFramework):
         node.sendrawtransaction(parent_signed["hex"])
 
         # Chain M2...M24
-        spk = parent_tx.vout[0].scriptPubKey.hex()
-        value = parent_value
-        txid = parent_txid
-        for i in range(23): # M2...M24
-            (tx, txhex, value, spk) = make_chain(node, self.address, self.privkeys, txid, value, 0, spk)
-            txid = tx.rehash()
-            node.sendrawtransaction(txhex)
+        self.wallet.send_self_transfer_chain(from_node=node, chain_length=23, utxo_to_spend=m1_utxos[0])
 
         # P1
         value_p1 = (parent_value - DEFAULT_FEE)
@@ -274,20 +246,11 @@ class MempoolPackageLimitsTest(BGLTestFramework):
 
         # Two chains of 13 transactions each
         for _ in range(2):
-            spk = None
-            top_coin = self.coins.pop()
-            txid = top_coin["txid"]
-            value = top_coin["amount"]
-            for i in range(13):
-                (tx, txhex, value, spk) = make_chain(node, self.address, self.privkeys, txid, value, 0, spk)
-                txid = tx.rehash()
-                if i < 12:
-                    node.sendrawtransaction(txhex)
-                else: # Save the 13th transaction for the package
-                    package_hex.append(txhex)
-                    parents_tx.append(tx)
-                    scripts.append(spk)
-                    values.append(value)
+            chain_tip_utxo = self.wallet.send_self_transfer_chain(from_node=node, chain_length=12)
+            # Save the 13th transaction for the package
+            tx = self.wallet.create_self_transfer(utxo_to_spend=chain_tip_utxo)
+            package_hex.append(tx["hex"])
+            pc_parent_utxos.append(tx["new_utxo"])
 
         # Child Pc
         child_hex = create_child_with_parents(node, self.address, self.privkeys, parents_tx, values, scripts)
@@ -328,20 +291,9 @@ class MempoolPackageLimitsTest(BGLTestFramework):
         self.log.info("Check that in-mempool and in-package ancestors are calculated properly in packages")
         # Two chains of 12 transactions each
         for _ in range(2):
-            spk = None
-            top_coin = self.coins.pop()
-            txid = top_coin["txid"]
-            value = top_coin["amount"]
-            for i in range(12):
-                (tx, txhex, value, spk) = make_chain(node, self.address, self.privkeys, txid, value, 0, spk)
-                txid = tx.rehash()
-                value -= Decimal("0.0001")
-                node.sendrawtransaction(txhex)
-                if i == 11:
-                    # last 2 transactions will be the parents of Pc
-                    parents_tx.append(tx)
-                    values.append(value)
-                    scripts.append(spk)
+            chaintip_utxo = self.wallet.send_self_transfer_chain(from_node=node, chain_length=12)
+            # last 2 transactions will be the parents of Pc
+            pc_parent_utxos.append(chaintip_utxo)
 
         # Child Pc
         pc_hex = create_child_with_parents(node, self.address, self.privkeys, parents_tx, values, scripts)
