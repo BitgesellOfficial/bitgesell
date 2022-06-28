@@ -77,7 +77,6 @@ typedef unsigned int SOCKET;
 #define MAX_PATH            1024
 #endif
 
-// ssize_t is POSIX, and not present when using MSVC.
 #ifdef _MSC_VER
 #include <BaseTsd.h>
 typedef SSIZE_T ssize_t;
