@@ -10,7 +10,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-BOOST_FIXTURE_TEST_SUITE(hash_tests, BasicTestingSetup)
+BOOST_AUTO_TEST_SUITE(hash_tests)
 
 BOOST_AUTO_TEST_CASE(murmurhash3)
 {
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(siphash)
     // and the test would be affected by default tx version bumps if not fixed.
     tx.nVersion = 1;
     ss << tx;
-    BOOST_CHECK_EQUAL(SipHashUint256(1, 2, ss.GetHash()), 0x79751e980c2a0a35ULL);
+    BOOST_CHECK_EQUAL(SipHashUint256(1, 2, ss.GetHash()), 0xe2d8069fe4ad3776ULL);
 
     // Check consistency between CSipHasher and SipHashUint256[Extra].
     FastRandomContext ctx;

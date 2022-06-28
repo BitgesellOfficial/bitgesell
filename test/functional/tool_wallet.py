@@ -30,8 +30,8 @@ class ToolWalletTest(BGLTestFramework):
     def BGL_wallet_process(self, *args):
         binary = self.config["environment"]["BUILDDIR"] + '/src/BGL-wallet' + self.config["environment"]["EXEEXT"]
         default_args = ['-datadir={}'.format(self.nodes[0].datadir), '-chain=%s' % self.chain]
-        if self.options.descriptors and 'create' in args:
-            default_args.append('-descriptors')
+        if not self.options.descriptors and 'create' in args:
+            default_args.append('-legacy')
 
         return subprocess.Popen([binary] + default_args + list(args), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 
@@ -267,7 +267,7 @@ class ToolWalletTest(BGLTestFramework):
         """
         self.start_node(0)
         self.log.info('Generating transaction to mutate wallet')
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
         self.stop_node(0)
 
         self.log.info('Calling wallet tool info after generating a transaction, testing output')
@@ -403,7 +403,7 @@ class ToolWalletTest(BGLTestFramework):
         non_exist_dump = os.path.join(self.nodes[0].datadir, "wallet.nodump")
         self.assert_raises_tool_error('Unknown wallet file format "notaformat" provided. Please provide one of "bdb" or "sqlite".', '-wallet=todump', '-format=notaformat', '-dumpfile={}'.format(wallet_dump), 'createfromdump')
         self.assert_raises_tool_error('Dump file {} does not exist.'.format(non_exist_dump), '-wallet=todump', '-dumpfile={}'.format(non_exist_dump), 'createfromdump')
-        wallet_path = os.path.join(self.nodes[0].datadir, 'regtest/wallets/todump2')
+        wallet_path = os.path.join(self.nodes[0].datadir, 'regtest', 'wallets', 'todump2')
         self.assert_raises_tool_error('Failed to create database path \'{}\'. Database already exists.'.format(wallet_path), '-wallet=todump2', '-dumpfile={}'.format(wallet_dump), 'createfromdump')
         self.assert_raises_tool_error("The -descriptors option can only be used with the 'create' command.", '-descriptors', '-wallet=todump2', '-dumpfile={}'.format(wallet_dump), 'createfromdump')
 

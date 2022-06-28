@@ -1,10 +1,11 @@
-// Copyright (c) 2011-2020 The BGL Core developers
+// Copyright (c) 2011-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #include <qt/guiutil.h>
 
 #include <qt/BGLaddressvalidator.h>
 #include <qt/BGLunits.h>
+#include <qt/platformstyle.h>
 #include <qt/qvalidatedlineedit.h>
 #include <qt/sendcoinsrecipient.h>
 
@@ -28,11 +29,13 @@
 #include <shlwapi.h>
 #endif
 
+#include <QAbstractButton>
 #include <QAbstractItemView>
 #include <QApplication>
 #include <QClipboard>
 #include <QDateTime>
 #include <QDesktopServices>
+#include <QDialog>
 #include <QDoubleValidator>
 #include <QFileDialog>
 #include <QFont>
@@ -54,12 +57,12 @@
 #include <QShortcut>
 #include <QSize>
 #include <QString>
-#include <QStringBuilder>
 #include <QTextDocument> // for Qt::mightBeRichText
 #include <QThread>
 #include <QUrlQuery>
 #include <QtGlobal>
 
+#include <cassert>
 #include <chrono>
 
 #if defined(Q_OS_MAC)
@@ -78,7 +81,7 @@ QString dateTimeStr(const QDateTime &date)
 
 QString dateTimeStr(qint64 nTime)
 {
-    return dateTimeStr(QDateTime::fromTime_t((qint32)nTime));
+    return dateTimeStr(QDateTime::fromSecsSinceEpoch(nTime));
 }
 
 QFont fixedPitchFont(bool use_embedded_font)
@@ -114,15 +117,20 @@ void setupAddressWidget(QValidatedLineEdit *widget, QWidget *parent)
     widget->setFont(fixedPitchFont());
     // We don't want translators to use own addresses in translations
     // and this is the only place, where this address is supplied.
-    widget->setPlaceholderText(QObject::tr("Enter a BGL address (e.g. %1)").arg(
+    widget->setPlaceholderText(QObject::tr("Enter a Bitgesell address (e.g. %1)").arg(
         QString::fromStdString(DummyAddress(Params()))));
     widget->setValidator(new BGLAddressEntryValidator(parent));
     widget->setCheckValidator(new BGLAddressCheckValidator(parent));
 }
 
+void AddButtonShortcut(QAbstractButton* button, const QKeySequence& shortcut)
+{
+    QObject::connect(new QShortcut(shortcut, button), &QShortcut::activated, [button]() { button->animateClick(); });
+}
+
 bool parseBGLURI(const QUrl &uri, SendCoinsRecipient *out)
 {
-    // return if URI is not valid or is no BGL: URI
+    // return if URI is not valid or is no bitcoin: URI
     if(!uri.isValid() || uri.scheme() != QString("bgl"))
         return false;
 
@@ -263,6 +271,12 @@ bool hasEntryData(const QAbstractItemView *view, int column, int role)
     return !selection.at(0).data(role).toString().isEmpty();
 }
 
+void LoadFont(const QString& file_name)
+{
+    const int id = QFontDatabase::addApplicationFont(file_name);
+    assert(id != -1);
+}
+
 QString getDefaultDataDirectory()
 {
     return boostPathToQString(GetDefaultDataDir());
@@ -398,7 +412,7 @@ void handleCloseWindowShortcut(QWidget* w)
 
 void openDebugLogfile()
 {
-    fs::path pathDebug = GetDataDir() / "debug.log";
+    fs::path pathDebug = gArgs.GetDataDirNet() / "debug.log";
 
     /* Open debug.log with the associated application */
     if (fs::exists(pathDebug))
@@ -417,7 +431,7 @@ bool openBGLConf()
 
     configFile.close();
 
-    /* Open BGL.conf with the associated application */
+    /* Open bitcoin.conf with the associated application */
     bool res = QDesktopServices::openUrl(QUrl::fromLocalFile(boostPathToQString(pathConfig)));
 #ifdef Q_OS_MAC
     // Workaround for macOS-specific behavior; see #15409.
@@ -489,7 +503,7 @@ fs::path static StartupShortcutPath()
 
 bool GetStartOnSystemStartup()
 {
-    // check for BGL*.lnk
+    // check for Bitcoin*.lnk
     return fs::exists(StartupShortcutPath());
 }
 
@@ -605,7 +619,7 @@ bool SetStartOnSystemStartup(bool fAutoStart)
         if (!optionFile.good())
             return false;
         std::string chain = gArgs.GetChainName();
-        // Write a BGL.desktop file to the autostart directory:
+        // Write a bitcoin.desktop file to the autostart directory:
         optionFile << "[Desktop Entry]\n";
         optionFile << "Type=Application\n";
         if (chain == CBaseChainParams::MAIN)
@@ -638,12 +652,12 @@ void setClipboard(const QString& str)
 
 fs::path qstringToBoostPath(const QString &path)
 {
-    return fs::path(path.toStdString());
+    return fs::u8path(path.toStdString());
 }
 
 QString boostPathToQString(const fs::path &path)
 {
-    return QString::fromStdString(path.string());
+    return QString::fromStdString(path.u8string());
 }
 
 QString NetworkToQString(Network net)
@@ -665,14 +679,26 @@ QString ConnectionTypeToQString(ConnectionType conn_type, bool prepend_direction
 {
     QString prefix;
     if (prepend_direction) {
-        prefix = (conn_type == ConnectionType::INBOUND) ? QObject::tr("Inbound") : QObject::tr("Outbound") + " ";
+        prefix = (conn_type == ConnectionType::INBOUND) ?
+                     /*: An inbound connection from a peer. An inbound connection
+                         is a connection initiated by a peer. */
+                     QObject::tr("Inbound") :
+                     /*: An outbound connection to a peer. An outbound connection
+                         is a connection initiated by us. */
+                     QObject::tr("Outbound") + " ";
     }
     switch (conn_type) {
     case ConnectionType::INBOUND: return prefix;
+    //: Peer connection type that relays all network information.
     case ConnectionType::OUTBOUND_FULL_RELAY: return prefix + QObject::tr("Full Relay");
+    /*: Peer connection type that relays network information about
+        blocks and not transactions or addresses. */
     case ConnectionType::BLOCK_RELAY: return prefix + QObject::tr("Block Relay");
+    //: Peer connection type established manually through one of several methods.
     case ConnectionType::MANUAL: return prefix + QObject::tr("Manual");
+    //: Short-lived peer connection type that tests the aliveness of known addresses.
     case ConnectionType::FEELER: return prefix + QObject::tr("Feeler");
+    //: Short-lived peer connection type that solicits known addresses from a peer.
     case ConnectionType::ADDR_FETCH: return prefix + QObject::tr("Address Fetch");
     } // no default case, so the compiler can warn about missing cases
     assert(false);
@@ -707,7 +733,7 @@ QString formatServicesStr(quint64 mask)
     }
 
     if (strList.size())
-        return strList.join(" & ");
+        return strList.join(", ");
     else
         return QObject::tr("None");
 }
@@ -785,6 +811,39 @@ qreal calculateIdealFontSize(int width, const QString& text, QFont font, qreal m
     return font_size;
 }
 
+ThemedLabel::ThemedLabel(const PlatformStyle* platform_style, QWidget* parent)
+    : QLabel{parent}, m_platform_style{platform_style}
+{
+    assert(m_platform_style);
+}
+
+void ThemedLabel::setThemedPixmap(const QString& image_filename, int width, int height)
+{
+    m_image_filename = image_filename;
+    m_pixmap_width = width;
+    m_pixmap_height = height;
+    updateThemedPixmap();
+}
+
+void ThemedLabel::changeEvent(QEvent* e)
+{
+    if (e->type() == QEvent::PaletteChange) {
+        updateThemedPixmap();
+    }
+
+    QLabel::changeEvent(e);
+}
+
+void ThemedLabel::updateThemedPixmap()
+{
+    setPixmap(m_platform_style->SingleColorIcon(m_image_filename).pixmap(m_pixmap_width, m_pixmap_height));
+}
+
+ClickableLabel::ClickableLabel(const PlatformStyle* platform_style, QWidget* parent)
+    : ThemedLabel{platform_style, parent}
+{
+}
+
 void ClickableLabel::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_EMIT clicked(event->pos());
@@ -811,10 +870,12 @@ void PolishProgressDialog(QProgressDialog* dialog)
     // Workaround for macOS-only Qt bug; see: QTBUG-65750, QTBUG-70357.
     const int margin = TextWidth(dialog->fontMetrics(), ("X"));
     dialog->resize(dialog->width() + 2 * margin, dialog->height());
-    dialog->show();
-#else
-    Q_UNUSED(dialog);
 #endif
+    // QProgressDialog estimates the time the operation will take (based on time
+    // for steps), and only shows itself if that estimate is beyond minimumDuration.
+    // The default minimumDuration value is 4 seconds, and it could make users
+    // think that the GUI is frozen.
+    dialog->setMinimumDuration(0);
 }
 
 int TextWidth(const QFontMetrics& fm, const QString& text)
@@ -901,7 +962,7 @@ QString MakeHtmlLink(const QString& source, const QString& link)
 {
     return QString(source).replace(
         link,
-        QLatin1String("<a href=\"") % link % QLatin1String("\">") % link % QLatin1String("</a>"));
+        QLatin1String("<a href=\"") + link + QLatin1String("\">") + link + QLatin1String("</a>"));
 }
 
 void PrintSlotException(
@@ -914,4 +975,12 @@ void PrintSlotException(
     description += receiver->metaObject()->className();
     PrintExceptionContinue(exception, description.c_str());
 }
+
+void ShowModalDialogAndDeleteOnClose(QDialog* dialog)
+{
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowModality(Qt::ApplicationModal);
+    dialog->show();
+}
+
 } // namespace GUIUtil

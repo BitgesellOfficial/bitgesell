@@ -6,8 +6,10 @@
 from collections import defaultdict
 import time
 
-from test_framework.blocktools import create_block, create_coinbase
-from test_framework.messages import ToHex
+from test_framework.blocktools import (
+    create_block,
+    create_coinbase,
+)
 from test_framework.p2p import P2PTxInvStore
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import assert_equal
@@ -49,7 +51,7 @@ class ResendWalletTransactionsTest(BGLTestFramework):
         block = create_block(int(node.getbestblockhash(), 16), create_coinbase(node.getblockcount() + 1), block_time)
         block.rehash()
         block.solve()
-        node.submitblock(ToHex(block))
+        node.submitblock(block.serialize().hex())
 
         node.syncwithvalidationinterfacequeue()
         now = int(time.time())

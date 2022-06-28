@@ -5,7 +5,7 @@
 #ifndef BGL_QT_BGLUNITS_H
 #define BGL_QT_BGLUNITS_H
 
-#include <amount.h>
+#include <consensus/amount.h>
 
 #include <QAbstractListModel>
 #include <QString>

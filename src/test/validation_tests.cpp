@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <chainparams.h>
+#include <consensus/amount.h>
 #include <net.h>
 #include <signet.h>
 #include <uint256.h>
@@ -17,7 +18,7 @@ BOOST_FIXTURE_TEST_SUITE(validation_tests, TestingSetup)
 static void TestBlockSubsidyHalvings(const Consensus::Params& consensusParams)
 {
     int maxHalvings = 64;
-    CAmount nInitialSubsidy = 50 * COIN;
+    CAmount nInitialSubsidy = 4 * 50 * COIN; // Added based on the fact that at 0, 1, 2 we would get this range.
 
     CAmount nPreviousSubsidy = nInitialSubsidy * 2; // for height == 0
     BOOST_CHECK_EQUAL(nPreviousSubsidy, nInitialSubsidy * 2);
@@ -52,11 +53,12 @@ BOOST_AUTO_TEST_CASE(subsidy_limit_test)
     CAmount nSum = 0;
     for (int nHeight = 0; nHeight < 14000000; nHeight += 1000) {
         CAmount nSubsidy = GetBlockSubsidy(nHeight, chainParams->GetConsensus());
-        BOOST_CHECK(nSubsidy <= 50 * COIN);
+        BOOST_CHECK(nSubsidy <= 4 * 50 * COIN); // Added based on the fact that at 0, 1, 2 we would get this range.
+        nSubsidy = nSubsidy / 4; // Added because we divided halving block by 4
         nSum += nSubsidy * 1000;
         BOOST_CHECK(MoneyRange(nSum));
     }
-    BOOST_CHECK_EQUAL(nSum, CAmount{2099999997690000});
+    BOOST_CHECK_EQUAL(nSum, CAmount{526666666089000});
 }
 
 BOOST_AUTO_TEST_CASE(signet_parse_tests)
@@ -135,12 +137,12 @@ BOOST_AUTO_TEST_CASE(test_assumeutxo)
     }
 
     const auto out110 = *ExpectedAssumeutxo(110, *params);
-    BOOST_CHECK_EQUAL(out110.hash_serialized, uint256S("1ebbf5850204c0bdb15bf030f47c7fe91d45c44c712697e4509ba67adb01c618"));
-    BOOST_CHECK_EQUAL(out110.nChainTx, (unsigned int)110);
+    BOOST_CHECK_EQUAL(out110.hash_serialized.ToString(), "d9c6cd17c8cdcc2b076a02b304dd85cf22182d2ece4c7c7428e4ca89b724ae85");
+    BOOST_CHECK_EQUAL(out110.nChainTx, 110U);
 
-    const auto out210 = *ExpectedAssumeutxo(210, *params);
-    BOOST_CHECK_EQUAL(out210.hash_serialized, uint256S("9c5ed99ef98544b34f8920b6d1802f72ac28ae6e2bd2bd4c316ff10c230df3f2"));
-    BOOST_CHECK_EQUAL(out210.nChainTx, (unsigned int)210);
+    const auto out210 = *ExpectedAssumeutxo(200, *params);
+    BOOST_CHECK_EQUAL(out210.hash_serialized.ToString(), "51c8d11d8b5c1de51543c579736e786aa2736206d1e11e627568029ce092cf62");
+    BOOST_CHECK_EQUAL(out210.nChainTx, 200U);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

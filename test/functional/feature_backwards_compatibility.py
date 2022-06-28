@@ -22,6 +22,7 @@ needs an older patch version.
 import os
 import shutil
 
+from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.test_framework import BGLTestFramework
 from test_framework.descriptors import descsum_create
 
@@ -64,13 +65,13 @@ class BackwardsCompatibilityTest(BGLTestFramework):
         self.import_deterministic_coinbase_privkeys()
 
     def run_test(self):
-        self.nodes[0].generatetoaddress(101, self.nodes[0].getnewaddress())
+        self.generatetoaddress(self.nodes[0], COINBASE_MATURITY + 1, self.nodes[0].getnewaddress())
 
         self.sync_blocks()
 
         # Sanity check the test framework:
         res = self.nodes[self.num_nodes - 1].getblockchaininfo()
-        assert_equal(res['blocks'], 101)
+        assert_equal(res['blocks'], COINBASE_MATURITY + 1)
 
         node_master = self.nodes[self.num_nodes - 5]
         node_v19 = self.nodes[self.num_nodes - 4]
@@ -92,7 +93,7 @@ class BackwardsCompatibilityTest(BGLTestFramework):
         address = wallet.getnewaddress()
         self.nodes[0].sendtoaddress(address, 10)
         self.sync_mempools()
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
         self.sync_blocks()
         # Create a conflicting transaction using RBF
         return_address = self.nodes[0].getnewaddress()
@@ -100,7 +101,7 @@ class BackwardsCompatibilityTest(BGLTestFramework):
         tx2_id = self.nodes[1].bumpfee(tx1_id)["txid"]
         # Confirm the transaction
         self.sync_mempools()
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
         self.sync_blocks()
         # Create another conflicting transaction using RBF
         tx3_id = self.nodes[1].sendtoaddress(return_address, 1)
@@ -366,7 +367,7 @@ class BackwardsCompatibilityTest(BGLTestFramework):
             assert_equal(load_res['warning'], '')
             wallet = node_master.get_wallet_rpc("u1_v16")
             info = wallet.getaddressinfo(v16_addr)
-            descriptor = "wpkh([" + info["hdmasterfingerprint"] + hdkeypath[1:] + "]" + v16_pubkey + ")"
+            descriptor = f"wpkh([{info['hdmasterfingerprint']}{hdkeypath[1:]}]{v16_pubkey})"
             assert_equal(info["desc"], descsum_create(descriptor))
 
             # Now copy that same wallet back to 0.16 to make sure no automatic upgrade breaks it
@@ -389,7 +390,7 @@ class BackwardsCompatibilityTest(BGLTestFramework):
             node_master.loadwallet("u1_v17")
             wallet = node_master.get_wallet_rpc("u1_v17")
             info = wallet.getaddressinfo(address)
-            descriptor = "wpkh([" + info["hdmasterfingerprint"] + hdkeypath[1:] + "]" + pubkey + ")"
+            descriptor = f"wpkh([{info['hdmasterfingerprint']}{hdkeypath[1:]}]{pubkey})"
             assert_equal(info["desc"], descsum_create(descriptor))
 
             # Now copy that same wallet back to 0.17 to make sure no automatic upgrade breaks it

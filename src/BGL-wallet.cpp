@@ -8,6 +8,7 @@
 
 #include <chainparams.h>
 #include <chainparamsbase.h>
+#include <interfaces/init.h>
 #include <logging.h>
 #include <util/system.h>
 #include <util/translation.h>
@@ -27,17 +28,18 @@ static void SetupWalletToolArgs(ArgsManager& argsman)
     argsman.AddArg("-version", "Print version and exit", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     argsman.AddArg("-datadir=<dir>", "Specify data directory", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     argsman.AddArg("-wallet=<wallet-name>", "Specify wallet name", ArgsManager::ALLOW_ANY | ArgsManager::NETWORK_ONLY, OptionsCategory::OPTIONS);
-    argsman.AddArg("-dumpfile=<file name>", "When used with 'dump', writes out the records to this file. When used with 'createfromdump', loads the records into a new wallet.", ArgsManager::ALLOW_STRING, OptionsCategory::OPTIONS);
+    argsman.AddArg("-dumpfile=<file name>", "When used with 'dump', writes out the records to this file. When used with 'createfromdump', loads the records into a new wallet.", ArgsManager::ALLOW_ANY | ArgsManager::DISALLOW_NEGATION, OptionsCategory::OPTIONS);
     argsman.AddArg("-debug=<category>", "Output debugging information (default: 0).", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
-    argsman.AddArg("-descriptors", "Create descriptors wallet. Only for 'create'", ArgsManager::ALLOW_BOOL, OptionsCategory::OPTIONS);
+    argsman.AddArg("-descriptors", "Create descriptors wallet. Only for 'create'", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
+    argsman.AddArg("-legacy", "Create legacy wallet. Only for 'create'", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     argsman.AddArg("-format=<format>", "The format of the wallet file to create. Either \"bdb\" or \"sqlite\". Only used with 'createfromdump'", ArgsManager::ALLOW_ANY, OptionsCategory::OPTIONS);
     argsman.AddArg("-printtoconsole", "Send trace/debug info to console (default: 1 when no -debug is true, 0 otherwise).", ArgsManager::ALLOW_ANY, OptionsCategory::DEBUG_TEST);
 
-    argsman.AddCommand("info", "Get wallet info", OptionsCategory::COMMANDS);
-    argsman.AddCommand("create", "Create new wallet file", OptionsCategory::COMMANDS);
-    argsman.AddCommand("salvage", "Attempt to recover private keys from a corrupt wallet. Warning: 'salvage' is experimental.", OptionsCategory::COMMANDS);
-    argsman.AddCommand("dump", "Print out all of the wallet key-value records", OptionsCategory::COMMANDS);
-    argsman.AddCommand("createfromdump", "Create new wallet file from dumped records", OptionsCategory::COMMANDS);
+    argsman.AddCommand("info", "Get wallet info");
+    argsman.AddCommand("create", "Create new wallet file");
+    argsman.AddCommand("salvage", "Attempt to recover private keys from a corrupt wallet. Warning: 'salvage' is experimental.");
+    argsman.AddCommand("dump", "Print out all of the wallet key-value records");
+    argsman.AddCommand("createfromdump", "Create new wallet file from dumped records");
 }
 
 static bool WalletAppInit(ArgsManager& args, int argc, char* argv[])
@@ -48,17 +50,17 @@ static bool WalletAppInit(ArgsManager& args, int argc, char* argv[])
         tfm::format(std::cerr, "Error parsing command line arguments: %s\n", error_message);
         return false;
     }
-    if (argc < 2 || HelpRequested(gArgs) || gArgs.IsArgSet("-version")) {
+    if (argc < 2 || HelpRequested(args) || args.IsArgSet("-version")) {
         std::string strUsage = strprintf("%s BGL-wallet version", PACKAGE_NAME) + " " + FormatFullVersion() + "\n";
-            if (!gArgs.IsArgSet("-version")) {
-                strUsage += "\n"
-                    "BGL-wallet is an offline tool for creating and interacting with " PACKAGE_NAME " wallet files.\n"
-                    "By default BGL-wallet will act on wallets in the default mainnet wallet directory in the datadir.\n"
-                    "To change the target wallet, use the -datadir, -wallet and -testnet/-regtest arguments.\n\n"
-                    "Usage:\n"
-                    "  BGL-wallet [options] <command>\n";
-                strUsage += "\n" + gArgs.GetHelpMessage();
-            }
+        if (!args.IsArgSet("-version")) {
+            strUsage += "\n"
+                        "BGL-wallet is an offline tool for creating and interacting with " PACKAGE_NAME " wallet files.\n"
+                        "By default BGL-wallet will act on wallets in the default mainnet wallet directory in the datadir.\n"
+                        "To change the target wallet, use the -datadir, -wallet and -testnet/-regtest arguments.\n\n"
+                        "Usage:\n"
+                        "  BGL-wallet [options] <command>\n";
+            strUsage += "\n" + args.GetHelpMessage();
+        }
         tfm::format(std::cout, "%s", strUsage);
         return false;
     }
@@ -83,6 +85,13 @@ int main(int argc, char* argv[])
     util::WinCmdLineArgs winArgs;
     std::tie(argc, argv) = winArgs.get();
 #endif
+
+    int exit_status;
+    std::unique_ptr<interfaces::Init> init = interfaces::MakeWalletInit(argc, argv, exit_status);
+    if (!init) {
+        return exit_status;
+    }
+
     SetupEnvironment();
     RandomInit();
     try {

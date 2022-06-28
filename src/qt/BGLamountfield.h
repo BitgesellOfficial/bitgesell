@@ -5,7 +5,7 @@
 #ifndef BGL_QT_BGLAMOUNTFIELD_H
 #define BGL_QT_BGLAMOUNTFIELD_H
 
-#include <amount.h>
+#include <consensus/amount.h>
 
 #include <QWidget>
 

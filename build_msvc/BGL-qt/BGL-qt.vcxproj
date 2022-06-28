@@ -9,7 +9,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\qt\main.cpp" />
-    <ResourceCompile Include="..\..\src\qt\res\BGL-qt-res.rc" />
+    <ClCompile Include="..\..\src\init\BGL-qt.cpp" />
+    <ResourceCompile Include="..\..\src\qt\res\bgl-qt-res.rc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\libBGLconsensus\libBGLconsensus.vcxproj">
@@ -49,50 +50,36 @@
       <Project>{5724ba7d-a09a-4ba8-800b-c4c1561b3d69}</Project>
     </ProjectReference>
   </ItemGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(QtIncludes);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <Optimization>MaxSpeed</Optimization>
-      <InlineFunctionExpansion>
-      </InlineFunctionExpansion>
-      <FavorSizeOrSpeed>
-      </FavorSizeOrSpeed>
-      <OmitFramePointers>
-      </OmitFramePointers>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(QtReleaseLibraries);%(AdditionalDependencies);Wtsapi32.lib</AdditionalDependencies>
-      <AdditionalOptions>/ignore:4206</AdditionalOptions>
       <SubSystem>Windows</SubSystem>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <ShowProgress>
-      </ShowProgress>
-      <LinkStatus>
-      </LinkStatus>
+      <AdditionalDependencies>$(QtReleaseLibraries);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/ignore:4206 /LTCG:OFF</AdditionalOptions>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\src;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_CONFIG_H;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <AdditionalIncludeDirectories>$(QtIncludes);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>Wtsapi32.lib;$(QtDebugLibraries);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(QtDebugLibraries);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/ignore:4206</AdditionalOptions>
-      <SubSystem>Windows</SubSystem>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\src;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_CONFIG_H;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
+
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

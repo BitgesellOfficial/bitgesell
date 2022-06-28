@@ -5,6 +5,8 @@
 # names can be used.
 # See https://github.com/google/sanitizers/issues/1364
 signed-integer-overflow:txmempool.cpp
+# https://github.com/bitcoin/bitcoin/pull/21798#issuecomment-829180719
+signed-integer-overflow:policy/feerate.cpp
 
 # -fsanitize=integer suppressions
 # ===============================
@@ -20,7 +22,7 @@ unsigned-integer-overflow:arith_uint256.h
 unsigned-integer-overflow:basic_string.h
 unsigned-integer-overflow:bench/bench.h
 unsigned-integer-overflow:BGL-tx.cpp
-unsigned-integer-overflow:bloom.cpp
+unsigned-integer-overflow:common/bloom.cpp
 unsigned-integer-overflow:chain.cpp
 unsigned-integer-overflow:chain.h
 unsigned-integer-overflow:coded_stream.h
@@ -46,7 +48,7 @@ implicit-integer-sign-change:*/new_allocator.h
 implicit-integer-sign-change:addrman.h
 implicit-integer-sign-change:arith_uint256.cpp
 implicit-integer-sign-change:bech32.cpp
-implicit-integer-sign-change:bloom.cpp
+implicit-integer-sign-change:common/bloom.cpp
 implicit-integer-sign-change:chain.cpp
 implicit-integer-sign-change:chain.h
 implicit-integer-sign-change:coins.h
@@ -60,7 +62,6 @@ implicit-integer-sign-change:key.cpp
 implicit-integer-sign-change:noui.cpp
 implicit-integer-sign-change:policy/fees.cpp
 implicit-integer-sign-change:prevector.h
-implicit-integer-sign-change:protocol.cpp
 implicit-integer-sign-change:script/BGLconsensus.cpp
 implicit-integer-sign-change:script/interpreter.cpp
 implicit-integer-sign-change:serialize.h
@@ -85,8 +86,10 @@ implicit-signed-integer-truncation:chain.h
 implicit-signed-integer-truncation:crypto/
 implicit-signed-integer-truncation:cuckoocache.h
 implicit-signed-integer-truncation:leveldb/
+implicit-signed-integer-truncation:miner.cpp
 implicit-signed-integer-truncation:net.cpp
 implicit-signed-integer-truncation:net_processing.cpp
+implicit-signed-integer-truncation:netaddress.cpp
 implicit-signed-integer-truncation:streams.h
 implicit-signed-integer-truncation:test/arith_uint256_tests.cpp
 implicit-signed-integer-truncation:test/skiplist_tests.cpp

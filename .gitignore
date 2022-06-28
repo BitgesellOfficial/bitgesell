@@ -34,6 +34,7 @@ aclocal.m4
 autom4te.cache/
 config.log
 config.status
+conftest*
 *.tar.gz
 *.la
 libtool
@@ -44,6 +45,14 @@ libtool
 *~
 *.log
 *.trs
+
+coverage/
+coverage.html
+coverage.*.html
+*.gcda
+*.gcno
+*.gcov
+
 src/libsecp256k1-config.h
 src/libsecp256k1-config.h.in
 src/ecmult_static_context.h
@@ -89,7 +98,7 @@ src/qt/BGL-qt.includes
 .dirstamp
 .libs
 .*.swp
-*.*~*
+*~
 *.bak
 *.rej
 *.orig

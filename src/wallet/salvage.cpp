@@ -45,7 +45,7 @@ bool RecoverDatabaseFile(const fs::path& file_path, bilingual_str& error, std::v
     // Call Salvage with fAggressive=true to
     // get as much data as possible.
     // Rewrite salvaged data to fresh wallet file
-    // Set -rescan so any missing transactions will be
+    // Rescan so any missing transactions will be
     // found.
     int64_t now = GetTime();
     std::string newFilename = strprintf("%s.%d.bak", filename, now);
@@ -154,8 +154,8 @@ bool RecoverDatabaseFile(const fs::path& file_path, bilingual_str& error, std::v
             warnings.push_back(strprintf(Untranslated("WARNING: WalletBatch::Recover skipping %s: %s"), strType, strErr));
             continue;
         }
-        Dbt datKey(&row.first[0], row.first.size());
-        Dbt datValue(&row.second[0], row.second.size());
+        Dbt datKey(row.first.data(), row.first.size());
+        Dbt datValue(row.second.data(), row.second.size());
         int ret2 = pdbCopy->put(ptxn, &datKey, &datValue, DB_NOOVERWRITE);
         if (ret2 > 0)
             fSuccess = false;

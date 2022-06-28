@@ -5,6 +5,7 @@
 """Test createwallet watchonly arguments.
 """
 
+from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
@@ -35,12 +36,12 @@ class CreateWalletWatchonlyTest(BGLTestFramework):
         wo_wallet.importpubkey(pubkey=def_wallet.getaddressinfo(wo_addr)['pubkey'])
         wo_wallet.importpubkey(pubkey=def_wallet.getaddressinfo(wo_change)['pubkey'])
 
-        # generate some BGL for testing
-        node.generatetoaddress(101, a1)
+        # generate some btc for testing
+        self.generatetoaddress(node, COINBASE_MATURITY + 1, a1)
 
         # send 1 BGL to our watch-only address
         txid = def_wallet.sendtoaddress(wo_addr, 1)
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
 
         # getbalance
         self.log.info('include_watchonly should default to true for watch-only wallets')

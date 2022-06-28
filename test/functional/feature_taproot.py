@@ -5,6 +5,7 @@
 # Test Taproot softfork (BIPs 340-342)
 
 from test_framework.blocktools import (
+    COINBASE_MATURITY,
     create_coinbase,
     create_block,
     add_witness_commitment,
@@ -18,7 +19,6 @@ from test_framework.messages import (
     CTxIn,
     CTxInWitness,
     CTxOut,
-    ToHex,
 )
 from test_framework.script import (
     ANNEX_TAG,
@@ -57,7 +57,6 @@ from test_framework.script import (
     OP_ENDIF,
     OP_EQUAL,
     OP_EQUALVERIFY,
-    OP_HASH160,
     OP_IF,
     OP_NOP,
     OP_NOT,
@@ -76,12 +75,18 @@ from test_framework.script import (
     is_op_success,
     taproot_construct,
 )
+from test_framework.script_util import (
+    key_to_p2pk_script,
+    key_to_p2wpkh_script,
+    keyhash_to_p2pkh_script,
+    script_to_p2sh_script,
+    script_to_p2wsh_script,
+)
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import assert_raises_rpc_error, assert_equal
 from test_framework.key import generate_privkey, compute_xonly_pubkey, sign_schnorr, tweak_add_privkey, ECKey
 from test_framework.address import (
     hash160,
-    sha256,
 )
 
 from collections import namedtuple
@@ -456,13 +461,13 @@ def make_spender(comment, *, tap=None, witv0=False, script=None, pkh=None, p2sh=
             # P2WPKH
             assert script is None
             pubkeyhash = hash160(pkh)
-            spk = CScript([OP_0, pubkeyhash])
-            conf["scriptcode"] = CScript([OP_DUP, OP_HASH160, pubkeyhash, OP_EQUALVERIFY, OP_CHECKSIG])
+            spk = key_to_p2wpkh_script(pkh)
+            conf["scriptcode"] = keyhash_to_p2pkh_script(pubkeyhash)
             conf["script_witv0"] = None
             conf["inputs"] = [getter("sign"), pkh]
         elif script is not None:
             # P2WSH
-            spk = CScript([OP_0, sha256(script)])
+            spk = script_to_p2wsh_script(script)
             conf["scriptcode"] = script
             conf["script_witv0"] = script
         else:
@@ -473,7 +478,7 @@ def make_spender(comment, *, tap=None, witv0=False, script=None, pkh=None, p2sh=
             # P2PKH
             assert script is None
             pubkeyhash = hash160(pkh)
-            spk = CScript([OP_DUP, OP_HASH160, pubkeyhash, OP_EQUALVERIFY, OP_CHECKSIG])
+            spk = keyhash_to_p2pkh_script(pubkeyhash)
             conf["scriptcode"] = spk
             conf["inputs"] = [getter("sign"), pkh]
         elif script is not None:
@@ -494,7 +499,7 @@ def make_spender(comment, *, tap=None, witv0=False, script=None, pkh=None, p2sh=
     if p2sh:
         # P2SH wrapper can be combined with anything else
         conf["script_p2sh"] = spk
-        spk = CScript([OP_HASH160, hash160(spk), OP_EQUAL])
+        spk = script_to_p2sh_script(spk)
 
     conf = {**conf, **kwargs}
 
@@ -1103,7 +1108,7 @@ def spenders_taproot_active():
             for witv0 in [False, True]:
                 for hashtype in VALID_SIGHASHES_ECDSA + [random.randrange(0x04, 0x80), random.randrange(0x84, 0x100)]:
                     standard = (hashtype in VALID_SIGHASHES_ECDSA) and (compressed or not witv0)
-                    add_spender(spenders, "legacy/pk-wrongkey", hashtype=hashtype, p2sh=p2sh, witv0=witv0, standard=standard, script=CScript([pubkey1, OP_CHECKSIG]), **SINGLE_SIG, key=eckey1, failure={"key": eckey2}, sigops_weight=4-3*witv0, **ERR_NO_SUCCESS)
+                    add_spender(spenders, "legacy/pk-wrongkey", hashtype=hashtype, p2sh=p2sh, witv0=witv0, standard=standard, script=key_to_p2pk_script(pubkey1), **SINGLE_SIG, key=eckey1, failure={"key": eckey2}, sigops_weight=4-3*witv0, **ERR_NO_SUCCESS)
                     add_spender(spenders, "legacy/pkh-sighashflip", hashtype=hashtype, p2sh=p2sh, witv0=witv0, standard=standard, pkh=pubkey1, key=eckey1, **SIGHASH_BITFLIP, sigops_weight=4-3*witv0, **ERR_NO_SUCCESS)
 
     # Verify that OP_CHECKSIGADD wasn't accidentally added to pre-taproot validation logic.
@@ -1265,7 +1270,7 @@ class TaprootTest(BGLTestFramework):
             # Add change
             fund_tx.vout.append(CTxOut(balance - 10000, random.choice(host_spks)))
             # Ask the wallet to sign
-            ss = BytesIO(bytes.fromhex(node.signrawtransactionwithwallet(ToHex(fund_tx))["hex"]))
+            ss = BytesIO(bytes.fromhex(node.signrawtransactionwithwallet(fund_tx.serialize().hex())["hex"]))
             fund_tx.deserialize(ss)
             # Construct UTXOData entries
             fund_tx.rehash()
@@ -1398,7 +1403,7 @@ class TaprootTest(BGLTestFramework):
     def run_test(self):
         # Post-taproot activation tests go first (pre-taproot tests' blocks are invalid post-taproot).
         self.log.info("Post-activation tests...")
-        self.nodes[1].generate(101)
+        self.generate(self.nodes[1], COINBASE_MATURITY + 1)
         self.test_spenders(self.nodes[1], spenders_taproot_active(), input_counts=[1, 2, 2, 2, 2, 3])
 
         # Re-connect nodes in case they have been disconnected

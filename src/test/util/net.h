@@ -5,10 +5,24 @@
 #ifndef BGL_TEST_UTIL_NET_H
 #define BGL_TEST_UTIL_NET_H
 
+#include <compat.h>
+#include <netaddress.h>
 #include <net.h>
+#include <util/sock.h>
+
+#include <array>
+#include <cassert>
+#include <cstring>
+#include <string>
 
 struct ConnmanTestMsg : public CConnman {
     using CConnman::CConnman;
+
+    void SetPeerConnectTimeout(int64_t timeout)
+    {
+        m_peer_connect_timeout = timeout;
+    }
+
     void AddTestNode(CNode& node)
     {
         LOCK(cs_vNodes);
@@ -40,16 +54,16 @@ constexpr ServiceFlags ALL_SERVICE_FLAGS[]{
 };
 
 constexpr NetPermissionFlags ALL_NET_PERMISSION_FLAGS[]{
-    NetPermissionFlags::PF_NONE,
-    NetPermissionFlags::PF_BLOOMFILTER,
-    NetPermissionFlags::PF_RELAY,
-    NetPermissionFlags::PF_FORCERELAY,
-    NetPermissionFlags::PF_NOBAN,
-    NetPermissionFlags::PF_MEMPOOL,
-    NetPermissionFlags::PF_ADDR,
-    NetPermissionFlags::PF_DOWNLOAD,
-    NetPermissionFlags::PF_ISIMPLICIT,
-    NetPermissionFlags::PF_ALL,
+    NetPermissionFlags::None,
+    NetPermissionFlags::BloomFilter,
+    NetPermissionFlags::Relay,
+    NetPermissionFlags::ForceRelay,
+    NetPermissionFlags::NoBan,
+    NetPermissionFlags::Mempool,
+    NetPermissionFlags::Addr,
+    NetPermissionFlags::Download,
+    NetPermissionFlags::Implicit,
+    NetPermissionFlags::All,
 };
 
 constexpr ConnectionType ALL_CONNECTION_TYPES[]{
@@ -61,6 +75,15 @@ constexpr ConnectionType ALL_CONNECTION_TYPES[]{
     ConnectionType::ADDR_FETCH,
 };
 
+constexpr auto ALL_NETWORKS = std::array{
+    Network::NET_UNROUTABLE,
+    Network::NET_IPV4,
+    Network::NET_IPV6,
+    Network::NET_ONION,
+    Network::NET_I2P,
+    Network::NET_CJDNS,
+    Network::NET_INTERNAL,
+};
 
 /**
  * A mocked Sock alternative that returns a statically contained data upon read and succeeds
@@ -123,5 +146,7 @@ private:
     const std::string m_contents;
     mutable size_t m_consumed;
 };
+
+std::vector<NodeEvictionCandidate> GetRandomNodeEvictionCandidates(int n_candidates, FastRandomContext& random_context);
 
 #endif // BGL_TEST_UTIL_NET_H

@@ -167,7 +167,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
     {
         if (rcp.fSubtractFeeFromAmount)
             fSubtractFeeFromAmount = true;
-        {   // User-entered BGL address / amount:
+        {   // User-entered bitcoin address / amount:
             if(!validateAddress(rcp.address))
             {
                 return InvalidAddress;
@@ -239,7 +239,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
         std::vector<std::pair<std::string, std::string>> vOrderForm;
         for (const SendCoinsRecipient &rcp : transaction.getRecipients())
         {
-            if (!rcp.message.isEmpty()) // Message from normal BGL:URI (BGL:123...?message=example)
+            if (!rcp.message.isEmpty()) // Message from normal bitcoin:URI (bitcoin:123...?message=example)
                 vOrderForm.emplace_back("Message", rcp.message.toStdString());
         }
 
@@ -248,7 +248,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
 
         CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
         ssTx << *newTx;
-        transaction_array.append(&(ssTx[0]), ssTx.size());
+        transaction_array.append((const char*)ssTx.data(), ssTx.size());
     }
 
     // Add addresses / update labels that we've sent to the address book,
@@ -317,12 +317,9 @@ WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const
     }
 }
 
-bool WalletModel::setWalletEncrypted(bool encrypted, const SecureString &passphrase)
+bool WalletModel::setWalletEncrypted(const SecureString& passphrase)
 {
-    if (encrypted) {
-        return m_wallet->encryptWallet(passphrase);
-    }
-    return false;
+    return m_wallet->encryptWallet(passphrase);
 }
 
 bool WalletModel::setWalletLocked(bool locked, const SecureString &passPhrase)
@@ -469,25 +466,6 @@ void WalletModel::UnlockContext::CopyFrom(UnlockContext&& rhs)
     rhs.relock = false;
 }
 
-void WalletModel::loadReceiveRequests(std::vector<std::string>& vReceiveRequests)
-{
-    vReceiveRequests = m_wallet->getDestValues("rr"); // receive request
-}
-
-bool WalletModel::saveReceiveRequest(const std::string &sAddress, const int64_t nId, const std::string &sRequest)
-{
-    CTxDestination dest = DecodeDestination(sAddress);
-
-    std::stringstream ss;
-    ss << nId;
-    std::string key = "rr" + ss.str(); // "rr" prefix = "receive request" in destdata
-
-    if (sRequest.empty())
-        return m_wallet->eraseDestData(dest, key);
-    else
-        return m_wallet->addDestData(dest, key, sRequest);
-}
-
 bool WalletModel::bumpFee(uint256 hash, uint256& new_hash)
 {
     CCoinControl coin_control;
@@ -528,9 +506,10 @@ bool WalletModel::bumpFee(uint256 hash, uint256& new_hash)
         questionString.append(tr("Warning: This may pay the additional fee by reducing change outputs or adding inputs, when necessary. It may add a new change output if one does not already exist. These changes may potentially leak privacy."));
     }
 
-    SendConfirmationDialog confirmationDialog(tr("Confirm fee bump"), questionString);
-    confirmationDialog.exec();
-    QMessageBox::StandardButton retval = static_cast<QMessageBox::StandardButton>(confirmationDialog.result());
+    auto confirmationDialog = new SendConfirmationDialog(tr("Confirm fee bump"), questionString);
+    confirmationDialog->setAttribute(Qt::WA_DeleteOnClose);
+    // TODO: Replace QDialog::exec() with safer QDialog::show().
+    const auto retval = static_cast<QMessageBox::StandardButton>(confirmationDialog->exec());
 
     // cancel sign&broadcast if user doesn't want to bump the fee
     if (retval != QMessageBox::Yes) {
@@ -547,7 +526,7 @@ bool WalletModel::bumpFee(uint256 hash, uint256& new_hash)
     if (create_psbt) {
         PartiallySignedTransaction psbtx(mtx);
         bool complete = false;
-        const TransactionError err = wallet().fillPSBT(SIGHASH_ALL, false /* sign */, true /* bip32derivs */, psbtx, complete, nullptr);
+        const TransactionError err = wallet().fillPSBT(SIGHASH_ALL, false /* sign */, true /* bip32derivs */, nullptr, psbtx, complete);
         if (err != TransactionError::OK || complete) {
             QMessageBox::critical(nullptr, tr("Fee bump error"), tr("Can't draft transaction."));
             return false;
@@ -572,6 +551,18 @@ bool WalletModel::bumpFee(uint256 hash, uint256& new_hash)
         return false;
     }
     return true;
+}
+
+bool WalletModel::displayAddress(std::string sAddress)
+{
+    CTxDestination dest = DecodeDestination(sAddress);
+    bool res = false;
+    try {
+        res = m_wallet->displayAddress(dest);
+    } catch (const std::runtime_error& e) {
+        QMessageBox::critical(nullptr, tr("Can't display address"), e.what());
+    }
+    return res;
 }
 
 bool WalletModel::isWalletEnabled()

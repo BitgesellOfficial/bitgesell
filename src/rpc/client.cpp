@@ -131,6 +131,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "gettxoutsetinfo", 2, "use_index"},
     { "lockunspent", 0, "unlock" },
     { "lockunspent", 1, "transactions" },
+    { "lockunspent", 2, "persistent" },
     { "send", 0, "outputs" },
     { "send", 1, "conf_target" },
     { "send", 3, "fee_rate"},
@@ -142,6 +143,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "importmulti", 0, "requests" },
     { "importmulti", 1, "options" },
     { "importdescriptors", 0, "requests" },
+    { "listdescriptors", 0, "private" },
     { "verifychain", 0, "checklevel" },
     { "verifychain", 1, "nblocks" },
     { "getblockstats", 0, "hash_or_height" },
@@ -186,10 +188,12 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "createwallet", 5, "descriptors"},
     { "createwallet", 6, "load_on_startup"},
     { "createwallet", 7, "external_signer"},
+    { "restorewallet", 2, "load_on_startup"},
     { "loadwallet", 1, "load_on_startup"},
     { "unloadwallet", 1, "load_on_startup"},
     { "getnodeaddresses", 0, "count"},
     { "addpeeraddress", 1, "port"},
+    { "addpeeraddress", 2, "tried"},
     { "stop", 0, "wait" },
 };
 // clang-format on

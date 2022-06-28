@@ -19,7 +19,6 @@ Classes use __slots__ to ensure extraneous attributes aren't accidentally added
 by tests, compromising their intended effect.
 """
 from base64 import b32decode, b32encode
-from codecs import encode
 import copy
 import hashlib
 from io import BytesIO
@@ -32,17 +31,17 @@ import time
 import sha3
 
 from test_framework.siphash import siphash256
-from test_framework.util import hex_str_to_bytes, assert_equal
+from test_framework.util import assert_equal
 
 MAX_LOCATOR_SZ = 101
-MAX_BLOCK_BASE_SIZE = 1000000/10
+MAX_BLOCK_WEIGHT = 4000000
 MAX_BLOOM_FILTER_SIZE = 36000
 MAX_BLOOM_HASH_FUNCS = 50
 
 COIN = 100000000  # 1 bgl in satoshis
 MAX_MONEY = 21000000 * COIN
 
-BIP125_SEQUENCE_NUMBER = 0xfffffffd  # Sequence number that is BIP 125 opt-in and BIP 68-opt-out
+BIP125_SEQUENCE_NUMBER = 0xfffffffd  # Sequence number that is rbf-opt-in (BIP 125) and csv-opt-out (BIP 68)
 
 MAX_PROTOCOL_MESSAGE_LENGTH = 4000000  # Maximum length of incoming protocol messages
 MAX_HEADERS_RESULTS = 2000  # Number of headers sent in one getheaders result
@@ -204,24 +203,16 @@ def from_hex(obj, hex_string):
     Note that there is no complementary helper like e.g. `to_hex` for the
     inverse operation. To serialize a message object to a hex string, simply
     use obj.serialize().hex()"""
-    obj.deserialize(BytesIO(hex_str_to_bytes(hex_string)))
+    obj.deserialize(BytesIO(bytes.fromhex(hex_string)))
     return obj
 
-# Deserialize from a hex string representation (eg from RPC)
-def FromHex(obj, hex_string):
-    obj.deserialize(BytesIO(hex_str_to_bytes(hex_string)))
-    return obj
-
-# Convert a binary-serializable object to hex (eg for submission via RPC)
-def ToHex(obj):
-    return obj.serialize().hex()
 
 def tx_from_hex(hex_string):
     """Deserialize from hex string to a transaction object"""
     return from_hex(CTransaction(), hex_string)
 
 
-# Objects that map to BGLd objects, which can be serialized/deserialized
+# Objects that map to bitcoind objects, which can be serialized/deserialized
 
 
 class CAddress:
@@ -597,7 +588,7 @@ class CTransaction:
         return self.serialize_with_witness()
 
     def getwtxid(self):
-        return sha256(self.serialize())[::-1].hex()
+        return hash256(self.serialize())[::-1].hex()
 
     # Recalculate the txid (transaction hash without witness)
     def rehash(self):
@@ -624,12 +615,15 @@ class CTransaction:
                 return False
         return True
 
-    # Calculate the virtual transaction size using witness and non-witness
+    # Calculate the transaction weight using witness and non-witness
     # serialization size (does NOT use sigops).
-    def get_vsize(self):
+    def get_weight(self):
         with_witness_size = len(self.serialize_with_witness())
         without_witness_size = len(self.serialize_without_witness())
-        return math.ceil(((WITNESS_SCALE_FACTOR - 1) * without_witness_size + with_witness_size) / WITNESS_SCALE_FACTOR)
+        return (WITNESS_SCALE_FACTOR - 1) * without_witness_size + with_witness_size
+
+    def get_vsize(self):
+        return math.ceil(self.get_weight() / WITNESS_SCALE_FACTOR)
 
     def __repr__(self):
         return "CTransaction(nVersion=%i vin=%s vout=%s wit=%s nLockTime=%i)" \
@@ -655,7 +649,7 @@ class CBlockHeader:
             self.calc_sha256()
 
     def set_null(self):
-        self.nVersion = 1
+        self.nVersion = 4
         self.hashPrevBlock = 0
         self.hashMerkleRoot = 0
         self.nTime = 0
@@ -779,6 +773,13 @@ class CBlock(CBlockHeader):
         while self.sha256 > target:
             self.nNonce += 1
             self.rehash()
+
+    # Calculate the block weight using witness and non-witness
+    # serialization size (does NOT use sigops).
+    def get_weight(self):
+        with_witness_size = len(self.serialize(with_witness=True))
+        without_witness_size = len(self.serialize(with_witness=False))
+        return (WITNESS_SCALE_FACTOR - 1) * without_witness_size + with_witness_size
 
     def __repr__(self):
         return "CBlock(nVersion=%i hashPrevBlock=%064x hashMerkleRoot=%064x nTime=%s nBits=%08x nNonce=%08x vtx=%s)" \

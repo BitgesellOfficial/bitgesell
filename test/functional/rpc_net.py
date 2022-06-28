@@ -11,11 +11,11 @@ from decimal import Decimal
 from itertools import product
 import time
 
-from test_framework.p2p import P2PInterface
+from test_framework.blocktools import COINBASE_MATURITY
 import test_framework.messages
-from test_framework.messages import (
-    NODE_NETWORK,
-    NODE_WITNESS,
+from test_framework.p2p import (
+    P2PInterface,
+    P2P_SERVICES,
 )
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
@@ -50,9 +50,9 @@ class NetTest(BGLTestFramework):
     def run_test(self):
         # We need miniwallet to make a transaction
         self.wallet = MiniWallet(self.nodes[0])
-        self.wallet.generate(1)
+        self.generate(self.wallet, 1)
         # Get out of IBD for the minfeefilter and getpeerinfo tests.
-        self.nodes[0].generate(100 + 1)
+        self.generate(self.nodes[0], COINBASE_MATURITY + 1)
 
         # By default, the test framework sets up an addnode connection from
         # node 1 --> node0. By connecting node0 --> node 1, we're left with
@@ -68,6 +68,7 @@ class NetTest(BGLTestFramework):
         self.test_getaddednodeinfo()
         self.test_service_flags()
         self.test_getnodeaddresses()
+        self.test_addpeeraddress()
 
     def test_connection_count(self):
         self.log.info("Test getconnectioncount")
@@ -78,7 +79,7 @@ class NetTest(BGLTestFramework):
         self.log.info("Test getpeerinfo")
         # Create a few getpeerinfo last_block/last_transaction values.
         self.wallet.send_self_transfer(from_node=self.nodes[0]) # Make a transaction so we can see it in the getpeerinfo results
-        self.nodes[1].generate(1)
+        self.generate(self.nodes[1], 1)
         self.sync_all()
         time_now = int(time.time())
         peer_info = [x.getpeerinfo() for x in self.nodes]
@@ -187,43 +188,93 @@ class NetTest(BGLTestFramework):
         self.log.info("Test getnodeaddresses")
         self.nodes[0].add_p2p_connection(P2PInterface())
 
-        # Add some addresses to the Address Manager over RPC. Due to the way
-        # bucket and bucket position are calculated, some of these addresses
-        # will collide.
+        # Add an IPv6 address to the address manager.
+        ipv6_addr = "1233:3432:2434:2343:3234:2345:6546:4534"
+        self.nodes[0].addpeeraddress(address=ipv6_addr, port=8333)
+
+        # Add 10,000 IPv4 addresses to the address manager. Due to the way bucket
+        # and bucket positions are calculated, some of these addresses will collide.
         imported_addrs = []
         for i in range(10000):
             first_octet = i >> 8
             second_octet = i % 256
-            a = "{}.{}.1.1".format(first_octet, second_octet)  # IPV4
+            a = f"{first_octet}.{second_octet}.1.1"
             imported_addrs.append(a)
             self.nodes[0].addpeeraddress(a, 8333)
 
-        # Obtain addresses via rpc call and check they were ones sent in before.
-        #
-        # All addresses added above are in the same netgroup and so are assigned
-        # to the same bucket. Maximum possible addresses in addrman is therefore
-        # 64, although actual number will usually be slightly less due to
-        # BucketPosition collisions.
-        node_addresses = self.nodes[0].getnodeaddresses(0)
+        # Fetch the addresses via the RPC and test the results.
+        assert_equal(len(self.nodes[0].getnodeaddresses()), 1)  # default count is 1
+        assert_equal(len(self.nodes[0].getnodeaddresses(count=2)), 2)
+        assert_equal(len(self.nodes[0].getnodeaddresses(network="ipv4", count=8)), 8)
+
+        # Maximum possible addresses in AddrMan is 10000. The actual number will
+        # usually be less due to bucket and bucket position collisions.
+        node_addresses = self.nodes[0].getnodeaddresses(0, "ipv4")
         assert_greater_than(len(node_addresses), 5000)
         assert_greater_than(10000, len(node_addresses))
         for a in node_addresses:
             assert_greater_than(a["time"], 1527811200)  # 1st June 2018
-            assert_equal(a["services"], NODE_NETWORK | NODE_WITNESS)
+            assert_equal(a["services"], P2P_SERVICES)
             assert a["address"] in imported_addrs
             assert_equal(a["port"], 8333)
             assert_equal(a["network"], "ipv4")
 
-        node_addresses = self.nodes[0].getnodeaddresses(1)
-        assert_equal(len(node_addresses), 1)
+        # Test the IPv6 address.
+        res = self.nodes[0].getnodeaddresses(0, "ipv6")
+        assert_equal(len(res), 1)
+        assert_equal(res[0]["address"], ipv6_addr)
+        assert_equal(res[0]["network"], "ipv6")
+        assert_equal(res[0]["port"], 8333)
+        assert_equal(res[0]["services"], P2P_SERVICES)
 
+        # Test for the absence of onion and I2P addresses.
+        for network in ["onion", "i2p"]:
+            assert_equal(self.nodes[0].getnodeaddresses(0, network), [])
+
+        # Test invalid arguments.
         assert_raises_rpc_error(-8, "Address count out of range", self.nodes[0].getnodeaddresses, -1)
+        assert_raises_rpc_error(-8, "Network not recognized: Foo", self.nodes[0].getnodeaddresses, 1, "Foo")
 
-        # addrman's size cannot be known reliably after insertion, as hash collisions may occur
-        # so only test that requesting a large number of addresses returns less than that
-        LARGE_REQUEST_COUNT = 10000
-        node_addresses = self.nodes[0].getnodeaddresses(LARGE_REQUEST_COUNT)
-        assert_greater_than(LARGE_REQUEST_COUNT, len(node_addresses))
+    def test_addpeeraddress(self):
+        """RPC addpeeraddress sets the source address equal to the destination address.
+        If an address with the same /16 as an existing new entry is passed, it will be
+        placed in the same new bucket and have a 1/64 chance of the bucket positions
+        colliding (depending on the value of nKey in the addrman), in which case the
+        new address won't be added.  The probability of collision can be reduced to
+        1/2^16 = 1/65536 by using an address from a different /16.  We avoid this here
+        by first testing adding a tried table entry before testing adding a new table one.
+        """
+        self.log.info("Test addpeeraddress")
+        self.restart_node(1, ["-checkaddrman=1"])
+        node = self.nodes[1]
+
+        self.log.debug("Test that addpeerinfo is a hidden RPC")
+        # It is hidden from general help, but its detailed help may be called directly.
+        assert "addpeerinfo" not in node.help()
+        assert "addpeerinfo" in node.help("addpeerinfo")
+
+        self.log.debug("Test that adding an empty address fails")
+        assert_equal(node.addpeeraddress(address="", port=8333), {"success": False})
+        assert_equal(node.getnodeaddresses(count=0), [])
+
+        self.log.debug("Test that adding a valid address to the tried table succeeds")
+        assert_equal(node.addpeeraddress(address="1.2.3.4", tried=True, port=8333), {"success": True})
+        with node.assert_debug_log(expected_msgs=["Addrman checks started: new 0, tried 1, total 1"]):
+            addrs = node.getnodeaddresses(count=0)  # getnodeaddresses re-runs the addrman checks
+            assert_equal(len(addrs), 1)
+            assert_equal(addrs[0]["address"], "1.2.3.4")
+            assert_equal(addrs[0]["port"], 8333)
+
+        self.log.debug("Test that adding an already-present tried address to the new and tried tables fails")
+        for value in [True, False]:
+            assert_equal(node.addpeeraddress(address="1.2.3.4", tried=value, port=8333), {"success": False})
+        assert_equal(len(node.getnodeaddresses(count=0)), 1)
+
+        self.log.debug("Test that adding a second address, this time to the new table, succeeds")
+        assert_equal(node.addpeeraddress(address="2.0.0.0", port=8333), {"success": True})
+        with node.assert_debug_log(expected_msgs=["Addrman checks started: new 1, tried 1, total 2"]):
+            addrs = node.getnodeaddresses(count=0)  # getnodeaddresses re-runs the addrman checks
+            assert_equal(len(addrs), 2)
 
 
 if __name__ == '__main__':

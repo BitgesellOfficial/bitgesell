@@ -3,10 +3,10 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 # Pattern rule to print variables, e.g. make print-top_srcdir
-print-%:
+print-%: FORCE
 	@echo '$*'='$($*)'
 
-DIST_SUBDIRS = secp256k1 univalue
+DIST_SUBDIRS = secp256k1
 
 AM_LDFLAGS = $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS) $(GPROF_LDFLAGS) $(SANITIZER_LDFLAGS)
 AM_CXXFLAGS = $(DEBUG_CXXFLAGS) $(HARDENED_CXXFLAGS) $(WARN_CXXFLAGS) $(NOWARN_CXXFLAGS) $(ERROR_CXXFLAGS) $(GPROF_CXXFLAGS) $(SANITIZER_CXXFLAGS)
@@ -15,18 +15,7 @@ AM_LIBTOOLFLAGS = --preserve-dup-deps
 PTHREAD_FLAGS = $(PTHREAD_CFLAGS) $(PTHREAD_LIBS)
 EXTRA_LIBRARIES =
 
-if EMBEDDED_UNIVALUE
-LIBUNIVALUE = univalue/libunivalue.la
-
-$(LIBUNIVALUE): $(wildcard univalue/lib/*) $(wildcard univalue/include/*)
-	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
-else
-LIBUNIVALUE = $(UNIVALUE_LIBS)
-endif
-
-BGL_INCLUDES=-I$(builddir) -I$(srcdir)/secp256k1/include $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
-
-BGL_INCLUDES += $(UNIVALUE_CFLAGS)
+BGL_INCLUDES=-I$(builddir) -I$(srcdir)/secp256k1/include -I$(srcdir)/$(UNIVALUE_INCLUDE_DIR_INT) $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
 
 LIBBGL_SERVER=libBGL_server.a
 LIBBGL_COMMON=libBGL_common.a
@@ -84,6 +73,7 @@ EXTRA_LIBRARIES += \
   $(LIBBGL_ZMQ)
 
 lib_LTLIBRARIES = $(LIBBGLCONSENSUS)
+noinst_LTLIBRARIES =
 
 bin_PROGRAMS =
 noinst_PROGRAMS =
@@ -121,13 +111,13 @@ endif
 BGL_CORE_H = \
   addrdb.h \
   addrman.h \
+  addrman_impl.h \
   attributes.h \
   banman.h \
   base58.h \
   bech32.h \
   blockencodings.h \
   blockfilter.h \
-  bloom.h \
   chain.h \
   chainparams.h \
   chainparamsbase.h \
@@ -135,6 +125,7 @@ BGL_CORE_H = \
   checkqueue.h \
   clientversion.h \
   coins.h \
+  common/bloom.h \
   compat.h \
   compat/assumptions.h \
   compat/byteswap.h \
@@ -149,6 +140,8 @@ BGL_CORE_H = \
   core_memusage.h \
   cuckoocache.h \
   dbwrapper.h \
+  deploymentinfo.h \
+  deploymentstatus.h \
   external_signer.h \
   flatfile.h \
   fs.h \
@@ -197,6 +190,7 @@ BGL_CORE_H = \
   outputtype.h \
   policy/feerate.h \
   policy/fees.h \
+  policy/packages.h \
   policy/policy.h \
   policy/rbf.h \
   policy/settings.h \
@@ -250,16 +244,19 @@ BGL_CORE_H = \
   util/fees.h \
   util/getuniquepath.h \
   util/golombrice.h \
+  util/hash_type.h \
   util/hasher.h \
   util/macros.h \
   util/message.h \
   util/moneystr.h \
   util/rbf.h \
   util/readwritefile.h \
+  util/serfloat.h \
   util/settings.h \
   util/sock.h \
   util/spanparsing.h \
   util/string.h \
+  util/syscall_sandbox.h \
   util/system.h \
   util/thread.h \
   util/threadnames.h \
@@ -267,13 +264,13 @@ BGL_CORE_H = \
   util/tokenpipe.h \
   util/trace.h \
   util/translation.h \
+  util/types.h \
   util/ui_change_type.h \
   util/url.h \
   util/vector.h \
   validation.h \
   validationinterface.h \
   versionbits.h \
-  versionbitsinfo.h \
   wallet/bdb.h \
   wallet/coincontrol.h \
   wallet/coinselection.h \
@@ -286,10 +283,13 @@ BGL_CORE_H = \
   wallet/fees.h \
   wallet/ismine.h \
   wallet/load.h \
+  wallet/receive.h \
   wallet/rpcwallet.h \
   wallet/salvage.h \
   wallet/scriptpubkeyman.h \
+  wallet/spend.h \
   wallet/sqlite.h \
+  wallet/transaction.h \
   wallet/wallet.h \
   wallet/walletdb.h \
   wallet/wallettool.h \
@@ -326,6 +326,7 @@ libBGL_server_a_SOURCES = \
   chain.cpp \
   consensus/tx_verify.cpp \
   dbwrapper.cpp \
+  deploymentstatus.cpp \
   flatfile.cpp \
   httprpc.cpp \
   httpserver.cpp \
@@ -349,6 +350,7 @@ libBGL_server_a_SOURCES = \
   node/ui_interface.cpp \
   noui.cpp \
   policy/fees.cpp \
+  policy/packages.cpp \
   policy/rbf.cpp \
   policy/settings.cpp \
   pow.cpp \
@@ -407,9 +409,12 @@ libBGL_wallet_a_SOURCES = \
   wallet/fees.cpp \
   wallet/interfaces.cpp \
   wallet/load.cpp \
+  wallet/receive.cpp \
   wallet/rpcdump.cpp \
   wallet/rpcwallet.cpp \
   wallet/scriptpubkeyman.cpp \
+  wallet/spend.cpp \
+  wallet/transaction.cpp \
   wallet/wallet.cpp \
   wallet/walletdb.cpp \
   wallet/walletutil.cpp \
@@ -496,9 +501,9 @@ crypto_libBGL_crypto_shani_a_SOURCES = crypto/sha256_shani.cpp
 libBGL_consensus_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
 libBGL_consensus_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_consensus_a_SOURCES = \
-  amount.h \
   arith_uint256.cpp \
   arith_uint256.h \
+  consensus/amount.h \
   consensus/merkle.cpp \
   consensus/merkle.h \
   consensus/params.h \
@@ -535,17 +540,19 @@ libBGL_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_common_a_SOURCES = \
   base58.cpp \
   bech32.cpp \
-  bloom.cpp \
   chainparams.cpp \
   coins.cpp \
+  common/bloom.cpp \
   compressor.cpp \
   core_read.cpp \
   core_write.cpp \
+  deploymentinfo.cpp \
   external_signer.cpp \
   init/common.cpp \
   key.cpp \
   key_io.cpp \
   merkleblock.cpp \
+  net_types.cpp \
   netaddress.cpp \
   netbase.cpp \
   net_permissions.cpp \
@@ -562,13 +569,12 @@ libBGL_common_a_SOURCES = \
   script/sign.cpp \
   script/signingprovider.cpp \
   script/standard.cpp \
-  versionbitsinfo.cpp \
   warnings.cpp \
   $(BGL_CORE_H)
 
 # util: shared between all executables.
 # This library *must* be included to make sure that the glibc
-# backward-compatibility objects and their sanity checks are linked.
+# sanity checks are linked.
 libBGL_util_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
 libBGL_util_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_util_a_SOURCES = \
@@ -604,20 +610,17 @@ libBGL_util_a_SOURCES = \
   util/settings.cpp \
   util/thread.cpp \
   util/threadnames.cpp \
+  util/serfloat.cpp \
   util/spanparsing.cpp \
   util/strencodings.cpp \
   util/string.cpp \
+  util/syscall_sandbox.cpp \
   util/time.cpp \
   util/tokenpipe.cpp \
   $(BGL_CORE_H)
 
 if USE_LIBEVENT
 libBGL_util_a_SOURCES += util/url.cpp
-endif
-
-if GLIBC_BACK_COMPAT
-libBGL_util_a_SOURCES += compat/glibc_compat.cpp
-AM_LDFLAGS += $(COMPAT_LDFLAGS)
 endif
 
 # cli: shared between BGL-cli and BGL-qt
@@ -711,6 +714,7 @@ BGL_tx_LDADD += $(BOOST_LIBS)
 
 # BGL-wallet binary #
 BGL_wallet_SOURCES = BGL-wallet.cpp
+BGL_wallet_SOURCES += init/BGL-wallet.cpp
 BGL_wallet_CPPFLAGS = $(BGL_bin_cppflags)
 BGL_wallet_CXXFLAGS = $(BGL_bin_cxxflags)
 BGL_wallet_LDFLAGS = $(BGL_bin_ldflags)
@@ -746,10 +750,6 @@ BGL_util_LDADD += $(BOOST_LIBS)
 if BUILD_BGL_LIBS
 include_HEADERS = script/BGLconsensus.h
 libBGLconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libBGL_crypto_base_a_SOURCES) $(crypto_sha3_libBGL_crypto_sha3_a_SOURCES) $(libBGL_consensus_a_SOURCES)
-
-if GLIBC_BACK_COMPAT
-  libBGLconsensus_la_SOURCES += compat/glibc_compat.cpp
-endif
 
 libBGLconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS)
 libBGLconsensus_la_LIBADD = $(LIBSECP256K1)
@@ -799,7 +799,6 @@ $(top_srcdir)/$(subdir)/config/BGL-config.h.in:  $(am__configure_deps)
 
 clean-local:
 	-$(MAKE) -C secp256k1 clean
-	-$(MAKE) -C univalue clean
 	-rm -f leveldb/*/*.gcda leveldb/*/*.gcno leveldb/helpers/memenv/*.gcda leveldb/helpers/memenv/*.gcno
 	-rm -f config.h
 	-rm -rf test/__pycache__
@@ -810,25 +809,13 @@ clean-local:
 	$(AM_V_GEN) $(WINDRES) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(CPPFLAGS) -DWINDRES_PREPROC -i $< -o $@
 
 check-symbols: $(bin_PROGRAMS)
-if TARGET_DARWIN
-	@echo "Checking macOS dynamic libraries..."
-	$(AM_V_at) OTOOL=$(OTOOL) $(PYTHON) $(top_srcdir)/contrib/devtools/symbol-check.py $(bin_PROGRAMS)
-endif
-
-if TARGET_WINDOWS
-	@echo "Checking Windows dynamic libraries..."
-	$(AM_V_at) OBJDUMP=$(OBJDUMP) $(PYTHON) $(top_srcdir)/contrib/devtools/symbol-check.py $(bin_PROGRAMS)
-endif
-
-if GLIBC_BACK_COMPAT
-	@echo "Checking glibc back compat..."
-	$(AM_V_at) READELF=$(READELF) CPPFILT=$(CPPFILT) $(PYTHON) $(top_srcdir)/contrib/devtools/symbol-check.py $(bin_PROGRAMS)
-endif
+	@echo "Running symbol and dynamic library checks..."
+	$(AM_V_at) $(PYTHON) $(top_srcdir)/contrib/devtools/symbol-check.py $(bin_PROGRAMS)
 
 check-security: $(bin_PROGRAMS)
 if HARDEN
 	@echo "Checking binary security..."
-	$(AM_V_at) READELF=$(READELF) OBJDUMP=$(OBJDUMP) OTOOL=$(OTOOL) $(PYTHON) $(top_srcdir)/contrib/devtools/security-check.py $(bin_PROGRAMS)
+	$(AM_V_at) $(PYTHON) $(top_srcdir)/contrib/devtools/security-check.py $(bin_PROGRAMS)
 endif
 
 libBGL_ipc_mpgen_input = \
@@ -840,9 +827,11 @@ EXTRA_DIST += $(libBGL_ipc_mpgen_input)
 if BUILD_MULTIPROCESS
 LIBBGL_IPC=libBGL_ipc.a
 libBGL_ipc_a_SOURCES = \
+  ipc/capnp/context.h \
   ipc/capnp/init-types.h \
   ipc/capnp/protocol.cpp \
   ipc/capnp/protocol.h \
+  ipc/context.h \
   ipc/exception.h \
   ipc/interfaces.cpp \
   ipc/process.cpp \
@@ -864,11 +853,8 @@ nodist_libBGL_ipc_a_SOURCES = $(libBGL_ipc_mpgen_output)
 CLEANFILES += $(libBGL_ipc_mpgen_output)
 endif
 
-if EMBEDDED_LEVELDB
 include Makefile.crc32c.include
 include Makefile.leveldb.include
-endif
-
 include Makefile.test_util.include
 include Makefile.test_fuzz.include
 
@@ -887,3 +873,5 @@ endif
 if ENABLE_QT_TESTS
 include Makefile.qttest.include
 endif
+
+include Makefile.univalue.include

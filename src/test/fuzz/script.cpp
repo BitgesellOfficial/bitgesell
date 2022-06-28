@@ -6,8 +6,10 @@
 #include <compressor.h>
 #include <core_io.h>
 #include <core_memusage.h>
+#include <key_io.h>
 #include <policy/policy.h>
 #include <pubkey.h>
+#include <rpc/util.h>
 #include <script/descriptor.h>
 #include <script/interpreter.h>
 #include <script/script.h>
@@ -54,21 +56,6 @@ FUZZ_TARGET_INIT(script, initialize_script)
         assert(script == decompressed_script);
     }
 
-    CTxDestination address;
-    (void)ExtractDestination(script, address);
-
-    TxoutType type_ret;
-    std::vector<CTxDestination> addresses;
-    int required_ret;
-    (void)ExtractDestinations(script, type_ret, addresses, required_ret);
-
-    const FlatSigningProvider signing_provider;
-    (void)InferDescriptor(script, signing_provider);
-
-    (void)IsSegWitOutput(signing_provider, script);
-
-    (void)IsSolvable(signing_provider, script);
-
     TxoutType which_type;
     bool is_standard_ret = IsStandard(script, which_type);
     if (!is_standard_ret) {
@@ -87,6 +74,25 @@ FUZZ_TARGET_INIT(script, initialize_script)
                which_type == TxoutType::NONSTANDARD);
     }
 
+    CTxDestination address;
+    bool extract_destination_ret = ExtractDestination(script, address);
+    if (!extract_destination_ret) {
+        assert(which_type == TxoutType::PUBKEY ||
+               which_type == TxoutType::NONSTANDARD ||
+               which_type == TxoutType::NULL_DATA ||
+               which_type == TxoutType::MULTISIG);
+    }
+    if (which_type == TxoutType::NONSTANDARD ||
+        which_type == TxoutType::NULL_DATA ||
+        which_type == TxoutType::MULTISIG) {
+        assert(!extract_destination_ret);
+    }
+
+    const FlatSigningProvider signing_provider;
+    (void)InferDescriptor(script, signing_provider);
+    (void)IsSegWitOutput(signing_provider, script);
+    (void)IsSolvable(signing_provider, script);
+
     (void)RecursiveDynamicUsage(script);
 
     std::vector<std::vector<unsigned char>> solutions;
@@ -103,15 +109,11 @@ FUZZ_TARGET_INIT(script, initialize_script)
     (void)ScriptToAsmStr(script, true);
 
     UniValue o1(UniValue::VOBJ);
-    ScriptPubKeyToUniv(script, o1, true, true);
-    ScriptPubKeyToUniv(script, o1, true, false);
+    ScriptPubKeyToUniv(script, o1, true);
     UniValue o2(UniValue::VOBJ);
-    ScriptPubKeyToUniv(script, o2, false, true);
-    ScriptPubKeyToUniv(script, o2, false, false);
+    ScriptPubKeyToUniv(script, o2, false);
     UniValue o3(UniValue::VOBJ);
-    ScriptToUniv(script, o3, true);
-    UniValue o4(UniValue::VOBJ);
-    ScriptToUniv(script, o4, false);
+    ScriptToUniv(script, o3);
 
     {
         const std::vector<uint8_t> bytes = ConsumeRandomLengthByteVector(fuzzed_data_provider);
@@ -154,26 +156,26 @@ FUZZ_TARGET_INIT(script, initialize_script)
     }
 
     {
-        WitnessUnknown witness_unknown_1{};
-        witness_unknown_1.version = fuzzed_data_provider.ConsumeIntegral<uint32_t>();
-        const std::vector<uint8_t> witness_unknown_program_1 = fuzzed_data_provider.ConsumeBytes<uint8_t>(40);
-        witness_unknown_1.length = witness_unknown_program_1.size();
-        std::copy(witness_unknown_program_1.begin(), witness_unknown_program_1.end(), witness_unknown_1.program);
+        const CTxDestination tx_destination_1{
+            fuzzed_data_provider.ConsumeBool() ?
+                DecodeDestination(fuzzed_data_provider.ConsumeRandomLengthString()) :
+                ConsumeTxDestination(fuzzed_data_provider)};
+        const CTxDestination tx_destination_2{ConsumeTxDestination(fuzzed_data_provider)};
+        const std::string encoded_dest{EncodeDestination(tx_destination_1)};
+        const UniValue json_dest{DescribeAddress(tx_destination_1)};
+        Assert(tx_destination_1 == DecodeDestination(encoded_dest));
+        (void)GetKeyForDestination(/* store */ {}, tx_destination_1);
+        const CScript dest{GetScriptForDestination(tx_destination_1)};
+        const bool valid{IsValidDestination(tx_destination_1)};
+        Assert(dest.empty() != valid);
 
-        WitnessUnknown witness_unknown_2{};
-        witness_unknown_2.version = fuzzed_data_provider.ConsumeIntegral<uint32_t>();
-        const std::vector<uint8_t> witness_unknown_program_2 = fuzzed_data_provider.ConsumeBytes<uint8_t>(40);
-        witness_unknown_2.length = witness_unknown_program_2.size();
-        std::copy(witness_unknown_program_2.begin(), witness_unknown_program_2.end(), witness_unknown_2.program);
+        Assert(valid == IsValidDestinationString(encoded_dest));
 
-        (void)(witness_unknown_1 == witness_unknown_2);
-        (void)(witness_unknown_1 < witness_unknown_2);
-    }
-
-    {
-        const CTxDestination tx_destination_1 = ConsumeTxDestination(fuzzed_data_provider);
-        const CTxDestination tx_destination_2 = ConsumeTxDestination(fuzzed_data_provider);
-        (void)(tx_destination_1 == tx_destination_2);
         (void)(tx_destination_1 < tx_destination_2);
+        if (tx_destination_1 == tx_destination_2) {
+            Assert(encoded_dest == EncodeDestination(tx_destination_2));
+            Assert(json_dest.write() == DescribeAddress(tx_destination_2).write());
+            Assert(dest == GetScriptForDestination(tx_destination_2));
+        }
     }
 }

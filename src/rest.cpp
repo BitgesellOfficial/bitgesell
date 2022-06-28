@@ -107,6 +107,27 @@ static CTxMemPool* GetMemPool(const std::any& context, HTTPRequest* req)
     return node_context->mempool.get();
 }
 
+/**
+ * Get the node context chainstatemanager.
+ *
+ * @param[in]  req The HTTP request, whose status code will be set if node
+ *                 context chainstatemanager is not found.
+ * @returns        Pointer to the chainstatemanager or nullptr if none found.
+ */
+static ChainstateManager* GetChainman(const std::any& context, HTTPRequest* req)
+{
+    auto node_context = util::AnyPtr<NodeContext>(context);
+    if (!node_context || !node_context->chainman) {
+        RESTERR(req, HTTP_INTERNAL_SERVER_ERROR,
+                strprintf("%s:%d (%s)\n"
+                          "Internal bug detected: Chainman disabled or instance not found!\n"
+                          "You may report this issue here: %s\n",
+                          __FILE__, __LINE__, __func__, PACKAGE_BUGREPORT));
+        return nullptr;
+    }
+    return node_context->chainman.get();
+}
+
 static RetFormat ParseDataFormat(std::string& param, const std::string& strReq)
 {
     const std::string::size_type pos = strReq.rfind('.');
@@ -168,9 +189,10 @@ static bool rest_headers(const std::any& context,
     if (path.size() != 2)
         return RESTERR(req, HTTP_BAD_REQUEST, "No header count specified. Use /rest/headers/<count>/<hash>.<ext>.");
 
-    long count = strtol(path[0].c_str(), nullptr, 10);
-    if (count < 1 || count > 2000)
+    const auto parsed_count{ToIntegral<size_t>(path[0])};
+    if (!parsed_count.has_value() || *parsed_count < 1 || *parsed_count > 2000) {
         return RESTERR(req, HTTP_BAD_REQUEST, "Header count out of range: " + path[0]);
+    }
 
     std::string hashStr = path[1];
     uint256 hash;
@@ -178,18 +200,21 @@ static bool rest_headers(const std::any& context,
         return RESTERR(req, HTTP_BAD_REQUEST, "Invalid hash: " + hashStr);
 
     const CBlockIndex* tip = nullptr;
-    std::vector<const CBlockIndex *> headers;
-    headers.reserve(count);
+    std::vector<const CBlockIndex*> headers;
+    headers.reserve(*parsed_count);
     {
-        ChainstateManager& chainman = EnsureAnyChainman(context);
+        ChainstateManager* maybe_chainman = GetChainman(context, req);
+        if (!maybe_chainman) return false;
+        ChainstateManager& chainman = *maybe_chainman;
         LOCK(cs_main);
         CChain& active_chain = chainman.ActiveChain();
         tip = active_chain.Tip();
         const CBlockIndex* pindex = chainman.m_blockman.LookupBlockIndex(hash);
         while (pindex != nullptr && active_chain.Contains(pindex)) {
             headers.push_back(pindex);
-            if (headers.size() == (unsigned long)count)
+            if (headers.size() == *parsed_count) {
                 break;
+            }
             pindex = active_chain.Next(pindex);
         }
     }
@@ -237,7 +262,7 @@ static bool rest_headers(const std::any& context,
 static bool rest_block(const std::any& context,
                        HTTPRequest* req,
                        const std::string& strURIPart,
-                       bool showTxDetails)
+                       TxVerbosity tx_verbosity)
 {
     if (!CheckWarmup(req))
         return false;
@@ -252,7 +277,9 @@ static bool rest_block(const std::any& context,
     CBlockIndex* pblockindex = nullptr;
     CBlockIndex* tip = nullptr;
     {
-        ChainstateManager& chainman = EnsureAnyChainman(context);
+        ChainstateManager* maybe_chainman = GetChainman(context, req);
+        if (!maybe_chainman) return false;
+        ChainstateManager& chainman = *maybe_chainman;
         LOCK(cs_main);
         tip = chainman.ActiveChain().Tip();
         pblockindex = chainman.m_blockman.LookupBlockIndex(hash);
@@ -287,7 +314,7 @@ static bool rest_block(const std::any& context,
     }
 
     case RetFormat::JSON: {
-        UniValue objBlock = blockToJSON(block, tip, pblockindex, showTxDetails);
+        UniValue objBlock = blockToJSON(block, tip, pblockindex, tx_verbosity);
         std::string strJSON = objBlock.write() + "\n";
         req->WriteHeader("Content-Type", "application/json");
         req->WriteReply(HTTP_OK, strJSON);
@@ -302,12 +329,12 @@ static bool rest_block(const std::any& context,
 
 static bool rest_block_extended(const std::any& context, HTTPRequest* req, const std::string& strURIPart)
 {
-    return rest_block(context, req, strURIPart, true);
+    return rest_block(context, req, strURIPart, TxVerbosity::SHOW_DETAILS_AND_PREVOUT);
 }
 
 static bool rest_block_notxdetails(const std::any& context, HTTPRequest* req, const std::string& strURIPart)
 {
-    return rest_block(context, req, strURIPart, false);
+    return rest_block(context, req, strURIPart, TxVerbosity::SHOW_TXID);
 }
 
 // A bit of a hack - dependency on a function defined in rpc/blockchain.cpp
@@ -499,6 +526,7 @@ static bool rest_getutxos(const std::any& context, HTTPRequest* req, const std::
         // convert hex to bin, continue then with bin part
         std::vector<unsigned char> strRequestV = ParseHex(strRequestMutable);
         strRequestMutable.assign(strRequestV.begin(), strRequestV.end());
+        [[fallthrough]];
     }
 
     case RetFormat::BINARY: {
@@ -541,7 +569,9 @@ static bool rest_getutxos(const std::any& context, HTTPRequest* req, const std::
     std::string bitmapStringRepresentation;
     std::vector<bool> hits;
     bitmap.resize((vOutPoints.size() + 7) / 8);
-    ChainstateManager& chainman = EnsureAnyChainman(context);
+    ChainstateManager* maybe_chainman = GetChainman(context, req);
+    if (!maybe_chainman) return false;
+    ChainstateManager& chainman = *maybe_chainman;
     {
         auto process_utxos = [&vOutPoints, &outs, &hits](const CCoinsView& view, const CTxMemPool& mempool) {
             for (const COutPoint& vOutPoint : vOutPoints) {
@@ -644,7 +674,9 @@ static bool rest_blockhash_by_height(const std::any& context, HTTPRequest* req,
 
     CBlockIndex* pblockindex = nullptr;
     {
-        ChainstateManager& chainman = EnsureAnyChainman(context);
+        ChainstateManager* maybe_chainman = GetChainman(context, req);
+        if (!maybe_chainman) return false;
+        ChainstateManager& chainman = *maybe_chainman;
         LOCK(cs_main);
         const CChain& active_chain = chainman.ActiveChain();
         if (blockheight > active_chain.Height()) {

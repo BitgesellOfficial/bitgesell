@@ -13,12 +13,10 @@
 
 #include <boost/test/unit_test.hpp>
 #include <string>
-//#include <QDebug>
-#include <iostream>
 
 using namespace std::literals;
 
-extern UniValue read_json(const std::string& jsondata);
+UniValue read_json(const std::string& jsondata);
 
 BOOST_FIXTURE_TEST_SUITE(base58_tests, BasicTestingSetup)
 
@@ -88,7 +86,7 @@ BOOST_AUTO_TEST_CASE(base58_random_encode_decode)
     for (int n = 0; n < 1000; ++n) {
         unsigned int len = 1 + InsecureRandBits(8);
         unsigned int zeroes = InsecureRandBool() ? InsecureRandRange(len + 1) : 0;
-        auto data = Cat(std::vector<unsigned char>(zeroes, '\010'), g_insecure_rand_ctx.randbytes(len - zeroes));
+        auto data = Cat(std::vector<unsigned char>(zeroes, '\000'), g_insecure_rand_ctx.randbytes(len - zeroes));
         auto encoded = EncodeBase58Check(data);
         std::vector<unsigned char> decoded;
         auto ok_too_small = DecodeBase58Check(encoded, decoded, InsecureRandRange(len));

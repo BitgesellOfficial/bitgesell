@@ -9,6 +9,7 @@ from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
     find_output,
+    find_vout_for_address
 )
 
 class TxnMallTest(BGLTestFramework):
@@ -28,9 +29,16 @@ class TxnMallTest(BGLTestFramework):
         super().setup_network()
         self.disconnect_nodes(1, 2)
 
+    def spend_txid(self, txid, vout, outputs):
+        inputs = [{"txid": txid, "vout": vout}]
+        tx = self.nodes[0].createrawtransaction(inputs, outputs)
+        tx = self.nodes[0].fundrawtransaction(tx)
+        tx = self.nodes[0].signrawtransactionwithwallet(tx['hex'])
+        return self.nodes[0].sendrawtransaction(tx['hex'])
+
     def run_test(self):
-        # All nodes should start with 5000 BGL:
-        starting_balance = 5000
+        # All nodes should start with 1,250 BTC:
+        starting_balance = 1250
 
         # All nodes should be out of IBD.
         # If the nodes are not all out of IBD, that can interfere with
@@ -44,8 +52,9 @@ class TxnMallTest(BGLTestFramework):
 
         # Assign coins to foo and bar addresses:
         node0_address_foo = self.nodes[0].getnewaddress()
-        fund_foo_txid = self.nodes[0].sendtoaddress(node0_address_foo, 4969)
+        fund_foo_txid = self.nodes[0].sendtoaddress(node0_address_foo, 1219)
         fund_foo_tx = self.nodes[0].gettransaction(fund_foo_txid)
+        self.nodes[0].lockunspent(False, [{"txid":fund_foo_txid, "vout": find_vout_for_address(self.nodes[0], fund_foo_txid, node0_address_foo)}])
 
         node0_address_bar = self.nodes[0].getnewaddress()
         fund_bar_txid = self.nodes[0].sendtoaddress(node0_address_bar, 29)
@@ -57,41 +66,40 @@ class TxnMallTest(BGLTestFramework):
         # Coins are sent to node1_address
         node1_address = self.nodes[1].getnewaddress()
 
-        # First: use raw transaction API to send 5000 BGL to node1_address,
+        # First: use raw transaction API to send 1240 BTC to node1_address,
         # but don't broadcast:
         doublespend_fee = Decimal('-.02')
         rawtx_input_0 = {}
         rawtx_input_0["txid"] = fund_foo_txid
-        rawtx_input_0["vout"] = find_output(self.nodes[0], fund_foo_txid, 4969)
+        rawtx_input_0["vout"] = find_output(self.nodes[0], fund_foo_txid, 1219)
         rawtx_input_1 = {}
         rawtx_input_1["txid"] = fund_bar_txid
         rawtx_input_1["vout"] = find_output(self.nodes[0], fund_bar_txid, 29)
         inputs = [rawtx_input_0, rawtx_input_1]
         change_address = self.nodes[0].getnewaddress()
         outputs = {}
-        outputs[node1_address] = 4990
-        outputs[change_address] = 4998 - 4990 + doublespend_fee
+        outputs[node1_address] = 1240
+        outputs[change_address] = 1248 - 1240 + doublespend_fee
         rawtx = self.nodes[0].createrawtransaction(inputs, outputs)
         doublespend = self.nodes[0].signrawtransactionwithwallet(rawtx)
         assert_equal(doublespend["complete"], True)
 
-        # Create two spends using 1 200 BGL coin each
-        txid1 = self.nodes[0].sendtoaddress(node1_address, 190)
-        txid2 = self.nodes[0].sendtoaddress(node1_address, 20)
+        # Create two spends using 1 50 BTC coin each
+        txid1 = self.spend_txid(fund_foo_txid, find_vout_for_address(self.nodes[0], fund_foo_txid, node0_address_foo), {node1_address: 40})
+        txid2 = self.spend_txid(fund_bar_txid, find_vout_for_address(self.nodes[0], fund_bar_txid, node0_address_bar), {node1_address: 20})
 
         # Have node0 mine a block:
         if (self.options.mine_block):
-            self.nodes[0].generate(1)
-            self.sync_blocks(self.nodes[0:2])
+            self.generate(self.nodes[0], 1, sync_fun=lambda: self.sync_blocks(self.nodes[0:2]))
 
         tx1 = self.nodes[0].gettransaction(txid1)
         tx2 = self.nodes[0].gettransaction(txid2)
 
-        # Node0's balance should be starting balance, plus 200BGL for another
-        # matured block, minus 190, minus 20, and minus transaction fees:
+        # Node0's balance should be starting balance, plus 50BTC for another
+        # matured block, minus 40, minus 20, and minus transaction fees:
         expected = starting_balance + fund_foo_tx["fee"] + fund_bar_tx["fee"]
         if self.options.mine_block:
-            expected += 200
+            expected += 50
         expected += tx1["amount"] + tx1["fee"]
         expected += tx2["amount"] + tx2["fee"]
         assert_equal(self.nodes[0].getbalance(), expected)
@@ -110,11 +118,11 @@ class TxnMallTest(BGLTestFramework):
         self.nodes[2].sendrawtransaction(fund_bar_tx["hex"])
         doublespend_txid = self.nodes[2].sendrawtransaction(doublespend["hex"])
         # ... mine a block...
-        self.nodes[2].generate(1)
+        self.generate(self.nodes[2], 1, sync_fun=self.no_op)
 
         # Reconnect the split network, and sync chain:
         self.connect_nodes(1, 2)
-        self.nodes[2].generate(1)  # Mine another block to make sure we sync
+        self.generate(self.nodes[2], 1)  # Mine another block to make sure we sync
         self.sync_blocks()
         assert_equal(self.nodes[0].gettransaction(doublespend_txid)["confirmations"], 2)
 
@@ -126,14 +134,14 @@ class TxnMallTest(BGLTestFramework):
         assert_equal(tx1["confirmations"], -2)
         assert_equal(tx2["confirmations"], -2)
 
-        # Node0's total balance should be starting balance, plus 400BGL for
-        # two more matured blocks, minus 4990 for the double-spend, plus fees (which are
+        # Node0's total balance should be starting balance, plus 100BTC for
+        # two more matured blocks, minus 1240 for the double-spend, plus fees (which are
         # negative):
-        expected = starting_balance + 400 - 4990 + fund_foo_tx["fee"] + fund_bar_tx["fee"] + doublespend_fee
+        expected = starting_balance + 100 - 1240 + fund_foo_tx["fee"] + fund_bar_tx["fee"] + doublespend_fee
         assert_equal(self.nodes[0].getbalance(), expected)
 
-        # Node1's balance should be its initial balance (5000 for 25 block rewards) plus the doublespend:
-        assert_equal(self.nodes[1].getbalance(), 5000 + 4990)
+        # Node1's balance should be its initial balance (1250 for 25 block rewards) plus the doublespend:
+        assert_equal(self.nodes[1].getbalance(), 1250 + 1240)
 
 
 if __name__ == '__main__':

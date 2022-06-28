@@ -20,6 +20,7 @@ from test_framework.wallet import MiniWallet
 class MempoolSpendCoinbaseTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
+        self.setup_clean_chain = True
 
     def run_test(self):
         wallet = MiniWallet(self.nodes[0])
@@ -28,33 +29,32 @@ class MempoolSpendCoinbaseTest(BGLTestFramework):
         chain_height = 198
         self.nodes[0].invalidateblock(self.nodes[0].getblockhash(chain_height + 1))
         assert_equal(chain_height, self.nodes[0].getblockcount())
+        wallet.rescan_utxos()
 
         # Coinbase at height chain_height-100+1 ok in mempool, should
         # get mined. Coinbase at height chain_height-100+2 is
         # too immature to spend.
-        wallet.scan_blocks(start=chain_height - 100 + 1, num=1)
-        utxo_mature = wallet.get_utxo()
-        wallet.scan_blocks(start=chain_height - 100 + 2, num=1)
-        utxo_immature = wallet.get_utxo()
+        coinbase_txid = lambda h: self.nodes[0].getblock(self.nodes[0].getblockhash(h))['tx'][0]
+        utxo_mature = wallet.get_utxo(txid=coinbase_txid(chain_height - 100 + 1))
+        utxo_immature = wallet.get_utxo(txid=coinbase_txid(chain_height - 100 + 2))
 
-        spend_mature_id = wallet.send_self_transfer(from_node=self.nodes[0], utxo_to_spend=utxo_mature)["txid"]
+        spend_101_id = wallet.send_self_transfer(from_node=self.nodes[0], utxo_to_spend=utxo_101)["txid"]
 
-        # other coinbase should be too immature to spend
-        immature_tx = wallet.create_self_transfer(from_node=self.nodes[0], utxo_to_spend=utxo_immature, mempool_valid=False)
+        # coinbase at height 102 should be too immature to spend
         assert_raises_rpc_error(-26,
                                 "bad-txns-premature-spend-of-coinbase",
-                                lambda: self.nodes[0].sendrawtransaction(immature_tx['hex']))
+                                lambda: wallet.send_self_transfer(from_node=self.nodes[0], utxo_to_spend=utxo_102))
 
-        # mempool should have just the mature one
-        assert_equal(self.nodes[0].getrawmempool(), [spend_mature_id])
+        # mempool should have just spend_101:
+        assert_equal(self.nodes[0].getrawmempool(), [spend_101_id])
 
         # mine a block, mature one should get confirmed
-        self.nodes[0].generate(1)
+        self.generate(self.nodes[0], 1)
         assert_equal(set(self.nodes[0].getrawmempool()), set())
 
-        # ... and now previously immature can be spent:
-        spend_new_id = self.nodes[0].sendrawtransaction(immature_tx['hex'])
-        assert_equal(self.nodes[0].getrawmempool(), [spend_new_id])
+        # ... and now height 102 can be spent:
+        spend_102_id = wallet.send_self_transfer(from_node=self.nodes[0], utxo_to_spend=utxo_102)["txid"]
+        assert_equal(self.nodes[0].getrawmempool(), [spend_102_id])
 
 
 if __name__ == '__main__':
