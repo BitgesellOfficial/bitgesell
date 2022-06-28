@@ -198,11 +198,12 @@ BOOST_AUTO_TEST_CASE(bnb_search_test)
     selection.clear();
 
     // Select 5 Cent
-    add_coin(4 * CENT, 4, expected_result.m_selected_inputs);
-    add_coin(1 * CENT, 1, expected_result.m_selected_inputs);
-    BOOST_CHECK(SelectCoinsBnB(GroupCoins(utxo_pool), 5 * CENT, 0.5 * CENT, selection, value_ret));
-    BOOST_CHECK(equivalent_sets(selection, expected_result.m_selected_inputs));
-    BOOST_CHECK_EQUAL(value_ret, 5 * CENT);
+    add_coin(3 * CENT, 3, expected_result);
+    add_coin(2 * CENT, 2, expected_result);
+    const auto result3 = SelectCoinsBnB(GroupCoins(utxo_pool), 5 * CENT, 0.5 * CENT);
+    BOOST_CHECK(result3);
+    BOOST_CHECK(EquivalentResult(expected_result, *result3));
+    BOOST_CHECK_EQUAL(result3->GetSelectedValue(), 5 * CENT);
     expected_result.Clear();
     selection.clear();
 
@@ -226,12 +227,14 @@ BOOST_AUTO_TEST_CASE(bnb_search_test)
 
     // Select 10 Cent
     add_coin(5 * CENT, 5, utxo_pool);
-    add_coin(5 * CENT, 5, expected_result.m_selected_inputs);
-    add_coin(4 * CENT, 4, expected_result.m_selected_inputs);
-    add_coin(1 * CENT, 1, expected_result.m_selected_inputs);
-    BOOST_CHECK(SelectCoinsBnB(GroupCoins(utxo_pool), 10 * CENT, 0.5 * CENT, selection, value_ret));
-    BOOST_CHECK(equivalent_sets(selection, expected_result.m_selected_inputs));
-    BOOST_CHECK_EQUAL(value_ret, 10 * CENT);
+    add_coin(4 * CENT, 4, expected_result);
+    add_coin(3 * CENT, 3, expected_result);
+    add_coin(2 * CENT, 2, expected_result);
+    add_coin(1 * CENT, 1, expected_result);
+    const auto result5 = SelectCoinsBnB(GroupCoins(utxo_pool), 10 * CENT, 0.5 * CENT);
+    BOOST_CHECK(result5);
+    BOOST_CHECK(EquivalentResult(expected_result, *result5));
+    BOOST_CHECK_EQUAL(result5->GetSelectedValue(), 10 * CENT);
     expected_result.Clear();
     selection.clear();
 
