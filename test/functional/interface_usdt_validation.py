@@ -94,7 +94,7 @@ class ValidationTracepointTest(BGLTestFramework):
         expected_blocks = list()
 
         self.log.info("hook into the validation:block_connected tracepoint")
-        ctx = USDT(path=str(self.options.BGLd))
+        ctx = USDT(pid=self.nodes[0].process.pid)
         ctx.enable_probe(probe="validation:block_connected",
                          fn_name="trace_block_connected")
         bpf = BPF(text=validation_blockconnected_program,
