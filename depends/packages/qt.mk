@@ -159,7 +159,8 @@ $(package)_config_opts_linux += -dbus-runtime
 ifneq ($(LTO),)
 $(package)_config_opts_linux += -ltcg
 endif
-$(package)_config_opts_linux += -platform linux-g++ -xplatform BGL-linux-g++
+$(package)_config_opts_arm_linux += -platform linux-g++ -xplatform BGL-linux-g++
+$(package)_config_opts_i686_linux  = -xplatform linux-g++-32
 ifneq (,$(findstring -stdlib=libc++,$($(1)_cxx)))
 $(package)_config_opts_x86_64_linux = -xplatform linux-clang-libc++
 endif
