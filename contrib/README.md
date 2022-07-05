@@ -39,4 +39,10 @@ Test and Verify Tools
 Utilities to generate test vectors for the data-driven BGL tests.
 
 ### [Verify Binaries](/contrib/verifybinaries) ###
-This script attempts to download and verify the signature file SHA256SUMS.asc from BGL.org.
+This script attempts to download and verify the signature file SHA256SUMS.asc from bitcoin.org.
+
+Command Line Tools
+---------------------
+
+### [Completions](/contrib/completions) ###
+Shell completions for bash and fish.
