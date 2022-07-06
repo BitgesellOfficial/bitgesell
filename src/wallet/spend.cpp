@@ -678,7 +678,7 @@ std::optional<SelectionResult> SelectCoins(const CWallet& wallet, CoinsResult& a
     if (!res) return std::nullopt;
 
     // Add preset inputs to result
-    res->Merge(preselected);
+    res->AddInput(preset_inputs);
     if (res->GetAlgo() == SelectionAlgorithm::MANUAL) {
         res->ComputeAndSetWaste(coin_selection_params.m_cost_of_change);
     }
@@ -902,7 +902,7 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
     if (!result) {
         return util::Error{_("Insufficient funds")};
     }
-    TRACE5(coin_selection, selected_coins, wallet.GetName().c_str(), GetAlgorithmName(result->m_algo).c_str(), result->m_target, result->GetWaste(), result->GetSelectedValue());
+    TRACE5(coin_selection, selected_coins, wallet.GetName().c_str(), GetAlgorithmName(result->GetAlgo()).c_str(), result->GetTarget(), result->GetWaste(), result->GetSelectedValue());
 
     // Always make a change output
     // We will reduce the fee from this change output later, and remove the output if it is too small.
