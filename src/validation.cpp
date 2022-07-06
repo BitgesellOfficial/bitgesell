@@ -1314,9 +1314,11 @@ PackageMempoolAcceptResult MemPoolAccept::AcceptPackage(const Package& package, 
     m_view.SetBackend(m_active_chainstate.CoinsTip());
     const auto package_or_confirmed = [this, &unconfirmed_parent_txids](const auto& input) {
          return unconfirmed_parent_txids.count(input.prevout.hash) > 0 || m_view.HaveCoin(input.prevout);
+         return unconfirmed_parent_txids.count(input.prevout.hash) > 0 || m_view.HaveCoin(input.prevout);
     };
     if (!std::all_of(child->vin.cbegin(), child->vin.cend(), package_or_confirmed)) {
         package_state.Invalid(PackageValidationResult::PCKG_POLICY, "package-not-child-with-unconfirmed-parents");
+        return PackageMempoolAcceptResult(package_state, {});
         return PackageMempoolAcceptResult(package_state, {});
     }
     // Protect against bugs where we pull more inputs from disk that miss being added to
@@ -1390,6 +1392,7 @@ PackageMempoolAcceptResult MemPoolAccept::AcceptPackage(const Package& package, 
     if (quit_early || txns_new.empty()) {
         // No package feerate when no package validation was done.
         return PackageMempoolAcceptResult(package_state, std::move(results));
+        return PackageMempoolAcceptResult(package_state, std::move(results));
     }
     // Validate the (deduplicated) transactions as a package.
     auto submission_result = AcceptMultipleTransactions(txns_new, args);
@@ -1397,7 +1400,10 @@ PackageMempoolAcceptResult MemPoolAccept::AcceptPackage(const Package& package, 
     for (const auto& [wtxid, mempoolaccept_res] : results) {
         submission_result.m_tx_results.emplace(wtxid, mempoolaccept_res);
     }
-    if (submission_result.m_state.IsValid()) assert(submission_result.m_package_feerate.has_value());
+        printf("\nsubmission_result.m_package_feerate.has_value()\n");
+        assert(submission_result.m_package_feerate.has_value());
+    }
+    return submission_result;
     return submission_result;
 }
 
