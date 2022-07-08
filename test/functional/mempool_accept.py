@@ -6,7 +6,7 @@
 
 from decimal import Decimal
 import math
-
+from test_framework.key import ECKey
 from test_framework.test_framework import BGLTestFramework
 from test_framework.messages import (
     BIP125_SEQUENCE_NUMBER,

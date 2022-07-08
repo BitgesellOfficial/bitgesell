@@ -4,10 +4,10 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test bitcoind aborts if a disallowed syscall is used when compiled with the syscall sandbox."""
 
-from test_framework.test_framework import BitcoinTestFramework, SkipTest
+from test_framework.test_framework import BGLTestFramework, SkipTest
 
 
-class SyscallSandboxTest(BitcoinTestFramework):
+class SyscallSandboxTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
 

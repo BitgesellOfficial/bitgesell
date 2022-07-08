@@ -182,6 +182,17 @@ class BlockchainTest(BGLTestFramework):
                 },
                 'active': False
             },
+            'taproot_discarded': {
+                'type': 'bip9',
+                'bip9': {
+                    'status': 'defined',
+                    'start_time': 1621589357,
+                    'timeout': 1623715200,
+                    'since': 0,
+                    'min_activation_height': 0
+                },
+                'active': False
+            },
             'taproot': {
                 'type': 'bip9',
                 'bip9': {
@@ -254,7 +265,7 @@ class BlockchainTest(BGLTestFramework):
         node = self.nodes[0]
         res = node.gettxoutsetinfo()
 
-        assert_equal(res['total_amount'], Decimal('8725.00000000'))
+        assert_equal(res['total_amount'], Decimal('34900.00000000'))
         assert_equal(res['transactions'], HEIGHT)
         assert_equal(res['height'], HEIGHT)
         assert_equal(res['txouts'], HEIGHT)

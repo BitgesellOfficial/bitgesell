@@ -18,6 +18,7 @@ ser_*, deser_*: functions that handle serialization/deserialization.
 Classes use __slots__ to ensure extraneous attributes aren't accidentally added
 by tests, compromising their intended effect.
 """
+from codecs import encode
 from base64 import b32decode, b32encode
 import copy
 import hashlib
@@ -588,7 +589,7 @@ class CTransaction:
         return self.serialize_with_witness()
 
     def getwtxid(self):
-        return hash256(self.serialize())[::-1].hex()
+        return sha256(self.serialize())[::-1].hex()
 
     # Recalculate the txid (transaction hash without witness)
     def rehash(self):

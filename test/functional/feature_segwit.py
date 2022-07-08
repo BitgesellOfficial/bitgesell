@@ -48,6 +48,9 @@ from test_framework.util import (
     assert_raises_rpc_error,
     try_rpc,
 )
+from test_framework.wallet_util import (
+    get_generate_key,
+)
 
 NODE_0 = 0
 NODE_2 = 2
@@ -128,7 +131,7 @@ class SegWitTest(BGLTestFramework):
         self.log.info("Verify sigops are counted in GBT with pre-BIP141 rules before the fork")
         txid = self.nodes[0].sendtoaddress(self.nodes[0].getnewaddress(), 1)
         tmpl = self.nodes[0].getblocktemplate({'rules': ['segwit']})
-        assert_equal(tmpl['sizelimit'], 1000000)
+        assert_equal(tmpl['sizelimit'], 100000)
         assert 'weightlimit' not in tmpl
         assert_equal(tmpl['sigoplimit'], 20000)
         assert_equal(tmpl['transactions'][0]['hash'], txid)

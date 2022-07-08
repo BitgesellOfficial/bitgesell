@@ -4,10 +4,10 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test orphaned block rewards in the wallet."""
 
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 from test_framework.util import assert_equal
 
-class OrphanedBlockRewardTest(BitcoinTestFramework):
+class OrphanedBlockRewardTest(BGLTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 2
@@ -32,8 +32,8 @@ class OrphanedBlockRewardTest(BitcoinTestFramework):
         # the existing balance and the block reward.
         self.generate(self.nodes[0], 150)
         self.sync_blocks()
-        assert_equal(self.nodes[1].getbalance(), 10 + 25)
-        txid = self.nodes[1].sendtoaddress(self.nodes[0].getnewaddress(), 30)
+        assert_equal(self.nodes[1].getbalance(), 10 + 100)
+        txid = self.nodes[1].sendtoaddress(self.nodes[0].getnewaddress(), 105)
 
         # Orphan the block reward and make sure that the original coins
         # from the wallet can still be spent.

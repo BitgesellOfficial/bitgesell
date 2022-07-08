@@ -34,7 +34,7 @@ class WalletLabelsTest(BGLTestFramework):
         # the same address, so we call twice to get two addresses w/50 each
         self.generatetoaddress(node, nblocks=1, address=node.getnewaddress(label='coinbase'))
         self.generatetoaddress(node, nblocks=COINBASE_MATURITY + 1, address=node.getnewaddress(label='coinbase'))
-        assert_equal(node.getbalance(), 100)
+        assert_equal(node.getbalance(), 400)
 
         # there should be 2 address groups
         # each with 1 address with a balance of 200 BGLs
@@ -152,7 +152,7 @@ class WalletLabelsTest(BGLTestFramework):
         for l in BECH32_VALID:
             ad = BECH32_VALID[l]
             wallet_watch_only.importaddress(label=l, rescan=False, address=ad)
-            node.generatetoaddress(1, ad)
+            self.generatetoaddress(node, 1, ad)
             assert_equal(wallet_watch_only.getaddressesbylabel(label=l), {ad: {'purpose': 'receive'}})
             assert_equal(wallet_watch_only.getreceivedbylabel(label=l), 0)
         for l in BECH32_INVALID:
