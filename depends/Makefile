@@ -39,7 +39,7 @@ NO_ZMQ ?=
 NO_UPNP ?=
 NO_NATPMP ?=
 MULTIPROCESS ?=
-FALLBACK_DOWNLOAD_PATH ?= https://BGLcore.org/depends-sources
+FALLBACK_DOWNLOAD_PATH ?= https://bitgesell.ca/depends-sources
 
 BUILD = $(shell ./config.guess)
 HOST ?= $(BUILD)

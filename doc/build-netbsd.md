@@ -22,7 +22,7 @@ libtool
 pkg-config
 python37
 
-git clone https://github.com/BGL/BGL.git
+git clone https://github.com/BitgesellOfficial/bitgesell.git
 ```
 
 See [dependencies.md](dependencies.md) for a complete overview.

@@ -843,7 +843,7 @@ Tests
 - #19094 Only allow ASCII identifiers (laanwj)
 - #18820 Propagate well-known vars into depends (dongcarl)
 - #19173 turn on --enable-c++17 by --enable-fuzz (vasild)
-- #18297 Use pkg-config in BGL_QT_CONFIGURE for all hosts including Windows (hebasto)
+- #18297 Use pkg-config in BITCOIN_QT_CONFIGURE for all hosts including Windows (hebasto)
 - #19301 don't warn when doxygen isn't found (fanquake)
 - #19240 macOS toolchain simplification and bump (dongcarl)
 - #19356 Fix search for brew-installed BDB 4 on OS X (gwillen)
