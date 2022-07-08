@@ -974,7 +974,8 @@ class RawTransactionsTest(BGLTestFramework):
         wallet = self.nodes[0].get_wallet_rpc(self.default_wallet_name)
         recipient = self.nodes[0].get_wallet_rpc("large")
         outputs = {}
-        for _ in range(4000):
+        rawtx = recipient.createrawtransaction([], {wallet.getnewaddress(): 147.99899260})
+        for _ in range(1500):
             outputs[recipient.getnewaddress()] = 0.1
         wallet.sendmany("", outputs)
         self.generate(self.nodes[0], 10)

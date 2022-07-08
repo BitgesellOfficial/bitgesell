@@ -100,7 +100,6 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         self.rpc_timeout = 60  # Wait for up to 60 seconds for the RPC server to respond
         self.supports_cli = True
         self.bind_to_localhost_only = True
-        self.set_test_params()
         self.parse_args()
         self.disable_syscall_sandbox = self.options.nosandbox
         self.default_wallet_name = "default_wallet" if self.options.descriptors else ""

@@ -67,7 +67,6 @@ class AsmapTest(BGLTestFramework):
         name = 'ASN_map'
         filename = os.path.join(self.datadir, name)
         shutil.copyfile(self.asmap_raw, filename)
-
         with self.node.assert_debug_log(expected_messages(filename)):
             self.start_node(0, [f'-asmap={name}'])
         os.remove(filename)
@@ -82,7 +81,7 @@ class AsmapTest(BGLTestFramework):
         os.remove(self.default_asmap)
 
     def test_asmap_interaction_with_addrman_containing_entries(self):
-        self.log.info("Test bitcoind -asmap restart with addrman containing new and tried entries")
+        self.log.info("Test BGLd -asmap restart with addrman containing new and tried entries")
         self.stop_node(0)
         shutil.copyfile(self.asmap_raw, self.default_asmap)
         self.start_node(0, ["-asmap", "-checkaddrman=1"])
@@ -90,8 +89,8 @@ class AsmapTest(BGLTestFramework):
         self.restart_node(0, ["-asmap", "-checkaddrman=1"])
         with self.node.assert_debug_log(
             expected_msgs=[
-                "Addrman checks started: new 1, tried 1, total 2",
-                "Addrman checks completed successfully",
+                "CheckAddrman: new 1, tried 1, total 2 started",
+                "CheckAddrman: completed",
             ]
         ):
             self.node.getnodeaddresses()  # getnodeaddresses re-runs the addrman checks

@@ -116,6 +116,9 @@ def split_inputs(from_node, txins, txouts, initial_split=False):
     txouts.append({"txid": txid, "vout": 1, "amount": rem_change})
 
 
+def check_raw_estimates(node, fees_seen):
+    """Call estimaterawfee and verify that the estimates meet certain invariants."""
+
     delta = 1.0e-6  # account for rounding error
     for i in range(1, 26):
         for _, e in node.estimaterawfee(i).items():
@@ -151,6 +154,9 @@ def check_smart_estimates(node, fees_seen):
             assert_greater_than_or_equal(i + 1, e["blocks"])
 
 
+def check_estimates(node, fees_seen):
+    check_raw_estimates(node, fees_seen)
+    check_smart_estimates(node, fees_seen)
 
 def send_tx(node, utxo, feerate):
     """Broadcast a 1in-1out transaction with a specific input and feerate (sat/vb)."""

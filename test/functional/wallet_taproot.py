@@ -7,7 +7,7 @@
 import random
 
 from decimal import Decimal
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 from test_framework.util import assert_equal
 from test_framework.descriptors import descsum_create
 from test_framework.script import (CScript, OP_CHECKSIG, taproot_construct)
@@ -169,7 +169,7 @@ def compute_taproot_address(pubkey, scripts):
     assert tap.scriptPubKey[1] == 0x20
     return encode_segwit_address("bcrt", 1, tap.scriptPubKey[2:])
 
-class WalletTaprootTest(BitcoinTestFramework):
+class WalletTaprootTest(BGLTestFramework):
     """Test generation and spending of P2TR address outputs."""
 
     def set_test_params(self):

@@ -11,15 +11,15 @@ from test_framework.util import (
     assert_raises_rpc_error,
 )
 
-BECH32_VALID = 'bcrt1qtmp74ayg7p24uslctssvjm06q5phz4yrxucgnv'
-BECH32_INVALID_BECH32 = 'bcrt1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqdmchcc'
-BECH32_INVALID_BECH32M = 'bcrt1qw508d6qejxtdg4y5r3zarvary0c5xw7k35mrzd'
-BECH32_INVALID_VERSION = 'bcrt130xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqynjegk'
-BECH32_INVALID_SIZE = 'bcrt1s0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7v8n0nx0muaewav25430mtr'
-BECH32_INVALID_V0_SIZE = 'bcrt1qw508d6qejxtdg4y5r3zarvary0c5xw7kqqq5k3my'
-BECH32_INVALID_PREFIX = 'bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx'
+BECH32_VALID = 'rbgl1qtmp74ayg7p24uslctssvjm06q5phz4yrlr4q2x'
+BECH32_INVALID_BECH32 = 'rbgl1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqsjdr7p'
+BECH32_INVALID_BECH32M = 'rbgl1qw508d6qejxtdg4y5r3zarvary0c5xw7kgtktm8'
+BECH32_INVALID_VERSION = 'rbgl130xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqe68dw0'
+BECH32_INVALID_SIZE = 'rbgl1s0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7v8n0nx0muaewav253wkc50'
+BECH32_INVALID_V0_SIZE = 'rbgl1qw508d6qejxtdg4y5r3zarvary0c5xw7kqqdx75yt'
+BECH32_INVALID_PREFIX = 'tbgl1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7khvqghp'
 
-BASE58_VALID = 'mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJRfn'
+BASE58_VALID = 'MAMYWDWqd46sYwL7h9ExCpzaPba53HhMh8'
 BASE58_INVALID_PREFIX = '17VZNX1SN5NtKa8UQFxwQbFeFc3iqRYhem'
 
 INVALID_ADDRESS = 'asfah14i8fajz0123f'
