@@ -67,7 +67,6 @@ class AsmapTest(BGLTestFramework):
         name = 'ASN_map'
         filename = os.path.join(self.datadir, name)
         shutil.copyfile(self.asmap_raw, filename)
-
         with self.node.assert_debug_log(expected_messages(filename)):
             self.start_node(0, [f'-asmap={name}'])
         os.remove(filename)
