@@ -50,7 +50,7 @@ class MempoolAcceptanceTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
         self.extra_args = [[
-            '-txindex',
+            '-txindex', '-permitbaremultisig=0',
         ]] * self.num_nodes
         self.supports_cli = False
 
