@@ -174,7 +174,7 @@
 #define HAVE_SYS_TYPES_H 1
 
 /* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "https://github.com/BGL/BGL/issues"
+#define PACKAGE_BUGREPORT "https://github.com/BitgesellOfficial/bitgesell/issues"
 
 /* Define to the full name of this package. */
 #define PACKAGE_NAME "BGL Core"

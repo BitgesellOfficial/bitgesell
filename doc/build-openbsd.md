@@ -18,7 +18,7 @@ pkg_add automake # (select highest version, e.g. 1.16)
 pkg_add python # (select highest version, e.g. 3.8)
 pkg_add bash
 
-git clone https://github.com/BGL/BGL.git
+git clone https://github.com/BitgesellOfficial/bitgesell.git
 ```
 
 See [dependencies.md](dependencies.md) for a complete overview.
@@ -113,7 +113,7 @@ The standard ulimit restrictions in OpenBSD are very strict:
     data(kbytes)         1572864
 
 This is, unfortunately, in some cases not enough to compile some `.cpp` files in the project,
-(see issue [#6658](https://github.com/BGL/BGL/issues/6658)).
+(see issue [#6658](https://github.com/bitcoin/bitcoin/issues/6658)).
 If your user is in the `staff` group the limit can be raised with:
 
     ulimit -d 3000000

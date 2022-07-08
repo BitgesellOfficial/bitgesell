@@ -244,6 +244,22 @@ static std::optional<util::SettingsValue> InterpretValue(const KeyInfo& key, con
     return value;
 }
 
+/**
+ * Check settings value validity according to flags.
+ *
+ * TODO: Add more meaningful error checks here in the future
+ * See "here's how the flags are meant to behave" in
+ * https://github.com/BGL/BGL/pull/16097#issuecomment-514627823
+ */
+static bool CheckValid(const std::string& key, const util::SettingsValue& val, unsigned int flags, std::string& error)
+{
+    if (val.isBool() && !(flags & ArgsManager::ALLOW_BOOL)) {
+        error = strprintf("Negating of -%s is meaningless and therefore forbidden", key);
+        return false;
+    }
+    return true;
+}
+
 namespace {
 fs::path StripRedundantLastElementsOfPath(const fs::path& path)
 {

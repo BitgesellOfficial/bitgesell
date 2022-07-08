@@ -251,10 +251,10 @@ cat "$VERSION"/*/all.SHA256SUMS.asc > SHA256SUMS.asc
 
 - Update other repositories and websites for new version
 
-  - BGLcore.org blog post
+  - bitgesell.ca blog post
 
-  - BGLcore.org maintained versions update:
-    [table](https://github.com/BGL-core/BGLcore.org/commits/master/_includes/posts/maintenance-table.md)
+  - bitgesell.ca maintained versions update:
+    [table](https://github.com/BGL-core/bitgesell.ca/commits/master/_includes/posts/maintenance-table.md)
 
   - Delete post-EOL [release branches](https://github.com/bitcoin/bitcoin/branches/all) and create a tag `v${branch_name}-final`.
 
@@ -284,13 +284,13 @@ cat "$VERSION"/*/all.SHA256SUMS.asc > SHA256SUMS.asc
 
       - Archive the release notes for the new version to `doc/release-notes/` (branch `master` and branch of the release)
 
-      - Create a [new GitHub release](https://github.com/BGL/BGL/releases/new) with a link to the archived release notes
+      - Create a [new GitHub release](https://github.com/BitgesellOfficial/bitgesell/releases/new) with a link to the archived release notes
 
 - Announce the release:
 
   - BGL-dev and BGL-core-dev mailing list
 
-  - BGL Core announcements list https://BGLcore.org/en/list/announcements/join/
+  - BGL Core announcements list https://bitgesell.ca/en/list/announcements/join/
 
   - BGL Core Twitter https://twitter.com/BGLcoreorg
 
