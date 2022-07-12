@@ -346,7 +346,7 @@ class ListSinceBlockTest(BGLTestFramework):
         dest_address = spending_node.getnewaddress()
 
         tx_input = dict(
-            sequence=BIP125_SEQUENCE_NUMBER, **next(u for u in spending_node.listunspent()))
+            sequence=MAX_BIP125_RBF_SEQUENCE, **next(u for u in spending_node.listunspent()))
         rawtx = spending_node.createrawtransaction(
             [tx_input], {dest_address: tx_input["amount"] - Decimal("0.00051000"),
                          spending_node.getrawchangeaddress(): Decimal("0.00050000")})
