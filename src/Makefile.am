@@ -199,7 +199,7 @@ BGL_CORE_H = \
   node/chainstate.h \
   node/coin.h \
   node/context.h \
- # node/mempool_persist_args.h \
+  node/mempool_persist_args.h \
   node/miner.h \
   node/minisketchwrapper.h \
   node/psbt.h \
@@ -382,7 +382,7 @@ libBGL_node_a_SOURCES = \
   node/context.cpp \
   node/eviction.cpp \
   node/interfaces.cpp \
-  #node/mempool_persist_args.cpp \
+  node/mempool_persist_args.cpp \
   node/miner.cpp \
   node/minisketchwrapper.cpp \
   node/psbt.cpp \
