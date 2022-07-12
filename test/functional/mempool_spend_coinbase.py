@@ -20,7 +20,6 @@ from test_framework.wallet import MiniWallet
 class MempoolSpendCoinbaseTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
-        self.setup_clean_chain = True
 
     def run_test(self):
         wallet = MiniWallet(self.nodes[0])
