@@ -34,6 +34,89 @@ SIGNET_HEADER = b"\xec\xc7\xda\xa2"
 PSBT_SIGNET_BLOCK = b"\xfc\x06signetb"    # proprietary PSBT global field holding the block being signed
 RE_MULTIMINER = re.compile("^(\d+)(-(\d+))?/(\d+)$")
 
+# #### some helpers that could go into test_framework
+
+# like from_hex, but without the hex part
+def from_binary(cls, stream):
+    """deserialize a binary stream (or bytes object) into an object"""
+    # handle bytes object by turning it into a stream
+    was_bytes = isinstance(stream, bytes)
+    if was_bytes:
+        stream = BytesIO(stream)
+    obj = cls()
+    obj.deserialize(stream)
+    if was_bytes:
+        assert len(stream.read()) == 0
+    return obj
+
+class PSBTMap:
+    """Class for serializing and deserializing PSBT maps"""
+
+    def __init__(self, map=None):
+        self.map = map if map is not None else {}
+
+    def deserialize(self, f):
+        m = {}
+        while True:
+            k = deser_string(f)
+            if len(k) == 0:
+                break
+            v = deser_string(f)
+            if len(k) == 1:
+                k = k[0]
+            assert k not in m
+            m[k] = v
+        self.map = m
+
+    def serialize(self):
+        m = b""
+        for k,v in self.map.items():
+            if isinstance(k, int) and 0 <= k and k <= 255:
+                k = bytes([k])
+            m += ser_compact_size(len(k)) + k
+            m += ser_compact_size(len(v)) + v
+        m += b"\x00"
+        return m
+
+class PSBT:
+    """Class for serializing and deserializing PSBTs"""
+
+    def __init__(self):
+        self.g = PSBTMap()
+        self.i = []
+        self.o = []
+        self.tx = None
+
+    def deserialize(self, f):
+        assert f.read(5) == b"psbt\xff"
+        self.g = from_binary(PSBTMap, f)
+        assert 0 in self.g.map
+        self.tx = from_binary(CTransaction, self.g.map[0])
+        self.i = [from_binary(PSBTMap, f) for _ in self.tx.vin]
+        self.o = [from_binary(PSBTMap, f) for _ in self.tx.vout]
+        return self
+
+    def serialize(self):
+        assert isinstance(self.g, PSBTMap)
+        assert isinstance(self.i, list) and all(isinstance(x, PSBTMap) for x in self.i)
+        assert isinstance(self.o, list) and all(isinstance(x, PSBTMap) for x in self.o)
+        assert 0 in self.g.map
+        tx = from_binary(CTransaction, self.g.map[0])
+        assert len(tx.vin) == len(self.i)
+        assert len(tx.vout) == len(self.o)
+
+        psbt = [x.serialize() for x in [self.g] + self.i + self.o]
+        return b"psbt\xff" + b"".join(psbt)
+
+    def to_base64(self):
+        return base64.b64encode(self.serialize()).decode("utf8")
+
+    @classmethod
+    def from_base64(cls, b64psbt):
+        return from_binary(cls, base64.b64decode(b64psbt))
+
+# #####
+
 def create_coinbase(height, value, spk):
     cb = CTransaction()
     cb.vin = [CTxIn(COutPoint(0, 0xffffffff), script_BIP34_coinbase_height(height), 0xffffffff)]
@@ -95,7 +178,7 @@ def do_decode_psbt(b64psbt):
     scriptSig = psbt.i[0].map.get(7, b"")
     scriptWitness = psbt.i[0].map.get(8, b"\x00")
 
-    return FromBinary(CBlock, psbt.g.map[PSBT_SIGNET_BLOCK]), ser_string(scriptSig) + scriptWitness
+    return from_binary(CBlock, psbt.g.map[PSBT_SIGNET_BLOCK]), ser_string(scriptSig) + scriptWitness
 
 def finish_block(block, signet_solution, grind_cmd):
     block.vtx[0].vout[-1].scriptPubKey += CScriptOp.encode_op_pushdata(SIGNET_HEADER + signet_solution)
