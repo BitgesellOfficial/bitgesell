@@ -21,7 +21,6 @@ $(package)_patches += use_android_ndk23.patch
 $(package)_patches += rcc_hardcode_timestamp.patch
 $(package)_patches += duplicate_lcqpafonts.patch
 $(package)_patches += fast_fixed_dtoa_no_optimize.patch
-$(package)_patches += guix_cross_lib_path.patch
 
 $(package)_qttranslations_file_name=qttranslations-$($(package)_suffix)
 $(package)_qttranslations_sha256_hash=c92af4171397a0ed272330b4fa0669790fcac8d050b07c8b8cc565ebeba6735e
@@ -32,7 +31,7 @@ $(package)_qttools_sha256_hash=6d0778b71b2742cb527561791d1d3d255366163d54a10f78c
 $(package)_extra_sources  = $($(package)_qttranslations_file_name)
 $(package)_extra_sources += $($(package)_qttools_file_name)
 
-define $(package)_set_vars
+define $(package)_set_varss
 $(package)_config_opts_release = -release
 $(package)_config_opts_release += -silent
 $(package)_config_opts_debug = -debug
@@ -242,7 +241,6 @@ define $(package)_preprocess_cmds
   patch -p1 -i $($(package)_patch_dir)/rcc_hardcode_timestamp.patch && \
   patch -p1 -i $($(package)_patch_dir)/duplicate_lcqpafonts.patch && \
   patch -p1 -i $($(package)_patch_dir)/fast_fixed_dtoa_no_optimize.patch && \
-  patch -p1 -i $($(package)_patch_dir)/guix_cross_lib_path.patch && \
   mkdir -p qtbase/mkspecs/macx-clang-linux &&\
   cp -f qtbase/mkspecs/macx-clang/qplatformdefs.h qtbase/mkspecs/macx-clang-linux/ &&\
   cp -f $($(package)_patch_dir)/mac-qmake.conf qtbase/mkspecs/macx-clang-linux/qmake.conf && \
