@@ -47,9 +47,7 @@ if [ -z "$NO_DEPENDS" ]; then
   fi
   CI_EXEC "$SHELL_OPTS" make "$MAKEJOBS" -C depends HOST="$HOST" "$DEP_OPTS" LOG=1
 fi
-<<<<<<< HEAD
-=======
-if [ -n "$PREVIOUS_RELEASES_TO_DOWNLOAD" ]; then
-  CI_EXEC test/get_previous_releases.py -b -t "$PREVIOUS_RELEASES_DIR" "${PREVIOUS_RELEASES_TO_DOWNLOAD}"
+
+if [ "$DOWNLOAD_PREVIOUS_RELEASES" = "true" ]; then
+  CI_EXEC test/get_previous_releases.py -b -t "$PREVIOUS_RELEASES_DIR"
 fi
->>>>>>> fa33236e77... scripted-diff: Rename DOCKER_EXEC to CI_EXEC
