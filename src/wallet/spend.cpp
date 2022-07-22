@@ -561,8 +561,12 @@ std::optional<SelectionResult> SelectCoins(const CWallet& wallet, CoinsResult& a
             if (!coin_control.GetExternalOutput(outpoint, txout)) {
                 return std::nullopt;
             }
-            input_bytes = CalculateMaximumSignedInputSize(txout, &coin_control.m_external_provider, /*use_max_sig=*/true);
         }
+
+        if (input_bytes == -1) {
+            input_bytes = CalculateMaximumSignedInputSize(txout, outpoint, &coin_control.m_external_provider, &coin_control);
+        }
+
         // If available, override calculated size with coin control specified size
         if (coin_control.HasInputWeight(outpoint)) {
             input_bytes = GetVirtualTransactionSize(coin_control.GetInputWeight(outpoint), 0, 0);
