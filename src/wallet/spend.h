@@ -145,7 +145,7 @@ util::Result<SelectionResult> ChooseSelectionResult(const CAmount& nTargetValue,
 // User manually selected inputs that must be part of the transaction
 struct PreSelectedInputs
 {
-    std::set<COutput> coins;
+    std::set<std::shared_ptr<COutput>> coins;
     // If subtract fee from outputs is disabled, the 'total_amount'
     // will be the sum of each output effective value
     // instead of the sum of the outputs amount
@@ -158,7 +158,7 @@ struct PreSelectedInputs
         } else {
             total_amount += output.GetEffectiveValue();
         }
-        coins.insert(output);
+        coins.insert(std::make_shared<COutput>(output));
     }
 };
 
