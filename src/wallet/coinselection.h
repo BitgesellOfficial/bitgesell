@@ -7,6 +7,7 @@
 
 #include <consensus/amount.h>
 #include <consensus/consensus.h>
+#include <outputtype.h>
 #include <policy/feerate.h>
 #include <primitives/transaction.h>
 #include <random.h>
@@ -267,11 +268,7 @@ struct OutputGroupTypeMap
     void Push(const OutputGroup& group, OutputType type, bool insert_positive, bool insert_mixed);
     // Retrieves 'Groups' filtered by type
     std::optional<Groups> Find(OutputType type);
-    // Different output types count
-    size_t TypesCount() { return groups_by_type.size(); }
 };
-
-typedef std::map<CoinEligibilityFilter, OutputGroupTypeMap> FilteredOutputGroups;
 
 /** Compute the waste for this result given the cost of change
  * and the opportunity cost of spending these inputs now vs in the future.
