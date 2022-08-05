@@ -64,7 +64,7 @@ Features:
 * Optional module for ECDH key exchange.
 * Optional module for Schnorr signatures according to [BIP-340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki) (experimental).
 
-<b>Bitgesell is a fork of BGL with the following changes:</b> <br>
+<b>Bitgesell is a fork of Bitcoin with the following changes:</b> <br>
 * Block Reward [Burn rate is 90% of tx fees]
   ```sh
   nFees*0.1 + GetBlockSubsidy()  
