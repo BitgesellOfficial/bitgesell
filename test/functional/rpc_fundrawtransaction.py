@@ -1088,6 +1088,8 @@ class RawTransactionsTest(BGLTestFramework):
         #       Expect: only preset inputs are used.
         # 5. Explicit add_inputs=true, no preset inputs (same as (1) but with an explicit set):
         #       Expect: include inputs from the wallet.
+        # 6. Explicit add_inputs=false, no preset inputs:
+        #       Expect: failure as we did not provide inputs and the process cannot automatically select coins.
 
         # Case (1), 'send' command
         # 'add_inputs' value is true unless "inputs" are specified, in such case, add_inputs=false.
@@ -1139,6 +1141,10 @@ class RawTransactionsTest(BGLTestFramework):
         tx = wallet.send(outputs=[{addr1: 8}], options=options)
         assert tx["complete"]
 
+        # 6. Explicit add_inputs=false, no preset inputs:
+        options = {"add_inputs": False}
+        assert_raises_rpc_error(-4, "Insufficient funds", wallet.send, outputs=[{addr1: 3}], options=options)
+
         ################################################
 
         # Case (1), 'walletcreatefundedpsbt' command
@@ -1179,6 +1185,10 @@ class RawTransactionsTest(BGLTestFramework):
             "add_inputs": True
         }
         assert "psbt" in wallet.walletcreatefundedpsbt(inputs=[], outputs=outputs, options=options)
+
+        # Case (6). Explicit add_inputs=false, no preset inputs:
+        options = {"add_inputs": False}
+        assert_raises_rpc_error(-4, "Insufficient funds", wallet.walletcreatefundedpsbt, inputs=[], outputs=outputs, options=options)
 
         self.nodes[2].unloadwallet("test_preset_inputs")
 
