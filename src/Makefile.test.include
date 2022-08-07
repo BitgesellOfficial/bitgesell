@@ -340,7 +340,7 @@ nodist_test_test_BGL_SOURCES = $(GENERATED_TEST_FILES)
 
 $(BGL_TESTS): $(GENERATED_TEST_FILES)
 
-CLEAN_BGL_TEST = test/*.gcda test/*.gcno test/fuzz/*.gcda test/fuzz/*.gcno test/util/*.gcda test/util/*.gcno $(GENERATED_TEST_FILES) $(BGL_TESTS:=.log)
+CLEAN_BGL_TEST = test/*.gcda test/*.gcno test/fuzz/*.gcda test/fuzz/*.gcno test/util/*.gcda test/util/*.gcno $(GENERATED_TEST_FILES) $(addsuffix .log,$(basename $(BGL_TESTS)))
 
 CLEANFILES += $(CLEAN_BGL_TEST)
 
