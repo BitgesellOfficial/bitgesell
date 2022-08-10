@@ -164,9 +164,8 @@ private:
 
     bool TryEnter(const char* pszName, const char* pszFile, int nLine)
     {
-        EnterCritical(pszName, pszFile, nLine, (void*)(Base::mutex()), true);
-        Base::try_lock();
-        if (!Base::owns_lock())
+        EnterCritical(pszName, pszFile, nLine, Base::mutex(), true);
+        if (!Base::try_lock()) {
             LeaveCritical();
         return Base::owns_lock();
     }
