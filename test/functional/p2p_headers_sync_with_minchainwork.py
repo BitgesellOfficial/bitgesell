@@ -4,6 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test that we reject low difficulty headers to prevent our block tree from filling up with useless bloat"""
 
+<<<<<<< HEAD
 from test_framework.test_framework import BGLTestFramework
 
 from test_framework.p2p import (
@@ -20,12 +21,19 @@ from test_framework.blocktools import (
 )
 
 from test_framework.util import assert_equal
+=======
+from test_framework.test_framework import BitcoinTestFramework
+>>>>>>> 150a5486db... Test headers sync using minchainwork threshold
 
 NODE1_BLOCKS_REQUIRED = 15
 NODE2_BLOCKS_REQUIRED = 2047
 
 
+<<<<<<< HEAD
 class RejectLowDifficultyHeadersTest(BGLTestFramework):
+=======
+class RejectLowDifficultyHeadersTest(BitcoinTestFramework):
+>>>>>>> 150a5486db... Test headers sync using minchainwork threshold
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 3
@@ -38,10 +46,13 @@ class RejectLowDifficultyHeadersTest(BGLTestFramework):
         self.connect_nodes(0, 2)
         self.sync_all()
 
+<<<<<<< HEAD
     def disconnect_all(self):
         self.disconnect_nodes(0, 1)
         self.disconnect_nodes(0, 2)
 
+=======
+>>>>>>> 150a5486db... Test headers sync using minchainwork threshold
     def test_chains_sync_when_long_enough(self):
         self.log.info("Generate blocks on the node with no required chainwork, and verify nodes 1 and 2 have no new headers in their headers tree")
         with self.nodes[1].assert_debug_log(expected_msgs=["[net] Ignoring low-work chain (height=14)"]), self.nodes[2].assert_debug_log(expected_msgs=["[net] Ignoring low-work chain (height=14)"]):
@@ -77,40 +88,8 @@ class RejectLowDifficultyHeadersTest(BGLTestFramework):
         self.log.info("Verify that node2 will sync the chain when it gets long enough")
         self.sync_blocks()
 
-    def test_peerinfo_includes_headers_presync_height(self):
-        self.log.info("Test that getpeerinfo() includes headers presync height")
-
-        # Disconnect network, so that we can find our own peer connection more
-        # easily
-        self.disconnect_all()
-
-        p2p = self.nodes[0].add_p2p_connection(P2PInterface())
-        node = self.nodes[0]
-
-        # Ensure we have a long chain already
-        current_height = self.nodes[0].getblockcount()
-        if (current_height < 3000):
-            self.generate(node, 3000-current_height, sync_fun=self.no_op)
-
-        # Send a group of 2000 headers, forking from genesis.
-        new_blocks = []
-        hashPrevBlock = int(node.getblockhash(0), 16)
-        for i in range(2000):
-            block = create_block(hashprev = hashPrevBlock, tmpl=node.getblocktemplate(NORMAL_GBT_REQUEST_PARAMS))
-            block.solve()
-            new_blocks.append(block)
-            hashPrevBlock = block.sha256
-
-        headers_message = msg_headers(headers=new_blocks)
-        p2p.send_and_ping(headers_message)
-
-        # getpeerinfo should show a sync in progress
-        assert_equal(node.getpeerinfo()[0]['presynced_headers'], 2000)
-
     def run_test(self):
         self.test_chains_sync_when_long_enough()
-
-        self.test_peerinfo_includes_headers_presync_height()
 
 
 if __name__ == '__main__':
