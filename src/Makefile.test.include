@@ -162,6 +162,7 @@ BGL_TESTS =\
 
 if ENABLE_WALLET
 BGL_TESTS += \
+  wallet/test/feebumper_tests.cpp \
   wallet/test/psbt_wallet_tests.cpp \
   wallet/test/spend_tests.cpp \
   wallet/test/wallet_tests.cpp \
