@@ -7,25 +7,25 @@ export LC_ALL=C
 TOPDIR=${TOPDIR:-$(git rev-parse --show-toplevel)}
 BUILDDIR=${BUILDDIR:-$TOPDIR}
 BINDIR=${BINDIR:-$BUILDDIR/src}
-BITCOIND=${BITCOIND:-$BINDIR/bitcoind}
+BGLD=${BGLD:-$BINDIR/BGLd}
 SHARE_EXAMPLES_DIR=${SHARE_EXAMPLES_DIR:-$TOPDIR/share/examples}
 EXAMPLE_CONF_FILE=${EXAMPLE_CONF_FILE:-$SHARE_EXAMPLES_DIR/bitcoin.conf}
 
-[ ! -x "$BITCOIND" ] && echo "$BITCOIND not found or not executable." && exit 1
+[ ! -x "$BGLD" ] && echo "$BGLD not found or not executable." && exit 1
 
 DIRTY=""
-VERSION_OUTPUT=$($BITCOIND --version)
+VERSION_OUTPUT=$($BGLD --version)
 if [[ $VERSION_OUTPUT == *"dirty"* ]]; then
-  DIRTY="${DIRTY}${BITCOIND}\n"
+  DIRTY="${DIRTY}${BGLD}\n"
 fi
 
 if [ -n "$DIRTY" ]
 then
-  echo -e "WARNING: $BITCOIND was built from a dirty tree.\n"
-  echo -e "To safely generate a bitcoin.conf file, please commit your changes to $BITCOIND, rebuild, then run this script again.\n"
+  echo -e "WARNING: $BGLD was built from a dirty tree.\n"
+  echo -e "To safely generate a BGL.conf file, please commit your changes to $BGLD, rebuild, then run this script again.\n"
 fi
 
-echo 'Generating example bitcoin.conf file in share/examples/'
+echo 'Generating example BGL.conf file in share/examples/'
 
 # create the directory, if it doesn't exist
 mkdir -p "${SHARE_EXAMPLES_DIR}"

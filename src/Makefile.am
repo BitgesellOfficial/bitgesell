@@ -67,10 +67,6 @@ LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_ARM_SHANI)
 endif
 noinst_LTLIBRARIES += $(LIBBGL_CRYPTO)
 
-# Add SHA3 support
-LIBBGL_CRYPTO_SHA3 = crypto/sha3/libBGL_crypto_sha3.a
-LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_SHA3)
-
 $(LIBSECP256K1): $(wildcard secp256k1/src/*.h) $(wildcard secp256k1/src/*.c) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
 
@@ -118,7 +114,7 @@ if BUILD_BGL_CHAINSTATE
 endif
 
 .PHONY: FORCE check-symbols check-security
-# BGL core #
+# bitcoin core #
 BGL_CORE_H = \
   addrdb.h \
   addrman.h \
@@ -143,6 +139,7 @@ BGL_CORE_H = \
   compat/cpuid.h \
   compat/endian.h \
   compressor.h \
+  node/connection_types.h \
   consensus/consensus.h \
   consensus/tx_check.h \
   consensus/tx_verify.h \
@@ -152,6 +149,7 @@ BGL_CORE_H = \
   dbwrapper.h \
   deploymentinfo.h \
   deploymentstatus.h \
+  node/eviction.h \
   external_signer.h \
   flatfile.h \
   fs.h \
@@ -179,6 +177,7 @@ BGL_CORE_H = \
   kernel/context.h \
   kernel/mempool_limits.h \
   kernel/mempool_options.h \
+  kernel/mempool_persist.h \
   key.h \
   key_io.h \
   logging.h \
@@ -200,6 +199,7 @@ BGL_CORE_H = \
   node/chainstate.h \
   node/coin.h \
   node/context.h \
+  node/mempool_persist_args.h \
   node/miner.h \
   node/minisketchwrapper.h \
   node/psbt.h \
@@ -279,6 +279,7 @@ BGL_CORE_H = \
   util/overloaded.h \
   util/rbf.h \
   util/readwritefile.h \
+  util/result.h \
   util/serfloat.h \
   util/settings.h \
   util/sock.h \
@@ -340,7 +341,7 @@ obj/build.h: FORCE
 libBGL_util_a-clientversion.$(OBJEXT): obj/build.h
 
 
-# server: shared between BGLd and BGL-qt
+# server: shared between bitcoind and bitcoin-qt
 # Contains code accessing mempool and chain state that is meant to be separated
 # from wallet and gui code (see node/README.md). Shared code should go in
 # libbitcoin_common or libbitcoin_util libraries, instead.
@@ -368,6 +369,7 @@ libBGL_node_a_SOURCES = \
   kernel/checks.cpp \
   kernel/coinstats.cpp \
   kernel/context.cpp \
+  kernel/mempool_persist.cpp \
   mapport.cpp \
   mempool_args.cpp \
   net.cpp \
@@ -377,8 +379,11 @@ libBGL_node_a_SOURCES = \
   node/caches.cpp \
   node/chainstate.cpp \
   node/coin.cpp \
+  node/connection_types.cpp \
   node/context.cpp \
+  node/eviction.cpp \
   node/interfaces.cpp \
+  node/mempool_persist_args.cpp \
   node/miner.cpp \
   node/minisketchwrapper.cpp \
   node/psbt.cpp \
@@ -438,7 +443,7 @@ libBGL_zmq_a_SOURCES = \
 endif
 
 
-# wallet: shared between BGLd and BGL-qt, but only linked
+# wallet: shared between bitcoind and bitcoin-qt, but only linked
 # when wallet enabled
 libBGL_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BDB_CPPFLAGS) $(SQLITE_CFLAGS)
 libBGL_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -485,13 +490,6 @@ libBGL_wallet_tool_a_SOURCES = \
   wallet/wallettool.cpp \
   $(BGL_CORE_H)
 
-# SHA3 extension library
-crypto_sha3_libBGL_crypto_sha3_a_CPPFLAGS = $(AM_CPPFLAGS)
-crypto_sha3_libBGL_crypto_sha3_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-crypto_sha3_libBGL_crypto_sha3_a_SOURCES = \
-  crypto/sha3/sha3.c \
-  crypto/sha3/sha3.h
-
 # crypto primitives library
 crypto_libBGL_crypto_base_la_CPPFLAGS = $(AM_CPPFLAGS)
 
@@ -537,7 +535,7 @@ if USE_ASM
 crypto_libBGL_crypto_base_la_SOURCES += crypto/sha256_sse4.cpp
 endif
 
-# See explanation for -static in crypto_libBGL_crypto_base_la's LDFLAGS and
+# See explanation for -static in crypto_libbitcoin_crypto_base_la's LDFLAGS and
 # CXXFLAGS above
 crypto_libBGL_crypto_sse41_la_LDFLAGS = $(AM_LDFLAGS) -static
 crypto_libBGL_crypto_sse41_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -static
@@ -546,7 +544,7 @@ crypto_libBGL_crypto_sse41_la_CXXFLAGS += $(SSE41_CXXFLAGS)
 crypto_libBGL_crypto_sse41_la_CPPFLAGS += -DENABLE_SSE41
 crypto_libBGL_crypto_sse41_la_SOURCES = crypto/sha256_sse41.cpp
 
-# See explanation for -static in crypto_libBGL_crypto_base_la's LDFLAGS and
+# See explanation for -static in crypto_libbitcoin_crypto_base_la's LDFLAGS and
 # CXXFLAGS above
 crypto_libBGL_crypto_avx2_la_LDFLAGS = $(AM_LDFLAGS) -static
 crypto_libBGL_crypto_avx2_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -static
@@ -555,7 +553,7 @@ crypto_libBGL_crypto_avx2_la_CXXFLAGS += $(AVX2_CXXFLAGS)
 crypto_libBGL_crypto_avx2_la_CPPFLAGS += -DENABLE_AVX2
 crypto_libBGL_crypto_avx2_la_SOURCES = crypto/sha256_avx2.cpp
 
-# See explanation for -static in crypto_libBGL_crypto_base_la's LDFLAGS and
+# See explanation for -static in crypto_libbitcoin_crypto_base_la's LDFLAGS and
 # CXXFLAGS above
 crypto_libBGL_crypto_x86_shani_la_LDFLAGS = $(AM_LDFLAGS) -static
 crypto_libBGL_crypto_x86_shani_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -static
@@ -564,7 +562,7 @@ crypto_libBGL_crypto_x86_shani_la_CXXFLAGS += $(X86_SHANI_CXXFLAGS)
 crypto_libBGL_crypto_x86_shani_la_CPPFLAGS += -DENABLE_X86_SHANI
 crypto_libBGL_crypto_x86_shani_la_SOURCES = crypto/sha256_x86_shani.cpp
 
-# See explanation for -static in crypto_libBGL_crypto_base_la's LDFLAGS and
+# See explanation for -static in crypto_libbitcoin_crypto_base_la's LDFLAGS and
 # CXXFLAGS above
 crypto_libBGL_crypto_arm_shani_la_LDFLAGS = $(AM_LDFLAGS) -static
 crypto_libBGL_crypto_arm_shani_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -static
@@ -610,7 +608,7 @@ libBGL_consensus_a_SOURCES = \
   util/strencodings.h \
   version.h
 
-# common: shared between BGLd, and BGL-qt and non-server tools
+# common: shared between bitcoind, and bitcoin-qt and non-server tools
 libBGL_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
 libBGL_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_common_a_SOURCES = \
@@ -698,7 +696,7 @@ if USE_LIBEVENT
 libBGL_util_a_SOURCES += util/url.cpp
 endif
 
-# cli: shared between BGL-cli and BGL-qt
+# cli: shared between bitcoin-cli and bitcoin-qt
 libBGL_cli_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
 libBGL_cli_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_cli_a_SOURCES = \
@@ -710,7 +708,7 @@ libBGL_cli_a_SOURCES = \
 nodist_libBGL_util_a_SOURCES = $(srcdir)/obj/build.h
 #
 
-# BGLd & BGL-node binaries #
+# bitcoind & bitcoin-node binaries #
 BGL_daemon_sources = BGLd.cpp
 BGL_bin_cppflags = $(AM_CPPFLAGS) $(BGL_INCLUDES)
 BGL_bin_cxxflags = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -746,7 +744,7 @@ BGL_node_CXXFLAGS = $(BGL_bin_cxxflags)
 BGL_node_LDFLAGS = $(BGL_bin_ldflags)
 BGL_node_LDADD = $(LIBBGL_NODE) $(BGL_bin_ldadd) $(LIBBGL_IPC) $(LIBMULTIPROCESS_LIBS)
 
-# BGL-cli binary #
+# bitcoin-cli binary #
 BGL_cli_SOURCES = BGL-cli.cpp
 BGL_cli_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(EVENT_CFLAGS)
 BGL_cli_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -765,7 +763,7 @@ BGL_cli_LDADD = \
 BGL_cli_LDADD += $(EVENT_LIBS)
 #
 
-# BGL-tx binary #
+# bitcoin-tx binary #
 BGL_tx_SOURCES = BGL-tx.cpp
 BGL_tx_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
 BGL_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -784,7 +782,7 @@ BGL_tx_LDADD = \
   $(LIBSECP256K1)
 #
 
-# BGL-wallet binary #
+# bitcoin-wallet binary #
 BGL_wallet_SOURCES = BGL-wallet.cpp
 BGL_wallet_SOURCES += init/BGL-wallet.cpp
 BGL_wallet_CPPFLAGS = $(BGL_bin_cppflags)
@@ -807,7 +805,7 @@ BGL_wallet_SOURCES += BGL-wallet-res.rc
 endif
 #
 
-# BGL-util binary #
+# bitcoin-util binary #
 BGL_util_SOURCES = BGL-util.cpp
 BGL_util_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
 BGL_util_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -865,8 +863,7 @@ endif
 
 # TODO: libbitcoinkernel is a work in progress consensus engine library, as more
 #       and more modules are decoupled from the consensus engine, this list will
-#       shrink to only those which are absolutely necessary. For example, things
-#       like index/*.cpp will be removed.
+#       shrink to only those which are absolutely necessary.
 libBGLkernel_la_SOURCES = \
   kernel/BGLkernel.cpp \
   arith_uint256.cpp \
@@ -889,6 +886,7 @@ libBGLkernel_la_SOURCES = \
   kernel/checks.cpp \
   kernel/coinstats.cpp \
   kernel/context.cpp \
+  kernel/mempool_persist.cpp \
   key.cpp \
   logging.cpp \
   node/blockstorage.cpp \
@@ -1062,8 +1060,11 @@ nodist_libBGL_ipc_a_SOURCES = $(libBGL_ipc_mpgen_output)
 CLEANFILES += $(libBGL_ipc_mpgen_output)
 endif
 
+include Makefile.minisketch.include
+
 include Makefile.crc32c.include
 include Makefile.leveldb.include
+
 include Makefile.test_util.include
 include Makefile.test_fuzz.include
 
