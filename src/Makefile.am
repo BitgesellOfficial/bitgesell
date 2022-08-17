@@ -205,6 +205,7 @@ BGL_CORE_H = \
   node/coin.h \
   node/connection_types.h \
   node/context.h \
+  node/database_args.h \
   node/eviction.h \
   node/interface_ui.h \
   node/mempool_args.h \
@@ -389,6 +390,7 @@ libBGL_node_a_SOURCES = \
   node/coin.cpp \
   node/connection_types.cpp \
   node/context.cpp \
+  node/database_args.cpp \
   node/eviction.cpp \
   node/interface_ui.cpp \
   node/interfaces.cpp \

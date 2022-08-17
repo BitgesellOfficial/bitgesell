@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(dbwrapper)
     // Perform tests both obfuscated and non-obfuscated.
     for (const bool obfuscate : {false, true}) {
         fs::path ph = m_args.GetDataDirBase() / (obfuscate ? "dbwrapper_obfuscate_true" : "dbwrapper_obfuscate_false");
-        CDBWrapper dbw(ph, (1 << 20), true, false, obfuscate);
+        CDBWrapper dbw({.path = ph, .cache_bytes = 1 << 20, .memory_only = true, .wipe_data = false, .obfuscate = obfuscate});
         uint8_t key{'k'};
         uint256 in = InsecureRand256();
         uint256 res;
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(dbwrapper_basic_data)
     // Perform tests both obfuscated and non-obfuscated.
     for (bool obfuscate : {false, true}) {
         fs::path ph = m_args.GetDataDirBase() / (obfuscate ? "dbwrapper_1_obfuscate_true" : "dbwrapper_1_obfuscate_false");
-        CDBWrapper dbw(ph, (1 << 20), false, true, obfuscate);
+        CDBWrapper dbw({.path = ph, .cache_bytes = 1 << 20, .memory_only = false, .wipe_data = true, .obfuscate = obfuscate});
 
         uint256 res;
         uint32_t res_uint_32;
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE(dbwrapper_batch)
     // Perform tests both obfuscated and non-obfuscated.
     for (const bool obfuscate : {false, true}) {
         fs::path ph = m_args.GetDataDirBase() / (obfuscate ? "dbwrapper_batch_obfuscate_true" : "dbwrapper_batch_obfuscate_false");
-        CDBWrapper dbw(ph, (1 << 20), true, false, obfuscate);
+        CDBWrapper dbw({.path = ph, .cache_bytes = 1 << 20, .memory_only = true, .wipe_data = false, .obfuscate = obfuscate});
 
         uint8_t key{'i'};
         uint256 in = InsecureRand256();
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE(dbwrapper_iterator)
     // Perform tests both obfuscated and non-obfuscated.
     for (const bool obfuscate : {false, true}) {
         fs::path ph = m_args.GetDataDirBase() / (obfuscate ? "dbwrapper_iterator_obfuscate_true" : "dbwrapper_iterator_obfuscate_false");
-        CDBWrapper dbw(ph, (1 << 20), true, false, obfuscate);
+        CDBWrapper dbw({.path = ph, .cache_bytes = 1 << 20, .memory_only = true, .wipe_data = false, .obfuscate = obfuscate});
 
         // The two keys are intentionally chosen for ordering
         uint8_t key{'j'};
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE(existing_data_no_obfuscate)
     fs::create_directories(ph);
 
     // Set up a non-obfuscated wrapper to write some initial data.
-    std::unique_ptr<CDBWrapper> dbw = std::make_unique<CDBWrapper>(ph, (1 << 10), false, false, false);
+    std::unique_ptr<CDBWrapper> dbw = std::make_unique<CDBWrapper>(DBParams{.path = ph, .cache_bytes = 1 << 10, .memory_only = false, .wipe_data = false, .obfuscate = false});
     uint8_t key{'k'};
     uint256 in = InsecureRand256();
     uint256 res;
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE(existing_data_no_obfuscate)
     dbw.reset();
 
     // Now, set up another wrapper that wants to obfuscate the same directory
-    CDBWrapper odbw(ph, (1 << 10), false, false, true);
+    CDBWrapper odbw({.path = ph, .cache_bytes = 1 << 10, .memory_only = false, .wipe_data = false, .obfuscate = true});
 
     // Check that the key/val we wrote with unobfuscated wrapper exists and
     // is readable.
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE(existing_data_reindex)
     fs::create_directories(ph);
 
     // Set up a non-obfuscated wrapper to write some initial data.
-    std::unique_ptr<CDBWrapper> dbw = std::make_unique<CDBWrapper>(ph, (1 << 10), false, false, false);
+    std::unique_ptr<CDBWrapper> dbw = std::make_unique<CDBWrapper>(DBParams{.path = ph, .cache_bytes = 1 << 10, .memory_only = false, .wipe_data = false, .obfuscate = false});
     uint8_t key{'k'};
     uint256 in = InsecureRand256();
     uint256 res;
@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE(existing_data_reindex)
     dbw.reset();
 
     // Simulate a -reindex by wiping the existing data store
-    CDBWrapper odbw(ph, (1 << 10), false, true, true);
+    CDBWrapper odbw({.path = ph, .cache_bytes = 1 << 10, .memory_only = false, .wipe_data = true, .obfuscate = true});
 
     // Check that the key/val we wrote with unobfuscated wrapper doesn't exist
     uint256 res2;
@@ -281,7 +281,7 @@ BOOST_AUTO_TEST_CASE(existing_data_reindex)
 BOOST_AUTO_TEST_CASE(iterator_ordering)
 {
     fs::path ph = m_args.GetDataDirBase() / "iterator_ordering";
-    CDBWrapper dbw(ph, (1 << 20), true, false, false);
+    CDBWrapper dbw({.path = ph, .cache_bytes = 1 << 20, .memory_only = true, .wipe_data = false, .obfuscate = false});
     for (int x=0x00; x<256; ++x) {
         uint8_t key = x;
         uint32_t value = x*x;
@@ -349,7 +349,7 @@ struct StringContentsSerializer {
 BOOST_AUTO_TEST_CASE(iterator_string_ordering)
 {
     fs::path ph = m_args.GetDataDirBase() / "iterator_string_ordering";
-    CDBWrapper dbw(ph, (1 << 20), true, false, false);
+    CDBWrapper dbw({.path = ph, .cache_bytes = 1 << 20, .memory_only = true, .wipe_data = false, .obfuscate = false});
     for (int x = 0; x < 10; ++x) {
         for (int y = 0; y < 10; ++y) {
             std::string key{ToString(x)};
@@ -391,7 +391,7 @@ BOOST_AUTO_TEST_CASE(unicodepath)
     // the ANSI CreateDirectoryA call and the code page isn't UTF8.
     // It will succeed if created with CreateDirectoryW.
     fs::path ph = m_args.GetDataDirBase() / "test_runner_₿_🏃_20191128_104644";
-    CDBWrapper dbw(ph, (1 << 20));
+    CDBWrapper dbw({.path = ph, .cache_bytes = 1 << 20});
 
     fs::path lockPath = ph / "LOCK";
     BOOST_CHECK(fs::exists(lockPath));
