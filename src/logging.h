@@ -185,6 +185,9 @@ namespace BCLog {
             return Join(LogCategoriesList(), ", ", [&](const LogCategory& i) { return i.category; });
         };
 
+        //! Returns a string with all user-selectable log levels.
+        std::string LogLevelsString() const;
+
         bool DefaultShrinkDebugFile() const;
     };
 
