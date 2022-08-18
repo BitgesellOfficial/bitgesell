@@ -17,6 +17,7 @@
 #include <list>
 #include <mutex>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 static const bool DEFAULT_LOGTIMEMICROS = false;
@@ -92,6 +93,9 @@ namespace BCLog {
          */
         std::atomic_bool m_started_new_line{true};
 
+        //! Category-specific log level. Overrides `m_log_level`.
+        std::unordered_map<LogFlags, Level> m_category_log_levels GUARDED_BY(m_cs);
+
         //! If there is no category-specific log level, all logs with a severity
         //! level lower than `m_log_level` will be ignored.
         std::atomic<Level> m_log_level{DEFAULT_LOG_LEVEL};
@@ -158,7 +162,6 @@ namespace BCLog {
             StdLockGuard scoped_lock(m_cs);
             m_category_log_levels = levels;
         }
-        bool SetCategoryLogLevel(const std::string& category_str, const std::string& level_str);
 
         Level LogLevel() const { return m_log_level.load(); }
         void SetLogLevel(Level level) { m_log_level = level; }
