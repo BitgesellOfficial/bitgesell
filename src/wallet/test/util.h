@@ -5,11 +5,13 @@
 #ifndef BGL_WALLET_TEST_UTIL_H
 #define BGL_WALLET_TEST_UTIL_H
 
+#include <script/standard.h>
 #include <memory>
 
 class ArgsManager;
 class CChain;
 class CKey;
+enum class OutputType;
 namespace interfaces {
 class Chain;
 } // namespace interfaces
@@ -20,9 +22,6 @@ struct DatabaseOptions;
 class WalletDatabase;
 
 std::unique_ptr<CWallet> CreateSyncedWallet(interfaces::Chain& chain, CChain& cchain, ArgsManager& args, const CKey& key);
-
-// Creates a copy of the provided database
-std::unique_ptr<WalletDatabase> DuplicateMockDatabase(WalletDatabase& database, DatabaseOptions& options);
 
 /** Returns a new encoded destination from the wallet (hardcoded to BECH32) */
 std::string getnewaddress(CWallet& w);
