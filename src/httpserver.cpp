@@ -3,13 +3,13 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include <config/bitcoin-config.h>
+#include <config/BGL-config.h>
 #endif
 
 #include <httpserver.h>
 
 #include <chainparamsbase.h>
-#include <compat.h>
+#include <compat/compat.h>
 #include <netbase.h>
 #include <node/interface_ui.h>
 #include <rpc/protocol.h> // For HTTP status codes

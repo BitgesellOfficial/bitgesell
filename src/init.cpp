@@ -37,8 +37,8 @@
 #include <netbase.h>
 #include <netgroup.h>
 #include <node/blockstorage.h>
-#include <node/caches.h> // for CalculateCacheSizes
-#include <node/chainstate.h> // for LoadChainstate
+#include <node/caches.h>
+#include <node/chainstate.h>
 #include <node/context.h>
 #include <node/interface_ui.h>
 #include <node/miner.h>
@@ -1131,11 +1131,6 @@ bool AppInitLockDataDirectory()
 bool AppInitInterfaces(NodeContext& node)
 {
     node.chain = node.init->makeChain();
-    // Create client interfaces for wallets that are supposed to be loaded
-    // according to -wallet and -disablewallet options. This only constructs
-    // the interfaces, it doesn't load wallet data. Wallets actually get loaded
-    // when load() and start() interface methods are called below.
-    g_wallet_init_interface.Construct(node);
     return true;
 }
 
@@ -1164,9 +1159,9 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
     // Warn about relative -datadir path.
     if (args.IsArgSet("-datadir") && !args.GetPathArg("-datadir").is_absolute()) {
         LogPrintf("Warning: relative datadir option '%s' specified, which will be interpreted relative to the " /* Continued */
-                  "current working directory '%s'. This is fragile, because if bitgesell is started in the future "
+                  "current working directory '%s'. This is fragile, because if BGL is started in the future "
                   "from a different location, it will be unable to locate the current data files. There could "
-                  "also be data loss if bitgesell is started while in a temporary directory.\n",
+                  "also be data loss if BGL is started while in a temporary directory.\n",
                   args.GetArg("-datadir", ""), fs::PathToString(fs::current_path()));
     }
 
@@ -1204,6 +1199,13 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
     }, std::chrono::minutes{1});
 
     GetMainSignals().RegisterBackgroundSignalScheduler(*node.scheduler);
+
+    // Create client interfaces for wallets that are supposed to be loaded
+    // according to -wallet and -disablewallet options. This only constructs
+    // the interfaces, it doesn't load wallet data. Wallets actually get loaded
+    // when load() and start() interface methods are called below.
+    g_wallet_init_interface.Construct(node);
+    uiInterface.InitWallet();
 
     /* Register RPC commands regardless of -server setting so they will be
      * available in the GUI RPC console even if external calls are disabled.

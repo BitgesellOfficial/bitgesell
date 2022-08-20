@@ -51,7 +51,7 @@ public:
 
     ThresholdState GetStateFor(const CBlockIndex* pindexPrev) const { return AbstractThresholdConditionChecker::GetStateFor(pindexPrev, dummy_params, m_cache); }
     int GetStateSinceHeightFor(const CBlockIndex* pindexPrev) const { return AbstractThresholdConditionChecker::GetStateSinceHeightFor(pindexPrev, dummy_params, m_cache); }
-    BIP9Stats GetStateStatisticsFor(const CBlockIndex* pindex) const { return AbstractThresholdConditionChecker::GetStateStatisticsFor(pindex, dummy_params); }
+    BIP9Stats GetStateStatisticsFor(const CBlockIndex* pindex, std::vector<bool>* signals=nullptr) const { return AbstractThresholdConditionChecker::GetStateStatisticsFor(pindex, dummy_params, signals); }
 
     bool Condition(int32_t version) const
     {
@@ -88,7 +88,7 @@ public:
         CBlockHeader header;
         header.nVersion = signal ? m_signal : m_no_signal;
         header.nTime = m_start_time + m_blocks.size() * m_interval;
-        header.nBits = 0x1d00ffff;
+        header.nBits = 0x207fffff //0x1d00ffff; Changed to reflect BGL genesis nBits
 
         auto current_block = std::make_unique<CBlockIndex>(header);
         current_block->pprev = tip();
@@ -227,6 +227,7 @@ FUZZ_TARGET_INIT(versionbits, initialize)
     last_stats.threshold = threshold;
     last_stats.count = last_stats.elapsed = 0;
     last_stats.possible = (period >= threshold);
+    std::vector<bool> last_signals{};
 
     int prev_next_height = (prev == nullptr ? 0 : prev->nHeight + 1);
     assert(exp_since <= prev_next_height);

@@ -30,7 +30,7 @@
 #include <rpc/server.h>
 #include <scheduler.h>
 #include <script/sigcache.h>
-#include <shutdown.h> // for ShutdownRequested
+#include <shutdown.h>
 #include <streams.h>
 #include <test/util/net.h>
 #include <timedata.h>
@@ -207,7 +207,6 @@ ChainTestingSetup::~ChainTestingSetup()
     m_node.addrman.reset();
     m_node.netgroupman.reset();
     m_node.args = nullptr;
-    WITH_LOCK(::cs_main, UnloadBlockIndex(*m_node.chainman));
     m_node.mempool.reset();
     m_node.scheduler.reset();
     m_node.chainman.reset();
@@ -276,7 +275,7 @@ TestChain100Setup::TestChain100Setup(const std::string& chain_name, const std::v
         LOCK(::cs_main);
         assert(
             m_node.chainman->ActiveChain().Tip()->GetBlockHash().ToString() ==
-            "715b4f4e095649fe6545d2adcb663a8abc5f9ae1c05ec2b28ffe67bdaf44737e");
+            "571d80a9967ae599cec0448b0b0ba1cfb606f584d8069bd7166b86854ba7a191");
     }
 }
 
@@ -435,7 +434,7 @@ CTxMemPoolEntry TestMemPoolEntryHelper::FromTx(const CTransactionRef& tx) const
 /**
  * @returns a real block (0000000000013b8ab2cd513b0261a14096412195a72a0c4827d229dcc7e0f7af)
  *      with 9 txs.
- */ 
+ */
 CBlock getBlock13b8a()
 {
     CBlock block;

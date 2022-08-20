@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_NODE_CHAINSTATE_H
-#define BITCOIN_NODE_CHAINSTATE_H
+#ifndef BGL_NODE_CHAINSTATE_H
+#define BGL_NODE_CHAINSTATE_H
 
 #include <cstdint>
 #include <functional>
@@ -81,4 +81,4 @@ std::optional<ChainstateLoadVerifyError> VerifyLoadedChainstate(ChainstateManage
                                                                 int check_level);
 } // namespace node
 
-#endif // BITCOIN_NODE_CHAINSTATE_H
+#endif // BGL_NODE_CHAINSTATE_H

@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_KERNEL_CHECKS_H
-#define BITCOIN_KERNEL_CHECKS_H
+#ifndef BGL_KERNEL_CHECKS_H
+#define BGL_KERNEL_CHECKS_H
 
 #include <optional>
 
@@ -24,4 +24,4 @@ std::optional<SanityCheckError> SanityChecks(const Context&);
 
 }
 
-#endif // BITCOIN_KERNEL_CHECKS_H
+#endif // BGL_KERNEL_CHECKS_H

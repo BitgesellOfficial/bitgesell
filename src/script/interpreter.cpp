@@ -1458,7 +1458,7 @@ template void PrecomputedTransactionData::Init(const CMutableTransaction& txTo, 
 template PrecomputedTransactionData::PrecomputedTransactionData(const CTransaction& txTo);
 template PrecomputedTransactionData::PrecomputedTransactionData(const CMutableTransaction& txTo);
 
-static const CHashWriterSHA256 HASHER_TAPSIGHASH = TaggedHash("TapSighash");
+const CHashWriterSHA256 HASHER_TAPSIGHASH = TaggedHash("TapSighash");
 const CHashWriterSHA256 HASHER_TAPLEAF = TaggedHash("TapLeaf");
 const CHashWriterSHA256 HASHER_TAPBRANCH = TaggedHash("TapBranch");
 
@@ -1544,7 +1544,7 @@ bool SignatureHashSchnorr(uint256& hash_out, ScriptExecutionData& execdata, cons
     if (output_type == SIGHASH_SINGLE) {
         if (in_pos >= tx_to.vout.size()) return false;
         if (!execdata.m_output_hash) {
-            CHashWriter sha_single_output(SER_GETHASH, 0);
+            CHashWriterSHA256 sha_single_output(SER_GETHASH, 0);
             sha_single_output << tx_to.vout[in_pos];
             execdata.m_output_hash = sha_single_output.GetSHA256();
         }
@@ -1839,7 +1839,7 @@ uint256 ComputeTaprootMerkleRoot(Span<const unsigned char> control, const uint25
     const int path_len = (control.size() - TAPROOT_CONTROL_BASE_SIZE) / TAPROOT_CONTROL_NODE_SIZE;
     uint256 k = tapleaf_hash;
     for (int i = 0; i < path_len; ++i) {
-        CHashWriter ss_branch{HASHER_TAPBRANCH};
+        CHashWriterSHA256 ss_branch{HASHER_TAPBRANCH};
         Span node{Span{control}.subspan(TAPROOT_CONTROL_BASE_SIZE + TAPROOT_CONTROL_NODE_SIZE * i, TAPROOT_CONTROL_NODE_SIZE)};
         if (std::lexicographical_compare(k.begin(), k.end(), node.begin(), node.end())) {
             ss_branch << k << node;

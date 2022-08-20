@@ -6,7 +6,7 @@
 #ifndef BGL_UTIL_TIME_H
 #define BGL_UTIL_TIME_H
 
-#include <compat.h>
+#include <compat/compat.h>
 
 #include <chrono>
 #include <stdint.h>

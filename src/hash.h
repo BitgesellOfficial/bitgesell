@@ -1,3 +1,4 @@
+
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
@@ -16,6 +17,12 @@
 
 #include <string>
 #include <vector>
+
+#include "logging.h"
+
+extern "C" {
+#include <crypto/sha3/sha3.h>
+}
 
 typedef uint256 ChainCode;
 
@@ -44,7 +51,66 @@ public:
     }
 };
 
-/** A hasher class for Bitcoin's 160-bit hash (SHA-256 + RIPEMD-160). */
+/** A hasher class for BGL's 256-bit hash (single SHA-256). Used for tx ids/hashes */
+class CHash256Single {
+private:
+    CSHA256 sha;
+public:
+    static const size_t OUTPUT_SIZE = CSHA256::OUTPUT_SIZE;
+
+    void Finalize(unsigned char hash[OUTPUT_SIZE]) {
+        sha.Finalize(hash);
+    }
+
+    CHash256Single& Write(Span<const std::byte> input) {
+        sha.Write(UCharCast(input.data()), input.size());
+        return *this;
+    }
+
+    CHash256Single& Write(unsigned char* data, const size_t& size) {
+        sha.Write(data, size);
+        return *this;
+    }
+    CHash256Single& Reset() {
+        sha.Reset();
+        return *this;
+    }
+};
+
+/** A SHA3 hasher class specifically for blocks and transactions of BGL. */
+class CHash256Keccak {
+private:
+    sha3_context sha3context;
+public:
+    static const size_t OUTPUT_SIZE = CSHA256::OUTPUT_SIZE;
+
+    CHash256Keccak() {
+        sha3_Init256(&sha3context);
+        sha3_SetFlags(&sha3context, SHA3_FLAGS_KECCAK);
+    }
+
+    void Finalize(unsigned char hash[OUTPUT_SIZE]) {
+        void const *buf;
+        buf = sha3_Finalize(&sha3context);
+
+        for (int i = 0; i < 32; i++)
+        {
+            hash[i] = ((const unsigned char *) buf)[i];
+        }
+    }
+
+    CHash256Keccak& Write(Span<const std::byte> input) {
+        sha3_Update(&sha3context, input.data(), input.size());
+        return *this;
+    }
+
+    CHash256Keccak& Reset() {
+        sha3_Init256(&sha3context);
+        return *this;
+    }
+};
+
+/** A hasher class for BGL's 160-bit hash (SHA-256 + RIPEMD-160). */
 class CHash160 {
 private:
     CSHA256 sha;
@@ -95,24 +161,81 @@ inline uint160 Hash160(const T1& in1)
     return result;
 }
 
-/** A writer stream (for serialization) that computes a 256-bit hash. */
-class CHashWriter
+/** A writer stream (for serialization) that computes a 256-bit Keccak hash. */
+class CHashWriterKeccak
 {
 private:
-    CSHA256 ctx;
+    CHash256Keccak ctx;
 
     const int nType;
     const int nVersion;
 public:
 
-    CHashWriter(int nTypeIn, int nVersionIn) : nType(nTypeIn), nVersion(nVersionIn) {}
+    CHashWriterKeccak(int nTypeIn, int nVersionIn) : nType(nTypeIn), nVersion(nVersionIn) {}
 
     int GetType() const { return nType; }
     int GetVersion() const { return nVersion; }
 
     void write(Span<const std::byte> src)
     {
-        ctx.Write(UCharCast(src.data()), src.size());
+        ctx.Write(src);
+    }
+
+    /** Compute the double-SHA256 hash of all data written to this object.
+     *
+     * Invalidates this object.
+     */
+    uint256 GetHash() {
+        uint256 result;
+        ctx.Finalize((unsigned char*)&result);
+        return result;
+    }
+
+    /** Compute the SHA256 hash of all data written to this object.
+     *
+     * Invalidates this object.
+     */
+    //uint256 GetSHA256() {
+    //    uint256 result;
+    //    ctx.Finalize(result.begin());
+    //    return result;
+    //}
+
+    /**
+     * Returns the first 64 bits from the resulting hash.
+     */
+    inline uint64_t GetCheapHash() {
+        unsigned char result[CHash256::OUTPUT_SIZE];
+        ctx.Finalize(result);
+        return ReadLE64(result);
+    }
+
+    template<typename T>
+    CHashWriterKeccak& operator<<(const T& obj) {
+        // Serialize to this stream
+        ::Serialize(*this, obj);
+        return (*this);
+    }
+};
+
+
+class CHashWriterSHA256
+{
+private:
+    CHash256Single ctx;
+
+    const int nType;
+    const int nVersion;
+public:
+
+    CHashWriterSHA256(int nTypeIn, int nVersionIn) : nType(nTypeIn), nVersion(nVersionIn) {}
+
+    int GetType() const { return nType; }
+    int GetVersion() const { return nVersion; }
+
+    void write(Span<const std::byte> src)
+    {
+        ctx.Write(src);
     }
 
     /** Compute the double-SHA256 hash of all data written to this object.
@@ -125,6 +248,11 @@ public:
         ctx.Reset().Write(result.begin(), CSHA256::OUTPUT_SIZE).Finalize(result.begin());
         return result;
     }
+//    uint256 GetHash() {
+//        uint256 result;
+//        ctx.Finalize(result.begin());
+//        return result;
+//    }
 
     /** Compute the SHA256 hash of all data written to this object.
      *
@@ -140,12 +268,13 @@ public:
      * Returns the first 64 bits from the resulting hash.
      */
     inline uint64_t GetCheapHash() {
-        uint256 result = GetHash();
-        return ReadLE64(result.begin());
+        unsigned char result[CHash256::OUTPUT_SIZE];
+        ctx.Finalize(result);
+        return ReadLE64(result);
     }
 
     template<typename T>
-    CHashWriter& operator<<(const T& obj) {
+    CHashWriterSHA256& operator<<(const T& obj) {
         // Serialize to this stream
         ::Serialize(*this, obj);
         return (*this);
@@ -154,13 +283,13 @@ public:
 
 /** Reads data from an underlying stream, while hashing the read data. */
 template<typename Source>
-class CHashVerifier : public CHashWriter
+class CHashVerifier : public CHashWriterKeccak
 {
 private:
     Source* source;
 
 public:
-    explicit CHashVerifier(Source* source_) : CHashWriter(source_->GetType(), source_->GetVersion()), source(source_) {}
+    explicit CHashVerifier(Source* source_) : CHashWriterKeccak(source_->GetType(), source_->GetVersion()), source(source_) {}
 
     void read(Span<std::byte> dst)
     {
@@ -189,11 +318,19 @@ public:
 
 /** Compute the 256-bit hash of an object's serialization. */
 template<typename T>
-uint256 SerializeHash(const T& obj, int nType=SER_GETHASH, int nVersion=PROTOCOL_VERSION)
+uint256 SerializeHashKeccak(const T& obj, int nType=SER_GETHASH, int nVersion=PROTOCOL_VERSION)
 {
-    CHashWriter ss(nType, nVersion);
+    CHashWriterKeccak ss(nType, nVersion);
     ss << obj;
     return ss.GetHash();
+}
+
+template<typename T>
+uint256 SerializeHashSHA256(const T& obj, int nType=SER_GETHASH, int nVersion=PROTOCOL_VERSION)
+{
+    CHashWriterSHA256 ss(nType, nVersion);
+    ss << obj;
+    return ss.GetSHA256();
 }
 
 /** Single-SHA256 a 32-byte input (represented as uint256). */
@@ -209,6 +346,6 @@ void BIP32Hash(const ChainCode &chainCode, unsigned int nChild, unsigned char he
  * A tagged hash can be computed by feeding the message into this object, and
  * then calling CHashWriter::GetSHA256().
  */
-CHashWriter TaggedHash(const std::string& tag);
+CHashWriterSHA256 TaggedHash(const std::string& tag);
 
 #endif // BGL_HASH_H

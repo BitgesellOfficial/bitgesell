@@ -5,7 +5,7 @@
 #ifndef BGL_I2P_H
 #define BGL_I2P_H
 
-#include <compat.h>
+#include <compat/compat.h>
 #include <fs.h>
 #include <netaddress.h>
 #include <sync.h>
@@ -267,4 +267,4 @@ private:
 } // namespace sam
 } // namespace i2p
 
-#endif /* BGL_I2P_H */
+#endif // BGL_I2P_H

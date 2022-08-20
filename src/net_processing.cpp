@@ -724,8 +724,8 @@ private:
      * peer, a spy node could make multiple inbound connections to us to
      * accurately determine when we received the transaction (and potentially
      * determine the transaction's origin). */
-    std::chrono::microseconds PoissonNextSendInbound(std::chrono::microseconds now,
-                                                     std::chrono::seconds average_interval);
+    std::chrono::microseconds NextInvToInbounds(std::chrono::microseconds now,
+                                                std::chrono::seconds average_interval);
 
 
     // All of the following cache a recent block, and are protected by m_most_recent_block_mutex
@@ -937,13 +937,13 @@ static void AddKnownTx(Peer& peer, const uint256& hash)
 std::chrono::microseconds PeerManagerImpl::NextInvToInbounds(std::chrono::microseconds now,
                                                              std::chrono::seconds average_interval)
 {
-    if (m_next_send_inv_to_incoming.load() < now) {
+    if (m_next_inv_to_inbounds.load() < now) {
         // If this function were called from multiple threads simultaneously
         // it would possible that both update the next send variable, and return a different result to their caller.
         // This is not possible in practice as only the net processing thread invokes this function.
-        m_next_send_inv_to_incoming = GetExponentialRand(now, average_interval);
+        m_next_inv_to_inbounds = GetExponentialRand(now, average_interval);
     }
-    return m_next_send_inv_to_incoming;
+    return m_next_inv_to_inbounds;
 }
 
 bool PeerManagerImpl::IsBlockRequested(const uint256& hash)
@@ -3377,6 +3377,11 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
             return;
         }
 
+        // Stop processing the transaction early if we are still in IBD since we don't
+        // have enough information to validate it yet. Sending unsolicited transactions
+        // is not considered a protocol violation, so don't punish the peer.
+        if (m_chainman.ActiveChainstate().IsInitialBlockDownload()) return;
+
         CTransactionRef ptx;
         vRecv >> ptx;
         const CTransaction& tx = *ptx;
@@ -4868,8 +4873,18 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
                         LogPrint(BCLog::NET, "%s: sending header %s to peer=%d\n", __func__,
                                 vHeaders.front().GetHash().ToString(), pto->GetId());
                     }
+                    m_connman.PushMessage(pto, msgMaker.Make(NetMsgType::HEADERS, vHeaders));
+                    state.pindexBestHeaderSent = pBestIndex;
+                } else
+                    fRevertToInv = true;
+            }
+            if (fRevertToInv) {
+                // If falling back to using an inv, just try to inv the tip.
+                // The last entry in m_blocks_for_headers_relay was our tip at some point
+                // in the past.
                 if (!peer->m_blocks_for_headers_relay.empty()) {
                     const uint256& hashToAnnounce = peer->m_blocks_for_headers_relay.back();
+                    const CBlockIndex* pindex = m_chainman.m_blockman.LookupBlockIndex(hashToAnnounce);
                     assert(pindex);
 
                     // Warn if we're announcing a block that is not on the main chain.

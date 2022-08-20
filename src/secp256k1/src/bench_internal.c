@@ -1,8 +1,8 @@
-/**********************************************************************
- * Copyright (c) 2014-2015 Pieter Wuille                              *
- * Distributed under the MIT software license, see the accompanying   *
- * file COPYING or http://www.opensource.org/licenses/mit-license.php.*
- **********************************************************************/
+/***********************************************************************
+ * Copyright (c) 2014-2015 Pieter Wuille                               *
+ * Distributed under the MIT software license, see the accompanying    *
+ * file COPYING or https://www.opensource.org/licenses/mit-license.php.*
+ ***********************************************************************/
 #include <stdio.h>
 
 #include "secp256k1.c"
@@ -11,7 +11,6 @@
 #include "assumptions.h"
 #include "util.h"
 #include "hash_impl.h"
-#include "num_impl.h"
 #include "field_impl.h"
 #include "group_impl.h"
 #include "scalar_impl.h"
@@ -96,15 +95,6 @@ void bench_scalar_negate(void* arg, int iters) {
 
     for (i = 0; i < iters; i++) {
         secp256k1_scalar_negate(&data->scalar[0], &data->scalar[0]);
-    }
-}
-
-void bench_scalar_sqr(void* arg, int iters) {
-    int i;
-    bench_inv *data = (bench_inv*)arg;
-
-    for (i = 0; i < iters; i++) {
-        secp256k1_scalar_sqr(&data->scalar[0], &data->scalar[0]);
     }
 }
 
@@ -280,8 +270,10 @@ void bench_group_to_affine_var(void* arg, int iters) {
     for (i = 0; i < iters; ++i) {
         secp256k1_ge_set_gej_var(&data->ge[1], &data->gej[0]);
         /* Use the output affine X/Y coordinates to vary the input X/Y/Z coordinates.
-           Similar to bench_group_jacobi_var, this approach does not result in
-           coordinates of points on the curve. */
+           Note that the resulting coordinates will generally not correspond to a point
+           on the curve, but this is not a problem for the code being benchmarked here.
+           Adding and normalizing have less overhead than EC operations (which could
+           guarantee the point remains on the curve). */
         secp256k1_fe_add(&data->gej[0].x, &data->ge[1].y);
         secp256k1_fe_add(&data->gej[0].y, &data->fe[2]);
         secp256k1_fe_add(&data->gej[0].z, &data->ge[1].x);
@@ -367,24 +359,6 @@ void bench_context_sign(void* arg, int iters) {
     }
 }
 
-#ifndef USE_NUM_NONE
-void bench_num_jacobi(void* arg, int iters) {
-    int i, j = 0;
-    bench_inv *data = (bench_inv*)arg;
-    secp256k1_num nx, na, norder;
-
-    secp256k1_scalar_get_num(&nx, &data->scalar[0]);
-    secp256k1_scalar_order_get_num(&norder);
-    secp256k1_scalar_get_num(&na, &data->scalar[1]);
-
-    for (i = 0; i < iters; i++) {
-        j += secp256k1_num_jacobi(&nx, &norder);
-        secp256k1_num_add(&nx, &nx, &na);
-    }
-    CHECK(j <= iters);
-}
-#endif
-
 int main(int argc, char **argv) {
     bench_inv data;
     int iters = get_iters(20000);
@@ -424,8 +398,5 @@ int main(int argc, char **argv) {
     if (d || have_flag(argc, argv, "context") || have_flag(argc, argv, "verify")) run_benchmark("context_verify", bench_context_verify, bench_setup, NULL, &data, 10, 1 + iters/1000);
     if (d || have_flag(argc, argv, "context") || have_flag(argc, argv, "sign")) run_benchmark("context_sign", bench_context_sign, bench_setup, NULL, &data, 10, 1 + iters/100);
 
-#ifndef USE_NUM_NONE
-    if (have_flag(argc, argv, "num") || have_flag(argc, argv, "jacobi")) run_benchmark("num_jacobi", bench_num_jacobi, bench_setup, NULL, &data, 10, iters*10);
-#endif
     return 0;
 }

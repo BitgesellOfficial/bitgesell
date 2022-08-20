@@ -552,6 +552,8 @@ public:
      * @param[in]  sighash_type the sighash type to use when signing (if PSBT does not specify)
      * @param[in]  sign whether to sign or not
      * @param[in]  bip32derivs whether to fill in bip32 derivation information if available
+     * @param[out] n_signed the number of inputs signed by this wallet
+     * @param[in] finalize whether to create the final scriptSig or scriptWitness if possible
      * return error
      */
     TransactionError FillPSBT(PartiallySignedTransaction& psbtx,
@@ -559,7 +561,8 @@ public:
                   int sighash_type = SIGHASH_DEFAULT,
                   bool sign = true,
                   bool bip32derivs = true,
-                  size_t* n_signed = nullptr) const;
+                  size_t* n_signed = nullptr,
+                  bool finalize = true) const;
 
     /**
      * Submit the transaction to the node's mempool and then relay to peers.
@@ -632,7 +635,30 @@ public:
 
     std::optional<int64_t> GetOldestKeyPoolTime() const;
 
-    std::set<CTxDestination> GetLabelAddresses(const std::string& label) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
+    // Filter struct for 'ListAddrBookAddresses'
+    struct AddrBookFilter {
+        // Fetch addresses with the provided label
+        std::optional<std::string> m_op_label{std::nullopt};
+        // Don't include change addresses by default
+        bool ignore_change{true};
+    };
+
+    /**
+     * Filter and retrieve destinations stored in the addressbook
+     */
+    std::vector<CTxDestination> ListAddrBookAddresses(const std::optional<AddrBookFilter>& filter) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
+
+    /**
+     * Retrieve all the known labels in the address book
+     */
+    std::set<std::string> ListAddrBookLabels(const std::string& purpose) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
+
+    /**
+     * Walk-through the address book entries.
+     * Stops when the provided 'ListAddrBookFunc' returns false.
+     */
+    using ListAddrBookFunc = std::function<void(const CTxDestination& dest, const std::string& label, const std::string& purpose, bool is_change)>;
+    void ForEachAddrBookEntry(const ListAddrBookFunc& func) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
 
     /**
      * Marks all outputs in each one of the destinations dirty, so their cache is
@@ -804,13 +830,10 @@ public:
     //! Get the ScriptPubKeyMan for the given OutputType and internal/external chain.
     ScriptPubKeyMan* GetScriptPubKeyMan(const OutputType& type, bool internal) const;
 
-    //! Get the ScriptPubKeyMan for a script
-    ScriptPubKeyMan* GetScriptPubKeyMan(const CScript& script) const;
+    //! Get all the ScriptPubKeyMans for a script
+    std::set<ScriptPubKeyMan*> GetScriptPubKeyMans(const CScript& script) const;
     //! Get the ScriptPubKeyMan by id
     ScriptPubKeyMan* GetScriptPubKeyMan(const uint256& id) const;
-
-    //! Get all of the ScriptPubKeyMans for a script given additional information in sigdata (populated by e.g. a psbt)
-    std::set<ScriptPubKeyMan*> GetScriptPubKeyMans(const CScript& script, SignatureData& sigdata) const;
 
     //! Get the SigningProvider for a script
     std::unique_ptr<SigningProvider> GetSolvingProvider(const CScript& script) const;
@@ -876,6 +899,11 @@ public:
 
     //! Return the DescriptorScriptPubKeyMan for a WalletDescriptor if it is already in the wallet
     DescriptorScriptPubKeyMan* GetDescriptorScriptPubKeyMan(const WalletDescriptor& desc) const;
+
+    //! Returns whether the provided ScriptPubKeyMan is internal
+    //! @param[in] spk_man The ScriptPubKeyMan to test
+    //! @return contains value only for active DescriptorScriptPubKeyMan, otherwise undefined
+    std::optional<bool> IsInternalScriptPubKeyMan(ScriptPubKeyMan* spk_man) const;
 
     //! Add a descriptor to the wallet, return a ScriptPubKeyMan & associated output type
     ScriptPubKeyMan* AddWalletDescriptor(WalletDescriptor& desc, const FlatSigningProvider& signing_provider, const std::string& label, bool internal) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);

@@ -133,7 +133,7 @@ BGL_CORE_H = \
   clientversion.h \
   coins.h \
   common/bloom.h \
-  compat.h \
+  compat/compat.h \
   compat/assumptions.h \
   compat/byteswap.h \
   compat/cpuid.h \
@@ -177,7 +177,7 @@ BGL_CORE_H = \
   kernel/context.h \
   kernel/mempool_limits.h \
   kernel/mempool_options.h \
-  kernel/mempool_persist.h \
+  # kernel/mempool_persist.h \
   key.h \
   key_io.h \
   logging.h \
@@ -199,7 +199,7 @@ BGL_CORE_H = \
   node/chainstate.h \
   node/coin.h \
   node/context.h \
-  node/mempool_persist_args.h \
+ # node/mempool_persist_args.h \
   node/miner.h \
   node/minisketchwrapper.h \
   node/psbt.h \
@@ -369,7 +369,7 @@ libBGL_node_a_SOURCES = \
   kernel/checks.cpp \
   kernel/coinstats.cpp \
   kernel/context.cpp \
-  kernel/mempool_persist.cpp \
+  #kernel/mempool_persist.cpp \
   mapport.cpp \
   mempool_args.cpp \
   net.cpp \
@@ -383,7 +383,7 @@ libBGL_node_a_SOURCES = \
   node/context.cpp \
   node/eviction.cpp \
   node/interfaces.cpp \
-  node/mempool_persist_args.cpp \
+  #node/mempool_persist_args.cpp \
   node/miner.cpp \
   node/minisketchwrapper.cpp \
   node/psbt.cpp \
@@ -490,9 +490,17 @@ libBGL_wallet_tool_a_SOURCES = \
   wallet/wallettool.cpp \
   $(BGL_CORE_H)
 
+
+# SHA3 extension library
+#crypto_sha3_libBGL_crypto_sha3_la_CPPFLAGS = $(AM_CPPFLAGS)
+#crypto_sha3_libBGL_crypto_sha3_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -static
+#crypto_sha3_libBGL_crypto_sha3_la_LDFLAGS = $(AM_LDFLAGS) -static
+#crypto_sha3_libBGL_crypto_sha3_la_SOURCES = \
+#  crypto/sha3/sha3.c \
+#  crypto/sha3/sha3.h
+
 # crypto primitives library
 crypto_libBGL_crypto_base_la_CPPFLAGS = $(AM_CPPFLAGS)
-
 # Specify -static in both CXXFLAGS and LDFLAGS so libtool will only build a
 # static version of this library. We don't need a dynamic version, and a dynamic
 # version can't be used on windows anyway because the library doesn't currently
@@ -529,7 +537,9 @@ crypto_libBGL_crypto_base_la_SOURCES = \
   crypto/sha512.cpp \
   crypto/sha512.h \
   crypto/siphash.cpp \
-  crypto/siphash.h
+  crypto/siphash.h \
+  crypto/sha3/sha3.c \
+  crypto/sha3/sha3.h
 
 if USE_ASM
 crypto_libBGL_crypto_base_la_SOURCES += crypto/sha256_sse4.cpp
@@ -886,7 +896,7 @@ libBGLkernel_la_SOURCES = \
   kernel/checks.cpp \
   kernel/coinstats.cpp \
   kernel/context.cpp \
-  kernel/mempool_persist.cpp \
+  # kernel/mempool_persist.cpp \
   key.cpp \
   logging.cpp \
   node/blockstorage.cpp \

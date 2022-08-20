@@ -60,6 +60,7 @@
 
 using kernel::CCoinsStats;
 using kernel::CoinStatsHashType;
+using kernel::ComputeUTXOStats;
 
 using node::BLOCKFILE_CHUNK_SIZE;
 using node::BlockManager;
@@ -3385,7 +3386,7 @@ void ChainstateManager::UpdateUncommittedBlockStructures(CBlock& block, const CB
 {
     int commitpos = GetWitnessCommitmentIndex(block);
     static const std::vector<unsigned char> nonce(32, 0x00);
-    if (commitpos != NO_WITNESS_COMMITMENT && DeploymentActiveAfter(pindexPrev, GetConsensus(), Consensus::DEPLOYMENT_SEGWIT) && !block.vtx[0]->HasWitness()) {
+    if (commitpos != NO_WITNESS_COMMITMENT && DeploymentActiveAfter(pindexPrev, *this, Consensus::DEPLOYMENT_SEGWIT) && !block.vtx[0]->HasWitness()) {
         CMutableTransaction tx(*block.vtx[0]);
         tx.vin[0].scriptWitness.stack.resize(1);
         tx.vin[0].scriptWitness.stack[0] = nonce;
@@ -3502,12 +3503,10 @@ static bool ContextualCheckBlock(const CBlock& block, BlockValidationState& stat
     // Enforce rule that the coinbase starts with serialized block height
     if (DeploymentActiveAfter(pindexPrev, chainman, Consensus::DEPLOYMENT_HEIGHTINCB))
     {
-        if(nHeight > 200) { // 200 is not a magic number it is there to cover miner_tests where height is less than 200
-            CScript expect = CScript() << nHeight;
-            if (block.vtx[0]->vin[0].scriptSig.size() < expect.size() ||
-                !std::equal(expect.begin(), expect.end(), block.vtx[0]->vin[0].scriptSig.begin())) {
-                return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-cb-height", "block height mismatch in coinbase");
-            }
+        CScript expect = CScript() << nHeight;
+        if (block.vtx[0]->vin[0].scriptSig.size() < expect.size() ||
+            !std::equal(expect.begin(), expect.end(), block.vtx[0]->vin[0].scriptSig.begin())) {
+            return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-cb-height", "block height mismatch in coinbase");
         }
     }
 
@@ -3587,8 +3586,8 @@ bool ChainstateManager::AcceptBlockHeader(const CBlockHeader& block, BlockValida
 
         // Get prev block index
         CBlockIndex* pindexPrev = nullptr;
-        BlockMap::iterator mi = m_block_index.find(block.hashPrevBlock);
-        if (mi == m_block_index.end()) {
+        BlockMap::iterator mi{m_blockman.m_block_index.find(block.hashPrevBlock)};
+        if (mi == m_blockman.m_block_index.end()) {
             LogPrint(BCLog::VALIDATION, "%s: %s prev block not found\n", __func__, hash.ToString());
             return state.Invalid(BlockValidationResult::BLOCK_MISSING_PREV, "prev-blk-not-found");
         }
@@ -4135,15 +4134,6 @@ void CChainState::UnloadBlockIndex()
     AssertLockHeld(::cs_main);
     nBlockSequenceId = 1;
     setBlockIndexCandidates.clear();
-}
-
-// May NOT be used after any connections are up as much
-// of the peer-processing logic assumes a consistent
-// block index state
-void UnloadBlockIndex(ChainstateManager& chainman)
-{
-    AssertLockHeld(::cs_main);
-    chainman.Unload();
 }
 
 bool ChainstateManager::LoadBlockIndex()
@@ -4874,7 +4864,7 @@ const AssumeutxoData* ExpectedAssumeutxo(
 }
 
 bool ChainstateManager::ActivateSnapshot(
-        CAutoFile& coins_file,
+        AutoFile& coins_file,
         const SnapshotMetadata& metadata,
         bool in_memory)
 {
@@ -4969,7 +4959,7 @@ static void FlushSnapshotToDisk(CCoinsViewCache& coins_cache, bool snapshot_load
 
 bool ChainstateManager::PopulateAndValidateSnapshot(
     CChainState& snapshot_chainstate,
-    CAutoFile& coins_file,
+    AutoFile& coins_file,
     const SnapshotMetadata& metadata)
 {
     // It's okay to release cs_main before we're done using `coins_cache` because we know
@@ -5211,7 +5201,6 @@ void ChainstateManager::MaybeRebalanceCaches()
 ChainstateManager::~ChainstateManager()
 {
     LOCK(::cs_main);
-    UnloadBlockIndex(*this);
 
     m_versionbitscache.Clear();
 

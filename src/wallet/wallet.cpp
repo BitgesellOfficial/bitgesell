@@ -1107,8 +1107,23 @@ bool CWallet::AddToWalletIfInvolvingMe(const CTransactionRef& ptx, const SyncTxS
 
             // loop though all outputs
             for (const CTxOut& txout: tx.vout) {
-                for (const auto& spk_man_pair : m_spk_managers) {
-                    spk_man_pair.second->MarkUnusedAddresses(txout.scriptPubKey);
+                for (const auto& spk_man : GetScriptPubKeyMans(txout.scriptPubKey)) {
+                    for (auto &dest : spk_man->MarkUnusedAddresses(txout.scriptPubKey)) {
+                        // If internal flag is not defined try to infer it from the ScriptPubKeyMan
+                        if (!dest.internal.has_value()) {
+                            dest.internal = IsInternalScriptPubKeyMan(spk_man);
+                        }
+
+                        // skip if can't determine whether it's a receiving address or not
+                        if (!dest.internal.has_value()) continue;
+
+                        // If this is a receiving address and it's not in the address book yet
+                        // (e.g. it wasn't generated on this node or we're restoring from backup)
+                        // add it to the address book for proper transaction accounting
+                        if (!*dest.internal && !FindAddressBookEntry(dest.dest, /* allow_change= */ false)) {
+                            SetAddressBook(dest.dest, "", "receive");
+                        }
+                    }
                 }
             }
 
@@ -1949,7 +1964,7 @@ bool CWallet::SignTransaction(CMutableTransaction& tx, const std::map<COutPoint,
     return false;
 }
 
-TransactionError CWallet::FillPSBT(PartiallySignedTransaction& psbtx, bool& complete, int sighash_type, bool sign, bool bip32derivs, size_t * n_signed) const
+TransactionError CWallet::FillPSBT(PartiallySignedTransaction& psbtx, bool& complete, int sighash_type, bool sign, bool bip32derivs, size_t * n_signed, bool finalize) const
 {
     if (n_signed) {
         *n_signed = 0;
@@ -1981,7 +1996,7 @@ TransactionError CWallet::FillPSBT(PartiallySignedTransaction& psbtx, bool& comp
     // Fill in information from ScriptPubKeyMans
     for (ScriptPubKeyMan* spk_man : GetAllScriptPubKeyMans()) {
         int n_signed_this_spkm = 0;
-        TransactionError res = spk_man->FillPSBT(psbtx, txdata, sighash_type, sign, bip32derivs, &n_signed_this_spkm);
+        TransactionError res = spk_man->FillPSBT(psbtx, txdata, sighash_type, sign, bip32derivs, &n_signed_this_spkm, finalize);
         if (res != TransactionError::OK) {
             return res;
         }
@@ -2353,19 +2368,43 @@ void CWallet::MarkDestinationsDirty(const std::set<CTxDestination>& destinations
     }
 }
 
-std::set<CTxDestination> CWallet::GetLabelAddresses(const std::string& label) const
+void CWallet::ForEachAddrBookEntry(const ListAddrBookFunc& func) const
 {
     AssertLockHeld(cs_wallet);
-    std::set<CTxDestination> result;
-    for (const std::pair<const CTxDestination, CAddressBookData>& item : m_address_book)
-    {
-        if (item.second.IsChange()) continue;
-        const CTxDestination& address = item.first;
-        const std::string& strName = item.second.GetLabel();
-        if (strName == label)
-            result.insert(address);
+    for (const std::pair<const CTxDestination, CAddressBookData>& item : m_address_book) {
+        const auto& entry = item.second;
+        func(item.first, entry.GetLabel(), entry.purpose, entry.IsChange());
     }
+}
+
+std::vector<CTxDestination> CWallet::ListAddrBookAddresses(const std::optional<AddrBookFilter>& _filter) const
+{
+    AssertLockHeld(cs_wallet);
+    std::vector<CTxDestination> result;
+    AddrBookFilter filter = _filter ? *_filter : AddrBookFilter();
+    ForEachAddrBookEntry([&result, &filter](const CTxDestination& dest, const std::string& label, const std::string& purpose, bool is_change) {
+        // Filter by change
+        if (filter.ignore_change && is_change) return;
+        // Filter by label
+        if (filter.m_op_label && *filter.m_op_label != label) return;
+        // All good
+        result.emplace_back(dest);
+    });
     return result;
+}
+
+std::set<std::string> CWallet::ListAddrBookLabels(const std::string& purpose) const
+{
+    AssertLockHeld(cs_wallet);
+    std::set<std::string> label_set;
+    ForEachAddrBookEntry([&](const CTxDestination& _dest, const std::string& _label,
+                             const std::string& _purpose, bool _is_change) {
+        if (_is_change) return;
+        if (purpose.empty() || _purpose == purpose) {
+            label_set.insert(_label);
+        }
+    });
+    return label_set;
 }
 
 bool ReserveDestination::GetReservedDestination(CTxDestination& dest, bool internal, bilingual_str& error)
@@ -2412,16 +2451,15 @@ void ReserveDestination::ReturnDestination()
 bool CWallet::DisplayAddress(const CTxDestination& dest)
 {
     CScript scriptPubKey = GetScriptForDestination(dest);
-    const auto spk_man = GetScriptPubKeyMan(scriptPubKey);
-    if (spk_man == nullptr) {
-        return false;
+    for (const auto& spk_man : GetScriptPubKeyMans(scriptPubKey)) {
+        auto signer_spk_man = dynamic_cast<ExternalSignerScriptPubKeyMan *>(spk_man);
+        if (signer_spk_man == nullptr) {
+            continue;
+        }
+        ExternalSigner signer = ExternalSignerScriptPubKeyMan::GetExternalSigner();
+        return signer_spk_man->DisplayAddress(scriptPubKey, signer);
     }
-    auto signer_spk_man = dynamic_cast<ExternalSignerScriptPubKeyMan*>(spk_man);
-    if (signer_spk_man == nullptr) {
-        return false;
-    }
-    ExternalSigner signer = ExternalSignerScriptPubKeyMan::GetExternalSigner();
-    return signer_spk_man->DisplayAddress(scriptPubKey, signer);
+    return false;
 }
 
 bool CWallet::LockCoin(const COutPoint& output, WalletBatch* batch)
@@ -2901,11 +2939,11 @@ std::shared_ptr<CWallet> CWallet::Create(WalletContext& context, const std::stri
         walletInstance->m_default_max_tx_fee = max_fee.value();
     }
 
-    if (gArgs.IsArgSet("-consolidatefeerate")) {
-        if (std::optional<CAmount> consolidate_feerate = ParseMoney(gArgs.GetArg("-consolidatefeerate", ""))) {
+    if (args.IsArgSet("-consolidatefeerate")) {
+        if (std::optional<CAmount> consolidate_feerate = ParseMoney(args.GetArg("-consolidatefeerate", ""))) {
             walletInstance->m_consolidate_feerate = CFeeRate(*consolidate_feerate);
         } else {
-            error = AmountErrMsg("consolidatefeerate", gArgs.GetArg("-consolidatefeerate", ""));
+            error = AmountErrMsg("consolidatefeerate", args.GetArg("-consolidatefeerate", ""));
             return nullptr;
         }
     }
@@ -3228,26 +3266,16 @@ ScriptPubKeyMan* CWallet::GetScriptPubKeyMan(const OutputType& type, bool intern
     return it->second;
 }
 
-std::set<ScriptPubKeyMan*> CWallet::GetScriptPubKeyMans(const CScript& script, SignatureData& sigdata) const
+std::set<ScriptPubKeyMan*> CWallet::GetScriptPubKeyMans(const CScript& script) const
 {
     std::set<ScriptPubKeyMan*> spk_mans;
+    SignatureData sigdata;
     for (const auto& spk_man_pair : m_spk_managers) {
         if (spk_man_pair.second->CanProvide(script, sigdata)) {
             spk_mans.insert(spk_man_pair.second.get());
         }
     }
     return spk_mans;
-}
-
-ScriptPubKeyMan* CWallet::GetScriptPubKeyMan(const CScript& script) const
-{
-    SignatureData sigdata;
-    for (const auto& spk_man_pair : m_spk_managers) {
-        if (spk_man_pair.second->CanProvide(script, sigdata)) {
-            return spk_man_pair.second.get();
-        }
-    }
-    return nullptr;
 }
 
 ScriptPubKeyMan* CWallet::GetScriptPubKeyMan(const uint256& id) const
@@ -3466,6 +3494,30 @@ DescriptorScriptPubKeyMan* CWallet::GetDescriptorScriptPubKeyMan(const WalletDes
     }
 
     return nullptr;
+}
+
+std::optional<bool> CWallet::IsInternalScriptPubKeyMan(ScriptPubKeyMan* spk_man) const
+{
+    // Legacy script pubkey man can't be either external or internal
+    if (IsLegacy()) {
+        return std::nullopt;
+    }
+
+    // only active ScriptPubKeyMan can be internal
+    if (!GetActiveScriptPubKeyMans().count(spk_man)) {
+        return std::nullopt;
+    }
+
+    const auto desc_spk_man = dynamic_cast<DescriptorScriptPubKeyMan*>(spk_man);
+    if (!desc_spk_man) {
+        throw std::runtime_error(std::string(__func__) + ": unexpected ScriptPubKeyMan type.");
+    }
+
+    LOCK(desc_spk_man->cs_desc_man);
+    const auto& type = desc_spk_man->GetWalletDescriptor().descriptor->GetOutputType();
+    assert(type.has_value());
+
+    return GetScriptPubKeyMan(*type, /* internal= */ true) == desc_spk_man;
 }
 
 ScriptPubKeyMan* CWallet::AddWalletDescriptor(WalletDescriptor& desc, const FlatSigningProvider& signing_provider, const std::string& label, bool internal)

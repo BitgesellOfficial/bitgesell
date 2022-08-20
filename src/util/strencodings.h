@@ -20,8 +20,6 @@
 #include <string>
 #include <vector>
 
-#define ARRAYLEN(array)     (sizeof(array)/sizeof((array)[0]))
-
 /** Used by SanitizeString() */
 enum SafeChars
 {
@@ -67,8 +65,7 @@ bool IsHex(std::string_view str);
 * Return true if the string is a hex number, optionally prefixed with "0x"
 */
 bool IsHexNumber(std::string_view str);
-std::vector<unsigned char> DecodeBase64(const char* p, bool* pf_invalid);
-std::vector<unsigned char> DecodeBase64(const std::string& str, bool* pf_invalid);
+std::optional<std::vector<unsigned char>> DecodeBase64(std::string_view str);
 std::string EncodeBase64(Span<const unsigned char> input);
 inline std::string EncodeBase64(Span<const std::byte> input) { return EncodeBase64(MakeUCharSpan(input)); }
 inline std::string EncodeBase64(std::string_view str) { return EncodeBase64(MakeUCharSpan(str)); }

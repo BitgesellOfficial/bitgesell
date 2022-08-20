@@ -7,6 +7,7 @@
 #include <script/standard.h>
 #include <streams.h>
 #include <test/util/setup_common.h>
+#include <txdb.h>
 #include <uint256.h>
 #include <undo.h>
 #include <util/strencodings.h>
@@ -108,7 +109,12 @@ static const unsigned int NUM_SIMULATION_ITERATIONS = 40000;
 //
 // During the process, booleans are kept to make sure that the randomized
 // operation hits all branches.
-BOOST_AUTO_TEST_CASE(coins_cache_simulation_test)
+//
+// If fake_best_block is true, assign a random uint256 to mock the recording
+// of best block on flush. This is necessary when using CCoinsViewDB as the base,
+// otherwise we'll hit an assertion in BatchWrite.
+//
+void SimulationTest(CCoinsView* base, bool fake_best_block)
 {
     // Various coverage trackers.
     bool removed_all_caches = false;
@@ -125,9 +131,8 @@ BOOST_AUTO_TEST_CASE(coins_cache_simulation_test)
     std::map<COutPoint, Coin> result;
 
     // The cache stack.
-    CCoinsViewTest base; // A CCoinsViewTest at the bottom.
     std::vector<CCoinsViewCacheTest*> stack; // A stack of CCoinsViewCaches on top.
-    stack.push_back(new CCoinsViewCacheTest(&base)); // Start with one cache.
+    stack.push_back(new CCoinsViewCacheTest(base)); // Start with one cache.
 
     // Use a limited set of random transaction ids, so we do test overwriting entries.
     std::vector<uint256> txids;
@@ -210,6 +215,7 @@ BOOST_AUTO_TEST_CASE(coins_cache_simulation_test)
             // Every 100 iterations, flush an intermediate cache
             if (stack.size() > 1 && InsecureRandBool() == 0) {
                 unsigned int flushIndex = InsecureRandRange(stack.size() - 1);
+                if (fake_best_block) stack[flushIndex]->SetBestBlock(InsecureRand256());
                 BOOST_CHECK(stack[flushIndex]->Flush());
             }
         }
@@ -217,13 +223,14 @@ BOOST_AUTO_TEST_CASE(coins_cache_simulation_test)
             // Every 100 iterations, change the cache stack.
             if (stack.size() > 0 && InsecureRandBool() == 0) {
                 //Remove the top cache
+                if (fake_best_block) stack.back()->SetBestBlock(InsecureRand256());
                 BOOST_CHECK(stack.back()->Flush());
                 delete stack.back();
                 stack.pop_back();
             }
             if (stack.size() == 0 || (stack.size() < 4 && InsecureRandBool())) {
                 //Add a new cache
-                CCoinsView* tip = &base;
+                CCoinsView* tip = base;
                 if (stack.size() > 0) {
                     tip = stack.back();
                 } else {
@@ -254,7 +261,6 @@ BOOST_AUTO_TEST_CASE(coins_cache_simulation_test)
     BOOST_CHECK(missed_an_entry);
     BOOST_CHECK(uncached_an_entry);
 }
-
 
 // Run the above simulation for multiple base types.
 BOOST_AUTO_TEST_CASE(coins_cache_simulation_test)
@@ -752,7 +758,7 @@ static void CheckAddCoinBase(CAmount base_value, CAmount cache_value, CAmount mo
 template <typename... Args>
 static void CheckAddCoin(Args&&... args)
 {
-    for (const CAmount base_value : {ABSENT, SPENT , VALUE1})
+    for (const CAmount base_value : {ABSENT, SPENT, VALUE1})
         CheckAddCoinBase(base_value, std::forward<Args>(args)...);
 }
 
@@ -864,8 +870,8 @@ BOOST_AUTO_TEST_CASE(ccoins_write)
     // they would be too repetitive (the parent cache is never updated in these
     // cases). The loop below covers these cases and makes sure the parent cache
     // is always left unchanged.
-    for (const CAmount parent_value : {ABSENT, SPENT , VALUE1})
-        for (const CAmount child_value : {ABSENT, SPENT , VALUE2})
+    for (const CAmount parent_value : {ABSENT, SPENT, VALUE1})
+        for (const CAmount child_value : {ABSENT, SPENT, VALUE2})
             for (const char parent_flags : parent_value == ABSENT ? ABSENT_FLAGS : FLAGS)
                 for (const char child_flags : child_value == ABSENT ? ABSENT_FLAGS : CLEAN_FLAGS)
                     CheckWriteCoins(parent_value, child_value, parent_value, parent_flags, child_flags, parent_flags);

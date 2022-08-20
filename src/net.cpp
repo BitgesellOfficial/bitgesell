@@ -13,7 +13,7 @@
 #include <addrman.h>
 #include <banman.h>
 #include <clientversion.h>
-#include <compat.h>
+#include <compat/compat.h>
 #include <consensus/consensus.h>
 #include <crypto/sha256.h>
 #include <fs.h>
@@ -701,7 +701,7 @@ bool CNode::ReceiveMsgBytes(Span<const uint8_t> msg_bytes, bool& complete)
             i->second += msg.m_raw_message_size;
 
             // push the message to the process queue,
-            vRecvMsg.push_back(std::move(*result));
+            vRecvMsg.push_back(std::move(msg));
 
             complete = true;
         }
@@ -775,10 +775,12 @@ const uint256& V1TransportDeserializer::GetMessageHash() const
     return data_hash;
 }
 
-std::optional<CNetMessage> V1TransportDeserializer::GetMessage(const std::chrono::microseconds time, uint32_t& out_err_raw_size)
+CNetMessage V1TransportDeserializer::GetMessage(const std::chrono::microseconds time, bool& reject_message)
 {
+    // Initialize out parameter
+    reject_message = false;
     // decompose a single CNetMessage from the TransportDeserializer
-    std::optional<CNetMessage> msg(std::move(vRecv));
+    CNetMessage msg(std::move(vRecv));
 
     // store message type string, time, and sizes
     msg.m_type = hdr.GetCommand();
@@ -798,13 +800,11 @@ std::optional<CNetMessage> V1TransportDeserializer::GetMessage(const std::chrono
                  HexStr(Span{hash}.first(CMessageHeader::CHECKSUM_SIZE)),
                  HexStr(hdr.pchChecksum),
                  m_node_id);
-        out_err_raw_size = msg->m_raw_message_size;
-        msg = std::nullopt;
+        reject_message = true;
     } else if (!hdr.IsCommandValid()) {
         LogPrint(BCLog::NET, "Header error: Invalid message type (%s, %u bytes), peer=%d\n",
-                 SanitizeString(hdr.GetCommand()), msg->m_message_size, m_node_id);
-        out_err_raw_size = msg->m_raw_message_size;
-        msg.reset();
+                 SanitizeString(hdr.GetCommand()), msg.m_message_size, m_node_id);
+        reject_message = true;
     }
 
     // Always reset the network deserializer (prepare for the next message)
@@ -1271,7 +1271,6 @@ bool CConnman::AddConnection(const std::string& address, ConnectionType conn_typ
     switch (conn_type) {
     case ConnectionType::INBOUND:
     case ConnectionType::MANUAL:
-    case ConnectionType::FEELER:
         return false;
     case ConnectionType::OUTBOUND_FULL_RELAY:
         max_connections = m_max_outbound_full_relay;
@@ -1281,6 +1280,9 @@ bool CConnman::AddConnection(const std::string& address, ConnectionType conn_typ
         break;
     // no limit for ADDR_FETCH because -seednode has no limit either
     case ConnectionType::ADDR_FETCH:
+        break;
+    // no limit for FEELER connections since they're short-lived
+    case ConnectionType::FEELER:
         break;
     } // no default case, so the compiler can warn about missing cases
 
@@ -2957,7 +2959,7 @@ CNode::CNode(NodeId idIn, ServiceFlags nLocalServicesIn, std::shared_ptr<Sock> s
         LogPrint(BCLog::NET, "Added connection peer=%d\n", id);
     }
 
-    m_deserializer = std::make_unique<V1TransportDeserializer>(V1TransportDeserializer(Params(), GetId(), SER_NETWORK, INIT_PROTO_VERSION));
+    m_deserializer = std::make_unique<V1TransportDeserializer>(V1TransportDeserializer(Params(), id, SER_NETWORK, INIT_PROTO_VERSION));
     m_serializer = std::make_unique<V1TransportSerializer>(V1TransportSerializer());
 }
 
@@ -3052,7 +3054,7 @@ void CaptureMessageToFile(const CAddress& addr,
     fs::create_directories(base_path);
 
     fs::path path = base_path / (is_incoming ? "msgs_recv.dat" : "msgs_sent.dat");
-    CAutoFile f(fsbridge::fopen(path, "ab"), SER_DISK, CLIENT_VERSION);
+    AutoFile f{fsbridge::fopen(path, "ab")};
 
     ser_writedata64(f, now.count());
     f.write(MakeByteSpan(msg_type));

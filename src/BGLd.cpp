@@ -9,7 +9,7 @@
 
 #include <chainparams.h>
 #include <clientversion.h>
-#include <compat.h>
+#include <compat/compat.h>
 #include <init.h>
 #include <interfaces/chain.h>
 #include <interfaces/init.h>
@@ -130,7 +130,7 @@ static bool AppInit(NodeContext& node, int argc, char* argv[])
         if (args.IsArgSet("-version")) {
             strUsage += FormatParagraph(LicenseInfo());
         } else {
-            strUsage += "\nUsage:  bitcoind [options]                     Start " PACKAGE_NAME "\n"
+            strUsage += "\nUsage:  BGLd [options]                     Start " PACKAGE_NAME "\n"
                 "\n";
             strUsage += args.GetHelpMessage();
         }
@@ -166,7 +166,7 @@ static bool AppInit(NodeContext& node, int argc, char* argv[])
         // Error out when loose non-argument tokens are encountered on command line
         for (int i = 1; i < argc; i++) {
             if (!IsSwitchChar(argv[i][0])) {
-                return InitError(Untranslated(strprintf("Command line contains unexpected token '%s', see bitcoind -h for a list of options.\n", argv[i])));
+                return InitError(Untranslated(strprintf("Command line contains unexpected token '%s', see BGLd -h for a list of options.\n", argv[i])));
             }
         }
 

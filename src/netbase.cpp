@@ -5,7 +5,7 @@
 
 #include <netbase.h>
 
-#include <compat.h>
+#include <compat/compat.h>
 #include <sync.h>
 #include <tinyformat.h>
 #include <util/sock.h>
@@ -305,7 +305,7 @@ enum class IntrRecvError {
  *
  * @see This function can be interrupted by calling InterruptSocks5(bool).
  *      Sockets can be made non-blocking with SetSocketNonBlocking(const
- *      SOCKET&, bool).
+ *      SOCKET&).
  */
 static IntrRecvError InterruptibleRecv(uint8_t* data, size_t len, int timeout, const Sock& sock)
 {
@@ -682,7 +682,7 @@ bool ConnectThroughProxy(const Proxy& proxy, const std::string& strDest, uint16_
     return true;
 }
 
-bool LookupSubNet(const std::string& subnet_str, CSubNet& subnet_out, DNSLookupFn dns_lookup_function)
+bool LookupSubNet(const std::string& subnet_str, CSubNet& subnet_out)
 {
     if (!ContainsNoNUL(subnet_str)) {
         return false;
@@ -692,7 +692,7 @@ bool LookupSubNet(const std::string& subnet_str, CSubNet& subnet_out, DNSLookupF
     const std::string str_addr{subnet_str.substr(0, slash_pos)};
     CNetAddr addr;
 
-    if (LookupHost(str_addr, addr, /*fAllowLookup=*/false, dns_lookup_function)) {
+    if (LookupHost(str_addr, addr, /*fAllowLookup=*/false)) {
         if (slash_pos != subnet_str.npos) {
             const std::string netmask_str{subnet_str.substr(slash_pos + 1)};
             uint8_t netmask;
@@ -703,7 +703,7 @@ bool LookupSubNet(const std::string& subnet_str, CSubNet& subnet_out, DNSLookupF
             } else {
                 // Invalid number; try full netmask syntax. Never allow lookup for netmask.
                 CNetAddr full_netmask;
-                if (LookupHost(netmask_str, full_netmask, /*fAllowLookup=*/false, dns_lookup_function)) {
+                if (LookupHost(netmask_str, full_netmask, /*fAllowLookup=*/false)) {
                     subnet_out = CSubNet{addr, full_netmask};
                     return subnet_out.IsValid();
                 }
@@ -717,28 +717,16 @@ bool LookupSubNet(const std::string& subnet_str, CSubNet& subnet_out, DNSLookupF
     return false;
 }
 
-bool SetSocketNonBlocking(const SOCKET& hSocket, bool fNonBlocking)
+bool SetSocketNonBlocking(const SOCKET& hSocket)
 {
-    if (fNonBlocking) {
 #ifdef WIN32
-        u_long nOne = 1;
-        if (ioctlsocket(hSocket, FIONBIO, &nOne) == SOCKET_ERROR) {
+    u_long nOne = 1;
+    if (ioctlsocket(hSocket, FIONBIO, &nOne) == SOCKET_ERROR) {
 #else
-        int fFlags = fcntl(hSocket, F_GETFL, 0);
-        if (fcntl(hSocket, F_SETFL, fFlags | O_NONBLOCK) == SOCKET_ERROR) {
+    int fFlags = fcntl(hSocket, F_GETFL, 0);
+    if (fcntl(hSocket, F_SETFL, fFlags | O_NONBLOCK) == SOCKET_ERROR) {
 #endif
-            return false;
-        }
-    } else {
-#ifdef WIN32
-        u_long nZero = 0;
-        if (ioctlsocket(hSocket, FIONBIO, &nZero) == SOCKET_ERROR) {
-#else
-        int fFlags = fcntl(hSocket, F_GETFL, 0);
-        if (fcntl(hSocket, F_SETFL, fFlags & ~O_NONBLOCK) == SOCKET_ERROR) {
-#endif
-            return false;
-        }
+        return false;
     }
 
     return true;

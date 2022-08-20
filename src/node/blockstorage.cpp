@@ -390,7 +390,7 @@ bool BlockManager::IsBlockPruned(const CBlockIndex* pblockindex)
     return (m_have_pruned && !(pblockindex->nStatus & BLOCK_HAVE_DATA) && pblockindex->nTx > 0);
 }
 
-const CBlockIndex* BlockManager::GetFirstStoredBlock(const CBlockIndex* start_block)
+const CBlockIndex* BlockManager::GetFirstStoredBlock(const CBlockIndex& start_block)
 {
     AssertLockHeld(::cs_main);
     const CBlockIndex* last_block = &start_block;
@@ -442,14 +442,7 @@ void CleanupBlockRevFiles()
         remove(item.second);
     }
 }
-} // namespace node
 
-std::string CBlockFileInfo::ToString() const
-{
-    return strprintf("CBlockFileInfo(blocks=%u, size=%u, heights=%u...%u, time=%s...%s)", nBlocks, nSize, nHeightFirst, nHeightLast, FormatISO8601Date(nTimeFirst), FormatISO8601Date(nTimeLast));
-}
-
-namespace node {
 CBlockFileInfo* BlockManager::GetBlockFileInfo(size_t n)
 {
     LOCK(cs_LastBlockFile);
@@ -478,7 +471,7 @@ static bool UndoWriteToDisk(const CBlockUndo& blockundo, FlatFilePos& pos, const
     fileout << blockundo;
 
     // calculate & write checksum
-    CHashWriterKeccak hasher(SER_GETHASH, PROTOCOL_VERSION);
+    CHashWriterSHA256 hasher(SER_GETHASH, PROTOCOL_VERSION);
     hasher << hashBlock;
     hasher << blockundo;
     fileout << hasher.GetHash();

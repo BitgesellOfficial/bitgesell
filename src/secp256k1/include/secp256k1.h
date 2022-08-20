@@ -13,7 +13,7 @@ extern "C" {
  *
  * 1. Context pointers go first, followed by output arguments, combined
  *    output/input arguments, and finally input-only arguments.
- * 2. Array lengths always immediately the follow the argument whose length
+ * 2. Array lengths always immediately follow the argument whose length
  *    they describe, even if this violates rule 1.
  * 3. Within the OUT/OUTIN/IN groups, pointers to data that is typically generated
  *    later go first. This means: signatures, public nonces, secret nonces,
@@ -518,7 +518,7 @@ SECP256K1_API int secp256k1_ecdsa_signature_serialize_compact(
 SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ecdsa_verify(
     const secp256k1_context* ctx,
     const secp256k1_ecdsa_signature *sig,
-    const unsigned char *msg32,
+    const unsigned char *msghash32,
     const secp256k1_pubkey *pubkey
 ) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3) SECP256K1_ARG_NONNULL(4);
 
@@ -599,7 +599,7 @@ SECP256K1_API extern const secp256k1_nonce_function secp256k1_nonce_function_def
 SECP256K1_API int secp256k1_ecdsa_sign(
     const secp256k1_context* ctx,
     secp256k1_ecdsa_signature *sig,
-    const unsigned char *msg32,
+    const unsigned char *msghash32,
     const unsigned char *seckey,
     secp256k1_nonce_function noncefp,
     const void *ndata
@@ -688,7 +688,7 @@ SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_pubkey_negate(
 SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_seckey_tweak_add(
     const secp256k1_context* ctx,
     unsigned char *seckey,
-    const unsigned char *tweak
+    const unsigned char *tweak32
 ) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3);
 
 /** Same as secp256k1_ec_seckey_tweak_add, but DEPRECATED. Will be removed in
@@ -699,6 +699,7 @@ SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_privkey_tweak_add(
     const unsigned char *tweak32
 ) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3)
   SECP256K1_DEPRECATED("Use secp256k1_ec_seckey_tweak_add instead");
+
 /** Tweak a public key by adding tweak times the generator to it.
  *
  *  Returns: 0 if the arguments are invalid or the resulting public key would be
@@ -715,7 +716,7 @@ SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_privkey_tweak_add(
 SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_pubkey_tweak_add(
     const secp256k1_context* ctx,
     secp256k1_pubkey *pubkey,
-    const unsigned char *tweak
+    const unsigned char *tweak32
 ) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3);
 
 /** Tweak a secret key by multiplying it by a tweak.
@@ -734,7 +735,7 @@ SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_pubkey_tweak_add(
 SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_seckey_tweak_mul(
     const secp256k1_context* ctx,
     unsigned char *seckey,
-    const unsigned char *tweak
+    const unsigned char *tweak32
 ) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3);
 
 /** Same as secp256k1_ec_seckey_tweak_mul, but DEPRECATED. Will be removed in
@@ -760,7 +761,7 @@ SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_privkey_tweak_mul(
 SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_pubkey_tweak_mul(
     const secp256k1_context* ctx,
     secp256k1_pubkey *pubkey,
-    const unsigned char *tweak
+    const unsigned char *tweak32
 ) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3);
 
 /** Updates the context randomization to protect against side-channel leakage.

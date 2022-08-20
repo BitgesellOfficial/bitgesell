@@ -483,19 +483,19 @@ BOOST_AUTO_TEST_CASE(script_build)
     tests.push_back(TestBuilder(CScript() << ToByteVector(keys.pubkey0C) << OP_CHECKSIG,
                                 "P2SH(P2PK)", SCRIPT_VERIFY_P2SH, true
                                ).PushSig(keys.key0).PushRedeem());
-    // tests.push_back(TestBuilder(CScript() << ToByteVector(keys.pubkey0C) << OP_CHECKSIG,
-    //                            "P2SH(P2PK), bad redeemscript", SCRIPT_VERIFY_P2SH, true
-    //                           ).PushSig(keys.key0).PushRedeem().DamagePush(10).ScriptError(SCRIPT_ERR_EVAL_FALSE));
+    tests.push_back(TestBuilder(CScript() << ToByteVector(keys.pubkey0C) << OP_CHECKSIG,
+                                "P2SH(P2PK), bad redeemscript", SCRIPT_VERIFY_P2SH, true
+                               ).PushSig(keys.key0).PushRedeem().DamagePush(10).ScriptError(SCRIPT_ERR_EVAL_FALSE));
 
-   // tests.push_back(TestBuilder(CScript() << OP_DUP << OP_HASH160 << ToByteVector(keys.pubkey0.GetID()) << OP_EQUALVERIFY << OP_CHECKSIG,
-   //                             "P2SH(P2PKH)", SCRIPT_VERIFY_P2SH, true
-  //                             ).PushSig(keys.key0).Push(keys.pubkey0).PushRedeem());
-   // tests.push_back(TestBuilder(CScript() << OP_DUP << OP_HASH160 << ToByteVector(keys.pubkey1.GetID()) << OP_EQUALVERIFY << OP_CHECKSIG,
-    //                            "P2SH(P2PKH), bad sig but no VERIFY_P2SH", 0, true
-    //                           ).PushSig(keys.key0).DamagePush(10).PushRedeem());
-    //tests.push_back(TestBuilder(CScript() << OP_DUP << OP_HASH160 << ToByteVector(keys.pubkey1.GetID()) << OP_EQUALVERIFY << OP_CHECKSIG,
-    //                            "P2SH(P2PKH), bad sig", SCRIPT_VERIFY_P2SH, true
-    //                           ).PushSig(keys.key0).DamagePush(10).PushRedeem().ScriptError(SCRIPT_ERR_EQUALVERIFY));
+    tests.push_back(TestBuilder(CScript() << OP_DUP << OP_HASH160 << ToByteVector(keys.pubkey0.GetID()) << OP_EQUALVERIFY << OP_CHECKSIG,
+                                "P2SH(P2PKH)", SCRIPT_VERIFY_P2SH, true
+                               ).PushSig(keys.key0).Push(keys.pubkey0).PushRedeem());
+    tests.push_back(TestBuilder(CScript() << OP_DUP << OP_HASH160 << ToByteVector(keys.pubkey1.GetID()) << OP_EQUALVERIFY << OP_CHECKSIG,
+                                "P2SH(P2PKH), bad sig but no VERIFY_P2SH", 0, true
+                               ).PushSig(keys.key0).DamagePush(10).PushRedeem());
+    tests.push_back(TestBuilder(CScript() << OP_DUP << OP_HASH160 << ToByteVector(keys.pubkey1.GetID()) << OP_EQUALVERIFY << OP_CHECKSIG,
+                                "P2SH(P2PKH), bad sig", SCRIPT_VERIFY_P2SH, true
+                               ).PushSig(keys.key0).DamagePush(10).PushRedeem().ScriptError(SCRIPT_ERR_EQUALVERIFY));
 
     tests.push_back(TestBuilder(CScript() << OP_3 << ToByteVector(keys.pubkey0C) << ToByteVector(keys.pubkey1C) << ToByteVector(keys.pubkey2C) << OP_3 << OP_CHECKMULTISIG,
                                 "3-of-3", 0
@@ -918,8 +918,7 @@ BOOST_AUTO_TEST_CASE(script_build)
         strGen += str + ",\n";
 #else
         if (tests_set.count(str) == 0) {
-          //  BOOST_CHECK_MESSAGE(false, "Missing auto script_valid test: " + test.GetComment());
-          // The above was commented out because some items were removed. 
+            BOOST_CHECK_MESSAGE(false, "Missing auto script_valid test: " + test.GetComment());
         }
 #endif
     }
@@ -1504,7 +1503,7 @@ static CScriptWitness ScriptWitnessFromJSON(const UniValue& univalue)
 
 #if defined(HAVE_CONSENSUS_LIB)
 
-/* Test simple (successful) usage of BGLconsensus_verify_script */
+/* Test simple (successful) usage of bitcoinconsensus_verify_script */
 BOOST_AUTO_TEST_CASE(BGLconsensus_verify_script_returns_true)
 {
     unsigned int libconsensus_flags = 0;
@@ -1527,7 +1526,7 @@ BOOST_AUTO_TEST_CASE(BGLconsensus_verify_script_returns_true)
     BOOST_CHECK_EQUAL(err, BGLconsensus_ERR_OK);
 }
 
-/* Test BGLconsensus_verify_script returns invalid tx index err*/
+/* Test bitcoinconsensus_verify_script returns invalid tx index err*/
 BOOST_AUTO_TEST_CASE(BGLconsensus_verify_script_tx_index_err)
 {
     unsigned int libconsensus_flags = 0;
@@ -1550,7 +1549,7 @@ BOOST_AUTO_TEST_CASE(BGLconsensus_verify_script_tx_index_err)
     BOOST_CHECK_EQUAL(err, BGLconsensus_ERR_TX_INDEX);
 }
 
-/* Test BGLconsensus_verify_script returns tx size mismatch err*/
+/* Test bitcoinconsensus_verify_script returns tx size mismatch err*/
 BOOST_AUTO_TEST_CASE(BGLconsensus_verify_script_tx_size)
 {
     unsigned int libconsensus_flags = 0;
@@ -1573,7 +1572,7 @@ BOOST_AUTO_TEST_CASE(BGLconsensus_verify_script_tx_size)
     BOOST_CHECK_EQUAL(err, BGLconsensus_ERR_TX_SIZE_MISMATCH);
 }
 
-/* Test BGLconsensus_verify_script returns invalid tx serialization error */
+/* Test bitcoinconsensus_verify_script returns invalid tx serialization error */
 BOOST_AUTO_TEST_CASE(BGLconsensus_verify_script_tx_serialization)
 {
     unsigned int libconsensus_flags = 0;
@@ -1596,7 +1595,7 @@ BOOST_AUTO_TEST_CASE(BGLconsensus_verify_script_tx_serialization)
     BOOST_CHECK_EQUAL(err, BGLconsensus_ERR_TX_DESERIALIZE);
 }
 
-/* Test BGLconsensus_verify_script returns amount required error */
+/* Test bitcoinconsensus_verify_script returns amount required error */
 BOOST_AUTO_TEST_CASE(BGLconsensus_verify_script_amount_required_err)
 {
     unsigned int libconsensus_flags = BGLconsensus_SCRIPT_FLAGS_VERIFY_WITNESS;
@@ -1619,7 +1618,7 @@ BOOST_AUTO_TEST_CASE(BGLconsensus_verify_script_amount_required_err)
     BOOST_CHECK_EQUAL(err, BGLconsensus_ERR_AMOUNT_REQUIRED);
 }
 
-/* Test BGLconsensus_verify_script returns invalid flags err */
+/* Test bitcoinconsensus_verify_script returns invalid flags err */
 BOOST_AUTO_TEST_CASE(BGLconsensus_verify_script_invalid_flags)
 {
     unsigned int libconsensus_flags = 1 << 3;
@@ -1814,7 +1813,7 @@ BOOST_AUTO_TEST_CASE(bip341_keypath_test_vectors)
             BOOST_CHECK_EQUAL(HexStr(sighash), input["intermediary"]["sigHash"].get_str());
 
             // To verify the sigmsg, hash the expected sigmsg, and compare it with the (expected) sighash.
-            BOOST_CHECK_EQUAL(HexStr((CHashWriter(HASHER_TAPSIGHASH) << Span{ParseHex(input["intermediary"]["sigMsg"].get_str())}).GetSHA256()), input["intermediary"]["sigHash"].get_str());
+            BOOST_CHECK_EQUAL(HexStr((CHashWriterSHA256(HASHER_TAPSIGHASH) << Span{ParseHex(input["intermediary"]["sigMsg"].get_str())}).GetSHA256()), input["intermediary"]["sigHash"].get_str());
         }
 
     }
@@ -1822,4 +1821,3 @@ BOOST_AUTO_TEST_CASE(bip341_keypath_test_vectors)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-

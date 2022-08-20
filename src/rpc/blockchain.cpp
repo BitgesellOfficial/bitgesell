@@ -190,6 +190,7 @@ UniValue blockToJSON(BlockManager& blockman, const CBlock& block, const CBlockIn
                 TxToUniv(*tx, /*block_hash=*/uint256(), /*entry=*/objTx, /*include_hex=*/true, RPCSerializationFlags(), txundo, verbosity);
                 txs.push_back(objTx);
             }
+            break;
     }
 
     result.pushKV("tx", txs);
@@ -786,7 +787,7 @@ static RPCHelpMan pruneblockchain()
     }
 
     PruneBlockFilesManual(active_chainstate, height);
-    const CBlockIndex* block = CHECK_NONFATAL(active_chain.Tip());
+    const CBlockIndex& block{*CHECK_NONFATAL(active_chain.Tip())};
     const CBlockIndex* last_block{active_chainstate.m_blockman.GetFirstStoredBlock(block)};
 
     return static_cast<int64_t>(last_block->nHeight - 1);
@@ -1235,7 +1236,7 @@ RPCHelpMan getblockchaininfo()
     obj.pushKV("size_on_disk", chainman.m_blockman.CalculateCurrentUsage());
     obj.pushKV("pruned", node::fPruneMode);
     if (node::fPruneMode) {
-        obj.pushKV("pruneheight", chainman.m_blockman.GetFirstStoredBlock(&tip)->nHeight);
+        obj.pushKV("pruneheight", chainman.m_blockman.GetFirstStoredBlock(tip)->nHeight);
 
         // if 0, execution bypasses the whole if block.
         bool automatic_pruning{args.GetIntArg("-prune", 0) != 1};
@@ -1254,9 +1255,10 @@ RPCHelpMan getblockchaininfo()
 namespace {
 const std::vector<RPCResult> RPCHelpForDeployment{
     {RPCResult::Type::STR, "type", "one of \"buried\", \"bip9\""},
+    {RPCResult::Type::NUM, "height", /*optional=*/true, "height of the first block which the rules are or will be enforced (only for \"buried\" type, or \"bip9\" type with \"active\" status)"},
+    {RPCResult::Type::BOOL, "active", "true if the rules are enforced for the mempool and the next block"},
     {RPCResult::Type::OBJ, "bip9", /*optional=*/true, "status of bip9 softforks (only for \"bip9\" type)",
     {
-        {RPCResult::Type::STR, "status", "one of \"defined\", \"started\", \"locked_in\", \"active\", \"failed\""},
         {RPCResult::Type::NUM, "bit", /*optional=*/true, "the bit (0-28) in the block version field used to signal this softfork (only for \"started\" and \"locked_in\" status)"},
         {RPCResult::Type::NUM_TIME, "start_time", "the minimum median time past of a block at which the bit gains its meaning"},
         {RPCResult::Type::NUM_TIME, "timeout", "the median time past of a block at which the deployment is considered failed if not yet locked in"},
@@ -1274,8 +1276,6 @@ const std::vector<RPCResult> RPCHelpForDeployment{
         }},
         {RPCResult::Type::STR, "signalling", /*optional=*/true, "indicates blocks that signalled with a # and blocks that did not with a -"},
     }},
-    {RPCResult::Type::NUM, "height", /*optional=*/true, "height of the first block which the rules are or will be enforced (only for \"buried\" type, or \"bip9\" type with \"active\" status)"},
-    {RPCResult::Type::BOOL, "active", "true if the rules are enforced for the mempool and the next block"},
 };
 
 UniValue DeploymentInfo(const CBlockIndex* blockindex, const ChainstateManager& chainman)
@@ -1287,6 +1287,7 @@ UniValue DeploymentInfo(const CBlockIndex* blockindex, const ChainstateManager& 
     SoftForkDescPushBack(blockindex, softforks, chainman, Consensus::DEPLOYMENT_CSV);
     SoftForkDescPushBack(blockindex, softforks, chainman, Consensus::DEPLOYMENT_SEGWIT);
     SoftForkDescPushBack(blockindex, softforks, chainman, Consensus::DEPLOYMENT_TESTDUMMY);
+    SoftForkDescPushBack(blockindex, softforks, chainman, Consensus::DEPLOYMENT_TAPROOT_DISCARDED);
     SoftForkDescPushBack(blockindex, softforks, chainman, Consensus::DEPLOYMENT_TAPROOT);
     return softforks;
 }
@@ -2293,7 +2294,7 @@ static RPCHelpMan dumptxoutset()
     }
 
     FILE* file{fsbridge::fopen(temppath, "wb")};
-    CAutoFile afile{file, SER_DISK, CLIENT_VERSION};
+    AutoFile afile{file};
     if (afile.IsNull()) {
         throw JSONRPCError(
             RPC_INVALID_PARAMETER,
@@ -2314,7 +2315,7 @@ static RPCHelpMan dumptxoutset()
 UniValue CreateUTXOSnapshot(
     NodeContext& node,
     CChainState& chainstate,
-    CAutoFile& afile,
+    AutoFile& afile,
     const fs::path& path,
     const fs::path& temppath)
 {

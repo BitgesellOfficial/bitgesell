@@ -4,9 +4,9 @@
 
 #include <node/chainstate.h>
 
-#include <chainparams.h> // for CChainParams
-#include <node/blockstorage.h> // for CleanupBlockRevFiles, fHavePruned, fReindex
-#include <validation.h> // for a lot of things
+#include <consensus/params.h>
+#include <node/blockstorage.h>
+#include <validation.h>
 
 namespace node {
 std::optional<ChainstateLoadingError> LoadChainstate(bool fReset,
@@ -26,26 +26,10 @@ std::optional<ChainstateLoadingError> LoadChainstate(bool fReset,
         return fReset || fReindexChainState || chainstate->CoinsTip().GetBestBlock().IsNull();
     };
 
-    {
-        LOCK(cs_main);
-        chainman.InitializeChainstate(mempool);
-        chainman.m_total_coinstip_cache = nCoinCacheUsage;
-        chainman.m_total_coinsdb_cache = nCoinDBCache;
-
-        UnloadBlockIndex(mempool, chainman);
-
-        auto& pblocktree{chainman.m_blockman.m_block_tree_db};
-        // new CBlockTreeDB tries to delete the existing file, which
-        // fails if it's still open from the previous loop. Close it first:
-        pblocktree.reset();
-        pblocktree.reset(new CBlockTreeDB(nBlockTreeDBCache, block_tree_db_in_memory, fReset));
-
-        if (fReset) {
-            pblocktree->WriteReindexing(true);
-            //If we're reindexing in prune mode, wipe away unusable block files and all undo data files
-            if (fPruneMode)
-                CleanupBlockRevFiles();
-        }
+    LOCK(cs_main);
+    chainman.InitializeChainstate(mempool);
+    chainman.m_total_coinstip_cache = nCoinCacheUsage;
+    chainman.m_total_coinsdb_cache = nCoinDBCache;
 
     auto& pblocktree{chainman.m_blockman.m_block_tree_db};
     // new CBlockTreeDB tries to delete the existing file, which
@@ -125,13 +109,13 @@ std::optional<ChainstateLoadingError> LoadChainstate(bool fReset,
             }
             assert(chainstate->m_chain.Tip() != nullptr);
         }
+    }
 
-        if (!fReset) {
-            auto chainstates{chainman.GetAll()};
-            if (std::any_of(chainstates.begin(), chainstates.end(),
-                            [](const CChainState* cs) EXCLUSIVE_LOCKS_REQUIRED(cs_main) { return cs->NeedsRedownload(); })) {
-                return ChainstateLoadingError::ERROR_BLOCKS_WITNESS_INSUFFICIENTLY_VALIDATED;
-            }
+    if (!fReset) {
+        auto chainstates{chainman.GetAll()};
+        if (std::any_of(chainstates.begin(), chainstates.end(),
+                        [](const CChainState* cs) EXCLUSIVE_LOCKS_REQUIRED(cs_main) { return cs->NeedsRedownload(); })) {
+            return ChainstateLoadingError::ERROR_BLOCKS_WITNESS_INSUFFICIENTLY_VALIDATED;
         }
     }
 

@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BGL_WALLET_RPCWALLET_H
-#define BGL_WALLET_RPCWALLET_H
+#ifndef BGL_WALLET_RPC_WALLET_H
+#define BGL_WALLET_RPC_WALLET_H
 
 #include <span.h>
 
@@ -13,6 +13,4 @@ namespace wallet {
 Span<const CRPCCommand> GetWalletRPCCommands();
 } // namespace wallet
 
-RPCHelpMan getaddressinfo();
-RPCHelpMan signrawtransactionwithwallet();
-#endif //BGL_WALLET_RPCWALLET_H
+#endif // BGL_WALLET_RPC_WALLET_H

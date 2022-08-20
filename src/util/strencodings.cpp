@@ -153,30 +153,15 @@ std::optional<std::vector<unsigned char>> DecodeBase64(std::string_view str)
     if (str.size() >= 1 && str.back() == '=') str.remove_suffix(1);
 
     std::vector<unsigned char> ret;
-    ret.reserve((val.size() * 3) / 4);
-    bool valid = ConvertBits<6, 8, false>([&](unsigned char c) { ret.push_back(c); }, val.begin(), val.end());
-
-    const char* q = p;
-    while (valid && *p != 0) {
-        if (*p != '=') {
-            valid = false;
-            break;
-        }
-        ++p;
-    }
-    valid = valid && (p - e) % 4 == 0 && p - q < 4;
-    *pf_invalid = !valid;
+    ret.reserve((str.size() * 3) / 4);
+    bool valid = ConvertBits<6, 8, false>(
+        [&](unsigned char c) { ret.push_back(c); },
+        str.begin(), str.end(),
+        [](char c) { return decode64_table[uint8_t(c)]; }
+    );
+    if (!valid) return {};
 
     return ret;
-}
-
-std::vector<unsigned char> DecodeBase64(const std::string& str, bool* pf_invalid)
-{
-    if (!ValidAsCString(str)) {
-        *pf_invalid = true;
-        return {};
-    }
-    return DecodeBase64(str.c_str(), pf_invalid);
 }
 
 std::string EncodeBase32(Span<const unsigned char> input, bool pad)
@@ -232,27 +217,9 @@ std::optional<std::vector<unsigned char>> DecodeBase32(std::string_view str)
         [](char c) { return decode32_table[uint8_t(c)]; }
     );
 
-    const char* q = p;
-    while (valid && *p != 0) {
-        if (*p != '=') {
-            valid = false;
-            break;
-        }
-        ++p;
-    }
-    valid = valid && (p - e) % 8 == 0 && p - q < 8;
-    *pf_invalid = !valid;
+    if (!valid) return {};
 
     return ret;
-}
-
-std::vector<unsigned char> DecodeBase32(const std::string& str, bool* pf_invalid)
-{
-    if (!ValidAsCString(str)) {
-        *pf_invalid = true;
-        return {};
-    }
-    return DecodeBase32(str.c_str(), pf_invalid);
 }
 
 namespace {

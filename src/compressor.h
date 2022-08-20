@@ -6,14 +6,26 @@
 #ifndef BGL_COMPRESSOR_H
 #define BGL_COMPRESSOR_H
 
+#include <prevector.h>
 #include <primitives/transaction.h>
 #include <script/script.h>
 #include <serialize.h>
 #include <span.h>
 
-bool CompressScript(const CScript& script, std::vector<unsigned char> &out);
+/**
+ * This saves us from making many heap allocations when serializing
+ * and deserializing compressed scripts.
+ *
+ * This prevector size is determined by the largest .resize() in the
+ * CompressScript function. The largest compressed script format is a
+ * compressed public key, which is 33 bytes.
+ */
+using CompressedScript = prevector<33, unsigned char>;
+
+
+bool CompressScript(const CScript& script, CompressedScript& out);
 unsigned int GetSpecialScriptSize(unsigned int nSize);
-bool DecompressScript(CScript& script, unsigned int nSize, const std::vector<unsigned char> &out);
+bool DecompressScript(CScript& script, unsigned int nSize, const CompressedScript& in);
 
 /**
  * Compress amount.
@@ -51,7 +63,7 @@ struct ScriptCompression
 
     template<typename Stream>
     void Ser(Stream &s, const CScript& script) {
-        std::vector<unsigned char> compr;
+        CompressedScript compr;
         if (CompressScript(script, compr)) {
             s << Span{compr};
             return;

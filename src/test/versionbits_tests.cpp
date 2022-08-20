@@ -285,9 +285,7 @@ static void check_computeblockversion(VersionBitsCache& versionbitscache, const 
     BOOST_REQUIRE(((1 << bit) & VERSIONBITS_TOP_MASK) == 0);
     BOOST_REQUIRE(min_activation_height >= 0);
     // Check min_activation_height is on a retarget boundary
-    // BOOST_REQUIRE_EQUAL(min_activation_height % params.nMinerConfirmationWindow, 0U);
-    // The current value of min_activation_height is a constant from chainparams which is different from Bitcoin
-    // BGL has a different params.nMinerConfirmationWindow value
+    BOOST_REQUIRE_EQUAL(min_activation_height % params.nMinerConfirmationWindow, 0U);
 
     const uint32_t bitmask{versionbitscache.Mask(params, dep)};
     BOOST_CHECK_EQUAL(bitmask, uint32_t{1} << bit);
@@ -432,7 +430,7 @@ BOOST_AUTO_TEST_CASE(versionbits_computeblockversion)
             const uint32_t dep_mask{vbcache.Mask(chainParams->GetConsensus(), dep)};
             BOOST_CHECK(!(chain_all_vbits & dep_mask));
             chain_all_vbits |= dep_mask;
-            check_computeblockversion(g_versionbitscache, chainParams->GetConsensus(), dep);
+            check_computeblockversion(vbcache, chainParams->GetConsensus(), dep);
         }
     }
 
@@ -442,6 +440,7 @@ BOOST_AUTO_TEST_CASE(versionbits_computeblockversion)
         ArgsManager args;
         args.ForceSetArg("-vbparams", "testdummy:1199145601:1230767999"); // January 1, 2008 - December 31, 2008
         const auto chainParams = CreateChainParams(args, CBaseChainParams::REGTEST);
+        check_computeblockversion(vbcache, chainParams->GetConsensus(), Consensus::DEPLOYMENT_TESTDUMMY);
     }
 
     {
@@ -451,7 +450,7 @@ BOOST_AUTO_TEST_CASE(versionbits_computeblockversion)
         ArgsManager args;
         args.ForceSetArg("-vbparams", "testdummy:1199145601:1230767999:403200"); // January 1, 2008 - December 31, 2008, min act height 403200
         const auto chainParams = CreateChainParams(args, CBaseChainParams::REGTEST);
-        check_computeblockversion(g_versionbitscache, chainParams->GetConsensus(), Consensus::DEPLOYMENT_TESTDUMMY);
+        check_computeblockversion(vbcache, chainParams->GetConsensus(), Consensus::DEPLOYMENT_TESTDUMMY);
     }
 }
 

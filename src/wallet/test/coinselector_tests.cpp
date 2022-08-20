@@ -33,6 +33,7 @@ typedef std::set<COutput> CoinSet;
 static const CoinEligibilityFilter filter_standard(1, 6, 0);
 static const CoinEligibilityFilter filter_confirmed(1, 1, 0);
 static const CoinEligibilityFilter filter_standard_extra(6, 6, 0);
+static int nextLockTime = 0;
 
 static void add_coin(const CAmount& nValue, int nInput, std::vector<COutput>& set)
 {
@@ -43,7 +44,7 @@ static void add_coin(const CAmount& nValue, int nInput, std::vector<COutput>& se
     set.emplace_back(COutPoint(tx.GetHash(), nInput), tx.vout.at(nInput), /*depth=*/ 1, /*input_bytes=*/ -1, /*spendable=*/ true, /*solvable=*/ true, /*safe=*/ true, /*time=*/ 0, /*from_me=*/ false, /*fees=*/ 0);
 }
 
-static void add_coin(const CAmount& nValue, int nInput, SelectionResult& result
+static void add_coin(const CAmount& nValue, int nInput, SelectionResult& result)
 {
     CMutableTransaction tx;
     tx.vout.resize(nInput + 1);
@@ -68,7 +69,6 @@ static void add_coin(const CAmount& nValue, int nInput, CoinSet& set, CAmount fe
 
 static void add_coin(std::vector<COutput>& coins, CWallet& wallet, const CAmount& nValue, CFeeRate feerate = CFeeRate(0), int nAge = 6*24, bool fIsFromMe = false, int nInput=0, bool spendable = false)
 {
-    static int nextLockTime = 0;
     CMutableTransaction tx;
     tx.nLockTime = nextLockTime++;        // so all transactions get different hashes
     tx.vout.resize(nInput + 1);
@@ -182,20 +182,20 @@ BOOST_AUTO_TEST_CASE(bnb_search_test)
     add_coin(4 * CENT, 4, utxo_pool);
 
     // Select 1 Cent
-    add_coin(1 * CENT, 1, expected_result.m_selected_inputs);
-    BOOST_CHECK(SelectCoinsBnB(GroupCoins(utxo_pool), 1 * CENT, 0.5 * CENT, selection, value_ret));
-    BOOST_CHECK(equivalent_sets(selection, expected_result.m_selected_inputs));
-    BOOST_CHECK_EQUAL(value_ret, 1 * CENT);
+    add_coin(1 * CENT, 1, expected_result);
+    const auto result1 = SelectCoinsBnB(GroupCoins(utxo_pool), 1 * CENT, 0.5 * CENT);
+    BOOST_CHECK(result1);
+    BOOST_CHECK(EquivalentResult(expected_result, *result1));
+    BOOST_CHECK_EQUAL(result1->GetSelectedValue(), 1 * CENT);
     expected_result.Clear();
-    selection.clear();
 
     // Select 2 Cent
-    add_coin(2 * CENT, 2, expected_result.m_selected_inputs);
-    BOOST_CHECK(SelectCoinsBnB(GroupCoins(utxo_pool), 2 * CENT, 0.5 * CENT, selection, value_ret));
-    BOOST_CHECK(equivalent_sets(selection, expected_result.m_selected_inputs));
-    BOOST_CHECK_EQUAL(value_ret, 2 * CENT);
+    add_coin(2 * CENT, 2, expected_result);
+    const auto result2 = SelectCoinsBnB(GroupCoins(utxo_pool), 2 * CENT, 0.5 * CENT);
+    BOOST_CHECK(result2);
+    BOOST_CHECK(EquivalentResult(expected_result, *result2));
+    BOOST_CHECK_EQUAL(result2->GetSelectedValue(), 2 * CENT);
     expected_result.Clear();
-    selection.clear();
 
     // Select 5 Cent
     add_coin(3 * CENT, 3, expected_result);
@@ -205,25 +205,22 @@ BOOST_AUTO_TEST_CASE(bnb_search_test)
     BOOST_CHECK(EquivalentResult(expected_result, *result3));
     BOOST_CHECK_EQUAL(result3->GetSelectedValue(), 5 * CENT);
     expected_result.Clear();
-    selection.clear();
 
     // Select 11 Cent, not possible
-    BOOST_CHECK(!SelectCoinsBnB(GroupCoins(utxo_pool), 11 * CENT, 0.5 * CENT, selection, value_ret));
+    BOOST_CHECK(!SelectCoinsBnB(GroupCoins(utxo_pool), 11 * CENT, 0.5 * CENT));
     expected_result.Clear();
-    selection.clear();
 
     // Cost of change is greater than the difference between target value and utxo sum
-    add_coin(1 * CENT, 1, expected_result.m_selected_inputs);
-    BOOST_CHECK(SelectCoinsBnB(GroupCoins(utxo_pool), 0.9 * CENT, 0.5 * CENT, selection, value_ret));
-    BOOST_CHECK_EQUAL(value_ret, 1 * CENT);
-    BOOST_CHECK(equivalent_sets(selection, expected_result.m_selected_inputs));
+    add_coin(1 * CENT, 1, expected_result);
+    const auto result4 = SelectCoinsBnB(GroupCoins(utxo_pool), 0.9 * CENT, 0.5 * CENT);
+    BOOST_CHECK(result4);
+    BOOST_CHECK_EQUAL(result4->GetSelectedValue(), 1 * CENT);
+    BOOST_CHECK(EquivalentResult(expected_result, *result4));
     expected_result.Clear();
-    selection.clear();
 
     // Cost of change is less than the difference between target value and utxo sum
-    BOOST_CHECK(!SelectCoinsBnB(GroupCoins(utxo_pool), 0.9 * CENT, 0, selection, value_ret));
+    BOOST_CHECK(!SelectCoinsBnB(GroupCoins(utxo_pool), 0.9 * CENT, 0));
     expected_result.Clear();
-    selection.clear();
 
     // Select 10 Cent
     add_coin(5 * CENT, 5, utxo_pool);
@@ -236,22 +233,21 @@ BOOST_AUTO_TEST_CASE(bnb_search_test)
     BOOST_CHECK(EquivalentResult(expected_result, *result5));
     BOOST_CHECK_EQUAL(result5->GetSelectedValue(), 10 * CENT);
     expected_result.Clear();
-    selection.clear();
 
     // Negative effective value
     // Select 10 Cent but have 1 Cent not be possible because too small
-    add_coin(5 * CENT, 5, expected_result.m_selected_inputs);
-    add_coin(3 * CENT, 3, expected_result.m_selected_inputs);
-    add_coin(2 * CENT, 2, expected_result.m_selected_inputs);
-    BOOST_CHECK(SelectCoinsBnB(GroupCoins(utxo_pool), 10 * CENT, 5000, selection, value_ret));
-    BOOST_CHECK_EQUAL(value_ret, 10 * CENT);
+    add_coin(5 * CENT, 5, expected_result);
+    add_coin(3 * CENT, 3, expected_result);
+    add_coin(2 * CENT, 2, expected_result);
+    const auto result6 = SelectCoinsBnB(GroupCoins(utxo_pool), 10 * CENT, 5000);
+    BOOST_CHECK(result6);
+    BOOST_CHECK_EQUAL(result6->GetSelectedValue(), 10 * CENT);
     // FIXME: this test is redundant with the above, because 1 Cent is selected, not "too small"
-    // BOOST_CHECK(equivalent_sets(selection, expected_result.m_selected_inputs));
+    // BOOST_CHECK(EquivalentResult(expected_result, *result));
 
     // Select 0.25 Cent, not possible
-    BOOST_CHECK(!SelectCoinsBnB(GroupCoins(utxo_pool), 0.25 * CENT, 0.5 * CENT, selection, value_ret));
+    BOOST_CHECK(!SelectCoinsBnB(GroupCoins(utxo_pool), 0.25 * CENT, 0.5 * CENT));
     expected_result.Clear();
-    selection.clear();
 
     // Iteration exhaustion test
     CAmount target = make_hard_case(17, utxo_pool);
@@ -262,11 +258,11 @@ BOOST_AUTO_TEST_CASE(bnb_search_test)
 
     // Test same value early bailout optimization
     utxo_pool.clear();
-    add_coin(7 * CENT, 7, expected_result.m_selected_inputs);
-    add_coin(7 * CENT, 7, expected_result.m_selected_inputs);
-    add_coin(7 * CENT, 7, expected_result.m_selected_inputs);
-    add_coin(7 * CENT, 7, expected_result.m_selected_inputs);
-    add_coin(2 * CENT, 7, expected_result.m_selected_inputs);
+    add_coin(7 * CENT, 7, expected_result);
+    add_coin(7 * CENT, 7, expected_result);
+    add_coin(7 * CENT, 7, expected_result);
+    add_coin(7 * CENT, 7, expected_result);
+    add_coin(2 * CENT, 7, expected_result);
     add_coin(7 * CENT, 7, utxo_pool);
     add_coin(7 * CENT, 7, utxo_pool);
     add_coin(7 * CENT, 7, utxo_pool);
@@ -275,9 +271,10 @@ BOOST_AUTO_TEST_CASE(bnb_search_test)
     for (int i = 0; i < 50000; ++i) {
         add_coin(5 * CENT, 7, utxo_pool);
     }
-    BOOST_CHECK(SelectCoinsBnB(GroupCoins(utxo_pool), 30 * CENT, 5000, selection, value_ret));
-    BOOST_CHECK_EQUAL(value_ret, 30 * CENT);
-    BOOST_CHECK(equivalent_sets(selection, expected_result.m_selected_inputs));
+    const auto result8 = SelectCoinsBnB(GroupCoins(utxo_pool), 30 * CENT, 5000);
+    BOOST_CHECK(result8);
+    BOOST_CHECK_EQUAL(result8->GetSelectedValue(), 30 * CENT);
+    BOOST_CHECK(EquivalentResult(expected_result, *result8));
 
     ////////////////////
     // Behavior tests //

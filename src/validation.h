@@ -117,8 +117,6 @@ extern arith_uint256 nMinimumChainWork;
 /** Documentation for argument 'checklevel'. */
 extern const std::vector<std::string> CHECKLEVEL_DOC;
 
-/** Unload database information */
-void UnloadBlockIndex(ChainstateManager& chainman) EXCLUSIVE_LOCKS_REQUIRED(::cs_main);
 /** Run instances of script checking worker threads */
 void StartScriptCheckWorkerThreads(int threads_num);
 /** Stop all of the script checking worker threads */
@@ -822,7 +820,7 @@ private:
     //! Internal helper for ActivateSnapshot().
     [[nodiscard]] bool PopulateAndValidateSnapshot(
         CChainState& snapshot_chainstate,
-        CAutoFile& coins_file,
+        AutoFile& coins_file,
         const node::SnapshotMetadata& metadata);
 
     /**
@@ -911,7 +909,7 @@ public:
     //! - Move the new chainstate to `m_snapshot_chainstate` and make it our
     //!   ChainstateActive().
     [[nodiscard]] bool ActivateSnapshot(
-        CAutoFile& coins_file, const node::SnapshotMetadata& metadata, bool in_memory);
+        AutoFile& coins_file, const node::SnapshotMetadata& metadata, bool in_memory);
 
     //! The most-work chain.
     CChainState& ActiveChainstate() const;
@@ -1001,13 +999,13 @@ public:
 template<typename DEP>
 bool DeploymentActiveAfter(const CBlockIndex* pindexPrev, const ChainstateManager& chainman, DEP dep)
 {
-    return DeploymentActiveAfter(pindexPrev, chainman.GetConsensus(), dep);
+    return DeploymentActiveAfter(pindexPrev, chainman.GetConsensus(), dep, chainman.m_versionbitscache);
 }
 
 template<typename DEP>
 bool DeploymentActiveAt(const CBlockIndex& index, const ChainstateManager& chainman, DEP dep)
 {
-    return DeploymentActiveAt(index, chainman.GetConsensus(), dep);
+    return DeploymentActiveAt(index, chainman.GetConsensus(), dep, chainman.m_versionbitscache);
 }
 
 template<typename DEP>

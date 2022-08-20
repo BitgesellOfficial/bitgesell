@@ -8,7 +8,7 @@
 
 #include <chainparams.h>
 #include <common/bloom.h>
-#include <compat.h>
+#include <compat/compat.h>
 #include <consensus/amount.h>
 #include <crypto/siphash.h>
 #include <hash.h>
@@ -325,7 +325,7 @@ public:
     /** read and deserialize data, advances msg_bytes data pointer */
     virtual int Read(Span<const uint8_t>& msg_bytes) = 0;
     // decomposes a message from the context
-    virtual std::optional<CNetMessage> GetMessage(std::chrono::microseconds time, uint32_t& out_err) = 0;
+    virtual CNetMessage GetMessage(std::chrono::microseconds time, bool& reject_message) = 0;
     virtual ~TransportDeserializer() {}
 };
 
@@ -389,7 +389,7 @@ public:
         }
         return ret;
     }
-    std::optional<CNetMessage> GetMessage(std::chrono::microseconds time, uint32_t& out_err_raw_size) override;
+    CNetMessage GetMessage(std::chrono::microseconds time, bool& reject_message) override;
 };
 
 /** The TransportSerializer prepares messages for the network transport
@@ -877,8 +877,8 @@ public:
      * Attempts to open a connection. Currently only used from tests.
      *
      * @param[in]   address     Address of node to try connecting to
-     * @param[in]   conn_type   ConnectionType::OUTBOUND or ConnectionType::BLOCK_RELAY
-     *                          or ConnectionType::ADDR_FETCH
+     * @param[in]   conn_type   ConnectionType::OUTBOUND, ConnectionType::BLOCK_RELAY,
+     *                          ConnectionType::ADDR_FETCH or ConnectionType::FEELER
      * @return      bool        Returns false if there are no available
      *                          slots for this connection:
      *                          - conn_type not a supported ConnectionType

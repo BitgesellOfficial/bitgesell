@@ -866,6 +866,12 @@ struct PSBTOutput
                         s_tree >> depth;
                         s_tree >> leaf_ver;
                         s_tree >> script;
+                        if (depth > TAPROOT_CONTROL_MAX_NODE_COUNT) {
+                            throw std::ios_base::failure("Output Taproot tree has as leaf greater than Taproot maximum depth");
+                        }
+                        if ((leaf_ver & ~TAPROOT_LEAF_MASK) != 0) {
+                            throw std::ios_base::failure("Output Taproot tree has a leaf with an invalid leaf version");
+                        }
                         m_tap_tree->Add((int)depth, script, (int)leaf_ver, true /* track */);
                     }
                     if (!m_tap_tree->IsComplete()) {
@@ -1219,7 +1225,7 @@ bool PSBTInputSigned(const PSBTInput& input);
  * txdata should be the output of PrecomputePSBTData (which can be shared across
  * multiple SignPSBTInput calls). If it is nullptr, a dummy signature will be created.
  **/
-bool SignPSBTInput(const SigningProvider& provider, PartiallySignedTransaction& psbt, int index, const PrecomputedTransactionData* txdata, int sighash = SIGHASH_ALL, SignatureData* out_sigdata = nullptr);
+bool SignPSBTInput(const SigningProvider& provider, PartiallySignedTransaction& psbt, int index, const PrecomputedTransactionData* txdata, int sighash = SIGHASH_ALL, SignatureData* out_sigdata = nullptr, bool finalize = true);
 
 /** Counts the unsigned inputs of a PSBT. */
 size_t CountPSBTUnsignedInputs(const PartiallySignedTransaction& psbt);

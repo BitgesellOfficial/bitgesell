@@ -46,14 +46,14 @@ static constexpr int64_t ADDRMAN_TEST_WINDOW{40*60}; // 40 minutes
 int AddrInfo::GetTriedBucket(const uint256& nKey, const NetGroupManager& netgroupman) const
 {
     uint64_t hash1 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << GetKey()).GetCheapHash();
-    uint64_t hash2 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << GetGroup(asmap) << (hash1 % ADDRMAN_TRIED_BUCKETS_PER_GROUP)).GetCheapHash();
+    uint64_t hash2 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << netgroupman.GetGroup(*this) << (hash1 % ADDRMAN_TRIED_BUCKETS_PER_GROUP)).GetCheapHash();
     return hash2 % ADDRMAN_TRIED_BUCKET_COUNT;
 }
 
 int AddrInfo::GetNewBucket(const uint256& nKey, const CNetAddr& src, const NetGroupManager& netgroupman) const
 {
-    std::vector<unsigned char> vchSourceGroupKey = src.GetGroup(asmap);
-    uint64_t hash1 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << GetGroup(asmap) << vchSourceGroupKey).GetCheapHash();
+    std::vector<unsigned char> vchSourceGroupKey = netgroupman.GetGroup(src);
+    uint64_t hash1 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << netgroupman.GetGroup(*this) << vchSourceGroupKey).GetCheapHash();
     uint64_t hash2 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << vchSourceGroupKey << (hash1 % ADDRMAN_NEW_BUCKETS_PER_SOURCE_GROUP)).GetCheapHash();
     return hash2 % ADDRMAN_NEW_BUCKET_COUNT;
 }

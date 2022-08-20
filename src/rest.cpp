@@ -10,6 +10,7 @@
 #include <chainparams.h>
 #include <core_io.h>
 #include <httpserver.h>
+#include <index/blockfilterindex.h>
 #include <index/txindex.h>
 #include <node/blockstorage.h>
 #include <node/context.h>
@@ -38,6 +39,7 @@ using node::NodeContext;
 using node::ReadBlockFromDisk;
 
 static const size_t MAX_GETUTXOS_OUTPOINTS = 15; //allow a max of 15 outpoints to be queried at once
+static constexpr unsigned int MAX_REST_HEADERS_RESULTS = 2000;
 
 static const struct {
     RESTResponseFormat rf;
@@ -267,7 +269,7 @@ static bool rest_headers(const std::any& context,
         return true;
     }
     default: {
-        return RESTERR(req, HTTP_NOT_FOUND, "output format not found (available: .bin, .hex, .json)");
+        return RESTERR(req, HTTP_NOT_FOUND, "output format not found (available: " + AvailableDataFormatsString() + ")");
     }
     }
 }
@@ -941,6 +943,8 @@ static const struct {
       {"/rest/tx/", rest_tx},
       {"/rest/block/notxdetails/", rest_block_notxdetails},
       {"/rest/block/", rest_block_extended},
+      {"/rest/blockfilter/", rest_block_filter},
+      {"/rest/blockfilterheaders/", rest_filter_header},
       {"/rest/chaininfo", rest_chaininfo},
       {"/rest/mempool/info", rest_mempool_info},
       {"/rest/mempool/contents", rest_mempool_contents},

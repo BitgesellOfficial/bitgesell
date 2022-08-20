@@ -66,7 +66,7 @@ public:
         consensus.signet_blocks = false;
         consensus.signet_challenge.clear();
         consensus.nSubsidyHalvingInterval = 210000 /4;
-        consensus.BIP16Exception = uint256();
+       // consensus.BIP16Exception = uint256();
         consensus.BIP34Height = 0;
         consensus.BIP34Hash = uint256();
         consensus.BIP65Height = 0;
@@ -87,15 +87,26 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].min_activation_height = 0;
 
         // The best chain should have at least this much work.
-        consensus.nMinimumChainWork = uint256S("0x00000000000000000000000000000000000000002927cdceccbd5209e81e80db");
-        consensus.defaultAssumeValid = uint256S("0x000000000000000000052d314a259755ca65944e68df6b12a067ea8f1f5a7091"); // 724466
+        consensus.nMinimumChainWork = uint256S("0x00000000000000000000000000000000000000000000000a7856edabbf8749a8");
+
+        // By default assume that the signatures in ancestors of this block are valid.
+        consensus.defaultAssumeValid = uint256S("0x000000000000055e5a25481d6b90bc943f36d5f2b3ca0ecf4f4b4ea3241a3168");
+
+        // Deployment of Taproot (BIPs 340-342) that did not pass
+        // we would be keeping this information here for now, because blocks contain this version bit
+        // and on relaxed conditions for window/treshold (that are set for now)
+        // the blocks would signal that bit=2 unknown rule was activated
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].bit = 2;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].nStartTime = 1621589357; // May 21th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].nTimeout = 1623715200; // June 15th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].min_activation_height = 66000; // Approximately July 1st, 2021
 
         // Deployment of Taproot (BIPs 340-342)
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].bit = 2;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = 1626307200; // July 15th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = 1629936000; // End of day Aug 25th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 74574; // Approximately Sep 1st, 2021
- 
+
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -107,7 +118,7 @@ public:
         pchMessageStart[3] = 0xe8;
         nDefaultPort = 8454;
         nPruneAfterHeight = 100000;
-        m_assumed_blockchain_size = 460;
+        m_assumed_blockchain_size = 420;
         m_assumed_chain_state_size = 6;
 
         genesis = CreateGenesisBlock(1585958400, 0x0278eefd, 0x1d22ffff, 1, 200 * COIN);
@@ -164,10 +175,10 @@ public:
         };
 
         chainTxData = ChainTxData{
-            // Data from RPC: getchaintxstats 4096 000000000000000000052d314a259755ca65944e68df6b12a067ea8f1f5a7091
-            /* nTime    */ 1645542140,
-            /* nTxCount */ 712531200,
-            /* dTxRate  */ 2.891036496010309,
+            // Data from RPC: getchaintxstats 4096 00000000000000000008a89e854d57e5667df88f1cdef6fde2fbca1de5b639ad
+            /* nTime    */ 1626697539,
+            /* nTxCount */ 656509474,
+            /* dTxRate  */ 2.424920418708139,
         };
     }
 };
@@ -180,7 +191,7 @@ public:
     CTestNetParams() {
         strNetworkID = CBaseChainParams::TESTNET;
         consensus.nSubsidyHalvingInterval = 210000 / 4;
-        consensus.BIP16Exception = uint256();
+        //consensus.BIP16Exception = uint256();
         consensus.BIP34Height = 0;
         consensus.BIP34Hash = uint256();
         consensus.BIP65Height = 0;

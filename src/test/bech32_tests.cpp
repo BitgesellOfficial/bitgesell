@@ -1,4 +1,5 @@
 // Copyright (c) 2017 Pieter Wuille
+// Copyright (c) 2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -93,6 +94,7 @@ BOOST_AUTO_TEST_CASE(bech32_testvectors_invalid)
 
     int i = 0;
     for (const std::string& str : CASES) {
+        const auto& err = ERRORS[i];
         const auto dec = bech32::Decode(str);
         BOOST_CHECK(dec.encoding == bech32::Encoding::INVALID);
         auto [error, error_locations] = bech32::LocateErrors(str);
@@ -144,6 +146,7 @@ BOOST_AUTO_TEST_CASE(bech32m_testvectors_invalid)
 
     int i = 0;
     for (const std::string& str : CASES) {
+        const auto& err = ERRORS[i];
         const auto dec = bech32::Decode(str);
         BOOST_CHECK(dec.encoding == bech32::Encoding::INVALID);
         auto [error, error_locations] = bech32::LocateErrors(str);

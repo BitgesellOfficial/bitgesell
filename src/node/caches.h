@@ -2,11 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_NODE_CACHES_H
-#define BITCOIN_NODE_CACHES_H
+#ifndef BGL_NODE_CACHES_H
+#define BGL_NODE_CACHES_H
 
-#include <cstddef> // for size_t
-#include <cstdint> // for int64_t
+#include <cstddef>
+#include <cstdint>
 
 class ArgsManager;
 
@@ -21,4 +21,4 @@ struct CacheSizes {
 CacheSizes CalculateCacheSizes(const ArgsManager& args, size_t n_indexes = 0);
 } // namespace node
 
-#endif // BITCOIN_NODE_CACHES_H
+#endif // BGL_NODE_CACHES_H
