@@ -135,11 +135,10 @@ def filterbyasn(asmap: ASMap, ips: List[Dict], max_per_asn: Dict, max_per_net: i
     (b) trimming ips to have at most `max_per_asn` ips from each asn in each net.
     """
     # Sift out ips by type
-    ips_ipv4 = [ip for ip in ips if ip['net'] == 'ipv4']
-    ips_ipv6 = [ip for ip in ips if ip['net'] == 'ipv6']
+    ips_ipv46 = [ip for ip in ips if ip['net'] in ['ipv4', 'ipv6']]
     ips_onion = [ip for ip in ips if ip['net'] == 'onion']
 
-    # Filter IPv4 by ASN
+    # Filter IPv46 by ASN, and limit to max_per_net per network
     result = []
     net_count: Dict[str, int] = collections.defaultdict(int)
     asn_count: Dict[int, int] = collections.defaultdict(int)
@@ -185,6 +184,7 @@ def main():
         asmap = ASMap.from_binary(f.read())
     print('Done.', file=sys.stderr)
 
+    print('Loading and parsing DNS seeds…', end='', file=sys.stderr, flush=True)
     lines = sys.stdin.readlines()
     ips = [parseline(line) for line in lines]
     print('Done.', file=sys.stderr)
@@ -216,7 +216,7 @@ def main():
     print(f'{ip_stats(ips):s} Require a known and recent user agent', file=sys.stderr)
     # Sort by availability (and use last success as tie breaker)
     ips.sort(key=lambda x: (x['uptime'], x['lastsuccess'], x['ip']), reverse=True)
-    # Filter out hosts with multiple ports, these are likely abusive
+    # Filter out hosts with multiple bitcoin ports, these are likely abusive
     ips = filtermultiport(ips)
     print(f'{ip_stats(ips):s} Filter out hosts with multiple BGL ports', file=sys.stderr)
     # Look up ASNs and limit results, both per ASN and globally.
@@ -224,7 +224,6 @@ def main():
     print(f'{ip_stats(ips):s} Look up ASNs and limit results per ASN and per net', file=sys.stderr)
     # Sort the results by IP address (for deterministic output).
     ips.sort(key=lambda x: (x['net'], x['sortkey']))
-
     for ip in ips:
         if ip['net'] == 'ipv6':
             print(f"[{ip['ip']}]:{ip['port']}", end="")

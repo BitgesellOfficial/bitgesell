@@ -17,7 +17,6 @@ from typing import Callable, Dict, Iterable, List, Optional, Tuple, Union, overl
 def net_to_prefix(net: Union[ipaddress.IPv4Network,ipaddress.IPv6Network]) -> List[bool]:
     """
     Convert an IPv4 or IPv6 network to a prefix represented as a list of bits.
-
     IPv4 ranges are remapped to their IPv4-mapped IPv6 range (::ffff:0:0/96).
     """
     num_bits = net.prefixlen
@@ -57,14 +56,12 @@ class _VarLenCoder:
     A class representing a custom variable-length binary encoder/decoder for
     integers. Each object represents a different coder, with different parameters
     minval and clsbits.
-
     The encoding is easiest to describe using an example. Let's say minval=100 and
     clsbits=[4,2,2,3]. In that case:
     - x in [100..115]: encoded as [0] + [4-bit BE encoding of (x-100)].
     - x in [116..119]: encoded as [1,0] + [2-bit BE encoding of (x-116)].
     - x in [120..123]: encoded as [1,1,0] + [2-bit BE encoding of (x-120)].
     - x in [124..131]: encoded as [1,1,1] + [3-bit BE encoding of (x-124)].
-
     In general, every number is encoded as:
     - First, k "1"-bits, where k is the class the number falls in (there is one class
       per element of clsbits).
@@ -269,10 +266,8 @@ class _BinNode:
 class ASMap:
     """
     A class whose objects represent a mapping from subnets to ASNs.
-
     Internally the mapping is stored as a binary trie, but can be converted
     from/to a list of ASNEntry objects, and from/to the binary asmap file format.
-
     In the trie representation, nodes are represented as bare lists for efficiency
     and ease of manipulation:
     - [0] means an unassigned subnet (no ASN mapping for it is present)
@@ -420,7 +415,6 @@ class ASMap:
     def to_entries(self, overlapping: bool = True, fill: bool = False) -> List[ASNEntry]:
         """
         Convert the mappings in this ASMap object to a list of ASNEntry objects.
-
         Arguments:
             overlapping: Permit the subnets in the resulting ASNEntry to overlap.
                          Setting this can result in a shorter list.
@@ -440,7 +434,6 @@ class ASMap:
          - Number of leaves in its trie (at least 1)
          - Maximum ASN value (at least 1)
          - Probability for leaf nodes to be unassigned
-
         The number of leaves in the resulting object may be less than what is
         requested. This method is mostly intended for testing.
         """
@@ -534,7 +527,6 @@ class ASMap:
     def to_binary(self, fill: bool = False) -> bytes:
         """
         Convert this ASMap object to binary.
-
         Argument:
             fill: permit the resulting binary encoder to contain mappers for
                   unassigned subnets in this ASMap object. Doing so may
