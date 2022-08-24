@@ -211,7 +211,7 @@ public:
         }
         return true;
     }
-    std::vector<WalletAddress> getAddresses() const
+    std::vector<WalletAddress> getAddresses() override
     {
         LOCK(m_wallet->cs_wallet);
         std::vector<WalletAddress> result;
