@@ -30,12 +30,6 @@ class ResendWalletTransactionsTest(BGLTestFramework):
         self.log.info("Create a new transaction and wait until it's broadcast")
         txid = node.sendtoaddress(node.getnewaddress(), 1)
 
-        # Wallet rebroadcast is first scheduled 1 min sec after startup (see
-        # nNextResend in ResendWalletTransactions()). Tell scheduler to call
-        # MaybeResendWalletTxs now to initialize nNextResend before the first
-        # setmocktime call below.
-        node.mockscheduler(60)
-
         # Can take a few seconds due to transaction trickling
         peer_first.wait_for_broadcast([txid])
 
@@ -52,6 +46,7 @@ class ResendWalletTransactionsTest(BGLTestFramework):
         block.solve()
         node.submitblock(block.serialize().hex())
 
+        # Set correct m_best_block_time, which is used in ResubmitWalletTransactions
         node.syncwithvalidationinterfacequeue()
         now = int(time.time())
 
@@ -66,7 +61,7 @@ class ResendWalletTransactionsTest(BGLTestFramework):
         self.log.info("Bump time & check that transaction is rebroadcast")
         # Transaction should be rebroadcast approximately 24 hours in the future,
         # but can range from 12-36. So bump 36 hours to be sure.
-        with node.assert_debug_log(['ResendWalletTransactions: resubmit 1 unconfirmed transactions']):
+        with node.assert_debug_log(['resubmit 1 unconfirmed transactions']):
             node.setmocktime(now + 36 * 60 * 60)
             # Tell scheduler to call MaybeResendWalletTxs now.
             node.mockscheduler(60)
