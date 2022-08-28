@@ -167,9 +167,9 @@ public:
 
         chainTxData = ChainTxData{
             // Data from RPC: getchaintxstats 4096 00000000000000000008a89e854d57e5667df88f1cdef6fde2fbca1de5b639ad
-            /* nTime    */ 1626697539,
-            /* nTxCount */ 656509474,
-            /* dTxRate  */ 2.424920418708139,
+            /* nTime    */ .nTime    = 1626697539,
+            /* nTxCount */ .nTxCount = 656509474,
+            /* dTxRate  */ .dTxRate  = 2.424920418708139,
         };
     }
 };
@@ -220,7 +220,7 @@ public:
         nDefaultPort = 18333;
 
         nPruneAfterHeight = 1000;
-        m_assumed_blockchain_size = 40;
+        m_assumed_blockchain_size = 42;
         m_assumed_chain_state_size = 2;
 
         genesis = CreateGenesisBlock(1585958400, 0x0278eefd, 0x1d22ffff, 1, 200 * COIN);
@@ -256,15 +256,16 @@ public:
 
         chainTxData = ChainTxData{
             // Data from RPC: getchaintxstats 4096 0000000000004ae2f3896ca8ecd41c460a35bf6184e145d91558cece1c688a76
-            /* nTime    */ 1625727096,
-            /* nTxCount */ 60408943,
-            /* dTxRate  */ 0.08379062270367649,
+            /* nTime    */ .nTime    = 1625727096,
+            /* nTxCount */ .nTxCount = 60408943,
+            /* dTxRate  */ .dTxRate  = 0.08379062270367649,
         };
     }
 };
 
-/**
- * Signet: test network with an additional consensus parameter (see BIP325).
+/**/**
+ * @brief 
+ * 
  */
 class SigNetParams : public CChainParams {
 public:
@@ -284,9 +285,9 @@ public:
             m_assumed_chain_state_size = 0;
             chainTxData = ChainTxData{
                 // Data from RPC: getchaintxstats 4096 000000187d4440e5bff91488b700a140441e089a8aaea707414982460edbfe54
-                /* nTime    */ 1626696658,
-                /* nTxCount */ 387761,
-                /* dTxRate  */ 0.04035946932424404,
+                /* nTime    */ .nTime    = 1626696658,
+                /* nTxCount */ .nTxCount = 387761,
+                /* dTxRate  */ .dTxRate  = 0.04035946932424404,
             };
         } else {
             const auto signet_challenge = args.GetArgs("-signetchallenge");
