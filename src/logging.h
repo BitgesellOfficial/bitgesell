@@ -66,7 +66,6 @@ namespace BCLog {
 #endif
         UTIL        = (1 << 25),
         BLOCKSTORE  = (1 << 26),
-        HEADERSSYNC = (1 << 27),
         ALL         = ~(uint32_t)0,
     };
     enum class Level {
