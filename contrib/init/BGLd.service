@@ -18,10 +18,11 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-ExecStart=/usr/bin/BGLd -daemon \
-                            -pid=/run/BGLd/BGLd.pid \
+ExecStart=/usr/bin/BGLd -pid=/run/BGLd/BGLd.pid \
                             -conf=/etc/BGL/BGL.conf \
-                            -datadir=/var/lib/BGLd
+                            -datadir=/var/lib/BGLd \
+                            -startupnotify='systemd-notify --ready' \
+                            -shutdownnotify='systemd-notify --stopping'
 
 # Make sure the config directory is readable by the service user
 PermissionsStartOnly=true
@@ -30,8 +31,10 @@ ExecStartPre=/bin/chgrp BGL /etc/BGL
 # Process management
 ####################
 
-Type=forking
+Type=notify
+NotifyAccess=all
 PIDFile=/run/BGLd/BGLd.pid
+
 Restart=on-failure
 TimeoutStartSec=infinity
 TimeoutStopSec=600
