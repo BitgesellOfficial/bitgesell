@@ -1028,9 +1028,9 @@ void CConnman::CreateNodeFromAcceptedSocket(std::unique_ptr<Sock>&& sock,
                              inbound_onion,
                              CNodeOptions{
                                .permission_flags = permissionFlags,
+                               .prefer_evict = discouraged,
                              });
     pnode->AddRef();
-    pnode->m_prefer_evict = discouraged;
     m_msgproc->InitializeNode(*pnode, nodeServices);
 
     LogPrint(BCLog::NET, "connection from %s accepted\n", addr.ToString());
@@ -2729,6 +2729,7 @@ CNode::CNode(NodeId idIn,
       addrBind{addrBindIn},
       m_addr_name{addrNameIn.empty() ? addr.ToStringIPPort() : addrNameIn},
       m_inbound_onion{inbound_onion},
+      m_prefer_evict{node_opts.prefer_evict},
       nKeyedNetGroup{nKeyedNetGroupIn},
       id{idIn},
       nLocalHostNonce{nLocalHostNonceIn},
