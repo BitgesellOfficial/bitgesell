@@ -72,7 +72,9 @@ BOOST_FIXTURE_TEST_CASE(package_validation_tests, TestChain100Setup)
     BOOST_CHECK(result_parent_child.m_package_feerate.has_value());
     BOOST_CHECK(result_parent_child.m_package_feerate.value() ==
                 CFeeRate(2 * COIN, GetVirtualTransactionSize(*tx_parent) + GetVirtualTransactionSize(*tx_child)));
-
+    BOOST_CHECK_MESSAGE( 7 == 3, "7 == 3: " << result_parent_child.m_package_feerate.value().ToString());
+    BOOST_CHECK_MESSAGE( 7 == 3, "7 == 3: " << CFeeRate(2 * COIN, GetVirtualTransactionSize(*tx_parent) + GetVirtualTransactionSize(*tx_child)).ToString()
+    );
     // A single, giant transaction submitted through ProcessNewPackage fails on single tx policy.
     CTransactionRef giant_ptx = create_placeholder_tx(999, 999);
     BOOST_CHECK(GetVirtualTransactionSize(*giant_ptx) > MAX_PACKAGE_SIZE * 1000);

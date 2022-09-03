@@ -366,8 +366,7 @@ BOOST_AUTO_TEST_CASE(merkle_block_3_and_serialize)
 
     CDataStream merkleStream(SER_NETWORK, PROTOCOL_VERSION);
     merkleStream << merkleBlock;
-
-    std::vector<uint8_t> expected = ParseHex("0100000079cda856b143d9db2c1caff01d1aecc8630d30625d10e8b4b8b0000000000000b50cc069d6a3e33e3ff84a5c41d9d3febe7c770fdcc96b2c3ff60abe184f196367291b4d4c86041b8fa45d630100000001b50cc069d6a3e33e3ff84a5c41d9d3febe7c770fdcc96b2c3ff60abe184f19630101");
+    std::vector<uint8_t> expected = ParseHex("0100000079cda856b143d9db2c1caff01d1aecc8630d30625d10e8b4b8b000000000000048d548434a07b3a05651302acae61551c5df997dc3be1d95e24117f3b9972e7067291b4d4c86041b8fa45d63010000000148d548434a07b3a05651302acae61551c5df997dc3be1d95e24117f3b9972e700101");
     auto result{MakeUCharSpan(merkleStream)};
 
     BOOST_CHECK_EQUAL_COLLECTIONS(expected.begin(), expected.end(), result.begin(), result.end());
