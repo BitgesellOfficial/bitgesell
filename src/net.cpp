@@ -1989,8 +1989,12 @@ void CConnman::OpenNetworkConnection(const CAddress& addrConnect, bool fCountFai
     }
 }
 
+Mutex NetEventsInterface::g_msgproc_mutex;
+
 void CConnman::ThreadMessageHandler()
 {
+    LOCK(NetEventsInterface::g_msgproc_mutex);
+
     SetSyscallSandboxPolicy(SyscallSandboxPolicy::MESSAGE_HANDLER);
     while (!flagInterruptMsgProc)
     {
