@@ -410,7 +410,7 @@ void BGLGUI::createActions()
 
                 connect(action, &QAction::triggered, [this, path] {
                     auto activity = new OpenWalletActivity(m_wallet_controller, this);
-                    connect(activity, &OpenWalletActivity::opened, this, &BGLGUI::setCurrentWallet);
+                    connect(activity, &OpenWalletActivity::opened, this, &BGLGUI::setCurrentWallet, Qt::QueuedConnection);
                     activity->open(path);
                 });
             }
