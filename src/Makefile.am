@@ -23,7 +23,7 @@ noinst_PROGRAMS =
 TESTS =
 BENCHMARKS =
 
-BGL_INCLUDES=-I$(builddir) -I$(srcdir)/$(MINISKETCH_INCLUDE_DIR_INT) -I$(srcdir)/secp256k1/include -I$(srcdir)/$(UNIVALUE_INCLUDE_DIR_INT) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
+BGL_INCLUDES=-I$(builddir) -I$(srcdir)/$(MINISKETCH_INCLUDE_DIR_INT) -I$(srcdir)/secp256k1/include -I$(srcdir)/$(UNIVALUE_INCLUDE_DIR_INT) $(LEVELDB_CPPFLAGS)
 
 LIBBGL_NODE=libBGL_node.a
 LIBBGL_COMMON=libBGL_common.a
@@ -349,7 +349,7 @@ libBGL_util_a-clientversion.$(OBJEXT): obj/build.h
 # Contains code accessing mempool and chain state that is meant to be separated
 # from wallet and gui code (see node/README.md). Shared code should go in
 # libbitcoin_common or libbitcoin_util libraries, instead.
-libBGL_node_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(NATPMP_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
+libBGL_node_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS) $(MINIUPNPC_CPPFLAGS) $(NATPMP_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
 libBGL_node_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_node_a_SOURCES = \
   addrdb.cpp \
@@ -439,7 +439,7 @@ libBGL_node_a_SOURCES += dummywallet.cpp
 endif
 
 if ENABLE_ZMQ
-libBGL_zmq_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(ZMQ_CFLAGS)
+libBGL_zmq_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS) $(ZMQ_CFLAGS)
 libBGL_zmq_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_zmq_a_SOURCES = \
   zmq/zmqabstractnotifier.cpp \
@@ -452,7 +452,7 @@ endif
 
 # wallet: shared between bitcoind and bitcoin-qt, but only linked
 # when wallet enabled
-libBGL_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BDB_CPPFLAGS) $(SQLITE_CFLAGS)
+libBGL_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS) $(BDB_CPPFLAGS) $(SQLITE_CFLAGS)
 libBGL_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_wallet_a_SOURCES = \
   wallet/coincontrol.cpp \
@@ -491,7 +491,7 @@ if USE_BDB
 libBGL_wallet_a_SOURCES += wallet/bdb.cpp wallet/salvage.cpp
 endif
 
-libBGL_wallet_tool_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
+libBGL_wallet_tool_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS)
 libBGL_wallet_tool_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_wallet_tool_a_SOURCES = \
   wallet/wallettool.cpp \
@@ -665,7 +665,7 @@ libBGL_common_a_SOURCES = \
   $(BGL_CORE_H)
 
 # util: shared between all executables.
-libBGL_util_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
+libBGL_util_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS)
 libBGL_util_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_util_a_SOURCES = \
   support/lockedpool.cpp \
@@ -782,7 +782,7 @@ BGL_cli_LDADD += $(EVENT_LIBS)
 
 # bitcoin-tx binary #
 BGL_tx_SOURCES = BGL-tx.cpp
-BGL_tx_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
+BGL_tx_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS)
 BGL_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 BGL_tx_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
 
@@ -843,7 +843,7 @@ BGL_util_LDADD = \
 
 # bitcoin-chainstate binary #
 BGL_chainstate_SOURCES = BGL-chainstate.cpp
-BGL_chainstate_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
+BGL_chainstate_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS)
 BGL_chainstate_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
 # $(LIBTOOL_APP_LDFLAGS) deliberately omitted here so that we can test linking

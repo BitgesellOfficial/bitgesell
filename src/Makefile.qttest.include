@@ -27,7 +27,7 @@ TEST_QT_H = \
   qt/test/wallettests.h
 
 qt_test_test_BGL_qt_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BGL_QT_INCLUDES) \
-  $(QT_INCLUDES) $(QT_TEST_INCLUDES)
+  $(QT_INCLUDES) $(QT_TEST_INCLUDES) $(BOOST_CPPFLAGS)
 
 qt_test_test_BGL_qt_SOURCES = \
   init/BGL-qt.cpp \
