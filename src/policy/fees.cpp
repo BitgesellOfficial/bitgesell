@@ -161,13 +161,13 @@ public:
     unsigned int GetMaxConfirms() const { return scale * confAvg.size(); }
 
     /** Write state of estimation data to a file*/
-    void Write(CAutoFile& fileout) const;
+    void Write(AutoFile& fileout) const;
 
     /**
      * Read saved state of estimation data from a file and replace all internal data structures and
      * variables with this state.
      */
-    void Read(CAutoFile& filein, int nFileVersion, size_t numBuckets);
+    void Read(AutoFile& filein, int nFileVersion, size_t numBuckets);
 };
 
 
@@ -390,7 +390,7 @@ double TxConfirmStats::EstimateMedianVal(int confTarget, double sufficientTxVal,
     return median;
 }
 
-void TxConfirmStats::Write(CAutoFile& fileout) const
+void TxConfirmStats::Write(AutoFile& fileout) const
 {
     fileout << Using<EncodedDoubleFormatter>(decay);
     fileout << scale;
@@ -400,7 +400,7 @@ void TxConfirmStats::Write(CAutoFile& fileout) const
     fileout << Using<VectorFormatter<VectorFormatter<EncodedDoubleFormatter>>>(failAvg);
 }
 
-void TxConfirmStats::Read(CAutoFile& filein, int nFileVersion, size_t numBuckets)
+void TxConfirmStats::Read(AutoFile& filein, int nFileVersion, size_t numBuckets)
 {
     // Read data file and do some very basic sanity checking
     // buckets and bucketMap are not updated yet, so don't access them
@@ -509,6 +509,12 @@ void TxConfirmStats::removeTx(unsigned int entryHeight, unsigned int nBestSeenHe
 bool CBlockPolicyEstimator::removeTx(uint256 hash, bool inBlock)
 {
     LOCK(m_cs_fee_estimator);
+    return _removeTx(hash, inBlock);
+}
+
+bool CBlockPolicyEstimator::_removeTx(const uint256& hash, bool inBlock)
+{
+    AssertLockHeld(m_cs_fee_estimator);
     std::map<uint256, TxStatsInfo>::iterator pos = mapMemPoolTxs.find(hash);
     if (pos != mapMemPoolTxs.end()) {
         feeStats->removeTx(pos->second.blockHeight, nBestSeenHeight, pos->second.bucketIndex, inBlock);
@@ -540,7 +546,7 @@ CBlockPolicyEstimator::CBlockPolicyEstimator(const fs::path& estimation_filepath
     longStats = std::unique_ptr<TxConfirmStats>(new TxConfirmStats(buckets, bucketMap, LONG_BLOCK_PERIODS, LONG_DECAY, LONG_SCALE));
 
     // If the fee estimation file is present, read recorded estimations
-    CAutoFile est_file(fsbridge::fopen(m_estimation_filepath, "rb"), SER_DISK, CLIENT_VERSION);
+    AutoFile est_file{fsbridge::fopen(m_estimation_filepath, "rb")};
     if (est_file.IsNull() || !Read(est_file)) {
         LogPrintf("Failed to read fee estimates from %s. Continue anyway.\n", fs::PathToString(m_estimation_filepath));
     }
@@ -575,7 +581,7 @@ void CBlockPolicyEstimator::processTransaction(const CTxMemPoolEntry& entry, boo
     }
     trackedTxs++;
 
-    // Feerates are stored and reported as BGL-per-kb:
+    // Feerates are stored and reported as BTC-per-kb:
     CFeeRate feeRate(entry.GetFee(), entry.GetTxSize());
 
     mapMemPoolTxs[hash].blockHeight = txHeight;
@@ -589,7 +595,8 @@ void CBlockPolicyEstimator::processTransaction(const CTxMemPoolEntry& entry, boo
 
 bool CBlockPolicyEstimator::processBlockTx(unsigned int nBlockHeight, const CTxMemPoolEntry* entry)
 {
-    if (!removeTx(entry->GetTx().GetHash(), true)) {
+    AssertLockHeld(m_cs_fee_estimator);
+    if (!_removeTx(entry->GetTx().GetHash(), true)) {
         // This transaction wasn't being tracked for fee estimation
         return false;
     }
@@ -605,7 +612,7 @@ bool CBlockPolicyEstimator::processBlockTx(unsigned int nBlockHeight, const CTxM
         return false;
     }
 
-    // Feerates are stored and reported as BGL-per-kb:
+    // Feerates are stored and reported as BTC-per-kb:
     CFeeRate feeRate(entry->GetFee(), entry->GetTxSize());
 
     feeStats->Record(blocksToConfirm, (double)feeRate.GetFeePerK());
@@ -897,17 +904,17 @@ CFeeRate CBlockPolicyEstimator::estimateSmartFee(int confTarget, FeeCalculation 
 void CBlockPolicyEstimator::Flush() {
     FlushUnconfirmed();
 
-    CAutoFile est_file(fsbridge::fopen(m_estimation_filepath, "wb"), SER_DISK, CLIENT_VERSION);
+    AutoFile est_file{fsbridge::fopen(m_estimation_filepath, "wb")};
     if (est_file.IsNull() || !Write(est_file)) {
         LogPrintf("Failed to write fee estimates to %s. Continue anyway.\n", fs::PathToString(m_estimation_filepath));
     }
 }
 
-bool CBlockPolicyEstimator::Write(CAutoFile& fileout) const
+bool CBlockPolicyEstimator::Write(AutoFile& fileout) const
 {
     try {
         LOCK(m_cs_fee_estimator);
-        fileout << 10100; // version required to read: 0.14.99 or later
+        fileout << 149900; // version required to read: 0.14.99 or later
         fileout << CLIENT_VERSION; // version that wrote the file
         fileout << nBestSeenHeight;
         if (BlockSpan() > HistoricalBlockSpan()/2) {
@@ -928,7 +935,7 @@ bool CBlockPolicyEstimator::Write(CAutoFile& fileout) const
     return true;
 }
 
-bool CBlockPolicyEstimator::Read(CAutoFile& filein)
+bool CBlockPolicyEstimator::Read(AutoFile& filein)
 {
     try {
         LOCK(m_cs_fee_estimator);
@@ -943,9 +950,9 @@ bool CBlockPolicyEstimator::Read(CAutoFile& filein)
         unsigned int nFileBestSeenHeight;
         filein >> nFileBestSeenHeight;
 
-        if (nVersionRequired < 10100) {
+        if (nVersionRequired < 149900) {
             LogPrintf("%s: incompatible old fee estimation data (non-fatal). Version: %d\n", __func__, nVersionRequired);
-        } else { // New format introduced in 101010 (first BGL version)
+        } else { // New format introduced in 149900
             unsigned int nFileHistoricalFirst, nFileHistoricalBest;
             filein >> nFileHistoricalFirst >> nFileHistoricalBest;
             if (nFileHistoricalFirst > nFileHistoricalBest || nFileHistoricalBest > nFileBestSeenHeight) {
@@ -997,7 +1004,7 @@ void CBlockPolicyEstimator::FlushUnconfirmed() {
     // Remove every entry in mapMemPoolTxs
     while (!mapMemPoolTxs.empty()) {
         auto mi = mapMemPoolTxs.begin();
-        removeTx(mi->first, false); // this calls erase() on mapMemPoolTxs
+        _removeTx(mi->first, false); // this calls erase() on mapMemPoolTxs
     }
     int64_t endclear = GetTimeMicros();
     LogPrint(BCLog::ESTIMATEFEE, "Recorded %u unconfirmed txs from mempool in %gs\n", num_entries, (endclear - startclear)*0.000001);

@@ -1,3 +1,4 @@
+
 // Copyright (c) 2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
@@ -16,7 +17,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-const auto NoMalleation = [](CAutoFile& file, node::SnapshotMetadata& meta){};
+const auto NoMalleation = [](AutoFile& file, node::SnapshotMetadata& meta){};
 
 /**
  * Create and activate a UTXO snapshot, optionally providing a function to
@@ -32,7 +33,7 @@ CreateAndActivateUTXOSnapshot(node::NodeContext& node, const fs::path root, F ma
     WITH_LOCK(::cs_main, height = node.chainman->ActiveHeight());
     fs::path snapshot_path = root / fs::u8path(tfm::format("test_snapshot.%d.dat", height));
     FILE* outfile{fsbridge::fopen(snapshot_path, "wb")};
-    CAutoFile auto_outfile{outfile, SER_DISK, CLIENT_VERSION};
+    AutoFile auto_outfile{outfile};
 
     UniValue result = CreateUTXOSnapshot(
         node, node.chainman->ActiveChainstate(), auto_outfile, snapshot_path, snapshot_path);
@@ -42,7 +43,7 @@ CreateAndActivateUTXOSnapshot(node::NodeContext& node, const fs::path root, F ma
     // Read the written snapshot in and then activate it.
     //
     FILE* infile{fsbridge::fopen(snapshot_path, "rb")};
-    CAutoFile auto_infile{infile, SER_DISK, CLIENT_VERSION};
+    AutoFile auto_infile{infile};
     node::SnapshotMetadata metadata;
     auto_infile >> metadata;
 
