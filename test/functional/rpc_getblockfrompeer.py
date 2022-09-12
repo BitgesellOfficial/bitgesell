@@ -54,8 +54,10 @@ class GetBlockFromPeerTest(BGLTestFramework):
         assert_equal(len(peers), 1)
         peer_0_peer_1_id = peers[0]["id"]
 
-        self.log.info("Arguments must be sensible")
-        assert_raises_rpc_error(-8, "hash must be of length 64 (not 4, for '1234')", self.nodes[0].getblockfrompeer, "1234", 0)
+        self.log.info("Arguments must be valid")
+        assert_raises_rpc_error(-8, "hash must be of length 64 (not 4, for '1234')", self.nodes[0].getblockfrompeer, "1234", peer_0_peer_1_id)
+        assert_raises_rpc_error(-3, "JSON value of type number is not of expected type string", self.nodes[0].getblockfrompeer, 1234, peer_0_peer_1_id)
+        assert_raises_rpc_error(-3, "JSON value of type string is not of expected type number", self.nodes[0].getblockfrompeer, short_tip, "0")
 
         self.log.info("We must already have the header")
         assert_raises_rpc_error(-1, "Block header missing", self.nodes[0].getblockfrompeer, "00" * 32, 0)
