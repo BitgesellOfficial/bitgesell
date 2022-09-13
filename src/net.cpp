@@ -2016,10 +2016,7 @@ void CConnman::ThreadMessageHandler()
                 if (flagInterruptMsgProc)
                     return;
                 // Send messages
-                {
-                    LOCK(pnode->cs_sendProcessing);
-                    m_msgproc->SendMessages(pnode);
-                }
+                m_msgproc->SendMessages(pnode);
 
                 if (flagInterruptMsgProc)
                     return;
