@@ -440,7 +440,7 @@ libBGL_node_a_SOURCES += dummywallet.cpp
 endif
 
 if ENABLE_ZMQ
-libBGL_zmq_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS) $(ZMQ_CFLAGS)
+libBGL_zmq_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(ZMQ_CFLAGS)
 libBGL_zmq_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_zmq_a_SOURCES = \
   zmq/zmqabstractnotifier.cpp \
