@@ -53,6 +53,7 @@ nodist_bench_bench_BGL_SOURCES = $(GENERATED_BENCH_FILES)
 
 bench_bench_BGL_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS) -I$(builddir)/bench/
 bench_bench_BGL_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+bench_bench_BGL_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
 bench_bench_BGL_LDADD = \
   $(LIBTEST_UTIL) \
   $(LIBBGL_NODE) \
@@ -66,13 +67,16 @@ bench_bench_BGL_LDADD = \
   $(LIBSECP256K1) \
   $(LIBUNIVALUE) \
   $(EVENT_PTHREADS_LIBS) \
-  $(EVENT_LIBS)
+  $(EVENT_LIBS) \
+  $(MINIUPNPC_LIBS) \
+  $(NATPMP_LIBS)
 
 if ENABLE_ZMQ
 bench_bench_BGL_LDADD += $(LIBBGL_ZMQ) $(ZMQ_LIBS)
 endif
 
 if ENABLE_WALLET
+<<<<<<< HEAD
 bench_bench_BGL_SOURCES += bench/coin_selection.cpp
 bench_bench_BGL_SOURCES += bench/wallet_balance.cpp
 bench_bench_BGL_SOURCES += bench/wallet_loading.cpp
@@ -82,6 +86,15 @@ bench_bench_BGL_LDADD += $(BDB_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(MINI
 bench_bench_BGL_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
 
 CLEAN_BGL_BENCH = bench/*.gcda bench/*.gcno $(GENERATED_BENCH_FILES)
+=======
+bench_bench_bitcoin_SOURCES += bench/coin_selection.cpp
+bench_bench_bitcoin_SOURCES += bench/wallet_balance.cpp
+bench_bench_bitcoin_SOURCES += bench/wallet_loading.cpp
+bench_bench_bitcoin_LDADD += $(BDB_LIBS) $(SQLITE_LIBS)
+endif
+
+CLEAN_BITCOIN_BENCH = bench/*.gcda bench/*.gcno $(GENERATED_BENCH_FILES)
+>>>>>>> ff7c81f63a... build: remove duplicate / unneeded libs from bench_bitcoin
 
 CLEANFILES += $(CLEAN_BGL_BENCH)
 
