@@ -5,7 +5,7 @@
 #ifndef BGL_ZMQ_ZMQABSTRACTNOTIFIER_H
 #define BGL_ZMQ_ZMQABSTRACTNOTIFIER_H
 
-
+#include <cstdint>
 #include <memory>
 #include <string>
 
