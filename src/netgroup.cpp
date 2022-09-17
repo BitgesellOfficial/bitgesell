@@ -11,7 +11,7 @@ uint256 NetGroupManager::GetAsmapChecksum() const
 {
     if (!m_asmap.size()) return {};
 
-    return SerializeHashSHA256(m_asmap);
+    return SerializeHashKeccak(m_asmap);
 }
 
 std::vector<unsigned char> NetGroupManager::GetGroup(const CNetAddr& address) const
