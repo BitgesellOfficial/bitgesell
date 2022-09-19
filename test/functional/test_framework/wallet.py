@@ -96,7 +96,7 @@ class MiniWallet:
     def rescan_utxos(self):
         """Drop all utxos and rescan the utxo set"""
         self._utxos = []
-        res = self._test_node.scantxoutset(action="start", scanobjects=[self.get_descriptor()])
+        res = self._test_node.scantxoutset(action="start", scanobjects=[f'addr({self._test_node.get_deterministic_priv_key().address})'])
         assert_equal(True, res['success'])
         for utxo in res['unspents']:
             self._utxos.append(self._create_utxo(txid=utxo["txid"], vout=utxo["vout"], value=utxo["amount"], height=utxo["height"]))
@@ -134,7 +134,7 @@ class MiniWallet:
 
     def generate(self, num_blocks, **kwargs):
         """Generate blocks with coinbase outputs to the internal address, and call rescan_utxos"""
-        blocks = self._test_node.generatetodescriptor(num_blocks, self.get_descriptor(), **kwargs)
+        blocks = self._test_node.generatetoaddress(num_blocks, self._test_node.get_deterministic_priv_key().address, **kwargs)
         # Calling rescan_utxos here makes sure that after a generate the utxo
         # set is in a clean state. For example, the wallet will update
         # - if the caller consumed utxos, but never used them
