@@ -15,22 +15,24 @@
 class ChaCha20Aligned
 {
 private:
-    uint32_t input[12];
+    ChaCha20Aligned m_aligned;
+    unsigned char m_buffer[64] = {0};
+    unsigned m_bufleft{0};
 
 public:
     ChaCha20Aligned();
 
-    /** Initialize a cipher with specified 32-byte key. */
-    ChaCha20Aligned(const unsigned char* key32);
+    /** Initialize a cipher with specified key (see SetKey for arguments). */
+    ChaCha20Aligned(const unsigned char* key, size_t keylen);
 
-    /** set 32-byte key. */
-    void SetKey32(const unsigned char* key32);
+    /** set key with flexible keylength (16 or 32 bytes; 32 recommended). */
+    void SetKey(const unsigned char* key, size_t keylen);
 
     /** set the 64-bit nonce. */
     void SetIV(uint64_t iv);
 
     /** set the 64bit block counter (pos seeks to byte position 64*pos). */
-    void Seek64(uint64_t pos);
+    void Seek(uint64_t pos);
 
     /** outputs the keystream of size <64*blocks> into <c> */
     void Keystream64(unsigned char* c, size_t blocks);
@@ -41,32 +43,26 @@ public:
     void Crypt64(const unsigned char* input, unsigned char* output, size_t blocks);
 };
 
-/** Unrestricted ChaCha20 cipher. */
+/** Unrestricted ChaCha20 cipher. Seeks forward to a multiple of 64 bytes after every operation. */
 class ChaCha20
 {
 private:
     ChaCha20Aligned m_aligned;
-    unsigned char m_buffer[64] = {0};
-    unsigned m_bufleft{0};
 
 public:
     ChaCha20() = default;
 
-    /** Initialize a cipher with specified 32-byte key. */
-    ChaCha20(const unsigned char* key32) : m_aligned(key32) {}
+    /** Initialize a cipher with specified key (see SetKey for arguments). */
+    ChaCha20(const unsigned char* key, size_t keylen) : m_aligned(key, keylen) {}
 
-    /** set 32-byte key. */
-    void SetKey32(const unsigned char* key32)
-    {
-        m_aligned.SetKey32(key32);
-        m_bufleft = 0;
-    }
+    /** set key with flexible keylength (16 or 32 bytes; 32 recommended). */
+    void SetKey(const unsigned char* key, size_t keylen) { m_aligned.SetKey(key, keylen); }
 
     /** set the 64-bit nonce. */
     void SetIV(uint64_t iv) { m_aligned.SetIV(iv); }
 
     /** set the 64bit block counter (pos seeks to byte position 64*pos). */
-    void Seek64(uint64_t pos) { m_aligned.Seek64(pos); }
+    void Seek(uint64_t pos) { m_aligned.Seek(pos); }
 
     /** outputs the keystream of size <bytes> into <c> */
     void Keystream(unsigned char* c, size_t bytes);
