@@ -316,3 +316,55 @@ void ChaCha20::Crypt(const unsigned char* m, unsigned char* c, size_t bytes)
         m += 64;
     }
 }
+
+void ChaCha20::Keystream(unsigned char* c, size_t bytes)
+{
+    if (!bytes) return;
+    if (m_bufleft) {
+        unsigned reuse = std::min<size_t>(m_bufleft, bytes);
+        memcpy(c, m_buffer + 64 - m_bufleft, reuse);
+        m_bufleft -= reuse;
+        bytes -= reuse;
+        c += reuse;
+    }
+    if (bytes >= 64) {
+        size_t blocks = bytes / 64;
+        m_aligned.Keystream64(c, blocks);
+        c += blocks * 64;
+        bytes -= blocks * 64;
+    }
+    if (bytes) {
+        m_aligned.Keystream64(m_buffer, 1);
+        memcpy(c, m_buffer, bytes);
+        m_bufleft = 64 - bytes;
+    }
+}
+
+void ChaCha20::Crypt(const unsigned char* m, unsigned char* c, size_t bytes)
+{
+    if (!bytes) return;
+    if (m_bufleft) {
+        unsigned reuse = std::min<size_t>(m_bufleft, bytes);
+        for (unsigned i = 0; i < reuse; i++) {
+            c[i] = m[i] ^ m_buffer[64 - m_bufleft + i];
+        }
+        m_bufleft -= reuse;
+        bytes -= reuse;
+        c += reuse;
+        m += reuse;
+    }
+    if (bytes >= 64) {
+        size_t blocks = bytes / 64;
+        m_aligned.Crypt64(m, c, blocks);
+        c += blocks * 64;
+        m += blocks * 64;
+        bytes -= blocks * 64;
+    }
+    if (bytes) {
+        m_aligned.Keystream64(m_buffer, 1);
+        for (unsigned i = 0; i < bytes; i++) {
+            c[i] = m[i] ^ m_buffer[i];
+        }
+        m_bufleft = 64 - bytes;
+    }
+}
