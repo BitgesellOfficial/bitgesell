@@ -58,7 +58,7 @@ void ChaCha20::SetIV(uint64_t iv)
     input[15] = iv >> 32;
 }
 
-void ChaCha20::Seek(uint64_t pos)
+void ChaCha20Aligned::Seek64(uint64_t pos)
 {
     input[12] = pos;
     input[13] = pos >> 32;
