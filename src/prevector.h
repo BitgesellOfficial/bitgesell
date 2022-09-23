@@ -6,7 +6,7 @@
 #define BGL_PREVECTOR_H
 
 #include <assert.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <stdint.h>
 #include <string.h>
 

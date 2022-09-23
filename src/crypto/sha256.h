@@ -5,8 +5,8 @@
 #ifndef BGL_CRYPTO_SHA256_H
 #define BGL_CRYPTO_SHA256_H
 
+#include <cstdlib>
 #include <stdint.h>
-#include <stdlib.h>
 #include <string>
 
 /** A hasher class for SHA-256. */
