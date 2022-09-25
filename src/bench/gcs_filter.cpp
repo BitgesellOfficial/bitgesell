@@ -38,6 +38,8 @@ static void MatchGCSFilter(benchmark::Bench& bench)
         filter.Match(GCSFilter::Element());
     });
 }
-
-BENCHMARK(ConstructGCSFilter);
-BENCHMARK(MatchGCSFilter);
+BENCHMARK(GCSBlockFilterGetHash, benchmark::PriorityLevel::HIGH);
+BENCHMARK(GCSFilterConstruct, benchmark::PriorityLevel::HIGH);
+BENCHMARK(GCSFilterDecode, benchmark::PriorityLevel::HIGH);
+BENCHMARK(GCSFilterDecodeSkipCheck, benchmark::PriorityLevel::HIGH);
+BENCHMARK(GCSFilterMatch, benchmark::PriorityLevel::HIGH);
