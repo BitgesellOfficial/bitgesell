@@ -621,8 +621,9 @@ class SegWitTest(BGLTestFramework):
         if not self.segwit_active:
             # Just check mempool acceptance, but don't add the transaction to the mempool, since witness is disallowed
             # in blocks and the tx is impossible to mine right now.
-            assert_equal(
-                self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]),
+            testres3 = self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()])
+            testres3[0]["fees"].pop("effective-feerate")
+            assert_equal(testres3,
                 [{
                     'txid': tx3.hash,
                     'wtxid': tx3.getwtxid(),
@@ -638,8 +639,9 @@ class SegWitTest(BGLTestFramework):
             tx3 = tx
             tx3.vout = [tx3_out]
             tx3.rehash()
-            assert_equal(
-                self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()]),
+            testres3_replaced = self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()])
+            testres3_replaced[0]["fees"].pop("effective-feerate")
+            assert_equal(testres3_replaced,
                 [{
                     'txid': tx3.hash,
                     'wtxid': tx3.getwtxid(),
