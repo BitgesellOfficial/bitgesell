@@ -61,6 +61,7 @@ class MempoolAcceptanceTest(BGLTestFramework):
             r.pop('wtxid')
             if "fees" in r:
                 r["fees"].pop("effective-feerate")
+                r["fees"].pop("effective-includes")
         assert_equal(result_expected, result_test)
         assert_equal(self.nodes[0].getmempoolinfo()['size'], self.mempool_size)  # Must not change mempool state
 
