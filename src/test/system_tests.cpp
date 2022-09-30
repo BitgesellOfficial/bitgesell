@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(run_command)
         BOOST_CHECK(result.isObject());
         const UniValue& success = find_value(result, "success");
         BOOST_CHECK(!success.isNull());
-        BOOST_CHECK_EQUAL(success.getBool(), true);
+        BOOST_CHECK_EQUAL(success.get_bool(), true);
     }
     {
         // An invalid command is handled by Boost
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(run_command)
         BOOST_CHECK(result.isObject());
         const UniValue& success = find_value(result, "success");
         BOOST_CHECK(!success.isNull());
-        BOOST_CHECK_EQUAL(success.getBool(), true);
+        BOOST_CHECK_EQUAL(success.get_bool(), true);
     }
 #endif
 }
