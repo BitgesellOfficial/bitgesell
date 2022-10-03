@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_POLICY_FEES_ARGS_H
-#define BITCOIN_POLICY_FEES_ARGS_H
+#ifndef BGL_POLICY_FEES_ARGS_H
+#define BGL_POLICY_FEES_ARGS_H
 
 #include <fs.h>
 
@@ -12,4 +12,4 @@ class ArgsManager;
 /** @return The fee estimates data file path. */
 fs::path FeeestPath(const ArgsManager& argsman);
 
-#endif // BITCOIN_POLICY_FEES_ARGS_H
+#endif // BGL_POLICY_FEES_ARGS_H
