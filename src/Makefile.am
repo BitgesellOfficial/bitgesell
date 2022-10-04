@@ -133,6 +133,7 @@ BGL_CORE_H = \
   clientversion.h \
   coins.h \
   common/bloom.h \
+  common/run_command.h \
   compat/assumptions.h \
   compat/byteswap.h \
   compat/compat.h \
@@ -284,7 +285,6 @@ BGL_CORE_H = \
   util/rbf.h \
   util/readwritefile.h \
   util/result.h \
-  util/run_command.h \
   util/serfloat.h \
   util/settings.h \
   util/sock.h \
@@ -628,7 +628,7 @@ libBGL_consensus_a_SOURCES = \
   version.h
 
 # common: shared between bitcoind, and bitcoin-qt and non-server tools
-libBGL_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
+libBGL_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS)
 libBGL_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_common_a_SOURCES = \
   base58.cpp \
@@ -636,6 +636,7 @@ libBGL_common_a_SOURCES = \
   chainparams.cpp \
   coins.cpp \
   common/bloom.cpp \
+  common/run_command.cpp \
   compressor.cpp \
   core_read.cpp \
   core_write.cpp \
@@ -692,7 +693,6 @@ libBGL_util_a_SOURCES = \
   util/fees.cpp \
   util/getuniquepath.cpp \
   util/hasher.cpp \
-  util/run_command.cpp \
   util/sock.cpp \
   util/syserror.cpp \
   util/system.cpp \
