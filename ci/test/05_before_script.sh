@@ -11,6 +11,7 @@ if [ "$CI_OS_NAME" == "macos" ]; then
   echo > "${HOME}/Library/Application Support/BGL"
 else
   CI_EXEC echo \> \$HOME/.BGL
+  CI_EXEC_ROOT echo \> \$HOME/.BGL
 fi
 
 CI_EXEC mkdir -p "${DEPENDS_DIR}/SDKs" "${DEPENDS_DIR}/sdk-sources"
