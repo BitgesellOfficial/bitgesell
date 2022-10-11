@@ -722,6 +722,7 @@ libBGL_util_a_SOURCES = \
   $(BGL_CORE_H)
 
 if USE_LIBEVENT
+libBGL_util_a_CPPFLAGS += $(EVENT_CFLAGS)
 libBGL_util_a_SOURCES += util/url.cpp
 endif
 #
