@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BGL_THREADINTERRUPT_H
-#define BGL_THREADINTERRUPT_H
+#ifndef BGL_UTIL_THREADINTERRUPT_H
+#define BGL_UTIL_THREADINTERRUPT_H
 
 #include <sync.h>
 #include <threadsafety.h>
@@ -33,5 +33,4 @@ private:
     std::atomic<bool> flag;
 };
 
-#endif //BGL_THREADINTERRUPT_H
-
+#endif // BGL_UTIL_THREADINTERRUPT_H
