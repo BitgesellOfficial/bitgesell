@@ -684,7 +684,7 @@ endif
 #
 
 # util #
-libBGL_util_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS)
+libBGL_util_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
 libBGL_util_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_util_a_SOURCES = \
   support/lockedpool.cpp \
