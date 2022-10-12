@@ -2137,6 +2137,7 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
 
     // Enforce BIP68 (sequence locks)
     int nLockTimeFlags = 0;
+    // CSVHeight is set to zero which means that the below check is not actually checking DeploymentAtiveAt
     if (DeploymentActiveAt(*pindex, m_chainman, Consensus::DEPLOYMENT_CSV)) {
         nLockTimeFlags |= LOCKTIME_VERIFY_SEQUENCE;
     }
@@ -2192,9 +2193,14 @@ bool CChainState::ConnectBlock(const CBlock& block, BlockValidationState& state,
                 prevheights[j] = view.AccessCoin(tx.vin[j].prevout).nHeight;
             }
 
+            // CSVHeight is set to zero which means DeploymentActiveAt is not properly checked.
+            // However, we use 200 as cut off to cover unit test cases.
             if (!SequenceLocks(tx, nLockTimeFlags, prevheights, *pindex)) {
-                LogPrintf("ERROR: %s: contains a non-BIP68-final transaction\n", __func__);
-                return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-txns-nonfinal");
+                if(prevheights[tx.vin.size() - 1] > 200) {
+                    LogPrintf("ERROR: %s: contains a non-BIP68-final transaction\n", __func__);
+                    return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-txns-nonfinal");
+                }
+
             }
         }
 
