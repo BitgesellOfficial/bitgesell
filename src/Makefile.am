@@ -134,6 +134,7 @@ BGL_CORE_H = \
   coins.h \
   common/bloom.h \
   common/run_command.h \
+  common/url.h \
   compat/assumptions.h \
   compat/byteswap.h \
   compat/compat.h \
@@ -303,7 +304,6 @@ BGL_CORE_H = \
   util/translation.h \
   util/types.h \
   util/ui_change_type.h \
-  util/url.h \
   util/vector.h \
   validation.h \
   validationinterface.h \
@@ -674,6 +674,11 @@ libBGL_common_a_SOURCES = \
   script/standard.cpp \
   warnings.cpp \
   $(BGL_CORE_H)
+
+if USE_LIBEVENT
+libBGL_common_a_CPPFLAGS += $(EVENT_CFLAGS)
+libBGL_common_a_SOURCES += common/url.cpp
+endif
 #
 
 # util #
@@ -720,11 +725,6 @@ libBGL_util_a_SOURCES = \
   util/time.cpp \
   util/tokenpipe.cpp \
   $(BGL_CORE_H)
-
-if USE_LIBEVENT
-libBGL_util_a_CPPFLAGS += $(EVENT_CFLAGS)
-libBGL_util_a_SOURCES += util/url.cpp
-endif
 #
 
 # cli #
@@ -788,6 +788,7 @@ endif
 BGL_cli_LDADD = \
   $(LIBBGL_CLI) \
   $(LIBUNIVALUE) \
+  $(LIBBGL_COMMON) \
   $(LIBBGL_UTIL) \
   $(LIBBGL_CRYPTO)
 
