@@ -345,11 +345,7 @@ obj/build.h: FORCE
 	  "$(abs_top_srcdir)"
 libBGL_util_a-clientversion.$(OBJEXT): obj/build.h
 
-
-# server: shared between bitcoind and bitcoin-qt
-# Contains code accessing mempool and chain state that is meant to be separated
-# from wallet and gui code (see node/README.md). Shared code should go in
-# libbitcoin_common or libbitcoin_util libraries, instead.
+# node #
 libBGL_node_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS) $(MINIUPNPC_CPPFLAGS) $(NATPMP_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
 libBGL_node_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_node_a_SOURCES = \
@@ -439,7 +435,9 @@ endif
 if !ENABLE_WALLET
 libBGL_node_a_SOURCES += dummywallet.cpp
 endif
+#
 
+# zmq #
 if ENABLE_ZMQ
 libBGL_zmq_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(ZMQ_CFLAGS)
 libBGL_zmq_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -450,10 +448,9 @@ libBGL_zmq_a_SOURCES = \
   zmq/zmqrpc.cpp \
   zmq/zmqutil.cpp
 endif
+#
 
-
-# wallet: shared between bitcoind and bitcoin-qt, but only linked
-# when wallet enabled
+# wallet #
 libBGL_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS) $(BDB_CPPFLAGS) $(SQLITE_CFLAGS)
 libBGL_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_wallet_a_SOURCES = \
@@ -492,13 +489,18 @@ endif
 if USE_BDB
 libBGL_wallet_a_SOURCES += wallet/bdb.cpp wallet/salvage.cpp
 endif
+#
 
+# wallet tool #
 libBGL_wallet_tool_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS)
 libBGL_wallet_tool_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_wallet_tool_a_SOURCES = \
   wallet/wallettool.cpp \
   $(BGL_CORE_H)
+#
 
+# crypto #
+crypto_libBGL_crypto_base_la_CPPFLAGS = $(AM_CPPFLAGS)
 
 # SHA3 extension library
 #crypto_sha3_libBGL_crypto_sha3_la_CPPFLAGS = $(AM_CPPFLAGS)
@@ -589,8 +591,9 @@ crypto_libBGL_crypto_arm_shani_la_CPPFLAGS = $(AM_CPPFLAGS)
 crypto_libBGL_crypto_arm_shani_la_CXXFLAGS += $(ARM_SHANI_CXXFLAGS)
 crypto_libBGL_crypto_arm_shani_la_CPPFLAGS += -DENABLE_ARM_SHANI
 crypto_libBGL_crypto_arm_shani_la_SOURCES = crypto/sha256_arm_shani.cpp
+#
 
-# consensus: shared between all executables that validate any consensus rules.
+# consensus #
 libBGL_consensus_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
 libBGL_consensus_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_consensus_a_SOURCES = \
@@ -626,8 +629,9 @@ libBGL_consensus_a_SOURCES = \
   util/strencodings.cpp \
   util/strencodings.h \
   version.h
+#
 
-# common: shared between bitcoind, and bitcoin-qt and non-server tools
+# common #
 libBGL_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS)
 libBGL_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_common_a_SOURCES = \
@@ -666,8 +670,9 @@ libBGL_common_a_SOURCES = \
   script/standard.cpp \
   warnings.cpp \
   $(BGL_CORE_H)
+#
 
-# util: shared between all executables.
+# util #
 libBGL_util_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS)
 libBGL_util_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_util_a_SOURCES = \
@@ -715,8 +720,9 @@ libBGL_util_a_SOURCES = \
 if USE_LIBEVENT
 libBGL_util_a_SOURCES += util/url.cpp
 endif
+#
 
-# cli: shared between bitcoin-cli and bitcoin-qt
+# cli #
 libBGL_cli_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
 libBGL_cli_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libBGL_cli_a_SOURCES = \
