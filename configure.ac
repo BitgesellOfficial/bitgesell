@@ -1782,34 +1782,6 @@ else
   fi
 fi
 
-dnl Enable NAT-PMP support.
-AC_MSG_CHECKING([whether to build with support for NAT-PMP])
-if test "$have_natpmp" = "no"; then
-  if test "$use_natpmp" = "yes"; then
-     AC_MSG_ERROR([NAT-PMP requested but cannot be built. Use --without-natpmp])
-  fi
-  AC_MSG_RESULT([no])
-  use_natpmp=no
-else
-  if test "$use_natpmp" != "no"; then
-    AC_MSG_RESULT([yes])
-    AC_MSG_CHECKING([whether to build with NAT-PMP enabled by default])
-    use_natpmp=yes
-    natpmp_setting=0
-    if test "$use_natpmp_default" != "no"; then
-      use_natpmp_default=yes
-      natpmp_setting=1
-    fi
-    AC_MSG_RESULT($use_natpmp_default)
-    AC_DEFINE_UNQUOTED([USE_NATPMP], [$natpmp_setting], [NAT-PMP support not compiled if undefined, otherwise value (0 or 1) determines default state])
-    if test "$TARGET_OS" = "windows"; then
-      NATPMP_CPPFLAGS="$NATPMP_CPPFLAGS -DSTATICLIB -DNATPMP_STATICLIB"
-    fi
-  else
-    AC_MSG_RESULT([no])
-  fi
-fi
-
 dnl these are only used when qt is enabled
 BUILD_TEST_QT=""
 if test "$BGL_enable_qt" != "no"; then
