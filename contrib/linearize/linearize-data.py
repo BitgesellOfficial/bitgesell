@@ -19,6 +19,8 @@ import time
 import glob
 from collections import namedtuple
 
+
+
 settings = {}
 
 def calc_hash_str(blk_hdr):
