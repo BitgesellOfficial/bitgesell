@@ -184,6 +184,7 @@ def compute_taproot_address(pubkey, scripts):
 def compute_raw_taproot_address(pubkey):
     return encode_segwit_address("rbgl", 1, pubkey)
 
+
 class WalletTaprootTest(BGLTestFramework):
     """Test generation and spending of P2TR address outputs."""
 
