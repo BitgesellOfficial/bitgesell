@@ -39,6 +39,7 @@ def serialize_addrman(
     r += struct.pack("<i", ADDRMAN_NEW_BUCKET_COUNT ^ (1 << 30))
     for _ in range(ADDRMAN_NEW_BUCKET_COUNT):
         r += struct.pack("<i", 0)
+
     checksum = sha3.keccak_256()
     checksum.update(r)
     checksum = checksum.digest()
