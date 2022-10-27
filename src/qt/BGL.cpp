@@ -314,8 +314,6 @@ void BGLApplication::createSplashScreen(const NetworkStyle *networkStyle)
     // We don't hold a direct pointer to the splash screen after creation, but the splash
     // screen will take care of deleting itself when finish() happens.
     m_splash->show();
-    connect(this, &BGLApplication::splashFinished, m_splash, &SplashScreen::finish);
-    connect(this, &BGLApplication::requestedShutdown, m_splash, &QWidget::close);
 }
 
 void BGLApplication::createNode(interfaces::Init& init)
