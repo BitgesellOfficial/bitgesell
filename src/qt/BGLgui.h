@@ -9,7 +9,7 @@
 #include <config/BGL-config.h>
 #endif
 
-#include <qt/bitcoinunits.h>
+#include <qt/BGLunits.h>
 #include <qt/guiutil.h>
 #include <qt/optionsdialog.h>
 
@@ -261,7 +261,7 @@ public Q_SLOTS:
     bool handlePaymentRequest(const SendCoinsRecipient& recipient);
 
     /** Show incoming transaction notification for new transactions. */
-    void incomingTransaction(const QString& date, BitcoinUnit unit, const CAmount& amount, const QString& type, const QString& address, const QString& label, const QString& walletName);
+    void incomingTransaction(const QString& date, BGLUnit unit, const CAmount& amount, const QString& type, const QString& address, const QString& label, const QString& walletName);
 #endif // ENABLE_WALLET
 
 private:
@@ -342,7 +342,7 @@ private:
 
 private Q_SLOTS:
     /** When Display Units are changed on OptionsModel it will refresh the display text of the control on the status bar */
-    void updateDisplayUnit(BitcoinUnit newUnits);
+    void updateDisplayUnit(BGLUnit newUnits);
     /** Tells underlying optionsModel to update its current display unit. */
     void onMenuSelection(QAction* action);
 };

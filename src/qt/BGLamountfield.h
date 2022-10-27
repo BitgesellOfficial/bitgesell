@@ -6,7 +6,7 @@
 #define BGL_QT_BGLAMOUNTFIELD_H
 
 #include <consensus/amount.h>
-#include <qt/bitcoinunits.h>
+#include <qt/BGLunits.h>
 
 #include <QWidget>
 
@@ -53,7 +53,7 @@ public:
     bool validate();
 
     /** Change unit used to display amount. */
-    void setDisplayUnit(BitcoinUnit new_unit);
+    void setDisplayUnit(BGLUnit new_unit);
 
     /** Make field empty and ready for new input. */
     void clear();
