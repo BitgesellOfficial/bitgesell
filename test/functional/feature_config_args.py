@@ -248,7 +248,8 @@ class ConfArgsTest(BGLTestFramework):
         conf_file = os.path.join(default_data_dir, "BGL.conf")
 
         # datadir needs to be set before [regtest] section
-        conf_file_contents = open(conf_file, encoding='utf8').read()
+        with open(conf_file, encoding='utf8') as f:
+            conf_file_contents = f.read()
         with open(conf_file, 'w', encoding='utf8') as f:
             f.write(f"datadir={new_data_dir}\n")
             f.write(conf_file_contents)
