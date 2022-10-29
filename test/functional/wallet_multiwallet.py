@@ -422,5 +422,6 @@ class MultiWalletTest(BGLTestFramework):
         self.nodes[1].loadwallet(wallet)
 
 
+
 if __name__ == '__main__':
     MultiWalletTest().main()
