@@ -167,7 +167,7 @@ def compute_taproot_address(pubkey, scripts):
     tap = taproot_construct(pubkey, scripts)
     assert tap.scriptPubKey[0] == 0x51
     assert tap.scriptPubKey[1] == 0x20
-    return encode_segwit_address("bcrt", 1, tap.scriptPubKey[2:])
+    return encode_segwit_address("rbgl", 1, tap.scriptPubKey[2:])
 
 class WalletTaprootTest(BGLTestFramework):
     """Test generation and spending of P2TR address outputs."""
