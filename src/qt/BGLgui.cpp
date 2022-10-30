@@ -47,6 +47,7 @@
 #include <QCursor>
 #include <QDateTime>
 #include <QDragEnterEvent>
+#include <QInputDialog>
 #include <QKeySequence>
 #include <QListWidget>
 #include <QMenu>
@@ -257,7 +258,7 @@ void BGLGUI::createActions()
     tabGroup->addAction(overviewAction);
 
     sendCoinsAction = new QAction(platformStyle->SingleColorIcon(":/icons/send"), tr("&Send"), this);
-    sendCoinsAction->setStatusTip(tr("Send coins to a Bitgesell address"));
+    sendCoinsAction->setStatusTip(tr("Send coins to a BGL address"));
     sendCoinsAction->setToolTip(sendCoinsAction->statusTip());
     sendCoinsAction->setCheckable(true);
     sendCoinsAction->setShortcut(QKeySequence(QStringLiteral("Alt+2")));
@@ -314,13 +315,13 @@ void BGLGUI::createActions()
     changePassphraseAction = new QAction(tr("&Change Passphrase…"), this);
     changePassphraseAction->setStatusTip(tr("Change the passphrase used for wallet encryption"));
     signMessageAction = new QAction(tr("Sign &message…"), this);
-    signMessageAction->setStatusTip(tr("Sign messages with your Bitgesell addresses to prove you own them"));
+    signMessageAction->setStatusTip(tr("Sign messages with your BGL addresses to prove you own them"));
     verifyMessageAction = new QAction(tr("&Verify message…"), this);
-    verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified Bitgesell addresses"));
+    verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified BGL addresses"));
     m_load_psbt_action = new QAction(tr("&Load PSBT from file…"), this);
-    m_load_psbt_action->setStatusTip(tr("Load Partially Signed Bitgesell Transaction"));
+    m_load_psbt_action->setStatusTip(tr("Load Partially Signed BGL Transaction"));
     m_load_psbt_clipboard_action = new QAction(tr("Load PSBT from &clipboard…"), this);
-    m_load_psbt_clipboard_action->setStatusTip(tr("Load Partially Signed Bitgesell Transaction from clipboard"));
+    m_load_psbt_clipboard_action->setStatusTip(tr("Load Partially Signed BGL Transaction from clipboard"));
 
     openRPCConsoleAction = new QAction(tr("Node window"), this);
     openRPCConsoleAction->setStatusTip(tr("Open node debugging and diagnostic console"));
@@ -348,12 +349,18 @@ void BGLGUI::createActions()
     m_create_wallet_action->setEnabled(false);
     m_create_wallet_action->setStatusTip(tr("Create a new wallet"));
 
+    //: Name of the menu item that restores wallet from a backup file.
+    m_restore_wallet_action = new QAction(tr("Restore Wallet…"), this);
+    m_restore_wallet_action->setEnabled(false);
+    //: Status tip for Restore Wallet menu item
+    m_restore_wallet_action->setStatusTip(tr("Restore a wallet from a backup file"));
+
     m_close_all_wallets_action = new QAction(tr("Close All Wallets…"), this);
     m_close_all_wallets_action->setStatusTip(tr("Close all wallets"));
 
     showHelpMessageAction = new QAction(tr("&Command-line options"), this);
     showHelpMessageAction->setMenuRole(QAction::NoRole);
-    showHelpMessageAction->setStatusTip(tr("Show the %1 help message to get a list with possible Bitgesell command-line options").arg(PACKAGE_NAME));
+    showHelpMessageAction->setStatusTip(tr("Show the %1 help message to get a list with possible BGL command-line options").arg(PACKAGE_NAME));
 
     m_mask_values_action = new QAction(tr("&Mask values"), this);
     m_mask_values_action->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_M));
@@ -412,6 +419,27 @@ void BGLGUI::createActions()
                 action->setEnabled(false);
             }
         });
+        connect(m_restore_wallet_action, &QAction::triggered, [this] {
+            //: Name of the wallet data file format.
+            QString name_data_file = tr("Wallet Data");
+
+            //: The title for Restore Wallet File Windows
+            QString title_windows = tr("Load Wallet Backup");
+
+            QString backup_file = GUIUtil::getOpenFileName(this, title_windows, QString(), name_data_file + QLatin1String(" (*.dat)"), nullptr);
+            if (backup_file.isEmpty()) return;
+
+            bool wallet_name_ok;
+            //: Title of the Restore Wallet input dialog (where the wallet name is entered)
+            QString wallet_name = QInputDialog::getText(this, tr("Restore Name"), tr("Wallet Name:"), QLineEdit::Normal, "", &wallet_name_ok);
+            if (!wallet_name_ok || wallet_name.isEmpty()) return;
+
+            auto activity = new RestoreWalletActivity(m_wallet_controller, this);
+            connect(activity, &RestoreWalletActivity::restored, this, &BGLGUI::setCurrentWallet, Qt::QueuedConnection);
+
+            auto backup_file_path = fs::PathFromString(backup_file.toStdString());
+            activity->restore(backup_file_path, wallet_name.toStdString());
+        });
         connect(m_close_wallet_action, &QAction::triggered, [this] {
             m_wallet_controller->closeWallet(walletFrame->currentWalletModel(), this);
         });
@@ -450,8 +478,10 @@ void BGLGUI::createMenuBar()
         file->addAction(m_close_wallet_action);
         file->addAction(m_close_all_wallets_action);
         file->addSeparator();
-        file->addAction(openAction);
         file->addAction(backupWalletAction);
+        file->addAction(m_restore_wallet_action);
+        file->addSeparator();
+        file->addAction(openAction);
         file->addAction(signMessageAction);
         file->addAction(verifyMessageAction);
         file->addAction(m_load_psbt_action);
@@ -642,6 +672,7 @@ void BGLGUI::setWalletController(WalletController* wallet_controller)
     m_create_wallet_action->setEnabled(true);
     m_open_wallet_action->setEnabled(true);
     m_open_wallet_action->setMenu(m_open_wallet_menu);
+    m_restore_wallet_action->setEnabled(true);
 
     GUIUtil::ExceptionSafeConnect(wallet_controller, &WalletController::walletAdded, this, &BGLGUI::addWallet);
     connect(wallet_controller, &WalletController::walletRemoved, this, &BGLGUI::removeWallet);
@@ -878,7 +909,7 @@ void BGLGUI::showHelpMessageClicked()
 #ifdef ENABLE_WALLET
 void BGLGUI::openClicked()
 {
-    OpenURIDialog dlg(this);
+    OpenURIDialog dlg(platformStyle, this);
     if(dlg.exec())
     {
         Q_EMIT receivedURI(dlg.getURI());
@@ -999,7 +1030,6 @@ void BGLGUI::openOptionsDialogWithTab(OptionsDialog::Tab tab)
     auto dlg = new OptionsDialog(this, enableWallet);
     connect(dlg, &OptionsDialog::quitOnReset, this, &BGLGUI::quitRequested);
     dlg->setCurrentTab(tab);
-    dlg->setClientModel(clientModel);
     dlg->setModel(clientModel->getOptionsModel());
     GUIUtil::ShowModalDialogAsynchronously(dlg);
 }
@@ -1251,7 +1281,7 @@ void BGLGUI::incomingTransaction(const QString& date, BGLUnit unit, const CAmoun
     // On new transaction, make an info balloon
     QString msg = tr("Date: %1\n").arg(date) +
                   tr("Amount: %1\n").arg(BGLUnits::formatWithUnit(unit, amount, true));
-    if (m_node.walletClient().getWallets().size() > 1 && !walletName.isEmpty()) {
+    if (m_node.walletLoader().getWallets().size() > 1 && !walletName.isEmpty()) {
         msg += tr("Wallet: %1\n").arg(walletName);
     }
     msg += tr("Type: %1\n").arg(type);

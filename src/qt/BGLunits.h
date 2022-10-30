@@ -26,7 +26,7 @@
 #define THIN_SP_UTF8 REAL_THIN_SP_UTF8
 #define THIN_SP_HTML HTML_HACK_SP
 
-/** BGL unit definitions. Encapsulates parsing and formatting
+/** Bitcoin unit definitions. Encapsulates parsing and formatting
    and serves as list model for drop-down selection boxes.
 */
 class BGLUnits: public QAbstractListModel
@@ -36,8 +36,8 @@ class BGLUnits: public QAbstractListModel
 public:
     explicit BGLUnits(QObject *parent);
 
-    /** BGL units.
-      @note Source: https://en.BGL.it/wiki/Units . Please add only sensible ones
+    /** Bitcoin units.
+      @note Source: https://en.bitcoin.it/wiki/Units . Please add only sensible ones
      */
     enum class Unit {
         BGL,
@@ -60,8 +60,6 @@ public:
 
     //! Get list of units, for drop-down box
     static QList<Unit> availableUnits();
-    //! Is unit ID valid?
-    static bool valid(Unit unit);
     //! Long name
     static QString longName(Unit unit);
     //! Short name

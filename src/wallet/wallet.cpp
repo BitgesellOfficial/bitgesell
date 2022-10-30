@@ -634,7 +634,8 @@ bool CWallet::IsSpent(const COutPoint& outpoint) const
     std::pair<TxSpends::const_iterator, TxSpends::const_iterator> range;
     range = mapTxSpends.equal_range(outpoint);
 
-    for (TxSpends::const_iterator it = range.first; it != range.second; ++it) {
+    for (TxSpends::const_iterator it = range.first; it != range.second; ++it)
+    {
         const uint256& wtxid = it->second;
         std::map<uint256, CWalletTx>::const_iterator mit = mapWallet.find(wtxid);
         if (mit != mapWallet.end()) {
@@ -663,13 +664,16 @@ void CWallet::AddToSpends(const COutPoint& outpoint, const uint256& wtxid, Walle
 }
 
 
-void CWallet::AddToSpends(const CWalletTx& wtx, WalletBatch* batch)
+void CWallet::AddToSpends(const uint256& wtxid, WalletBatch* batch)
 {
-    if (wtx.IsCoinBase()) // Coinbases don't spend anything!
+    auto it = mapWallet.find(wtxid);
+    assert(it != mapWallet.end());
+    const CWalletTx& thisTx = it->second;
+    if (thisTx.IsCoinBase()) // Coinbases don't spend anything!
         return;
 
-    for (const CTxIn& txin : wtx.tx->vin)
-        AddToSpends(txin.prevout, wtx.GetHash(), batch);
+    for (const CTxIn& txin : thisTx.tx->vin)
+        AddToSpends(txin.prevout, wtxid, batch);
 }
 
 bool CWallet::EncryptWallet(const SecureString& strWalletPassphrase)
@@ -964,7 +968,7 @@ CWalletTx* CWallet::AddToWallet(CTransactionRef tx, const TxState& state, const 
         wtx.nOrderPos = IncOrderPosNext(&batch);
         wtx.m_it_wtxOrdered = wtxOrdered.insert(std::make_pair(wtx.nOrderPos, &wtx));
         wtx.nTimeSmart = ComputeTimeSmart(wtx, rescanning_old_block);
-        AddToSpends(wtx, &batch);
+        AddToSpends(hash, &batch);
     }
 
     if (!fInsertedNew)
@@ -1063,7 +1067,7 @@ bool CWallet::LoadToWallet(const uint256& hash, const UpdateWalletTxFn& fill_wtx
     if (/* insertion took place */ ins.second) {
         wtx.m_it_wtxOrdered = wtxOrdered.insert(std::make_pair(wtx.nOrderPos, &wtx));
     }
-    AddToSpends(wtx);
+    AddToSpends(hash);
     for (const CTxIn& txin : wtx.tx->vin) {
         auto it = mapWallet.find(txin.prevout.hash);
         if (it != mapWallet.end()) {
@@ -2003,35 +2007,6 @@ TransactionError CWallet::FillPSBT(PartiallySignedTransaction& psbtx, bool& comp
 
         if (n_signed) {
             (*n_signed) += n_signed_this_spkm;
-        }
-    }
-
-    // Only drop non_witness_utxos if sighash_type != SIGHASH_ANYONECANPAY
-    if ((sighash_type & 0x80) != SIGHASH_ANYONECANPAY) {
-        // Figure out if any non_witness_utxos should be dropped
-        std::vector<unsigned int> to_drop;
-        for (unsigned int i = 0; i < psbtx.inputs.size(); ++i) {
-            const auto& input = psbtx.inputs.at(i);
-            int wit_ver;
-            std::vector<unsigned char> wit_prog;
-            if (input.witness_utxo.IsNull() || !input.witness_utxo.scriptPubKey.IsWitnessProgram(wit_ver, wit_prog)) {
-                // There's a non-segwit input or Segwit v0, so we cannot drop any witness_utxos
-                to_drop.clear();
-                break;
-            }
-            if (wit_ver == 0) {
-                // Segwit v0, so we cannot drop any non_witness_utxos
-                to_drop.clear();
-                break;
-            }
-            if (input.non_witness_utxo) {
-                to_drop.push_back(i);
-            }
-        }
-
-        // Drop the non_witness_utxos that we can drop
-        for (unsigned int i : to_drop) {
-            psbtx.inputs.at(i).non_witness_utxo = nullptr;
         }
     }
 
@@ -2992,7 +2967,7 @@ bool CWallet::AttachChain(const std::shared_ptr<CWallet>& walletInstance, interf
             // Wallet is assumed to be from another chain, if genesis block in the active
             // chain differs from the genesis block known to the wallet.
             if (chain.getBlockHash(0) != locator.vHave.back()) {
-                error = Untranslated("Wallet files should not be reused across chains. Restart bitcoind with -walletcrosschain to override.");
+                error = Untranslated("Wallet files should not be reused across chains. Restart BGLd with -walletcrosschain to override.");
                 return false;
             }
         }

@@ -227,13 +227,12 @@ void BlockManager::FindFilesToPrune(std::set<int>& setFilesToPrune, uint64_t nPr
     }
 
     LogPrint(BCLog::PRUNE, "target=%dMiB actual=%dMiB diff=%dMiB max_prune_height=%d removed %d blk/rev pairs\n",
-             nPruneTarget / 1024 / 1024, nCurrentUsage / 1024 / 1024,
-             ((int64_t)nPruneTarget - (int64_t)nCurrentUsage) / 1024 / 1024,
-             nLastBlockWeCanPrune, count);
+           nPruneTarget/1024/1024, nCurrentUsage/1024/1024,
+           ((int64_t)nPruneTarget - (int64_t)nCurrentUsage)/1024/1024,
+           nLastBlockWeCanPrune, count);
 }
 
-void BlockManager::UpdatePruneLock(const std::string& name, const PruneLockInfo& lock_info)
-{
+void BlockManager::UpdatePruneLock(const std::string& name, const PruneLockInfo& lock_info) {
     AssertLockHeld(::cs_main);
     m_prune_locks[name] = lock_info;
 }
@@ -420,7 +419,8 @@ void CleanupBlockRevFiles()
         const std::string path = fs::PathToString(it->path().filename());
         if (fs::is_regular_file(*it) &&
             path.length() == 12 &&
-            path.substr(8, 4) == ".dat") {
+            path.substr(8,4) == ".dat")
+        {
             if (path.substr(0, 3) == "blk") {
                 mapBlockFiles[path.substr(3, 5)] = it->path();
             } else if (path.substr(0, 3) == "rev") {

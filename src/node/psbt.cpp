@@ -36,6 +36,10 @@ PSBTAnalysis AnalyzePSBT(PartiallySignedTransaction psbtx)
         // Check for a UTXO
         CTxOut utxo;
         if (psbtx.GetInputUTXO(utxo, i)) {
+            if (!MoneyRange(utxo.nValue) || !MoneyRange(in_amt + utxo.nValue)) {
+                result.SetInvalid(strprintf("PSBT is not valid. Input %u has invalid value", i));
+                return result;
+            }
             in_amt += utxo.nValue;
             input_analysis.has_utxo = true;
         } else {
@@ -95,6 +99,9 @@ PSBTAnalysis AnalyzePSBT(PartiallySignedTransaction psbtx)
         // Get the output amount
         CAmount out_amt = std::accumulate(psbtx.tx->vout.begin(), psbtx.tx->vout.end(), CAmount(0),
             [](CAmount a, const CTxOut& b) {
+                if (!MoneyRange(a) || !MoneyRange(b.nValue) || !MoneyRange(a + b.nValue)) {
+                    return CAmount(-1);
+                }
                 return a += b.nValue;
             }
         );

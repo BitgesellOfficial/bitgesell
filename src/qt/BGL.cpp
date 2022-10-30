@@ -77,8 +77,6 @@ Q_DECLARE_METATYPE(CAmount)
 Q_DECLARE_METATYPE(SynchronizationState)
 Q_DECLARE_METATYPE(uint256)
 
-using node::NodeContext;
-
 static void RegisterMetaTypes()
 {
     // Register meta types used for QMetaObject::invokeMethod and Qt::QueuedConnection
@@ -314,7 +312,6 @@ void BGLApplication::createSplashScreen(const NetworkStyle *networkStyle)
     // We don't hold a direct pointer to the splash screen after creation, but the splash
     // screen will take care of deleting itself when finish() happens.
     m_splash->show();
-    connect(this, &BGLApplication::requestedInitialize, m_splash, &SplashScreen::handleLoadWallet);
     connect(this, &BGLApplication::splashFinished, m_splash, &SplashScreen::finish);
     connect(this, &BGLApplication::requestedShutdown, m_splash, &QWidget::close);
 }

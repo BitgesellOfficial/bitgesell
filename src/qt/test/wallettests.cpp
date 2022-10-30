@@ -7,6 +7,7 @@
 
 #include <interfaces/chain.h>
 #include <interfaces/node.h>
+#include <key_io.h>
 #include <qt/BGLamountfield.h>
 #include <qt/BGLunits.h>
 #include <qt/clientmodel.h>
@@ -138,9 +139,9 @@ void BumpFee(TransactionView& view, const uint256& txid, bool expectDisabled, st
 //
 // This also requires overriding the default minimal Qt platform:
 //
-//     QT_QPA_PLATFORM=xcb     src/qt/test/test_BGL-qt  # Linux
-//     QT_QPA_PLATFORM=windows src/qt/test/test_BGL-qt  # Windows
-//     QT_QPA_PLATFORM=cocoa   src/qt/test/test_BGL-qt  # macOS
+//     QT_QPA_PLATFORM=xcb     src/qt/test/test_bitcoin-qt  # Linux
+//     QT_QPA_PLATFORM=windows src/qt/test/test_bitcoin-qt  # Windows
+//     QT_QPA_PLATFORM=cocoa   src/qt/test/test_bitcoin-qt  # macOS
 void TestGUI(interfaces::Node& node)
 {
     // Set up wallet and chain with 105 blocks (5 mature blocks for spending).
@@ -184,8 +185,6 @@ void TestGUI(interfaces::Node& node)
     SendCoinsDialog sendCoinsDialog(platformStyle.get());
     TransactionView transactionView(platformStyle.get());
     OptionsModel optionsModel(node);
-    bilingual_str error;
-    QVERIFY(optionsModel.Init(error));
     ClientModel clientModel(node, &optionsModel);
     WalletContext& context = *node.walletLoader().context();
     AddWallet(context, wallet);
@@ -248,6 +247,7 @@ void TestGUI(interfaces::Node& node)
     int initialRowCount = requestTableModel->rowCount({});
     QPushButton* requestPaymentButton = receiveCoinsDialog.findChild<QPushButton*>("receiveButton");
     requestPaymentButton->click();
+    QString address;
     for (QWidget* widget : QApplication::topLevelWidgets()) {
         if (widget->inherits("ReceiveRequestDialog")) {
             ReceiveRequestDialog* receiveRequestDialog = qobject_cast<ReceiveRequestDialog*>(widget);
@@ -256,6 +256,9 @@ void TestGUI(interfaces::Node& node)
             QString uri = receiveRequestDialog->QObject::findChild<QLabel*>("uri_content")->text();
             QCOMPARE(uri.count("BGL:"), 2);
             QCOMPARE(receiveRequestDialog->QObject::findChild<QLabel*>("address_tag")->text(), QString("Address:"));
+            QVERIFY(address.isEmpty());
+            address = receiveRequestDialog->QObject::findChild<QLabel*>("address_content")->text();
+            QVERIFY(!address.isEmpty());
 
             QCOMPARE(uri.count("amount=0.00000001"), 2);
             QCOMPARE(receiveRequestDialog->QObject::findChild<QLabel*>("amount_tag")->text(), QString("Amount:"));
@@ -282,12 +285,30 @@ void TestGUI(interfaces::Node& node)
     int currentRowCount = requestTableModel->rowCount({});
     QCOMPARE(currentRowCount, initialRowCount+1);
 
+    // Check addition to wallet
+    std::vector<std::string> requests = walletModel.wallet().getAddressReceiveRequests();
+    QCOMPARE(requests.size(), size_t{1});
+    RecentRequestEntry entry;
+    CDataStream{MakeUCharSpan(requests[0]), SER_DISK, CLIENT_VERSION} >> entry;
+    QCOMPARE(entry.nVersion, int{1});
+    QCOMPARE(entry.id, int64_t{1});
+    QVERIFY(entry.date.isValid());
+    QCOMPARE(entry.recipient.address, address);
+    QCOMPARE(entry.recipient.label, QString{"TEST_LABEL_1"});
+    QCOMPARE(entry.recipient.amount, CAmount{1});
+    QCOMPARE(entry.recipient.message, QString{"TEST_MESSAGE_1"});
+    QCOMPARE(entry.recipient.sPaymentRequest, std::string{});
+    QCOMPARE(entry.recipient.authenticatedMerchant, QString{});
+
     // Check Remove button
     QTableView* table = receiveCoinsDialog.findChild<QTableView*>("recentRequestsView");
     table->selectRow(currentRowCount-1);
     QPushButton* removeRequestButton = receiveCoinsDialog.findChild<QPushButton*>("removeRequestButton");
     removeRequestButton->click();
     QCOMPARE(requestTableModel->rowCount({}), currentRowCount-1);
+
+    // Check removal from wallet
+    QCOMPARE(walletModel.wallet().getAddressReceiveRequests().size(), size_t{0});
 }
 
 } // namespace

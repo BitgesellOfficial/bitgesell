@@ -29,7 +29,7 @@ QT_BEGIN_NAMESPACE
 class QUrl;
 QT_END_NAMESPACE
 
-/** Dialog for sending BGLs */
+/** Dialog for sending bitcoins */
 class SendCoinsDialog : public QDialog
 {
     Q_OBJECT
@@ -134,13 +134,16 @@ public:
 
 private Q_SLOTS:
     void countDown();
-    void updateYesButton();
+    void updateButtons();
 
 private:
     QAbstractButton *yesButton;
+    QAbstractButton *m_psbt_button;
     QTimer countDownTimer;
     int secDelay;
-    QString confirmButtonText;
+    QString confirmButtonText{tr("Send")};
+    bool m_enable_send;
+    QString m_psbt_button_text{tr("Create Unsigned")};
 };
 
 #endif // BGL_QT_SENDCOINSDIALOG_H

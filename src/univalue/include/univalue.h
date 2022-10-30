@@ -1,10 +1,10 @@
 // Copyright 2014 BitPay Inc.
-// Copyright 2015 BGL Core Developers
+// Copyright 2015 Bitcoin Core Developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or https://opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_UNIVALUE_INCLUDE_UNIVALUE_H
-#define BITCOIN_UNIVALUE_INCLUDE_UNIVALUE_H
+#ifndef BGL_UNIVALUE_INCLUDE_UNIVALUE_H
+#define BGL_UNIVALUE_INCLUDE_UNIVALUE_H
 
 #include <charconv>
 #include <cstdint>
@@ -84,6 +84,8 @@ public:
 
     bool push_back(const UniValue& val);
     bool push_backV(const std::vector<UniValue>& vec);
+    template <class It>
+    bool push_backV(It first, It last);
 
     void __pushKV(const std::string& key, const UniValue& val);
     bool pushKV(const std::string& key, const UniValue& val);
@@ -136,6 +138,14 @@ public:
     enum VType type() const { return getType(); }
     friend const UniValue& find_value( const UniValue& obj, const std::string& name);
 };
+
+template <class It>
+bool UniValue::push_backV(It first, It last)
+{
+    if (typ != VARR) return false;
+    values.insert(values.end(), first, last);
+    return true;
+}
 
 enum jtokentype {
     JTOK_ERR        = -1,
@@ -194,4 +204,4 @@ extern const UniValue NullUniValue;
 
 const UniValue& find_value( const UniValue& obj, const std::string& name);
 
-#endif // BITCOIN_UNIVALUE_INCLUDE_UNIVALUE_H
+#endif // BGL_UNIVALUE_INCLUDE_UNIVALUE_H

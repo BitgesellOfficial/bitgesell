@@ -55,14 +55,14 @@ struct DBHeightKey {
 
     explicit DBHeightKey(int height_in) : height(height_in) {}
 
-    template<typename Stream>
+    template <typename Stream>
     void Serialize(Stream& s) const
     {
         ser_writedata8(s, DB_BLOCK_HEIGHT);
         ser_writedata32be(s, height);
     }
 
-    template<typename Stream>
+    template <typename Stream>
     void Unserialize(Stream& s)
     {
         const uint8_t prefix{ser_readdata8(s)};
@@ -78,7 +78,8 @@ struct DBHashKey {
 
     explicit DBHashKey(const uint256& hash_in) : hash(hash_in) {}
 
-    SERIALIZE_METHODS(DBHashKey, obj) {
+    SERIALIZE_METHODS(DBHashKey, obj)
+    {
         uint8_t prefix{DB_BLOCK_HASH};
         READWRITE(prefix);
         if (prefix != DB_BLOCK_HASH) {
@@ -155,8 +156,7 @@ bool BlockFilterIndex::ReadFilterFromDisk(const FlatFilePos& pos, BlockFilter& f
     try {
         filein >> block_hash >> encoded_filter;
         filter = BlockFilter(GetFilterType(), block_hash, std::move(encoded_filter));
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception& e) {
         return error("%s: Failed to deserialize block filter from disk: %s", __func__, e.what());
     }
 
@@ -457,9 +457,10 @@ BlockFilterIndex* GetBlockFilterIndex(BlockFilterType filter_type)
     return it != g_filter_indexes.end() ? &it->second : nullptr;
 }
 
-void ForEachBlockFilterIndex(std::function<void (BlockFilterIndex&)> fn)
+void ForEachBlockFilterIndex(std::function<void(BlockFilterIndex&)> fn)
 {
-    for (auto& entry : g_filter_indexes) fn(entry.second);
+    for (auto& entry : g_filter_indexes)
+        fn(entry.second);
 }
 
 bool InitBlockFilterIndex(BlockFilterType filter_type,

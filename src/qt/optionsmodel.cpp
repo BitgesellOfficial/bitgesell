@@ -39,24 +39,21 @@ static const char* SettingName(OptionsModel::OptionID option)
     switch (option) {
     case OptionsModel::DatabaseCache: return "dbcache";
     case OptionsModel::ThreadsScriptVerif: return "par";
-<<<<<<< HEAD
-=======
     case OptionsModel::SpendZeroConfChange: return "spendzeroconfchange";
     case OptionsModel::ExternalSignerPath: return "signer";
     case OptionsModel::MapPortUPnP: return "upnp";
     case OptionsModel::MapPortNatpmp: return "natpmp";
-<<<<<<< HEAD
->>>>>>> d2ada6e635... Migrate -upnp and -natpmp settings from QSettings to settings.json
-=======
     case OptionsModel::Listen: return "listen";
     case OptionsModel::Server: return "server";
+    case OptionsModel::PruneSize: return "prune";
+    case OptionsModel::Prune: return "prune";
     case OptionsModel::ProxyIP: return "proxy";
     case OptionsModel::ProxyPort: return "proxy";
     case OptionsModel::ProxyUse: return "proxy";
     case OptionsModel::ProxyIPTor: return "onion";
     case OptionsModel::ProxyPortTor: return "onion";
     case OptionsModel::ProxyUseTor: return "onion";
->>>>>>> f067e19433... Migrate -proxy and -onion settings from QSettings to settings.json
+    case OptionsModel::Language: return "lang";
     default: throw std::logic_error(strprintf("GUI option %i has no corresponding node setting.", option));
     }
 }
@@ -66,7 +63,9 @@ static void UpdateRwSetting(interfaces::Node& node, OptionsModel::OptionID optio
 {
     if (value.isNum() &&
         (option == OptionsModel::DatabaseCache ||
-         option == OptionsModel::ThreadsScriptVerif)) {
+         option == OptionsModel::ThreadsScriptVerif ||
+         option == OptionsModel::Prune ||
+         option == OptionsModel::PruneSize)) {
         // Write certain old settings as strings, even though they are numbers,
         // because Bitcoin 22.x releases try to read these specific settings as
         // strings in addOverriddenOption() calls at startup, triggering
@@ -80,7 +79,6 @@ static void UpdateRwSetting(interfaces::Node& node, OptionsModel::OptionID optio
     }
 }
 
-<<<<<<< HEAD
 //! Convert enabled/size values to bitcoin -prune setting.
 static util::SettingsValue PruneSetting(bool prune_enabled, int prune_size_gb)
 {
@@ -111,8 +109,6 @@ static int ParsePruneSizeGB(const QVariant& prune_size)
     return std::max(1, prune_size.toInt());
 }
 
-=======
->>>>>>> f067e19433... Migrate -proxy and -onion settings from QSettings to settings.json
 struct ProxySetting {
     bool is_set;
     QString ip;
@@ -135,20 +131,14 @@ void OptionsModel::addOverriddenOption(const std::string &option)
 bool OptionsModel::Init(bilingual_str& error)
 {
     // Initialize display settings from stored settings.
-<<<<<<< HEAD
     m_prune_size_gb = PruneSizeGB(node().getPersistentSetting("prune"));
-=======
->>>>>>> f067e19433... Migrate -proxy and -onion settings from QSettings to settings.json
     ProxySetting proxy = ParseProxyString(SettingToString(node().getPersistentSetting("proxy"), GetDefaultProxyAddress().toStdString()));
     m_proxy_ip = proxy.ip;
     m_proxy_port = proxy.port;
     ProxySetting onion = ParseProxyString(SettingToString(node().getPersistentSetting("onion"), GetDefaultProxyAddress().toStdString()));
     m_onion_ip = onion.ip;
     m_onion_port = onion.port;
-<<<<<<< HEAD
     language = QString::fromStdString(SettingToString(node().getPersistentSetting("lang"), ""));
-=======
->>>>>>> f067e19433... Migrate -proxy and -onion settings from QSettings to settings.json
 
     checkAndMigrate();
 
@@ -194,18 +184,15 @@ bool OptionsModel::Init(bilingual_str& error)
         settings.setValue("fCoinControlFeatures", false);
     fCoinControlFeatures = settings.value("fCoinControlFeatures", false).toBool();
 
+    if (!settings.contains("enable_psbt_controls")) {
+        settings.setValue("enable_psbt_controls", false);
+    }
+    m_enable_psbt_controls = settings.value("enable_psbt_controls", false).toBool();
+
     // These are shared with the core or have a command-line parameter
     // and we want command-line parameters to overwrite the GUI settings.
-<<<<<<< HEAD
-    for (OptionID option : {DatabaseCache, ThreadsScriptVerif}) {
-=======
     for (OptionID option : {DatabaseCache, ThreadsScriptVerif, SpendZeroConfChange, ExternalSignerPath, MapPortUPnP,
-<<<<<<< HEAD
-                            MapPortNatpmp}) {
->>>>>>> d2ada6e635... Migrate -upnp and -natpmp settings from QSettings to settings.json
-=======
-                            MapPortNatpmp, Listen, Server, ProxyUse, ProxyUseTor}) {
->>>>>>> f067e19433... Migrate -proxy and -onion settings from QSettings to settings.json
+                            MapPortNatpmp, Listen, Server, Prune, ProxyUse, ProxyUseTor, Language}) {
         std::string setting = SettingName(option);
         if (node().isSettingIgnored(setting)) addOverriddenOption("-" + setting);
         try {
@@ -222,11 +209,6 @@ bool OptionsModel::Init(bilingual_str& error)
     // If setting doesn't exist create it with defaults.
 
     // Main
-    if (!settings.contains("bPrune"))
-        settings.setValue("bPrune", false);
-    if (!settings.contains("nPruneSize"))
-        settings.setValue("nPruneSize", DEFAULT_PRUNE_TARGET_GB);
-    SetPruneEnabled(settings.value("bPrune").toBool());
     if (!settings.contains("strDataDir"))
         settings.setValue("strDataDir", GUIUtil::getDefaultDataDirectory());
 
@@ -238,65 +220,6 @@ bool OptionsModel::Init(bilingual_str& error)
     m_sub_fee_from_amount = settings.value("SubFeeFromAmount", false).toBool();
 #endif
 
-<<<<<<< HEAD
-    // Network
-<<<<<<< HEAD
-=======
-    if (!settings.contains("fListen"))
-        settings.setValue("fListen", DEFAULT_LISTEN);
-    const bool listen{settings.value("fListen").toBool()};
-    if (!gArgs.SoftSetBoolArg("-listen", listen)) {
-        addOverriddenOption("-listen");
-    } else if (!listen) {
-        // We successfully set -listen=0, thus mimic the logic from InitParameterInteraction():
-        // "parameter interaction: -listen=0 -> setting -listenonion=0".
-        //
-        // Both -listen and -listenonion default to true.
-        //
-        // The call order is:
-        //
-        // InitParameterInteraction()
-        //     would set -listenonion=0 if it sees -listen=0, but for bitcoin-qt with
-        //     fListen=false -listen is 1 at this point
-        //
-        // OptionsModel::Init()
-        //     (this method) can flip -listen from 1 to 0 if fListen=false
-        //
-        // AppInitParameterInteraction()
-        //     raises an error if -listen=0 and -listenonion=1
-        gArgs.SoftSetBoolArg("-listenonion", false);
-    }
-
-    if (!settings.contains("server")) {
-        settings.setValue("server", false);
-    }
-    if (!gArgs.SoftSetBoolArg("-server", settings.value("server").toBool())) {
-        addOverriddenOption("-server");
-    }
->>>>>>> d2ada6e635... Migrate -upnp and -natpmp settings from QSettings to settings.json
-
-    if (!settings.contains("fUseProxy"))
-        settings.setValue("fUseProxy", false);
-    if (!settings.contains("addrProxy"))
-        settings.setValue("addrProxy", GetDefaultProxyAddress());
-    // Only try to set -proxy, if user has enabled fUseProxy
-    if ((settings.value("fUseProxy").toBool() && !gArgs.SoftSetArg("-proxy", settings.value("addrProxy").toString().toStdString())))
-        addOverriddenOption("-proxy");
-    else if(!settings.value("fUseProxy").toBool() && !gArgs.GetArg("-proxy", "").empty())
-        addOverriddenOption("-proxy");
-
-    if (!settings.contains("fUseSeparateProxyTor"))
-        settings.setValue("fUseSeparateProxyTor", false);
-    if (!settings.contains("addrSeparateProxyTor"))
-        settings.setValue("addrSeparateProxyTor", GetDefaultProxyAddress());
-    // Only try to set -onion, if user has enabled fUseSeparateProxyTor
-    if ((settings.value("fUseSeparateProxyTor").toBool() && !gArgs.SoftSetArg("-onion", settings.value("addrSeparateProxyTor").toString().toStdString())))
-        addOverriddenOption("-onion");
-    else if(!settings.value("fUseSeparateProxyTor").toBool() && !gArgs.GetArg("-onion", "").empty())
-        addOverriddenOption("-onion");
-
-=======
->>>>>>> f067e19433... Migrate -proxy and -onion settings from QSettings to settings.json
     // Display
     if (!settings.contains("UseEmbeddedMonospacedFont")) {
         settings.setValue("UseEmbeddedMonospacedFont", "true");
@@ -367,11 +290,7 @@ static ProxySetting ParseProxyString(const QString& proxy)
         return default_val;
     }
     // contains IP at index 0 and port at index 1
-<<<<<<< HEAD
-    QStringList ip_port = settings.value(name).toString().split(":", QString::SkipEmptyParts);
-=======
     QStringList ip_port = GUIUtil::SplitSkipEmptyParts(proxy, ":");
->>>>>>> f067e19433... Migrate -proxy and -onion settings from QSettings to settings.json
     if (ip_port.size() == 2) {
         return {true, ip_port.at(0), ip_port.at(1)};
     } else { // Invalid: return default
@@ -407,7 +326,7 @@ void OptionsModel::SetPruneTargetGB(int prune_target_gb)
     node().forceSetting("prune", new_value);
 
     // Update settings.json if value configured in intro screen is different
-    // from saved value. Avoid writing settings.json if bitcoin.conf value
+    // from saved value. Avoid writing settings.json if BGL.conf value
     // doesn't need to be overridden.
     if (PruneEnabled(cur_value) != PruneEnabled(new_value) ||
         PruneSizeGB(cur_value) != PruneSizeGB(new_value)) {
@@ -702,12 +621,11 @@ bool OptionsModel::setOption(OptionID option, const QVariant& value)
 
 void OptionsModel::setDisplayUnit(const QVariant& new_unit)
 {
-    if (!value.isNull()) {
-        QSettings settings;
-        m_display_BGL_unit = value.value<BGLUnit>();
-        settings.setValue("DisplayBGLUnit", QVariant::fromValue(m_display_BGL_unit));
-        Q_EMIT displayUnitChanged(m_display_BGL_unit);
-    }
+    if (new_unit.isNull() || new_unit.value<BGLUnit>() == m_display_BGL_unit) return;
+    m_display_BGL_unit = new_unit.value<BGLUnit>();
+    QSettings settings;
+    settings.setValue("DisplayBGLUnit", QVariant::fromValue(m_display_BGL_unit));
+    Q_EMIT displayUnitChanged(m_display_BGL_unit);
 }
 
 void OptionsModel::setRestartRequired(bool fRequired)
@@ -774,23 +692,21 @@ void OptionsModel::checkAndMigrate()
 
     migrate_setting(DatabaseCache, "nDatabaseCache");
     migrate_setting(ThreadsScriptVerif, "nThreadsScriptVerif");
-<<<<<<< HEAD
-=======
 #ifdef ENABLE_WALLET
     migrate_setting(SpendZeroConfChange, "bSpendZeroConfChange");
     migrate_setting(ExternalSignerPath, "external_signer_path");
 #endif
     migrate_setting(MapPortUPnP, "fUseUPnP");
     migrate_setting(MapPortNatpmp, "fUseNatpmp");
-<<<<<<< HEAD
->>>>>>> d2ada6e635... Migrate -upnp and -natpmp settings from QSettings to settings.json
-=======
     migrate_setting(Listen, "fListen");
     migrate_setting(Server, "server");
+    migrate_setting(PruneSize, "nPruneSize");
+    migrate_setting(Prune, "bPrune");
     migrate_setting(ProxyIP, "addrProxy");
     migrate_setting(ProxyUse, "fUseProxy");
     migrate_setting(ProxyIPTor, "addrSeparateProxyTor");
     migrate_setting(ProxyUseTor, "fUseSeparateProxyTor");
+    migrate_setting(Language, "language");
 
     // In case migrating QSettings caused any settings value to change, rerun
     // parameter interaction code to update other settings. This is particularly
@@ -798,5 +714,4 @@ void OptionsModel::checkAndMigrate()
     // and other settings to default to false if it was set to false.
     // (https://github.com/bitcoin-core/gui/issues/567).
     node().initParameterInteraction();
->>>>>>> f067e19433... Migrate -proxy and -onion settings from QSettings to settings.json
 }

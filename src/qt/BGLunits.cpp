@@ -28,7 +28,7 @@ QList<BGLUnit> BGLUnits::availableUnits()
     return unitlist;
 }
 
-bool BGLUnits::valid(Unit unit)
+QString BGLUnits::longName(Unit unit)
 {
     switch (unit) {
     case Unit::BGL: return QString("BGL");
@@ -63,8 +63,7 @@ QString BGLUnits::description(Unit unit)
 
 qint64 BGLUnits::factor(Unit unit)
 {
-    switch(unit)
-    {
+    switch (unit) {
     case Unit::BGL: return 100'000'000;
     case Unit::mBGL: return 100'000;
     case Unit::uBGL: return 100;
