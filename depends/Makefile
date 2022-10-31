@@ -34,6 +34,8 @@ BASE_CACHE ?= $(BASEDIR)/built
 SDK_PATH ?= $(BASEDIR)/SDKs
 NO_QT ?=
 NO_QR ?=
+NO_BDB ?=
+NO_SQLITE ?=
 NO_WALLET ?=
 NO_ZMQ ?=
 NO_UPNP ?=
@@ -110,10 +112,6 @@ $(host_arch)_$(host_os)_host=$(host)
 host_prefix=$($(host_arch)_$(host_os)_prefix)
 build_prefix=$(host_prefix)/native
 build_host=$(build)
-
-AT_$(V):=
-AT_:=@
-AT:=$(AT_$(V))
 
 all: install
 
@@ -220,8 +218,8 @@ $(host_prefix)/.stamp_$(final_build_id): $(native_packages) $(packages)
 # we expect them to be available in $PATH at all times, more specificity does
 # not hurt.
 $(host_prefix)/share/config.site : config.site.in $(host_prefix)/.stamp_$(final_build_id)
-	$(AT)@mkdir -p $(@D)
-	$(AT)sed -e 's|@HOST@|$(host)|' \
+	@mkdir -p $(@D)
+	sed -e 's|@HOST@|$(host)|' \
             -e 's|@CC@|$(host_CC)|' \
             -e 's|@CXX@|$(host_CXX)|' \
             -e 's|@AR@|$(host_AR)|' \
@@ -242,6 +240,8 @@ $(host_prefix)/share/config.site : config.site.in $(host_prefix)/.stamp_$(final_
             -e 's|@no_qr@|$(NO_QR)|' \
             -e 's|@no_zmq@|$(NO_ZMQ)|' \
             -e 's|@no_wallet@|$(NO_WALLET)|' \
+            -e 's|@no_bdb@|$(NO_BDB)|' \
+            -e 's|@no_sqlite@|$(NO_SQLITE)|' \
             -e 's|@no_upnp@|$(NO_UPNP)|' \
             -e 's|@no_usdt@|$(NO_USDT)|' \
             -e 's|@no_natpmp@|$(NO_NATPMP)|' \
@@ -249,7 +249,7 @@ $(host_prefix)/share/config.site : config.site.in $(host_prefix)/.stamp_$(final_
             -e 's|@lto@|$(LTO)|' \
             -e 's|@debug@|$(DEBUG)|' \
             $< > $@
-	$(AT)touch $@
+	touch $@
 
 
 define check_or_remove_cached
@@ -298,3 +298,4 @@ $(foreach package,$(all_packages),$(eval $(call ext_add_stages,$(package))))
 
 .PHONY: install cached clean clean-all download-one download-osx download-linux download-win download check-packages check-sources
 .PHONY: FORCE
+$(V).SILENT:
