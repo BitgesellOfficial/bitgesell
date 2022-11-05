@@ -3,7 +3,7 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """
-Test starting bitcoind with -bind and/or -bind=...=onion and confirm
+Test starting BGLd with -bind and/or -bind=...=onion and confirm
 that bind happens on the expected ports.
 """
 
@@ -14,7 +14,7 @@ from test_framework.netutil import (
     get_bind_addrs,
 )
 from test_framework.test_framework import (
-    BitcoinTestFramework,
+    BGLTestFramework,
     SkipTest,
 )
 from test_framework.util import (
@@ -24,7 +24,7 @@ from test_framework.util import (
 )
 
 
-class BindExtraTest(BitcoinTestFramework):
+class BindExtraTest(BGLTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         # Avoid any -bind= on the command line. Force the framework to avoid

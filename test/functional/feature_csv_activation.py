@@ -91,7 +91,7 @@ def all_rlt_txs(txs):
 CSV_ACTIVATION_HEIGHT = 432
 
 
-class BIP68_112_113Test(BitcoinTestFramework):
+class BIP68_112_113Test(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
         self.setup_clean_chain = True

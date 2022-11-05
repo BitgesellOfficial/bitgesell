@@ -13,7 +13,7 @@ The previous release v0.19.1 is required by this test, see test/README.md.
 import os
 
 from test_framework.blocktools import COINBASE_MATURITY
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 from test_framework.wallet import (
     MiniWallet,
     MiniWalletMode,

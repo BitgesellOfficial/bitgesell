@@ -14,7 +14,7 @@ from subprocess import check_output
 from typing import List
 
 
-HEADER_ID_PREFIX = 'BITCOIN_'
+HEADER_ID_PREFIX = 'BGL_'
 HEADER_ID_SUFFIX = '_H'
 
 EXCLUDE_FILES_WITH_PREFIX = ['src/crypto/ctaes',
@@ -46,7 +46,7 @@ def _get_header_id(header_file: str) -> str:
     """ Helper function to get the header id from a header file
         string.
 
-        eg: 'src/wallet/walletdb.h' -> 'BITCOIN_WALLET_WALLETDB_H'
+        eg: 'src/wallet/walletdb.h' -> 'BGL_WALLET_WALLETDB_H'
 
     Args:
         header_file: Filepath to header file.

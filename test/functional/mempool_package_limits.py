@@ -7,7 +7,7 @@
 from decimal import Decimal
 
 from test_framework.address import ADDRESS_BCRT1_P2WSH_OP_TRUE
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 from test_framework.messages import (
     COIN,
     CTransaction,
@@ -29,7 +29,7 @@ from test_framework.wallet import (
     DEFAULT_FEE,
 )
 
-class MempoolPackageLimitsTest(BitcoinTestFramework):
+class MempoolPackageLimitsTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
         self.setup_clean_chain = True

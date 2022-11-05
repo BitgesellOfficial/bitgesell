@@ -10,13 +10,13 @@ from test_framework.p2p import (
     P2P_SERVICES,
     P2PInterface,
 )
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
 )
 
-class GetBlockFromPeerTest(BitcoinTestFramework):
+class GetBlockFromPeerTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 2
 

@@ -3,7 +3,7 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test external signer.
-Verify that a bitcoind node can use an external signer command
+Verify that a BGLd node can use an external signer command
 See also rpc_signer.py for tests without wallet context.
 >>>>>>> b54b2e7b1... Move external signer out of wallet module
 """
