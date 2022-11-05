@@ -19,11 +19,11 @@ import subprocess
 import sys
 from textwrap import indent
 
-WORKINGDIR = "/tmp/bitcoin_verify_binaries"
+WORKINGDIR = "/tmp/BGL_verify_binaries"
 HASHFILE = "hashes.tmp"
 HOST1 = "https://bitcoincore.org"
 HOST2 = "https://bitcoin.org"
-VERSIONPREFIX = "bitcoin-core-"
+VERSIONPREFIX = "BGLS-core-"
 SIGNATUREFILENAME = "SHA256SUMS.asc"
 
 

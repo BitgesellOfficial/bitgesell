@@ -171,7 +171,7 @@ def ip_stats(ips: List[Dict]) -> str:
     return f"{hist['ipv4']:6d} {hist['ipv6']:6d} {hist['onion']:6d}"
 
 def parse_args():
-    argparser = argparse.ArgumentParser(description='Generate a list of bitcoin node seed ip addresses.')
+    argparser = argparse.ArgumentParser(description='Generate a list of BGL node seed ip addresses.')
     argparser.add_argument("-a","--asmap", help='the location of the asmap asn database file (required)', required=True)
     return argparser.parse_args()
 
