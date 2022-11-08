@@ -1,3 +1,15 @@
+bitgesell (0.1.9) UNRELEASED; urgency=low
+
+  * Bitcoin code synced
+
+ -- Mathias van Orton <it@bitgesell.ca>  Tue, 8 Nov 2022 10:00:00 +0000
+
+bitgesell (0.1.8) UNRELEASED; urgency=low
+
+  * Bitcoin code synced
+
+ -- Mathias van Orton <it@bitgesell.ca>  Wed, 20 Apr 2022 10:20:00 +0000
+
 bitgesell (0.1.7) UNRELEASED; urgency=low
 
   * Taproot activation rescheduled with relaxed conditions
