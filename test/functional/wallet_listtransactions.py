@@ -18,7 +18,11 @@ from test_framework.util import (
     assert_raises_rpc_error,
 )
 
+
 class ListTransactionsTest(BGLTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.num_nodes = 2
         # This test isn't testing txn relay/timing, so set whitelist on the

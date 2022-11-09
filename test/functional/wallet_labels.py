@@ -17,7 +17,11 @@ from test_framework.util import assert_equal, assert_raises_rpc_error
 from test_framework.wallet_util import test_address
 import random
 
+
 class WalletLabelsTest(BGLTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1

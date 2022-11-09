@@ -20,6 +20,9 @@ CHALLENGE_PRIVATE_KEY = (42).to_bytes(32, 'big')
 
 
 class SignetMinerTest(BGLTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.chain = "signet"
         self.setup_clean_chain = True

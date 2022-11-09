@@ -33,7 +33,11 @@ from test_framework.wallet_util import (
     test_address,
 )
 
+
 class ImportMultiTest(BGLTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser, descriptors=False)
+
     def set_test_params(self):
         self.num_nodes = 2
         self.extra_args = [["-addresstype=legacy"], ["-addresstype=legacy"]]
