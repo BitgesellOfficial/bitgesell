@@ -368,7 +368,7 @@ class PSBTTest(BGLTestFramework):
             assert_raises_rpc_error(-4, msg, self.nodes[1].walletcreatefundedpsbt, inputs, outputs_array, 0, {"feeRate": 1, "add_inputs": bool_add})
 
         # partially sign multisig things with node 1
-        psbtx = wmulti.walletcreatefundedpsbt(inputs=[{"txid":txid,"vout":p2wsh_pos},{"txid":txid,"vout":p2sh_pos},{"txid":txid,"vout":p2sh_p2wsh_pos}], outputs={self.nodes[1].getnewaddress():29.99}, options={'changeAddress': self.nodes[1].getrawchangeaddress()})['psbt']
+        psbtx = wmulti.walletcreatefundedpsbt(inputs=[{"txid":txid,"vout":p2wsh_pos},{"txid":txid,"vout":p2sh_pos},{"txid":txid,"vout":p2sh_p2wsh_pos}], outputs={self.nodes[1].getnewaddress():29.99}, changeAddress=self.nodes[1].getrawchangeaddress())['psbt']
         walletprocesspsbt_out = self.nodes[1].walletprocesspsbt(psbtx)
         psbtx = walletprocesspsbt_out['psbt']
         assert_equal(walletprocesspsbt_out['complete'], False)
@@ -771,7 +771,7 @@ class PSBTTest(BGLTestFramework):
         psbt = wallet.walletcreatefundedpsbt(
             inputs=[{"txid": ext_utxo["txid"], "vout": ext_utxo["vout"], "weight": input_weight}],
             outputs={self.nodes[0].getnewaddress(): 15},
-            options={"add_inputs": True}
+            add_inputs=True,
         )
         signed = wallet.walletprocesspsbt(psbt["psbt"])
         signed = self.nodes[0].walletprocesspsbt(signed["psbt"])
@@ -781,21 +781,21 @@ class PSBTTest(BGLTestFramework):
         psbt2 = wallet.walletcreatefundedpsbt(
             inputs=[{"txid": ext_utxo["txid"], "vout": ext_utxo["vout"], "weight": low_input_weight}],
             outputs={self.nodes[0].getnewaddress(): 15},
-            options={"add_inputs": True}
+            add_inputs=True,
         )
         assert_greater_than(psbt["fee"], psbt2["fee"])
         # Increasing the weight should have a higher fee
         psbt2 = wallet.walletcreatefundedpsbt(
             inputs=[{"txid": ext_utxo["txid"], "vout": ext_utxo["vout"], "weight": high_input_weight}],
             outputs={self.nodes[0].getnewaddress(): 15},
-            options={"add_inputs": True}
+            add_inputs=True,
         )
         assert_greater_than(psbt2["fee"], psbt["fee"])
         # The provided weight should override the calculated weight when solving data is provided
         psbt3 = wallet.walletcreatefundedpsbt(
             inputs=[{"txid": ext_utxo["txid"], "vout": ext_utxo["vout"], "weight": high_input_weight}],
             outputs={self.nodes[0].getnewaddress(): 15},
-            options={'add_inputs': True, "solving_data":{"descriptors": [desc]}}
+            add_inputs=True, solving_data={"descriptors": [desc]},
         )
         assert_equal(psbt2["fee"], psbt3["fee"])
 
@@ -809,7 +809,7 @@ class PSBTTest(BGLTestFramework):
         psbt3 = wallet.walletcreatefundedpsbt(
             inputs=[{"txid": ext_utxo["txid"], "vout": ext_utxo["vout"], "weight": high_input_weight}],
             outputs={self.nodes[0].getnewaddress(): 15},
-            options={"add_inputs": True}
+            add_inputs=True,
         )
         assert_equal(psbt2["fee"], psbt3["fee"])
 

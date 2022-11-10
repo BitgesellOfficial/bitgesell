@@ -200,13 +200,14 @@ class WalletSignerTest(BGLTestFramework):
 
         self.log.info('Test send using hww1')
 
-        res = hww.send(outputs={dest:0.5},options={"add_to_wallet": False})
+        # Don't broadcast transaction yet so the RPC returns the raw hex
+        res = hww.send(outputs={dest:0.5},add_to_wallet=False)
         assert res["complete"]
         assert_equal(res["hex"], mock_tx)
 
         self.log.info('Test sendall using hww1')
 
-        res = hww.sendall(recipients=[{dest:0.5}, hww.getrawchangeaddress()],options={"add_to_wallet": False})
+        res = hww.sendall(recipients=[{dest:0.5}, hww.getrawchangeaddress()], add_to_wallet=False)
         assert res["complete"]
         assert_equal(res["hex"], mock_tx)
 
