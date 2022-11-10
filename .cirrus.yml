@@ -192,7 +192,7 @@ task:
     - ccache --show-stats
   check_script:
     - src\test_BGL.exe -l test_suite
-    - src\bench_BGL.exe --sanity-check > NUL
+    - src\bench_BGL.exe --sanity-check
     - python test\util\test_runner.py
     - python test\util\rpcauth-test.py
   functional_tests_script:
