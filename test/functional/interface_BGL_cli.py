@@ -68,9 +68,6 @@ class TestBGLCli(BGLTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1
-        self.parse_args()
-        if self.is_wallet_compiled():
-            self.requires_wallet = True
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_cli()
@@ -128,7 +125,8 @@ class TestBGLCli(BGLTestFramework):
         assert_raises_process_error(1, "Invalid value for -color option. Valid values: always, auto, never.", self.nodes[0].cli('-getinfo', '-color=foo').send_cli)
 
         self.log.info("Test -getinfo returns expected network and blockchain info")
-        if self.is_wallet_compiled():
+        if self.is_specified_wallet_compiled():
+            self.import_deterministic_coinbase_privkeys()
             self.nodes[0].encryptwallet(password)
         cli_get_info_string = self.nodes[0].cli('-getinfo').send_cli()
         cli_get_info = cli_get_info_string_to_dict(cli_get_info_string)

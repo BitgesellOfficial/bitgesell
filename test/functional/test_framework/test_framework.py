@@ -114,7 +114,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         self.wallet_names = None
         # By default the wallet is not required. Set to true by skip_if_no_wallet().
         # When False, we ignore wallet_names regardless of what it is.
-        self.requires_wallet = False
+        self._requires_wallet = False
         # Disable ThreadOpenConnections by default, so that adding entries to
         # addrman will not result in automatic connections to them.
         self.disable_autoconnect = True
@@ -413,7 +413,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             extra_args = self.extra_args
         self.add_nodes(self.num_nodes, extra_args)
         self.start_nodes()
-        if self.requires_wallet:
+        if self._requires_wallet:
             self.import_deterministic_coinbase_privkeys()
         if not self.setup_clean_chain:
             for n in self.nodes:
@@ -867,7 +867,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
 
     def skip_if_no_wallet(self):
         """Skip the running test if wallet has not been compiled."""
-        self.requires_wallet = True
+        self._requires_wallet = True
         if not self.is_wallet_compiled():
             raise SkipTest("wallet has not been compiled.")
         if self.options.descriptors:
