@@ -76,9 +76,12 @@ override_dh_auto_configure:
 		PKG_CONFIG_PATH="$(builddir)/distrib/tmp/libevent/lib/pkgconfig:$(builddir)/distrib/tmp/miniupnpc/usr/lib/pkgconfig" \
 		LDFLAGS="-Wl,-rpath=/usr/lib/bitgesell" \
 		BOOST_LDFLAGS="-L$(builddir)/distrib/tmp/libboost/lib" \
-		--disable-tests --disable-bench --disable-debug --with-gnu-ld \
+		--disable-tests --disable-bench --disable-debug --disable-fuzz-binary --with-gnu-ld \
 		--with-gui=no \
 		--with-boost="$(builddir)/distrib/tmp/libboost"
+
+override_dh_auto_test:
+	DEB_BUILD_OPTIONS=nocheck dh_auto_test
 
 override_dh_install:
 	dh_install
