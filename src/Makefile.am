@@ -426,7 +426,6 @@ libBGL_node_a_SOURCES = \
   torcontrol.cpp \
   txdb.cpp \
   txmempool.cpp \
-  txmempool_entry.cpp \
   txorphanage.cpp \
   txrequest.cpp \
   validation.cpp \
@@ -953,7 +952,6 @@ libBGLkernel_la_SOURCES = \
   sync.cpp \
   txdb.cpp \
   txmempool.cpp \
-  txmempool_entry.cpp \
   uint256.cpp \
   util/check.cpp \
   util/getuniquepath.cpp \
