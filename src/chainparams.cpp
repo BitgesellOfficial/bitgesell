@@ -263,7 +263,10 @@ public:
         m_is_mockable_chain = false;
 
         checkpointData = {
-            {}};
+            {
+                {546, uint256S("000000033f0ecd6bc1c46eb98a2856cf2fe48bc3e90ef11ac24ea5272c1adbf8")},
+            }
+            };
 
         chainTxData = ChainTxData{
             // Data from RPC: getchaintxstats 4096 0000000000004ae2f3896ca8ecd41c460a35bf6184e145d91558cece1c688a76
