@@ -111,12 +111,12 @@ Then install [Homebrew](https://brew.sh).
 brew install automake libtool boost miniupnpc libnatpmp pkg-config python qt@5 libevent qrencode
 ```
 
-If you run into issues, check [Homebrew's troubleshooting page](https://docs.brew.sh/Troubleshooting).
-See [dependencies.md](dependencies.md) for a complete overview.
+---
 
-``` bash
-pip3 install ds_store mac_alias
-```
+#### Deploy Dependencies
+
+You can deploy a `.zip` containing the Bitgesell Core application using `make deploy`.
+It is required that you have `python` installed.
 
 The wallet support requires one or both of the dependencies ([*SQLite*](#sqlite) and [*Berkeley DB*](#berkeley-db)) in the sections below.
 To build BGL Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mode).
@@ -165,12 +165,7 @@ make check  # Run tests if Python 3 is available
 
     Configure and build the headless BGL Core binaries as well as the GUI (if Qt is found).
 
-    You can disable the GUI build by passing `--without-gui` to configure.
-    ```shell
-    ./autogen.sh
-    ./configure
-    make
-    ```
+You can also create a  `.zip` containing the `.app` bundle by running the following command:
 
 3.  It is recommended to build and run the unit tests:
     ```shell
