@@ -227,7 +227,7 @@ class ToolWalletTest(BGLTestFramework):
                 Descriptors: yes
                 Encrypted: no
                 HD (hd seed available): yes
-                Keypool Size: 6
+                Keypool Size: 8
                 Transactions: 0
                 Address Book: 1
             ''')
@@ -284,7 +284,7 @@ class ToolWalletTest(BGLTestFramework):
                 Descriptors: yes
                 Encrypted: no
                 HD (hd seed available): yes
-                Keypool Size: 6
+                Keypool Size: 8
                 Transactions: 1
                 Address Book: 1
             ''')
