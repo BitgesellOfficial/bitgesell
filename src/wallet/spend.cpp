@@ -34,6 +34,50 @@ using interfaces::FoundBlock;
 namespace wallet {
 static constexpr size_t OUTPUT_GROUP_MAX_ENTRIES{100};
 
+/** Whether the descriptor represents, directly or not, a witness program. */
+static bool IsSegwit(const Descriptor& desc) {
+    if (const auto typ = desc.GetOutputType()) return *typ != OutputType::LEGACY;
+    return false;
+}
+
+/** Whether to assume ECDSA signatures' will be high-r. */
+static bool UseMaxSig(const std::optional<CTxIn>& txin, const CCoinControl* coin_control) {
+    // Use max sig if watch only inputs were used or if this particular input is an external input
+    // to ensure a sufficient fee is attained for the requested feerate.
+    return coin_control && (coin_control->fAllowWatchOnly || (txin && coin_control->IsExternalSelected(txin->prevout)));
+}
+
+/** Get the size of an input (in witness units) once it's signed.
+ *
+ * @param desc The output script descriptor of the coin spent by this input.
+ * @param txin Optionally the txin to estimate the size of. Used to determine the size of ECDSA signatures.
+ * @param coin_control Information about the context to determine the size of ECDSA signatures.
+ * @param tx_is_segwit Whether the transaction has at least a single input spending a segwit coin.
+ * @param can_grind_r Whether the signer will be able to grind the R of the signature.
+ */
+static std::optional<int64_t> MaxInputWeight(const Descriptor& desc, const std::optional<CTxIn>& txin,
+                                             const CCoinControl* coin_control, const bool tx_is_segwit,
+                                             const bool can_grind_r) {
+    if (const auto sat_weight = desc.MaxSatisfactionWeight(!can_grind_r || UseMaxSig(txin, coin_control))) {
+        if (const auto elems_count = desc.MaxSatisfactionElems()) {
+            const bool is_segwit = IsSegwit(desc);
+            // Account for the size of the scriptsig and the number of elements on the witness stack. Note
+            // that if any input in the transaction is spending a witness program, we need to specify the
+            // witness stack size for every input regardless of whether it is segwit itself.
+            // NOTE: this also works in case of mixed scriptsig-and-witness such as in p2sh-wrapped segwit v0
+            // outputs. In this case the size of the scriptsig length will always be one (since the redeemScript
+            // is always a push of the witness program in this case, which is smaller than 253 bytes).
+            const int64_t scriptsig_len = is_segwit ? 1 : GetSizeOfCompactSize(*sat_weight / WITNESS_SCALE_FACTOR);
+            const int64_t witstack_len = is_segwit ? GetSizeOfCompactSize(*elems_count) : (tx_is_segwit ? 1 : 0);
+            // previous txid + previous vout + sequence + scriptsig len + witstack size + scriptsig or witness
+            // NOTE: sat_weight already accounts for the witness discount accordingly.
+            return (32 + 4 + 4 + scriptsig_len) * WITNESS_SCALE_FACTOR + witstack_len + *sat_weight;
+        }
+    }
+
+    return {};
+}
+
 int CalculateMaximumSignedInputSize(const CTxOut& txout, const COutPoint outpoint, const SigningProvider* provider, bool can_grind_r, const CCoinControl* coin_control)
 {
     CMutableTransaction txn;
@@ -573,11 +617,7 @@ util::Result<SelectionResult> ChooseSelectionResult(const CAmount& nTargetValue,
     // Maximum allowed weight
     int max_inputs_weight = MAX_STANDARD_TX_WEIGHT - (coin_selection_params.tx_noinputs_size * WITNESS_SCALE_FACTOR);
 
-<<<<<<< HEAD
-    if (auto bnb_result{SelectCoinsBnB(groups.positive_group, nTargetValue, coin_selection_params.m_cost_of_change, max_inputs_weight)}) {
-=======
     if (auto bnb_result{SelectCoinsBnB(groups.positive_group, nTargetValue, coin_selection_params.m_cost_of_change)}) {
->>>>>>> 6107ec2229... coin selection: knapsack, select closest UTXO above target if result exceeds max tx size
         results.push_back(*bnb_result);
     } else append_error(bnb_result);
 
