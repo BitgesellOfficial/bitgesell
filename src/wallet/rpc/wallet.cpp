@@ -741,15 +741,14 @@ static RPCHelpMan migratewallet()
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
         {
             std::string wallet_name;
-            if (GetWalletNameFromJSONRPCRequest(request, wallet_name)) {
-                if (!(request.params[0].isNull() || request.params[0].get_str() == wallet_name)) {
-                    throw JSONRPCError(RPC_INVALID_PARAMETER, "RPC endpoint wallet and wallet_name parameter specify different wallets");
+            {
+                std::shared_ptr<CWallet> wallet = GetWalletForJSONRPCRequest(request);
+                if (!wallet) return NullUniValue;
+
+                if (wallet->IsCrypted()) {
+                    throw JSONRPCError(RPC_WALLET_WRONG_ENC_STATE, "Error: migratewallet on encrypted wallets is currently unsupported.");
                 }
-            } else {
-                if (request.params[0].isNull()) {
-                    throw JSONRPCError(RPC_INVALID_PARAMETER, "Either RPC endpoint wallet or wallet_name parameter must be provided");
-                }
-                wallet_name = request.params[0].get_str();
+                wallet_name = wallet->GetName();
             }
 
             WalletContext& context = EnsureWalletContext(request.context);
@@ -760,7 +759,7 @@ static RPCHelpMan migratewallet()
                 }
             }
 
-            util::Result<MigrationResult> res = MigrateLegacyToDescriptor(std::move(wallet), context);
+            util::Result<MigrationResult> res = MigrateLegacyToDescriptor(wallet_name, context);
             if (!res) {
                 throw JSONRPCError(RPC_WALLET_ERROR, util::ErrorString(res).original);
             }
