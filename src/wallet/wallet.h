@@ -1016,7 +1016,7 @@ struct MigrationResult {
 };
 
 //! Do all steps to migrate a legacy wallet to a descriptor wallet
-util::Result<MigrationResult> MigrateLegacyToDescriptor(const std::string& wallet_name, WalletContext& context);
+util::Result<MigrationResult> MigrateLegacyToDescriptor(const std::string& wallet_name, const SecureString& passphrase, WalletContext& context);
 } // namespace wallet
 
 #endif // BGL_WALLET_WALLET_H
