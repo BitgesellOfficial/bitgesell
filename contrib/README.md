@@ -26,9 +26,6 @@ The [Debian](/contrib/debian) subfolder contains the copyright file.
 
 All other packaging related files can be found in the [BGL-core/packaging](https://github.com/BGL-core/packaging) repository.
 
-### [Builder keys](/contrib/builder-keys)
-PGP keys used for signing BGL Core [release](/doc/release-process.md) results.
-
 ### [MacDeploy](/contrib/macdeploy) ###
 Scripts and notes for Mac builds.
 

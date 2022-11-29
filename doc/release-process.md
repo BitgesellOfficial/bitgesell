@@ -133,7 +133,6 @@ Follow the relevant Guix README.md sections:
 
 Add other builders keys to your gpg keyring, and/or refresh keys: See `../bitcoin/contrib/builder-keys/README.md`.
 
-Follow the relevant Guix README.md sections:
 - [Verifying build output attestations](/contrib/guix/README.md#verifying-build-output-attestations)
 
 ### Next steps:
@@ -192,7 +191,11 @@ Non-codesigners: wait for Windows/macOS detached signatures:
 
 Create (and optionally verify) the codesigned outputs:
 
-- [Codesigning](/contrib/guix/README.md#codesigning)
+- [Codesigning build outputs](/contrib/guix/README.md#codesigning-build-outputs)
+
+### Verify other builders' signatures to your own (optional)
+
+- [Verifying build output attestations](/contrib/guix/README.md#verifying-build-output-attestations)
 
 Commit your signature for the signed macOS/Windows binaries:
 
