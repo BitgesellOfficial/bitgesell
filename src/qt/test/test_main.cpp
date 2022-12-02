@@ -79,8 +79,6 @@ int main(int argc, char* argv[])
         setenv("QT_QPA_PLATFORM", "minimal", 0 /* overwrite */);
     #endif
 
-    // Don't remove this, it's needed to access
-    // QApplication:: and QCoreApplication:: in the tests
     BGLApplication app;
     app.setApplicationName("BGL-Qt-test");
     app.createNode(*init);
