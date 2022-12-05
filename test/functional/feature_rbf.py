@@ -387,7 +387,6 @@ class ReplaceByFeeTest(BGLTestFramework):
         """
         Test rule 5 (do not allow replacements that cause more than 100
         evictions) without having to rely on non-default mempool parameters.
-
         In order to do this, create a number of "root" UTXOs, and then hang
         enough transactions off of each root UTXO to exceed the MAX_REPLACEMENT_LIMIT.
         Then create a conflicting RBF replacement transaction.

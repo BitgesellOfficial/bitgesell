@@ -2011,6 +2011,11 @@ class SegWitTest(BGLTestFramework):
         assert_raises_rpc_error(-22, "TX decode failed", self.nodes[0].decoderawtransaction, hexstring=serialize_with_bogus_witness(tx).hex(), iswitness=True)
         with self.nodes[0].assert_debug_log(['Superfluous witness record']):
             self.test_node.send_and_ping(msg_bogus_tx(tx))
+        tx.wit.vtxinwit = []  # drop witness
+        assert_raises_rpc_error(-22, "TX decode failed", self.nodes[0].decoderawtransaction,
+                                hexstring=serialize_with_bogus_witness(tx).hex(), iswitness=True)
+        with self.nodes[0].assert_debug_log(['Superfluous witness record']):
+            self.test_node.send_and_ping(msg_bogus_tx(tx))
 
     @subtest
     def test_wtxid_relay(self):

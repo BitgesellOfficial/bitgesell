@@ -20,7 +20,6 @@ from test_framework.util import (
 )
 from test_framework.wallet import MiniWallet
 
-
 class PrioritiseTransactionTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
@@ -149,7 +148,6 @@ class PrioritiseTransactionTest(BGLTestFramework):
 
     def run_test(self):
         self.wallet = MiniWallet(self.nodes[0])
-
         # Test `prioritisetransaction` required parameters
         assert_raises_rpc_error(-1, "prioritisetransaction", self.nodes[0].prioritisetransaction)
         assert_raises_rpc_error(-1, "prioritisetransaction", self.nodes[0].prioritisetransaction, '')

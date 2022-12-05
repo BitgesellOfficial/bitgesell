@@ -36,7 +36,7 @@ class MempoolLimitTest(BGLTestFramework):
 
     def run_test(self):
         txouts = gen_return_txouts()
-        node=self.nodes[0]
+        node = self.nodes[0]
         miniwallet = MiniWallet(node)
         relayfee = node.getnetworkinfo()['relayfee']
 
@@ -57,10 +57,11 @@ class MempoolLimitTest(BGLTestFramework):
         self.generate(node, COINBASE_MATURITY - 1)
 
         self.log.info('Create a mempool tx that will be evicted')
-        tx_to_be_evicted_id = miniwallet.send_self_transfer(from_node=node, fee_rate=relayfee)["txid"]
-
-        # Increase the tx fee rate massively to give the subsequent transactions a higher priority in the mempool
-        base_fee = relayfee * 1000
+        tx_to_be_evicted_id =miniwallet.send_self_transfer(from_node=node, fee_rate=relayfee)["txid"]
+        # Increase the tx fee rate to give the subsequent transactions a higher priority in the mempool
+        # The tx has an approx. vsize of 65k, i.e. multiplying the previous fee rate (in sats/kvB)
+        # by 130 should result in a fee that corresponds to 2x of that fee rate
+        base_fee = relayfee * 130
 
         self.log.info("Fill up the mempool with txs with higher fee rate")
         for batch_of_txid in range(num_of_batches):
