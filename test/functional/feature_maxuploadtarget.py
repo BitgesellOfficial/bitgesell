@@ -17,6 +17,7 @@ from test_framework.messages import CInv, MSG_BLOCK, msg_getdata
 from test_framework.p2p import P2PInterface
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import assert_equal, mine_large_block
+from test_framework.wallet import MiniWallet
 
 class TestP2PConn(P2PInterface):
     def __init__(self):
@@ -55,7 +56,8 @@ class MaxUploadTest(BGLTestFramework):
         self.nodes[0].setmocktime(old_time)
 
         # Generate some old blocks
-        self.generate(self.nodes[0], 130)
+        self.wallet = MiniWallet(self.nodes[0])
+        self.generate(self.wallet, 130)
 
         # p2p_conns[0] will only request old blocks
         # p2p_conns[1] will only request new blocks
@@ -66,7 +68,7 @@ class MaxUploadTest(BGLTestFramework):
             p2p_conns.append(self.nodes[0].add_p2p_connection(TestP2PConn()))
 
         # Now mine a big block
-        mine_large_block(self, self.nodes[0], self.utxo_cache)
+        mine_large_block(self, self.wallet, self.nodes[0])
 
         # Store the hash; we'll request this later
         big_old_block = self.nodes[0].getbestblockhash()
@@ -77,7 +79,7 @@ class MaxUploadTest(BGLTestFramework):
         self.nodes[0].setmocktime(int(time.time()) - 2*60*60*24)
 
         # Mine one more block, so that the prior block looks old
-        mine_large_block(self, self.nodes[0], self.utxo_cache)
+        mine_large_block(self, self.wallet, self.nodes[0])
 
         # We'll be requesting this new block too
         big_new_block = self.nodes[0].getbestblockhash()

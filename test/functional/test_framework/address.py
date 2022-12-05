@@ -119,6 +119,10 @@ def script_to_p2sh_p2wsh(script, main=False):
     p2shscript = CScript([OP_0, sha256(script)])
     return script_to_p2sh(p2shscript, main)
 
+def output_key_to_p2tr(key, main=False):
+    assert len(key) == 32
+    return program_to_witness(1, key, main)
+
 def check_key(key):
     if (type(key) is str):
         key = bytes.fromhex(key)  # Assuming this is hex string

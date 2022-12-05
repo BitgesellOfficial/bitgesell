@@ -9,10 +9,8 @@ import time
 
 from test_framework.p2p import P2PTxInvStore
 from test_framework.test_framework import BGLTestFramework
-from test_framework.util import (
-    assert_equal,
-    create_confirmed_utxos,
-)
+from test_framework.util import assert_equal
+from test_framework.wallet import MiniWallet
 
 MAX_INITIAL_BROADCAST_DELAY = 15 * 60 # 15 minutes in seconds
 
@@ -24,15 +22,14 @@ class MempoolUnbroadcastTest(BGLTestFramework):
         self.skip_if_no_wallet()
 
     def run_test(self):
+        self.wallet = MiniWallet(self.nodes[0])
+        self.wallet.rescan_utxos()
         self.test_broadcast()
         self.test_txn_removal()
 
     def test_broadcast(self):
         self.log.info("Test that mempool reattempts delivery of locally submitted transaction")
         node = self.nodes[0]
-
-        min_relay_fee = node.getnetworkinfo()["relayfee"]
-        utxos = create_confirmed_utxos(self, min_relay_fee, node, 10)
 
         self.disconnect_nodes(0, 1)
 
@@ -43,13 +40,7 @@ class MempoolUnbroadcastTest(BGLTestFramework):
         wallet_tx_hsh = node.sendtoaddress(addr, 0.0001)
 
         # generate a txn using sendrawtransaction
-        us0 = utxos.pop()
-        inputs = [{"txid": us0["txid"], "vout": us0["vout"]}]
-        outputs = {addr: 0.0001}
-        tx = node.createrawtransaction(inputs, outputs)
-        node.settxfee(min_relay_fee)
-        txF = node.fundrawtransaction(tx)
-        txFS = node.signrawtransactionwithwallet(txF["hex"])
+        txFS = self.wallet.create_self_transfer()
         rpc_tx_hsh = node.sendrawtransaction(txFS["hex"])
 
         # check transactions are in unbroadcast using rpc
