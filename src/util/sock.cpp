@@ -413,10 +413,5 @@ void Sock::Close()
 
 std::string NetworkErrorString(int err)
 {
-#if defined(WIN32)
     return Win32ErrorString(err);
-#else
-    // On BSD sockets implementations, NetworkErrorString is the same as SysErrorString.
-    return SysErrorString(err);
-#endif
 }
