@@ -777,7 +777,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             # block in the cache does not age too much (have an old tip age).
             # This is needed so that we are out of IBD when the test starts,
             # see the tip age check in IsInitialBlockDownload().
-            gen_addresses = [k.address for k in TestNode.PRIV_KEYS] + [ADDRESS_BCRT1_P2WSH_OP_TRUE]
+            gen_addresses = [k.address for k in TestNode.PRIV_KEYS][:3] + [ADDRESS_BCRT1_P2WSH_OP_TRUE]
             for i in range(8):
                 self.generatetoaddress(
                     cache_node,
@@ -884,6 +884,14 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
     def is_wallet_compiled(self):
         """Checks whether the wallet module was compiled."""
         return self.config["components"].getboolean("ENABLE_WALLET")
+
+    def is_specified_wallet_compiled(self):
+        """Checks whether wallet support for the specified type
+           (legacy or descriptor wallet) was compiled."""
+        if self.options.descriptors:
+            return self.is_sqlite_compiled()
+        else:
+            return self.is_bdb_compiled()
 
     def is_wallet_tool_compiled(self):
         """Checks whether BGL-wallet was compiled."""
