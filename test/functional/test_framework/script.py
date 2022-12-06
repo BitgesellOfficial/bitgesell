@@ -860,7 +860,6 @@ def taproot_construct(pubkey, scripts=None):
     ret, h = taproot_tree_helper(scripts)
     tweak = TaggedHash("TapTweak", pubkey + h)
     tweaked, negated = tweak_add_pubkey(pubkey, tweak)
-    print("ret",ret)
     leaves = dict((name, TaprootLeafInfo(script, version, merklebranch, leaf)) for name, version, script, merklebranch, leaf in ret)
     return TaprootInfo(CScript([OP_1, tweaked]), pubkey, negated + 0, tweak, leaves, h, tweaked)
 
