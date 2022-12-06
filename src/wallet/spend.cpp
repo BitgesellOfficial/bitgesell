@@ -631,7 +631,7 @@ struct SelectionFilter {
     bool allow_mixed_output_types{true};
 };
 
-util::Result<SelectionResult> AutomaticCoinSelection(const CWallet& wallet, CoinsResult& available_coins, const CAmount& value_to_select, const CCoinControl& coin_control, const CoinSelectionParams& coin_selection_params)
+std::optional<SelectionResult> AutomaticCoinSelection(const CWallet& wallet, CoinsResult& available_coins, const CAmount& value_to_select, const CCoinControl& coin_control, const CoinSelectionParams& coin_selection_params)
 {
     unsigned int limit_ancestor_count = 0;
     unsigned int limit_descendant_count = 0;
@@ -652,7 +652,7 @@ util::Result<SelectionResult> AutomaticCoinSelection(const CWallet& wallet, Coin
     // Coin Selection attempts to select inputs from a pool of eligible UTXOs to fund the
     // transaction at a target feerate. If an attempt fails, more attempts may be made using a more
     // permissive CoinEligibilityFilter.
-    util::Result<SelectionResult> res = [&] {
+    std::optional<SelectionResult> res = [&] {
         // Place coins eligibility filters on a scope increasing order.
         std::vector<SelectionFilter> ordered_filters{
                 // If possible, fund the transaction with confirmed UTXOs only. Prefer at least six
@@ -663,54 +663,32 @@ util::Result<SelectionResult> AutomaticCoinSelection(const CWallet& wallet, Coin
         // Fall back to using zero confirmation change (but with as few ancestors in the mempool as
         // possible) if we cannot fund the transaction otherwise.
         if (wallet.m_spend_zero_conf_change) {
-            if (auto r3{AttemptSelection(wallet, value_to_select, CoinEligibilityFilter(0, 1, 2), available_coins, coin_selection_params, /*allow_mixed_output_types=*/true)}) return r3;
-            if (auto r4{AttemptSelection(wallet, value_to_select, CoinEligibilityFilter(0, 1, std::min((size_t)4, max_ancestors/3), std::min((size_t)4, max_descendants/3)),
-                                   available_coins, coin_selection_params, /*allow_mixed_output_types=*/true)}) {
-                return r4;
-                                   available_coins, coin_selection_params, /*allow_mixed_output_types=*/true)}) {
-                return r5;
-            }
+            ordered_filters.push_back({CoinEligibilityFilter(0, 1, 2)});
+            ordered_filters.push_back({CoinEligibilityFilter(0, 1, std::min((size_t)4, max_ancestors/3), std::min((size_t)4, max_descendants/3))});
+            ordered_filters.push_back({CoinEligibilityFilter(0, 1, max_ancestors/2, max_descendants/2)});
             // If partial groups are allowed, relax the requirement of spending OutputGroups (groups
             // of UTXOs sent to the same address, which are obviously controlled by a single wallet)
             // in their entirety.
-            if (auto r6{AttemptSelection(wallet, value_to_select, CoinEligibilityFilter(0, 1, max_ancestors-1, max_descendants-1, /*include_partial=*/true),
-                                   available_coins, coin_selection_params, /*allow_mixed_output_types=*/true)}) {
-                return r6;
-            }
+            ordered_filters.push_back({CoinEligibilityFilter(0, 1, max_ancestors-1, max_descendants-1, /*include_partial=*/true)});
             // Try with unsafe inputs if they are allowed. This may spend unconfirmed outputs
             // received from other wallets.
             if (coin_control.m_include_unsafe_inputs) {
-                if (auto r7{AttemptSelection(wallet, value_to_select,
-                    CoinEligibilityFilter(/*conf_mine=*/0, /*conf_theirs=*/0, max_ancestors-1, max_descendants-1, /*include_partial=*/true),
-                    available_coins, coin_selection_params, /*allow_mixed_output_types=*/true)}) {
-                    return r7;
+                ordered_filters.push_back({CoinEligibilityFilter(/*conf_mine=*/0, /*conf_theirs*/0, max_ancestors-1, max_descendants-1, /*include_partial=*/true)});
             }
             // Try with unlimited ancestors/descendants. The transaction will still need to meet
             // mempool ancestor/descendant policy to be accepted to mempool and broadcasted, but
             // OutputGroups use heuristics that may overestimate ancestor/descendant counts.
             if (!fRejectLongChains) {
-                if (auto r8{AttemptSelection(wallet, value_to_select,
-                                      CoinEligibilityFilter(0, 1, std::numeric_limits<uint64_t>::max(), std::numeric_limits<uint64_t>::max(), /*include_partial=*/true),
-                                      available_coins, coin_selection_params, /*allow_mixed_output_types=*/true)}) {
-                    return r8;
-                }
+                ordered_filters.push_back({CoinEligibilityFilter(0, 1, std::numeric_limits<uint64_t>::max(),
+                                                                   std::numeric_limits<uint64_t>::max(),
+                                                                   /*include_partial=*/true)});
             }
         }
 
-        // Walk-through the filters until the solution gets found.
-        // If no solution is found, return the first detailed error (if any).
-        // future: add "error level" so the worst one can be picked instead.
-        std::vector<util::Result<SelectionResult>> res_detailed_errors;
+        // Walk-through the filters until the solution gets found
         for (const auto& select_filter : ordered_filters) {
             if (auto res{AttemptSelection(wallet, value_to_select, select_filter.filter, available_coins,
-                                          coin_selection_params, select_filter.allow_mixed_output_types)}) {
-                return res; // result found
-            } else {
-                // If any specific error message appears here, then something particularly wrong might have happened.
-                // Save the error and continue the selection process. So if no solutions gets found, we can return
-                // the detailed error to the upper layers.
-                if (HasErrorMsg(res)) res_detailed_errors.emplace_back(res);
-            }
+                                          coin_selection_params, select_filter.allow_mixed_output_types)}) return res;
         }
         // Coin Selection failed.
         return util::Result<SelectionResult>(util::Error());
