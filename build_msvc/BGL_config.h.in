@@ -6,28 +6,28 @@
 #define BGL_BGL_CONFIG_H
 
 /* Version Build */
-#define CLIENT_VERSION_BUILD 6
+#define CLIENT_VERSION_BUILD $
 
 /* Version is release */
-#define CLIENT_VERSION_IS_RELEASE true
+#define CLIENT_VERSION_IS_RELEASE $
 
 /* Major version */
-#define CLIENT_VERSION_MAJOR 22
+#define CLIENT_VERSION_MAJOR $
 
 /* Minor version */
-#define CLIENT_VERSION_MINOR 1
+#define CLIENT_VERSION_MINOR $
 
 /* Copyright holder(s) before %s replacement */
 #define COPYRIGHT_HOLDERS "The %s developers"
 
 /* Copyright holder(s) */
-#define COPYRIGHT_HOLDERS_FINAL "The BGL Core developers / BGL Core developers"
+#define COPYRIGHT_HOLDERS_FINAL "The BGL Core developers"
 
 /* Replacement for %s in copyright holders string */
 #define COPYRIGHT_HOLDERS_SUBSTITUTION "BGL Core"
 
 /* Copyright year */
-#define COPYRIGHT_YEAR 2021
+#define COPYRIGHT_YEAR $
 
 /* Define to 1 to enable wallet functions */
 #define ENABLE_WALLET 1
@@ -44,17 +44,8 @@
 /* define if the Boost library is available */
 #define HAVE_BOOST /**/
 
-/* define if the Boost::Filesystem library is available */
-#define HAVE_BOOST_FILESYSTEM /**/
-
 /* define if external signer support is enabled (requires Boost::Process) */
 #define ENABLE_EXTERNAL_SIGNER /**/
-
-/* define if the Boost::System library is available */
-#define HAVE_BOOST_SYSTEM /**/
-
-/* define if the Boost::Unit_Test_Framework library is available */
-#define HAVE_BOOST_UNIT_TEST_FRAMEWORK /**/
 
 /* Define this symbol if the consensus lib has been built */
 #define HAVE_CONSENSUS_LIB 1
@@ -86,9 +77,9 @@
    don't. */
 #define HAVE_DECL_BSWAP_64 0
 
-/* Define to 1 if you have the declaration of `daemon', and to 0 if you don't.
+/* Define to 1 if you have the declaration of `fork', and to 0 if you don't.
    */
-#define HAVE_DECL_DAEMON 0
+#define HAVE_DECL_FORK 0
 
 /* Define to 1 if you have the declaration of `htobe16', and to 0 if you
    don't. */
@@ -126,13 +117,13 @@
    don't. */
 #define HAVE_DECL_LE64TOH 0
 
+/* Define to 1 if you have the declaration of `setsid', and to 0 if you don't.
+   */
+#define HAVE_DECL_SETSID 0
+
 /* Define to 1 if you have the declaration of `strerror_r', and to 0 if you
    don't. */
 #define HAVE_DECL_STRERROR_R 0
-
-/* Define to 1 if you have the declaration of `strnlen', and to 0 if you
-   don't. */
-#define HAVE_DECL_STRNLEN 1
 
 /* Define if the dllexport attribute is supported. */
 #define HAVE_DLLEXPORT_ATTRIBUTE 1
@@ -174,19 +165,19 @@
 #define HAVE_SYS_TYPES_H 1
 
 /* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "https://github.com/BGL/BGL/issues"
+#define PACKAGE_BUGREPORT "https://github.com/bitgesellofficial/bitgesell/issues"
 
 /* Define to the full name of this package. */
 #define PACKAGE_NAME "BGL Core"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "BGL Core 22.99.0"
+#define PACKAGE_STRING $
 
 /* Define to the home page for this package. */
-#define PACKAGE_URL "https://BGLcore.org/"
+#define PACKAGE_URL "https://bitgesell.ca/"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "22.99.0"
+#define PACKAGE_VERSION $
 
 /* Define this symbol if the minimal qt platform exists */
 #define QT_QPA_PLATFORM_MINIMAL 1
@@ -207,4 +198,4 @@
 
 #endif // !WINAPI_FAMILY || WINAPI_FAMILY_DESKTOP_APP
 
-#endif //BGL_BGL_CONFIG_H
+#endif //BITCOIN_BITCOIN_CONFIG_H

@@ -14,7 +14,6 @@
         <file alias="de">locale/BGL_de.qm</file>
         <file alias="el">locale/BGL_el.qm</file>
         <file alias="en">locale/BGL_en.qm</file>
-        <file alias="en_GB">locale/BGL_en_GB.qm</file>
         <file alias="eo">locale/BGL_eo.qm</file>
         <file alias="es">locale/BGL_es.qm</file>
         <file alias="es_CL">locale/BGL_es_CL.qm</file>
@@ -30,7 +29,6 @@
         <file alias="fr">locale/BGL_fr.qm</file>
         <file alias="gl_ES">locale/BGL_gl_ES.qm</file>
         <file alias="he">locale/BGL_he.qm</file>
-        <file alias="hi">locale/BGL_hi.qm</file>
         <file alias="hr">locale/BGL_hr.qm</file>
         <file alias="hu">locale/BGL_hu.qm</file>
         <file alias="id">locale/BGL_id.qm</file>

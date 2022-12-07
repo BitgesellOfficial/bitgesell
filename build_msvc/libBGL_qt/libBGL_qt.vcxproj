@@ -5,6 +5,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2B4ABFF8-D1FD-4845-88C9-1F3C0A6512BF}</ProjectGuid>
     <ConfigurationType>StaticLibrary</ConfigurationType>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\qt\addressbookpage.cpp" />
@@ -35,6 +36,7 @@
     <ClCompile Include="..\..\src\qt\overviewpage.cpp" />
     <ClCompile Include="..\..\src\qt\paymentserver.cpp" />
     <ClCompile Include="..\..\src\qt\peertablemodel.cpp" />
+    <ClCompile Include="..\..\src\qt\peertablesortproxy.cpp" />
     <ClCompile Include="..\..\src\qt\platformstyle.cpp" />
     <ClCompile Include="..\..\src\qt\psbtoperationsdialog.cpp" />
     <ClCompile Include="..\..\src\qt\qrimagewidget.cpp" />
@@ -90,6 +92,7 @@
     <ClCompile Include="$(GeneratedFilesOutDir)\moc\moc_overviewpage.cpp" />
     <ClCompile Include="$(GeneratedFilesOutDir)\moc\moc_paymentserver.cpp" />
     <ClCompile Include="$(GeneratedFilesOutDir)\moc\moc_peertablemodel.cpp" />
+    <ClCompile Include="$(GeneratedFilesOutDir)\moc\moc_peertablesortproxy.cpp" />
     <ClCompile Include="$(GeneratedFilesOutDir)\moc\moc_platformstyle.cpp" />
     <ClCompile Include="$(GeneratedFilesOutDir)\moc\moc_psbtoperationsdialog.cpp" />
     <ClCompile Include="$(GeneratedFilesOutDir)\moc\moc_qrimagewidget.cpp" />
@@ -121,6 +124,12 @@
     <ClCompile Include="$(GeneratedFilesOutDir)\rcc\qrc_BGL.cpp" />
     <ClCompile Include="$(GeneratedFilesOutDir)\rcc\qrc_BGL_locale.cpp" />
   </ItemGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
