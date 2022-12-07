@@ -18,6 +18,16 @@ def expect_http_status(expected_http_status, expected_rpc_code,
         assert_equal(exc.error["code"], expected_rpc_code)
         assert_equal(exc.http_status, expected_http_status)
 
+
+def test_work_queue_getblock(node, got_exceeded_error):
+    while not got_exceeded_error:
+        try:
+            node.cli("waitfornewblock", "500").send_cli()
+        except subprocess.CalledProcessError as e:
+            assert_equal(e.output, 'error: Server response: Work queue depth exceeded\n')
+            got_exceeded_error.append(True)
+
+
 class RPCInterfaceTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
