@@ -7,7 +7,11 @@
 echo "START SCRIPT A"
 export LC_ALL=C.UTF-8
 
-BGL_CONFIG_ALL="--enable-suppress-external-warnings --disable-dependency-tracking --prefix=$DEPENDS_DIR/$HOST"
+BGL_CONFIG_ALL="--enable-suppress-external-warnings --disable-dependency-tracking"
+if [ -z "$NO_DEPENDS" ]; then
+  BGL_CONFIG_ALL="${BGL_CONFIG_ALL} CONFIG_SITE=$DEPENDS_DIR/$HOST/share/config.site"
+fi
+
 if [ -z "$NO_WERROR" ]; then
   BGL_CONFIG_ALL="${BGL_CONFIG_ALL} --enable-werror"
 fi
@@ -24,8 +28,7 @@ if [ -n "$ANDROID_TOOLS_URL" ]; then
   exit 0
 fi
 
-BGL_CONFIG_ALL="${BGL_CONFIG_ALL} --enable-external-signer --bindir=$BASE_OUTDIR/bin --libdir=$BASE_OUTDIR/lib"
-
+BGL_CONFIG_ALL="${BGL_CONFIG_ALL} --enable-external-signer --prefix=$BASE_OUTDIR"
 
 if [ -n "$CONFIG_SHELL" ]; then
   CI_EXEC "$CONFIG_SHELL" -c "./autogen.sh"
