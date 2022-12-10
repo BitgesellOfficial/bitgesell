@@ -731,7 +731,7 @@ class TestNode():
             self.addconnection('%s:%d' % (address, port), connection_type)
 
         p2p_conn.p2p_connected_to_node = False
-        p2p_conn.peer_accept_connection(connect_cb=addconnection_callback, connect_id=p2p_idx + 1, net=self.chain, timeout_factor=self.timeout_factor, supports_v2_p2p=supports_v2_p2p, **kwargs)()
+        p2p_conn.peer_accept_connection(connect_cb=addconnection_callback, connect_id=p2p_idx + 1, net=self.chain, timeout_factor=self.timeout_factor, supports_v2_p2p=supports_v2_p2p, reconnect=False, **kwargs)()
 
         p2p_conn.wait_for_connect()
         self.p2ps.append(p2p_conn)
