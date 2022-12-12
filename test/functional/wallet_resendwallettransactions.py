@@ -29,6 +29,9 @@ class ResendWalletTransactionsTest(BGLTestFramework):
 
         self.log.info("Create a new transaction and wait until it's broadcast")
         txid = node.sendtoaddress(node.getnewaddress(), 1)
+        # Bitgesell wallet broadcasts WTX transactions with the hash of serialized transaction,
+        # including witness data. msg_inv(inv=[CInv(type=WTX hash=xxx)]) where hash is wtx.
+        txid = node.gettransaction(txid)["wtxid"]
 
         # Wallet rebroadcast is first scheduled 1 sec after startup (see
         # nNextResend in ResendWalletTransactions()). Tell scheduler to call

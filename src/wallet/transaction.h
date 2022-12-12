@@ -265,6 +265,7 @@ public:
     bool isConfirmed() const { return m_confirm.status == CWalletTx::CONFIRMED; }
     void setConfirmed() { m_confirm.status = CWalletTx::CONFIRMED; }
     const uint256& GetHash() const { return tx->GetHash(); }
+    const uint256& GetWitnessHash() const { return tx->GetWitnessHash(); }
     bool IsCoinBase() const { return tx->IsCoinBase(); }
 
     // Disable copying of CWalletTx objects to prevent bugs where instances get

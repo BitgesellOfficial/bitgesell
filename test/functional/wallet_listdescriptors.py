@@ -43,9 +43,9 @@ class ListDescriptorsTest(BGLTestFramework):
         node.createwallet(wallet_name='w3', descriptors=True)
         result = node.get_wallet_rpc('w3').listdescriptors()
         assert_equal("w3", result['wallet_name'])
-        assert_equal(6, len(result['descriptors']))
-        assert_equal(6, len([d for d in result['descriptors'] if d['active']]))
-        assert_equal(3, len([d for d in result['descriptors'] if d['internal']]))
+        assert_equal(8, len(result['descriptors']))
+        assert_equal(8, len([d for d in result['descriptors'] if d['active']]))
+        assert_equal(4, len([d for d in result['descriptors'] if d['internal']]))
         for item in result['descriptors']:
             assert item['desc'] != ''
             assert item['next'] == 0
@@ -116,7 +116,7 @@ class ListDescriptorsTest(BGLTestFramework):
             'wallet_name': 'w4',
             'descriptors': [
                 {'active': False,
-                 'desc': 'combo(0227d85ba011276cf25b51df6a188b75e604b38770a462b2d0e9fb2fc839ef5d3f)#np574htj',
+                 'desc': 'combo(022a8ed5358832ab1218113501d19ee1cb02dc42f5713506fbd320c075fc866b88)#55wlgpc0',
                  'timestamp': 1296688602},
             ]
         }
