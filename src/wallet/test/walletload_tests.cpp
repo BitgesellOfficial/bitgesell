@@ -101,12 +101,10 @@ BOOST_FIXTURE_TEST_CASE(wallet_load_ckey, TestingSetup)
         BOOST_CHECK(wallet->EncryptWallet("encrypt"));
         wallet->Flush();
 
-        // Store a copy of all the records
-        records = GetMockableDatabase(*wallet).m_records;
-
-        // Get the record for the retrieved key
-        ckey_record_key = MakeSerializeData(DBKeys::CRYPTED_KEY, first_key.GetPubKey());
-        ckey_record_value = records.at(ckey_record_key);
+        DatabaseOptions options;
+        for (int i=0; i < NUMBER_OF_TESTS; i++) {
+            dbs.emplace_back(DuplicateMockDatabase(wallet->GetDatabase()));
+        }
     }
 
     {
