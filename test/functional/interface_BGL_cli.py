@@ -19,7 +19,7 @@ import time
 
 # The block reward of coinbaseoutput.nValue (200) BGL/block matures after
 # COINBASE_MATURITY (100) blocks. Therefore, after mining 101 blocks we expect
-# node 0 to have a balance of (BLOCKS - COINBASE_MATURITY) * 50 BTC/block.
+# node 0 to have a balance of (BLOCKS - COINBASE_MATURITY) * 200 BGL/block.
 BLOCKS = COINBASE_MATURITY + 1
 BALANCE = (BLOCKS - 100) * 200
 
@@ -161,7 +161,7 @@ class TestBGLCli(BGLTestFramework):
 
             # Setup to test -getinfo, -generate, and -rpcwallet= with multiple wallets.
             wallets = [self.default_wallet_name, 'Encrypted', 'secret']
-            amounts = [BALANCE + Decimal('9.99994360'), Decimal(9), Decimal(181)]
+            amounts = [BALANCE + Decimal('9.99994100'), Decimal(9), Decimal(181)]
             self.nodes[0].createwallet(wallet_name=wallets[1])
             self.nodes[0].createwallet(wallet_name=wallets[2])
             w1 = self.nodes[0].get_wallet_rpc(wallets[0])
