@@ -56,6 +56,7 @@ from test_framework.util import (
     assert_greater_than_or_equal,
 )
 from enum import Enum
+from test_framework.blocktools import COINBASE_MATURITY
 
 DEFAULT_FEE = Decimal("0.0001")
 
@@ -101,8 +102,8 @@ class MiniWallet:
             self._address, self._internal_key = create_deterministic_address_bcrt1_p2tr_op_true()
             self._scriptPubKey = bytes.fromhex(self._test_node.validateaddress(self._address)['scriptPubKey'])
 
-    def _create_utxo(self, *, txid, vout, value, height):
-        return {"txid": txid, "vout": vout, "value": value, "height": height}
+    def _create_utxo(self, *, txid, vout, value, height, coinbase, confirmations):
+        return {"txid": txid, "vout": vout, "value": value, "height": height, "coinbase": coinbase, "confirmations": confirmations}
 
     def _bulk_tx(self, tx, target_weight):
         """Pad a transaction with extra outputs until it reaches a target weight (or higher).
@@ -125,7 +126,13 @@ class MiniWallet:
         res = self._test_node.scantxoutset(action="start", scanobjects=[self.get_descriptor()])
         assert_equal(True, res['success'])
         for utxo in res['unspents']:
-            self._utxos.append(self._create_utxo(txid=utxo["txid"], vout=utxo["vout"], value=utxo["amount"], height=utxo["height"]))
+            self._utxos.append(
+                self._create_utxo(txid=utxo["txid"],
+                                  vout=utxo["vout"],
+                                  value=utxo["amount"],
+                                  height=utxo["height"],
+                                  coinbase=utxo["coinbase"],
+                                  confirmations=res["height"] - utxo["height"] + 1))
 
     def scan_tx(self, tx):
         """Scan the tx and adjust the internal list of owned utxos"""
@@ -140,7 +147,7 @@ class MiniWallet:
                 pass
         for out in tx['vout']:
             if out['scriptPubKey']['hex'] == self._scriptPubKey.hex():
-                self._utxos.append(self._create_utxo(txid=tx["txid"], vout=out["n"], value=out["value"], height=0))
+                self._utxos.append(self._create_utxo(txid=tx["txid"], vout=out["n"], value=out["value"], height=0, coinbase=False, confirmations=0))
 
     def scan_txs(self, txs):
         for tx in txs:
@@ -205,9 +212,13 @@ class MiniWallet:
         else:
             return self._utxos[index]
 
-    def get_utxos(self, *, mark_as_spent=True):
+    def get_utxos(self, *, include_immature_coinbase=False, mark_as_spent=True):
         """Returns the list of all utxos and optionally mark them as spent"""
-        utxos = deepcopy(self._utxos)
+        if not include_immature_coinbase:
+            utxo_filter = filter(lambda utxo: not utxo['coinbase'] or COINBASE_MATURITY <= utxo['confirmations'], self._utxos)
+        else:
+            utxo_filter = self._utxos
+        utxos = deepcopy(list(utxo_filter))
         if mark_as_spent:
             self._utxos = []
         return utxos
@@ -296,6 +307,8 @@ class MiniWallet:
                 vout=i,
                 value=Decimal(tx.vout[i].nValue) / COIN,
                 height=0,
+                coinbase=False,
+                confirmations=0,
             ) for i in range(len(tx.vout))],
             "txid": txid,
             "hex": tx.serialize().hex(),
