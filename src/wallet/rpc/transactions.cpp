@@ -636,7 +636,9 @@ RPCHelpMan listsinceblock()
 
     // Only set it if 'label' was provided.
     std::optional<std::string> filter_label;
-    if (!request.params[5].isNull()) filter_label.emplace(LabelFromValue(request.params[5]));
+    if (!request.params[5].isNull()) {
+        filter_label = LabelFromValue(request.params[5]);
+    }
 
     int depth = height ? wallet.GetLastBlockHeight() + 1 - *height : -1;
 
