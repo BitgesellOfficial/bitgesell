@@ -976,7 +976,16 @@ class RawTransactionsTest(BGLTestFramework):
         wallet = self.nodes[0].get_wallet_rpc(self.default_wallet_name)
         recipient = self.nodes[0].get_wallet_rpc("large")
         outputs = {}
-        for _ in range(4000):
+        rawtx = recipient.createrawtransaction([], {wallet.getnewaddress(): 147.99899260})
+
+        # Make 1500 0.1 BTC outputs. The amount that we target for funding is in
+        # the BnB range when these outputs are used.  However if these outputs
+        # are selected, the transaction will end up being too large, so it
+        # shouldn't use BnB and instead fall back to Knapsack but that behavior
+        # is not implemented yet. For now we just check that we get an error.
+        # First, force the wallet to bulk-generate the addresses we'll need.
+        recipient.keypoolrefill(1500)
+        for _ in range(1500):
             outputs[recipient.getnewaddress()] = 0.1
         wallet.sendmany("", outputs)
         self.generate(self.nodes[0], 10)
