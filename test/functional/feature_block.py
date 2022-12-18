@@ -517,7 +517,7 @@ class FullBlockTest(BGLTestFramework):
 
         # Test sigops in P2SH redeem scripts
         #
-        # b40 creates 3333 tx's spending the 6-sigop P2SH outputs from b39 for a total of 19998 sigops.
+        # b40 creates 1072 tx's spending the 6-sigop P2SH outputs from b39 for a total of 6432 sigops.
         # The first tx has one sigop and then at the end we add 2 more to put us just over the max.
         #
         # b41 does the same, less one, so it has the maximum sigops permitted.
