@@ -92,15 +92,6 @@ public:
         // By default assume that the signatures in ancestors of this block are valid.
         consensus.defaultAssumeValid = uint256S("0x000000000000055e5a25481d6b90bc943f36d5f2b3ca0ecf4f4b4ea3241a3168");
 
-        // Deployment of Taproot (BIPs 340-342) that did not pass
-        // we would be keeping this information here for now, because blocks contain this version bit
-        // and on relaxed conditions for window/treshold (that are set for now)
-        // the blocks would signal that bit=2 unknown rule was activated
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].bit = 2;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].nStartTime = 1621589357; // May 21th, 2021
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].nTimeout = 1623715200; // June 15th, 2021
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].min_activation_height = 66000; // Approximately July 1st, 2021
-
         // Deployment of Taproot (BIPs 340-342)
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].bit = 2;
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nStartTime = 1626307200; // July 15th, 2021

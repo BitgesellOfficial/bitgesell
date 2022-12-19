@@ -3,8 +3,8 @@
 builddir = $(shell pwd)
 destdir = $(builddir)/debian/bitgesell-qt
 
-CC  = gcc-8
-CXX = g++-8
+CC  = gcc-9
+CXX = g++-9
 
 .PHONY: distrib download-distrib unpack-distrib berkeleydb libevent miniupnpc
 
@@ -80,12 +80,20 @@ override_dh_auto_configure:
 		--with-gui=yes \
 		--with-boost="$(builddir)/distrib/tmp/libboost"
 
+#override dh_auto_install:
+#	make -j1 install DESTDIR=$(destdir) AM_UPDATE_INFO_DIR=no
+
 override_dh_auto_test:
 	DEB_BUILD_OPTIONS=nocheck dh_auto_test
 
 override_dh_install:
 	dh_install
+# In compat 15 or later, dh_auto_install will use debian/tmp as the
+# default --destdir and should be moved from there to the
+# appropriate package build directory using dh_install(1) or
+# similar tools/
 	mkdir -p $(destdir)/usr/lib/bitgesell-qt
+	cp -r $(builddir)/debian/tmp/usr $(destdir)
 	cp -a distrib/tmp/libboost/lib/* $(destdir)/usr/lib/bitgesell-qt/
 	cp -a distrib/tmp/libdb/lib/* $(destdir)/usr/lib/bitgesell-qt/
 	cp -a distrib/tmp/libevent/lib/* $(destdir)/usr/lib/bitgesell-qt/
@@ -93,3 +101,6 @@ override_dh_install:
 
 override_dh_shlibdeps:
 	dh_shlibdeps -l/usr/lib/bitgesell-qt
+
+override_dh_strip:
+	dh_strip --dbg-package=bitgesell-qt-dbg
