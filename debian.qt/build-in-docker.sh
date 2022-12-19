@@ -4,20 +4,17 @@ set -e
 
 debuild -S
 
-finish() {
-    docker stop $container >/dev/null
-    docker container rm $container >/dev/null
-}
+#finish() {
+#    docker stop $container >/dev/null
+#    docker container rm $container >/dev/null
+#}
 
 docker pull ubuntu:20.04
 container=`docker run -dit ubuntu:20.04`
-trap finish EXIT
+#trap finish EXIT
 
 docker cp ./debian/updateunattended.sh $container:/root/
 docker exec $container /root/updateunattended.sh
-#docker exec $container apt-get -y update
-#docker exec $container apt-get -y install apt-utils devscripts sudo #dpkg-dev
-#docker exec $container apt-get -y install libqrencode-dev qt5-default qttools5-dev-tools
 docker exec $container mkdir -p /root/repo
 docker exec $container useradd user
 docker exec $container mkdir /home/user
@@ -36,3 +33,4 @@ docker exec $container chmod -R a+rX /root/repo
 docker exec -w /home/user/build $container sudo -u user apt-get -y source bitgesell-qt
 docker exec -w /home/user/build/bitgesell-qt-0.1.9 $container sudo -u user debuild -b
 docker cp $container:/home/user/build/bitgesell-qt_0.1.9_amd64.deb bitgesell-qt_0.1.9_amd64.deb
+docker cp $container:/home/user/build/bitgesell-qt-dbg_0.1.9_amd64.deb bitgesell-qt-dbg_0.1.9_amd64.deb
