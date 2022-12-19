@@ -80,6 +80,9 @@ override_dh_auto_configure:
 		--with-gui=yes \
 		--with-boost="$(builddir)/distrib/tmp/libboost"
 
+override_dh_auto_test:
+	DEB_BUILD_OPTIONS=nocheck dh_auto_test
+
 override_dh_install:
 	dh_install
 	mkdir -p $(destdir)/usr/lib/bitgesell-qt

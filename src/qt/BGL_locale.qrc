@@ -1,6 +1,5 @@
 <!DOCTYPE RCC><RCC version="1.0">
     <qresource prefix="/translations">
-        <file alias="af">locale/BGL_af.qm</file>
         <file alias="am">locale/BGL_am.qm</file>
         <file alias="ar">locale/BGL_ar.qm</file>
         <file alias="be">locale/BGL_be.qm</file>
