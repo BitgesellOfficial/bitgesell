@@ -132,8 +132,9 @@ def print_message(event, inbound):
           )
 
 
-def main(BGLd_path):
-    BGLd_with_usdts = USDT(path=str(BGLd_path))
+def main(pid):
+    print(f"Hooking into BGLd with pid {pid}")
+    bitcoind_with_usdts = USDT(pid=int(pid))
 
     # attaching the trace functions defined in the BPF program to the tracepoints
     BGLd_with_usdts.enable_probe(
@@ -176,8 +177,8 @@ def main(BGLd_path):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("USAGE:", sys.argv[0], "path/to/BGLd")
+    if len(sys.argv) != 2:
+        print("USAGE:", sys.argv[0], "<pid of BGLd>")
         exit()
-    path = sys.argv[1]
-    main(path)
+    pid = sys.argv[1]
+    main(pid)
