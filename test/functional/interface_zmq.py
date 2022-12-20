@@ -38,8 +38,8 @@ try:
 except ImportError:
     pass
 
-def hash256_reversed(byte_str):
-    return hash256(byte_str)[::-1]
+def keccak256_reversed(byte_str):
+    return keccak256(byte_str)[::-1]
 
 def keccak256_reversed(byte_str):
     return keccak256(byte_str)[::-1]
