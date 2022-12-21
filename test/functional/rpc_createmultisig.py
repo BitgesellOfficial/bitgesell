@@ -82,13 +82,23 @@ class RpcCreateMultiSigTest(BGLTestFramework):
         for keys in itertools.permutations([pk0, pk1, pk2]):
             # Results should be the same as this legacy one
             legacy_addr = node0.createmultisig(2, keys, 'legacy')['address']
-            assert_equal(legacy_addr, wmulti0.addmultisigaddress(2, keys, '', 'legacy')['address'])
+
+            if self.is_bdb_compiled():
+                result = wmulti0.addmultisigaddress(2, keys, '', 'legacy')
+                assert_equal(legacy_addr, result['address'])
+                assert 'warnings' not in result
 
             # Generate addresses with the segwit types. These should all make legacy addresses
-            assert_equal(legacy_addr, wmulti0.createmultisig(2, keys, 'bech32')['address'])
-            assert_equal(legacy_addr, wmulti0.createmultisig(2, keys, 'p2sh-segwit')['address'])
-            assert_equal(legacy_addr, wmulti0.addmultisigaddress(2, keys, '', 'bech32')['address'])
-            assert_equal(legacy_addr, wmulti0.addmultisigaddress(2, keys, '', 'p2sh-segwit')['address'])
+            err_msg = ["Unable to make chosen address type, please ensure no uncompressed public keys are present."]
+
+            for addr_type in ['bech32', 'p2sh-segwit']:
+                result = self.nodes[0].createmultisig(nrequired=2, keys=keys, address_type=addr_type)
+                assert_equal(legacy_addr, result['address'])
+
+                if self.is_bdb_compiled():
+                    result = wmulti0.addmultisigaddress(nrequired=2, keys=keys, address_type=addr_type)
+                    assert_equal(legacy_addr, result['address'])
+                    assert_equal(result['warnings'], err_msg)
 
         self.log.info('Testing sortedmulti descriptors with BIP 67 test vectors')
         with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data/rpc_bip67.json'), encoding='utf-8') as f:
