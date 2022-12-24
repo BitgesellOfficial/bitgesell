@@ -563,6 +563,7 @@ BOOST_FIXTURE_TEST_CASE(package_witness_swap_tests, TestChain100Setup)
         BOOST_CHECK(m_node.mempool->exists(GenTxid::Txid(ptx_mixed_child->GetHash())));
 
         // package feerate should include parent3 and child. It should not include parent1 or parent2_v1.
+        BOOST_CHECK_MESSAGE(mixed_result.m_state.IsValid(), mixed_result.m_state.GetRejectReason());
         BOOST_CHECK(mixed_result.m_package_feerate.has_value());
         const CFeeRate expected_feerate(1 * COIN, GetVirtualTransactionSize(*ptx_parent3) + GetVirtualTransactionSize(*ptx_mixed_child));
         BOOST_CHECK_MESSAGE(mixed_result.m_package_feerate.value() == expected_feerate,

@@ -5,7 +5,7 @@ Upstream-Contact: Satoshi Nakamoto <satoshin@gmx.com>
 Source: https://github.com/BitgesellOfficial/bitgesell
 
 Files: *
-Copyright: 2009-2022, Bitcoin Core Developers
+Copyright: 2009-2023, Bitcoin Core Developers
 License: Expat
 Comment: The BGL Core Developers encompasses the current developers listed on BGL.org,
          as well as the numerous contributors to the project.
