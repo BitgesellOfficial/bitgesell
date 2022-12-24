@@ -103,6 +103,10 @@ class RawTransactionsTest(BGLTestFramework):
         self.generate(self.nodes[0], 121)
         self.sync_all()
 
+        self.test_fee_p2pkh()
+        self.test_fee_p2pkh_multi_out()
+        self.test_fee_p2sh()
+        self.test_fee_4of5()
         self.test_change_position()
         self.test_simple()
         self.test_simple_two_coins()
@@ -117,10 +121,6 @@ class RawTransactionsTest(BGLTestFramework):
         self.test_two_vin()
         self.test_two_vin_two_vout()
         self.test_invalid_input()
-        self.test_fee_p2pkh()
-        self.test_fee_p2pkh_multi_out()
-        self.test_fee_p2sh()
-        self.test_fee_4of5()
         self.test_spend_2of2()
         self.test_locked_wallet()
         self.test_many_inputs_fee()
@@ -417,7 +417,7 @@ class RawTransactionsTest(BGLTestFramework):
 
         # Create same transaction over sendtoaddress.
         txId = self.nodes[0].sendtoaddress(self.nodes[1].getnewaddress(), 1.1)
-        signedFee = self.nodes[0].getmempoolentry(txId)['fee']
+        signedFee = self.nodes[0].getmempoolentry(txId)['fees']['base']
 
         # Compare fee.
         feeDelta = Decimal(fundedTx['fee']) - Decimal(signedFee)
@@ -443,7 +443,7 @@ class RawTransactionsTest(BGLTestFramework):
 
         # Create same transaction over sendtoaddress.
         txId = self.nodes[0].sendmany("", outputs)
-        signedFee = self.nodes[0].getmempoolentry(txId)['fee']
+        signedFee = self.nodes[0].getmempoolentry(txId)['fees']['base']
 
         # Compare fee.
         feeDelta = Decimal(fundedTx['fee']) - Decimal(signedFee)
@@ -470,7 +470,7 @@ class RawTransactionsTest(BGLTestFramework):
 
         # Create same transaction over sendtoaddress.
         txId = self.nodes[0].sendtoaddress(mSigObj, 1.1)
-        signedFee = self.nodes[0].getmempoolentry(txId)['fee']
+        signedFee = self.nodes[0].getmempoolentry(txId)['fees']['base']
 
         # Compare fee.
         feeDelta = Decimal(fundedTx['fee']) - Decimal(signedFee)
@@ -514,7 +514,7 @@ class RawTransactionsTest(BGLTestFramework):
 
         # Create same transaction over sendtoaddress.
         txId = self.nodes[0].sendtoaddress(mSigObj, 1.1)
-        signedFee = self.nodes[0].getmempoolentry(txId)['fee']
+        signedFee = self.nodes[0].getmempoolentry(txId)['fees']['base']
 
         # Compare fee.
         feeDelta = Decimal(fundedTx['fee']) - Decimal(signedFee)
@@ -651,7 +651,7 @@ class RawTransactionsTest(BGLTestFramework):
 
         # Create same transaction over sendtoaddress.
         txId = self.nodes[1].sendmany("", outputs)
-        signedFee = self.nodes[1].getmempoolentry(txId)['fee']
+        signedFee = self.nodes[1].getmempoolentry(txId)['fees']['base']
 
         # Compare fee.
         feeDelta = Decimal(fundedTx['fee']) - Decimal(signedFee)

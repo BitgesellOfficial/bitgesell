@@ -13,11 +13,19 @@ if uploadtarget has been reached.
 from collections import defaultdict
 import time
 
-from test_framework.messages import CInv, MSG_BLOCK, msg_getdata
+from test_framework.messages import (
+    CInv,
+    MSG_BLOCK,
+    msg_getdata,
+)
 from test_framework.p2p import P2PInterface
 from test_framework.test_framework import BGLTestFramework
-from test_framework.util import assert_equal, mine_large_block
+from test_framework.util import (
+    assert_equal,
+    mine_large_block,
+)
 from test_framework.wallet import MiniWallet
+
 
 class TestP2PConn(P2PInterface):
     def __init__(self):
@@ -37,16 +45,10 @@ class MaxUploadTest(BGLTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 1
         self.extra_args = [[
-            "-maxuploadtarget=800",
-            "-acceptnonstdtxn=1",
+            "-maxuploadtarget=800M",
+            "-datacarriersize=100000",
         ]]
         self.supports_cli = False
-
-        # Cache for utxos, as the listunspent may take a long time later in the test
-        self.utxo_cache = []
-
-    def skip_test_if_missing_module(self):
-        self.skip_if_no_wallet()
 
     def run_test(self):
         # Before we connect anything, we first set the time on the node
@@ -92,12 +94,11 @@ class MaxUploadTest(BGLTestFramework):
         getdata_request.inv.append(CInv(MSG_BLOCK, big_old_block))
 
         max_bytes_per_day = 800*1024*1024
-        daily_buffer = 144 * 4000000
+        daily_buffer = 144 * 400000
         max_bytes_available = max_bytes_per_day - daily_buffer
         success_count = max_bytes_available // old_block_size
-
         # 576MB will be reserved for relaying new blocks, so expect this to
-        # succeed for ~235 tries.
+        # succeed for ~8120 tries.
         for i in range(success_count):
             p2p_conns[0].send_and_ping(getdata_request)
             assert_equal(p2p_conns[0].block_receive_map[big_old_block], i+1)
@@ -105,7 +106,7 @@ class MaxUploadTest(BGLTestFramework):
         assert_equal(len(self.nodes[0].getpeerinfo()), 3)
         # At most a couple more tries should succeed (depending on how long
         # the test has been running so far).
-        for _ in range(3):
+        for _ in range(10):
             p2p_conns[0].send_message(getdata_request)
         p2p_conns[0].wait_for_disconnect()
         assert_equal(len(self.nodes[0].getpeerinfo()), 2)
