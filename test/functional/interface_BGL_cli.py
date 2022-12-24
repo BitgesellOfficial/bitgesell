@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2017-2020 The Bitcoin Core developers
+# Copyright (c) 2017-2022 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test BGL-cli"""
@@ -64,7 +64,7 @@ def cli_get_info_string_to_dict(cli_get_info_string):
     return cli_get_info
 
 
-class TestBitcoinCli(BGLTestFramework):
+class TestBGLCli(BGLTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser)
 
