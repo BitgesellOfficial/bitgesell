@@ -680,6 +680,11 @@ void BGLGUI::setWalletController(WalletController* wallet_controller)
 
     GUIUtil::ExceptionSafeConnect(wallet_controller, &WalletController::walletAdded, this, &BGLGUI::addWallet);
     connect(wallet_controller, &WalletController::walletRemoved, this, &BGLGUI::removeWallet);
+    connect(wallet_controller, &WalletController::destroyed, this, [this] {
+        // wallet_controller gets destroyed manually, but it leaves our member copy dangling
+        m_wallet_controller = nullptr;
+    });
+
 
     auto activity = new LoadWalletsActivity(m_wallet_controller, this);
     activity->load();
@@ -692,7 +697,7 @@ WalletController* BGLGUI::getWalletController()
 
 void BGLGUI::addWallet(WalletModel* walletModel)
 {
-    if (!walletFrame) return;
+    if (!walletFrame || !m_wallet_controller) return;
 
     WalletView* wallet_view = new WalletView(walletModel, platformStyle, walletFrame);
     if (!walletFrame->addView(wallet_view)) return;
@@ -742,7 +747,7 @@ void BGLGUI::removeWallet(WalletModel* walletModel)
 
 void BGLGUI::setCurrentWallet(WalletModel* wallet_model)
 {
-    if (!walletFrame) return;
+    if (!walletFrame || !m_wallet_controller) return;
     walletFrame->setCurrentWallet(wallet_model);
     for (int index = 0; index < m_wallet_selector->count(); ++index) {
         if (m_wallet_selector->itemData(index).value<WalletModel*>() == wallet_model) {
