@@ -824,17 +824,20 @@ FlatFilePos BlockManager::SaveBlockToDisk(const CBlock& block, int nHeight, CCha
     return blockPos;
 }
 
-struct CImportingNow {
-    CImportingNow()
-    {
-        assert(fImporting == false);
-        fImporting = true;
-    }
+class ImportingNow
+{
+    std::atomic<bool>& m_importing;
 
-    ~CImportingNow()
+public:
+    ImportingNow(std::atomic<bool>& importing) : m_importing{importing}
     {
-        assert(fImporting == true);
-        fImporting = false;
+        assert(m_importing == false);
+        m_importing = true;
+    }
+    ~ImportingNow()
+    {
+        assert(m_importing == true);
+        m_importing = false;
     }
 };
 
@@ -844,7 +847,7 @@ void ThreadImport(ChainstateManager& chainman, std::vector<fs::path> vImportFile
     ScheduleBatchPriority();
 
     {
-        CImportingNow imp;
+        ImportingNow imp{fImporting};
 
         // -reindex
         if (fReindex) {
@@ -910,7 +913,7 @@ void ThreadImport(ChainstateManager& chainman, std::vector<fs::path> vImportFile
             StartShutdown();
             return;
         }
-    } // End scope of CImportingNow
+    } // End scope of ImportingNow
     chainman.ActiveChainstate().LoadMempool(mempool_path);
 }
 } // namespace node
