@@ -173,6 +173,7 @@ BGL_CORE_H = \
   interfaces/ipc.h \
   interfaces/node.h \
   interfaces/wallet.h \
+  kernel/blockmanager_opts.h \
   kernel/chain.h \
   kernel/chainstatemanager_opts.h \
   kernel/checks.h \
@@ -199,6 +200,7 @@ BGL_CORE_H = \
   netbase.h \
   netgroup.h \
   netmessagemaker.h \
+  node/blockmanager_args.h \
   node/blockstorage.h \
   node/caches.h \
   node/chainstate.h \
@@ -386,6 +388,7 @@ libBGL_node_a_SOURCES = \
   net.cpp \
   net_processing.cpp \
   netgroup.cpp \
+  node/blockmanager_args.cpp \
   node/blockstorage.cpp \
   node/caches.cpp \
   node/chainstate.cpp \
