@@ -57,11 +57,11 @@ std::unique_ptr<WalletDatabase> DuplicateMockDatabase(WalletDatabase& database, 
 
     // Read all records from the original database and write them to the new one
     while (true) {
-        CDataStream key(SER_DISK, CLIENT_VERSION);
-        CDataStream value(SER_DISK, CLIENT_VERSION);
-        bool complete;
-        batch->ReadAtCursor(key, value, complete);
-        if (complete) break;
+        DataStream key{};
+        DataStream value{};
+        DatabaseCursor::Status status = cursor->Next(key, value);
+        assert(status != DatabaseCursor::Status::FAIL);
+        if (status == DatabaseCursor::Status::DONE) break;
         new_batch->Write(key, value);
     }
 

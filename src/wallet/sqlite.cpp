@@ -387,7 +387,7 @@ void SQLiteBatch::Close()
     }
 }
 
-bool SQLiteBatch::ReadKey(CDataStream&& key, CDataStream& value)
+bool SQLiteBatch::ReadKey(DataStream&& key, DataStream& value)
 {
     if (!m_database.m_db) return false;
     assert(m_read_stmt);
@@ -414,7 +414,7 @@ bool SQLiteBatch::ReadKey(CDataStream&& key, CDataStream& value)
     return true;
 }
 
-bool SQLiteBatch::WriteKey(CDataStream&& key, CDataStream&& value, bool overwrite)
+bool SQLiteBatch::WriteKey(DataStream&& key, DataStream&& value, bool overwrite)
 {
     if (!m_database.m_db) return false;
     assert(m_insert_stmt && m_overwrite_stmt);
@@ -441,7 +441,7 @@ bool SQLiteBatch::WriteKey(CDataStream&& key, CDataStream&& value, bool overwrit
     return res == SQLITE_DONE;
 }
 
-bool SQLiteBatch::EraseKey(CDataStream&& key)
+bool SQLiteBatch::EraseKey(DataStream&& key)
 {
     if (!m_database.m_db) return false;
     assert(m_delete_stmt);
@@ -459,7 +459,7 @@ bool SQLiteBatch::EraseKey(CDataStream&& key)
     return res == SQLITE_DONE;
 }
 
-bool SQLiteBatch::HasKey(CDataStream&& key)
+bool SQLiteBatch::HasKey(DataStream&& key)
 {
     if (!m_database.m_db) return false;
     assert(m_read_stmt);
@@ -472,7 +472,7 @@ bool SQLiteBatch::HasKey(CDataStream&& key)
     return res == SQLITE_ROW;
 }
 
-bool SQLiteBatch::StartCursor()
+DatabaseCursor::Status SQLiteCursor::Next(DataStream& key, DataStream& value)
 {
     assert(!m_cursor_init);
     if (!m_database.m_db) return false;

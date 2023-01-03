@@ -478,11 +478,10 @@ bool BerkeleyDatabase::Rewrite(const char* pszSkip)
 
                     if (db.StartCursor()) {
                         while (fSuccess) {
-                            CDataStream ssKey(SER_DISK, CLIENT_VERSION);
-                            CDataStream ssValue(SER_DISK, CLIENT_VERSION);
-                            bool complete;
-                            bool ret1 = db.ReadAtCursor(ssKey, ssValue, complete);
-                            if (complete) {
+                            DataStream ssKey{};
+                            DataStream ssValue{};
+                            DatabaseCursor::Status ret1 = cursor->Next(ssKey, ssValue);
+                            if (ret1 == DatabaseCursor::Status::DONE) {
                                 break;
                             } else if (!ret1) {
                                 fSuccess = false;
@@ -667,7 +666,7 @@ bool BerkeleyBatch::StartCursor()
     }
 }
 
-bool BerkeleyBatch::ReadAtCursor(CDataStream& ssKey, CDataStream& ssValue, bool& complete)
+DatabaseCursor::Status BerkeleyCursor::Next(DataStream& ssKey, DataStream& ssValue)
 {
     complete = false;
     if (m_cursor == nullptr) return false;
@@ -684,10 +683,8 @@ bool BerkeleyBatch::ReadAtCursor(CDataStream& ssKey, CDataStream& ssValue, bool&
         return false;
 
     // Convert to streams
-    ssKey.SetType(SER_DISK);
     ssKey.clear();
     ssKey.write({AsBytePtr(datKey.get_data()), datKey.get_size()});
-    ssValue.SetType(SER_DISK);
     ssValue.clear();
     ssValue.write({AsBytePtr(datValue.get_data()), datValue.get_size()});
     return true;
@@ -751,7 +748,7 @@ std::string BerkeleyDatabaseVersion()
     return DbEnv::version(nullptr, nullptr, nullptr);
 }
 
-bool BerkeleyBatch::ReadKey(CDataStream&& key, CDataStream& value)
+bool BerkeleyBatch::ReadKey(DataStream&& key, DataStream& value)
 {
     if (!pdb)
         return false;
@@ -767,7 +764,7 @@ bool BerkeleyBatch::ReadKey(CDataStream&& key, CDataStream& value)
     return false;
 }
 
-bool BerkeleyBatch::WriteKey(CDataStream&& key, CDataStream&& value, bool overwrite)
+bool BerkeleyBatch::WriteKey(DataStream&& key, DataStream&& value, bool overwrite)
 {
     if (!pdb)
         return false;
@@ -782,7 +779,7 @@ bool BerkeleyBatch::WriteKey(CDataStream&& key, CDataStream&& value, bool overwr
     return (ret == 0);
 }
 
-bool BerkeleyBatch::EraseKey(CDataStream&& key)
+bool BerkeleyBatch::EraseKey(DataStream&& key)
 {
     if (!pdb)
         return false;
@@ -795,7 +792,7 @@ bool BerkeleyBatch::EraseKey(CDataStream&& key)
     return (ret == 0 || ret == DB_NOTFOUND);
 }
 
-bool BerkeleyBatch::HasKey(CDataStream&& key)
+bool BerkeleyBatch::HasKey(DataStream&& key)
 {
     if (!pdb)
         return false;

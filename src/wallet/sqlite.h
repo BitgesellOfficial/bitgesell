@@ -14,6 +14,17 @@ struct bilingual_str;
 namespace wallet {
 class SQLiteDatabase;
 
+class SQLiteCursor : public DatabaseCursor
+{
+public:
+    sqlite3_stmt* m_cursor_stmt{nullptr};
+
+    explicit SQLiteCursor() {}
+    ~SQLiteCursor() override;
+
+    Status Next(DataStream& key, DataStream& value) override;
+};
+
 /** RAII class that provides access to a WalletDatabase */
 class SQLiteBatch : public DatabaseBatch
 {
@@ -30,10 +41,10 @@ private:
 
     void SetupSQLStatements();
 
-    bool ReadKey(CDataStream&& key, CDataStream& value) override;
-    bool WriteKey(CDataStream&& key, CDataStream&& value, bool overwrite = true) override;
-    bool EraseKey(CDataStream&& key) override;
-    bool HasKey(CDataStream&& key) override;
+    bool ReadKey(DataStream&& key, DataStream& value) override;
+    bool WriteKey(DataStream&& key, DataStream&& value, bool overwrite = true) override;
+    bool EraseKey(DataStream&& key) override;
+    bool HasKey(DataStream&& key) override;
 
 public:
     explicit SQLiteBatch(SQLiteDatabase& database);
