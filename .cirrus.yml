@@ -244,8 +244,23 @@ task:
   << : *CAT_LOGS
 
 task:
-  name: "ARM64: Linux (Debian stable, QEMU)"
-  << : *LINUX_CONTAINER
+  name: '32-bit + dash [gui] [CentOS 8]'
+  << : *GLOBAL_TASK_TEMPLATE
+  container:
+    image: quay.io/centos/centos:stream8
+  # For faster CI feedback, immediately schedule one task that runs all tests
+  << : *CREDITS_TEMPLATE
+  env:
+    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
+    PACKAGE_MANAGER_INSTALL: "yum install -y"
+    FILE_ENV: "./ci/test/00_setup_env_i686_centos.sh"
+
+task:
+  name: '[previous releases, uses qt5 dev package and some depends packages, DEBUG] [unsigned char] [buster]'
+  previous_releases_cache:
+    folder: "releases"
+  << : *GLOBAL_TASK_TEMPLATE
+  << : *PERSISTENT_WORKER_TEMPLATE
   env:
     WRAPPER_CMD: qemu-aarch64
     SECP256K1_TEST_ITERS: 16
