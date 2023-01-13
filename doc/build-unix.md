@@ -74,7 +74,7 @@ executables, which are based on BerkeleyDB 4.8. If you do not care about wallet 
 
 To build Bitgesell Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mode)
 
-Optional port mapping libraries (see: `--with-miniupnpc`, `--enable-upnp-default`, and `--with-natpmp`):
+Optional port mapping libraries (see: `--with-miniupnpc` and `--with-natpmp`):
 
     sudo apt install libminiupnpc-dev libnatpmp-dev
 
@@ -135,7 +135,7 @@ pass `--with-incompatible-bdb` to configure. Otherwise, you can build Berkeley D
 
 To build Bitgesell Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mode)
 
-Optional port mapping libraries (see: `--with-miniupnpc`, `--enable-upnp-default`, and `--with-natpmp`):
+Optional port mapping libraries (see: `--with-miniupnpc` and `--with-natpmp`):
 
     sudo dnf install miniupnpc-devel libnatpmp-devel
 
@@ -178,11 +178,7 @@ miniupnpc
 
 [miniupnpc](https://miniupnp.tuxfamily.org) may be used for UPnP port mapping.  It can be downloaded from [here](
 https://miniupnp.tuxfamily.org/files/).  UPnP support is compiled in and
-turned off by default.  See the configure options for UPnP behavior desired:
-
-    --without-miniupnpc      No UPnP support, miniupnp not required
-    --disable-upnp-default   (the default) UPnP support turned off by default at runtime
-    --enable-upnp-default    UPnP support turned on by default at runtime
+turned off by default.
 
 libnatpmp
 ---------
