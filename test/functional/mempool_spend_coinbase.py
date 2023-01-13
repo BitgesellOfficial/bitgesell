@@ -29,7 +29,6 @@ class MempoolSpendCoinbaseTest(BGLTestFramework):
         chain_height = 198
         self.nodes[0].invalidateblock(self.nodes[0].getblockhash(chain_height + 1))
         assert_equal(chain_height, self.nodes[0].getblockcount())
-        wallet.rescan_utxos()
 
         # Coinbase at height chain_height-100+1 ok in mempool, should
         # get mined. Coinbase at height chain_height-100+2 is
