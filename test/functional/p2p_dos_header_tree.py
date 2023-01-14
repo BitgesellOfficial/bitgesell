@@ -48,9 +48,10 @@ class RejectLowDifficultyHeadersTest(BGLTestFramework):
         self.log.info("Feed all non-fork headers, including and up to the first checkpoint")
         peer_checkpoint = self.nodes[0].add_p2p_connection(P2PInterface())
         peer_checkpoint.send_and_ping(msg_headers(self.headers))
+
         assert {
             'height': 546,
-            'hash': '000000002a936ca763904c3c35fce2f3556c559c0214345d31b1bcebf76acb70',
+            'hash': '000000033f0ecd6bc1c46eb98a2856cf2fe48bc3e90ef11ac24ea5272c1adbf8',
             'branchlen': 546,
             'status': 'headers-only',
         } in self.nodes[0].getchaintips()
@@ -67,7 +68,7 @@ class RejectLowDifficultyHeadersTest(BGLTestFramework):
         peer_no_checkpoint.send_and_ping(msg_headers(self.headers_fork))
         assert {
             "height": 2,
-            "hash": "00000000b0494bd6c3d5ff79c497cfce40831871cbf39b1bc28bd1dac817dc39",
+            "hash": "00026d186a158d1afe0f7c46c66db4e8284ed43f87bfb55000b0100892bc026c",
             "branchlen": 2,
             "status": "headers-only",
         } in self.nodes[0].getchaintips()
@@ -77,7 +78,7 @@ class RejectLowDifficultyHeadersTest(BGLTestFramework):
         peer_before_checkpoint.send_and_ping(msg_headers(self.headers_fork))
         assert {
             "height": 2,
-            "hash": "00000000b0494bd6c3d5ff79c497cfce40831871cbf39b1bc28bd1dac817dc39",
+            "hash": "00026d186a158d1afe0f7c46c66db4e8284ed43f87bfb55000b0100892bc026c",
             "branchlen": 2,
             "status": "headers-only",
         } in self.nodes[1].getchaintips()
