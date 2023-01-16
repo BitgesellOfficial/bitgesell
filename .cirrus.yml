@@ -65,30 +65,21 @@ compute_credits_template: &CREDITS_TEMPLATE
   use_compute_credits: $CIRRUS_REPO_FULL_NAME == 'BGL/BGL' && $CIRRUS_PR != ""
 
 task:
-  name: "x86_64: Linux (Debian stable)"
-  << : *LINUX_CONTAINER
-  matrix: &ENV_MATRIX
-    - env: {WIDEMUL:  int64,  RECOVERY: yes}
-    - env: {WIDEMUL:  int64,                 ECDH: yes, SCHNORRSIG: yes}
-    - env: {WIDEMUL: int128}
-    - env: {WIDEMUL: int128,  RECOVERY: yes,            SCHNORRSIG: yes}
-    - env: {WIDEMUL: int128,                 ECDH: yes, SCHNORRSIG: yes}
-    - env: {WIDEMUL: int128,  ASM: x86_64}
-    - env: {                  RECOVERY: yes,            SCHNORRSIG: yes}
-    - env: {BUILD: distcheck, WITH_VALGRIND: no, CTIMETEST: no, BENCH: no}
-    - env: {CPPFLAGS: -DDETERMINISTIC}
-    - env: {CFLAGS: -O0, CTIMETEST: no}
-    - env: { ECMULTGENPRECISION: 2, ECMULTWINDOW: 2 }
-    - env: { ECMULTGENPRECISION: 8, ECMULTWINDOW: 4 }
-  matrix:
-    - env:
-        CC: gcc
-    - env:
-        CC: clang
-  << : *MERGE_BASE
-  test_script:
-    - ./ci/cirrus.sh
-  << : *CAT_LOGS
+  name: 'lint [bionic]'
+  << : *BASE_TEMPLATE
+  container:
+    image: ubuntu:bionic
+    cpu: 1
+    memory: 1G
+  # For faster CI feedback, immediately schedule the linters
+  << : *CREDITS_TEMPLATE
+  python_cache:
+    folder: "/tmp/python"
+    fingerprint_script: cat .python-version /etc/os-release
+  lint_script:
+    - ./ci/lint_run_all.sh
+  env:
+    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
 
 task:
   name: "i686: Linux (Debian stable)"
