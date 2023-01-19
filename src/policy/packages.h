@@ -55,7 +55,7 @@ class PackageValidationState : public ValidationState<PackageValidationResult> {
  * 3. If any dependencies exist between transactions, parents must appear before children.
  * 4. Transactions cannot conflict, i.e., spend the same inputs.
  */
-bool CheckPackage(const Package& txns, PackageValidationState& state);
+bool IsWellFormedPackage(const Package& txns, PackageValidationState& state, bool require_sorted);
 
 /** Context-free check that a package is exactly one child and its parents; not all parents need to
  * be present, but the package must not contain any transactions that are not the child's parents.
