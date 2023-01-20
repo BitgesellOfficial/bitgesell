@@ -26,6 +26,19 @@ BOOST_AUTO_TEST_CASE(getcoinscachesizestate)
     LOCK(::cs_main);
     auto& view = chainstate.CoinsTip();
 
+    //! Create and add a Coin with DynamicMemoryUsage of 80 bytes to the given view.
+    auto add_coin = [](CCoinsViewCache& coins_view) -> COutPoint {
+        Coin newcoin;
+        uint256 txid = InsecureRand256();
+        COutPoint outp{txid, 0};
+        newcoin.nHeight = 1;
+        newcoin.out.nValue = InsecureRandMoneyAmount();
+        newcoin.out.scriptPubKey.assign(uint32_t{56}, 1);
+        coins_view.AddCoin(outp, std::move(newcoin), false);
+
+        return outp;
+    };
+
     // The number of bytes consumed by coin's heap data, i.e. CScript
     // (prevector<28, unsigned char>) when assigned 56 bytes of data per above.
     //
