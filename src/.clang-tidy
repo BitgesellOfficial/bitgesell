@@ -8,6 +8,7 @@ modernize-use-nullptr,
 performance-for-range-copy,
 performance-move-const-arg,
 performance-unnecessary-copy-initialization,
+readability-const-return-type,
 readability-redundant-declaration,
 readability-redundant-string-init,
 '
