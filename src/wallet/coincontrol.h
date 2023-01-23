@@ -49,11 +49,6 @@ public:
     void SetInputWeight(int64_t weight);
     /** Retrieve the input weight for this input. */
     std::optional<int64_t> GetInputWeight() const;
-
-    /** Set the sequence for this input. */
-    void SetSequence(uint32_t sequence);
-    /** Retrieve the sequence for this input. */
-    std::optional<uint32_t> GetSequence() const;
 };
 
 /** Coin Control Features. */
@@ -141,15 +136,9 @@ public:
      */
     void SetInputWeight(const COutPoint& outpoint, int64_t weight);
     /**
-     * Returns true if the input weight is set.
-     */
-    bool HasInputWeight(const COutPoint& outpoint) const;
-    /**
      * Returns the input weight.
      */
     std::optional<int64_t> GetInputWeight(const COutPoint& outpoint) const;
-    /** Retrieve the sequence for an input */
-    std::optional<uint32_t> GetSequence(const COutPoint& outpoint) const;
 
 private:
     //! Selected inputs (inputs that will be used, regardless of whether they're optimal or not)
