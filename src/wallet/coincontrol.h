@@ -63,73 +63,56 @@ public:
 
     CCoinControl();
 
-    bool HasSelected() const
-    {
-        return (m_selected_inputs.size() > 0);
-    }
-
-    bool IsSelected(const COutPoint& output) const
-    {
-        return (m_selected_inputs.count(output) > 0);
-    }
-
-    bool IsExternalSelected(const COutPoint& output) const
-    {
-        return (m_external_txouts.count(output) > 0);
-    }
-
-    bool GetExternalOutput(const COutPoint& outpoint, CTxOut& txout) const
-    {
-        const auto ext_it = m_external_txouts.find(outpoint);
-        if (ext_it == m_external_txouts.end()) {
-            return false;
-        }
-        txout = ext_it->second;
-        return true;
-    }
-
-    void Select(const COutPoint& output)
-    {
-        m_selected_inputs.insert(output);
-    }
-
-    void SelectExternal(const COutPoint& outpoint, const CTxOut& txout)
-    {
-        m_selected_inputs.insert(outpoint);
-        m_external_txouts.emplace(outpoint, txout);
-    }
-
-    void UnSelect(const COutPoint& output)
-    {
-        m_selected_inputs.erase(output);
-    }
-
-    void UnSelectAll()
-    {
-        m_selected_inputs.clear();
-    }
-
-    void ListSelected(std::vector<COutPoint>& vOutpoints) const
-    {
-        vOutpoints.assign(m_selected_inputs.begin(), m_selected_inputs.end());
-    }
-
-    void SetInputWeight(const COutPoint& outpoint, int64_t weight)
-    {
-        m_input_weights[outpoint] = weight;
-    }
-
-    bool HasInputWeight(const COutPoint& outpoint) const
-    {
-        return m_input_weights.count(outpoint) > 0;
-    }
-
-    int64_t GetInputWeight(const COutPoint& outpoint) const
-    {
-        auto it = m_input_weights.find(outpoint);
-        assert(it != m_input_weights.end());
-        return it->second;
-    }
+    /**
+     * Returns true if there are pre-selected inputs.
+     */
+    bool HasSelected() const;
+    /**
+     * Returns true if the given output is pre-selected.
+     */
+    bool IsSelected(const COutPoint& output) const;
+    /**
+     * Returns true if the given output is selected as an external input.
+     */
+    bool IsExternalSelected(const COutPoint& output) const;
+    /**
+     * Returns the external output for the given outpoint if it exists.
+     */
+    std::optional<CTxOut> GetExternalOutput(const COutPoint& outpoint) const;
+    /**
+     * Lock-in the given output for spending.
+     * The output will be included in the transaction even if it's not the most optimal choice.
+     */
+    void Select(const COutPoint& output);
+    /**
+     * Lock-in the given output as an external input for spending because it is not in the wallet.
+     * The output will be included in the transaction even if it's not the most optimal choice.
+     */
+    void SelectExternal(const COutPoint& outpoint, const CTxOut& txout);
+    /**
+     * Unselects the given output.
+     */
+    void UnSelect(const COutPoint& output);
+    /**
+     * Unselects all outputs.
+     */
+    void UnSelectAll();
+    /**
+     * List the selected inputs.
+     */
+    std::vector<COutPoint> ListSelected() const;
+    /**
+     * Set an input's weight.
+     */
+    void SetInputWeight(const COutPoint& outpoint, int64_t weight);
+    /**
+     * Returns true if the input weight is set.
+     */
+    bool HasInputWeight(const COutPoint& outpoint) const;
+    /**
+     * Returns the input weight.
+     */
+    int64_t GetInputWeight(const COutPoint& outpoint) const;
 
 private:
     std::set<COutPoint> m_selected_inputs;
