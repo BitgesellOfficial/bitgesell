@@ -129,17 +129,17 @@ class CoinStatsIndexTest(BGLTestFramework):
 
             # Test an older block height that included a normal tx
             res5 = index_node.gettxoutsetinfo(hash_option, 102)
-            assert_equal(Decimal(res5['total_unspendable_amount']), Decimal('200.0002592'))
+            assert_equal(Decimal(res5['total_unspendable_amount']), Decimal('200.00028080'))
             assert_equal(res5['block_info'], {
-                'unspendable': Decimal('0.00025920'),
+                'unspendable': Decimal('0.00028080'),
                 'prevout_spent': 200,
-                'new_outputs_ex_coinbase': Decimal('199.99971200'),
-                'coinbase': Decimal('200.00002880'),
+                'new_outputs_ex_coinbase': Decimal('199.99968800'),
+                'coinbase': Decimal('200.00003120'),
                 'unspendables': {
                     'genesis_block': 0,
                     'bip30': 0,
                     'scripts': 0,
-                    'unclaimed_rewards': Decimal('0.00025920'),
+                    'unclaimed_rewards': Decimal('0.00028080'),
                 }
             })
             self.block_sanity_check(res5['block_info'])
@@ -166,7 +166,7 @@ class CoinStatsIndexTest(BGLTestFramework):
         for hash_option in index_hash_options:
             # Check all amounts were registered correctly
             res6 = index_node.gettxoutsetinfo(hash_option, 108)
-            assert_equal(res6['total_unspendable_amount'], Decimal('220.99976820'))
+            assert_equal(res6['total_unspendable_amount'], Decimal('220.99978980'))
             assert_equal(res6['block_info'], {
                 'unspendable': Decimal('20.99950900'),
                 'prevout_spent': Decimal('221.00000000'),
@@ -197,7 +197,7 @@ class CoinStatsIndexTest(BGLTestFramework):
 
         for hash_option in index_hash_options:
             res7 = index_node.gettxoutsetinfo(hash_option, 109)
-            assert_equal(res7['total_unspendable_amount'], Decimal('380.99976820'))
+            assert_equal(res7['total_unspendable_amount'], Decimal('380.99978980'))
             assert_equal(res7['block_info'], {
                 'unspendable': Decimal('160.00000000'),
                 'prevout_spent': 0,
