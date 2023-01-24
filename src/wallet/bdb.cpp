@@ -658,11 +658,13 @@ void BerkeleyDatabase::ReloadDbEnv()
 
 bool BerkeleyBatch::StartCursor()
 {
-    assert(!m_cursor);
-    if (!pdb)
-        return false;
-    int ret = pdb->cursor(nullptr, &m_cursor, 0);
-    return ret == 0;
+    if (!database.m_db.get()) {
+        throw std::runtime_error(STR_INTERNAL_BUG("BerkeleyDatabase does not exist"));
+    }
+    int ret = database.m_db->cursor(nullptr, &m_cursor, 0);
+    if (ret != 0) {
+        throw std::runtime_error(STR_INTERNAL_BUG(strprintf("BDB Cursor could not be created. Returned %d", ret)));
+    }
 }
 
 bool BerkeleyBatch::ReadAtCursor(CDataStream& ssKey, CDataStream& ssValue, bool& complete)
