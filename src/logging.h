@@ -165,6 +165,7 @@ namespace BCLog {
             StdLockGuard scoped_lock(m_cs);
             m_category_log_levels = levels;
         }
+        bool SetCategoryLogLevel(const std::string& category_str, const std::string& level_str);
 
         Level LogLevel() const { return m_log_level.load(); }
         void SetLogLevel(Level level) { m_log_level = level; }

@@ -15,7 +15,7 @@ namespace {
 
 /** Static salt component used to compute short txids for sketch construction, see BIP-330. */
 const std::string RECON_STATIC_SALT = "Tx Relay Salting";
-const HashWriter RECON_SALT_HASHER = TaggedHash(RECON_STATIC_SALT);
+const CHashWriterSHA256 RECON_SALT_HASHER = TaggedHash(RECON_STATIC_SALT);
 
 /**
  * Salt (specified by BIP-330) constructed from contributions from both peers. It is used
@@ -25,7 +25,7 @@ const HashWriter RECON_SALT_HASHER = TaggedHash(RECON_STATIC_SALT);
 uint256 ComputeSalt(uint64_t salt1, uint64_t salt2)
 {
     // According to BIP-330, salts should be combined in ascending order.
-    return (HashWriter(RECON_SALT_HASHER) << std::min(salt1, salt2) << std::max(salt1, salt2)).GetSHA256();
+    return (CHashWriterSHA256(RECON_SALT_HASHER) << std::min(salt1, salt2) << std::max(salt1, salt2)).GetSHA256();
 }
 
 /**
@@ -132,6 +132,15 @@ public:
             LogPrintLevel(BCLog::TXRECONCILIATION, BCLog::Level::Debug, "Forget txreconciliation state of peer=%d\n", peer_id);
         }
     }
+
+    bool IsPeerRegistered(NodeId peer_id) const EXCLUSIVE_LOCKS_REQUIRED(!m_txreconciliation_mutex)
+    {
+        AssertLockNotHeld(m_txreconciliation_mutex);
+        LOCK(m_txreconciliation_mutex);
+        auto recon_state = m_states.find(peer_id);
+        return (recon_state != m_states.end() &&
+                std::holds_alternative<TxReconciliationState>(recon_state->second));
+    }
 };
 
 TxReconciliationTracker::TxReconciliationTracker(uint32_t recon_version) : m_impl{std::make_unique<TxReconciliationTracker::Impl>(recon_version)} {}
@@ -152,4 +161,9 @@ ReconciliationRegisterResult TxReconciliationTracker::RegisterPeer(NodeId peer_i
 void TxReconciliationTracker::ForgetPeer(NodeId peer_id)
 {
     m_impl->ForgetPeer(peer_id);
+}
+
+bool TxReconciliationTracker::IsPeerRegistered(NodeId peer_id) const
+{
+    return m_impl->IsPeerRegistered(peer_id);
 }

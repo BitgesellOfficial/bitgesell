@@ -16,23 +16,16 @@
 
 namespace wallet {
 /** Get the marginal bytes if spending the specified output from this transaction.
- * use_max_sig indicates whether to use the maximum sized, 72 byte signature when calculating the
- * size of the input spend. This should only be set when watch-only outputs are allowed */
-int GetTxSpendSize(const CWallet& wallet, const CWalletTx& wtx, unsigned int out, bool use_max_sig = false);
-
-//Get the marginal bytes of spending the specified output
-int CalculateMaximumSignedInputSize(const CTxOut& txout, const CWallet* pwallet, bool use_max_sig = false);
-int CalculateMaximumSignedInputSize(const CTxOut& txout, const SigningProvider* pwallet, bool use_max_sig = false);
-
+ * Use CoinControl to determine whether to expect signature grinding when calculating the size of the input spend. */
+int CalculateMaximumSignedInputSize(const CTxOut& txout, const CWallet* pwallet, const CCoinControl* coin_control = nullptr);
+int CalculateMaximumSignedInputSize(const CTxOut& txout, const COutPoint outpoint, const SigningProvider* pwallet, const CCoinControl* coin_control = nullptr);
 struct TxSize {
     int64_t vsize{-1};
     int64_t weight{-1};
 };
 
-/** Calculate the size of the transaction assuming all signatures are max size
-* Use DummySignatureCreator, which inserts 71 byte signatures everywhere.
-* NOTE: this requires that all inputs must be in mapWallet (eg the tx should
-* be AllInputsMine). */
+/** Calculate the size of the transaction using CoinControl to determine
+ * whether to expect signature grinding when calculating the size of the input spend. */
 TxSize CalculateMaximumSignedTxSize(const CTransaction& tx, const CWallet* wallet, const std::vector<CTxOut>& txouts, const CCoinControl* coin_control = nullptr);
 TxSize CalculateMaximumSignedTxSize(const CTransaction& tx, const CWallet* wallet, const CCoinControl* coin_control = nullptr) EXCLUSIVE_LOCKS_REQUIRED(wallet->cs_wallet);
 
@@ -83,8 +76,6 @@ struct CoinFilterParams {
     bool only_spendable{true};
     // By default, do not include immature coinbase outputs
     bool include_immature_coinbase{false};
-    // By default, skip locked UTXOs
-    bool skip_locked{true};
 };
 
 /**
@@ -128,11 +119,9 @@ std::vector<OutputGroup> GroupOutputs(const CWallet& wallet, const std::vector<C
  * param@[in]  coin_selection_params     Parameters for the coin selection
  * param@[in]  allow_mixed_output_types  Relax restriction that SelectionResults must be of the same OutputType
  * returns                               If successful, a SelectionResult containing the input set
- *                                       If failed, returns (1) an empty error message if the target was not reached (general "Insufficient funds")
- *                                                  or (2) an specific error message if there was something particularly wrong (e.g. a selection
- *                                                  result that surpassed the tx max weight size).
+ *                                       If failed, a nullopt
  */
-util::Result<SelectionResult> AttemptSelection(const CWallet& wallet, const CAmount& nTargetValue, const CoinEligibilityFilter& eligibility_filter, const CoinsResult& available_coins,
+std::optional<SelectionResult> AttemptSelection(const CWallet& wallet, const CAmount& nTargetValue, const CoinEligibilityFilter& eligibility_filter, const CoinsResult& available_coins,
                         const CoinSelectionParams& coin_selection_params, bool allow_mixed_output_types);
 
 /**
@@ -146,11 +135,9 @@ util::Result<SelectionResult> AttemptSelection(const CWallet& wallet, const CAmo
  * param@[in]  available_coins           The struct of coins, organized by OutputType, available for selection prior to filtering
  * param@[in]  coin_selection_params     Parameters for the coin selection
  * returns                               If successful, a SelectionResult containing the input set
- *                                       If failed, returns (1) an empty error message if the target was not reached (general "Insufficient funds")
- *                                                  or (2) an specific error message if there was something particularly wrong (e.g. a selection
- *                                                  result that surpassed the tx max weight size).
+ *                                       If failed, a nullopt
  */
-util::Result<SelectionResult> ChooseSelectionResult(const CWallet& wallet, const CAmount& nTargetValue, const CoinEligibilityFilter& eligibility_filter, const std::vector<COutput>& available_coins,
+std::optional<SelectionResult> ChooseSelectionResult(const CWallet& wallet, const CAmount& nTargetValue, const CoinEligibilityFilter& eligibility_filter, const std::vector<COutput>& available_coins,
                         const CoinSelectionParams& coin_selection_params);
 
 // User manually selected inputs that must be part of the transaction
@@ -188,20 +175,18 @@ util::Result<PreSelectedInputs> FetchSelectedInputs(const CWallet& wallet, const
  * param@[in]   coin_selection_params  Parameters for this coin selection such as feerates, whether to avoid partial spends,
  *                                     and whether to subtract the fee from the outputs.
  * returns                             If successful, a SelectionResult containing the selected coins
- *                                     If failed, returns (1) an empty error message if the target was not reached (general "Insufficient funds")
- *                                                or (2) an specific error message if there was something particularly wrong (e.g. a selection
- *                                                result that surpassed the tx max weight size).
+ *                                     If failed, a nullopt.
  */
-util::Result<SelectionResult> AutomaticCoinSelection(const CWallet& wallet, CoinsResult& available_coins, const CAmount& nTargetValue, const CCoinControl& coin_control,
+std::optional<SelectionResult> AutomaticCoinSelection(const CWallet& wallet, CoinsResult& available_coins, const CAmount& nTargetValue, const CCoinControl& coin_control,
                  const CoinSelectionParams& coin_selection_params) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet);
 
 /**
  * Select all coins from coin_control, and if coin_control 'm_allow_other_inputs=true', call 'AutomaticCoinSelection' to
  * select a set of coins such that nTargetValue - pre_set_inputs.total_amount is met.
  */
-util::Result<SelectionResult> SelectCoins(const CWallet& wallet, CoinsResult& available_coins, const PreSelectedInputs& pre_set_inputs,
-                                          const CAmount& nTargetValue, const CCoinControl& coin_control,
-                                          const CoinSelectionParams& coin_selection_params) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet);
+std::optional<SelectionResult> SelectCoins(const CWallet& wallet, CoinsResult& available_coins, const PreSelectedInputs& pre_set_inputs,
+                                           const CAmount& nTargetValue, const CCoinControl& coin_control,
+                                           const CoinSelectionParams& coin_selection_params) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet);
 
 struct CreatedTransactionResult
 {

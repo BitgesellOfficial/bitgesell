@@ -238,4 +238,3 @@ void ProtectEvictionCandidatesByRatio(std::vector<NodeEvictionCandidate>& evicti
     // Disconnect from the network group with the most connections
     return vEvictionCandidates.front().id;
 }
-S

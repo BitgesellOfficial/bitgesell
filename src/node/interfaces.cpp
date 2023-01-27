@@ -600,7 +600,7 @@ public:
     void findCoins(std::map<COutPoint, Coin>& coins) override { return FindCoins(m_node, coins); }
     double guessVerificationProgress(const uint256& block_hash) override
     {
-        LOCK(cs_main);
+        LOCK(::cs_main);
         return GuessVerificationProgress(chainman().GetParams().TxData(), chainman().m_blockman.LookupBlockIndex(block_hash));
     }
     bool hasBlocks(const uint256& block_hash, int min_height, std::optional<int> max_height) override
@@ -779,7 +779,6 @@ public:
             notifications.transactionAddedToMempool(entry.GetSharedTx());
         }
     }
-
     bool hasAssumedValidChain() override
     {
         return chainman().IsSnapshotActive();

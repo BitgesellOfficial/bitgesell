@@ -41,7 +41,7 @@ bool DumpWallet(const ArgsManager& args, CWallet& wallet, bilingual_str& error)
         return false;
     }
 
-    CHashWriterKeccak hasher{};
+    CHashWriterKeccak hasher(SER_GETHASH, PROTOCOL_VERSION);
 
     WalletDatabase& db = wallet.GetDatabase();
     std::unique_ptr<DatabaseBatch> batch = db.MakeBatch();
@@ -132,7 +132,7 @@ bool CreateFromDump(const ArgsManager& args, const std::string& name, const fs::
     std::ifstream dump_file{dump_path};
 
     // Compute the checksum
-    CHashWriterKeccak hasher{};
+    CHashWriterKeccak hasher(SER_GETHASH, PROTOCOL_VERSION);
     uint256 checksum;
 
     // Check the magic and version

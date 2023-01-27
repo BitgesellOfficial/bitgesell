@@ -23,6 +23,9 @@ class WalletDatabase;
 
 std::unique_ptr<CWallet> CreateSyncedWallet(interfaces::Chain& chain, CChain& cchain, ArgsManager& args, const CKey& key);
 
+// Creates a copy of the provided database
+std::unique_ptr<WalletDatabase> DuplicateMockDatabase(WalletDatabase& database, DatabaseOptions& options);
+
 /** Returns a new encoded destination from the wallet (hardcoded to BECH32) */
 std::string getnewaddress(CWallet& w);
 /** Returns a new destination, of an specific type, from the wallet */

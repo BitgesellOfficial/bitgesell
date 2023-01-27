@@ -224,6 +224,9 @@ class CHashWriterSHA256
 private:
     CHash256Single ctx;
 
+    const int nType;
+    const int nVersion;
+
 public:
 
     CHashWriterSHA256(int nTypeIn, int nVersionIn) : nType(nTypeIn), nVersion(nVersionIn) {}
@@ -279,25 +282,6 @@ public:
     }
 };
 
-class CHashWriter : public HashWriter
-{
-private:
-    const int nType;
-    const int nVersion;
-
-public:
-    CHashWriter(int nTypeIn, int nVersionIn) : nType(nTypeIn), nVersion(nVersionIn) {}
-
-    int GetType() const { return nType; }
-    int GetVersion() const { return nVersion; }
-
-    template<typename T>
-    CHashWriterSHA256& operator<<(const T& obj) {
-        // Serialize to this stream
-        ::Serialize(*this, obj);
-        return (*this);
-    }
-};
 
 /** Reads data from an underlying stream, while hashing the read data. */
 template<typename Source>

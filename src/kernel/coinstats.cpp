@@ -159,7 +159,7 @@ std::optional<CCoinsStats> ComputeUTXOStats(CoinStatsHashType hash_type, CCoinsV
     bool success = [&]() -> bool {
         switch (hash_type) {
         case(CoinStatsHashType::HASH_SERIALIZED): {
-            CHashWriterKeccak ss{};
+            CHashWriterKeccak ss(SER_GETHASH, PROTOCOL_VERSION);;
             return ComputeUTXOStats(view, stats, ss, interruption_point);
         }
         case(CoinStatsHashType::MUHASH): {

@@ -65,6 +65,8 @@ static constexpr auto UNCONDITIONAL_RELAY_DELAY = 2min;
  *  Timeout = base + per_header * (expected number of headers) */
 static constexpr auto HEADERS_DOWNLOAD_TIMEOUT_BASE = 15min;
 static constexpr auto HEADERS_DOWNLOAD_TIMEOUT_PER_HEADER = 1ms;
+/** How long to wait for a peer to respond to a getheaders request */
+static constexpr auto HEADERS_RESPONSE_TIME{2min};
 /** Protect at least this many outbound peers from disconnection due to slow/
  * behind headers chain.
  */
@@ -2487,6 +2489,48 @@ bool PeerManagerImpl::IsContinuationOfLowWorkHeadersSync(Peer& peer, CNode& pfro
 
         if (peer.m_headers_sync->GetState() == HeadersSyncState::State::FINAL) {
             peer.m_headers_sync.reset(nullptr);
+
+            // Delete this peer's entry in m_headers_presync_stats.
+            // If this is m_headers_presync_bestpeer, it will be replaced later
+            // by the next peer that triggers the else{} branch below.
+            LOCK(m_headers_presync_mutex);
+            m_headers_presync_stats.erase(pfrom.GetId());
+        } else {
+            // Build statistics for this peer's sync.
+            HeadersPresyncStats stats;
+            stats.first = peer.m_headers_sync->GetPresyncWork();
+            if (peer.m_headers_sync->GetState() == HeadersSyncState::State::PRESYNC) {
+                stats.second = {peer.m_headers_sync->GetPresyncHeight(),
+                                peer.m_headers_sync->GetPresyncTime()};
+            }
+
+            // Update statistics in stats.
+            LOCK(m_headers_presync_mutex);
+            m_headers_presync_stats[pfrom.GetId()] = stats;
+            auto best_it = m_headers_presync_stats.find(m_headers_presync_bestpeer);
+            bool best_updated = false;
+            if (best_it == m_headers_presync_stats.end()) {
+                // If the cached best peer is outdated, iterate over all remaining ones (including
+                // newly updated one) to find the best one.
+                NodeId peer_best{-1};
+                const HeadersPresyncStats* stat_best{nullptr};
+                for (const auto& [peer, stat] : m_headers_presync_stats) {
+                    if (!stat_best || stat > *stat_best) {
+                        peer_best = peer;
+                        stat_best = &stat;
+                    }
+                }
+                m_headers_presync_bestpeer = peer_best;
+                best_updated = (peer_best == pfrom.GetId());
+            } else if (best_it->first == pfrom.GetId() || stats > best_it->second) {
+                // pfrom was and remains the best peer, or pfrom just became best.
+                m_headers_presync_bestpeer = pfrom.GetId();
+                best_updated = true;
+            }
+            if (best_updated && stats.second.has_value()) {
+                // If the best peer updated, and it is in its first phase, signal.
+                m_headers_presync_should_signal = true;
+            }
         }
 
         if (result.success) {
@@ -2704,7 +2748,6 @@ void PeerManagerImpl::UpdatePeerStateForReceivedHeaders(CNode& pfrom,
     }
 }
 
-
 void PeerManagerImpl::ProcessHeadersMessage(CNode& pfrom, Peer& peer,
                                             std::vector<CBlockHeader>&& headers,
                                             bool via_compact_block)
@@ -2719,6 +2762,8 @@ void PeerManagerImpl::ProcessHeadersMessage(CNode& pfrom, Peer& peer,
         LOCK(peer.m_headers_sync_mutex);
         if (peer.m_headers_sync) {
             peer.m_headers_sync.reset(nullptr);
+            LOCK(m_headers_presync_mutex);
+            m_headers_presync_stats.erase(pfrom.GetId());
         }
         return;
     }
@@ -2735,11 +2780,7 @@ void PeerManagerImpl::ProcessHeadersMessage(CNode& pfrom, Peer& peer,
         return;
     }
 
-    bool received_new_header = false;
     const CBlockIndex *pindexLast = nullptr;
-    {
-        LOCK(cs_main);
-        CNodeState *nodestate = State(pfrom.GetId());
 
     // We'll set already_validated_work to true if these headers are
     // successfully processed as part of a low-work headers sync in progress
@@ -2776,14 +2817,17 @@ void PeerManagerImpl::ProcessHeadersMessage(CNode& pfrom, Peer& peer,
     const CBlockIndex *chain_start_header{WITH_LOCK(::cs_main, return m_chainman.m_blockman.LookupBlockIndex(headers[0].hashPrevBlock))};
     bool headers_connect_blockindex{chain_start_header != nullptr};
 
-        uint256 hashLastBlock;
-        for (const CBlockHeader& header : headers) {
-            if (!hashLastBlock.IsNull() && header.hashPrevBlock != hashLastBlock) {
-                Misbehaving(peer, 20, "non-continuous headers sequence");
-                return;
-            }
-            hashLastBlock = header.GetHash();
+    if (!headers_connect_blockindex) {
+        if (nCount <= MAX_BLOCKS_TO_ANNOUNCE) {
+            // If this looks like it could be a BIP 130 block announcement, use
+            // special logic for handling headers that don't connect, as this
+            // could be benign.
+            HandleFewUnconnectingHeaders(pfrom, peer, headers);
+        } else {
+            Misbehaving(peer, 10, "invalid header received");
         }
+        return;
+    }
 
     // If the headers we received are already in memory and an ancestor of
     // m_best_header or our tip, skip anti-DoS checks. These headers will not
@@ -2840,10 +2884,7 @@ void PeerManagerImpl::ProcessHeadersMessage(CNode& pfrom, Peer& peer,
             LogPrint(BCLog::NET, "more getheaders (%d) to end to peer=%d (startheight:%d)\n",
                     pindexLast->nHeight, pfrom.GetId(), peer.m_starting_height);
         }
-        nodestate->nUnconnectingHeaders = 0;
-
-        assert(pindexLast);
-        UpdateBlockAvailability(pfrom.GetId(), pindexLast->GetBlockHash());
+    }
 
     UpdatePeerStateForReceivedHeaders(pfrom, *pindexLast, received_new_header, nCount == MAX_HEADERS_RESULTS);
 
@@ -4444,7 +4485,23 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
             ReadCompactSize(vRecv); // ignore tx count; assume it is 0.
         }
 
-        return ProcessHeadersMessage(pfrom, *peer, std::move(headers), /*via_compact_block=*/false);
+        ProcessHeadersMessage(pfrom, *peer, std::move(headers), /*via_compact_block=*/false);
+
+        // Check if the headers presync progress needs to be reported to validation.
+        // This needs to be done without holding the m_headers_presync_mutex lock.
+        if (m_headers_presync_should_signal.exchange(false)) {
+            HeadersPresyncStats stats;
+            {
+                LOCK(m_headers_presync_mutex);
+                auto it = m_headers_presync_stats.find(m_headers_presync_bestpeer);
+                if (it != m_headers_presync_stats.end()) stats = it->second;
+            }
+            if (stats.second) {
+                m_chainman.ReportHeadersPresync(stats.first, stats.second->first, stats.second->second);
+            }
+        }
+
+        return;
     }
 
     if (msg_type == NetMsgType::BLOCK)
@@ -4863,7 +4920,7 @@ bool PeerManagerImpl::ProcessMessages(CNode* pfrom, std::atomic<bool>& interrupt
     return fMoreWork;
 }
 
-void PeerManagerImpl::ConsiderEviction(CNode& pto, std::chrono::seconds time_in_seconds)
+void PeerManagerImpl::ConsiderEviction(CNode& pto, Peer& peer, std::chrono::seconds time_in_seconds)
 {
     AssertLockHeld(cs_main);
 
@@ -4909,9 +4966,7 @@ void PeerManagerImpl::ConsiderEviction(CNode& pto, std::chrono::seconds time_in_
                         GetLocator(state.m_chain_sync.m_work_header->pprev),
                         peer);
                 LogPrint(BCLog::NET, "sending getheaders to outbound peer=%d to verify chain work (current best known block:%s, benchmark blockhash: %s)\n", pto.GetId(), state.pindexBestKnownBlock != nullptr ? state.pindexBestKnownBlock->GetBlockHash().ToString() : "<none>", state.m_chain_sync.m_work_header->GetBlockHash().ToString());
-                m_connman.PushMessage(&pto, msgMaker.Make(NetMsgType::GETHEADERS, m_chainman.ActiveChain().GetLocator(state.m_chain_sync.m_work_header->pprev), uint256()));
                 state.m_chain_sync.m_sent_getheaders = true;
-                constexpr auto HEADERS_RESPONSE_TIME{2min};
                 // Bump the timeout to allow a response, which could clear the timeout
                 // (if the response shows the peer has synced), reset the timeout (if
                 // the peer syncs to the required work but not to our tip), or result
@@ -5715,7 +5770,7 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
 
         // Check that outbound peers have reasonable chains
         // GetTime() is used by this anti-DoS logic so we can test this using mocktime
-        ConsiderEviction(*pto, GetTime<std::chrono::seconds>());
+        ConsiderEviction(*pto, *peer, GetTime<std::chrono::seconds>());
 
         //
         // Message: getdata (blocks)

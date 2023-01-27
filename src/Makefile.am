@@ -516,7 +516,6 @@ crypto_libBGL_crypto_base_la_CPPFLAGS = $(AM_CPPFLAGS)
 #  crypto/sha3/sha3.h
 
 # crypto primitives library
-crypto_libBGL_crypto_base_la_CPPFLAGS = $(AM_CPPFLAGS)
 # Specify -static in both CXXFLAGS and LDFLAGS so libtool will only build a
 # static version of this library. We don't need a dynamic version, and a dynamic
 # version can't be used on windows anyway because the library doesn't currently
