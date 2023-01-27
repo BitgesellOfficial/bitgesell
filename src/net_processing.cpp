@@ -1831,6 +1831,16 @@ void PeerManagerImpl::BlockConnected(const std::shared_ptr<const CBlock>& pblock
             m_txrequest.ForgetTxHash(ptx->GetWitnessHash());
         }
     }
+
+    // In case the dynamic timeout was doubled once or more, reduce it slowly back to its default value
+    auto stalling_timeout = m_block_stalling_timeout.load();
+    Assume(stalling_timeout >= BLOCK_STALLING_TIMEOUT_DEFAULT);
+    if (stalling_timeout != BLOCK_STALLING_TIMEOUT_DEFAULT) {
+        const auto new_timeout = std::max(std::chrono::duration_cast<std::chrono::seconds>(stalling_timeout * 0.85), BLOCK_STALLING_TIMEOUT_DEFAULT);
+        if (m_block_stalling_timeout.compare_exchange_strong(stalling_timeout, new_timeout)) {
+            LogPrint(BCLog::NET, "Decreased stalling timeout to %d seconds\n", count_seconds(new_timeout));
+        }
+    }
 }
 
 void PeerManagerImpl::BlockDisconnected(const std::shared_ptr<const CBlock> &block, const CBlockIndex* pindex)
@@ -5714,6 +5724,15 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
             // should only happen during initial block download.
             LogPrintf("Peer=%d is stalling block download, disconnecting\n", pto->GetId());
             pto->fDisconnect = true;
+<<<<<<< HEAD
+=======
+            // Increase timeout for the next peer so that we don't disconnect multiple peers if our own
+            // bandwidth is insufficient.
+            const auto new_timeout = std::min(2 * stalling_timeout, BLOCK_STALLING_TIMEOUT_MAX);
+            if (stalling_timeout != new_timeout && m_block_stalling_timeout.compare_exchange_strong(stalling_timeout, new_timeout)) {
+                LogPrint(BCLog::NET, "Increased stalling timeout temporarily to %d seconds\n", count_seconds(new_timeout));
+            }
+>>>>>>> b2a1e47744... net_processing: simplify logging statement
             return true;
         }
         // In case there is a block that has been in flight from this peer for block_interval * (1 + 0.5 * N)
