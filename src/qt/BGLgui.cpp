@@ -456,6 +456,7 @@ void BGLGUI::createActions()
             m_wallet_controller->closeAllWallets(this);
         });
         connect(m_mask_values_action, &QAction::toggled, this, &BGLGUI::setPrivacy);
+        connect(m_mask_values_action, &QAction::toggled, this, &BGLGUI::enableHistoryAction);
     }
 #endif // ENABLE_WALLET
 
@@ -668,6 +669,12 @@ void BGLGUI::setClientModel(ClientModel *_clientModel, interfaces::BlockAndHeade
 }
 
 #ifdef ENABLE_WALLET
+void BGLGUI::enableHistoryAction(bool privacy)
+{
+    historyAction->setEnabled(!privacy);
+    if (historyAction->isChecked()) gotoOverviewPage();
+}
+
 void BGLGUI::setWalletController(WalletController* wallet_controller)
 {
     assert(!m_wallet_controller);
@@ -721,7 +728,9 @@ void BGLGUI::addWallet(WalletModel* walletModel)
     connect(wallet_view, &WalletView::encryptionStatusChanged, this, &BGLGUI::updateWalletStatus);
     connect(wallet_view, &WalletView::incomingTransaction, this, &BGLGUI::incomingTransaction);
     connect(this, &BGLGUI::setPrivacy, wallet_view, &WalletView::setPrivacy);
-    wallet_view->setPrivacy(isPrivacyModeActivated());
+    const bool privacy = isPrivacyModeActivated();
+    wallet_view->setPrivacy(privacy);
+    enableHistoryAction(privacy);
     const QString display_name = walletModel->getDisplayName();
     m_wallet_selector->addItem(display_name, QVariant::fromValue(walletModel));
 }
