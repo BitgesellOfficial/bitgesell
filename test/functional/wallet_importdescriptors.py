@@ -457,7 +457,7 @@ class ImportDescriptorsTest(BGLTestFramework):
         assert_equal(wmulti_priv.getwalletinfo()['keypoolsize'], 1000)
         txid = w0.sendtoaddress(addr, 10)
         self.generate(self.nodes[0], 6)
-        send_txid = wmulti_priv.sendtoaddress(w0.getnewaddress(), 8)
+        send_txid = wmulti_priv.sendtoaddress(w0.getnewaddress(), 8) # uses change 1
         decoded = wmulti_priv.gettransaction(txid=send_txid, verbose=True)['decoded']
         assert_equal(len(decoded['vin'][0]['txinwitness']), 4)
         self.sync_all()
