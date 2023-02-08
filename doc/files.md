@@ -28,7 +28,7 @@ Platform | Data directory path
 ---------|--------------------
 Linux    | `$HOME/.BGL/`
 macOS    | `$HOME/Library/Application Support/BGL/`
-Windows  | `%APPDATA%\BGL\` <sup>[\[1\]](#note1)</sup>
+Windows  | `%LOCALAPPDATA%\BGL\` <sup>[\[1\]](#note1)</sup>
 
 2. A custom data directory path can be specified with the `-datadir` option.
 
