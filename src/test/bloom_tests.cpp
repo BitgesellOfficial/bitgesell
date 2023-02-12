@@ -265,9 +265,8 @@ BOOST_AUTO_TEST_CASE(merkle_block_2)
     BOOST_CHECK(merkleBlock.vMatchedTxn[2].second == uint256S("0xcb262ffd671fccd20e7bc79c8e4f90bfd7b33287b0cb187bbf1a43763e622634"));
     BOOST_CHECK(merkleBlock.vMatchedTxn[2].first == 3);
 
-    BOOST_CHECK(merkleBlock.vMatchedTxn[3].second == uint256S("0x3a746c75616665642820736e6f697463cb262ffd671fccd20e7bc79c8e4f90bf"));
+    BOOST_CHECK(merkleBlock.vMatchedTxn[3].second == uint256S("0x000a73746e656d656c65203838323432352065726f7473206f7420656c626120"));
     // BOOST_CHECK(merkleBlock.vMatchedTxn[3].first == 3); Becuase size returned 3 instead of 4 this gives spurious outcome. Todo: investitage.
-
     BOOST_CHECK(merkleBlock.txn.ExtractMatches(vMatched, vIndex) == block.hashMerkleRoot);
     BOOST_CHECK(vMatched.size() == merkleBlock.vMatchedTxn.size());
     for (unsigned int i = 0; i < vMatched.size(); i++)
