@@ -507,15 +507,6 @@ libBGL_wallet_tool_a_SOURCES = \
 # crypto #
 crypto_libBGL_crypto_base_la_CPPFLAGS = $(AM_CPPFLAGS)
 
-# SHA3 extension library
-#crypto_sha3_libBGL_crypto_sha3_la_CPPFLAGS = $(AM_CPPFLAGS)
-#crypto_sha3_libBGL_crypto_sha3_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -static
-#crypto_sha3_libBGL_crypto_sha3_la_LDFLAGS = $(AM_LDFLAGS) -static
-#crypto_sha3_libBGL_crypto_sha3_la_SOURCES = \
-#  crypto/sha3/sha3.c \
-#  crypto/sha3/sha3.h
-
-# crypto primitives library
 # Specify -static in both CXXFLAGS and LDFLAGS so libtool will only build a
 # static version of this library. We don't need a dynamic version, and a dynamic
 # version can't be used on windows anyway because the library doesn't currently
@@ -974,7 +965,7 @@ libBGLkernel_la_SOURCES = \
 # Required for obj/build.h to be generated first.
 # More details: https://www.gnu.org/software/automake/manual/html_node/Built-Sources-Example.html
 libBGLkernel_la-clientversion.l$(OBJEXT): obj/build.h
-endif # BUILD_BGL_KERNEL_LIB
+endif # BUILD_BITCOIN_KERNEL_LIB
 #
 
 # bitcoinconsensus library #

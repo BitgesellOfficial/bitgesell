@@ -5,6 +5,7 @@
 #include <map>
 
 #include <dbwrapper.h>
+#include <hash.h>
 #include <index/blockfilterindex.h>
 #include <node/blockstorage.h>
 #include <util/system.h>
@@ -56,14 +57,14 @@ struct DBHeightKey {
 
     explicit DBHeightKey(int height_in) : height(height_in) {}
 
-    template <typename Stream>
+    template<typename Stream>
     void Serialize(Stream& s) const
     {
         ser_writedata8(s, DB_BLOCK_HEIGHT);
         ser_writedata32be(s, height);
     }
 
-    template <typename Stream>
+    template<typename Stream>
     void Unserialize(Stream& s)
     {
         const uint8_t prefix{ser_readdata8(s)};
@@ -79,8 +80,7 @@ struct DBHashKey {
 
     explicit DBHashKey(const uint256& hash_in) : hash(hash_in) {}
 
-    SERIALIZE_METHODS(DBHashKey, obj)
-    {
+    SERIALIZE_METHODS(DBHashKey, obj) {
         uint8_t prefix{DB_BLOCK_HASH};
         READWRITE(prefix);
         if (prefix != DB_BLOCK_HASH) {
@@ -145,19 +145,24 @@ bool BlockFilterIndex::CustomCommit(CDBBatch& batch)
     return true;
 }
 
-bool BlockFilterIndex::ReadFilterFromDisk(const FlatFilePos& pos, BlockFilter& filter) const
+bool BlockFilterIndex::ReadFilterFromDisk(const FlatFilePos& pos, const uint256& hash, BlockFilter& filter) const
 {
     AutoFile filein{m_filter_fileseq->Open(pos, true)};
     if (filein.IsNull()) {
         return false;
     }
 
+    // Check that the hash of the encoded_filter matches the one stored in the db.
     uint256 block_hash;
     std::vector<uint8_t> encoded_filter;
     try {
         filein >> block_hash >> encoded_filter;
-        filter = BlockFilter(GetFilterType(), block_hash, std::move(encoded_filter));
-    } catch (const std::exception& e) {
+        uint256 result;
+        CHash256().Write(encoded_filter).Finalize(result);
+        if (result != hash) return error("Checksum mismatch in filter decode.");
+        filter = BlockFilter(GetFilterType(), block_hash, std::move(encoded_filter), /*skip_decode_check=*/true);
+    }
+    catch (const std::exception& e) {
         return error("%s: Failed to deserialize block filter from disk: %s", __func__, e.what());
     }
 
@@ -383,7 +388,7 @@ bool BlockFilterIndex::LookupFilter(const CBlockIndex* block_index, BlockFilter&
         return false;
     }
 
-    return ReadFilterFromDisk(entry.pos, filter_out);
+    return ReadFilterFromDisk(entry.pos, entry.hash, filter_out);
 }
 
 bool BlockFilterIndex::LookupFilterHeader(const CBlockIndex* block_index, uint256& header_out)
@@ -427,7 +432,7 @@ bool BlockFilterIndex::LookupFilterRange(int start_height, const CBlockIndex* st
     filters_out.resize(entries.size());
     auto filter_pos_it = filters_out.begin();
     for (const auto& entry : entries) {
-        if (!ReadFilterFromDisk(entry.pos, *filter_pos_it)) {
+        if (!ReadFilterFromDisk(entry.pos, entry.hash, *filter_pos_it)) {
             return false;
         }
         ++filter_pos_it;
@@ -459,10 +464,9 @@ BlockFilterIndex* GetBlockFilterIndex(BlockFilterType filter_type)
     return it != g_filter_indexes.end() ? &it->second : nullptr;
 }
 
-void ForEachBlockFilterIndex(std::function<void(BlockFilterIndex&)> fn)
+void ForEachBlockFilterIndex(std::function<void (BlockFilterIndex&)> fn)
 {
-    for (auto& entry : g_filter_indexes)
-        fn(entry.second);
+    for (auto& entry : g_filter_indexes) fn(entry.second);
 }
 
 bool InitBlockFilterIndex(std::function<std::unique_ptr<interfaces::Chain>()> make_chain, BlockFilterType filter_type,
