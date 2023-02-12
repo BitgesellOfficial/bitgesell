@@ -35,6 +35,35 @@ inline CTransactionRef create_placeholder_tx(size_t num_inputs, size_t num_outpu
     return MakeTransactionRef(mtx);
 }
 
+BOOST_FIXTURE_TEST_CASE(package_sanitization_tests, TestChain100Setup)
+{
+    // Packages can't have more than 25 transactions.
+    Package package_too_many;
+    package_too_many.reserve(MAX_PACKAGE_COUNT + 1);
+    for (size_t i{0}; i < MAX_PACKAGE_COUNT + 1; ++i) {
+        package_too_many.emplace_back(create_placeholder_tx(1, 1));
+    }
+    PackageValidationState state_too_many;
+    BOOST_CHECK(!CheckPackage(package_too_many, state_too_many));
+    BOOST_CHECK_EQUAL(state_too_many.GetResult(), PackageValidationResult::PCKG_POLICY);
+    BOOST_CHECK_EQUAL(state_too_many.GetRejectReason(), "package-too-many-transactions");
+
+    // Packages can't have a total size of more than 101KvB.
+    CTransactionRef large_ptx = create_placeholder_tx(150, 150);
+    Package package_too_large;
+    auto size_large = GetVirtualTransactionSize(*large_ptx);
+    size_t total_size{0};
+    while (total_size <= MAX_PACKAGE_SIZE * 1000) {
+        package_too_large.push_back(large_ptx);
+        total_size += size_large;
+    }
+    BOOST_CHECK(package_too_large.size() <= MAX_PACKAGE_COUNT);
+    PackageValidationState state_too_large;
+    BOOST_CHECK(!CheckPackage(package_too_large, state_too_large));
+    BOOST_CHECK_EQUAL(state_too_large.GetResult(), PackageValidationResult::PCKG_POLICY);
+    BOOST_CHECK_EQUAL(state_too_large.GetRejectReason(), "package-too-large");
+}
+
 BOOST_FIXTURE_TEST_CASE(package_validation_tests, TestChain100Setup)
 {
     LOCK(cs_main);
@@ -72,9 +101,7 @@ BOOST_FIXTURE_TEST_CASE(package_validation_tests, TestChain100Setup)
     BOOST_CHECK(result_parent_child.m_package_feerate.has_value());
     BOOST_CHECK(result_parent_child.m_package_feerate.value() ==
                 CFeeRate(2 * COIN, GetVirtualTransactionSize(*tx_parent) + GetVirtualTransactionSize(*tx_child)));
-    BOOST_CHECK_MESSAGE( 7 == 3, "7 == 3: " << result_parent_child.m_package_feerate.value().ToString());
-    BOOST_CHECK_MESSAGE( 7 == 3, "7 == 3: " << CFeeRate(2 * COIN, GetVirtualTransactionSize(*tx_parent) + GetVirtualTransactionSize(*tx_child)).ToString()
-    );
+
     // A single, giant transaction submitted through ProcessNewPackage fails on single tx policy.
     CTransactionRef giant_ptx = create_placeholder_tx(999, 999);
     BOOST_CHECK(GetVirtualTransactionSize(*giant_ptx) > MAX_PACKAGE_SIZE * 1000);
@@ -563,7 +590,6 @@ BOOST_FIXTURE_TEST_CASE(package_witness_swap_tests, TestChain100Setup)
         BOOST_CHECK(m_node.mempool->exists(GenTxid::Txid(ptx_mixed_child->GetHash())));
 
         // package feerate should include parent3 and child. It should not include parent1 or parent2_v1.
-        BOOST_CHECK_MESSAGE(mixed_result.m_state.IsValid(), mixed_result.m_state.GetRejectReason());
         BOOST_CHECK(mixed_result.m_package_feerate.has_value());
         const CFeeRate expected_feerate(1 * COIN, GetVirtualTransactionSize(*ptx_parent3) + GetVirtualTransactionSize(*ptx_mixed_child));
         BOOST_CHECK_MESSAGE(mixed_result.m_package_feerate.value() == expected_feerate,
