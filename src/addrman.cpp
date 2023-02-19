@@ -736,18 +736,18 @@ std::pair<CAddress, NodeSeconds> AddrManImpl::Select_(bool new_only) const
         search_tried = false;
     }
 
-    double chance_factor = 1.0;
+    double fChanceFactor = 1.0;
     while (1) {
         // Pick a bucket, and an initial position in that bucket.
-        int bucket = insecure_rand.randrange(bucket_count);
-        int initial_position = insecure_rand.randrange(ADDRMAN_BUCKET_SIZE);
+        int nBucket = insecure_rand.randrange(bucket_count);
+        int nBucketPos = insecure_rand.randrange(ADDRMAN_BUCKET_SIZE);
 
         // Iterate over the positions of that bucket, starting at the initial one,
         // and looping around.
         int i;
         for (i = 0; i < ADDRMAN_BUCKET_SIZE; ++i) {
-            int position = (initial_position + i) % ADDRMAN_BUCKET_SIZE;
-            int node_id = GetEntry(search_tried, bucket, position);
+            int position = (nBucketPos + i) % ADDRMAN_BUCKET_SIZE;
+            int node_id = GetEntry(search_tried, nBucket, position);
             if (node_id != -1) break;
         }
 
@@ -755,20 +755,20 @@ std::pair<CAddress, NodeSeconds> AddrManImpl::Select_(bool new_only) const
         if (i == ADDRMAN_BUCKET_SIZE) continue;
 
         // Find the entry to return.
-        int position = (initial_position + i) % ADDRMAN_BUCKET_SIZE;
-        int nId = GetEntry(search_tried, bucket, position);
+        int position = (nBucketPos + i) % ADDRMAN_BUCKET_SIZE;
+        int nId = GetEntry(search_tried, nBucket, position);
         const auto it_found{mapInfo.find(nId)};
         assert(it_found != mapInfo.end());
         const AddrInfo& info{it_found->second};
 
-        // With probability GetChance() * chance_factor, return the entry.
-        if (insecure_rand.randbits(30) < chance_factor * info.GetChance() * (1 << 30)) {
+        // With probability GetChance() * fChanceFactor, return the entry.
+        if (insecure_rand.randbits(30) < fChanceFactor * info.GetChance() * (1 << 30)) {
             LogPrint(BCLog::ADDRMAN, "Selected %s from %s\n", info.ToStringAddrPort(), search_tried ? "tried" : "new");
             return {info, info.m_last_try};
         }
 
         // Otherwise start over with a (likely) different bucket, and increased chance factor.
-        chance_factor *= 1.2;
+        fChanceFactor *= 1.2;
     }
 }
 
