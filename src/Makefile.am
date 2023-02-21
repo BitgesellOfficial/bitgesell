@@ -856,10 +856,7 @@ BGL_chainstate_SOURCES = BGL-chainstate.cpp
 BGL_chainstate_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS)
 BGL_chainstate_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
-# $(LIBTOOL_APP_LDFLAGS) deliberately omitted here so that we can test linking
-# bitcoin-chainstate against libbitcoinkernel as a shared or static library by
-# setting --{en,dis}able-shared.
-BGL_chainstate_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(PTHREAD_FLAGS)
+BGL_chainstate_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(PTHREAD_FLAGS) $(LIBTOOL_APP_LDFLAGS) -static
 BGL_chainstate_LDADD = $(LIBBGLKERNEL)
 
 # libtool is unable to calculate this indirect dependency, presumably because it's a subproject.
