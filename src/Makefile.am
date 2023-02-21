@@ -880,15 +880,6 @@ libBGLkernel_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k
 # to export from the library.
 libBGLkernel_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -fvisibility=default
 
-# TODO: For now, Specify -static in both CXXFLAGS and LDFLAGS when building for
-#       windows targets so libtool will only build a static version of this
-#       library. There are unresolved problems when building dll's for mingw-w64
-#       and attempting to statically embed libstdc++, libpthread, etc.
-if TARGET_WINDOWS
-libBGLkernel_la_LDFLAGS += -static
-libBGLkernel_la_CXXFLAGS += -static
-endif
-
 # TODO: libbitcoinkernel is a work in progress consensus engine library, as more
 #       and more modules are decoupled from the consensus engine, this list will
 #       shrink to only those which are absolutely necessary.
