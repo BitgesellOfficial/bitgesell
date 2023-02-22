@@ -861,6 +861,10 @@ BGL_chainstate_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 # setting --{en,dis}able-shared.
 BGL_chainstate_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(PTHREAD_FLAGS)
 BGL_chainstate_LDADD = $(LIBBGLKERNEL)
+
+# libtool is unable to calculate this indirect dependency, presumably because it's a subproject.
+# libsecp256k1 only needs to be linked in when libbitcoinkernel is static.
+BGL_chainstate_LDADD += $(LIBSECP256K1)
 #
 
 # bitcoinkernel library #
