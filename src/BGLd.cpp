@@ -121,7 +121,7 @@ static bool AppInit(NodeContext& node, int argc, char* argv[])
     SetupServerArgs(args);
     std::string error;
     if (!args.ParseParameters(argc, argv, error)) {
-        return InitError(Untranslated(strprintf("Error parsing command line arguments: %s\n", error)));
+        return InitError(Untranslated(strprintf("Error parsing command line arguments: %s", error)));
     }
 
     // Process help and version before taking care about datadir
@@ -151,14 +151,23 @@ static bool AppInit(NodeContext& node, int argc, char* argv[])
     std::any context{&node};
     try
     {
-        if (auto error = common::InitConfig(args)) {
-            return InitError(error->message, error->details);
+        if (!CheckDataDirOption(args)) {
+            return InitError(Untranslated(strprintf("Specified data directory \"%s\" does not exist.", args.GetArg("-datadir", ""))));
+        }
+        if (!args.ReadConfigFiles(error, true)) {
+            return InitError(Untranslated(strprintf("Error reading configuration file: %s", error)));
+        }
+        // Check for chain settings (Params() calls are only valid after this clause)
+        try {
+            SelectParams(args.GetChainName());
+        } catch (const std::exception& e) {
+            return InitError(Untranslated(strprintf("%s", e.what())));
         }
 
         // Error out when loose non-argument tokens are encountered on command line
         for (int i = 1; i < argc; i++) {
             if (!IsSwitchChar(argv[i][0])) {
-                return InitError(Untranslated(strprintf("Command line contains unexpected token '%s', see BGLd -h for a list of options.\n", argv[i])));
+                return InitError(Untranslated(strprintf("Command line contains unexpected token '%s', see bitcoind -h for a list of options.", argv[i])));
             }
         }
 
@@ -197,7 +206,7 @@ static bool AppInit(NodeContext& node, int argc, char* argv[])
                 }
                 break;
             case -1: // Error happened.
-                return InitError(Untranslated(strprintf("fork_daemon() failed: %s\n", SysErrorString(errno))));
+                return InitError(Untranslated(strprintf("fork_daemon() failed: %s", SysErrorString(errno))));
             default: { // Parent: wait and exit.
                 int token = daemon_ep.TokenRead();
                 if (token) { // Success
@@ -209,7 +218,7 @@ static bool AppInit(NodeContext& node, int argc, char* argv[])
             }
             }
 #else
-            return InitError(Untranslated("-daemon is not supported on this operating system\n"));
+            return InitError(Untranslated("-daemon is not supported on this operating system"));
 #endif // HAVE_DECL_FORK
         }
         // Lock data directory after daemonization
