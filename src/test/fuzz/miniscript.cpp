@@ -753,9 +753,12 @@ NodeRef GenNode(F ConsumeNode, Type root_type = ""_mst, bool strict_valid = fals
                 node = MakeNodeRef(info.fragment, std::move(info.keys), info.k);
             }
             // Verify acceptability.
-            if (!node || !(node->GetType() << type_needed)) {
+            if (!node || (node->GetType() & "KVWB"_mst) == ""_mst) {
                 assert(!strict_valid);
                 return {};
+            }
+            if (!(type_needed == ""_mst)) {
+                assert(node->GetType() << type_needed);
             }
             if (!node->IsValid()) return {};
             // Move it to the stack.
