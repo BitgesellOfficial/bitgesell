@@ -4005,13 +4005,14 @@ bool CWallet::ApplyMigrationData(MigrationData& data, bilingual_str& error)
         // Entries for everything else ("send") will be cloned to all wallets.
         bool require_transfer = record.purpose == AddressPurpose::RECEIVE && !IsMine(dest);
         bool copied = false;
-        for (auto& [wallet, batch] : wallets_vec) {
+        for (auto& wallet : {data.watchonly_wallet, data.solvable_wallet}) {
+            if (!wallet) continue;
+
             LOCK(wallet->cs_wallet);
             if (require_transfer && !wallet->IsMine(dest)) continue;
 
             // Copy the entire address book entry
             wallet->m_address_book[dest] = record;
-            func_store_addr(*batch, dest, record);
 
             copied = true;
             // Only delete 'receive' records that are no longer part of the original wallet
@@ -4019,18 +4020,21 @@ bool CWallet::ApplyMigrationData(MigrationData& data, bilingual_str& error)
                 dests_to_delete.push_back(dest);
                 break;
             }
-        } else {
-            // Labels for everything else ("send") should be cloned to all
-            if (data.watchonly_wallet) {
-                LOCK(data.watchonly_wallet->cs_wallet);
-                // Add to the watchonly. Copy the entire address book entry
-                data.watchonly_wallet->m_address_book[addr_pair.first] = addr_pair.second;
+        }
+
+        // Fail immediately if we ever found an entry that was ours and cannot be transferred
+        // to any of the created wallets (watch-only, solvable).
+        // Means that no inferred descriptor maps to the stored entry. Which mustn't happen.
+        if (require_transfer && !copied) {
+
+            // Skip invalid/non-watched scripts that will not be migrated
+            if (not_migrated_dests.count(dest) > 0) {
+                dests_to_delete.push_back(dest);
+                continue;
             }
-            if (data.solvable_wallet) {
-                LOCK(data.solvable_wallet->cs_wallet);
-                // Add to the solvable. Copy the entire address book entry
-                data.solvable_wallet->m_address_book[addr_pair.first] = addr_pair.second;
-            }
+
+            error = _("Error: Address book data in wallet cannot be identified to belong to migrated wallets");
+            return false;
         }
     }
 
