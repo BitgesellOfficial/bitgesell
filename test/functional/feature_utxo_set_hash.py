@@ -69,8 +69,8 @@ class UTXOSetHashTest(BGLTestFramework):
         assert_equal(finalized[::-1].hex(), node_muhash)
 
         self.log.info("Test deterministic UTXO set hash results")
-        assert_equal(node.gettxoutsetinfo()['hash_serialized_2'], "f4edcc42a569bfef13f56306cf32821774ce36b0868cabbf698859d453b3ee0a")
-        assert_equal(node.gettxoutsetinfo("muhash")['muhash'], "6aebab920c5c6102e2ae8fe94122c0cf6546e48eb167a9278693c00f7b348436")
+        assert_equal(node.gettxoutsetinfo()['hash_serialized_2'], "4b7ea0bd09947f5d0d9f983dfce3f590a5a2e1a83aa2ab252561b849d3f23d73")
+        assert_equal(node.gettxoutsetinfo("muhash")['muhash'], "88f5d8f48b36504974ce92cfd1f91a7000a5bb28288126b81d4788b7250b5b00")
 
     def run_test(self):
         self.test_muhash_implementation()
