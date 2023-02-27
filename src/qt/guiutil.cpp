@@ -427,7 +427,7 @@ void openDebugLogfile()
 
 bool openBGLConf()
 {
-    fs::path pathConfig = GetConfigFile(gArgs.GetArg("-conf", BGL_CONF_FILENAME));
+    fs::path pathConfig = gArgs.GetConfigFilePath();
 
     /* Create the file */
     std::ofstream configFile{pathConfig, std::ios_base::app};
