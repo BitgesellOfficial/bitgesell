@@ -70,9 +70,15 @@
         <translation type="unfinished">Tai yra jūsų BGL adresai išeinantiems mokėjimams. Visada pasitikrinkite sumą ir gavėjo adresą prieš siunčiant lėšas.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your BGL addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Tai jūsų Bitcoin mokėjimų gavimo adresai. Naudokite 'Sukurti naują gavimo adresą' mygtuką gavimų skirtuke kad sukurtumėte naujus adresus.
+        <translation type="unfinished">Tai jūsų BGL mokėjimų gavimo adresai. Naudokite 'Sukurti naują gavimo adresą' mygtuką gavimų skirtuke kad sukurtumėte naujus adresus.
+Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
+    </message>
+    <message>
+        <source>These are your BGL addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+Signing is only possible with addresses of the type 'legacy'.</source>
+        <translation type="unfinished">Tai jūsų BGL mokėjimų gavimo adresai. Naudokite 'Sukurti naują gavimo adresą' mygtuką gavimų skirtuke kad sukurtumėte naujus adresus.
 Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     </message>
     <message>
@@ -242,6 +248,10 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
         <translation type="unfinished">Nustatymų failas %1 galimai sugadintas arba klaidingas</translation>
     </message>
     <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">Nustatymų failas %1 galimai sugadintas arba klaidingas</translation>
+    </message>
+    <message>
         <source>Internal error</source>
         <translation type="unfinished">Vidinė klaida</translation>
     </message>
@@ -358,6 +368,14 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     </context>
 <context>
     <name>BGL-core</name>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">Nustatymų failas negalėjo būti perskaitytas</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">Nustatymų failas negalėjo būti parašytas</translation>
+    </message>
     <message>
         <source>Settings file could not be read</source>
         <translation type="unfinished">Nustatymų failas negalėjo būti perskaitytas</translation>

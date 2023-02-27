@@ -249,6 +249,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Изключи бягащите</translation>
     </message>
     <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">Файлът с настройки %1 може да е повреден или невалиден.</translation>
+    </message>
+    <message>
+        <source>Runaway exception</source>
+        <translation type="unfinished">Изключи бягащите</translation>
+    </message>
+    <message>
         <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
         <translation type="unfinished">Фатална грешка се появи. %1 не може да продължи безопастно и ще се затвори.</translation>
     </message>

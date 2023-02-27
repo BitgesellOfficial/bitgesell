@@ -254,6 +254,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Дошло је до фаталне грешке. 1%1 даље не може безбедно да настави, те ће се угасити.</translation>
     </message>
     <message>
+        <source>Runaway exception</source>
+        <translation type="unfinished">Изузетак покретања</translation>
+    </message>
+    <message>
+        <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
+        <translation type="unfinished">Дошло је до фаталне грешке. 1%1 даље не може безбедно да настави, те ће се угасити.</translation>
+    </message>
+    <message>
         <source>Internal error</source>
         <translation type="unfinished">Интерна грешка</translation>
     </message>
@@ -398,6 +406,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </context>
 <context>
     <name>BGL-core</name>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">Фајл са подешавањима се не може прочитати</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">Фајл са подешавањима се не може записати</translation>
+    </message>
     <message>
         <source>Settings file could not be read</source>
         <translation type="unfinished">Фајл са подешавањима се не може прочитати</translation>

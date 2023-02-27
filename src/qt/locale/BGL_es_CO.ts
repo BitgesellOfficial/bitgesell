@@ -258,6 +258,18 @@ Firmar solo es posible con direcciones del tipo 'Legacy'.</translation>
         <translation type="unfinished">Se produjo un error fatal. %1 ya no puede continuar de manera segura y se cerrará.</translation>
     </message>
     <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">El archivo de configuración %1 puede estar corrupto o no ser válido.</translation>
+    </message>
+    <message>
+        <source>Runaway exception</source>
+        <translation type="unfinished">Excepción fuera de control</translation>
+    </message>
+    <message>
+        <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
+        <translation type="unfinished">Se produjo un error fatal. %1 ya no puede continuar de manera segura y se cerrará.</translation>
+    </message>
+    <message>
         <source>Internal error</source>
         <translation type="unfinished">Error interno</translation>
     </message>
@@ -301,6 +313,14 @@ Firmar solo es posible con direcciones del tipo 'Legacy'.</translation>
     <message>
         <source>Enter a BGL address (e.g. %1)</source>
         <translation type="unfinished">Ingresa una dirección de BGL (Ejemplo: %1)</translation>
+    </message>
+    <message>
+        <source>Unroutable</source>
+        <translation type="unfinished">No enrutable</translation>
+    </message>
+    <message>
+        <source>Internal</source>
+        <translation type="unfinished">Interno</translation>
     </message>
     <message>
         <source>Unroutable</source>
@@ -388,6 +408,14 @@ Firmar solo es posible con direcciones del tipo 'Legacy'.</translation>
     </context>
 <context>
     <name>BGL-core</name>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">El archivo de configuración no se puede leer</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">El archivo de configuración no se puede escribir</translation>
+    </message>
     <message>
         <source>Settings file could not be read</source>
         <translation type="unfinished">El archivo de configuración no se puede leer</translation>
@@ -801,6 +829,14 @@ Firmar solo es posible con direcciones del tipo 'Legacy'.</translation>
         <translation type="unfinished">Abrir &amp;URI...</translation>
     </message>
     <message>
+        <source>&amp;Load PSBT from file…</source>
+        <translation type="unfinished">&amp;Cargar PSBT desde archivo...</translation>
+    </message>
+    <message>
+        <source>Open &amp;URI…</source>
+        <translation type="unfinished">Abrir &amp;URI...</translation>
+    </message>
+    <message>
         <source>Close Wallet…</source>
         <translation type="unfinished">Cerrar Billetera...</translation>
     </message>
@@ -908,7 +944,7 @@ Firmar solo es posible con direcciones del tipo 'Legacy'.</translation>
         <translation type="unfinished">Actualizado</translation>
     </message>
     <message>
-        <source>Load Partially Signed ByteLengthQueuingStrategy Transaction</source>
+        <source>Load Partially Signed BGL Transaction</source>
         <translation type="unfinished">Cargar transacción de BGL parcialmente firmada</translation>
     </message>
     <message>
@@ -968,6 +1004,14 @@ Firmar solo es posible con direcciones del tipo 'Legacy'.</translation>
     <message>
         <source>Show the %1 help message to get a list with possible BGL command-line options</source>
         <translation type="unfinished">Mostrar el mensaje de ayuda %1 para obtener una lista de los posibles comandos de BGL</translation>
+    </message>
+    <message>
+        <source>&amp;Mask values</source>
+        <translation type="unfinished">&amp;Ocultar valores</translation>
+    </message>
+    <message>
+        <source>Mask the values in the Overview tab</source>
+        <translation type="unfinished">Ocultar los valores en la pestaña de vista general</translation>
     </message>
     <message>
         <source>&amp;Mask values</source>
@@ -1516,6 +1560,14 @@ Firmar solo es posible con direcciones del tipo 'Legacy'.</translation>
     <message>
         <source>The entered address "%1" is not a valid BGL address.</source>
         <translation type="unfinished">La dirección introducida "%1" no es una dirección BGL valida.</translation>
+    </message>
+    <message>
+        <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
+        <translation type="unfinished">La dirección "%1" ya existe como dirección de recepción con la etiqueta "%2" y, por lo tanto, no se puede agregar como dirección de envío.</translation>
+    </message>
+    <message>
+        <source>The entered address "%1" is already in the address book with label "%2".</source>
+        <translation type="unfinished">La dirección ingresada "%1" ya está en la libreta de direcciones con la etiqueta "%2".</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>

@@ -1342,10 +1342,10 @@ Obnovitev varnostne kopije denarnice ni bila mogoča.</translation>
         <source>%n active connection(s) to BGL network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n aktivna povezava v omrežje BGL</numerusform>
-            <numerusform>%n aktivni povezavi v omrežje BGL</numerusform>
-            <numerusform>%n aktivne povezave v omrežje BGL</numerusform>
-            <numerusform>%n aktivnih povezav v omrežje BGL</numerusform>
+            <numerusform>%n aktivna povezava v omrežje BGL. </numerusform>
+            <numerusform>%n aktivni povezavi v omrežje BGL.</numerusform>
+            <numerusform>%n aktivne povezave v omrežje BGL.</numerusform>
+            <numerusform>%n aktivnih povezav v omrežje BGL.</numerusform>
         </translation>
     </message>
     <message>

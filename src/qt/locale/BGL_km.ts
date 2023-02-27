@@ -317,6 +317,14 @@
         <translation type="unfinished">ការកំណត់ឯកសារមិនអាចសរសេរបានទេ។</translation>
     </message>
     <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">ការកំណត់ឯកសារមិនអាចអានបានទេ។</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">ការកំណត់ឯកសារមិនអាចសរសេរបានទេ។</translation>
+    </message>
+    <message>
         <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
         <translation type="unfinished">-maxtxfee មានតំម្លៃខ្ពស់ពេក។​ តំម្លៃនេះ អាចគួរត្រូវបានបង់សម្រាប់មួយប្រត្តិបត្តិការ។</translation>
     </message>

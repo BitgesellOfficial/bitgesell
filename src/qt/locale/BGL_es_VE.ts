@@ -76,6 +76,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 Registrarse solo es posible utilizando  una direccion tipo "Legal"</translation>
     </message>
     <message>
+        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+Signing is only possible with addresses of the type 'legacy'.</source>
+        <translation type="unfinished">Lista de tus direcciones de Bitcoin para recibir pagos. Para la  creacion de  una nueva direccion seleccione en la pestana "recibir" la opcion "Crear nueva direccion" 
+Registrarse solo es posible utilizando  una direccion tipo "Legal"</translation>
+    </message>
+    <message>
         <source>&amp;Copy Address</source>
         <translation type="unfinished">Copiar dirección</translation>
     </message>

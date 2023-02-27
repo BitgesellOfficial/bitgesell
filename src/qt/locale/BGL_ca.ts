@@ -398,6 +398,14 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
         <translation type="unfinished">El fitxer de configuració no pot ser escrit</translation>
     </message>
     <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">El fitxer de configuració no es pot llegir</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">El fitxer de configuració no pot ser escrit</translation>
+    </message>
+    <message>
         <source>The %s developers</source>
         <translation type="unfinished">Els desenvolupadors %s</translation>
     </message>

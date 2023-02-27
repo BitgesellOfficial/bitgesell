@@ -246,6 +246,10 @@ E' possibile firmare solo con indirizzi di tipo "legacy".</translation>
         <translation type="unfinished">Il file di impostazioni %1 potrebbe essere corrotto o invalido.</translation>
     </message>
     <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">Il file di impostazioni %1 potrebbe essere corrotto o invalido.</translation>
+    </message>
+    <message>
         <source>Runaway exception</source>
         <translation type="unfinished">Eccezione runaway</translation>
     </message>

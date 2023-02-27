@@ -254,6 +254,10 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <translation type="unfinished">Asetustiedosto %1 saattaa olla vioittunut tai virheellinen.</translation>
     </message>
     <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">Asetustiedosto %1 saattaa olla vioittunut tai virheellinen.</translation>
+    </message>
+    <message>
         <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
         <translation type="unfinished">Peruuttamaton virhe on tapahtunut. %1 ei voi enää jatkaa turvallisesti ja sammutetaan.</translation>
     </message>
@@ -1231,8 +1235,8 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <source>%n active connection(s) to BGL network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n aktiivinen yhteys Bitcoin-verkkoon.</numerusform>
-            <numerusform>%n aktiivista yhteyttä Bitcoin-verkkoon.</numerusform>
+            <numerusform>%n aktiivinen yhteys BGL-verkkoon.</numerusform>
+            <numerusform>%n aktiivista yhteyttä BGL-verkkoon.</numerusform>
         </translation>
     </message>
     <message>

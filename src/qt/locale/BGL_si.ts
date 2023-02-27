@@ -306,6 +306,10 @@
         <translation type="unfinished">සැකසීම් ගොනුව කියවිය නොහැක</translation>
     </message>
     <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">සැකසීම් ගොනුව කියවිය නොහැක</translation>
+    </message>
+    <message>
         <source>The %s developers</source>
         <translation type="unfinished">%s සංවර්ධකයින්</translation>
     </message>
@@ -556,6 +560,7 @@
         <source>%n active connection(s) to BGL network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
+            <numerusform>%n active connection(s) to BGL network.</numerusform>
             <numerusform>%n active connection(s) to BGL network.</numerusform>
         </translation>
     </message>

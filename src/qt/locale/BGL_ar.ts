@@ -250,6 +250,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ملف الاعدادات %1 قد يكون تالف او غير صالح</translation>
     </message>
     <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">ملف الاعدادات %1 قد يكون تالف او غير صالح</translation>
+    </message>
+    <message>
         <source>Runaway exception</source>
         <translation type="unfinished">‫‫Runaway exception‬</translation>
     </message>
@@ -469,6 +473,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 </context>
 <context>
     <name>BGL-core</name>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">‫ملف الاعدادات لا يمكن قراءته‬</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">‫لم نتمكن من كتابة ملف الاعدادات‬</translation>
+    </message>
     <message>
         <source>Settings file could not be read</source>
         <translation type="unfinished">‫ملف الاعدادات لا يمكن قراءته‬</translation>
@@ -1322,6 +1334,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>%n active connection(s) to BGL network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
+            <numerusform>%n active connection(s) to BGL network.</numerusform>
+            <numerusform>%n active connection(s) to BGL network.</numerusform>
+            <numerusform>%n active connection(s) to BGL network.</numerusform>
+            <numerusform>%n active connection(s) to BGL network.</numerusform>
             <numerusform>%n active connection(s) to BGL network.</numerusform>
             <numerusform>%n اتصال نشط بشبكة البتكوين.</numerusform>
         </translation>
@@ -3863,11 +3879,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">‫وقع الرسالة لتثبت انك تملك عنوان البتكوين هذا‬</translation>
     </message>
     <message>
-        <source>Sign &amp;Message</source>
-        <translation type="unfinished">توقيع &amp;الرسالة</translation>
-    </message>
     <message>
-        <source>Reset all sign message fields</source>
         <translation type="unfinished">‫إعادة تعيين كافة حقول توقيع الرسالة‬</translation>
     </message>
     <message>

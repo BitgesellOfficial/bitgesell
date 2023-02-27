@@ -76,6 +76,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     </message>
     <message>
+        <source>These are your BGL addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+Signing is only possible with addresses of the type 'legacy'.</source>
+        <translation type="unfinished">Ovo su vaše BGL adrese za primanje sredstava. Koristite 'Kreiraj novu adresu za primanje' u tabu Primite kako biste kreirali nove adrese.
+Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
+    </message>
+    <message>
         <source>&amp;Copy Address</source>
         <translation type="unfinished">&amp;Kopirajte adresu</translation>
     </message>
@@ -311,6 +317,14 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Interni</translation>
     </message>
     <message>
+        <source>Unroutable</source>
+        <translation type="unfinished">Neusmjeriv</translation>
+    </message>
+    <message>
+        <source>Internal</source>
+        <translation type="unfinished">Interni</translation>
+    </message>
+    <message>
         <source>Inbound</source>
         <extracomment>An inbound connection from a peer. An inbound connection is a connection initiated by a peer.</extracomment>
         <translation type="unfinished">Dolazni</translation>
@@ -404,6 +418,14 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     </context>
 <context>
     <name>BGL-core</name>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">Datoteka postavke se ne može pročitati</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">Datoteka postavke se ne može mijenjati</translation>
+    </message>
     <message>
         <source>Settings file could not be read</source>
         <translation type="unfinished">Datoteka postavke se ne može pročitati</translation>
@@ -1301,6 +1323,10 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Učitaj PSBT iz &amp;međuspremnika...</translation>
     </message>
     <message>
+        <source>Load PSBT from &amp;clipboard…</source>
+        <translation type="unfinished">Učitaj PSBT iz &amp;međuspremnika...</translation>
+    </message>
+    <message>
         <source>Load Partially Signed BGL Transaction from clipboard</source>
         <translation type="unfinished">Učitaj djelomično potpisanu BGL transakciju iz međuspremnika</translation>
     </message>
@@ -1398,6 +1424,7 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <source>%n active connection(s) to BGL network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
+            <numerusform>%n active connection(s) to BGL network.</numerusform>
             <numerusform>%n active connection(s) to BGL network.</numerusform>
             <numerusform>%n aktivnih veza s BGL mrežom.</numerusform>
         </translation>
@@ -2337,6 +2364,14 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">&amp;Vanjski URL-ovi transakcije</translation>
     </message>
     <message>
+        <source>Third-party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</source>
+        <translation type="unfinished">Vanjski URL-ovi transakcije (npr. preglednik blokova) koji se javljaju u kartici transakcija kao elementi kontekstnog izbornika. %s u URL-u zamijenjen je hashom transakcije. Višestruki URL-ovi su odvojeni vertikalnom crtom |.</translation>
+    </message>
+    <message>
+        <source>&amp;Third-party transaction URLs</source>
+        <translation type="unfinished">&amp;Vanjski URL-ovi transakcije</translation>
+    </message>
+    <message>
         <source>Whether to show coin control features or not.</source>
         <translation type="unfinished">Ovisi želite li prikazati mogućnosti kontroliranja inputa ili ne.</translation>
     </message>
@@ -2659,6 +2694,14 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     <message>
         <source>'BGL://' is not a valid URI. Use 'BGL:' instead.</source>
         <translation type="unfinished">'BGL://' nije ispravan URI. Koristite 'BGL:' umjesto toga.</translation>
+    </message>
+    <message>
+        <source>Cannot process payment request because BIP70 is not supported.
+Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.
+If you are receiving this error you should request the merchant provide a BIP21 compatible URI.</source>
+        <translation type="unfinished">Nemoguće obraditi zahtjev za plaćanje zato što BIP70 nije podržan.
+S obzirom na široko rasprostranjene sigurnosne nedostatke u BIP70, preporučljivo je da zanemarite preporuke trgovca u  vezi promjene novčanika.
+Ako imate ovu grešku, od trgovca zatražite URI koji je kompatibilan sa BIP21.</translation>
     </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.

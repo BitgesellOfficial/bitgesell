@@ -1272,8 +1272,8 @@ Kunne ikke gjenopprette sikkerhetskopi av lommebok.</translation>
         <source>%n active connection(s) to BGL network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform> %n aktiv tilkobling til Bitcoin-nettverket.</numerusform>
-            <numerusform>%n aktive tilkoblinger til Bitcoin-nettverket.</numerusform>
+            <numerusform> %n aktiv tilkobling til BGL-nettverket.</numerusform>
+            <numerusform>%n aktive tilkoblinger til BGL-nettverket.</numerusform>
         </translation>
     </message>
     <message>
@@ -3339,6 +3339,11 @@ Hvis du får denne feilen burde du be forretningsdrivende om å tilby en BIP21 k
         <source>Please, review your transaction proposal. This will produce a Partially Signed BGL Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
         <translation type="unfinished">Se over ditt transaksjonsforslag. Dette kommer til å produsere en Delvis Signert BGL Transaksjon (PSBT) som du kan lagre eller kopiere og så signere med f.eks. en offline %1 lommebok, eller en PSBT kompatibel hardware lommebok.</translation>
+    </message>
+    <message>
+        <source>Do you want to create this transaction?</source>
+        <extracomment>Message displayed when attempting to create a transaction. Cautionary text to prompt the user to verify that the displayed transaction details represent the transaction the user intends to create.</extracomment>
+        <translation type="unfinished">Vil du lage denne transaksjonen?</translation>
     </message>
     <message>
         <source>Do you want to create this transaction?</source>

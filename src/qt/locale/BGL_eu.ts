@@ -76,6 +76,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 Sinatzea 'legacy' motako helbideekin soilik da posible</translation>
     </message>
     <message>
+        <source>These are your BGL addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+Signing is only possible with addresses of the type 'legacy'.</source>
+        <translation type="unfinished">Hauek dira ordainketak jasotzeko zure BGL helbideak. Jaso taulako 'Jasotzeko helbide berri bat sortu' botoia erabili helbide berri bat sortzeko.
+Sinatzea 'legacy' motako helbideekin soilik da posible</translation>
+    </message>
+    <message>
         <source>&amp;Copy Address</source>
         <translation type="unfinished">&amp;Helbidea kopiatu</translation>
     </message>

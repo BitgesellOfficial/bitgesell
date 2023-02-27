@@ -59,6 +59,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">1%1 সেটিংস ফাইল টি সম্ভবত নষ্ট বা করাপ্ট</translation>
     </message>
     <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">1%1 সেটিংস ফাইল টি সম্ভবত নষ্ট বা করাপ্ট</translation>
+    </message>
+    <message>
         <source>Runaway exception</source>
         <translation type="unfinished">পলাতক ব্যতিক্রম</translation>
     </message>

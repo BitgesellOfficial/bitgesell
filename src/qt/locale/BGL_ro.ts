@@ -243,6 +243,10 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Fișierul de configurări %1 poate fi corupt sau invalid.</translation>
     </message>
     <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">Fișierul de configurări %1 poate fi corupt sau invalid.</translation>
+    </message>
+    <message>
         <source>Runaway exception</source>
         <translation type="unfinished">Excepție de fugă</translation>
     </message>

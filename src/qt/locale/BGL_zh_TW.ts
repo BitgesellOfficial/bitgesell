@@ -249,6 +249,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">失控異常</translation>
     </message>
     <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">設定檔%1可能已經失效或無效</translation>
+    </message>
+    <message>
+        <source>Runaway exception</source>
+        <translation type="unfinished">失控異常</translation>
+    </message>
+    <message>
         <source>Internal error</source>
         <translation type="unfinished">內部錯誤</translation>
     </message>
@@ -394,6 +402,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 </context>
 <context>
     <name>BGL-core</name>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">設定檔案無法讀取</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">設定檔案無法寫入</translation>
+    </message>
     <message>
         <source>Settings file could not be read</source>
         <translation type="unfinished">設定檔案無法讀取</translation>

@@ -250,6 +250,10 @@ La signature n'est possible qu'avec les adresses de type "traditionnelles".</tra
         <translation type="unfinished">Le fichier de configuration %1 est peut-être corrompu ou invalide.</translation>
     </message>
     <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">Le fichier de configuration %1 est peut-être corrompu ou invalide.</translation>
+    </message>
+    <message>
         <source>Runaway exception</source>
         <translation type="unfinished">Exception excessive</translation>
     </message>
@@ -305,6 +309,10 @@ La signature n'est possible qu'avec les adresses de type "traditionnelles".</tra
     <message>
         <source>Enter a BGL address (e.g. %1)</source>
         <translation type="unfinished">Saisir une adresse BGL (p. ex. %1)</translation>
+    </message>
+    <message>
+        <source>Ctrl+W</source>
+        <translation type="unfinished">Ctrl-W</translation>
     </message>
     <message>
         <source>Ctrl+W</source>

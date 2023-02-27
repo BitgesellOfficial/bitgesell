@@ -260,6 +260,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;دەربارەی %1</translation>
     </message>
     <message>
+        <source>&amp;About %1</source>
+        <translation type="unfinished">&amp;دەربارەی %1</translation>
+    </message>
+    <message>
         <source>&amp;Send</source>
         <translation type="unfinished">&amp;ناردن</translation>
     </message>

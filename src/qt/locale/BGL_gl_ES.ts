@@ -396,6 +396,10 @@
         <translation type="unfinished">&amp;Verifica a mensaxe...</translation>
     </message>
     <message>
+        <source>&amp;Verify message…</source>
+        <translation type="unfinished">&amp;Verifica a mensaxe...</translation>
+    </message>
+    <message>
         <source>Verify messages to ensure they were signed with specified BGL addresses</source>
         <translation type="unfinished">Verifica mensaxes para asegurar que foron asinados cos enderezos de BGL especificados</translation>
     </message>

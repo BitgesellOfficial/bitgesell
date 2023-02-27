@@ -253,6 +253,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Runaway undtagelse</translation>
     </message>
     <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">Indstillings filen 1%1 kan være korrupt eller invalid.</translation>
+    </message>
+    <message>
+        <source>Runaway exception</source>
+        <translation type="unfinished">Runaway undtagelse</translation>
+    </message>
+    <message>
         <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
         <translation type="unfinished">Der skete en fatal fejl. %1 kan ikke længere fortsætte sikkert og vil afslutte.</translation>
     </message>
@@ -304,6 +312,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Enter a BGL address (e.g. %1)</source>
         <translation type="unfinished">Indtast en BGL-adresse (fx %1)</translation>
+    </message>
+    <message>
+        <source>Unroutable</source>
+        <translation type="unfinished">Urutebar</translation>
     </message>
     <message>
         <source>Unroutable</source>
@@ -405,6 +417,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </context>
 <context>
     <name>BGL-core</name>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">Indstillingsfilen kunne ikke læses</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">Indstillingsfilen kunne ikke skrives</translation>
+    </message>
     <message>
         <source>Settings file could not be read</source>
         <translation type="unfinished">Indstillingsfilen kunne ikke læses</translation>
@@ -1186,6 +1206,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Åben &amp;URI...</translation>
     </message>
     <message>
+        <source>&amp;Load PSBT from file…</source>
+        <translation type="unfinished">&amp;Indlæs PSBT fra fil...</translation>
+    </message>
+    <message>
+        <source>Open &amp;URI…</source>
+        <translation type="unfinished">Åben &amp;URI...</translation>
+    </message>
+    <message>
         <source>Close Wallet…</source>
         <translation type="unfinished">Luk Tegnebog...</translation>
     </message>
@@ -1400,6 +1428,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>%n active connection(s) to BGL network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
+            <numerusform>%n aktiv(e) forbindelse(r) til BGL-netværket.</numerusform>
             <numerusform>%n aktiv(e) forbindelse(r) til BGL-netværket.</numerusform>
         </translation>
     </message>
@@ -2320,6 +2349,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;Tredjeparts transaktions-URL'er</translation>
     </message>
     <message>
+        <source>Third-party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</source>
+        <translation type="unfinished">Tredjeparts-URL'er (f.eks. en blokudforsker), der vises på fanen Transaktioner som genvejsmenupunkter. %s i URL'en erstattes af transaktions-hash. Flere URL'er er adskilt af lodret streg |.</translation>
+    </message>
+    <message>
+        <source>&amp;Third-party transaction URLs</source>
+        <translation type="unfinished">&amp;Tredjeparts transaktions-URL'er</translation>
+    </message>
+    <message>
         <source>Whether to show coin control features or not.</source>
         <translation type="unfinished">Hvorvidt egenskaber for coin-styring skal vises eller ej.</translation>
     </message>
@@ -2634,6 +2671,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>'BGL://' is not a valid URI. Use 'BGL:' instead.</source>
         <translation type="unfinished">'BGL://' er ikke et gyldigt URI. Brug 'BGL:' istedet.</translation>
+    </message>
+    <message>
+        <source>Cannot process payment request because BIP70 is not supported.
+Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.
+If you are receiving this error you should request the merchant provide a BIP21 compatible URI.</source>
+        <translation type="unfinished">Kan ikke behandle betalingsanmodning, fordi BIP70 ikke understøttes.
+På grund af udbredte sikkerhedsfejl i BIP70 anbefales det på det kraftigste, at enhver købmands instruktioner om at skifte tegnebog ignoreres.
+Hvis du modtager denne fejl, skal du anmode forhandleren om en BIP21-kompatibel URI.</translation>
     </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
@@ -3594,6 +3639,16 @@ Bemærk: Da gebyret beregnes på per-byte-basis, ville en gebyrsats på "100 sat
         <source>Please, review your transaction proposal. This will produce a Partially Signed BGL Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
         <translation type="unfinished">Gennemse venligst dit transaktionsforslag. Dette vil producere en Partvist Signeret BGL Transaktion (PSBT), som du kan gemme eller kopiere, og så signere med f.eks. en offline %1 pung, eller en PSBT-kompatibel maskinelpung.</translation>
+    </message>
+    <message>
+        <source>Do you want to create this transaction?</source>
+        <extracomment>Message displayed when attempting to create a transaction. Cautionary text to prompt the user to verify that the displayed transaction details represent the transaction the user intends to create.</extracomment>
+        <translation type="unfinished">Vil du oprette denne transaktion?</translation>
+    </message>
+    <message>
+        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed BGL Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
+        <translation type="unfinished">Gennemgå venligst din transaktion. Du kan oprette og sende denne transaktion eller oprette en delvist underskrevet BGL-transaktion (PSBT), som du kan gemme eller kopiere og derefter underskrive med, f.eks. en offline %1 tegnebog eller en PSBT-kompatibel hardwaretegnebog.</translation>
     </message>
     <message>
         <source>Do you want to create this transaction?</source>

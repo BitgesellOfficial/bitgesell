@@ -250,6 +250,10 @@ Somente é possível assinar com endereços do tipo 'legado'.</translation>
         <translation type="unfinished">Arquivos de configurações %1 podem estar corrompidos ou inválidos</translation>
     </message>
     <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">Arquivos de configurações %1 podem estar corrompidos ou inválidos</translation>
+    </message>
+    <message>
         <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
         <translation type="unfinished">Aconteceu um erro fatal. %1 não pode continuar com segurança e será fechado.</translation>
     </message>
@@ -297,6 +301,10 @@ Somente é possível assinar com endereços do tipo 'legado'.</translation>
     <message>
         <source>Enter a BGL address (e.g. %1)</source>
         <translation type="unfinished">Informe um endereço BGL (ex: %1)</translation>
+    </message>
+    <message>
+        <source>Ctrl+W</source>
+        <translation type="unfinished">Control+W</translation>
     </message>
     <message>
         <source>Ctrl+W</source>

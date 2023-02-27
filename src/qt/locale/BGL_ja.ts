@@ -251,6 +251,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">設定ファイル %1 が壊れているか無効である可能性があります。</translation>
     </message>
     <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">設定ファイル %1 が壊れているか無効である可能性があります。</translation>
+    </message>
+    <message>
         <source>Runaway exception</source>
         <translation type="unfinished">暴走例外が発生</translation>
     </message>

@@ -244,7 +244,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
 </context>
 <context>
-    <name>BitcoinApplication</name>
+    <name>BGLApplication</name>
     <message>
         <source>Runaway exception</source>
         <translation type="unfinished">ரனவே எக்ஸெப்ஷன்</translation>
@@ -361,6 +361,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </context>
 <context>
     <name>BGL-core</name>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">அமைப்புகள் கோப்பைப் படிக்க முடியவில்லை</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">அமைப்புகள் கோப்பை எழுத முடியவில்லை</translation>
+    </message>
     <message>
         <source>Settings file could not be read</source>
         <translation type="unfinished">அமைப்புகள் கோப்பைப் படிக்க முடியவில்லை</translation>

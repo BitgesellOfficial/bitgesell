@@ -75,6 +75,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Need on sinu BGL aadressid makse vastuvõtuks.Kasuta ‘Loo uus vastuvõttu aadress’ nuppu vastuvõtmise vahekaardis, et luua uus aadress. Allkirjastamine on võimalik ainult 'pärand' tüüpi aadressidega.</translation>
     </message>
     <message>
+        <source>These are your BGL addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+Signing is only possible with addresses of the type 'legacy'.</source>
+        <translation type="unfinished">Need on sinu BGL aadressid makse vastuvõtuks.Kasuta ‘Loo uus vastuvõttu aadress’ nuppu vastuvõtmise vahekaardis, et luua uus aadress. Allkirjastamine on võimalik ainult 'pärand' tüüpi aadressidega.</translation>
+    </message>
+    <message>
         <source>&amp;Copy Address</source>
         <translation type="unfinished">&amp;Kopeeri Aadress</translation>
     </message>
@@ -482,8 +487,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Omandi tõestamiseks allkirjasta sõnumid oma BGLi aadressiga</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified BGL addresses</source>
-        <translation type="unfinished">Kinnita sõnumid kindlustamaks et need allkirjastati määratud BGLi aadressiga</translation>
+        <source>Create Wallet…</source>
+        <translation type="unfinished">Loo Rahakott...</translation>
     </message>
     <message>
         <source>Close Wallet…</source>

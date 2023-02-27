@@ -75,6 +75,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Estas son tus direcciones de BGL para recibir pagos. Utilice el botón 'Crear nueva dirección de recepción' en la pestaña Recibir para crear nuevas direcciones. La firma solo es posible con direcciones del tipo 'legacy'</translation>
     </message>
     <message>
+        <source>These are your BGL addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+Signing is only possible with addresses of the type 'legacy'.</source>
+        <translation type="unfinished">Estas son tus direcciones de BGL para recibir pagos. Utilice el botón 'Crear nueva dirección de recepción' en la pestaña Recibir para crear nuevas direcciones. La firma solo es posible con direcciones del tipo 'legacy'</translation>
+    </message>
+    <message>
         <source>&amp;Copy Address</source>
         <translation type="unfinished">Copiar dirección</translation>
     </message>

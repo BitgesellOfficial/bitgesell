@@ -254,6 +254,14 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
         <translation type="unfinished">Błąd zapisu do portfela</translation>
     </message>
     <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">Plik ustawień 1%1 może być uszkodzony lub nieprawidłowy</translation>
+    </message>
+    <message>
+        <source>Runaway exception</source>
+        <translation type="unfinished">Błąd zapisu do portfela</translation>
+    </message>
+    <message>
         <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
         <translation type="unfinished">Wystąpił fatalny błąd. %1 nie może być kontynuowany i zostanie zakończony.</translation>
     </message>
@@ -408,6 +416,14 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
     </context>
 <context>
     <name>BGL-core</name>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">Nie udało się odczytać pliku ustawień</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">Nie udało się zapisać pliku ustawień</translation>
+    </message>
     <message>
         <source>Settings file could not be read</source>
         <translation type="unfinished">Nie udało się odczytać pliku ustawień</translation>
@@ -1106,6 +1122,10 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
         <translation type="unfinished">Wczytaj PSBT z pliku...</translation>
     </message>
     <message>
+        <source>&amp;Load PSBT from file…</source>
+        <translation type="unfinished">Wczytaj PSBT z pliku...</translation>
+    </message>
+    <message>
         <source>Open &amp;URI…</source>
         <translation type="unfinished">Otwórz &amp;URI...</translation>
     </message>
@@ -1220,6 +1240,10 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
     <message>
         <source>Load Partially Signed BGL Transaction</source>
         <translation type="unfinished">Załaduj częściowo podpisaną transakcję BGL</translation>
+    </message>
+    <message>
+        <source>Load PSBT from &amp;clipboard…</source>
+        <translation type="unfinished">Wczytaj PSBT ze schowka...</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>

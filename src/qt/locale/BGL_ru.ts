@@ -185,7 +185,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your BGLs from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Помните, что шифрование кошелька не может полностью защитить ваши биткойны от кражи вредоносными программами, заразившими ваш компьютер.</translation>
+        <translation type="unfinished">Помните, что шифрование кошелька не может полностью защитить ваши биткоины от кражи вредоносными программами, заразившими ваш компьютер.</translation>
+    </message>
     <message>
         <source>Wallet to be encrypted</source>
     </message>
@@ -243,6 +244,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 </context>
 <context>
     <name>BGLApplication</name>
+    <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">Файл настроек %1 повреждён или имеет неверный формат.</translation>
+    </message>
     <message>
         <source>Settings file %1 might be corrupt or invalid.</source>
         <translation type="unfinished">Файл настроек %1 повреждён или имеет неверный формат.</translation>
@@ -447,6 +452,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 </context>
 <context>
     <name>BGL-core</name>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">Файл настроек не может быть прочитан</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">Файл настроек не может быть записан</translation>
+    </message>
     <message>
         <source>Settings file could not be read</source>
         <translation type="unfinished">Файл настроек не может быть прочитан</translation>

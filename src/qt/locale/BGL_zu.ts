@@ -132,7 +132,6 @@
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform>%n active connection(s) to BGL network.</numerusform>
-            <numerusform>%n active connection(s) to BGL network.</numerusform>
         </translation>
     </message>
     <message>

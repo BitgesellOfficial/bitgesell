@@ -353,6 +353,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Nije moguće upisati datoteku postavki</translation>
     </message>
     <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">Nije moguće pročitati fajl postavki</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">Nije moguće upisati datoteku postavki</translation>
+    </message>
+    <message>
         <source>Replaying blocks…</source>
         <translation type="unfinished">Reprodukcija blokova…</translation>
     </message>
@@ -627,6 +635,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Verify messages to ensure they were signed with specified BGL addresses</source>
         <translation type="unfinished">Potvrdite poruke kako biste bili sigurni da su potpisane navedenim BGL adresama</translation>
+    </message>
+    <message>
+        <source>Open &amp;URI…</source>
+        <translation type="unfinished">Otvori &amp;URI…</translation>
     </message>
     <message>
         <source>Open &amp;URI…</source>

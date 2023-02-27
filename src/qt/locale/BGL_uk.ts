@@ -67,7 +67,7 @@
     </message>
     <message>
         <source>These are your BGL addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Це ваші адреси BGL для надсилання платежів. Завжди перевіряйте суму та адресу одержувача перед відправленням монет.</translation>
+        <translation type="unfinished">Це ваші біткоїн-адреси для надсилання платежів. Завжди перевіряйте суму та адресу одержувача перед відправленням монет.</translation>
     </message>
     <message>
         <source>These are your BGL addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
@@ -245,6 +245,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 </context>
 <context>
     <name>BGLApplication</name>
+    <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">Файл параметрів %1 можу бути пошкоджений або недійсний.</translation>
+    </message>
     <message>
         <source>Settings file %1 might be corrupt or invalid.</source>
         <translation type="unfinished">Файл параметрів %1 можу бути пошкоджений або недійсний.</translation>
@@ -462,7 +466,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>%s corrupt. Try using the wallet tool BGL-wallet to salvage or restoring a backup.</source>
-        <translation type="unfinished">%s пошкоджено. Спробуйте скористатися інструментом гаманця BGL-wallet для відновлення або відновлення резервної копії.</translation>
+        <translation type="unfinished">%s пошкоджено. Спробуйте скористатися інструментом гаманця BGL-wallet для виправлення або відновлення резервної копії.</translation>
     </message>
     <message>
         <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
@@ -1358,7 +1362,7 @@ Unable to restore backup of wallet.</source>
     </message>
     <message>
         <source>Sign messages with your BGL addresses to prove you own them</source>
-        <translation type="unfinished">Підтвердіть, що ви є власником повідомлення підписавши його вашою BGL-адресою</translation>
+        <translation type="unfinished">Підтвердіть, що Ви є власником повідомлення, підписавши його Вашою біткоїн-адресою</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
@@ -1366,7 +1370,7 @@ Unable to restore backup of wallet.</source>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified BGL addresses</source>
-        <translation type="unfinished">Перевірте повідомлення для впевненості, що воно підписано вказаною BGL-адресою</translation>
+        <translation type="unfinished">Перевірте повідомлення для впевненості, що воно підписано вказаною біткоїн-адресою</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -1610,9 +1614,9 @@ Unable to restore backup of wallet.</source>
         <source>%n active connection(s) to BGL network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n активне з'єднання з мережею BGL</numerusform>
-            <numerusform>%n активних з'єднання з мережею BGL</numerusform>
-            <numerusform>%n активних з'єднань з мережею BGL</numerusform>
+            <numerusform>%n активне з'єднання з мережею Біткоїн.</numerusform>
+            <numerusform>%n активних з'єднання з мережею Біткоїн.</numerusform>
+            <numerusform>%n активних з'єднань з мережею Біткоїн.</numerusform>
         </translation>
     </message>
     <message>
