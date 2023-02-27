@@ -148,7 +148,7 @@ static const char* BGL_PID_FILENAME = "BGLd.pid";
 
 static fs::path GetPidFile(const ArgsManager& args)
 {
-    return AbsPathForConfigVal(args.GetPathArg("-pid", BGL_PID_FILENAME));
+    return AbsPathForConfigVal(args, args.GetPathArg("-pid", BGL_PID_FILENAME));
 }
 
 [[nodiscard]] static bool CreatePidFile(const ArgsManager& args)
