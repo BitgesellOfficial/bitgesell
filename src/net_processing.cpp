@@ -2920,11 +2920,6 @@ bool PeerManagerImpl::ProcessOrphanTx(Peer& peer)
 
         if (result.m_result_type == MempoolAcceptResult::ResultType::VALID) {
             LogPrint(BCLog::TXPACKAGES, "   accepted orphan tx %s (wtxid=%s)\n", orphanHash.ToString(), orphan_wtxid.ToString());
-            LogPrint(BCLog::MEMPOOL, "AcceptToMemoryPool: peer=%d: accepted %s (wtxid=%s) (poolsz %u txn, %u kB)\n",
-                peer.m_id,
-                orphanHash.ToString(),
-                orphan_wtxid.ToString(),
-                m_mempool.size(), m_mempool.DynamicMemoryUsage() / 1000);
             RelayTransaction(orphanHash, porphanTx->GetWitnessHash());
             m_orphanage.AddChildrenToWorkSet(*porphanTx, peer.m_id);
             m_orphanage.EraseTx(orphanHash);
@@ -2934,11 +2929,7 @@ bool PeerManagerImpl::ProcessOrphanTx(Peer& peer)
             return true;
         } else if (state.GetResult() != TxValidationResult::TX_MISSING_INPUTS) {
             if (state.IsInvalid()) {
-                LogPrint(BCLog::MEMPOOL, "   invalid orphan tx %s from peer=%d. %s\n",
-                    orphanHash.ToString(),
-                    peer.m_id,
-                    state.ToString());
-                LogPrint(BCLog::MEMPOOLREJ, "%s (wtxid=%s) from peer=%d was not accepted: %s\n",
+                LogPrint(BCLog::TXPACKAGES, "   invalid orphan tx %s (wtxid=%s) from peer=%d. %s\n",
                     orphanHash.ToString(),
                     orphan_wtxid.ToString(),
                     peer.m_id,
@@ -2948,7 +2939,7 @@ bool PeerManagerImpl::ProcessOrphanTx(Peer& peer)
             }
             // Has inputs but not accepted to mempool
             // Probably non-standard or insufficient fee
-            LogPrint(BCLog::MEMPOOL, "   removed orphan tx %s\n", orphanHash.ToString());
+            LogPrint(BCLog::TXPACKAGES, "   removed orphan tx %s (wtxid=%s)\n", orphanHash.ToString(), orphan_wtxid.ToString());
             if (state.GetResult() != TxValidationResult::TX_WITNESS_STRIPPED) {
                 // We can add the wtxid of this transaction to our reject filter.
                 // Do not add txids of witness transactions or witness-stripped
