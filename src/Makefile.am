@@ -284,6 +284,7 @@ BGL_CORE_H = \
   util/exception.h \
   util/fastrange.h \
   util/fees.h \
+  util/fs_helpers.h \
   util/getuniquepath.h \
   util/golombrice.h \
   util/hash_type.h \
@@ -708,6 +709,7 @@ libBGL_util_a_SOURCES = \
   util/error.cpp \
   util/exception.cpp \
   util/fees.cpp \
+  util/fs_helpers.cpp \
   util/getuniquepath.cpp \
   util/hasher.cpp \
   util/sock.cpp \
@@ -952,6 +954,7 @@ libBGLkernel_la_SOURCES = \
   uint256.cpp \
   util/check.cpp \
   util/exception.cpp \
+  util/fs_helpers.cpp \
   util/getuniquepath.cpp \
   util/hasher.cpp \
   util/moneystr.cpp \
