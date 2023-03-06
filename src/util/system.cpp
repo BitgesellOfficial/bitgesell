@@ -792,29 +792,6 @@ std::string HelpMessageOpt(const std::string &option, const std::string &message
            std::string("\n\n");
 }
 
-static std::string FormatException(const std::exception* pex, std::string_view thread_name)
-{
-#ifdef WIN32
-    char pszModule[MAX_PATH] = "";
-    GetModuleFileNameA(nullptr, pszModule, sizeof(pszModule));
-#else
-    const char* pszModule = "BGL";
-#endif
-    if (pex)
-        return strprintf(
-            "EXCEPTION: %s       \n%s       \n%s in %s       \n", typeid(*pex).name(), pex->what(), pszModule, thread_name);
-    else
-        return strprintf(
-            "UNKNOWN EXCEPTION       \n%s in %s       \n", pszModule, thread_name);
-}
-
-void PrintExceptionContinue(const std::exception* pex, std::string_view thread_name)
-{
-    std::string message = FormatException(pex, thread_name);
-    LogPrintf("\n\n************************\n%s\n", message);
-    tfm::format(std::cerr, "\n\n************************\n%s\n", message);
-}
-
 fs::path GetDefaultDataDir()
 {
     // Windows: C:\Users\Username\AppData\Roaming\Bitcoin
@@ -941,11 +918,7 @@ bool ArgsManager::ReadConfigStream(std::istream& stream, const std::string& file
 
 fs::path ArgsManager::GetConfigFilePath() const
 {
-<<<<<<< HEAD
-    return GetConfigFile(GetPathArg("-conf", BGL_CONF_FILENAME));
-=======
-    return GetConfigFile(*this, GetPathArg("-conf", BITCOIN_CONF_FILENAME));
->>>>>>> 9a9d5da11f... refactor: Stop using gArgs global in system.cpp
+    return GetConfigFile(*this, GetPathArg("-conf", BGL_CONF_FILENAME));
 }
 
 bool ArgsManager::ReadConfigFiles(std::string& error, bool ignore_invalid_keys)
@@ -1004,11 +977,7 @@ bool ArgsManager::ReadConfigFiles(std::string& error, bool ignore_invalid_keys)
             const size_t default_includes = add_includes({});
 
             for (const std::string& conf_file_name : conf_file_names) {
-<<<<<<< HEAD
-                std::ifstream conf_file_stream{GetConfigFile(conf_file_name)};
-=======
                 std::ifstream conf_file_stream{GetConfigFile(*this, fs::PathFromString(conf_file_name))};
->>>>>>> 9a9d5da11f... refactor: Stop using gArgs global in system.cpp
                 if (conf_file_stream.good()) {
                     if (!ReadConfigStream(conf_file_stream, conf_file_name, error, ignore_invalid_keys)) {
                         return false;
