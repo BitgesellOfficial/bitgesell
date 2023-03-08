@@ -141,21 +141,28 @@ typedef int (*secp256k1_nonce_function)(
 # define SECP256K1_NO_BUILD
 #endif
 
-/** At secp256k1 build-time DLL_EXPORT is defined when building objects destined
- *  for a shared library, but not for those intended for static libraries.
- */
-
-#ifndef SECP256K1_API
-# if defined(_WIN32)
-#  if defined(SECP256K1_BUILD) && defined(DLL_EXPORT)
-#   define SECP256K1_API __declspec(dllexport)
-#  else
-#   define SECP256K1_API
+/* Symbol visibility. See libtool manual, section "Windows DLLs". */
+#if defined(_WIN32) && !defined(__GNUC__)
+# ifdef SECP256K1_BUILD
+#  ifdef DLL_EXPORT
+#   define SECP256K1_API            __declspec (dllexport)
+#   define SECP256K1_API_VAR extern __declspec (dllexport)
 #  endif
-# elif defined(__GNUC__) && (__GNUC__ >= 4) && defined(SECP256K1_BUILD)
-#  define SECP256K1_API __attribute__ ((visibility ("default")))
+# elif defined _MSC_VER
+#  define SECP256K1_API
+#  define SECP256K1_API_VAR  extern __declspec (dllimport)
+# elif defined DLL_EXPORT
+#  define SECP256K1_API             __declspec (dllimport)
+#  define SECP256K1_API_VAR  extern __declspec (dllimport)
+# endif
+#endif
+#ifndef SECP256K1_API
+# if defined(__GNUC__) && (__GNUC__ >= 4) && defined(SECP256K1_BUILD)
+#  define SECP256K1_API             __attribute__ ((visibility ("default")))
+#  define SECP256K1_API_VAR  extern __attribute__ ((visibility ("default")))
 # else
 #  define SECP256K1_API
+#  define SECP256K1_API_VAR  extern
 # endif
 #endif
 
@@ -212,10 +219,38 @@ typedef int (*secp256k1_nonce_function)(
 #define SECP256K1_TAG_PUBKEY_HYBRID_EVEN 0x06
 #define SECP256K1_TAG_PUBKEY_HYBRID_ODD 0x07
 
-/** A simple secp256k1 context object with no precomputed tables. These are useful for
- *  type serialization/parsing functions which require a context object to maintain
- *  API consistency, but currently do not require expensive precomputations or dynamic
- *  allocations.
+/** A built-in constant secp256k1 context object with static storage duration, to be
+ *  used in conjunction with secp256k1_selftest.
+ *
+ *  This context object offers *only limited functionality* , i.e., it cannot be used
+ *  for API functions that perform computations involving secret keys, e.g., signing
+ *  and public key generation. If this restriction applies to a specific API function,
+ *  it is mentioned in its documentation. See secp256k1_context_create if you need a
+ *  full context object that supports all functionality offered by the library.
+ *
+ *  It is highly recommended to call secp256k1_selftest before using this context.
+ */
+SECP256K1_API_VAR const secp256k1_context *secp256k1_context_static;
+
+/** Deprecated alias for secp256k1_context_static. */
+SECP256K1_API_VAR const secp256k1_context *secp256k1_context_no_precomp
+SECP256K1_DEPRECATED("Use secp256k1_context_static instead");
+
+/** Perform basic self tests (to be used in conjunction with secp256k1_context_static)
+ *
+ *  This function performs self tests that detect some serious usage errors and
+ *  similar conditions, e.g., when the library is compiled for the wrong endianness.
+ *  This is a last resort measure to be used in production. The performed tests are
+ *  very rudimentary and are not intended as a replacement for running the test
+ *  binaries.
+ *
+ *  It is highly recommended to call this before using secp256k1_context_static.
+ *  It is not necessary to call this function before using a context created with
+ *  secp256k1_context_create (or secp256k1_context_preallocated_create), which will
+ *  take care of performing the self tests.
+ *
+ *  If the tests fail, this function will call the default error handler to abort the
+ *  program (see secp256k1_context_set_error_callback).
  */
 SECP256K1_API extern const secp256k1_context *secp256k1_context_no_precomp;
 
@@ -240,8 +275,11 @@ SECP256K1_API secp256k1_context* secp256k1_context_create(
  *  called at most once for every call of this function. If you need to avoid dynamic
  *  memory allocation entirely, see the functions in secp256k1_preallocated.h.
  *
+ *  Cloning secp256k1_context_static is not possible, and should not be emulated by
+ *  the caller (e.g., using memcpy). Create a new context instead.
+ *
  *  Returns: a newly created context object.
- *  Args:    ctx: an existing context to copy
+ *  Args:    ctx: an existing context to copy (not secp256k1_context_static)
  */
 SECP256K1_API secp256k1_context* secp256k1_context_clone(
     const secp256k1_context* ctx
@@ -259,6 +297,7 @@ SECP256K1_API secp256k1_context* secp256k1_context_clone(
  *
  *  Args:   ctx: an existing context to destroy, constructed using
  *               secp256k1_context_create or secp256k1_context_clone
+ *               (i.e., not secp256k1_context_static).
  */
 SECP256K1_API void secp256k1_context_destroy(
     secp256k1_context* ctx
@@ -573,10 +612,10 @@ SECP256K1_API int secp256k1_ecdsa_signature_normalize(
  * If a data pointer is passed, it is assumed to be a pointer to 32 bytes of
  * extra entropy.
  */
-SECP256K1_API extern const secp256k1_nonce_function secp256k1_nonce_function_rfc6979;
+SECP256K1_API_VAR const secp256k1_nonce_function secp256k1_nonce_function_rfc6979;
 
 /** A default safe nonce generation function (currently equal to secp256k1_nonce_function_rfc6979). */
-SECP256K1_API extern const secp256k1_nonce_function secp256k1_nonce_function_default;
+SECP256K1_API_VAR const secp256k1_nonce_function secp256k1_nonce_function_default;
 
 /** Create an ECDSA signature.
  *
@@ -764,30 +803,37 @@ SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_pubkey_tweak_mul(
     const unsigned char *tweak32
 ) SECP256K1_ARG_NONNULL(1) SECP256K1_ARG_NONNULL(2) SECP256K1_ARG_NONNULL(3);
 
-/** Updates the context randomization to protect against side-channel leakage.
- *  Returns: 1: randomization successfully updated or nothing to randomize
+/** Randomizes the context to provide enhanced protection against side-channel leakage.
+ *
+ *  Returns: 1: randomization successful
  *           0: error
- *  Args:    ctx:       pointer to a context object.
- *  In:      seed32:    pointer to a 32-byte random seed (NULL resets to initial state)
+ *  Args:    ctx:       pointer to a context object (not secp256k1_context_static).
+ *  In:      seed32:    pointer to a 32-byte random seed (NULL resets to initial state).
  *
  * While secp256k1 code is written to be constant-time no matter what secret
  * values are, it's possible that a future compiler may output code which isn't,
  * and also that the CPU may not emit the same radio frequencies or draw the same
- * amount power for all values.
+ * amount of power for all values. Randomization of the context shields against
+ * side-channel observations which aim to exploit secret-dependent behaviour in
+ * certain computations which involve secret keys.
  *
- * This function provides a seed which is combined into the blinding value: that
- * blinding value is added before each multiplication (and removed afterwards) so
- * that it does not affect function results, but shields against attacks which
- * rely on any input-dependent behaviour.
+ * It is highly recommended to call this function on contexts returned from
+ * secp256k1_context_create or secp256k1_context_clone (or from the corresponding
+ * functions in secp256k1_preallocated.h) before using these contexts to call API
+ * functions that perform computations involving secret keys, e.g., signing and
+ * public key generation. It is possible to call this function more than once on
+ * the same context, and doing so before every few computations involving secret
+ * keys is recommended as a defense-in-depth measure. Randomization of the static
+ * context secp256k1_context_static is not supported.
  *
- * This function has currently an effect only on contexts initialized for signing
- * because randomization is currently used only for signing. However, this is not
- * guaranteed and may change in the future. It is safe to call this function on
- * contexts not initialized for signing; then it will have no effect and return 1.
- *
- * You should call this after secp256k1_context_create or
- * secp256k1_context_clone (and secp256k1_context_preallocated_create or
- * secp256k1_context_clone, resp.), and you may call this repeatedly afterwards.
+ * Currently, the random seed is mainly used for blinding multiplications of a
+ * secret scalar with the elliptic curve base point. Multiplications of this
+ * kind are performed by exactly those API functions which are documented to
+ * require a context that is not secp256k1_context_static. As a rule of thumb,
+ * these are all functions which take a secret key (or a keypair) as an input.
+ * A notable exception to that rule is the ECDH module, which relies on a different
+ * kind of elliptic curve point multiplication and thus does not benefit from
+ * enhanced protection against side-channel leakage currently.
  */
 SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_context_randomize(
     secp256k1_context* ctx,

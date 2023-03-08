@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 AC_PREREQ([2.69])
 define(_CLIENT_VERSION_MAJOR, 0)
 define(_CLIENT_VERSION_MINOR, 1)
@@ -10,6 +11,29 @@ define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[BGL Core]])
 AC_INIT([Bitgesell Core],m4_join([.], _CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MINOR, _CLIENT_VERSION_BUILD)m4_if(_CLIENT_VERSION_RC, [0], [], [rc]_CLIENT_VERSION_RC),[https://github.com/bitgesellofficial/bitgesell/issues],[BGL],[https://github.com/BitgesellOfficial/bitgesell/releases/])
 AC_CONFIG_SRCDIR([src/validation.cpp])
 AC_CONFIG_HEADERS([src/config/BGL-config.h])
+=======
+AC_PREREQ([2.60])
+
+# The package (a.k.a. release) version is based on semantic versioning 2.0.0 of
+# the API. All changes in experimental modules are treated as
+# backwards-compatible and therefore at most increase the minor version.
+define(_PKG_VERSION_MAJOR, 0)
+define(_PKG_VERSION_MINOR, 3)
+define(_PKG_VERSION_PATCH, 0)
+define(_PKG_VERSION_IS_RELEASE, true)
+
+# The library version is based on libtool versioning of the ABI. The set of
+# rules for updating the version can be found here:
+# https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
+# All changes in experimental modules are treated as if they don't affect the
+# interface and therefore only increase the revision.
+define(_LIB_VERSION_CURRENT, 2)
+define(_LIB_VERSION_REVISION, 0)
+define(_LIB_VERSION_AGE, 0)
+
+AC_INIT([libsecp256k1],m4_join([.], _PKG_VERSION_MAJOR, _PKG_VERSION_MINOR, _PKG_VERSION_PATCH)m4_if(_PKG_VERSION_IS_RELEASE, [true], [], [-dev]),[https://github.com/bitcoin-core/secp256k1/issues],[libsecp256k1],[https://github.com/bitcoin-core/secp256k1])
+
+>>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 
@@ -833,6 +857,7 @@ case $host in
      ;;
 esac
 
+<<<<<<< HEAD
 if test "$use_extended_functional_tests" != "no"; then
   AC_SUBST(EXTENDED_FUNCTIONAL_TESTS, --extended)
 fi
@@ -926,6 +951,44 @@ if test "$enable_gprof" = "yes"; then
 
     if test "$use_hardening" = "yes"; then
         AC_MSG_ERROR([gprof profiling is not compatible with hardening. Reconfigure with --disable-hardening or --disable-gprof])
+=======
+# Try if some desirable compiler flags are supported and append them to SECP_CFLAGS.
+#
+# These are our own flags, so we append them to our own SECP_CFLAGS variable (instead of CFLAGS) as
+# recommended in the automake manual (Section "Flag Variables Ordering"). CFLAGS belongs to the user
+# and we are not supposed to touch it. In the Makefile, we will need to ensure that SECP_CFLAGS
+# is prepended to CFLAGS when invoking the compiler so that the user always has the last word (flag).
+#
+# Another advantage of not touching CFLAGS is that the contents of CFLAGS will be picked up by
+# libtool for compiling helper executables. For example, when compiling for Windows, libtool will
+# generate entire wrapper executables (instead of simple wrapper scripts as on Unix) to ensure
+# proper operation of uninstalled programs linked by libtool against the uninstalled shared library.
+# These executables are compiled from C source file for which our flags may not be appropriate,
+# e.g., -std=c89 flag has lead to undesirable warnings in the past.
+#
+# TODO We should analogously not touch CPPFLAGS and LDFLAGS but currently there are no issues.
+AC_DEFUN([SECP_TRY_APPEND_DEFAULT_CFLAGS], [
+    # GCC and compatible (incl. clang)
+    if test "x$GCC" = "xyes"; then
+      # Try to append -Werror=unknown-warning-option to CFLAGS temporarily. Otherwise clang will
+      # not error out if it gets unknown warning flags and the checks here will always succeed
+      # no matter if clang knows the flag or not.
+      SECP_TRY_APPEND_DEFAULT_CFLAGS_saved_CFLAGS="$CFLAGS"
+      SECP_TRY_APPEND_CFLAGS([-Werror=unknown-warning-option], CFLAGS)
+
+      SECP_TRY_APPEND_CFLAGS([-std=c89 -pedantic -Wno-long-long -Wnested-externs -Wshadow -Wstrict-prototypes -Wundef], $1) # GCC >= 3.0, -Wlong-long is implied by -pedantic.
+      SECP_TRY_APPEND_CFLAGS([-Wno-overlength-strings], $1) # GCC >= 4.2, -Woverlength-strings is implied by -pedantic.
+      SECP_TRY_APPEND_CFLAGS([-Wall], $1) # GCC >= 2.95 and probably many other compilers
+      SECP_TRY_APPEND_CFLAGS([-Wno-unused-function], $1) # GCC >= 3.0, -Wunused-function is implied by -Wall.
+      SECP_TRY_APPEND_CFLAGS([-Wextra], $1) # GCC >= 3.4, this is the newer name of -W, which we don't use because older GCCs will warn about unused functions.
+      SECP_TRY_APPEND_CFLAGS([-Wcast-align], $1) # GCC >= 2.95
+      SECP_TRY_APPEND_CFLAGS([-Wcast-align=strict], $1) # GCC >= 8.0
+      SECP_TRY_APPEND_CFLAGS([-Wconditional-uninitialized], $1) # Clang >= 3.0 only
+      SECP_TRY_APPEND_CFLAGS([-Wreserved-identifier], $1) # Clang >= 13.0 only
+      SECP_TRY_APPEND_CFLAGS([-fvisibility=hidden], $1) # GCC >= 4.0
+
+      CFLAGS="$SECP_TRY_APPEND_DEFAULT_CFLAGS_saved_CFLAGS"
+>>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
     fi
     use_hardening=no
     AX_CHECK_COMPILE_FLAG([-pg],[GPROF_CXXFLAGS="-pg"],
@@ -1004,6 +1067,7 @@ fi
 
 AC_CHECK_HEADERS([endian.h sys/endian.h byteswap.h sys/select.h sys/prctl.h sys/sysctl.h vm/vm_param.h sys/vmmeter.h sys/resources.h])
 
+<<<<<<< HEAD
 AC_CHECK_DECLS([getifaddrs, freeifaddrs],[CHECK_SOCKET],,
     [#include <sys/types.h>
     #include <ifaddrs.h>]
@@ -1090,6 +1154,21 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE([
     AC_MSG_RESULT([no])
     if test "$use_reduce_exports" = "yes"; then
       AC_MSG_ERROR([Cannot find a working visibility attribute. Use --disable-reduce-exports.])
+=======
+    # MSVC
+    # Assume MSVC if we're building for Windows but not with GCC or compatible;
+    # libtool makes the same assumption internally.
+    # Note that "/opt" and "-opt" are equivalent for MSVC; we use "-opt" because "/opt" looks like a path.
+    if test x"$GCC" != x"yes" && test x"$build_windows" = x"yes"; then
+      SECP_TRY_APPEND_CFLAGS([-W2 -wd4146], $1) # Moderate warning level, disable warning C4146 "unary minus operator applied to unsigned type, result still unsigned"
+      SECP_TRY_APPEND_CFLAGS([-external:anglebrackets -external:W0], $1) # Suppress warnings from #include <...> files
+      # We pass -ignore:4217 to the MSVC linker to suppress warning 4217 when
+      # importing variables from a statically linked secp256k1.
+      # (See the libtool manual, section "Windows DLLs" for background.)
+      # Unfortunately, libtool tries to be too clever and strips "-Xlinker arg"
+      # into "arg", so this will be " -Xlinker -ignore:4217" after stripping.
+      LDFLAGS="-Xlinker -Xlinker -Xlinker -ignore:4217 $LDFLAGS" 
+>>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
     fi
   ]
 )
@@ -1171,6 +1250,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <unistd.h>
  [ AC_MSG_RESULT([no])]
 )
 
+<<<<<<< HEAD
 AC_MSG_CHECKING([for getentropy via random.h])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <unistd.h>
  #include <sys/random.h>]],
@@ -1324,6 +1404,88 @@ if test "$enable_fuzz" = "yes"; then
   enable_fuzz_binary=yes
 
   AX_CHECK_PREPROC_FLAG([-DABORT_ON_FAILED_ASSUME], [DEBUG_CPPFLAGS="$DEBUG_CPPFLAGS -DABORT_ON_FAILED_ASSUME"], [], [$CXXFLAG_WERROR])
+=======
+AC_ARG_ENABLE(tests,
+    AS_HELP_STRING([--enable-tests],[compile tests [default=yes]]), [],
+    [SECP_SET_DEFAULT([enable_tests], [yes], [yes])])
+
+AC_ARG_ENABLE(ctime_tests,
+    AS_HELP_STRING([--enable-ctime-tests],[compile constant-time tests [default=yes if valgrind enabled]]), [],
+    [SECP_SET_DEFAULT([enable_ctime_tests], [auto], [auto])])
+
+AC_ARG_ENABLE(experimental,
+    AS_HELP_STRING([--enable-experimental],[allow experimental configure options [default=no]]), [],
+    [SECP_SET_DEFAULT([enable_experimental], [no], [yes])])
+
+AC_ARG_ENABLE(exhaustive_tests,
+    AS_HELP_STRING([--enable-exhaustive-tests],[compile exhaustive tests [default=yes]]), [],
+    [SECP_SET_DEFAULT([enable_exhaustive_tests], [yes], [yes])])
+
+AC_ARG_ENABLE(examples,
+    AS_HELP_STRING([--enable-examples],[compile the examples [default=no]]), [],
+    [SECP_SET_DEFAULT([enable_examples], [no], [yes])])
+
+AC_ARG_ENABLE(module_ecdh,
+    AS_HELP_STRING([--enable-module-ecdh],[enable ECDH module [default=yes]]), [],
+    [SECP_SET_DEFAULT([enable_module_ecdh], [yes], [yes])])
+
+AC_ARG_ENABLE(module_recovery,
+    AS_HELP_STRING([--enable-module-recovery],[enable ECDSA pubkey recovery module [default=no]]), [],
+    [SECP_SET_DEFAULT([enable_module_recovery], [no], [yes])])
+
+AC_ARG_ENABLE(module_extrakeys,
+    AS_HELP_STRING([--enable-module-extrakeys],[enable extrakeys module [default=yes]]), [],
+    [SECP_SET_DEFAULT([enable_module_extrakeys], [yes], [yes])])
+
+AC_ARG_ENABLE(module_schnorrsig,
+    AS_HELP_STRING([--enable-module-schnorrsig],[enable schnorrsig module [default=yes]]), [],
+    [SECP_SET_DEFAULT([enable_module_schnorrsig], [yes], [yes])])
+
+AC_ARG_ENABLE(external_default_callbacks,
+    AS_HELP_STRING([--enable-external-default-callbacks],[enable external default callback functions [default=no]]), [],
+    [SECP_SET_DEFAULT([enable_external_default_callbacks], [no], [no])])
+
+# Test-only override of the (autodetected by the C code) "widemul" setting.
+# Legal values are:
+#  * int64 (for [u]int64_t),
+#  * int128 (for [unsigned] __int128),
+#  * int128_struct (for int128 implemented as a structure),
+#  *  and auto (the default).
+AC_ARG_WITH([test-override-wide-multiply], [] ,[set_widemul=$withval], [set_widemul=auto])
+
+AC_ARG_WITH([asm], [AS_HELP_STRING([--with-asm=x86_64|arm|no|auto],
+[assembly optimizations to use (experimental: arm) [default=auto]])],[req_asm=$withval], [req_asm=auto])
+
+AC_ARG_WITH([ecmult-window], [AS_HELP_STRING([--with-ecmult-window=SIZE|auto],
+[window size for ecmult precomputation for verification, specified as integer in range [2..24].]
+[Larger values result in possibly better performance at the cost of an exponentially larger precomputed table.]
+[The table will store 2^(SIZE-1) * 64 bytes of data but can be larger in memory due to platform-specific padding and alignment.]
+[A window size larger than 15 will require you delete the prebuilt precomputed_ecmult.c file so that it can be rebuilt.]
+[For very large window sizes, use "make -j 1" to reduce memory use during compilation.]
+["auto" is a reasonable setting for desktop machines (currently 15). [default=auto]]
+)],
+[req_ecmult_window=$withval], [req_ecmult_window=auto])
+
+AC_ARG_WITH([ecmult-gen-precision], [AS_HELP_STRING([--with-ecmult-gen-precision=2|4|8|auto],
+[Precision bits to tune the precomputed table size for signing.]
+[The size of the table is 32kB for 2 bits, 64kB for 4 bits, 512kB for 8 bits of precision.]
+[A larger table size usually results in possible faster signing.]
+["auto" is a reasonable setting for desktop machines (currently 4). [default=auto]]
+)],
+[req_ecmult_gen_precision=$withval], [req_ecmult_gen_precision=auto])
+
+AC_ARG_WITH([valgrind], [AS_HELP_STRING([--with-valgrind=yes|no|auto],
+[Build with extra checks for running inside Valgrind [default=auto]]
+)],
+[req_valgrind=$withval], [req_valgrind=auto])
+
+###
+### Handle config options (except for modules)
+###
+
+if test x"$req_valgrind" = x"no"; then
+  enable_valgrind=no
+>>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 else
   BGL_QT_INIT
 
@@ -1457,9 +1619,21 @@ if test "$use_natpmp" != "no"; then
                    [have_natpmp=no])
   CPPFLAGS="$TEMP_CPPFLAGS"
 fi
+<<<<<<< HEAD
 
 if test "$build_BGL_wallet$build_BGL_cli$build_BGL_tx$build_BGL_util$build_BGLd$BGL_enable_qt$use_tests$use_bench$enable_fuzz_binary" = "nonononononononono"; then
   use_boost=no
+=======
+
+if test x"$enable_ctime_tests" = x"auto"; then
+    enable_ctime_tests=$enable_valgrind
+fi
+
+if test x"$enable_coverage" = x"yes"; then
+    SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DCOVERAGE=1"
+    SECP_CFLAGS="-O0 --coverage $SECP_CFLAGS"
+    LDFLAGS="--coverage $LDFLAGS"
+>>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 else
   use_boost=yes
 fi
@@ -1564,6 +1738,7 @@ dnl sandboxing mechanisms besides seccomp.
 use_syscall_sandbox=$seccomp_found
 AM_CONDITIONAL([ENABLE_SYSCALL_SANDBOX], [test "$use_syscall_sandbox" != "no"])
 
+<<<<<<< HEAD
 dnl Check for reduced exports
 if test "$use_reduce_exports" = "yes"; then
   AX_CHECK_COMPILE_FLAG([-fvisibility=hidden], [CORE_CXXFLAGS="$CORE_CXXFLAGS -fvisibility=hidden"],
@@ -1576,10 +1751,29 @@ if test "$use_tests" = "yes"; then
   if test "$HEXDUMP" = ""; then
     AC_MSG_ERROR([hexdump is required for tests])
   fi
+=======
+case $set_asm in
+x86_64)
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DUSE_ASM_X86_64=1"
+  ;;
+arm)
+  enable_external_asm=yes
+  ;;
+no)
+  ;;
+*)
+  AC_MSG_ERROR([invalid assembly optimizations])
+  ;;
+esac
+
+if test x"$enable_external_asm" = x"yes"; then
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DUSE_EXTERNAL_ASM=1"
+>>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 fi
 
 dnl libevent check
 
+<<<<<<< HEAD
 use_libevent=no
 if test "$build_BGL_cli$build_BGLd$BGL_enable_qt$enable_fuzz_binary$use_tests$use_bench" != "nononononono"; then
   PKG_CHECK_MODULES([EVENT], [libevent >= 2.1.8], [use_libevent=yes], [AC_MSG_ERROR([libevent version 2.1.8 or greater not found.])])
@@ -1613,6 +1807,25 @@ if test x$use_libevent = xyes; then
 fi
 
 dnl QR Code encoding library check
+=======
+# Select wide multiplication implementation
+case $set_widemul in
+int128_struct)
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DUSE_FORCE_WIDEMUL_INT128_STRUCT=1"
+  ;;
+int128)
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DUSE_FORCE_WIDEMUL_INT128=1"
+  ;;
+int64)
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DUSE_FORCE_WIDEMUL_INT64=1"
+  ;;
+auto)
+  ;;
+*)
+  AC_MSG_ERROR([invalid wide multiplication implementation])
+  ;;
+esac
+>>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 
 if test "$use_qr" != "no"; then
   BGL_QT_CHECK([PKG_CHECK_MODULES([QR], [libqrencode], [have_qrencode=yes], [have_qrencode=no])])
@@ -1630,6 +1843,7 @@ else
   AC_DEFINE_UNQUOTED([ENABLE_ZMQ], [0], [Define to 1 to enable ZMQ functions])
 fi
 
+<<<<<<< HEAD
 if test "$use_zmq" = "yes"; then
   dnl Assume libzmq was built for static linking
   case $host in
@@ -1640,6 +1854,22 @@ if test "$use_zmq" = "yes"; then
 fi
 
 dnl libmultiprocess library check
+=======
+error_window_size=['window size for ecmult precomputation not an integer in range [2..24] or "auto"']
+case $set_ecmult_window in
+''|*[[!0-9]]*)
+  # no valid integer
+  AC_MSG_ERROR($error_window_size)
+  ;;
+*)
+  if test "$set_ecmult_window" -lt 2 -o "$set_ecmult_window" -gt 24 ; then
+    # not in range
+    AC_MSG_ERROR($error_window_size)
+  fi
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DECMULT_WINDOW_SIZE=$set_ecmult_window"
+  ;;
+esac
+>>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 
 libmultiprocess_found=no
 if test "$with_libmultiprocess" = "yes" || test "$with_libmultiprocess" = "auto"; then
@@ -1664,6 +1894,7 @@ else
   build_multiprocess=no
 fi
 
+<<<<<<< HEAD
 AM_CONDITIONAL([BUILD_MULTIPROCESS], [test "$build_multiprocess" = "yes"])
 AM_CONDITIONAL([BUILD_BGL_NODE], [test "$build_multiprocess" = "yes"])
 AM_CONDITIONAL([BUILD_BGL_GUI], [test "$build_multiprocess" = "yes"])
@@ -1714,6 +1945,19 @@ AM_CONDITIONAL([BUILD_BGL_LIBS], [test $build_BGL_libs = "yes"])
 if test "$build_BGL_libs" = "yes"; then
   AC_DEFINE([HAVE_CONSENSUS_LIB], [1], [Define this symbol if the consensus lib has been built])
   AC_CONFIG_FILES([libBGLconsensus.pc:libBGLconsensus.pc.in])
+=======
+case $set_ecmult_gen_precision in
+2|4|8)
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DECMULT_GEN_PREC_BITS=$set_ecmult_gen_precision"
+  ;;
+*)
+  AC_MSG_ERROR(['ecmult gen precision not 2, 4, 8 or "auto"'])
+  ;;
+esac
+
+if test x"$enable_valgrind" = x"yes"; then
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES $VALGRIND_CPPFLAGS -DVALGRIND"
+>>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 fi
 
 AM_CONDITIONAL([BUILD_BGL_KERNEL_LIB], [test "$build_experimental_kernel_lib" != "no" && ( test "$build_experimental_kernel_lib" = "yes" || test "$build_BGL_chainstate" = "yes" )])
@@ -1722,6 +1966,7 @@ AC_MSG_RESULT($build_BGL_libs)
 
 AC_LANG_POP
 
+<<<<<<< HEAD
 if test "$use_ccache" != "no"; then
   AC_MSG_CHECKING([if ccache should be used])
   if test "$CCACHE" = ""; then
@@ -1831,6 +2076,29 @@ if test "$BGL_enable_qt" != "no"; then
   else
     AC_MSG_RESULT([no])
   fi
+=======
+if test x"$enable_module_ecdh" = x"yes"; then
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DENABLE_MODULE_ECDH=1"
+fi
+
+if test x"$enable_module_recovery" = x"yes"; then
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DENABLE_MODULE_RECOVERY=1"
+fi
+
+if test x"$enable_module_schnorrsig" = x"yes"; then
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DENABLE_MODULE_SCHNORRSIG=1"
+  enable_module_extrakeys=yes
+fi
+
+# Test if extrakeys is set after the schnorrsig module to allow the schnorrsig
+# module to set enable_module_extrakeys=yes
+if test x"$enable_module_extrakeys" = x"yes"; then
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DENABLE_MODULE_EXTRAKEYS=1"
+fi
+
+if test x"$enable_external_default_callbacks" = x"yes"; then
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DUSE_EXTERNAL_DEFAULT_CALLBACKS=1"
+>>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 fi
 
 AM_CONDITIONAL([ENABLE_ZMQ], [test "$use_zmq" = "yes"])
@@ -1852,6 +2120,7 @@ AC_MSG_CHECKING([whether to reduce exports])
 if test "$use_reduce_exports" = "yes"; then
   AC_MSG_RESULT([yes])
 else
+<<<<<<< HEAD
   AC_MSG_RESULT([no])
 fi
 
@@ -1991,6 +2260,36 @@ CPPFLAGS="$CPPFLAGS_TEMP"
 
 ac_configure_args="${ac_configure_args} --disable-shared --with-pic --enable-benchmark=no --enable-module-recovery --disable-module-ecdh"
 AC_CONFIG_SUBDIRS([src/secp256k1])
+=======
+  if test x"$set_asm" = x"arm"; then
+    AC_MSG_ERROR([ARM assembly optimization is experimental. Use --enable-experimental to allow.])
+  fi
+fi
+
+###
+### Generate output
+###
+
+AC_CONFIG_FILES([Makefile libsecp256k1.pc])
+AC_SUBST(SECP_CFLAGS)
+AC_SUBST(SECP_CONFIG_DEFINES)
+AM_CONDITIONAL([ENABLE_COVERAGE], [test x"$enable_coverage" = x"yes"])
+AM_CONDITIONAL([USE_TESTS], [test x"$enable_tests" != x"no"])
+AM_CONDITIONAL([USE_CTIME_TESTS], [test x"$enable_ctime_tests" = x"yes"])
+AM_CONDITIONAL([USE_EXHAUSTIVE_TESTS], [test x"$enable_exhaustive_tests" != x"no"])
+AM_CONDITIONAL([USE_EXAMPLES], [test x"$enable_examples" != x"no"])
+AM_CONDITIONAL([USE_BENCHMARK], [test x"$enable_benchmark" = x"yes"])
+AM_CONDITIONAL([ENABLE_MODULE_ECDH], [test x"$enable_module_ecdh" = x"yes"])
+AM_CONDITIONAL([ENABLE_MODULE_RECOVERY], [test x"$enable_module_recovery" = x"yes"])
+AM_CONDITIONAL([ENABLE_MODULE_EXTRAKEYS], [test x"$enable_module_extrakeys" = x"yes"])
+AM_CONDITIONAL([ENABLE_MODULE_SCHNORRSIG], [test x"$enable_module_schnorrsig" = x"yes"])
+AM_CONDITIONAL([USE_EXTERNAL_ASM], [test x"$enable_external_asm" = x"yes"])
+AM_CONDITIONAL([USE_ASM_ARM], [test x"$set_asm" = x"arm"])
+AM_CONDITIONAL([BUILD_WINDOWS], [test "$build_windows" = "yes"])
+AC_SUBST(LIB_VERSION_CURRENT, _LIB_VERSION_CURRENT)
+AC_SUBST(LIB_VERSION_REVISION, _LIB_VERSION_REVISION)
+AC_SUBST(LIB_VERSION_AGE, _LIB_VERSION_AGE)
+>>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 
 AC_OUTPUT
 
@@ -2003,6 +2302,7 @@ case ${OS} in
 esac
 
 echo
+<<<<<<< HEAD
 echo "Options used to compile and link:"
 echo "  external signer = $use_external_signer"
 echo "  multiprocess    = $build_multiprocess"
@@ -2012,6 +2312,26 @@ echo "  with wallet     = $enable_wallet"
 if test "$enable_wallet" != "no"; then
     echo "    with sqlite   = $use_sqlite"
     echo "    with bdb      = $use_bdb"
+=======
+echo "Build Options:"
+echo "  with external callbacks = $enable_external_default_callbacks"
+echo "  with benchmarks         = $enable_benchmark"
+echo "  with tests              = $enable_tests"
+echo "  with ctime tests        = $enable_ctime_tests"
+echo "  with coverage           = $enable_coverage"
+echo "  with examples           = $enable_examples"
+echo "  module ecdh             = $enable_module_ecdh"
+echo "  module recovery         = $enable_module_recovery"
+echo "  module extrakeys        = $enable_module_extrakeys"
+echo "  module schnorrsig       = $enable_module_schnorrsig"
+echo
+echo "  asm                     = $set_asm"
+echo "  ecmult window size      = $set_ecmult_window"
+echo "  ecmult gen prec. bits   = $set_ecmult_gen_precision"
+# Hide test-only options unless they're used.
+if test x"$set_widemul" != xauto; then
+echo "  wide multiplication     = $set_widemul"
+>>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 fi
 echo "  with gui / qt   = $BGL_enable_qt"
 if test $BGL_enable_qt != "no"; then
