@@ -6,9 +6,9 @@
 #ifndef BGL_LOGGING_H
 #define BGL_LOGGING_H
 
-#include <fs.h>
 #include <threadsafety.h>
 #include <tinyformat.h>
+#include <util/fs.h>
 #include <util/string.h>
 
 #include <atomic>

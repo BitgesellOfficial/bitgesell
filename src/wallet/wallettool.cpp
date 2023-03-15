@@ -2,7 +2,13 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <fs.h>
+#if defined(HAVE_CONFIG_H)
+#include <config/BGL-config.h>
+#endif
+
+#include <wallet/wallettool.h>
+
+#include <util/fs.h>
 #include <util/system.h>
 #include <util/translation.h>
 #include <wallet/dump.h>

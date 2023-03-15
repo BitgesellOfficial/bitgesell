@@ -5,8 +5,8 @@
 #ifndef BGL_WALLET_WALLETUTIL_H
 #define BGL_WALLET_WALLETUTIL_H
 
-#include <fs.h>
 #include <script/descriptor.h>
+#include <util/fs.h>
 
 #include <vector>
 

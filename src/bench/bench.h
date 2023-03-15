@@ -5,7 +5,7 @@
 #ifndef BGL_BENCH_BENCH_H
 #define BGL_BENCH_BENCH_H
 
-#include <fs.h>
+#include <util/fs.h>
 #include <util/macros.h>
 
 #include <chrono>

@@ -5,7 +5,7 @@
 #ifndef BGL_IPC_PROCESS_H
 #define BGL_IPC_PROCESS_H
 
-#include <fs.h>
+#include <util/fs.h>
 
 #include <memory>
 #include <string>

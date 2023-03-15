@@ -5,7 +5,7 @@
 #ifndef BGL_WALLET_DUMP_H
 #define BGL_WALLET_DUMP_H
 
-#include <fs.h>
+#include <util/fs.h>
 
 #include <string>
 #include <vector>
