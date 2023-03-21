@@ -21,10 +21,10 @@
 #define COPYRIGHT_HOLDERS "The %s developers"
 
 /* Copyright holder(s) */
-#define COPYRIGHT_HOLDERS_FINAL "The BGL Core developers / BGL Core developers"
+#define COPYRIGHT_HOLDERS_FINAL "The Bitcoin Core developers / Bitcoin Core developers"
 
 /* Replacement for %s in copyright holders string */
-#define COPYRIGHT_HOLDERS_SUBSTITUTION "BGL Core"
+#define COPYRIGHT_HOLDERS_SUBSTITUTION "Bitcoin Core"
 
 /* Copyright year */
 #define COPYRIGHT_YEAR 2021
@@ -174,16 +174,16 @@
 #define HAVE_SYS_TYPES_H 1
 
 /* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "https://github.com/BGL/BGL/issues"
+#define PACKAGE_BUGREPORT "https://github.com/bitcoin/bitcoin/issues"
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "BGL Core"
+#define PACKAGE_NAME "Bitgesell Core"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "BGL Core 22.99.0"
+#define PACKAGE_STRING "Bitgesell Core 22.99.0"
 
 /* Define to the home page for this package. */
-#define PACKAGE_URL "https://BGLcore.org/"
+#define PACKAGE_URL "https://github.com/BitgesellOfficial/bitgesell/releases/"
 
 /* Define to the version of this package. */
 #define PACKAGE_VERSION "22.99.0"

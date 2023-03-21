@@ -21,7 +21,7 @@ libBGL_zmq/libBGL_zmq.vcxproj
 bench_BGL/bench_BGL.vcxproj
 libtest_util/libtest_util.vcxproj
 
-/bitcoin_config.h
+/BGL_config.h
 /common.init.vcxproj
 
 */Win32
