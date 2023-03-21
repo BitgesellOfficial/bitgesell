@@ -5,9 +5,14 @@
 """Test various command line arguments and configuration file parameters."""
 
 import os
+import pathlib
+import re
+import sys
+import tempfile
 import time
 
 from test_framework.test_framework import BGLTestFramework
+from test_framework.test_node import ErrorMatch
 from test_framework import util
 
 
@@ -75,7 +80,7 @@ class ConfArgsTest(BGLTestFramework):
         with open(inc_conf_file_path, 'w', encoding='utf-8') as conf:
             conf.write('regtest=0\n') # mainnet
             conf.write('acceptnonstdtxn=1\n')
-        self.nodes[0].assert_start_raises_init_error(extra_args=[f"-conf={main_conf_file_path}"], expected_msg='Error: acceptnonstdtxn is not currently supported for main chain')
+        self.nodes[0].assert_start_raises_init_error(extra_args=[f"-conf={main_conf_file_path}", "-allowignoredconf"], expected_msg='Error: acceptnonstdtxn is not currently supported for main chain')
 
         with open(inc_conf_file_path, 'w', encoding='utf-8') as conf:
             conf.write('nono\n')
@@ -252,6 +257,86 @@ class ConfArgsTest(BGLTestFramework):
         ]):
             self.nodes[0].setmocktime(start + 65)
 
+    def test_connect_with_seednode(self):
+        self.log.info('Test -connect with -seednode')
+        seednode_ignored = ['-seednode is ignored when -connect is used\n']
+        dnsseed_ignored = ['-dnsseed is ignored when -connect is used and -proxy is specified\n']
+        addcon_thread_started = ['addcon thread start\n']
+        self.stop_node(0)
+
+        # When -connect is supplied, expanding addrman via getaddr calls to ADDR_FETCH(-seednode)
+        # nodes is irrelevant and -seednode is ignored.
+        with self.nodes[0].assert_debug_log(expected_msgs=seednode_ignored):
+            self.start_node(0, extra_args=['-connect=fakeaddress1', '-seednode=fakeaddress2'])
+
+        # With -proxy, an ADDR_FETCH connection is made to a peer that the dns seed resolves to.
+        # ADDR_FETCH connections are not used when -connect is used.
+        with self.nodes[0].assert_debug_log(expected_msgs=dnsseed_ignored):
+            self.restart_node(0, extra_args=['-connect=fakeaddress1', '-dnsseed=1', '-proxy=1.2.3.4'])
+
+        # If the user did not disable -dnsseed, but it was soft-disabled because they provided -connect,
+        # they shouldn't see a warning about -dnsseed being ignored.
+        with self.nodes[0].assert_debug_log(expected_msgs=addcon_thread_started,
+                unexpected_msgs=dnsseed_ignored):
+            self.restart_node(0, extra_args=['-connect=fakeaddress1', '-proxy=1.2.3.4'])
+
+        # We have to supply expected_msgs as it's a required argument
+        # The expected_msg must be something we are confident will be logged after the unexpected_msg
+        # These cases test for -connect being supplied but only to disable it
+        for connect_arg in ['-connect=0', '-noconnect']:
+            with self.nodes[0].assert_debug_log(expected_msgs=addcon_thread_started,
+                    unexpected_msgs=seednode_ignored):
+                self.restart_node(0, extra_args=[connect_arg, '-seednode=fakeaddress2'])
+
+    def test_ignored_conf(self):
+        self.log.info('Test error is triggered when the datadir in use contains a bitcoin.conf file that would be ignored '
+                      'because a conflicting -conf file argument is passed.')
+        node = self.nodes[0]
+        with tempfile.NamedTemporaryFile(dir=self.options.tmpdir, mode="wt", delete=False) as temp_conf:
+            temp_conf.write(f"datadir={node.datadir}\n")
+        node.assert_start_raises_init_error([f"-conf={temp_conf.name}"], re.escape(
+            f'Error: Data directory "{node.datadir}" contains a "bitcoin.conf" file which is ignored, because a '
+            f'different configuration file "{temp_conf.name}" from command line argument "-conf={temp_conf.name}" '
+            f'is being used instead.') + r"[\s\S]*", match=ErrorMatch.FULL_REGEX)
+
+        # Test that passing a redundant -conf command line argument pointing to
+        # the same bitcoin.conf that would be loaded anyway does not trigger an
+        # error.
+        self.start_node(0, [f'-conf={node.datadir}/bitcoin.conf'])
+        self.stop_node(0)
+
+    def test_ignored_default_conf(self):
+        # Disable this test for windows currently because trying to override
+        # the default datadir through the environment does not seem to work.
+        if sys.platform == "win32":
+            return
+
+        self.log.info('Test error is triggered when bitcoin.conf in the default data directory sets another datadir '
+                      'and it contains a different bitcoin.conf file that would be ignored')
+
+        # Create a temporary directory that will be treated as the default data
+        # directory by bitcoind.
+        env, default_datadir = util.get_temp_default_datadir(pathlib.Path(self.options.tmpdir, "home"))
+        default_datadir.mkdir(parents=True)
+
+        # Write a bitcoin.conf file in the default data directory containing a
+        # datadir= line pointing at the node datadir. This will trigger a
+        # startup error because the node datadir contains a different
+        # bitcoin.conf that would be ignored.
+        node = self.nodes[0]
+        (default_datadir / "bitcoin.conf").write_text(f"datadir={node.datadir}\n")
+
+        # Drop the node -datadir= argument during this test, because if it is
+        # specified it would take precedence over the datadir setting in the
+        # config file.
+        node_args = node.args
+        node.args = [arg for arg in node.args if not arg.startswith("-datadir=")]
+        node.assert_start_raises_init_error([], re.escape(
+            f'Error: Data directory "{node.datadir}" contains a "bitcoin.conf" file which is ignored, because a '
+            f'different configuration file "{default_datadir}/bitcoin.conf" from data directory "{default_datadir}" '
+            f'is being used instead.') + r"[\s\S]*", env=env, match=ErrorMatch.FULL_REGEX)
+        node.args = node_args
+
     def run_test(self):
         self.test_log_buffer()
         self.test_args_log()
@@ -260,6 +345,8 @@ class ConfArgsTest(BGLTestFramework):
 
         self.test_config_file_parser()
         self.test_invalid_command_line_options()
+        self.test_ignored_conf()
+        self.test_ignored_default_conf()
 
         # Remove the -datadir argument so it doesn't override the config file
         self.nodes[0].args = [arg for arg in self.nodes[0].args if not arg.startswith("-datadir")]
