@@ -118,8 +118,14 @@ task:
   << : *CAT_LOGS
 
 task:
-  name: "i686: Linux (Debian stable)"
-  << : *LINUX_CONTAINER
+  name: 'tidy [bookworm]'
+  << : *GLOBAL_TASK_TEMPLATE
+  container:
+    image: debian:bookworm
+    cpu: 2
+    memory: 5G
+  # For faster CI feedback, immediately schedule the linters
+  << : *CREDITS_TEMPLATE
   env:
     HOST: i686-linux-gnu
     ECDH: yes

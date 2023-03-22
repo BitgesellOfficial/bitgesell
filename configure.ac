@@ -1,17 +1,3 @@
-<<<<<<< HEAD
-AC_PREREQ([2.69])
-define(_CLIENT_VERSION_MAJOR, 0)
-define(_CLIENT_VERSION_MINOR, 1)
-define(_CLIENT_VERSION_BUILD, 10)
-define(_CLIENT_VERSION_RC, 0)
-define(_CLIENT_VERSION_IS_RELEASE, true)
-define(_COPYRIGHT_YEAR, 2023)
-define(_COPYRIGHT_HOLDERS,[The %s developers])
-define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[BGL Core]])
-AC_INIT([Bitgesell Core],m4_join([.], _CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MINOR, _CLIENT_VERSION_BUILD)m4_if(_CLIENT_VERSION_RC, [0], [], [rc]_CLIENT_VERSION_RC),[https://github.com/bitgesellofficial/bitgesell/issues],[BGL],[https://github.com/BitgesellOfficial/bitgesell/releases/])
-AC_CONFIG_SRCDIR([src/validation.cpp])
-AC_CONFIG_HEADERS([src/config/BGL-config.h])
-=======
 AC_PREREQ([2.60])
 
 # The package (a.k.a. release) version is based on semantic versioning 2.0.0 of
@@ -33,7 +19,6 @@ define(_LIB_VERSION_AGE, 0)
 
 AC_INIT([libsecp256k1],m4_join([.], _PKG_VERSION_MAJOR, _PKG_VERSION_MINOR, _PKG_VERSION_PATCH)m4_if(_PKG_VERSION_IS_RELEASE, [true], [], [-dev]),[https://github.com/bitcoin-core/secp256k1/issues],[libsecp256k1],[https://github.com/bitcoin-core/secp256k1])
 
->>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 
@@ -857,101 +842,6 @@ case $host in
      ;;
 esac
 
-<<<<<<< HEAD
-if test "$use_extended_functional_tests" != "no"; then
-  AC_SUBST(EXTENDED_FUNCTIONAL_TESTS, --extended)
-fi
-
-if test "$use_lcov" = "yes"; then
-  if test "$LCOV" = ""; then
-    AC_MSG_ERROR([lcov testing requested but lcov not found])
-  fi
-  if test "$PYTHON" = ""; then
-    AC_MSG_ERROR([lcov testing requested but python not found])
-  fi
-  if test "$GENHTML" = ""; then
-    AC_MSG_ERROR([lcov testing requested but genhtml not found])
-  fi
-
-  AC_MSG_CHECKING([whether compiler is Clang])
-  AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
-      #if defined(__clang__) && defined(__llvm__)
-      // Compiler is Clang
-      #else
-      #  error Compiler is not Clang
-      #endif
-    ]])],[
-      AC_MSG_RESULT([yes])
-      if test "$LLVM_COV" = ""; then
-        AC_MSG_ERROR([lcov testing requested but llvm-cov not found])
-      fi
-      COV_TOOL="$LLVM_COV gcov"
-    ],[
-      AC_MSG_RESULT([no])
-      if test "$GCOV" = "x"; then
-        AC_MSG_ERROR([lcov testing requested but gcov not found])
-      fi
-      COV_TOOL="$GCOV"
-  ])
-  AC_SUBST(COV_TOOL)
-  AC_SUBST(COV_TOOL_WRAPPER, "cov_tool_wrapper.sh")
-  LCOV="$LCOV --gcov-tool $(pwd)/$COV_TOOL_WRAPPER"
-
-  AX_CHECK_LINK_FLAG([--coverage], [CORE_LDFLAGS="$CORE_LDFLAGS --coverage"],
-    [AC_MSG_ERROR([lcov testing requested but --coverage linker flag does not work])])
-  AX_CHECK_COMPILE_FLAG([--coverage],[CORE_CXXFLAGS="$CORE_CXXFLAGS --coverage"],
-    [AC_MSG_ERROR([lcov testing requested but --coverage flag does not work])])
-  dnl If coverage is enabled, and the user hasn't overridden CXXFLAGS, clear
-  dnl them, to prevent autoconfs "-g -O2" being added. Otherwise we'd end up
-  dnl with "--coverage -Og -O0 -g -O2".
-  if test "$CXXFLAGS_overridden" = "no"; then
-  CXXFLAGS=""
-  fi
-  CORE_CXXFLAGS="$CORE_CXXFLAGS -Og -O0"
-fi
-
-if test "$use_lcov_branch" != "no"; then
-  AC_SUBST(LCOV_OPTS, "$LCOV_OPTS --rc lcov_branch_coverage=1")
-fi
-
-dnl Check for endianness
-AC_C_BIGENDIAN
-
-dnl Check for pthread compile/link requirements
-AX_PTHREAD
-
-dnl Check if -latomic is required for <std::atomic>
-CHECK_ATOMIC
-
-dnl The following macro will add the necessary defines to BGL-config.h, but
-dnl they also need to be passed down to any subprojects. Pull the results out of
-dnl the cache and add them to CPPFLAGS.
-AC_SYS_LARGEFILE
-dnl detect POSIX or GNU variant of strerror_r
-AC_FUNC_STRERROR_R
-
-if test "$ac_cv_sys_file_offset_bits" != "" &&
-   test "$ac_cv_sys_file_offset_bits" != "no" &&
-   test "$ac_cv_sys_file_offset_bits" != "unknown"; then
-  CORE_CPPFLAGS="$CORE_CPPFLAGS -D_FILE_OFFSET_BITS=$ac_cv_sys_file_offset_bits"
-fi
-
-if test "$ac_cv_sys_large_files" != "" &&
-   test "$ac_cv_sys_large_files" != "no" &&
-   test "$ac_cv_sys_large_files" != "unknown"; then
-  CORE_CPPFLAGS="$CORE_CPPFLAGS -D_LARGE_FILES=$ac_cv_sys_large_files"
-fi
-
-AC_SEARCH_LIBS([clock_gettime],[rt])
-
-if test "$enable_gprof" = "yes"; then
-    dnl -pg is incompatible with -pie. Since hardening and profiling together doesn't make sense,
-    dnl we simply make them mutually exclusive here. Additionally, hardened toolchains may force
-    dnl -pie by default, in which case it needs to be turned off with -no-pie.
-
-    if test "$use_hardening" = "yes"; then
-        AC_MSG_ERROR([gprof profiling is not compatible with hardening. Reconfigure with --disable-hardening or --disable-gprof])
-=======
 # Try if some desirable compiler flags are supported and append them to SECP_CFLAGS.
 #
 # These are our own flags, so we append them to our own SECP_CFLAGS variable (instead of CFLAGS) as
@@ -988,7 +878,6 @@ AC_DEFUN([SECP_TRY_APPEND_DEFAULT_CFLAGS], [
       SECP_TRY_APPEND_CFLAGS([-fvisibility=hidden], $1) # GCC >= 4.0
 
       CFLAGS="$SECP_TRY_APPEND_DEFAULT_CFLAGS_saved_CFLAGS"
->>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
     fi
     use_hardening=no
     AX_CHECK_COMPILE_FLAG([-pg],[GPROF_CXXFLAGS="-pg"],
@@ -1067,94 +956,6 @@ fi
 
 AC_CHECK_HEADERS([endian.h sys/endian.h byteswap.h sys/select.h sys/prctl.h sys/sysctl.h vm/vm_param.h sys/vmmeter.h sys/resources.h])
 
-<<<<<<< HEAD
-AC_CHECK_DECLS([getifaddrs, freeifaddrs],[CHECK_SOCKET],,
-    [#include <sys/types.h>
-    #include <ifaddrs.h>]
-)
-
-dnl These are used for daemonization in BGLd
-AC_CHECK_DECLS([fork])
-AC_CHECK_DECLS([setsid])
-
-AC_CHECK_DECLS([pipe2])
-
-AC_CHECK_FUNCS([timingsafe_bcmp])
-
-AC_CHECK_DECLS([le16toh, le32toh, le64toh, htole16, htole32, htole64, be16toh, be32toh, be64toh, htobe16, htobe32, htobe64],,,
-    [#if HAVE_ENDIAN_H
-                 #include <endian.h>
-                 #elif HAVE_SYS_ENDIAN_H
-                 #include <sys/endian.h>
-                 #endif])
-
-AC_CHECK_DECLS([bswap_16, bswap_32, bswap_64],,,
-    [#if HAVE_BYTESWAP_H
-                 #include <byteswap.h>
-                 #endif])
-
-AC_MSG_CHECKING([for __builtin_clzl])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[ ]], [[
- (void) __builtin_clzl(0);
-  ]])],
- [ AC_MSG_RESULT([yes]); have_clzl=yes; AC_DEFINE([HAVE_BUILTIN_CLZL], [1], [Define this symbol if you have __builtin_clzl])],
- [ AC_MSG_RESULT([no]); have_clzl=no;]
-)
-
-AC_MSG_CHECKING([for __builtin_clzll])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[ ]], [[
-  (void) __builtin_clzll(0);
-  ]])],
- [ AC_MSG_RESULT([yes]); have_clzll=yes; AC_DEFINE([HAVE_BUILTIN_CLZLL], [1], [Define this symbol if you have __builtin_clzll])],
- [ AC_MSG_RESULT([no]); have_clzll=no;]
-)
-
-dnl Check for malloc_info (for memory statistics information in getmemoryinfo)
-AC_MSG_CHECKING([for getmemoryinfo])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <malloc.h>]],
- [[ int f = malloc_info(0, NULL); ]])],
- [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_MALLOC_INFO], [1], [Define this symbol if you have malloc_info]) ],
- [ AC_MSG_RESULT([no])]
-)
-
-dnl Check for mallopt(M_ARENA_MAX) (to set glibc arenas)
-AC_MSG_CHECKING([for mallopt M_ARENA_MAX])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <malloc.h>]],
- [[ mallopt(M_ARENA_MAX, 1); ]])],
- [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_MALLOPT_ARENA_MAX], [1], [Define this symbol if you have mallopt with M_ARENA_MAX]) ],
- [ AC_MSG_RESULT([no])]
-)
-
-dnl Check for posix_fallocate
-AC_MSG_CHECKING([for posix_fallocate])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-                   // same as in src/util/system.cpp
-                   #ifdef __linux__
-                   #ifdef _POSIX_C_SOURCE
-                   #undef _POSIX_C_SOURCE
-                   #endif
-                   #define _POSIX_C_SOURCE 200112L
-                   #endif // __linux__
-                   #include <fcntl.h>]],
-                   [[ int f = posix_fallocate(0, 0, 0); ]])],
- [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_POSIX_FALLOCATE], [1], [Define this symbol if you have posix_fallocate]) ],
- [ AC_MSG_RESULT([no])]
-)
-
-AC_MSG_CHECKING([for default visibility attribute])
-AC_COMPILE_IFELSE([AC_LANG_SOURCE([
-  int foo(void) __attribute__((visibility("default")));
-  int main(){}
-  ])],
-  [
-    AC_DEFINE([HAVE_DEFAULT_VISIBILITY_ATTRIBUTE], [1], [Define if the visibility attribute is supported.])
-    AC_MSG_RESULT([yes])
-  ],
-  [
-    AC_MSG_RESULT([no])
-    if test "$use_reduce_exports" = "yes"; then
-      AC_MSG_ERROR([Cannot find a working visibility attribute. Use --disable-reduce-exports.])
-=======
     # MSVC
     # Assume MSVC if we're building for Windows but not with GCC or compatible;
     # libtool makes the same assumption internally.
@@ -1168,7 +969,6 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE([
       # Unfortunately, libtool tries to be too clever and strips "-Xlinker arg"
       # into "arg", so this will be " -Xlinker -ignore:4217" after stripping.
       LDFLAGS="-Xlinker -Xlinker -Xlinker -ignore:4217 $LDFLAGS" 
->>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
     fi
   ]
 )
@@ -1250,161 +1050,6 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <unistd.h>
  [ AC_MSG_RESULT([no])]
 )
 
-<<<<<<< HEAD
-AC_MSG_CHECKING([for getentropy via random.h])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <unistd.h>
- #include <sys/random.h>]],
- [[ getentropy(nullptr, 32) ]])],
- [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_GETENTROPY_RAND], [1], [Define this symbol if the BSD getentropy system call is available with sys/random.h]) ],
- [ AC_MSG_RESULT([no])]
-)
-
-AC_MSG_CHECKING([for sysctl])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
-  #include <sys/sysctl.h>]],
- [[ #ifdef __linux__
-    #error "Don't use sysctl on Linux, it's deprecated even when it works"
-    #endif
-    sysctl(nullptr, 2, nullptr, nullptr, nullptr, 0); ]])],
- [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_SYSCTL], [1], [Define this symbol if the BSD sysctl() is available]) ],
- [ AC_MSG_RESULT([no])]
-)
-
-AC_MSG_CHECKING([for sysctl KERN_ARND])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
-  #include <sys/sysctl.h>]],
- [[ #ifdef __linux__
-    #error "Don't use sysctl on Linux, it's deprecated even when it works"
-    #endif
-    static int name[2] = {CTL_KERN, KERN_ARND};
-    sysctl(name, 2, nullptr, nullptr, nullptr, 0); ]])],
- [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_SYSCTL_ARND], [1], [Define this symbol if the BSD sysctl(KERN_ARND) is available]) ],
- [ AC_MSG_RESULT([no])]
-)
-
-AC_MSG_CHECKING([for if type char equals int8_t])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <stdint.h>
-  #include <type_traits>]],
- [[ static_assert(std::is_same<int8_t, char>::value, ""); ]])],
- [ AC_MSG_RESULT([yes]); AC_DEFINE([CHAR_EQUALS_INT8], [1], [Define this symbol if type char equals int8_t]) ],
- [ AC_MSG_RESULT([no])]
-)
-
-AC_MSG_CHECKING([for fdatasync])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <unistd.h>]],
- [[ fdatasync(0); ]])],
- [ AC_MSG_RESULT([yes]); HAVE_FDATASYNC=1 ],
- [ AC_MSG_RESULT([no]); HAVE_FDATASYNC=0 ]
-)
-AC_DEFINE_UNQUOTED([HAVE_FDATASYNC], [$HAVE_FDATASYNC], [Define to 1 if fdatasync is available.])
-
-AC_MSG_CHECKING([for F_FULLFSYNC])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <fcntl.h>]],
- [[ fcntl(0, F_FULLFSYNC, 0); ]])],
- [ AC_MSG_RESULT([yes]); HAVE_FULLFSYNC=1 ],
- [ AC_MSG_RESULT([no]); HAVE_FULLFSYNC=0 ]
-)
-
-AC_MSG_CHECKING([for O_CLOEXEC])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <fcntl.h>]],
- [[ open("", O_CLOEXEC); ]])],
- [ AC_MSG_RESULT([yes]); HAVE_O_CLOEXEC=1 ],
- [ AC_MSG_RESULT([no]); HAVE_O_CLOEXEC=0 ]
-)
-AC_DEFINE_UNQUOTED([HAVE_O_CLOEXEC], [$HAVE_O_CLOEXEC], [Define to 1 if O_CLOEXEC flag is available.])
-
-dnl crc32c platform checks
-AC_MSG_CHECKING([for __builtin_prefetch])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[ ]], [[
-  char data = 0;
-  const char* address = &data;
-  __builtin_prefetch(address, 0, 0);
-  ]])],
- [ AC_MSG_RESULT([yes]); HAVE_BUILTIN_PREFETCH=1 ],
- [ AC_MSG_RESULT([no]); HAVE_BUILTIN_PREFETCH=0 ]
-)
-
-AC_MSG_CHECKING([for _mm_prefetch])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <xmmintrin.h>]], [[
-  char data = 0;
-  const char* address = &data;
-  _mm_prefetch(address, _MM_HINT_NTA);
-  ]])],
- [ AC_MSG_RESULT([yes]); HAVE_MM_PREFETCH=1 ],
- [ AC_MSG_RESULT([no]); HAVE_MM_PREFETCH=0 ]
-)
-
-AC_MSG_CHECKING([for strong getauxval support in the system headers])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-    #include <sys/auxv.h>
-  ]], [[
-    getauxval(AT_HWCAP);
-  ]])],
- [ AC_MSG_RESULT([yes]); HAVE_STRONG_GETAUXVAL=1; AC_DEFINE([HAVE_STRONG_GETAUXVAL], [1], [Define this symbol to build code that uses getauxval)]) ],
- [ AC_MSG_RESULT([no]); HAVE_STRONG_GETAUXVAL=0 ]
-)
-
-have_any_system=no
-AC_MSG_CHECKING([for std::system])
-AC_LINK_IFELSE(
-    [ AC_LANG_PROGRAM(
-        [[ #include <cstdlib> ]],
-        [[ int nErr = std::system(""); ]]
-    )],
-    [ AC_MSG_RESULT([yes]); have_any_system=yes],
-    [ AC_MSG_RESULT([no]) ]
-)
-
-AC_MSG_CHECKING([for ::_wsystem])
-AC_LINK_IFELSE(
-    [ AC_LANG_PROGRAM(
-        [[ #include <stdlib.h> ]],
-        [[ int nErr = ::_wsystem(NULL); ]]
-    )],
-    [ AC_MSG_RESULT([yes]); have_any_system=yes],
-    [ AC_MSG_RESULT([no]) ]
-)
-
-if test "$have_any_system" != "no"; then
-  AC_DEFINE([HAVE_SYSTEM], [1], [Define to 1 if std::system or ::wsystem is available.])
-fi
-
-dnl SUPPRESSED_CPPFLAGS=SUPPRESS_WARNINGS([$SOME_CPPFLAGS])
-dnl Replace -I with -isystem in $SOME_CPPFLAGS to suppress warnings from
-dnl headers from its include directories and return the result.
-dnl See -isystem documentation:
-dnl https://gcc.gnu.org/onlinedocs/gcc/Directory-Options.html
-dnl https://clang.llvm.org/docs/ClangCommandLineReference.html#cmdoption-clang-isystem-directory
-dnl Do not change "-I/usr/include" to "-isystem /usr/include" because that
-dnl is not necessary (/usr/include is already a system directory) and because
-dnl it would break GCC's #include_next.
-AC_DEFUN([SUPPRESS_WARNINGS],
-         [[$(echo $1 |${SED} -E -e 's/(^| )-I/\1-isystem /g' -e 's;-isystem /usr/include/*( |$);-I/usr/include\1;g')]])
-
-dnl enable-fuzz should disable all other targets
-if test "$enable_fuzz" = "yes"; then
-  AC_MSG_WARN([enable-fuzz will disable all other targets and force --enable-fuzz-binary=yes])
-  build_BGL_utils=no
-  build_BGL_cli=no
-  build_BGL_tx=no
-  build_BGL_util=no
-  build_BGL_chainstate=no
-  build_BGL_wallet=no
-  build_BGLd=no
-  build_BGL_libs=no
-  BGL_enable_qt=no
-  BGL_enable_qt_test=no
-  BGL_enable_qt_dbus=no
-  use_bench=no
-  use_tests=no
-  use_external_signer=no
-  use_upnp=no
-  use_natpmp=no
-  use_zmq=no
-  enable_fuzz_binary=yes
-
-  AX_CHECK_PREPROC_FLAG([-DABORT_ON_FAILED_ASSUME], [DEBUG_CPPFLAGS="$DEBUG_CPPFLAGS -DABORT_ON_FAILED_ASSUME"], [], [$CXXFLAG_WERROR])
-=======
 AC_ARG_ENABLE(tests,
     AS_HELP_STRING([--enable-tests],[compile tests [default=yes]]), [],
     [SECP_SET_DEFAULT([enable_tests], [yes], [yes])])
@@ -1485,7 +1130,6 @@ AC_ARG_WITH([valgrind], [AS_HELP_STRING([--with-valgrind=yes|no|auto],
 
 if test x"$req_valgrind" = x"no"; then
   enable_valgrind=no
->>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 else
   BGL_QT_INIT
 
@@ -1619,11 +1263,6 @@ if test "$use_natpmp" != "no"; then
                    [have_natpmp=no])
   CPPFLAGS="$TEMP_CPPFLAGS"
 fi
-<<<<<<< HEAD
-
-if test "$build_BGL_wallet$build_BGL_cli$build_BGL_tx$build_BGL_util$build_BGLd$BGL_enable_qt$use_tests$use_bench$enable_fuzz_binary" = "nonononononononono"; then
-  use_boost=no
-=======
 
 if test x"$enable_ctime_tests" = x"auto"; then
     enable_ctime_tests=$enable_valgrind
@@ -1633,7 +1272,6 @@ if test x"$enable_coverage" = x"yes"; then
     SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DCOVERAGE=1"
     SECP_CFLAGS="-O0 --coverage $SECP_CFLAGS"
     LDFLAGS="--coverage $LDFLAGS"
->>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 else
   use_boost=yes
 fi
@@ -1738,20 +1376,6 @@ dnl sandboxing mechanisms besides seccomp.
 use_syscall_sandbox=$seccomp_found
 AM_CONDITIONAL([ENABLE_SYSCALL_SANDBOX], [test "$use_syscall_sandbox" != "no"])
 
-<<<<<<< HEAD
-dnl Check for reduced exports
-if test "$use_reduce_exports" = "yes"; then
-  AX_CHECK_COMPILE_FLAG([-fvisibility=hidden], [CORE_CXXFLAGS="$CORE_CXXFLAGS -fvisibility=hidden"],
-  [AC_MSG_ERROR([Cannot set hidden symbol visibility. Use --disable-reduce-exports.])], [$CXXFLAG_WERROR])
-  AX_CHECK_LINK_FLAG([-Wl,--exclude-libs,ALL], [RELDFLAGS="-Wl,--exclude-libs,ALL"], [], [$LDFLAG_WERROR])
-fi
-
-if test "$use_tests" = "yes"; then
-
-  if test "$HEXDUMP" = ""; then
-    AC_MSG_ERROR([hexdump is required for tests])
-  fi
-=======
 case $set_asm in
 x86_64)
   SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DUSE_ASM_X86_64=1"
@@ -1768,46 +1392,10 @@ esac
 
 if test x"$enable_external_asm" = x"yes"; then
   SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DUSE_EXTERNAL_ASM=1"
->>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 fi
 
 dnl libevent check
 
-<<<<<<< HEAD
-use_libevent=no
-if test "$build_BGL_cli$build_BGLd$BGL_enable_qt$enable_fuzz_binary$use_tests$use_bench" != "nononononono"; then
-  PKG_CHECK_MODULES([EVENT], [libevent >= 2.1.8], [use_libevent=yes], [AC_MSG_ERROR([libevent version 2.1.8 or greater not found.])])
-  if test "$TARGET_OS" != "windows"; then
-    PKG_CHECK_MODULES([EVENT_PTHREADS], [libevent_pthreads >= 2.1.8], [], [AC_MSG_ERROR([libevent_pthreads version 2.1.8 or greater not found.])])
-  fi
-
-  if test "$suppress_external_warnings" != "no"; then
-    EVENT_CFLAGS=SUPPRESS_WARNINGS($EVENT_CFLAGS)
-  fi
-fi
-
-if test x$use_libevent = xyes; then
-  TEMP_CXXFLAGS="$CXXFLAGS"
-  CXXFLAGS="$CXXFLAGS $EVENT_CFLAGS"
-  AC_MSG_CHECKING([if evhttp_connection_get_peer expects const char**])
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-      #include <cstdint>
-      #include <event2/http.h>
-    ]], [[
-      evhttp_connection *conn = (evhttp_connection *)1;
-      const char *host;
-      uint16_t port;
-
-      evhttp_connection_get_peer(conn, &host, &port);
-    ]])],
-    [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_EVHTTP_CONNECTION_GET_PEER_CONST_CHAR], [1], [Define this symbol if evhttp_connection_get_peer expects const char**]) ],
-    [ AC_MSG_RESULT([no]) ]
-  )
-  CXXFLAGS="$TEMP_CXXFLAGS"
-fi
-
-dnl QR Code encoding library check
-=======
 # Select wide multiplication implementation
 case $set_widemul in
 int128_struct)
@@ -1825,7 +1413,6 @@ auto)
   AC_MSG_ERROR([invalid wide multiplication implementation])
   ;;
 esac
->>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 
 if test "$use_qr" != "no"; then
   BGL_QT_CHECK([PKG_CHECK_MODULES([QR], [libqrencode], [have_qrencode=yes], [have_qrencode=no])])
@@ -1843,18 +1430,6 @@ else
   AC_DEFINE_UNQUOTED([ENABLE_ZMQ], [0], [Define to 1 to enable ZMQ functions])
 fi
 
-<<<<<<< HEAD
-if test "$use_zmq" = "yes"; then
-  dnl Assume libzmq was built for static linking
-  case $host in
-    *mingw*)
-      ZMQ_CFLAGS="$ZMQ_CFLAGS -DZMQ_STATIC"
-    ;;
-  esac
-fi
-
-dnl libmultiprocess library check
-=======
 error_window_size=['window size for ecmult precomputation not an integer in range [2..24] or "auto"']
 case $set_ecmult_window in
 ''|*[[!0-9]]*)
@@ -1869,7 +1444,6 @@ case $set_ecmult_window in
   SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DECMULT_WINDOW_SIZE=$set_ecmult_window"
   ;;
 esac
->>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 
 libmultiprocess_found=no
 if test "$with_libmultiprocess" = "yes" || test "$with_libmultiprocess" = "auto"; then
@@ -1894,58 +1468,6 @@ else
   build_multiprocess=no
 fi
 
-<<<<<<< HEAD
-AM_CONDITIONAL([BUILD_MULTIPROCESS], [test "$build_multiprocess" = "yes"])
-AM_CONDITIONAL([BUILD_BGL_NODE], [test "$build_multiprocess" = "yes"])
-AM_CONDITIONAL([BUILD_BGL_GUI], [test "$build_multiprocess" = "yes"])
-
-dnl codegen tools check
-
-if test "$build_multiprocess" != "no"; then
-  if test "$with_mpgen" = "yes" || test "$with_mpgen" = "auto"; then
-    MPGEN_PREFIX="$libmultiprocess_prefix"
-  elif test "$with_mpgen" != "no"; then
-    MPGEN_PREFIX="$with_mpgen";
-  fi
-  AC_SUBST(MPGEN_PREFIX)
-fi
-
-AC_MSG_CHECKING([whether to build BGLd])
-AM_CONDITIONAL([BUILD_BGLD], [test $build_BGLd = "yes"])
-AC_MSG_RESULT($build_BGLd)
-
-AC_MSG_CHECKING([whether to build BGL-cli])
-AM_CONDITIONAL([BUILD_BGL_CLI], [test $build_BGL_cli = "yes"])
-AC_MSG_RESULT($build_BGL_cli)
-
-AC_MSG_CHECKING([whether to build BGL-tx])
-AM_CONDITIONAL([BUILD_BGL_TX], [test $build_BGL_tx = "yes"])
-AC_MSG_RESULT($build_BGL_tx)
-
-AC_MSG_CHECKING([whether to build BGL-wallet])
-AM_CONDITIONAL([BUILD_BGL_WALLET], [test $build_BGL_wallet = "yes"])
-AC_MSG_RESULT($build_BGL_wallet)
-
-AC_MSG_CHECKING([whether to build BGL-util])
-AM_CONDITIONAL([BUILD_BGL_UTIL], [test $build_BGL_util = "yes"])
-AC_MSG_RESULT($build_BGL_util)
-
-AC_MSG_CHECKING([whether to build experimental BGL-chainstate])
-if test "$build_BGL_chainstate" = "yes"; then
-  if test "$build_experimental_kernel_lib" = "no"; then
-    AC_MSG_ERROR([experimental BGL-chainstate cannot be built without the experimental BGLkernel library. Use --with-experimental-kernel-lib]);
-  fi
-fi
-AM_CONDITIONAL([BUILD_BGL_CHAINSTATE], [test $build_BGL_chainstate = "yes"])
-AC_MSG_RESULT($build_BGL_chainstate)
-
-AC_MSG_CHECKING([whether to build libraries])
-AM_CONDITIONAL([BUILD_BGL_LIBS], [test $build_BGL_libs = "yes"])
-
-if test "$build_BGL_libs" = "yes"; then
-  AC_DEFINE([HAVE_CONSENSUS_LIB], [1], [Define this symbol if the consensus lib has been built])
-  AC_CONFIG_FILES([libBGLconsensus.pc:libBGLconsensus.pc.in])
-=======
 case $set_ecmult_gen_precision in
 2|4|8)
   SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DECMULT_GEN_PREC_BITS=$set_ecmult_gen_precision"
@@ -1957,7 +1479,6 @@ esac
 
 if test x"$enable_valgrind" = x"yes"; then
   SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES $VALGRIND_CPPFLAGS -DVALGRIND"
->>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 fi
 
 AM_CONDITIONAL([BUILD_BGL_KERNEL_LIB], [test "$build_experimental_kernel_lib" != "no" && ( test "$build_experimental_kernel_lib" = "yes" || test "$build_BGL_chainstate" = "yes" )])
@@ -1966,117 +1487,6 @@ AC_MSG_RESULT($build_BGL_libs)
 
 AC_LANG_POP
 
-<<<<<<< HEAD
-if test "$use_ccache" != "no"; then
-  AC_MSG_CHECKING([if ccache should be used])
-  if test "$CCACHE" = ""; then
-    if test "$use_ccache" = "yes"; then
-      AC_MSG_ERROR([ccache not found.]);
-    else
-      use_ccache=no
-    fi
-  else
-    use_ccache=yes
-    CC="$ac_cv_path_CCACHE $CC"
-    CXX="$ac_cv_path_CCACHE $CXX"
-  fi
-  AC_MSG_RESULT($use_ccache)
-  if test "$use_ccache" = "yes"; then
-    AX_CHECK_COMPILE_FLAG([-fdebug-prefix-map=A=B], [DEBUG_CXXFLAGS="$DEBUG_CXXFLAGS -fdebug-prefix-map=\$(abs_top_srcdir)=."], [], [$CXXFLAG_WERROR])
-    AX_CHECK_PREPROC_FLAG([-fmacro-prefix-map=A=B], [DEBUG_CPPFLAGS="$DEBUG_CPPFLAGS -fmacro-prefix-map=\$(abs_top_srcdir)=."], [], [$CXXFLAG_WERROR])
-  fi
-fi
-
-dnl enable wallet
-AC_MSG_CHECKING([if wallet should be enabled])
-if test "$enable_wallet" != "no"; then
-  AC_MSG_RESULT([yes])
-  AC_DEFINE_UNQUOTED([ENABLE_WALLET],[1],[Define to 1 to enable wallet functions])
-  enable_wallet=yes
-
-else
-  AC_MSG_RESULT([no])
-fi
-
-dnl enable upnp support
-AC_MSG_CHECKING([whether to build with support for UPnP])
-if test "$have_miniupnpc" = "no"; then
-  if test "$use_upnp" = "yes"; then
-     AC_MSG_ERROR([UPnP requested but cannot be built. Use --without-miniupnpc])
-  fi
-  AC_MSG_RESULT([no])
-  use_upnp=no
-else
-  if test "$use_upnp" != "no"; then
-    AC_MSG_RESULT([yes])
-    use_upnp=yes
-    AC_DEFINE([USE_UPNP], [1], [Define to 1 if UPnP support should be compiled in.])
-    if test "$TARGET_OS" = "windows"; then
-      MINIUPNPC_CPPFLAGS="$MINIUPNPC_CPPFLAGS -DSTATICLIB -DMINIUPNP_STATICLIB"
-    fi
-  else
-    AC_MSG_RESULT([no])
-  fi
-fi
-
-dnl Enable NAT-PMP support.
-AC_MSG_CHECKING([whether to build with support for NAT-PMP])
-if test "$have_natpmp" = "no"; then
-  if test "$use_natpmp" = "yes"; then
-     AC_MSG_ERROR([NAT-PMP requested but cannot be built. Use --without-natpmp])
-  fi
-  AC_MSG_RESULT([no])
-  use_natpmp=no
-else
-  if test "$use_natpmp" != "no"; then
-    AC_MSG_RESULT([yes])
-    use_natpmp=yes
-    AC_DEFINE([USE_NATPMP], [1], [Define to 1 if UPnP support should be compiled in.])
-    if test "$TARGET_OS" = "windows"; then
-      NATPMP_CPPFLAGS="$NATPMP_CPPFLAGS -DSTATICLIB -DNATPMP_STATICLIB"
-    fi
-  else
-    AC_MSG_RESULT([no])
-  fi
-fi
-
-dnl these are only used when qt is enabled
-BUILD_TEST_QT=""
-if test "$BGL_enable_qt" != "no"; then
-  dnl enable dbus support
-  AC_MSG_CHECKING([whether to build GUI with support for D-Bus])
-  if test "$BGL_enable_qt_dbus" != "no"; then
-    AC_DEFINE([USE_DBUS], [1], [Define if dbus support should be compiled in])
-  fi
-  AC_MSG_RESULT([$BGL_enable_qt_dbus])
-
-  dnl enable qr support
-  AC_MSG_CHECKING([whether to build GUI with support for QR codes])
-  if test "$have_qrencode" = "no"; then
-    if test "$use_qr" = "yes"; then
-      AC_MSG_ERROR([QR support requested but cannot be built. Use --without-qrencode])
-    fi
-    use_qr=no
-  else
-    if test "$use_qr" != "no"; then
-      AC_DEFINE([USE_QRCODE], [1], [Define if QR support should be compiled in])
-      use_qr=yes
-    fi
-  fi
-  AC_MSG_RESULT([$use_qr])
-
-  if test "$XGETTEXT" = ""; then
-    AC_MSG_WARN([xgettext is required to update qt translations])
-  fi
-
-  AC_MSG_CHECKING([whether to build test_BGL-qt])
-  if test "$use_gui_tests$BGL_enable_qt_test" = "yesyes"; then
-    AC_MSG_RESULT([yes])
-    BUILD_TEST_QT="yes"
-  else
-    AC_MSG_RESULT([no])
-  fi
-=======
 if test x"$enable_module_ecdh" = x"yes"; then
   SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DENABLE_MODULE_ECDH=1"
 fi
@@ -2098,7 +1508,6 @@ fi
 
 if test x"$enable_external_default_callbacks" = x"yes"; then
   SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DUSE_EXTERNAL_DEFAULT_CALLBACKS=1"
->>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 fi
 
 AM_CONDITIONAL([ENABLE_ZMQ], [test "$use_zmq" = "yes"])
@@ -2120,147 +1529,6 @@ AC_MSG_CHECKING([whether to reduce exports])
 if test "$use_reduce_exports" = "yes"; then
   AC_MSG_RESULT([yes])
 else
-<<<<<<< HEAD
-  AC_MSG_RESULT([no])
-fi
-
-if test "$build_BGL_wallet$build_BGL_cli$build_BGL_tx$build_BGL_util$build_BGL_libs$build_BGLd$BGL_enable_qt$enable_fuzz_binary$use_bench$use_tests" = "nononononononononono"; then
-  AC_MSG_ERROR([No targets! Please specify at least one of: --with-utils --with-libs --with-daemon --with-gui --enable-fuzz(-binary) --enable-bench or --enable-tests])
-fi
-
-AM_CONDITIONAL([TARGET_DARWIN], [test "$TARGET_OS" = "darwin"])
-AM_CONDITIONAL([BUILD_DARWIN], [test "$BUILD_OS" = "darwin"])
-AM_CONDITIONAL([TARGET_LINUX], [test "$TARGET_OS" = "linux"])
-AM_CONDITIONAL([TARGET_WINDOWS], [test "$TARGET_OS" = "windows"])
-AM_CONDITIONAL([ENABLE_WALLET], [test "$enable_wallet" = "yes"])
-AM_CONDITIONAL([USE_SQLITE], [test "$use_sqlite" = "yes"])
-AM_CONDITIONAL([USE_BDB], [test "$use_bdb" = "yes"])
-AM_CONDITIONAL([ENABLE_TESTS], [test "$BUILD_TEST" = "yes"])
-AM_CONDITIONAL([ENABLE_FUZZ], [test "$enable_fuzz" = "yes"])
-AM_CONDITIONAL([ENABLE_FUZZ_BINARY], [test "$enable_fuzz_binary" = "yes"])
-AM_CONDITIONAL([ENABLE_QT], [test "$BGL_enable_qt" = "yes"])
-AM_CONDITIONAL([ENABLE_QT_TESTS], [test "$BUILD_TEST_QT" = "yes"])
-AM_CONDITIONAL([ENABLE_BENCH], [test "$use_bench" = "yes"])
-AM_CONDITIONAL([USE_QRCODE], [test "$use_qr" = "yes"])
-AM_CONDITIONAL([USE_LCOV], [test "$use_lcov" = "yes"])
-AM_CONDITIONAL([USE_LIBEVENT], [test "$use_libevent" = "yes"])
-AM_CONDITIONAL([HARDEN], [test "$use_hardening" = "yes"])
-AM_CONDITIONAL([ENABLE_SSE42], [test "$enable_sse42" = "yes"])
-AM_CONDITIONAL([ENABLE_SSE41], [test "$enable_sse41" = "yes"])
-AM_CONDITIONAL([ENABLE_AVX2], [test "$enable_avx2" = "yes"])
-AM_CONDITIONAL([ENABLE_X86_SHANI], [test "$enable_x86_shani" = "yes"])
-AM_CONDITIONAL([ENABLE_ARM_CRC], [test "$enable_arm_crc" = "yes"])
-AM_CONDITIONAL([ENABLE_ARM_SHANI], [test "$enable_arm_shani" = "yes"])
-AM_CONDITIONAL([USE_ASM], [test "$use_asm" = "yes"])
-AM_CONDITIONAL([WORDS_BIGENDIAN], [test "$ac_cv_c_bigendian" = "yes"])
-AM_CONDITIONAL([USE_NATPMP], [test "$use_natpmp" = "yes"])
-AM_CONDITIONAL([USE_UPNP], [test "$use_upnp" = "yes"])
-
-dnl for minisketch
-AM_CONDITIONAL([ENABLE_CLMUL], [test "$enable_clmul" = "yes"])
-AM_CONDITIONAL([HAVE_CLZ], [test "$have_clzl$have_clzll" = "yesyes"])
-
-AC_DEFINE([CLIENT_VERSION_MAJOR], [_CLIENT_VERSION_MAJOR], [Major version])
-AC_DEFINE([CLIENT_VERSION_MINOR], [_CLIENT_VERSION_MINOR], [Minor version])
-AC_DEFINE([CLIENT_VERSION_BUILD], [_CLIENT_VERSION_BUILD], [Version Build])
-AC_DEFINE([CLIENT_VERSION_IS_RELEASE], [_CLIENT_VERSION_IS_RELEASE], [Version is release])
-AC_DEFINE([COPYRIGHT_YEAR], [_COPYRIGHT_YEAR], [Copyright year])
-AC_DEFINE([COPYRIGHT_HOLDERS], ["_COPYRIGHT_HOLDERS"], [Copyright holder(s) before %s replacement])
-AC_DEFINE([COPYRIGHT_HOLDERS_SUBSTITUTION], ["_COPYRIGHT_HOLDERS_SUBSTITUTION"], [Replacement for %s in copyright holders string])
-define(_COPYRIGHT_HOLDERS_FINAL, [patsubst(_COPYRIGHT_HOLDERS, [%s], [_COPYRIGHT_HOLDERS_SUBSTITUTION])])
-AC_DEFINE([COPYRIGHT_HOLDERS_FINAL], ["_COPYRIGHT_HOLDERS_FINAL"], [Copyright holder(s)])
-AC_SUBST(CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MAJOR)
-AC_SUBST(CLIENT_VERSION_MINOR, _CLIENT_VERSION_MINOR)
-AC_SUBST(CLIENT_VERSION_BUILD, _CLIENT_VERSION_BUILD)
-AC_SUBST(CLIENT_VERSION_IS_RELEASE, _CLIENT_VERSION_IS_RELEASE)
-AC_SUBST(COPYRIGHT_YEAR, _COPYRIGHT_YEAR)
-AC_SUBST(COPYRIGHT_HOLDERS, "_COPYRIGHT_HOLDERS")
-AC_SUBST(COPYRIGHT_HOLDERS_SUBSTITUTION, "_COPYRIGHT_HOLDERS_SUBSTITUTION")
-AC_SUBST(COPYRIGHT_HOLDERS_FINAL, "_COPYRIGHT_HOLDERS_FINAL")
-AC_SUBST(BGL_DAEMON_NAME)
-AC_SUBST(BGL_GUI_NAME)
-AC_SUBST(BGL_TEST_NAME)
-AC_SUBST(BGL_CLI_NAME)
-AC_SUBST(BGL_TX_NAME)
-AC_SUBST(BGL_UTIL_NAME)
-AC_SUBST(BGL_CHAINSTATE_NAME)
-AC_SUBST(BGL_WALLET_TOOL_NAME)
-AC_SUBST(BGL_MP_NODE_NAME)
-AC_SUBST(BGL_MP_GUI_NAME)
-
-AC_SUBST(RELDFLAGS)
-AC_SUBST(CORE_LDFLAGS)
-AC_SUBST(CORE_CPPFLAGS)
-AC_SUBST(CORE_CXXFLAGS)
-AC_SUBST(DEBUG_CPPFLAGS)
-AC_SUBST(WARN_CXXFLAGS)
-AC_SUBST(NOWARN_CXXFLAGS)
-AC_SUBST(DEBUG_CXXFLAGS)
-AC_SUBST(ERROR_CXXFLAGS)
-AC_SUBST(GPROF_CXXFLAGS)
-AC_SUBST(GPROF_LDFLAGS)
-AC_SUBST(HARDENED_CXXFLAGS)
-AC_SUBST(HARDENED_CPPFLAGS)
-AC_SUBST(HARDENED_LDFLAGS)
-AC_SUBST(LTO_CXXFLAGS)
-AC_SUBST(LTO_LDFLAGS)
-AC_SUBST(PIC_FLAGS)
-AC_SUBST(PIE_FLAGS)
-AC_SUBST(SANITIZER_CXXFLAGS)
-AC_SUBST(SANITIZER_LDFLAGS)
-AC_SUBST(SSE42_CXXFLAGS)
-AC_SUBST(SSE41_CXXFLAGS)
-AC_SUBST(CLMUL_CXXFLAGS)
-AC_SUBST(AVX2_CXXFLAGS)
-AC_SUBST(X86_SHANI_CXXFLAGS)
-AC_SUBST(ARM_CRC_CXXFLAGS)
-AC_SUBST(ARM_SHANI_CXXFLAGS)
-AC_SUBST(LIBTOOL_APP_LDFLAGS)
-AC_SUBST(USE_SQLITE)
-AC_SUBST(USE_BDB)
-AC_SUBST(ENABLE_EXTERNAL_SIGNER)
-AC_SUBST(USE_UPNP)
-AC_SUBST(USE_QRCODE)
-AC_SUBST(TESTDEFS)
-AC_SUBST(MINIUPNPC_CPPFLAGS)
-AC_SUBST(MINIUPNPC_LIBS)
-AC_SUBST(NATPMP_CPPFLAGS)
-AC_SUBST(NATPMP_LIBS)
-AC_SUBST(HAVE_GMTIME_R)
-AC_SUBST(HAVE_FDATASYNC)
-AC_SUBST(HAVE_FULLFSYNC)
-AC_SUBST(HAVE_O_CLOEXEC)
-AC_SUBST(HAVE_BUILTIN_PREFETCH)
-AC_SUBST(HAVE_MM_PREFETCH)
-AC_SUBST(HAVE_STRONG_GETAUXVAL)
-AC_SUBST(ANDROID_ARCH)
-AC_SUBST(HAVE_EVHTTP_CONNECTION_GET_PEER_CONST_CHAR)
-AC_CONFIG_FILES([Makefile src/Makefile doc/man/Makefile share/setup.nsi share/qt/Info.plist test/config.ini])
-AC_CONFIG_FILES([contrib/devtools/split-debug.sh],[chmod +x contrib/devtools/split-debug.sh])
-AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([doc/Doxyfile])])
-AC_CONFIG_LINKS([contrib/devtools/iwyu/BGL.core.imp:contrib/devtools/iwyu/BGL.core.imp])
-AC_CONFIG_LINKS([contrib/filter-lcov.py:contrib/filter-lcov.py])
-AC_CONFIG_LINKS([contrib/macdeploy/background.tiff:contrib/macdeploy/background.tiff])
-AC_CONFIG_LINKS([src/.bear-tidy-config:src/.bear-tidy-config])
-AC_CONFIG_LINKS([src/.clang-tidy:src/.clang-tidy])
-AC_CONFIG_LINKS([test/functional/test_runner.py:test/functional/test_runner.py])
-AC_CONFIG_LINKS([test/fuzz/test_runner.py:test/fuzz/test_runner.py])
-AC_CONFIG_LINKS([test/util/test_runner.py:test/util/test_runner.py])
-AC_CONFIG_LINKS([test/util/rpcauth-test.py:test/util/rpcauth-test.py])
-AC_CONFIG_LINKS([src/qt/Makefile:src/qt/Makefile])
-AC_CONFIG_LINKS([src/qt/test/Makefile:src/qt/test/Makefile])
-AC_CONFIG_LINKS([src/test/Makefile:src/test/Makefile])
-
-dnl boost's m4 checks do something really nasty: they export these vars. As a
-dnl result, they leak into secp256k1's configure and crazy things happen.
-dnl Until this is fixed upstream and we've synced, we'll just un-export them.
-CPPFLAGS_TEMP="$CPPFLAGS"
-unset CPPFLAGS
-CPPFLAGS="$CPPFLAGS_TEMP"
-
-ac_configure_args="${ac_configure_args} --disable-shared --with-pic --enable-benchmark=no --enable-module-recovery --disable-module-ecdh"
-AC_CONFIG_SUBDIRS([src/secp256k1])
-=======
   if test x"$set_asm" = x"arm"; then
     AC_MSG_ERROR([ARM assembly optimization is experimental. Use --enable-experimental to allow.])
   fi
@@ -2289,7 +1557,6 @@ AM_CONDITIONAL([BUILD_WINDOWS], [test "$build_windows" = "yes"])
 AC_SUBST(LIB_VERSION_CURRENT, _LIB_VERSION_CURRENT)
 AC_SUBST(LIB_VERSION_REVISION, _LIB_VERSION_REVISION)
 AC_SUBST(LIB_VERSION_AGE, _LIB_VERSION_AGE)
->>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 
 AC_OUTPUT
 
@@ -2302,17 +1569,6 @@ case ${OS} in
 esac
 
 echo
-<<<<<<< HEAD
-echo "Options used to compile and link:"
-echo "  external signer = $use_external_signer"
-echo "  multiprocess    = $build_multiprocess"
-echo "  with experimental syscall sandbox support = $use_syscall_sandbox"
-echo "  with libs       = $build_BGL_libs"
-echo "  with wallet     = $enable_wallet"
-if test "$enable_wallet" != "no"; then
-    echo "    with sqlite   = $use_sqlite"
-    echo "    with bdb      = $use_bdb"
-=======
 echo "Build Options:"
 echo "  with external callbacks = $enable_external_default_callbacks"
 echo "  with benchmarks         = $enable_benchmark"
@@ -2331,7 +1587,6 @@ echo "  ecmult gen prec. bits   = $set_ecmult_gen_precision"
 # Hide test-only options unless they're used.
 if test x"$set_widemul" != xauto; then
 echo "  wide multiplication     = $set_widemul"
->>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c
 fi
 echo "  with gui / qt   = $BGL_enable_qt"
 if test $BGL_enable_qt != "no"; then
