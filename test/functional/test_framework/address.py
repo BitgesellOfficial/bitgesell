@@ -20,8 +20,11 @@ from .script import (
     sha256,
     taproot_construct,
 )
-from .segwit_addr import encode_segwit_address
 from .util import assert_equal
+from test_framework.segwit_addr import (
+    decode_segwit_address,
+    encode_segwit_address,
+)
 
 ADDRESS_BCRT1_UNSPENDABLE = 'rbgl1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqv0fdzt'
 ADDRESS_BCRT1_UNSPENDABLE_DESCRIPTOR = 'addr(rbgl1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqv0fdzt)#q3s9fnd2'
@@ -157,6 +160,16 @@ def check_script(script):
     if (type(script) is bytes or type(script) is CScript):
         return script
     assert False
+
+
+def bech32_to_bytes(address):
+    hrp = address.split('1')[0]
+    if hrp not in ['bc', 'tb', 'bcrt']:
+        return (None, None)
+    version, payload = decode_segwit_address(hrp, address)
+    if version is None:
+        return (None, None)
+    return version, bytearray(payload)
 
 
 class TestFrameworkScript(unittest.TestCase):
