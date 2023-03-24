@@ -210,7 +210,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = 1230767999; // December 31, 2008
 
 
-        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000005180c3bd8290da33a1a");
+        consensus.nMinimumChainWork = uint256S("0x000000000000000000000000000000000000000000000000000005ede0aa26f0");
         consensus.defaultAssumeValid = uint256S("0x0000000000004ae2f3896ca8ecd41c460a35bf6184e145d91558cece1c688a76"); // 2010000
 
         pchMessageStart[0] = 0x0b;
@@ -252,7 +252,10 @@ public:
         m_is_mockable_chain = false;
 
         checkpointData = {
-            {}};
+            {
+                {546, uint256S("000000033f0ecd6bc1c46eb98a2856cf2fe48bc3e90ef11ac24ea5272c1adbf8")},
+            }
+            };
 
         chainTxData = ChainTxData{
             // Data from RPC: getchaintxstats 4096 0000000000004ae2f3896ca8ecd41c460a35bf6184e145d91558cece1c688a76
@@ -350,11 +353,11 @@ public:
 
         nDefaultPort = 38333;
         nPruneAfterHeight = 1000;
-
-        genesis = CreateGenesisBlock(1598918400, 52613770, 0x1e0377ae, 1, 50 * COIN);
+        genesis = CreateGenesisBlock(1585958400, 0x0278eefd, 0x1d22ffff, 1, 200 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-//        assert(consensus.hashGenesisBlock == uint256S("0x00000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6"));
-//        assert(genesis.hashMerkleRoot == uint256S("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));
+
+        assert(consensus.hashGenesisBlock == uint256S("0x00000018cdcfeeb4dfdebe9392b855cfea7d6ddb953ef13f974b58773606d53d"));
+        assert(genesis.hashMerkleRoot == uint256S("0x0926305e87ec7ee71ed8d119c9b4958cb22f298cc20f90586c35b5a47e1c3f9b"));
 
         vFixedSeeds.clear();
 
