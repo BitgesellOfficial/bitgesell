@@ -76,6 +76,7 @@ global_task_template: &GLOBAL_TASK_TEMPLATE
     # Gives us more CPUs for free if they're available.
     greedy: true
     memory: 8G  # Set to 8GB to avoid OOM. https://cirrus-ci.org/guide/linux/#linux-containers
+    dockerfile: ci/test_imagefile  # https://cirrus-ci.org/guide/docker-builder-vm/#dockerfile-as-a-ci-environment
   depends_built_cache:
     folder: "depends/built"
     fingerprint_script: echo $CIRRUS_TASK_NAME $(git rev-parse HEAD:depends)
@@ -121,25 +122,15 @@ task:
   name: 'tidy [lunar]'
   << : *GLOBAL_TASK_TEMPLATE
   container:
-    image: ubuntu:lunar
     cpu: 2
     memory: 5G
+    docker_arguments:
+      CI_IMAGE_NAME_TAG: ubuntu:lunar
+      FILE_ENV: "./ci/test/00_setup_env_native_tidy.sh"
   # For faster CI feedback, immediately schedule the linters
   << : *CREDITS_TEMPLATE
   env:
-    HOST: i686-linux-gnu
-    ECDH: yes
-    RECOVERY: yes
-    SCHNORRSIG: yes
-  matrix:
-    - env:
-        CC: i686-linux-gnu-gcc
-    - env:
-        CC: clang --target=i686-pc-linux-gnu -isystem /usr/i686-linux-gnu/include
-  << : *MERGE_BASE
-  test_script:
-    - ./ci/cirrus.sh
-  << : *CAT_LOGS
+    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
 
 task:
   name: "Win64 native [vs2022]"
@@ -167,8 +158,13 @@ task:
   << : *CREDITS
 
 task:
-  name: "s390x (big-endian): Linux (Debian stable, QEMU)"
-  << : *LINUX_CONTAINER
+  name: 'ARM [unit tests, no functional tests] [bullseye]'
+  << : *GLOBAL_TASK_TEMPLATE
+  arm_container:
+    image: debian:bullseye
+    cpu: 2
+    memory: 8G
+    # docker_arguments:  # Can use dockerfile after https://github.com/cirruslabs/cirrus-ci-docs/issues/1154
   env:
     WRAPPER_CMD: qemu-s390x
     SECP256K1_TEST_ITERS: 16
@@ -186,36 +182,27 @@ task:
   << : *CAT_LOGS
 
 task:
-  name: "ARM32: Linux (Debian stable, QEMU)"
-  << : *LINUX_CONTAINER
+  name: 'Win64 [unit tests, no gui tests, no boost::process, no functional tests] [jammy]'
+  << : *GLOBAL_TASK_TEMPLATE
+  container:
+    docker_arguments:
+      CI_IMAGE_NAME_TAG: ubuntu:jammy
+      FILE_ENV: "./ci/test/00_setup_env_win64.sh"
   env:
-    WRAPPER_CMD: qemu-arm
-    SECP256K1_TEST_ITERS: 16
-    HOST: arm-linux-gnueabihf
-    WITH_VALGRIND: no
-    ECDH: yes
-    RECOVERY: yes
-    SCHNORRSIG: yes
-    CTIMETESTS: no
-  matrix:
-    - env: {}
-    - env: {EXPERIMENTAL: yes, ASM: arm}
-  << : *MERGE_BASE
-  test_script:
-    - ./ci/cirrus.sh
-  << : *CAT_LOGS
+    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
 
 task:
   name: '32-bit + dash [gui] [CentOS 8]'
   << : *GLOBAL_TASK_TEMPLATE
   container:
-    image: quay.io/centos/centos:stream8
+    docker_arguments:
+      CI_IMAGE_NAME_TAG: quay.io/centos/centos:stream8
+      FILE_ENV: "./ci/test/00_setup_env_i686_centos.sh"
   # For faster CI feedback, immediately schedule one task that runs all tests
   << : *CREDITS_TEMPLATE
   env:
     << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
     PACKAGE_MANAGER_INSTALL: "yum install -y"
-    FILE_ENV: "./ci/test/00_setup_env_i686_centos.sh"
 
 task:
   name: '[previous releases, uses qt5 dev package and some depends packages, DEBUG] [unsigned char] [buster]'
@@ -241,48 +228,24 @@ task:
   name: '[TSan, depends, gui] [lunar]'
   << : *GLOBAL_TASK_TEMPLATE
   container:
-    image: ubuntu:lunar
     cpu: 6  # Increase CPU and Memory to avoid timeout
     memory: 24G
+    docker_arguments:
+      CI_IMAGE_NAME_TAG: ubuntu:lunar
+      FILE_ENV: "./ci/test/00_setup_env_native_tsan.sh"
   env:
-    WRAPPER_CMD: qemu-ppc64le
-    SECP256K1_TEST_ITERS: 16
-    HOST: powerpc64le-linux-gnu
-    WITH_VALGRIND: no
-    ECDH: yes
-    RECOVERY: yes
-    SCHNORRSIG: yes
-    CTIMETESTS: no
-  << : *MERGE_BASE
-  test_script:
-    - ./ci/cirrus.sh
-  << : *CAT_LOGS
+    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
 
 task:
   name: '[MSan, depends] [lunar]'
   << : *GLOBAL_TASK_TEMPLATE
   container:
-    image: ubuntu:lunar
+    docker_arguments:
+      CI_IMAGE_NAME_TAG: ubuntu:lunar
+      FILE_ENV: "./ci/test/00_setup_env_native_msan.sh"
   env:
-    WRAPPER_CMD: wine64-stable
-    SECP256K1_TEST_ITERS: 16
-    HOST: x86_64-w64-mingw32
-    WITH_VALGRIND: no
-    ECDH: yes
-    RECOVERY: yes
-    SCHNORRSIG: yes
-    CTIMETESTS: no
-  matrix:
-    - name: "x86_64 (mingw32-w64): Windows (Debian stable, Wine)"
-      env:
-        HOST: x86_64-w64-mingw32
-    - name: "i686 (mingw32-w64): Windows (Debian stable, Wine)"
-      env:
-        HOST: i686-w64-mingw32
-  << : *MERGE_BASE
-  test_script:
-    - ./ci/cirrus.sh
-  << : *CAT_LOGS
+    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
+    MAKEJOBS: "-j4"  # Avoid excessive memory use due to MSan
 
 task:
   name: '[ASan + LSan + UBSan + integer, no depends, USDT] [jammy]'
@@ -340,80 +303,43 @@ task:
   name: '[fuzzer,address,undefined,integer, no depends] [lunar]'
   << : *GLOBAL_TASK_TEMPLATE
   container:
-    image: ubuntu:lunar
     cpu: 4  # Increase CPU and memory to avoid timeout
     memory: 16G
+    docker_arguments:
+      CI_IMAGE_NAME_TAG: ubuntu:lunar
+      FILE_ENV: "./ci/test/00_setup_env_native_fuzz.sh"
   env:
-    # ./configure correctly errors out when given CC=g++.
-    # We hack around this by passing CC=g++ only to make.
-    CC: gcc
-    MAKEFLAGS: -j4 CC=g++ CFLAGS=-fpermissive\ -g
-    WERROR_CFLAGS:
-    ECDH: yes
-    RECOVERY: yes
-    SCHNORRSIG: yes
-    CTIMETESTS: no
-  matrix:
-    - name: "Valgrind (memcheck)"
-      container:
-        cpu: 2
-      env:
-        # The `--error-exitcode` is required to make the test fail if valgrind found errors, otherwise it'll return 0 (https://www.valgrind.org/docs/manual/manual-core.html)
-        WRAPPER_CMD: "valgrind --error-exitcode=42"
-        SECP256K1_TEST_ITERS: 2
-    - name: "UBSan, ASan, LSan"
-      container:
-        memory: 2G
-      env:
-        CFLAGS: "-fsanitize=undefined,address -g"
-        UBSAN_OPTIONS: "print_stacktrace=1:halt_on_error=1"
-        ASAN_OPTIONS: "strict_string_checks=1:detect_stack_use_after_return=1:detect_leaks=1"
-        LSAN_OPTIONS: "use_unaligned=1"
-        SECP256K1_TEST_ITERS: 32
-  # Try to cover many configurations with just a tiny matrix.
-  matrix:
-    - env:
-        ASM: auto
-    - env:
-        ASM: no
-        ECMULTGENPRECISION: 2
-        ECMULTWINDOW: 2
-  matrix:
-    - env:
-        CC: clang
-    - env:
-        HOST: i686-linux-gnu
-        CC: i686-linux-gnu-gcc
-  << : *MERGE_BASE
-  test_script:
-    - ./ci/cirrus.sh
-  << : *CAT_LOGS
+    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
 
 task:
   name: '[multiprocess, i686, DEBUG] [focal]'
   << : *GLOBAL_TASK_TEMPLATE
   container:
-    image: ubuntu:focal
     cpu: 4
     memory: 16G  # The default memory is sometimes just a bit too small, so double everything
-  env:
-    ECDH: yes
-    RECOVERY: yes
-    SCHNORRSIG: yes
-    CTIMETESTS: yes
-    CC: clang
-    SECP256K1_TEST_ITERS: 32
-    ASM: no
-    WITH_VALGRIND: no
-  container:
-    image: debian:buster
+    docker_arguments:
+      CI_IMAGE_NAME_TAG: ubuntu:focal
+      FILE_ENV: "./ci/test/00_setup_env_i686_multiprocess.sh"
   env:
     << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-    FILE_ENV: "./ci/test/00_setup_env_native_nowallet_libBGLkernel.sh"
+
+task:
+  name: '[no wallet, libbitcoinkernel] [buster]'
+  << : *GLOBAL_TASK_TEMPLATE
+  container:
+    docker_arguments:
+      CI_IMAGE_NAME_TAG: debian:buster
+      FILE_ENV: "./ci/test/00_setup_env_native_nowallet_libbitcoinkernel.sh"
+  env:
+    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
 
 task:
   name: 'macOS 10.15 [gui, no tests] [focal]'
-  << : *BASE_TEMPLATE
+  << : *CONTAINER_DEPENDS_TEMPLATE
+  container:
+    docker_arguments:
+      CI_IMAGE_NAME_TAG: ubuntu:focal
+      FILE_ENV: "./ci/test/00_setup_env_mac.sh"
   macos_sdk_cache:
     folder: "depends/SDKs/$MACOS_SDK"
     fingerprint_key: "$MACOS_SDK"
@@ -423,7 +349,6 @@ task:
   env:
     MACOS_SDK: "Xcode-12.2-12B45b-extracted-SDK-with-libcxx-headers"
     << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
-    FILE_ENV: "./ci/test/00_setup_env_mac.sh"
 
 task:
   name: 'macOS 13 native arm64 [gui, sqlite only] [no depends]'
@@ -443,35 +368,18 @@ task:
     FILE_ENV: "./ci/test/00_setup_env_mac_native_arm64.sh"
 
 task:
-  name: "sage prover"
-  << : *LINUX_CONTAINER
-  test_script:
-    - cd sage
-    - sage prove_group_implementations.sage
-
-task:
-  name: "x86_64: Windows (VS 2022)"
-  windows_container:
-    image: cirrusci/windowsservercore:visualstudio2022
-    cpu: 4
-    memory: 3840MB
+  name: 'ARM64 Android APK [jammy]'
+  << : *CONTAINER_DEPENDS_TEMPLATE
+  container:
+    docker_arguments:
+      CI_IMAGE_NAME_TAG: ubuntu:jammy
+      FILE_ENV: "./ci/test/00_setup_env_android.sh"
+  android_sdk_cache:
+    folder: "depends/SDKs/android"
+    fingerprint_key: "ANDROID_API_LEVEL=28 ANDROID_BUILD_TOOLS_VERSION=28.0.3 ANDROID_NDK_VERSION=23.2.8568313"
+  depends_sources_cache:
+    folder: "depends/sources"
+    fingerprint_script: git rev-parse HEAD:depends/packages
+  << : *MAIN_TEMPLATE
   env:
-    PATH: '%CIRRUS_WORKING_DIR%\build\src\RelWithDebInfo;%PATH%'
-    x64_NATIVE_TOOLS: '"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"'
-    # Ignore MSBuild warning MSB8029.
-    # See: https://learn.microsoft.com/en-us/visualstudio/msbuild/errors/msb8029?view=vs-2022
-    IgnoreWarnIntDirInTempDetected: 'true'
-  merge_script:
-    - PowerShell -NoLogo -Command if ($env:CIRRUS_PR -ne $null) { git fetch $env:CIRRUS_REPO_CLONE_URL pull/$env:CIRRUS_PR/merge; git reset --hard FETCH_HEAD; }
-  configure_script:
-    - '%x64_NATIVE_TOOLS%'
-    - cmake -G "Visual Studio 17 2022" -A x64 -S . -B build -DSECP256K1_ENABLE_MODULE_RECOVERY=ON -DSECP256K1_BUILD_EXAMPLES=ON
-  build_script:
-    - '%x64_NATIVE_TOOLS%'
-    - cmake --build build --config RelWithDebInfo -- -property:UseMultiToolTask=true;CL_MPcount=5
-  check_script:
-    - '%x64_NATIVE_TOOLS%'
-    - ctest --test-dir build -j 5
-    - build\src\RelWithDebInfo\bench_ecmult.exe
-    - build\src\RelWithDebInfo\bench_internal.exe
-    - build\src\RelWithDebInfo\bench.exe
+    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
