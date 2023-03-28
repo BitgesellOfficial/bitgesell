@@ -3,6 +3,7 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the scanblocks RPC call."""
+from test_framework.address import address_to_scriptpubkey
 from test_framework.blockfilter import (
     bip158_basic_element_hash,
     bip158_relevant_scriptpubkeys,
