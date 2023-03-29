@@ -335,8 +335,12 @@ task:
   << : *CAT_LOGS
 
 task:
-  name: "C++ -fpermissive"
-  << : *LINUX_CONTAINER
+  name: '[fuzzer,address,undefined,integer, no depends] [lunar]'
+  << : *GLOBAL_TASK_TEMPLATE
+  container:
+    image: ubuntu:lunar
+    cpu: 4  # Increase CPU and memory to avoid timeout
+    memory: 16G
   env:
     # ./configure correctly errors out when given CC=g++.
     # We hack around this by passing CC=g++ only to make.
