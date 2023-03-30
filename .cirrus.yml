@@ -259,8 +259,10 @@ task:
   << : *CAT_LOGS
 
 task:
-  name: "x86_64 (mingw32-w64): Windows (Debian stable, Wine)"
-  << : *LINUX_CONTAINER
+  name: '[MSan, depends] [lunar]'
+  << : *GLOBAL_TASK_TEMPLATE
+  container:
+    image: ubuntu:lunar
   env:
     WRAPPER_CMD: wine64-stable
     SECP256K1_TEST_ITERS: 16
