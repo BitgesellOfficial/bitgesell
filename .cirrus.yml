@@ -118,10 +118,10 @@ task:
   << : *CAT_LOGS
 
 task:
-  name: 'tidy [bookworm]'
+  name: 'tidy [lunar]'
   << : *GLOBAL_TASK_TEMPLATE
   container:
-    image: debian:bookworm
+    image: ubuntu:lunar
     cpu: 2
     memory: 5G
   # For faster CI feedback, immediately schedule the linters
