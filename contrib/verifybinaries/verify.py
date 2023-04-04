@@ -621,7 +621,7 @@ def verify_binary_hashes(hashes_to_verify: t.List[t.List[str]]) -> t.Tuple[Retur
         return ReturnCode.INTEGRITY_FAILURE
 
     # Extract hashes and filenames
-    hashes_to_verify = parse_sums_file(SUMS_FILENAME, [os_filter])
+    hashes_to_verify = parse_sums_file(SUMS_FILENAME, os_filter)
     if not hashes_to_verify:
         log.error("no files matched the platform specified")
         return ReturnCode.NO_BINARIES_MATCH
