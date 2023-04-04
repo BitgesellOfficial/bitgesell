@@ -39,7 +39,6 @@ from http import HTTPStatus
 import http.client
 import json
 import logging
-import os
 import socket
 import time
 import urllib.parse
@@ -100,10 +99,6 @@ class AuthServiceProxy():
                    'User-Agent': USER_AGENT,
                    'Authorization': self.__auth_header,
                    'Content-type': 'application/json'}
-        if os.name == 'nt':
-            # Windows somehow does not like to re-use connections
-            # TODO: Find out why the connection would disconnect occasionally and make it reusable on Windows
-            self._set_conn()
         self.__conn.request(method, path, postdata, headers)
         return self._get_response()
 
