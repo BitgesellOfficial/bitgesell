@@ -99,21 +99,28 @@ class WalletSignerTest(BGLTestFramework):
         address_info = hww.getaddressinfo(address1)
         assert_equal(address_info['solvable'], True)
         assert_equal(address_info['ismine'], True)
-        assert_equal(address_info['hdkeypath'], "m/84'/1'/0'/0/0")
+        assert_equal(address_info['hdkeypath'], "m/84h/1h/0h/0/0")
 
         address2 = hww.getnewaddress(address_type="p2sh-segwit")
         assert_equal(address2, "2N2gQKzjUe47gM8p1JZxaAkTcoHPXV6YyVp")
         address_info = hww.getaddressinfo(address2)
         assert_equal(address_info['solvable'], True)
         assert_equal(address_info['ismine'], True)
-        assert_equal(address_info['hdkeypath'], "m/49'/1'/0'/0/0")
+        assert_equal(address_info['hdkeypath'], "m/49h/1h/0h/0/0")
 
         address3 = hww.getnewaddress(address_type="legacy")
         assert_equal(address3, "n1LKejAadN6hg2FrBXoU1KrwX4uK16mco9")
         address_info = hww.getaddressinfo(address3)
         assert_equal(address_info['solvable'], True)
         assert_equal(address_info['ismine'], True)
-        assert_equal(address_info['hdkeypath'], "m/44'/1'/0'/0/0")
+        assert_equal(address_info['hdkeypath'], "m/44h/1h/0h/0/0")
+
+        address4 = hww.getnewaddress(address_type="bech32m")
+        assert_equal(address4, "bcrt1phw4cgpt6cd30kz9k4wkpwm872cdvhss29jga2xpmftelhqll62ms4e9sqj")
+        address_info = hww.getaddressinfo(address4)
+        assert_equal(address_info['solvable'], True)
+        assert_equal(address_info['ismine'], True)
+        assert_equal(address_info['hdkeypath'], "m/86h/1h/0h/0/0")
 
         self.log.info('Test walletdisplayaddress')
         result = hww.walletdisplayaddress(address1)
@@ -165,7 +172,7 @@ class WalletSignerTest(BGLTestFramework):
         # hww4 = self.nodes[1].get_wallet_rpc("hww4")
         #
         # descriptors = [{
-        #     "desc": "wpkh([00000001/84'/1'/0']tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B/0/*)#x30uthjs",
+        #     "desc": "wpkh([00000001/84h/1h/0']tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B/0/*)#x30uthjs",
         #     "timestamp": "now",
         #     "range": [0, 1],
         #     "internal": False,
@@ -173,7 +180,7 @@ class WalletSignerTest(BGLTestFramework):
         #     "active": True
         # },
         # {
-        #     "desc": "wpkh([00000001/84'/1'/0']tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B/1/*)#h92akzzg",
+        #     "desc": "wpkh([00000001/84h/1h/0']tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B/1/*)#h92akzzg",
         #     "timestamp": "now",
         #     "range": [0, 0],
         #     "internal": True,
