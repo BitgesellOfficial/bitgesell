@@ -1495,9 +1495,25 @@ if test x"$enable_module_recovery" = x"yes"; then
   SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DENABLE_MODULE_RECOVERY=1"
 fi
 
-if test x"$enable_module_schnorrsig" = x"yes"; then
-  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DENABLE_MODULE_SCHNORRSIG=1"
-  enable_module_extrakeys=yes
+dnl enable upnp support
+AC_MSG_CHECKING([whether to build with support for UPnP])
+if test "$have_miniupnpc" = "no"; then
+  if test "$use_upnp" = "yes"; then
+     AC_MSG_ERROR([UPnP requested but cannot be built. Use --without-miniupnpc])
+  fi
+  AC_MSG_RESULT([no])
+  use_upnp=no
+else
+  if test "$use_upnp" != "no"; then
+    AC_MSG_RESULT([yes])
+    use_upnp=yes
+    AC_DEFINE([USE_UPNP], [1], [Define to 1 if UPnP support should be compiled in.])
+    if test "$TARGET_OS" = "windows"; then
+      MINIUPNPC_CPPFLAGS="$MINIUPNPC_CPPFLAGS -DMINIUPNP_STATICLIB"
+    fi
+  else
+    AC_MSG_RESULT([no])
+  fi
 fi
 
 # Test if extrakeys is set after the schnorrsig module to allow the schnorrsig
