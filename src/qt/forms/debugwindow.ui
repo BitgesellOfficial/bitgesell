@@ -498,7 +498,7 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../bitcoin.qrc">
+            <iconset resource="../BGL.qrc">
              <normaloff>:/icons/fontbigger</normaloff>:/icons/fontbigger</iconset>
            </property>
            <property name="iconSize">
