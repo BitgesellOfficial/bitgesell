@@ -624,55 +624,8 @@ def verify_binary_hashes(hashes_to_verify: t.List[t.List[str]]) -> t.Tuple[Retur
         cleanup()
         return ReturnCode.INTEGRITY_FAILURE
 
-    # Decide which keys we trust, though not "trust" in the GPG sense, but rather
-    # which pubkeys convince us that this sums file is legitimate. In other words,
-    # which pubkeys within the Bitcoin community do we trust for the purposes of
-    # binary verification?
-    trusted_keys = set()
-    if args.trusted_keys:
-        trusted_keys |= set(args.trusted_keys.split(','))
-
-    # Tally signatures and make sure we have enough goods to fulfill
-    # our threshold.
-    good_trusted = {sig for sig in good if sig.trusted or sig.key in trusted_keys}
-    good_untrusted = [sig for sig in good if sig not in good_trusted]
-    num_trusted = len(good_trusted) + len(good_untrusted)
-    log.info(f"got {num_trusted} good signatures")
-
-    if num_trusted < min_good_sigs:
-        log.info("Maybe you need to import "
-                  f"(`gpg --keyserver {args.keyserver} --recv-keys <key-id>`) "
-                  "some of the following keys: ")
-        log.info('')
-        for sig in unknown:
-            log.info(f"    {sig.key} ({sig.name})")
-        log.info('')
-        log.error(
-            "not enough trusted sigs to meet threshold "
-            f"({num_trusted} vs. {min_good_sigs})")
-
-        return ReturnCode.NOT_ENOUGH_GOOD_SIGS
-
-    for sig in good_trusted:
-        log.info(f"GOOD SIGNATURE: {sig}")
-
-    for sig in good_untrusted:
-        log.info(f"GOOD SIGNATURE (untrusted): {sig}")
-
-    for sig in [sig for sig in good if sig.status == 'expired']:
-        log.warning(f"key {sig.key} for {sig.name} is expired")
-
-    for sig in bad:
-        log.warning(f"BAD SIGNATURE: {sig}")
-
-    for sig in unknown:
-        log.warning(f"UNKNOWN SIGNATURE: {sig}")
-
-    # extract hashes/filenames of binaries to verify from hash file;
-    # each line has the following format: "<hash> <binary_filename>"
-    with open(SUMS_FILENAME, 'r', encoding='utf8') as hash_file:
-        hashes_to_verify = [line.split()[:2] for line in hash_file if os_filter in line]
-    remove_files([SUMS_FILENAME])
+    # Extract hashes and filenames
+    hashes_to_verify = parse_sums_file(SUMS_FILENAME, [os_filter])
     if not hashes_to_verify:
         log.error("no files matched the platform specified")
         return ReturnCode.NO_BINARIES_MATCH
