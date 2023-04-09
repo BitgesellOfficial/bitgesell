@@ -12,8 +12,8 @@ def main():
     expect_code(run_verify('0.32.awefa.12f9h'), 11, "Malformed version should fail")
     expect_code(run_verify('22.0 --min-good-sigs 20'), 9, "--min-good-sigs 20 should fail")
 
-    print("- testing multisig verification (22.0)", flush=True)
-    _220 = run_verify('22.0 --json')
+    print("- testing verification (22.0)", flush=True)
+    _220 = run_verify("--json", "pub", "22.0")
     try:
         result = json.loads(_220.stdout.decode())
     except Exception:
