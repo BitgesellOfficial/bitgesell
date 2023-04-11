@@ -1,6 +1,6 @@
 # OpenBSD Build Guide
 
-**Updated for OpenBSD [7.1](https://www.openbsd.org/71.html)**
+**Updated for OpenBSD [7.3](https://www.openbsd.org/73.html)**
 
 This guide describes how to build BGLd, command-line utilities, and GUI on OpenBSD.
 
@@ -46,13 +46,13 @@ from ports. However you can build it yourself, [using depends](/depends).
 ```bash
 gmake -C depends NO_BOOST=1 NO_LIBEVENT=1 NO_QT=1 NO_SQLITE=1 NO_NATPMP=1 NO_UPNP=1 NO_ZMQ=1 NO_USDT=1
 ...
-to: /path/to/bitcoin/depends/x86_64-unknown-openbsd
+to: /path/to/BGL/depends/x86_64-unknown-openbsd
 ```
 
 Then set `BDB_PREFIX`:
 
 ```bash
-export BDB_PREFIX="/path/to/bitcoin/depends/x86_64-unknown-openbsd"
+export BDB_PREFIX="/path/to/BGL/depends/x86_64-unknown-openbsd"
 ```
 
 #### GUI Dependencies
@@ -80,11 +80,7 @@ export AUTOMAKE_VERSION=1.16
 
 ### 1. Configuration
 
-Note that external signer support is currently not available on OpenBSD, since
-the used header-only library Boost.Process fails to compile (certain system
-calls and preprocessor defines like `waitid()` and `WEXITED` are missing).
-
-There are many ways to configure BGL Core, here are a few common examples:
+There are many ways to configure Bitgesell Core, here are a few common examples:
 
 ##### Descriptor Wallet and GUI:
 This enables the GUI and descriptor wallet support, assuming `sqlite` and `qt5` are installed.
