@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2010 ArtForz -- public domain half-a-node
 # Copyright (c) 2012 Jeff Garzik
-# Copyright (c) 2010-2022 The Bitcoin Core developers
+# Copyright (c) 2010-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """BGL test framework primitive and message structures
@@ -18,6 +18,7 @@ ser_*, deser_*: functions that handle serialization/deserialization.
 Classes use __slots__ to ensure extraneous attributes aren't accidentally added
 by tests, compromising their intended effect.
 """
+from codecs import encode
 from base64 import b32decode, b32encode
 import copy
 import hashlib
@@ -34,14 +35,15 @@ from test_framework.siphash import siphash256
 from test_framework.util import assert_equal
 
 MAX_LOCATOR_SZ = 101
-MAX_BLOCK_WEIGHT = 4000000
+MAX_BLOCK_WEIGHT = 400000
 MAX_BLOOM_FILTER_SIZE = 36000
 MAX_BLOOM_HASH_FUNCS = 50
 
+MAX_BIP125_RBF_SEQUENCE = 0xfffffffd  # Sequence number that is rbf-opt-in (BIP 125) and csv-opt-out (BIP 68)
 COIN = 100000000  # 1 bgl in satoshis
 MAX_MONEY = 21000000 * COIN
 
-MAX_BIP125_RBF_SEQUENCE = 0xfffffffd  # Sequence number that is rbf-opt-in (BIP 125) and csv-opt-out (BIP 68)
+BIP125_SEQUENCE_NUMBER = 0xfffffffd  # Sequence number that is rbf-opt-in (BIP 125) and csv-opt-out (BIP 68)
 SEQUENCE_FINAL = 0xffffffff  # Sequence number that disables nLockTime if set for every input of a tx
 
 MAX_PROTOCOL_MESSAGE_LENGTH = 4000000  # Maximum length of incoming protocol messages
@@ -67,21 +69,17 @@ FILTER_TYPE_BASIC = 0
 
 WITNESS_SCALE_FACTOR = 4
 
-DEFAULT_ANCESTOR_LIMIT = 25    # default max number of in-mempool ancestors
-DEFAULT_DESCENDANT_LIMIT = 25  # default max number of in-mempool descendants
-
-# Default setting for -datacarriersize. 80 bytes of data, +1 for OP_RETURN, +2 for the pushdata opcodes.
-MAX_OP_RETURN_RELAY = 83
-
-DEFAULT_MEMPOOL_EXPIRY_HOURS = 336  # hours
+# Serialization/deserialization tools
+def keccak256(s):
+    h = sha3.keccak_256()
+    h.update(s)
+    return h.digest()
 
 def sha256(s):
-    return hashlib.sha256(s).digest()
-
+    return hashlib.new('sha256', s).digest()
 
 def hash256(s):
     return sha256(sha256(s))
-
 
 def ser_compact_size(l):
     r = b""
@@ -215,20 +213,6 @@ def from_hex(obj, hex_string):
 def tx_from_hex(hex_string):
     """Deserialize from hex string to a transaction object"""
     return from_hex(CTransaction(), hex_string)
-
-
-# like from_hex, but without the hex part
-def from_binary(cls, stream):
-    """deserialize a binary stream (or bytes object) into an object"""
-    # handle bytes object by turning it into a stream
-    was_bytes = isinstance(stream, bytes)
-    if was_bytes:
-        stream = BytesIO(stream)
-    obj = cls()
-    obj.deserialize(stream)
-    if was_bytes:
-        assert len(stream.read()) == 0
-    return obj
 
 
 # Objects that map to bitcoind objects, which can be serialized/deserialized
@@ -607,7 +591,7 @@ class CTransaction:
         return self.serialize_with_witness()
 
     def getwtxid(self):
-        return hash256(self.serialize())[::-1].hex()
+        return sha256(self.serialize())[::-1].hex()
 
     # Recalculate the txid (transaction hash without witness)
     def rehash(self):
@@ -1699,7 +1683,7 @@ class msg_getcfilters:
     __slots__ = ("filter_type", "start_height", "stop_hash")
     msgtype =  b"getcfilters"
 
-    def __init__(self, filter_type=None, start_height=None, stop_hash=None):
+    def __init__(self, filter_type, start_height, stop_hash):
         self.filter_type = filter_type
         self.start_height = start_height
         self.stop_hash = stop_hash
@@ -1749,7 +1733,7 @@ class msg_getcfheaders:
     __slots__ = ("filter_type", "start_height", "stop_hash")
     msgtype =  b"getcfheaders"
 
-    def __init__(self, filter_type=None, start_height=None, stop_hash=None):
+    def __init__(self, filter_type, start_height, stop_hash):
         self.filter_type = filter_type
         self.start_height = start_height
         self.stop_hash = stop_hash
@@ -1802,7 +1786,7 @@ class msg_getcfcheckpt:
     __slots__ = ("filter_type", "stop_hash")
     msgtype =  b"getcfcheckpt"
 
-    def __init__(self, filter_type=None, stop_hash=None):
+    def __init__(self, filter_type, stop_hash):
         self.filter_type = filter_type
         self.stop_hash = stop_hash
 
