@@ -20,6 +20,7 @@ import urllib.parse
 import collections
 import shlex
 import sys
+from pathlib import Path
 
 from .authproxy import JSONRPCException
 from .descriptors import descsum_create
@@ -654,9 +655,9 @@ class TestNode():
         p2p_conn.wait_for_connect()
         self.p2ps.append(p2p_conn)
 
-            if wait_for_verack:
-                p2p_conn.wait_for_verack()
-                p2p_conn.sync_with_ping()
+        if wait_for_verack:
+            p2p_conn.wait_for_verack()
+            p2p_conn.sync_with_ping()
 
         return p2p_conn
 
