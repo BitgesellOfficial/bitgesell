@@ -69,10 +69,6 @@ def cltv_invalidate(tx, failure_reason):
 
     cltv_modify_tx(tx, prepend_scriptsig=scheme[0], nsequence=scheme[1], nlocktime=scheme[2])
 
-    TODO: test more ways that transactions using CLTV could be invalid (eg
-    locktime requirements fail, sequence time requirements fail, etc).
-    '''
-    cltv_modify_tx(None, tx, [OP_1NEGATE, OP_CHECKLOCKTIMEVERIFY, OP_DROP])
 
 def cltv_validate(tx, height):
     # Modify the signature in vin 0 and nSequence/nLockTime of the tx to pass CLTV
