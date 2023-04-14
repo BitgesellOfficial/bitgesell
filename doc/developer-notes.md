@@ -109,6 +109,10 @@ code.
   - `++i` is preferred over `i++`.
   - `nullptr` is preferred over `NULL` or `(void*)0`.
   - `static_assert` is preferred over `assert` where possible. Generally; compile-time checking is preferred over run-time checking.
+  - Use a named cast or functional cast, not a C-Style cast. When casting
+    between integer types, use functional casts such as `int(x)` or `int{x}`
+    instead of `(int) x`. When casting between more complex types, use `static_cast`.
+    Use `reinterpret_cast` and `const_cast` as appropriate.
 
 For function calls a namespace should be specified explicitly, unless such functions have been declared within it.
 Otherwise, [argument-dependent lookup](https://en.cppreference.com/w/cpp/language/adl), also known as ADL, could be
@@ -390,8 +394,8 @@ If the code is behaving strangely, take a look in the `debug.log` file in the da
 error and debugging messages are written there.
 
 Debug logging can be enabled on startup with the `-debug` and `-loglevel`
-configuration options and toggled while bitcoind is running with the `logging`
-RPC.  For instance, launching bitcoind with `-debug` or `-debug=1` will turn on
+configuration options and toggled while BGLd is running with the `logging`
+RPC.  For instance, launching BGLd with `-debug` or `-debug=1` will turn on
 all log categories and `-loglevel=trace` will turn on all log severity levels.
 
 The Qt code routes `qDebug()` output to `debug.log` under category "qt": run with `-debug=qt`
@@ -424,11 +428,11 @@ to the `debug.log` file.
 The `--enable-debug` configure option adds `-DDEBUG_LOCKCONTENTION` to the
 compiler flags. You may also enable it manually for a non-debug build by running
 configure with `-DDEBUG_LOCKCONTENTION` added to your CPPFLAGS,
-i.e. `CPPFLAGS="-DDEBUG_LOCKCONTENTION"`, then build and run bitcoind.
+i.e. `CPPFLAGS="-DDEBUG_LOCKCONTENTION"`, then build and run BGLd.
 
-You can then use the `-debug=lock` configuration option at bitcoind startup or
-`bitcoin-cli logging '["lock"]'` at runtime to turn on lock contention logging.
-It can be toggled off again with `bitcoin-cli logging [] '["lock"]'`.
+You can then use the `-debug=lock` configuration option at BGLd startup or
+`BGL-cli logging '["lock"]'` at runtime to turn on lock contention logging.
+It can be toggled off again with `BGL-cli logging [] '["lock"]'`.
 
 ### Assertions and Checks
 
@@ -1145,13 +1149,13 @@ Subtrees
 
 Several parts of the repository are subtrees of software maintained elsewhere.
 
-Some of these are maintained by active developers of Bitcoin Core, in which case
+Some of these are maintained by active developers of Bitgesell Core, in which case
 changes should go directly upstream without being PRed directly against the project.
 They will be merged back in the next subtree merge.
 
 Others are external projects without a tight relationship with our project. Changes
 to these should also be sent upstream, but bugfixes may also be prudent to PR against
-a Bitcoin Core subtree, so that they can be integrated quickly. Cosmetic changes
+a Bitgesell Core subtree, so that they can be integrated quickly. Cosmetic changes
 should be taken upstream.
 
 There is a tool in `test/lint/git-subtree-check.sh` ([instructions](../test/lint#git-subtree-checksh))
