@@ -177,6 +177,7 @@ class CompactBlocksTest(BGLTestFramework):
 
     # Test "sendcmpct" (between peers preferring the same version):
     # - No compact block announcements unless sendcmpct is sent.
+    # - If sendcmpct is sent with version = 1, the message is ignored.
     # - If sendcmpct is sent with version > 2, the message is ignored.
     # - If sendcmpct is sent with boolean 0, then block announcements are not
     #   made with compact blocks.
@@ -190,10 +191,8 @@ class CompactBlocksTest(BGLTestFramework):
             return (len(test_node.last_sendcmpct) > 0)
         test_node.wait_until(received_sendcmpct, timeout=30)
         with p2p_lock:
-            # Check that the first version received is version 2
+            # Check that version 2 is received.
             assert_equal(test_node.last_sendcmpct[0].version, 2)
-            # And that we receive versions down to 1.
-            assert_equal(test_node.last_sendcmpct[-1].version, 1)
             test_node.last_sendcmpct = []
 
         tip = int(node.getbestblockhash(), 16)
@@ -372,7 +371,7 @@ class CompactBlocksTest(BGLTestFramework):
                 header_and_shortids.shortids.pop(0)
             index += 1
 
-    # Test that BGLd requests compact blocks when we announce new blocks
+    # Test that bitcoind requests compact blocks when we announce new blocks
     # via header or inv, and that responding to getblocktxn causes the block
     # to be successfully reconstructed.
     def test_compactblock_requests(self, test_node):
@@ -540,7 +539,7 @@ class CompactBlocksTest(BGLTestFramework):
         assert_equal(absolute_indexes, [6, 7, 8, 9, 10])
 
         # Now give an incorrect response.
-        # Note that it's possible for BGLd to be smart enough to know we're
+        # Note that it's possible for bitcoind to be smart enough to know we're
         # lying, since it could check to see if the shortid matches what we're
         # sending, and eg disconnect us for misbehavior.  If that behavior
         # change was made, we could just modify this test by having a
@@ -565,7 +564,7 @@ class CompactBlocksTest(BGLTestFramework):
 
     def test_getblocktxn_handler(self, test_node):
         node = self.nodes[0]
-        # BGLd will not send blocktxn responses for blocks whose height is
+        # bitcoind will not send blocktxn responses for blocks whose height is
         # more than 10 blocks deep.
         MAX_GETBLOCKTXN_DEPTH = 10
         chain_height = node.getblockcount()
