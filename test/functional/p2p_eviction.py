@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-# Copyright (c) 2019-2021 The Bitcoin Core developers
+# Copyright (c) 2019-2020 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 """ Test node eviction logic
-
 When the number of peers has reached the limit of maximum connections,
 the next connecting inbound peer will trigger the eviction mechanism.
 We cannot currently test the parts of the eviction logic that are based on
@@ -82,16 +81,11 @@ class P2PEvict(BGLTestFramework):
             prevtx = node.getblock(node.getblockhash(i + 1), 2)['tx'][0]
             rawtx = node.createrawtransaction(
                 inputs=[{'txid': prevtx['txid'], 'vout': 0}],
-                outputs=[{node.get_deterministic_priv_key().address: 50 - 0.00125}],
+                outputs=[{node.get_deterministic_priv_key().address: 200 - 0.00125}],
             )
             sigtx = node.signrawtransactionwithkey(
                 hexstring=rawtx,
                 privkeys=[node.get_deterministic_priv_key().key],
-                prevtxs=[{
-                    'txid': prevtx['txid'],
-                    'vout': 0,
-                    'scriptPubKey': prevtx['vout'][0]['scriptPubKey']['hex'],
-                }],
             )['hex']
             txpeer.send_message(msg_tx(tx_from_hex(sigtx)))
             protected_peers.add(current_peer)
