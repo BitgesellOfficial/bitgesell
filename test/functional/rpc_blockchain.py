@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2022 The Bitcoin Core developers
+# Copyright (c) 2014-2021 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test RPCs related to blockchainstate.
@@ -23,6 +23,7 @@ Tests correspond to code in rpc/blockchain.cpp.
 
 from decimal import Decimal
 import http.client
+import os
 import subprocess
 
 from test_framework.blocktools import (
@@ -37,7 +38,7 @@ from test_framework.messages import (
     msg_block,
 )
 from test_framework.p2p import P2PInterface
-from test_framework.script import hash256
+from test_framework.script import keccak256
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
@@ -47,7 +48,9 @@ from test_framework.util import (
     assert_raises_rpc_error,
     assert_is_hex_string,
     assert_is_hash_string,
+    get_datadir_path,
 )
+from test_framework.wallet import MiniWallet
 
 
 HEIGHT = 200  # blocks mined
@@ -77,7 +80,6 @@ class BlockchainTest(BGLTestFramework):
         )
 
         self._test_getblockchaininfo()
-        self._test_getdeploymentinfo()
         self._test_getchaintxstats()
         self._test_gettxoutsetinfo()
         self._test_getblockheader()
@@ -180,11 +182,12 @@ class BlockchainTest(BGLTestFramework):
         assert_equal(res['prune_target_size'], 576716800)
         assert_greater_than(res['size_on_disk'], 0)
 
-    def _test_getdeploymentinfo(self):
-        self.log.info("Test getdeploymentinfo")
+    def check_signalling_deploymentinfo_result(self, gdi_result, height, blockhash, status_next):
+        assert height >= 144 and height <= 287
 
-        res = self.nodes[0].getdeploymentinfo()
-        assert_equal(res, {
+        assert_equal(gdi_result, {
+          "hash": blockhash,
+          "height": height,
           "deployments": {
             'bip34': {'type': 'buried', 'active': True, 'height': 2},
             'bip66': {'type': 'buried', 'active': True, 'height': 3},
@@ -208,6 +211,7 @@ class BlockchainTest(BGLTestFramework):
                         'count': height - 143,
                         'possible': True,
                     },
+                    'signalling': '#'*(height-143),
                 },
                 'active': False
             },
@@ -318,7 +322,7 @@ class BlockchainTest(BGLTestFramework):
         node = self.nodes[0]
         res = node.gettxoutsetinfo()
 
-        assert_equal(res['total_amount'], Decimal('8725.00000000'))
+        assert_equal(res['total_amount'], Decimal('34900.00000000'))
         assert_equal(res['transactions'], HEIGHT)
         assert_equal(res['height'], HEIGHT)
         assert_equal(res['txouts'], HEIGHT)
@@ -493,7 +497,7 @@ class BlockchainTest(BGLTestFramework):
 
         def assert_hexblock_hashes(verbosity):
             block = node.getblock(blockhash, verbosity)
-            assert_equal(blockhash, hash256(bytes.fromhex(block[:160]))[::-1].hex())
+            assert_equal(blockhash, keccak256(bytes.fromhex(block[:160]))[::-1].hex())
 
         def assert_fee_not_in_block(verbosity):
             block = node.getblock(blockhash, verbosity)
@@ -572,6 +576,7 @@ class BlockchainTest(BGLTestFramework):
 
         assert 'previousblockhash' not in node.getblock(node.getblockhash(0))
         assert 'nextblockhash' not in node.getblock(node.getbestblockhash())
+
 
 if __name__ == '__main__':
     BlockchainTest().main()
