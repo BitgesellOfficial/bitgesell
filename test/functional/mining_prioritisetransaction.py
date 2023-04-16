@@ -30,6 +30,33 @@ class PrioritiseTransactionTest(BGLTestFramework):
         ]] * self.num_nodes
         self.supports_cli = False
 
+    def clear_prioritisation(self, node):
+        for txid, info in node.getprioritisedtransactions().items():
+            delta = info["fee_delta"]
+            node.prioritisetransaction(txid, 0, -delta)
+        assert_equal(node.getprioritisedtransactions(), {})
+
+    def test_replacement(self):
+        self.log.info("Test tx prioritisation stays after a tx is replaced")
+        conflicting_input = self.wallet.get_utxo()
+        tx_replacee = self.wallet.create_self_transfer(utxo_to_spend=conflicting_input, fee_rate=Decimal("0.0001"))
+        tx_replacement = self.wallet.create_self_transfer(utxo_to_spend=conflicting_input, fee_rate=Decimal("0.005"))
+        # Add 1 satoshi fee delta to replacee
+        self.nodes[0].prioritisetransaction(tx_replacee["txid"], 0, 100)
+        assert_equal(self.nodes[0].getprioritisedtransactions(), { tx_replacee["txid"] : { "fee_delta" : 100, "in_mempool" : False}})
+        self.nodes[0].sendrawtransaction(tx_replacee["hex"])
+        assert_equal(self.nodes[0].getprioritisedtransactions(), { tx_replacee["txid"] : { "fee_delta" : 100, "in_mempool" : True}})
+        self.nodes[0].sendrawtransaction(tx_replacement["hex"])
+        assert tx_replacee["txid"] not in self.nodes[0].getrawmempool()
+        assert_equal(self.nodes[0].getprioritisedtransactions(), { tx_replacee["txid"] : { "fee_delta" : 100, "in_mempool" : False}})
+
+        # PrioritiseTransaction is additive
+        self.nodes[0].prioritisetransaction(tx_replacee["txid"], 0, COIN)
+        self.nodes[0].sendrawtransaction(tx_replacee["hex"])
+        assert_equal(self.nodes[0].getprioritisedtransactions(), { tx_replacee["txid"] : { "fee_delta" : COIN + 100, "in_mempool" : True}})
+        self.generate(self.nodes[0], 1)
+        assert_equal(self.nodes[0].getprioritisedtransactions(), {})
+
     def test_diamond(self):
         self.log.info("Test diamond-shape package with priority")
         mock_time = int(time.time())
@@ -87,6 +114,10 @@ class PrioritiseTransactionTest(BGLTestFramework):
         prioritisation_map_in_mempool = self.nodes[0].getprioritisedtransactions()
         assert_equal(prioritisation_map_in_mempool[txid_b], {"fee_delta" : fee_delta_b*COIN, "in_mempool" : True})
         assert_equal(prioritisation_map_in_mempool[txid_c], {"fee_delta" : (fee_delta_c_1 + fee_delta_c_2)*COIN, "in_mempool" : True})
+        # Clear prioritisation, otherwise the transactions' fee deltas are persisted to mempool.dat and loaded again when the node
+        # is restarted at the end of this subtest. Deltas are removed when a transaction is mined, but only at that time. We do
+        # not check whether mapDeltas transactions were mined when loading from mempool.dat.
+        self.clear_prioritisation(node=self.nodes[0])
 
         self.log.info("Test priority while txs are not in mempool")
         self.restart_node(0, extra_args=["-nopersistmempool"])
@@ -114,6 +145,7 @@ class PrioritiseTransactionTest(BGLTestFramework):
 
         # Use default extra_args
         self.restart_node(0)
+        assert_equal(self.nodes[0].getprioritisedtransactions(), {})
 
     def run_test(self):
         self.wallet = MiniWallet(self.nodes[0])
@@ -180,10 +212,18 @@ class PrioritiseTransactionTest(BGLTestFramework):
                 sizes[i] += mempool[j]['vsize']
             assert sizes[i] > MAX_BLOCK_WEIGHT // 4  # Fail => raise utxo_count
 
+        assert_equal(self.nodes[0].getprioritisedtransactions(), {})
         # add a fee delta to something in the cheapest bucket and make sure it gets mined
         # also check that a different entry in the cheapest bucket is NOT mined
         self.nodes[0].prioritisetransaction(txid=txids[0][0], fee_delta=int(3*base_fee*COIN))
-        assert_equal(self.nodes[0].getprioritisedtransactions()[txids[0][0]], { "fee_delta" : 3*base_fee*COIN, "in_mempool" : True})
+        assert_equal(self.nodes[0].getprioritisedtransactions(), {txids[0][0] : { "fee_delta" : 3*base_fee*COIN, "in_mempool" : True}})
+
+        # Priority disappears when prioritisetransaction is called with an inverse value...
+        self.nodes[0].prioritisetransaction(txid=txids[0][0], fee_delta=int(-3*base_fee*COIN))
+        assert txids[0][0] not in self.nodes[0].getprioritisedtransactions()
+        # ... and reappears when prioritisetransaction is called again.
+        self.nodes[0].prioritisetransaction(txid=txids[0][0], fee_delta=int(3*base_fee*COIN))
+        assert txids[0][0] in self.nodes[0].getprioritisedtransactions()
 
         self.generate(self.nodes[0], 1)
 
@@ -255,8 +295,8 @@ class PrioritiseTransactionTest(BGLTestFramework):
         template = self.nodes[0].getblocktemplate({'rules': ['segwit']})
         self.nodes[0].prioritisetransaction(txid=tx_id, fee_delta=-int(self.relayfee*COIN))
 
-        assert tx_id in self.nodes[0].getprioritisedtransactions()
-        assert_equal(self.nodes[0].getprioritisedtransactions()[tx_id]["fee_delta"], 0)
+        # Calling prioritisetransaction with the inverse amount should delete its prioritisation entry
+        assert tx_id not in self.nodes[0].getprioritisedtransactions()
 
         self.nodes[0].setmocktime(mock_time+10)
         new_template = self.nodes[0].getblocktemplate({'rules': ['segwit']})
