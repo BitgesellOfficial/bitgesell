@@ -5,7 +5,6 @@
 #ifndef BGL_TEST_UTIL_SETUP_COMMON_H
 #define BGL_TEST_UTIL_SETUP_COMMON_H
 
-#include <chainparamsbase.h>
 #include <common/args.h>
 #include <key.h>
 #include <node/caches.h>
