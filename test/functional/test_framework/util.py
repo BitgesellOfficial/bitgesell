@@ -43,6 +43,7 @@ def assert_fee_amount(fee, tx_size, feerate_BGL_kvB):
     """Assert the fee is in range."""
     assert isinstance(tx_size, int)
     target_fee = get_fee(tx_size, feerate_BGL_kvB)
+    feerate_BGL_vB = feerate_BGL_kvB / 1000
     if fee < target_fee:
         raise AssertionError("Fee of %s BGL too low! (Should be %s BGL)" % (str(fee), str(target_fee)))
     # allow the wallet's estimation to be at most 2 bytes off
@@ -310,7 +311,8 @@ PORT_RANGE = 5000
 
 class PortSeed:
     # Must be initialized with a unique integer for each process
-    n = None
+    n = 0  # TypeError: unsupported operand type(s) for *: 'int' and 'NoneType'
+           # Change from None to 0
 
 
 def get_rpc_proxy(url: str, node_number: int, *, timeout: int=None, coveragedir: str=None) -> coverage.AuthServiceProxyWrapper:

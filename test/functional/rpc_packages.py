@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2021-2022 The Bitcoin Core developers
+# Copyright (c) 2021 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """RPCs that handle raw transaction packages."""
@@ -110,7 +110,7 @@ class RPCPackagesTest(BGLTestFramework):
         assert_equal(testres_bad_sig, self.independent_txns_testres + [{
             "txid": tx_bad_sig.rehash(),
             "wtxid": tx_bad_sig.getwtxid(), "allowed": False,
-            "reject-reason": "mandatory-script-verify-flag-failed (Operation not valid with the current stack size)"
+            "reject-reason": "non-mandatory-script-verify-flag (Witness program hash mismatch)"
         }])
 
         self.log.info("Check testmempoolaccept reports txns in packages that exceed max feerate")
@@ -131,10 +131,8 @@ class RPCPackagesTest(BGLTestFramework):
         chain_txns = chain["chain_txns"]
 
         self.log.info("Check that testmempoolaccept requires packages to be sorted by dependency")
-        testres_multiple_unsorted = node.testmempoolaccept(rawtxs=chain_hex[::-1])
-        assert_equal(testres_multiple_unsorted,
-                     [{"txid": chain_txns[-1].rehash(), "wtxid": chain_txns[-1].getwtxid(), "allowed": False, "reject-reason": "missing-inputs"}]
-                     + [{"txid": tx.rehash(), "wtxid": tx.getwtxid()} for tx in chain_txns[::-1]][1:])
+        assert_equal(node.testmempoolaccept(rawtxs=chain_hex[::-1]),
+                [{"txid": tx.rehash(), "wtxid": tx.getwtxid(), "package-error": "package-not-sorted"} for tx in chain_txns[::-1]])
 
         self.log.info("Testmempoolaccept a chain of 25 transactions")
         testres_multiple = node.testmempoolaccept(rawtxs=chain_hex)
