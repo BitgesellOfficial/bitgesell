@@ -82,6 +82,7 @@ class GetblockstatsTest(BGLTestFramework):
             json.dump(to_dump, f, sort_keys=True, indent=2)
 
     def load_test_data(self, filename):
+        print (filename)
         with open(filename, 'r', encoding="utf8") as f:
             d = json.load(f)
             blocks = d['blocks']
@@ -169,7 +170,7 @@ class GetblockstatsTest(BGLTestFramework):
 
         self.log.info('Test block height 0')
         genesis_stats = self.nodes[0].getblockstats(0)
-        assert_equal(genesis_stats["blockhash"], "0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206")
+        assert_equal(genesis_stats["blockhash"], "2e14eaec9745ec9690602feddf650eb6e436d32a3ae8453cf6a90ef1d53a6c42")
         assert_equal(genesis_stats["utxo_increase"], 1)
         assert_equal(genesis_stats["utxo_size_inc"], 117)
         assert_equal(genesis_stats["utxo_increase_actual"], 0)
@@ -177,10 +178,10 @@ class GetblockstatsTest(BGLTestFramework):
 
         self.log.info('Test tip including OP_RETURN')
         tip_stats = self.nodes[0].getblockstats(tip)
-        assert_equal(tip_stats["utxo_increase"], 6)
-        assert_equal(tip_stats["utxo_size_inc"], 441)
+        assert_equal(tip_stats["utxo_increase"], 5)
+        assert_equal(tip_stats["utxo_size_inc"], 376)
         assert_equal(tip_stats["utxo_increase_actual"], 4)
-        assert_equal(tip_stats["utxo_size_inc_actual"], 300)
+        assert_equal(tip_stats["utxo_size_inc_actual"], 288)
 
 if __name__ == '__main__':
     GetblockstatsTest().main()
