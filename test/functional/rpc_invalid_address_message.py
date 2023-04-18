@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2020-2022 The Bitcoin Core developers
+# Copyright (c) 2020-2021 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test error messages for 'getaddressinfo' and 'validateaddress' RPC commands."""
@@ -11,18 +11,32 @@ from test_framework.util import (
     assert_raises_rpc_error,
 )
 
-BECH32_VALID = 'bcrt1qtmp74ayg7p24uslctssvjm06q5phz4yrxucgnv'
-BECH32_INVALID_BECH32 = 'bcrt1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqdmchcc'
-BECH32_INVALID_BECH32M = 'bcrt1qw508d6qejxtdg4y5r3zarvary0c5xw7k35mrzd'
-BECH32_INVALID_VERSION = 'bcrt130xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqynjegk'
-BECH32_INVALID_SIZE = 'bcrt1s0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7v8n0nx0muaewav25430mtr'
-BECH32_INVALID_V0_SIZE = 'bcrt1qw508d6qejxtdg4y5r3zarvary0c5xw7kqqq5k3my'
-BECH32_INVALID_PREFIX = 'bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx'
+BECH32_VALID = 'rbgl1qtmp74ayg7p24uslctssvjm06q5phz4yrlr4q2x'
+BECH32_VALID_CAPITALS = 'RBGL1QTMP74AYG7P24USLCTSSVJM06Q5PHZ4YRLR4Q2X'
+BECH32_VALID_MULTISIG = 'rbgl1qjmprdr7rq522gw9ghkgfly7yng25n4m3nrxtmdujqsakvm9jfapqthsqed'
 
-BASE58_VALID = 'mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJRfn'
+BECH32_INVALID_BECH32 = 'rbgl1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqsjdr7p'
+BECH32_INVALID_BECH32M = 'rbgl1qw508d6qejxtdg4y5r3zarvary0c5xw7kgtktm8'
+BECH32_INVALID_VERSION = 'rbgl130xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqe68dw0'
+BECH32_INVALID_SIZE = 'rbgl1s0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7v8n0nx0muaewav253wkc50'
+BECH32_INVALID_V0_SIZE = 'rbgl1qw508d6qejxtdg4y5r3zarvary0c5xw7kqqdx75yt'
+BECH32_INVALID_PREFIX = 'tbgl1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7khvqghp'
+BECH32_TOO_LONG = 'rbgl1q049edschfnwystcqnsvyfpj23mpsg3jcedq9xv049edschfnwystcqnsvyfpj23mpsg3jcedq9xv049edschfnwystcqnsvyfpj23m'
+BECH32_ONE_ERROR = 'rbgl1qtmp74ayg7p24uslctssvjm06q5phz4yrlr4q2y'
+BECH32_ONE_ERROR_CAPITALS = 'RBGL1QTMP74AYG7P24USLCTSSVJM06Q5PHZ4YRLR4Q2Y'
+BECH32_TWO_ERRORS = 'rbgl1qtmp74ayg7p24uslctssvjm06q5phz4yrlr4r2y' # should be bcrt1qax9suht3qv95sw33wavx8crpxduefdrsvgsklx
+BECH32_NO_SEPARATOR = 'rbglq049ldschfnwystcqnsvyfpj23mpsg3jcedq9xv'
+BECH32_INVALID_CHAR = 'rbgl1q04oldschfnwystcqnsvyfpj23mpsg3jcedq9xv'
+BECH32_MULTISIG_TWO_ERRORS = 'rbgl1qjmprdr7rq522gw9ghkgfly7yng25n4m3nrxtmdujqsakvm9jfapqthsqde'
+BECH32_WRONG_VERSION = 'rbgl1qjmprdr7rq522gw9ghkgfly7yng25n4m3nrxtmdujqsakvm9jfapqthsqee'
+
+BASE58_VALID = 'MAMYWDWqd46sYwL7h9ExCpzaPba53HhMh8'
 BASE58_INVALID_PREFIX = '17VZNX1SN5NtKa8UQFxwQbFeFc3iqRYhem'
+BASE58_INVALID_CHECKSUM = 'mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJJfn'
+BASE58_INVALID_LENGTH = '2VKf7XKMrp4bVNVmuRbyCewkP8FhGLP2E54LHDPakr9Sq5mtU2'
 
 INVALID_ADDRESS = 'asfah14i8fajz0123f'
+INVALID_ADDRESS_2 = '1q049ldschfnwystcqnsvyfpj23mpsg3jcedq9xv'
 
 class InvalidAddressErrorMessageTest(BGLTestFramework):
     def add_options(self, parser):
@@ -32,37 +46,20 @@ class InvalidAddressErrorMessageTest(BGLTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 1
 
-    def test_validateaddress(self):
-        node = self.nodes[0]
-
-        # Bech32
-        info = node.validateaddress(BECH32_INVALID_SIZE)
-        assert not info['isvalid']
-        assert_equal(info['error'], 'Invalid Bech32 address data size')
-
-        info = node.validateaddress(BECH32_INVALID_PREFIX)
-        assert not info['isvalid']
-        assert_equal(info['error'], 'Invalid prefix for Bech32 address')
-
-        info = node.validateaddress(BECH32_INVALID_BECH32)
-        assert not info['isvalid']
-        assert_equal(info['error'], 'Version 1+ witness address must use Bech32m checksum')
-
-        info = node.validateaddress(BECH32_INVALID_BECH32M)
-        assert not info['isvalid']
-        assert_equal(info['error'], 'Version 0 witness address must use Bech32 checksum')
-
-        info = node.validateaddress(BECH32_INVALID_V0_SIZE)
-        assert not info['isvalid']
-        assert_equal(info['error'], 'Invalid Bech32 v0 address data size')
-
-        info = node.validateaddress(BECH32_VALID)
+    def check_valid(self, addr):
+        info = self.nodes[0].validateaddress(addr)
         assert info['isvalid']
         assert 'error' not in info
+        assert 'error_locations' not in info
 
-        info = node.validateaddress(BECH32_INVALID_VERSION)
-        assert not info['isvalid']
-        assert_equal(info['error'], 'Invalid Bech32 address witness version')
+    def check_invalid(self, addr, error_str, error_locations=None):
+        res = self.nodes[0].validateaddress(addr)
+        assert not res['isvalid']
+        assert_equal(res['error'], error_str)
+        if error_locations:
+            assert_equal(res['error_locations'], error_locations)
+        else:
+            assert_equal(res['error_locations'], [])
 
     def test_validateaddress(self):
         # Invalid Bech32
@@ -73,13 +70,13 @@ class InvalidAddressErrorMessageTest(BGLTestFramework):
         self.check_invalid(BECH32_INVALID_VERSION, 'Invalid Bech32 address witness version')
         self.check_invalid(BECH32_INVALID_V0_SIZE, 'Invalid Bech32 v0 address data size')
         self.check_invalid(BECH32_TOO_LONG, 'Bech32 string too long', list(range(90, 108)))
-        self.check_invalid(BECH32_ONE_ERROR, 'Invalid Bech32 checksum', [9])
-        self.check_invalid(BECH32_TWO_ERRORS, 'Invalid Bech32 checksum', [22, 43])
-        self.check_invalid(BECH32_ONE_ERROR_CAPITALS, 'Invalid Bech32 checksum', [38])
+        self.check_invalid(BECH32_ONE_ERROR, 'Invalid Bech32 checksum', [43])
+        self.check_invalid(BECH32_TWO_ERRORS, 'Invalid Bech32 checksum', [41, 43])
+        self.check_invalid(BECH32_ONE_ERROR_CAPITALS, 'Invalid Bech32 checksum', [43])
         self.check_invalid(BECH32_NO_SEPARATOR, 'Missing separator')
         self.check_invalid(BECH32_INVALID_CHAR, 'Invalid Base 32 character', [8])
-        self.check_invalid(BECH32_MULTISIG_TWO_ERRORS, 'Invalid Bech32 checksum', [19, 30])
-        self.check_invalid(BECH32_WRONG_VERSION, 'Invalid Bech32 checksum', [5])
+        self.check_invalid(BECH32_MULTISIG_TWO_ERRORS, 'Invalid Bech32 checksum', [62, 63])
+        self.check_invalid(BECH32_WRONG_VERSION, 'Invalid Bech32 checksum', [63])
 
         # Valid Bech32
         self.check_valid(BECH32_VALID)
