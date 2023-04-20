@@ -30,12 +30,6 @@ class PrioritiseTransactionTest(BGLTestFramework):
         ]] * self.num_nodes
         self.supports_cli = False
 
-    def clear_prioritisation(self, node):
-        for txid, info in node.getprioritisedtransactions().items():
-            delta = info["fee_delta"]
-            node.prioritisetransaction(txid, 0, -delta)
-        assert_equal(node.getprioritisedtransactions(), {})
-
     def test_replacement(self):
         self.log.info("Test tx prioritisation stays after a tx is replaced")
         conflicting_input = self.wallet.get_utxo()
@@ -174,6 +168,7 @@ class PrioritiseTransactionTest(BGLTestFramework):
         # Test `prioritisetransaction` invalid `fee_delta`
         assert_raises_rpc_error(-3, "JSON value of type string is not of expected type number", self.nodes[0].prioritisetransaction, txid=txid, fee_delta='foo')
 
+        self.test_replacement()
         self.test_diamond()
 
         self.txouts = gen_return_txouts()
