@@ -1,24 +1,15 @@
-AC_PREREQ([2.60])
-
-# The package (a.k.a. release) version is based on semantic versioning 2.0.0 of
-# the API. All changes in experimental modules are treated as
-# backwards-compatible and therefore at most increase the minor version.
-define(_PKG_VERSION_MAJOR, 0)
-define(_PKG_VERSION_MINOR, 3)
-define(_PKG_VERSION_PATCH, 2)
-define(_PKG_VERSION_IS_RELEASE, false)
-
-# The library version is based on libtool versioning of the ABI. The set of
-# rules for updating the version can be found here:
-# https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-# All changes in experimental modules are treated as if they don't affect the
-# interface and therefore only increase the revision.
-define(_LIB_VERSION_CURRENT, 2)
-define(_LIB_VERSION_REVISION, 2)
-define(_LIB_VERSION_AGE, 0)
-
-AC_INIT([libsecp256k1],m4_join([.], _PKG_VERSION_MAJOR, _PKG_VERSION_MINOR, _PKG_VERSION_PATCH)m4_if(_PKG_VERSION_IS_RELEASE, [true], [], [-dev]),[https://github.com/bitcoin-core/secp256k1/issues],[libsecp256k1],[https://github.com/bitcoin-core/secp256k1])
-
+AC_PREREQ([2.69])
+define(_CLIENT_VERSION_MAJOR, 25)
+define(_CLIENT_VERSION_MINOR, 99)
+define(_CLIENT_VERSION_BUILD, 0)
+define(_CLIENT_VERSION_RC, 0)
+define(_CLIENT_VERSION_IS_RELEASE, false)
+define(_COPYRIGHT_YEAR, 2023)
+define(_COPYRIGHT_HOLDERS,[The %s developers])
+define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[Bitgesell Core]])
+AC_INIT([Bitgesell Core],m4_join([.], _CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MINOR, _CLIENT_VERSION_BUILD)m4_if(_CLIENT_VERSION_RC, [0], [], [rc]_CLIENT_VERSION_RC),[https://github.com/bitcoin/bitcoin/issues],[bitcoin],[https://bitcoincore.org/])
+AC_CONFIG_SRCDIR([src/validation.cpp])
+AC_CONFIG_HEADERS([src/config/BGL-config.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 
