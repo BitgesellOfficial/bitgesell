@@ -11,7 +11,7 @@ from test_framework.address import (
     script_to_p2sh,
 )
 from test_framework.key import ECKey
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
     find_vout_for_address,
@@ -34,7 +34,7 @@ from test_framework.wallet import (
 )
 
 
-class SignRawTransactionWithKeyTest(BitcoinTestFramework):
+class SignRawTransactionWithKeyTest(BGLTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 2
@@ -65,7 +65,7 @@ class SignRawTransactionWithKeyTest(BitcoinTestFramework):
              'scriptPubKey': '76a914669b857c03a5ed269d5d85a1ffac9ed5d663072788ac'},
         ]
 
-        outputs = {'mpLQjfK79b7CCV4VMJWEWAj5Mpx8Up5zxB': 0.1}
+        outputs = {'EqJxvJMvUhRjE7KpTzrhAWmVtz7VpNQZe3': 0.1}
 
         rawTx = self.nodes[0].createrawtransaction(inputs, outputs)
         rawTxSigned = self.nodes[0].signrawtransactionwithkey(rawTx, privKeys, inputs)
