@@ -11,7 +11,7 @@ Needs `objdump` (for PE).
 import sys
 from typing import List
 
-import lief #type:ignore
+import lief
 
 def check_ELF_RELRO(binary) -> bool:
     '''
