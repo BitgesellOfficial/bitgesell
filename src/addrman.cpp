@@ -754,65 +754,45 @@ std::pair<CAddress, NodeSeconds> AddrManImpl::Select_(bool new_only, std::option
         bucket_count = ADDRMAN_NEW_BUCKET_COUNT;
     }
 
-    if (search_tried) {
-        // use a tried node
-        double fChanceFactor = 1.0;
-        while (1) {
-            // Pick a tried bucket, and an initial position in that bucket.
-            int nKBucket = insecure_rand.randrange(bucket_count);
-            int nKBucketPos = insecure_rand.randrange(ADDRMAN_BUCKET_SIZE);
-            // Iterate over the positions of that bucket, starting at the initial one,
-            // and looping around.
-            int i;
-            for (i = 0; i < ADDRMAN_BUCKET_SIZE; ++i) {
-                int position = (nKBucketPos + i) % ADDRMAN_BUCKET_SIZE;
-                int node_id = GetEntry(search_tried, nKBucket, position);
-                if (node_id != -1) break;
-            }
-            // If the bucket is entirely empty, start over with a (likely) different one.
-            if (i == ADDRMAN_BUCKET_SIZE) continue;
-            // Find the entry to return.
-            int position = (nKBucketPos + i) % ADDRMAN_BUCKET_SIZE;
-            int nId = GetEntry(search_tried, nKBucket, position);
-            const auto it_found{mapInfo.find(nId)};
-            assert(it_found != mapInfo.end());
-            const AddrInfo& info{it_found->second};
-            // With probability GetChance() * fChanceFactor, return the entry.
-            if (insecure_rand.randbits(30) < fChanceFactor * info.GetChance() * (1 << 30)) {
-                LogPrint(BCLog::ADDRMAN, "Selected %s from tried\n", info.ToStringAddrPort());
-                return {info, info.m_last_try};
+    const int bucket_count{search_tried ? ADDRMAN_TRIED_BUCKET_COUNT : ADDRMAN_NEW_BUCKET_COUNT};
+
+    // Loop through the addrman table until we find an appropriate entry
+    double chance_factor = 1.0;
+    while (1) {
+        // Pick a bucket, and an initial position in that bucket.
+        int bucket = insecure_rand.randrange(bucket_count);
+        int initial_position = insecure_rand.randrange(ADDRMAN_BUCKET_SIZE);
+
+        // Iterate over the positions of that bucket, starting at the initial one,
+        // and looping around.
+        int i, position, node_id;
+        for (i = 0; i < ADDRMAN_BUCKET_SIZE; ++i) {
+            position = (initial_position + i) % ADDRMAN_BUCKET_SIZE;
+            node_id = GetEntry(search_tried, bucket, position);
+            if (node_id != -1) {
+                if (network.has_value()) {
+                    const auto it{mapInfo.find(node_id)};
+                    assert(it != mapInfo.end());
+                    const auto info{it->second};
+                    if (info.GetNetwork() == *network) break;
+                } else {
+                    break;
+                }
             }
         }
-    } else {
-        // use a new node
-        double fChanceFactor = 1.0;
-        while (1) {
-            // Pick a new bucket, and an initial position in that bucket.
-            int nUBucket = insecure_rand.randrange(bucket_count);
-            int nUBucketPos = insecure_rand.randrange(ADDRMAN_BUCKET_SIZE);
-            // Iterate over the positions of that bucket, starting at the initial one,
-            // and looping around.
-            int i;
-            for (i = 0; i < ADDRMAN_BUCKET_SIZE; ++i) {
-                int position = (nUBucketPos + i) % ADDRMAN_BUCKET_SIZE;
-                int node_id = GetEntry(search_tried, nUBucket, position);
-                if (node_id != -1) break;
-            }
-            // If the bucket is entirely empty, start over with a (likely) different one.
-            if (i == ADDRMAN_BUCKET_SIZE) continue;
-            // Find the entry to return.
-            int position = (nUBucketPos + i) % ADDRMAN_BUCKET_SIZE;
-            int nId = GetEntry(search_tried, nUBucket, position);
-            const auto it_found{mapInfo.find(nId)};
-            assert(it_found != mapInfo.end());
-            const AddrInfo& info{it_found->second};
-            // With probability GetChance() * fChanceFactor, return the entry.
-            if (insecure_rand.randbits(30) < fChanceFactor * info.GetChance() * (1 << 30)) {
-                LogPrint(BCLog::ADDRMAN, "Selected %s from new\n", info.ToStringAddrPort());
-                return {info, info.m_last_try};
-            }
-            // Otherwise start over with a (likely) different bucket, and increased chance factor.
-            fChanceFactor *= 1.2;
+
+        // If the bucket is entirely empty, start over with a (likely) different one.
+        if (i == ADDRMAN_BUCKET_SIZE) continue;
+
+        // Find the entry to return.
+        const auto it_found{mapInfo.find(node_id)};
+        assert(it_found != mapInfo.end());
+        const AddrInfo& info{it_found->second};
+
+        // With probability GetChance() * chance_factor, return the entry.
+        if (insecure_rand.randbits(30) < chance_factor * info.GetChance() * (1 << 30)) {
+            LogPrint(BCLog::ADDRMAN, "Selected %s from %s\n", info.ToStringAddrPort(), search_tried ? "tried" : "new");
+            return {info, info.m_last_try};
         }
 
         // Otherwise start over with a (likely) different bucket, and increased chance factor.
