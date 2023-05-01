@@ -126,7 +126,7 @@ class ListDescriptorsTest(BGLTestFramework):
             'wallet_name': 'w4',
             'descriptors': [
                 {'active': False,
-                 'desc': 'combo(0227d85ba011276cf25b51df6a188b75e604b38770a462b2d0e9fb2fc839ef5d3f)#np574htj',
+                 'desc': 'combo(022a8ed5358832ab1218113501d19ee1cb02dc42f5713506fbd320c075fc866b88)#55wlgpc0',
                  'timestamp': TIME_GENESIS_BLOCK},
             ]
         }
