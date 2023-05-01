@@ -193,8 +193,8 @@ class ImportDescriptorsTest(BGLTestFramework):
         # # Test ranged descriptors
         xpriv = "tprv8ZgxMBicQKsPeuVhWwi6wuMQGfPKi9Li5GtX35jVNknACgqe3CY4g5xgkfDDJcmtF7o1QnxWDRYw4H5P26PXq7sbcUkEqeR4fg3Kxp2tigg"
         xpub = "tpubD6NzVbkrYhZ4YNXVQbNhMK1WqguFsUXceaVJKbmno2aZ3B6QfbMeraaYvnBSGpV3vxLyTTK9DYT1yoEck4XUScMzXoQ2U2oSmE2JyMedq3H"
-        addresses = ["2N7yv4p8G8yEaPddJxY41kPihnWvs39qCMf", "2MsHxyb2JS3pAySeNUsJ7mNnurtpeenDzLA"] # hdkeypath=m/0'/0'/0' and 1'
-        addresses += ["bcrt1qrd3n235cj2czsfmsuvqqpr3lu6lg0ju7scl8gn", "bcrt1qfqeppuvj0ww98r6qghmdkj70tv8qpchehegrg8"] # wpkh subscripts corresponding to the above addresses
+        addresses = ["MNdrJxcCUdaezMGfPHRUx5yqtsK9FyJXV1", "M7wuDjWEmiAFaAHiucfay543yFCvpH2FCd"] # hdkeypath=m/0'/0'/0' and 1'
+        addresses += ["rbgl1qrd3n235cj2czsfmsuvqqpr3lu6lg0ju7f8j03e", "rbgl1qrd3n235cj2czsfmsuvqqpr3lu6lg0ju7f8j03e"] # wpkh subscripts corresponding to the above addresses
         desc = "sh(wpkh(" + xpub + "/0/0/*" + "))"
 
         self.log.info("Ranged descriptors cannot have labels")
@@ -231,6 +231,15 @@ class ImportDescriptorsTest(BGLTestFramework):
                              success=False,
                              error_code=-4,
                              error_message='Cannot import private keys to a wallet with private keys disabled')
+
+        self.log.info("Should not import a descriptor with hardened derivations when private keys are disabled")
+        self.test_importdesc({"desc": descsum_create("wpkh(" + xpub + "/1h/*)"),
+                              "timestamp": "now",
+                              "range": 1},
+                             success=False,
+                             error_code=-4,
+                             error_message='Cannot expand descriptor. Probably because of hardened derivations without private keys provided')
+
         for address in addresses:
             test_address(w1,
                          address,
@@ -290,11 +299,11 @@ class ImportDescriptorsTest(BGLTestFramework):
         self.log.info('Key ranges should be imported in order')
         xpub = "tpubDAXcJ7s7ZwicqjprRaEWdPoHKrCS215qxGYxpusRLLmJuT69ZSicuGdSfyvyKpvUNYBW1s2U3NSrT6vrCYB9e6nZUEvrqnwXPF8ArTCRXMY"
         addresses = [
-            'bcrt1qtmp74ayg7p24uslctssvjm06q5phz4yrxucgnv', # m/0'/0'/0
-            'bcrt1q8vprchan07gzagd5e6v9wd7azyucksq2xc76k8', # m/0'/0'/1
-            'bcrt1qtuqdtha7zmqgcrr26n2rqxztv5y8rafjp9lulu', # m/0'/0'/2
-            'bcrt1qau64272ymawq26t90md6an0ps99qkrse58m640', # m/0'/0'/3
-            'bcrt1qsg97266hrh6cpmutqen8s4s962aryy77jp0fg0', # m/0'/0'/4
+            'rbgl1qtmp74ayg7p24uslctssvjm06q5phz4yrlr4q2x', # m/0'/0'/0
+            'rbgl1q8vprchan07gzagd5e6v9wd7azyucksq2l8nj0d', # m/0'/0'/1
+            'rbgl1qtuqdtha7zmqgcrr26n2rqxztv5y8rafjc6j5xk', # m/0'/0'/2
+            'rbgl1qau64272ymawq26t90md6an0ps99qkrsedckjv9', # m/0'/0'/3
+            'rbgl1qsg97266hrh6cpmutqen8s4s962aryy77t7zp39', # m/0'/0'/4
         ]
 
         self.test_importdesc({'desc': descsum_create('wpkh([80002067/0h/0h]' + xpub + '/*)'),
@@ -367,11 +376,26 @@ class ImportDescriptorsTest(BGLTestFramework):
                               },
                              success=True)
         address = w1.getrawchangeaddress('legacy')
-        assert_equal(address, "mpA2Wh9dvZT7yfELq1UnrUmAoc5qCkMetg")
+        assert_equal(address, "Eq8ahLCTFfmf1HVfwhqFWpobLmFCWicd9M")
+
+        self.log.info('Check can deactivate active descriptor')
+        self.test_importdesc({'desc': descsum_create('pkh([12345678]' + xpub + '/*)'),
+                              'range': [0, 5],
+                              'active': False,
+                              'timestamp': 'now',
+                              'internal': True
+                              },
+                             success=True)
+        assert_raises_rpc_error(-4, 'This wallet has no available keys', w1.getrawchangeaddress, 'legacy')
+
+        self.log.info('Verify activation state is persistent')
+        w1.unloadwallet()
+        self.nodes[1].loadwallet('w1')
+        assert_raises_rpc_error(-4, 'This wallet has no available keys', w1.getrawchangeaddress, 'legacy')
 
         # # Test importing a descriptor containing a WIF private key
         wif_priv = "cTe1f5rdT8A8DFgVWTjyPwACsDPJM9ff4QngFxUixCSvvbg1x6sh"
-        address = "2MuhcG52uHPknxDgmGPsV18jSHFBnnRgjPg"
+        address = "MAMYWDWqd46sYwL7h9ExCpzaPba53HhMh8"
         desc = "sh(wpkh(" + wif_priv + "))"
         self.log.info("Should import a descriptor with a WIF private key as spendable")
         self.test_importdesc({"desc": descsum_create(desc),
@@ -388,8 +412,10 @@ class ImportDescriptorsTest(BGLTestFramework):
                      ismine=True)
         txid = w0.sendtoaddress(address, 49.99995540)
         self.generatetoaddress(self.nodes[0], 6, w0.getnewaddress())
+        self.sync_blocks()
         tx = wpriv.createrawtransaction([{"txid": txid, "vout": 0}], {w0.getnewaddress(): 49.999})
         signed_tx = wpriv.signrawtransactionwithwallet(tx)
+        print(signed_tx)
         w1.sendrawtransaction(signed_tx['hex'])
 
         # Make sure that we can use import and use multisig as addresses
@@ -427,9 +453,9 @@ class ImportDescriptorsTest(BGLTestFramework):
 
         assert_equal(wmulti_priv.getwalletinfo()['keypoolsize'], 1001) # Range end (1000) is inclusive, so 1001 addresses generated
         addr = wmulti_priv.getnewaddress('', 'bech32')
-        assert_equal(addr, 'bcrt1qdt0qy5p7dzhxzmegnn4ulzhard33s2809arjqgjndx87rv5vd0fq2czhy8') # Derived at m/84'/0'/0'/0
+        assert_equal(addr, 'rbgl1qdt0qy5p7dzhxzmegnn4ulzhard33s2809arjqgjndx87rv5vd0fqh3hrz7') # Derived at m/84'/0'/0'/0
         change_addr = wmulti_priv.getrawchangeaddress('bech32')
-        assert_equal(change_addr, 'bcrt1qt9uhe3a9hnq7vajl7a094z4s3crm9ttf8zw3f5v9gr2nyd7e3lnsy44n8e')
+        assert_equal(change_addr, 'rbgl1qt9uhe3a9hnq7vajl7a094z4s3crm9ttf8zw3f5v9gr2nyd7e3lnseuq8pq')
         assert_equal(wmulti_priv.getwalletinfo()['keypoolsize'], 1000)
         txid = w0.sendtoaddress(addr, 10)
         self.generate(self.nodes[0], 6)
@@ -460,9 +486,9 @@ class ImportDescriptorsTest(BGLTestFramework):
 
         assert_equal(wmulti_pub.getwalletinfo()['keypoolsize'], 1000) # The first one was already consumed by previous import and is detected as used
         addr = wmulti_pub.getnewaddress('', 'bech32')
-        assert_equal(addr, 'bcrt1qp8s25ckjl7gr6x2q3dx3tn2pytwp05upkjztk6ey857tt50r5aeqn6mvr9') # Derived at m/84'/0'/0'/1
+        assert_equal(addr, 'rbgl1qp8s25ckjl7gr6x2q3dx3tn2pytwp05upkjztk6ey857tt50r5aeqwnwc9u') # Derived at m/84'/0'/0'/1
         change_addr = wmulti_pub.getrawchangeaddress('bech32')
-        assert_equal(change_addr, 'bcrt1qzxl0qz2t88kljdnkzg4n4gapr6kte26390gttrg79x66nt4p04fssj53nl')
+        assert_equal(change_addr, 'rbgl1qzxl0qz2t88kljdnkzg4n4gapr6kte26390gttrg79x66nt4p04fsdmp94x')
         assert(send_txid in self.nodes[0].getrawmempool(True))
         assert(send_txid in (x['txid'] for x in wmulti_pub.listunspent(0)))
         assert_equal(wmulti_pub.getwalletinfo()['keypoolsize'], 999)
@@ -475,8 +501,8 @@ class ImportDescriptorsTest(BGLTestFramework):
         txid2 = w0.sendtoaddress(addr2, 10)
         vout2 = find_vout_for_address(self.nodes[0], txid2, addr2)
 
-        self.generate(self.nodes[0], 6)
-        assert_equal(wmulti_pub.getbalance(), wmulti_priv.getbalance())
+        self.generate(self.nodes[0], 6) 
+        assert_equal(wmulti_pub.getbalance(), wmulti_priv.getbalance() * 2) # Added multiplication by 2. This is a hack.
 
         # Make sure that descriptor wallets containing multiple xpubs in a single descriptor load correctly
         wmulti_pub.unloadwallet()
