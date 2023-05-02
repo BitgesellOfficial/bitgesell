@@ -9,7 +9,7 @@ from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.descriptors import descsum_create
 from test_framework.key import ECKey
 from test_framework.test_framework import BGLTestFramework
-from test_framework.messages import BIP125_SEQUENCE_NUMBER
+from test_framework.messages import MAX_BIP125_RBF_SEQUENCE
 from test_framework.util import (
     assert_array_result,
     assert_equal,
