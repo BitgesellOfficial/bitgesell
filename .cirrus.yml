@@ -161,25 +161,15 @@ task:
   name: 'ARM [unit tests, no functional tests] [bullseye]'
   << : *GLOBAL_TASK_TEMPLATE
   arm_container:
-    image: debian:bullseye
     cpu: 2
     memory: 8G
-    # docker_arguments:  # Can use dockerfile after https://github.com/cirruslabs/cirrus-ci-docs/issues/1154
+    dockerfile: ci/test_imagefile
+    docker_arguments:
+      CI_IMAGE_NAME_TAG: debian:bullseye
+      FILE_ENV: "./ci/test/00_setup_env_arm.sh"
   env:
-    WRAPPER_CMD: qemu-s390x
-    SECP256K1_TEST_ITERS: 16
-    HOST: s390x-linux-gnu
-    WITH_VALGRIND: no
-    ECDH: yes
-    RECOVERY: yes
-    SCHNORRSIG: yes
-    CTIMETESTS: no
-  << : *MERGE_BASE
-  test_script:
-    # https://sourceware.org/bugzilla/show_bug.cgi?id=27008
-    - rm /etc/ld.so.cache
-    - ./ci/cirrus.sh
-  << : *CAT_LOGS
+    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
+    QEMU_USER_CMD: ""  # Disable qemu and run the test natively
 
 task:
   name: 'Win64 [unit tests, no gui tests, no boost::process, no functional tests] [jammy]'
