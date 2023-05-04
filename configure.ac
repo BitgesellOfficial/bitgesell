@@ -96,12 +96,6 @@ case $host in
   ;;
 esac
 
-AC_ARG_WITH([seccomp],
-  [AS_HELP_STRING([--with-seccomp],
-  [enable experimental syscall sandbox feature (-sandbox), default is yes if seccomp-bpf is detected under Linux x86_64])],
-  [seccomp_found=$withval],
-  [seccomp_found=auto])
-
 AC_ARG_ENABLE([c++20],
   [AS_HELP_STRING([--enable-c++20],
   [enable compilation in c++20 mode (disabled by default)])],
@@ -1500,49 +1494,14 @@ if test "$use_external_signer" != "no"; then
 fi
 AM_CONDITIONAL([ENABLE_EXTERNAL_SIGNER], [test "$use_external_signer" = "yes"])
 
-dnl Do not compile with syscall sandbox support when compiling under the sanitizers.
-dnl The sanitizers introduce use of syscalls that are not typically used in BGLd
-dnl (such as execve when the sanitizers execute llvm-symbolizer).
-if test "$use_sanitizers" != ""; then
-  AC_MSG_WARN([Specifying --with-sanitizers forces --without-seccomp since the sanitizers introduce use of syscalls not allowed by the BGLd syscall sandbox (-sandbox=<mode>).])
-  seccomp_found=no
+dnl Check for reduced exports
+if test "$use_reduce_exports" = "yes"; then
+  AX_CHECK_COMPILE_FLAG([-fvisibility=hidden], [CORE_CXXFLAGS="$CORE_CXXFLAGS -fvisibility=hidden"],
+  [AC_MSG_ERROR([Cannot set hidden symbol visibility. Use --disable-reduce-exports.])], [$CXXFLAG_WERROR])
+  AX_CHECK_LINK_FLAG([-Wl,--exclude-libs,ALL], [RELDFLAGS="-Wl,--exclude-libs,ALL"], [], [$LDFLAG_WERROR])
 fi
-if test "$seccomp_found" != "no"; then
-  AC_MSG_CHECKING([for seccomp-bpf (Linux x86-64)])
-  AC_PREPROC_IFELSE([AC_LANG_PROGRAM([[
-      @%:@include <linux/seccomp.h>
-    ]], [[
-      #if !defined(__x86_64__)
-      #  error Syscall sandbox is an experimental feature currently available only under Linux x86-64.
-      #endif
-    ]])],[
-      AC_MSG_RESULT([yes])
-      seccomp_found="yes"
-      AC_DEFINE([USE_SYSCALL_SANDBOX], [1], [Define this symbol to build with syscall sandbox support.])
-    ],[
-      AC_MSG_RESULT([no])
-      seccomp_found="no"
-  ])
-fi
-dnl Currently only enable -sandbox=<mode> feature if seccomp is found.
-dnl In the future, sandboxing could be also be supported with other
-dnl sandboxing mechanisms besides seccomp.
-use_syscall_sandbox=$seccomp_found
-AM_CONDITIONAL([ENABLE_SYSCALL_SANDBOX], [test "$use_syscall_sandbox" != "no"])
 
-case $set_asm in
-x86_64)
-  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DUSE_ASM_X86_64=1"
-  ;;
-arm)
-  enable_external_asm=yes
-  ;;
-no)
-  ;;
-*)
-  AC_MSG_ERROR([invalid assembly optimizations])
-  ;;
-esac
+if test "$use_tests" = "yes"; then
 
 if test x"$enable_external_asm" = x"yes"; then
   SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DUSE_EXTERNAL_ASM=1"
@@ -1732,24 +1691,14 @@ case ${OS} in
 esac
 
 echo
-echo "Build Options:"
-echo "  with external callbacks = $enable_external_default_callbacks"
-echo "  with benchmarks         = $enable_benchmark"
-echo "  with tests              = $enable_tests"
-echo "  with ctime tests        = $enable_ctime_tests"
-echo "  with coverage           = $enable_coverage"
-echo "  with examples           = $enable_examples"
-echo "  module ecdh             = $enable_module_ecdh"
-echo "  module recovery         = $enable_module_recovery"
-echo "  module extrakeys        = $enable_module_extrakeys"
-echo "  module schnorrsig       = $enable_module_schnorrsig"
-echo
-echo "  asm                     = $set_asm"
-echo "  ecmult window size      = $set_ecmult_window"
-echo "  ecmult gen prec. bits   = $set_ecmult_gen_precision"
-# Hide test-only options unless they're used.
-if test x"$set_widemul" != xauto; then
-echo "  wide multiplication     = $set_widemul"
+echo "Options used to compile and link:"
+echo "  external signer = $use_external_signer"
+echo "  multiprocess    = $build_multiprocess"
+echo "  with libs       = $build_BGL_libs"
+echo "  with wallet     = $enable_wallet"
+if test "$enable_wallet" != "no"; then
+    echo "    with sqlite   = $use_sqlite"
+    echo "    with bdb      = $use_bdb"
 fi
 echo "  with gui / qt   = $BGL_enable_qt"
 if test $BGL_enable_qt != "no"; then

@@ -12,11 +12,7 @@
     <ClCompile Include="..\..\src\BGL-tx.cpp" />
   </ItemGroup>
   <ItemGroup>
-<<<<<<< HEAD:build_msvc/BGL-tx/BGL-tx.vcxproj
     <ProjectReference Include="..\libBGLconsensus\libBGLconsensus.vcxproj">
-=======
-    <ProjectReference Include="..\libbitcoin_consensus\libbitcoin_consensus.vcxproj">
->>>>>>> 30aee016f1... scripted-diff: Rename `libbitcoinconsensus` to `libbitcoin_consensus`:build_msvc/bitcoin-tx/bitcoin-tx.vcxproj
       <Project>{2b384fa8-9ee1-4544-93cb-0d733c25e8ce}</Project>
     </ProjectReference>
     <ProjectReference Include="..\libBGL_common\libBGL_common.vcxproj">
