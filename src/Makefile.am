@@ -913,12 +913,8 @@ libBGLkernel_la_SOURCES = \
   kernel/BGLkernel.cpp \
   arith_uint256.cpp \
   chain.cpp \
-  chainparamsbase.cpp \
-  chainparams.cpp \
   clientversion.cpp \
   coins.cpp \
-  common/args.cpp \
-  common/config.cpp \
   compressor.cpp \
   consensus/merkle.cpp \
   consensus/tx_check.cpp \
@@ -979,7 +975,6 @@ libBGLkernel_la_SOURCES = \
   util/moneystr.cpp \
   util/rbf.cpp \
   util/serfloat.cpp \
-  util/settings.cpp \
   util/strencodings.cpp \
   util/string.cpp \
   util/syscall_sandbox.cpp \
