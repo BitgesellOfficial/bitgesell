@@ -11,4 +11,8 @@ set -o errexit; source ./ci/test/04_install.sh
 set -o errexit; source ./ci/test/05_before_script.sh
 set -o errexit; source ./ci/test/06_script_a.sh
 set -o errexit; source ./ci/test/06_script_b.sh
-set -o errexit; source ./ci/test/07_script.sh
+
+if [ -z "$DANGER_RUN_CI_ON_HOST" ]; then
+  echo "Stop and remove CI container by ID"
+  docker container kill "${CI_CONTAINER_ID}"
+fi
