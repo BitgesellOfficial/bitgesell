@@ -111,8 +111,7 @@ def main():
             content += '    </ClCompile>\n'
         set_properties(vcxproj_filename, '@SOURCE_FILES@\n', content)
     parse_config_into_BGL_config()
-    copyfile(os.path.join(SOURCE_DIR,'../build_msvc/BGL_config.h'), os.path.join(SOURCE_DIR, 'config/BGL-config.h'))
-    copyfile(os.path.join(SOURCE_DIR,'../build_msvc/libsecp256k1_config.h'), os.path.join(SOURCE_DIR, 'secp256k1/src/libsecp256k1-config.h'))
+    copyfile(os.path.join(SOURCE_DIR,'../build_msvc/BGL_config.h'), os.path.join(SOURCE_DIR, 'config/bitcoin-config.h'))
 
 if __name__ == '__main__':
     main()
