@@ -229,6 +229,22 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
 
         PortSeed.n = self.options.port_seed
 
+    def set_binary_paths(self):
+        """Update self.options with the paths of all binaries from environment variables or their default values"""
+
+        binaries = {
+            "bitcoind": ("bitcoind", "BITCOIND"),
+            "bitcoin-cli": ("bitcoincli", "BITCOINCLI"),
+            "bitcoin-util": ("bitcoinutil", "BITCOINUTIL"),
+        }
+        for binary, [attribute_name, env_variable_name] in binaries.items():
+            default_filename = os.path.join(
+                self.config["environment"]["BUILDDIR"],
+                "src",
+                binary + self.config["environment"]["EXEEXT"],
+            )
+            setattr(self.options, attribute_name, os.getenv(env_variable_name, default=default_filename))
+
     def setup(self):
         """Call this method to start up the test framework object with options set."""
 
@@ -238,24 +254,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
 
         config = self.config
 
-        fname_BGLd = os.path.join(
-            config["environment"]["BUILDDIR"],
-            "src",
-            "BGLd" + config["environment"]["EXEEXT"]
-        )
-        fname_BGLcli = os.path.join(
-            config["environment"]["BUILDDIR"],
-            "src",
-            "BGL-cli" + config["environment"]["EXEEXT"]
-        )
-        fname_BGLutil = os.path.join(
-            config["environment"]["BUILDDIR"],
-            "src",
-            "BGL-util" + config["environment"]["EXEEXT"],
-        )
-        self.options.BGLd = os.getenv("BGLD", default=fname_BGLd)
-        self.options.BGLcli = os.getenv("BGLCLI", default=fname_BGLcli)
-        self.options.BGLutil = os.getenv("BGLUTIL", default=fname_BGLutil)
+        self.set_binary_paths()
 
         os.environ['PATH'] = os.pathsep.join([
             os.path.join(config['environment']['BUILDDIR'], 'src'),
