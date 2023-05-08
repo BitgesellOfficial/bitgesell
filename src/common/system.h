@@ -3,8 +3,9 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BGL_UTIL_SYSTEM_H
-#define BGL_UTIL_SYSTEM_H
+#ifndef BGL_COMMON_SYSTEM_H
+#define BGL_COMMON_SYSTEM_H
+
 
 #if defined(HAVE_CONFIG_H)
 #include <config/BGL-config.h>
@@ -35,4 +36,4 @@ void runCommand(const std::string& strCommand);
  */
 int GetNumCores();
 
-#endif // BGL_UTIL_SYSTEM_H
+#endif // BGL_COMMON_SYSTEM_H
