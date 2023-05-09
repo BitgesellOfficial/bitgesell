@@ -436,9 +436,10 @@ private:
             return " signet";
         case ChainType::REGTEST:
             return " regtest";
-        default:
+        case ChainType::MAIN:
             return "";
         }
+        assert(false);
     }
     std::string PingTimeToString(double seconds) const
     {
