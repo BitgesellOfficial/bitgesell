@@ -204,6 +204,7 @@ BGL_CORE_H = \
   netbase.h \
   netgroup.h \
   netmessagemaker.h \
+  node/abort.h \
   node/blockmanager_args.h \
   node/blockstorage.h \
   node/caches.h \
@@ -399,6 +400,7 @@ libBGL_node_a_SOURCES = \
   net.cpp \
   net_processing.cpp \
   netgroup.cpp \
+  node/abort.cpp \
   node/blockmanager_args.cpp \
   node/blockstorage.cpp \
   node/caches.cpp \
@@ -936,7 +938,6 @@ libBGLkernel_la_SOURCES = \
   logging.cpp \
   node/blockstorage.cpp \
   node/chainstate.cpp \
-  node/interface_ui.cpp \
   node/utxo_snapshot.cpp \
   policy/feerate.cpp \
   policy/fees.cpp \

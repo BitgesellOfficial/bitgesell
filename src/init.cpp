@@ -799,8 +799,6 @@ bool AppInitBasicSetup(const ArgsManager& args, std::atomic<int>& exit_status)
     // Enable heap terminate-on-corruption
     HeapSetInformation(nullptr, HeapEnableTerminationOnCorruption, nullptr, 0);
 #endif
-    InitShutdownState(exit_status);
-
     if (!SetupNetworking()) {
         return InitError(Untranslated("Initializing networking failed."));
     }
@@ -973,7 +971,7 @@ bool AppInitParameterInteraction(const ArgsManager& args)
 
     // Also report errors from parsing before daemonization
     {
-        KernelNotifications notifications{};
+        kernel::Notifications notifications{};
         ChainstateManager::Options chainman_opts_dummy{
             .chainparams = chainparams,
             .datadir = args.GetDataDirNet(),
@@ -1397,7 +1395,7 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
 
     // ********************************************************* Step 7: load block chain
 
-    node.notifications = std::make_unique<KernelNotifications>();
+    node.notifications = std::make_unique<KernelNotifications>(node.exit_status);
     fReindex = args.GetBoolArg("-reindex", false);
     bool fReindexChainState = args.GetBoolArg("-reindex-chainstate", false);
     ChainstateManager::Options chainman_opts{
