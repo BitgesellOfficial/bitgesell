@@ -38,7 +38,7 @@ class FilelockTest(BGLTestFramework):
                 wallet_dir = os.path.join(datadir, 'wallets')
                 self.log.info("Check that we can't start a second BGLd instance using the same wallet")
                 if descriptors:
-                    expected_msg = "Error: SQLiteDatabase: Unable to obtain an exclusive lock on the database, is it being used by another BGLd?"
+                    expected_msg = "Error: SQLiteDatabase: Unable to obtain an exclusive lock on the database, is it being used by another instance of Bitgesell Core?"
                 else:
                     expected_msg = "Error: Error initializing wallet database environment"
                 self.nodes[1].assert_start_raises_init_error(extra_args=[f'-walletdir={wallet_dir}', f'-wallet={wallet_name}', '-noserver'], expected_msg=expected_msg, match=ErrorMatch.PARTIAL_REGEX)
