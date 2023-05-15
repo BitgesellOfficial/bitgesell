@@ -119,6 +119,8 @@ DatabaseCursor::Status MockableCursor::Next(DataStream& key, DataStream& value)
     if (m_cursor == m_cursor_end) {
         return Status::DONE;
     }
+    key.clear();
+    value.clear();
     const auto& [key_data, value_data] = *m_cursor;
     key.write(key_data);
     value.write(value_data);
@@ -136,6 +138,7 @@ bool MockableBatch::ReadKey(DataStream&& key, DataStream& value)
     if (it == m_records.end()) {
         return false;
     }
+    value.clear();
     value.write(it->second);
     return true;
 }
