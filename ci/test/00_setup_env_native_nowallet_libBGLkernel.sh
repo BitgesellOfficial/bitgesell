@@ -18,5 +18,4 @@ export CI_IMAGE_NAME_TAG="ubuntu:20.04"
 export PACKAGES="python3-zmq clang-10 llvm-10 libc++abi-10-dev libc++-10-dev"
 export DEP_OPTS="NO_WALLET=1 CC=clang-10 CXX='clang++-10 -stdlib=libc++'"
 export GOAL="install"
-export NO_WERROR=1
 export BGL_CONFIG="--enable-reduce-exports --enable-experimental-util-chainstate --with-experimental-kernel-lib --enable-shared"
