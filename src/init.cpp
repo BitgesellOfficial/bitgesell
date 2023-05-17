@@ -1554,8 +1554,11 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
         node.indexes.emplace_back(g_coin_stats_index.get());
     }
 
+    // Init indexes
+    for (auto index : node.indexes) if (!index->Init()) return false;
+
     // Now that all indexes are loaded, start them
-    StartIndexes(node);
+    if (!StartIndexBackgroundSync(node)) return false;
 
     // ********************************************************* Step 9: load wallet
     for (const auto& client : node.chain_clients) {
@@ -1856,8 +1859,8 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
     return true;
 }
 
-bool StartIndexes(NodeContext& node)
+bool StartIndexBackgroundSync(NodeContext& node)
 {
-    for (auto index : node.indexes) if (!index->Start()) return false;
+    for (auto index : node.indexes) if (!index->StartBackgroundSync()) return false;
     return true;
 }
