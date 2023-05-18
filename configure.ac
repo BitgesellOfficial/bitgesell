@@ -1509,28 +1509,23 @@ dnl ZMQ check
 
 if test "$use_zmq" = "yes"; then
   PKG_CHECK_MODULES([ZMQ], [libzmq >= 4],
-    AC_DEFINE([ENABLE_ZMQ], [1], [Define to 1 to enable ZMQ functions]),
-    [AC_DEFINE([ENABLE_ZMQ], [0], [Define to 1 to enable ZMQ functions])
-    AC_MSG_WARN([libzmq version 4.x or greater not found, disabling])
+    AC_DEFINE([ENABLE_ZMQ], [1], [Define this symbol to enable ZMQ functions]),
+    [AC_MSG_WARN([libzmq version 4.x or greater not found, disabling])
     use_zmq=no])
-else
-  AC_DEFINE_UNQUOTED([ENABLE_ZMQ], [0], [Define to 1 to enable ZMQ functions])
 fi
 
-error_window_size=['window size for ecmult precomputation not an integer in range [2..24] or "auto"']
-case $set_ecmult_window in
-''|*[[!0-9]]*)
-  # no valid integer
-  AC_MSG_ERROR($error_window_size)
-  ;;
-*)
-  if test "$set_ecmult_window" -lt 2 -o "$set_ecmult_window" -gt 24 ; then
-    # not in range
-    AC_MSG_ERROR($error_window_size)
-  fi
-  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DECMULT_WINDOW_SIZE=$set_ecmult_window"
-  ;;
-esac
+if test "$use_zmq" = "yes"; then
+  dnl Assume libzmq was built for static linking
+  case $host in
+    *mingw*)
+      ZMQ_CFLAGS="$ZMQ_CFLAGS -DZMQ_STATIC"
+    ;;
+  esac
+fi
+
+AM_CONDITIONAL([ENABLE_ZMQ], [test "$use_zmq" = "yes"])
+
+dnl libmultiprocess library check
 
 libmultiprocess_found=no
 if test "$with_libmultiprocess" = "yes" || test "$with_libmultiprocess" = "auto"; then
@@ -1612,8 +1607,6 @@ fi
 if test x"$enable_external_default_callbacks" = x"yes"; then
   SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DUSE_EXTERNAL_DEFAULT_CALLBACKS=1"
 fi
-
-AM_CONDITIONAL([ENABLE_ZMQ], [test "$use_zmq" = "yes"])
 
 AC_MSG_CHECKING([whether to build test_BGL])
 if test "$use_tests" = "yes"; then
