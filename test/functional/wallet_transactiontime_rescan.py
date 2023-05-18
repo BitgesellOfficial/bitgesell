@@ -103,7 +103,7 @@ class TransactionTimeRescanTest(BGLTestFramework):
         assert_equal(minernode.getblockcount(), initial_mine + 500)
 
         self.log.info('Check user\'s final balance and transaction count')
-        assert_equal(wo_wallet.getbalance(), 16)
+        assert_equal(wo_wallet.getbalance(), 32)
         assert_equal(len(wo_wallet.listtransactions()), 3)
 
         self.log.info('Check transaction times')
@@ -146,7 +146,7 @@ class TransactionTimeRescanTest(BGLTestFramework):
         restorewo_wallet.rescanblockchain()
 
         self.log.info('Check user\'s final balance and transaction count after restoration')
-        assert_equal(restorewo_wallet.getbalance(), 16)
+        assert_equal(restorewo_wallet.getbalance(), 32)
         assert_equal(len(restorewo_wallet.listtransactions()), 3)
 
         self.log.info('Check transaction times after restoration')
