@@ -12,7 +12,10 @@ It is best if the maintainers are present during the release, so they can help e
 
 This process also assumes that there will be no minor releases for old major releases.
 
-We aim to cut a regular release every 3-4 months, approximately twice as frequent as major Bitcoin Core releases. Every second release should be published one month before the feature freeze of the next major Bitcoin Core release, allowing sufficient time to update the library in Core.
+* Update [bips.md](bips.md) to account for changes since the last release.
+* Update version in `configure.ac` (don't forget to set `CLIENT_VERSION_RC` to `0`).
+* Update manpages (see previous section)
+* Write release notes (see "Write the release notes" below).
 
 ## Sanity Checks
 Perform these checks before creating a release:
