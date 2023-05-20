@@ -178,7 +178,7 @@ static bool AppInit(NodeContext& node, int argc, char* argv[])
         // Set this early so that parameter interactions go to console
         InitLogging(args);
         InitParameterInteraction(args);
-        if (!AppInitBasicSetup(args)) {
+        if (!AppInitBasicSetup(args, node.exit_status)) {
             // InitError will have been called with detailed error, which ends up on console
             return false;
         }
@@ -247,6 +247,8 @@ static bool AppInit(NodeContext& node, int argc, char* argv[])
     SetSyscallSandboxPolicy(SyscallSandboxPolicy::SHUTOFF);
     if (fRet) {
         WaitForShutdown();
+    } else {
+        node.exit_status = EXIT_FAILURE;
     }
     Interrupt(node);
     Shutdown(node);
@@ -273,5 +275,5 @@ MAIN_FUNCTION
     // Connect bitcoind signal handlers
     noui_connect();
 
-    return (AppInit(node, argc, argv) ? EXIT_SUCCESS : EXIT_FAILURE);
+    return AppInit(node, argc, argv) ? node.exit_status.load() : EXIT_FAILURE;
 }

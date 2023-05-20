@@ -39,7 +39,7 @@ class AbortNodeTest(BGLTestFramework):
 
             # Check that node0 aborted
             self.log.info("Waiting for crash")
-            self.nodes[0].wait_until_stopped(timeout=5)
+            self.nodes[0].wait_until_stopped(timeout=5, expect_error=True)
         self.log.info("Node crashed - now verifying restart fails")
         self.nodes[0].assert_start_raises_init_error()
 

@@ -11,6 +11,7 @@
 
 #include <logging.h>
 #include <node/interface_ui.h>
+#include <util/check.h>
 #include <util/tokenpipe.h>
 #include <warnings.h>
 
@@ -24,6 +25,8 @@
 #include <unistd.h>
 #endif
 
+static std::atomic<int>* g_exit_status{nullptr};
+
 bool AbortNode(const std::string& strMessage, bilingual_str user_message)
 {
     SetMiscWarning(Untranslated(strMessage));
@@ -32,6 +35,7 @@ bool AbortNode(const std::string& strMessage, bilingual_str user_message)
         user_message = _("A fatal internal error occurred, see debug.log for details");
     }
     InitError(user_message);
+    Assert(g_exit_status)->store(EXIT_FAILURE);
     StartShutdown();
     return false;
 }
@@ -48,8 +52,9 @@ std::condition_variable g_shutdown_cv;
 static int g_shutdown_pipe[2] = {-1, -1};
 #endif
 
-bool InitShutdownState()
+bool InitShutdownState(std::atomic<int>& exit_status)
 {
+    g_exit_status = &exit_status;
 #ifndef WIN32
 #if HAVE_O_CLOEXEC && HAVE_DECL_PIPE2
     // If we can, make sure that the file descriptors are closed on exec()

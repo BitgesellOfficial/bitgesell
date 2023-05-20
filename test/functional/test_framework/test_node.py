@@ -377,7 +377,7 @@ class TestNode():
         if wait_until_stopped:
             self.wait_until_stopped()
 
-    def is_node_stopped(self):
+    def is_node_stopped(self, expected_ret_code=None):
         """Checks whether the node has stopped.
 
         Returns True if the node has stopped. False otherwise.
@@ -389,8 +389,13 @@ class TestNode():
             return False
 
         # process has stopped. Assert that it didn't return an error code.
-        assert return_code == 0, self._node_msg(
-            "Node returned non-zero exit code (%d) when stopping" % return_code)
+        # unless 'expected_ret_code' is provided.
+        if expected_ret_code is not None:
+            assert return_code == expected_ret_code, self._node_msg(
+                "Node returned unexpected exit code (%d) vs (%d) when stopping" % (return_code, expected_ret_code))
+        else:
+            assert return_code == 0, self._node_msg(
+                "Node returned non-zero exit code (%d) when stopping" % return_code)
         self.running = False
         self.process = None
         self.rpc_connected = False
@@ -398,8 +403,9 @@ class TestNode():
         self.log.debug("Node stopped")
         return True
 
-    def wait_until_stopped(self, timeout=BGLD_PROC_WAIT_TIMEOUT):
-        wait_until_helper(self.is_node_stopped, timeout=timeout, timeout_factor=self.timeout_factor)
+    def wait_until_stopped(self, timeout=BGLD_PROC_WAIT_TIMEOUT, expect_error=False):
+        expected_ret_code = 1 if expect_error else None  # Whether node shutdown return EXIT_FAILURE or EXIT_SUCCESS
+        wait_until_helper(lambda: self.is_node_stopped(expected_ret_code=expected_ret_code), timeout=timeout, timeout_factor=self.timeout_factor)
 
     def replace_in_config(self, replacements):
         """
@@ -407,13 +413,13 @@ class TestNode():
         The substitutions are passed as a list of search-replace-tuples, e.g.
             [("old", "new"), ("foo", "bar"), ...]
         """
-        with open(self.bitcoinconf, 'r', encoding='utf8') as conf:
+        with open(self.BGLconf, 'r', encoding='utf8') as conf:
             conf_data = conf.read()
         for replacement in replacements:
             assert_equal(len(replacement), 2)
             old, new = replacement[0], replacement[1]
             conf_data = conf_data.replace(old, new)
-        with open(self.bitcoinconf, 'w', encoding='utf8') as conf:
+        with open(self.BGLconf, 'w', encoding='utf8') as conf:
             conf.write(conf_data)
 
     @property
