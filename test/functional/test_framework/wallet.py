@@ -20,6 +20,7 @@ from test_framework.address import (
     key_to_p2wpkh,
     output_key_to_p2tr,
 )
+from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.descriptors import descsum_create
 from test_framework.key import (
     ECKey,
@@ -53,8 +54,12 @@ from test_framework.util import (
     assert_equal,
     assert_greater_than_or_equal,
 )
+<<<<<<< HEAD
 from enum import Enum
 from test_framework.blocktools import COINBASE_MATURITY
+=======
+from test_framework.wallet_util import generate_keypair
+>>>>>>> 1a572ce7d6... test: refactor: introduce `generate_keypair` helper with WIF support
 
 DEFAULT_FEE = Decimal("0.0001")
 
@@ -396,9 +401,7 @@ def getnewdestination(address_type='bech32m'):
        'legacy', 'p2sh-segwit', 'bech32' and 'bech32m'. Can be used when a random
        destination is needed, but no compiled wallet is available (e.g. as
        replacement to the getnewaddress/getaddressinfo RPCs)."""
-    key = ECKey()
-    key.generate()
-    pubkey = key.get_pubkey().get_bytes()
+    key, pubkey = generate_keypair()
     if address_type == 'legacy':
         scriptpubkey = key_to_p2pkh_script(pubkey)
         address = key_to_p2pkh(pubkey)

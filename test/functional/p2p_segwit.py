@@ -8,8 +8,12 @@ import random
 import struct
 import time
 
-from test_framework.blocktools import create_block, create_coinbase, add_witness_commitment, WITNESS_COMMITMENT_HEADER
-from test_framework.key import ECKey
+from test_framework.blocktools import (
+    WITNESS_COMMITMENT_HEADER,
+    add_witness_commitment,
+    create_block,
+    create_coinbase,
+)
 from test_framework.messages import (
     MAX_BIP125_RBF_SEQUENCE,
     CBlockHeader,
@@ -85,6 +89,7 @@ from test_framework.util import (
     assert_raises_rpc_error,
 )
 from test_framework.wallet import MiniWallet
+from test_framework.wallet_util import generate_keypair
 
 
 MAX_SIGOP_COST = 80000
@@ -1439,9 +1444,7 @@ class SegWitTest(BGLTestFramework):
 
         # Segwit transactions using uncompressed pubkeys are not accepted
         # under default policy, but should still pass consensus.
-        key = ECKey()
-        key.generate(False)
-        pubkey = key.get_pubkey().get_bytes()
+        key, pubkey = generate_keypair(compressed=False)
         assert_equal(len(pubkey), 65)  # This should be an uncompressed pubkey
 
         utxo = self.utxo.pop(0)
@@ -1535,11 +1538,7 @@ class SegWitTest(BGLTestFramework):
 
     @subtest
     def test_signature_version_1(self):
-
-        key = ECKey()
-        key.generate()
-        pubkey = key.get_pubkey().get_bytes()
-
+        key, pubkey = generate_keypair()
         witness_script = key_to_p2pk_script(pubkey)
         script_pubkey = script_to_p2wsh_script(witness_script)
 
