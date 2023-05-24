@@ -142,6 +142,7 @@ BGL_CORE_H = \
   compat/compat.h \
   compat/cpuid.h \
   compat/endian.h \
+  common/settings.h \
   common/system.h \
   compressor.h \
   consensus/consensus.h \
@@ -308,7 +309,6 @@ BGL_CORE_H = \
   util/readwritefile.h \
   util/result.h \
   util/serfloat.h \
-  util/settings.h \
   util/sock.h \
   util/spanparsing.h \
   util/string.h \
@@ -664,6 +664,7 @@ libBGL_common_a_SOURCES = \
   common/init.cpp \
   common/interfaces.cpp \
   common/run_command.cpp \
+  common/settings.cpp \
   common/system.cpp \
   compressor.cpp \
   core_read.cpp \
@@ -734,7 +735,6 @@ libBGL_util_a_SOURCES = \
   util/moneystr.cpp \
   util/rbf.cpp \
   util/readwritefile.cpp \
-  util/settings.cpp \
   util/thread.cpp \
   util/threadinterrupt.cpp \
   util/threadnames.cpp \

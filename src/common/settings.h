@@ -2,11 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BGL_UTIL_SETTINGS_H
-#define BGL_UTIL_SETTINGS_H
+#ifndef BGL_COMMON_SETTINGS_H
+#define BGL_COMMON_SETTINGS_H
 
 #include <util/fs.h>
 
+#include <cstddef>
 #include <map>
 #include <string>
 #include <vector>
@@ -111,4 +112,4 @@ auto FindKey(Map&& map, Key&& key) -> decltype(&map.at(key))
 
 } // namespace util
 
-#endif // BGL_UTIL_SETTINGS_H
+#endif // BGL_COMMON_SETTINGS_H
