@@ -231,7 +231,7 @@ CService LookupNumeric(const std::string& name, uint16_t portDefault = 0, DNSLoo
 bool LookupSubNet(const std::string& subnet_str, CSubNet& subnet_out);
 
 /**
- * Create a socket in the given address family.
+ * Create a TCP or UNIX socket in the given address family.
  * @param[in] address_family to use for the socket.
  * @return pointer to the created Sock object or unique_ptr that owns nothing in case of failure
  */
