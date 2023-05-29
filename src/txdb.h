@@ -101,6 +101,6 @@ public:
         EXCLUSIVE_LOCKS_REQUIRED(::cs_main);
 };
 
-util::Result<void> CheckLegacyTxindex(CBlockTreeDB& block_tree_db);
+[[nodiscard]] util::Result<void> CheckLegacyTxindex(CBlockTreeDB& block_tree_db);
 
 #endif // BGL_TXDB_H
