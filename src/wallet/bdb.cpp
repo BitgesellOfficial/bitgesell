@@ -690,7 +690,10 @@ DatabaseCursor::Status BerkeleyCursor::Next(DataStream& ssKey, DataStream& ssVal
     SafeDbt datValue;
     int ret = m_cursor->get(datKey, datValue, DB_NEXT);
     if (ret == DB_NOTFOUND) {
-        complete = true;
+        return Status::DONE;
+    }
+    if (ret != 0) {
+        return Status::FAIL;
     }
     if (ret != 0)
         return false;
