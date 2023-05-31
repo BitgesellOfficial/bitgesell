@@ -4,6 +4,8 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+export LC_ALL=C.UTF-8
+export CI_IMAGE_LABEL="BGL-ci-test"
 
 set -ex
 
@@ -18,6 +20,7 @@ if [ -z "$DANGER_RUN_CI_ON_HOST" ]; then
       --file "${BASE_READ_ONLY_DIR}/ci/test_imagefile" \
       --build-arg "CI_IMAGE_NAME_TAG=${CI_IMAGE_NAME_TAG}" \
       --build-arg "FILE_ENV=${FILE_ENV}" \
+      --label="${CI_IMAGE_LABEL}" \
       --tag="${CONTAINER_NAME}" \
       "${BASE_READ_ONLY_DIR}"
   docker volume create "${CONTAINER_NAME}_ccache" || true
