@@ -9,21 +9,15 @@
 #include <config/BGL-config.h>
 #endif
 
+#include <kernel/context.h>
 #include <logging.h>
 #include <node/interface_ui.h>
 #include <util/check.h>
-#include <util/tokenpipe.h>
+#include <util/signalinterrupt.h>
 #include <warnings.h>
 
-#include <assert.h>
 #include <atomic>
-#ifdef WIN32
-#include <condition_variable>
-#else
-#include <errno.h>
-#include <fcntl.h>
-#include <unistd.h>
-#endif
+#include <cassert>
 
 static std::atomic<int>* g_exit_status{nullptr};
 
@@ -40,97 +34,37 @@ bool AbortNode(const std::string& strMessage, bilingual_str user_message)
     return false;
 }
 
-static std::atomic<bool> fRequestShutdown(false);
-#ifdef WIN32
-/** On windows it is possible to simply use a condition variable. */
-std::mutex g_shutdown_mutex;
-std::condition_variable g_shutdown_cv;
-#else
-/** On UNIX-like operating systems use the self-pipe trick.
- * Index 0 will be the read end of the pipe, index 1 the write end.
- */
-static int g_shutdown_pipe[2] = {-1, -1};
-#endif
-
-bool InitShutdownState(std::atomic<int>& exit_status)
+void InitShutdownState(std::atomic<int>& exit_status)
 {
     g_exit_status = &exit_status;
-#ifndef WIN32
-#if HAVE_O_CLOEXEC && HAVE_DECL_PIPE2
-    // If we can, make sure that the file descriptors are closed on exec()
-    // to prevent interference.
-    if (pipe2(g_shutdown_pipe, O_CLOEXEC) != 0) {
-        return false;
-    }
-#else
-    if (pipe(g_shutdown_pipe) != 0) {
-        return false;
-    }
-#endif
-#endif
-    return true;
 }
 
 void StartShutdown()
 {
-#ifdef WIN32
-    std::unique_lock<std::mutex> lk(g_shutdown_mutex);
-    fRequestShutdown = true;
-    g_shutdown_cv.notify_one();
-#else
-    // This must be reentrant and safe for calling in a signal handler, so using a condition variable is not safe.
-    // Make sure that the token is only written once even if multiple threads call this concurrently or in
-    // case of a reentrant signal.
-    if (!fRequestShutdown.exchange(true)) {
-        // Write an arbitrary byte to the write end of the shutdown pipe.
-        const char token = 'x';
-        while (true) {
-            int result = write(g_shutdown_pipe[1], &token, 1);
-            if (result < 0) {
-                // Failure. It's possible that the write was interrupted by another signal.
-                // Other errors are unexpected here.
-                assert(errno == EINTR);
-            } else {
-                assert(result == 1);
-                break;
-            }
-        }
+    try {
+        Assert(kernel::g_context)->interrupt();
+    } catch (const std::system_error&) {
+        LogPrintf("Sending shutdown token failed\n");
+        assert(0);
     }
-#endif
 }
 
 void AbortShutdown()
 {
-    if (fRequestShutdown) {
-        // Cancel existing shutdown by waiting for it, this will reset condition flags and remove
-        // the shutdown token from the pipe.
-        WaitForShutdown();
-    }
-    fRequestShutdown = false;
+    Assert(kernel::g_context)->interrupt.reset();
 }
 
 bool ShutdownRequested()
 {
-    return fRequestShutdown;
+    return bool{Assert(kernel::g_context)->interrupt};
 }
 
 void WaitForShutdown()
 {
-#ifdef WIN32
-    std::unique_lock<std::mutex> lk(g_shutdown_mutex);
-    g_shutdown_cv.wait(lk, [] { return fRequestShutdown.load(); });
-#else
-    char token;
-    while (true) {
-        int result = read(g_shutdown_pipe[0], &token, 1);
-        if (result < 0) {
-            // Failure. Check if the read was interrupted by a signal.
-            // Other errors are unexpected here.
-            assert(errno == EINTR);
-        } else {
-            assert(result == 1);
-            break;
-        }
+    try {
+        Assert(kernel::g_context)->interrupt.wait();
+    } catch (const std::system_error&) {
+        LogPrintf("Reading shutdown token failed\n");
+        assert(0);
     }
-#endif
 }
