@@ -62,9 +62,6 @@ public:
     /// Request core initialization
     void requestInitialize();
 
-    /// Get process return value
-    int getReturnValue() const { return returnValue; }
-
     /// Get window identifier of QMainWindow (BitcoinGUI)
     WId getMainWinId() const;
 
@@ -104,8 +101,7 @@ private:
     PaymentServer* paymentServer{nullptr};
     WalletController* m_wallet_controller{nullptr};
 #endif
-    int returnValue;
-    const PlatformStyle *platformStyle;
+    const PlatformStyle* platformStyle{nullptr};
     std::unique_ptr<QWidget> shutdownWindow;
     SplashScreen* m_splash = nullptr;
     std::unique_ptr<interfaces::Node> m_node;
