@@ -36,7 +36,7 @@ class ToolWalletTest(BGLTestFramework):
         if not self.options.descriptors and 'create' in args:
             default_args.append('-legacy')
 
-        return subprocess.Popen([self.options.bitcoinwallet] + default_args + list(args), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        return subprocess.Popen([self.options.BGLwallet] + default_args + list(args), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
     def assert_raises_tool_error(self, error, *args):
         p = self.BGL_wallet_process(*args)
@@ -168,12 +168,12 @@ class ToolWalletTest(BGLTestFramework):
         if file_format is not None and file_format != dump_data["format"]:
             load_output += "Warning: Dumpfile wallet format \"{}\" does not match command line specified format \"{}\".\n".format(dump_data["format"], file_format)
         self.assert_tool_output(load_output, *args)
-        assert os.path.isdir(os.path.join(self.nodes[0].datadir, "regtest/wallets", wallet_name))
+        assert (self.nodes[0].wallets_path / wallet_name).is_dir()
 
         self.assert_tool_output("The dumpfile may contain private keys. To ensure the safety of your BGL, do not share the dumpfile.\n", '-wallet={}'.format(wallet_name), '-dumpfile={}'.format(rt_dumppath), 'dump')
 
         rt_dump_data = self.read_dump(rt_dumppath)
-        wallet_dat = os.path.join(self.nodes[0].datadir, "regtest/wallets/", wallet_name, "wallet.dat")
+        wallet_dat = self.nodes[0].wallets_path / wallet_name / "wallet.dat"
         if rt_dump_data["format"] == "bdb":
             self.assert_is_bdb(wallet_dat)
         else:
@@ -188,7 +188,7 @@ class ToolWalletTest(BGLTestFramework):
         self.assert_raises_tool_error('Error parsing command line arguments: Invalid parameter -foo', '-foo')
         self.assert_raises_tool_error('No method provided. Run `BGL-wallet -help` for valid methods.')
         self.assert_raises_tool_error('Wallet name must be provided when creating a new wallet.', 'create')
-        locked_dir = os.path.join(self.options.tmpdir, "node0", "regtest", "wallets")
+        locked_dir = self.nodes[0].wallets_path
         error = 'Error initializing wallet database environment "{}"!'.format(locked_dir)
         if self.options.descriptors:
             error = "SQLiteDatabase: Unable to obtain an exclusive lock on the database, is it being used by another BGLd?"
@@ -197,7 +197,7 @@ class ToolWalletTest(BGLTestFramework):
             '-wallet=' + self.default_wallet_name,
             'info',
         )
-        path = os.path.join(self.options.tmpdir, "node0", "regtest", "wallets", "nonexistent.dat")
+        path = self.nodes[0].wallets_path / "nonexistent.dat"
         self.assert_raises_tool_error("Failed to load database path '{}'. Path does not exist.".format(path), '-wallet=nonexistent.dat', 'info')
 
     def test_tool_wallet_info(self):
@@ -354,7 +354,7 @@ class ToolWalletTest(BGLTestFramework):
         non_exist_dump = os.path.join(self.nodes[0].datadir, "wallet.nodump")
         self.assert_raises_tool_error('Unknown wallet file format "notaformat" provided. Please provide one of "bdb" or "sqlite".', '-wallet=todump', '-format=notaformat', '-dumpfile={}'.format(wallet_dump), 'createfromdump')
         self.assert_raises_tool_error('Dump file {} does not exist.'.format(non_exist_dump), '-wallet=todump', '-dumpfile={}'.format(non_exist_dump), 'createfromdump')
-        wallet_path = os.path.join(self.nodes[0].datadir, 'regtest', 'wallets', 'todump2')
+        wallet_path = self.nodes[0].wallets_path / "todump2"
         self.assert_raises_tool_error('Failed to create database path \'{}\'. Database already exists.'.format(wallet_path), '-wallet=todump2', '-dumpfile={}'.format(wallet_dump), 'createfromdump')
         self.assert_raises_tool_error("The -descriptors option can only be used with the 'create' command.", '-descriptors', '-wallet=todump2', '-dumpfile={}'.format(wallet_dump), 'createfromdump')
 
@@ -370,18 +370,18 @@ class ToolWalletTest(BGLTestFramework):
         dump_data["BGL_CORE_WALLET_DUMP"] = "0"
         self.write_dump(dump_data, bad_ver_wallet_dump)
         self.assert_raises_tool_error('Error: Dumpfile version is not supported. This version of BGL-wallet only supports version 1 dumpfiles. Got dumpfile with version 0', '-wallet=badload', '-dumpfile={}'.format(bad_ver_wallet_dump), 'createfromdump')
-        assert not os.path.isdir(os.path.join(self.nodes[0].datadir, "regtest/wallets", "badload"))
+        assert not (self.nodes[0].wallets_path / "badload").is_dir()
         bad_ver_wallet_dump = os.path.join(self.nodes[0].datadir, "wallet-bad_ver2.dump")
         dump_data["BGL_CORE_WALLET_DUMP"] = "2"
         self.write_dump(dump_data, bad_ver_wallet_dump)
         self.assert_raises_tool_error('Error: Dumpfile version is not supported. This version of BGL-wallet only supports version 1 dumpfiles. Got dumpfile with version 2', '-wallet=badload', '-dumpfile={}'.format(bad_ver_wallet_dump), 'createfromdump')
-        assert not os.path.isdir(os.path.join(self.nodes[0].datadir, "regtest/wallets", "badload"))
+        assert not (self.nodes[0].wallets_path / "badload").is_dir()
         bad_magic_wallet_dump = os.path.join(self.nodes[0].datadir, "wallet-bad_magic.dump")
         del dump_data["BGL_CORE_WALLET_DUMP"]
         dump_data["not_the_right_magic"] = "1"
         self.write_dump(dump_data, bad_magic_wallet_dump, "not_the_right_magic")
         self.assert_raises_tool_error('Error: Dumpfile identifier record is incorrect. Got "not_the_right_magic", expected "BGL_CORE_WALLET_DUMP".', '-wallet=badload', '-dumpfile={}'.format(bad_magic_wallet_dump), 'createfromdump')
-        assert not os.path.isdir(os.path.join(self.nodes[0].datadir, "regtest/wallets", "badload"))
+        assert not (self.nodes[0].wallets_path / "badload").is_dir()
 
         self.log.info('Checking createfromdump handling of checksums')
         bad_sum_wallet_dump = os.path.join(self.nodes[0].datadir, "wallet-bad_sum1.dump")
@@ -390,21 +390,21 @@ class ToolWalletTest(BGLTestFramework):
         dump_data["checksum"] = "1" * 64
         self.write_dump(dump_data, bad_sum_wallet_dump)
         self.assert_raises_tool_error('Error: Dumpfile checksum does not match. Computed {}, expected {}'.format(checksum, "1" * 64), '-wallet=bad', '-dumpfile={}'.format(bad_sum_wallet_dump), 'createfromdump')
-        assert not os.path.isdir(os.path.join(self.nodes[0].datadir, "regtest/wallets", "badload"))
+        assert not (self.nodes[0].wallets_path / "badload").is_dir()
         bad_sum_wallet_dump = os.path.join(self.nodes[0].datadir, "wallet-bad_sum2.dump")
         del dump_data["checksum"]
         self.write_dump(dump_data, bad_sum_wallet_dump, skip_checksum=True)
         self.assert_raises_tool_error('Error: Missing checksum', '-wallet=badload', '-dumpfile={}'.format(bad_sum_wallet_dump), 'createfromdump')
-        assert not os.path.isdir(os.path.join(self.nodes[0].datadir, "regtest/wallets", "badload"))
+        assert not (self.nodes[0].wallets_path / "badload").is_dir()
         bad_sum_wallet_dump = os.path.join(self.nodes[0].datadir, "wallet-bad_sum3.dump")
         dump_data["checksum"] = "2" * 10
         self.write_dump(dump_data, bad_sum_wallet_dump)
         self.assert_raises_tool_error('Error: Checksum is not the correct size', '-wallet=badload', '-dumpfile={}'.format(bad_sum_wallet_dump), 'createfromdump')
-        assert not os.path.isdir(os.path.join(self.nodes[0].datadir, "regtest/wallets", "badload"))
+        assert not (self.nodes[0].wallets_path / "badload").is_dir()
         dump_data["checksum"] = "3" * 66
         self.write_dump(dump_data, bad_sum_wallet_dump)
         self.assert_raises_tool_error('Error: Checksum is not the correct size', '-wallet=badload', '-dumpfile={}'.format(bad_sum_wallet_dump), 'createfromdump')
-        assert not os.path.isdir(os.path.join(self.nodes[0].datadir, "regtest/wallets", "badload"))
+        assert not (self.nodes[0].wallets_path / "badload").is_dir()
 
 
     def run_test(self):

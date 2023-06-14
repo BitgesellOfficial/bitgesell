@@ -32,7 +32,7 @@ class ConfArgsTest(BGLTestFramework):
         self.stop_node(0)
 
         # Check that startup fails if conf= is set in bitcoin.conf or in an included conf file
-        bad_conf_file_path = os.path.join(self.options.tmpdir, 'node0', 'bitcoin_bad.conf')
+        bad_conf_file_path = self.nodes[0].datadir_path / "BGL_bad.conf"
         util.write_config(bad_conf_file_path, n=0, chain='', extra_config=f'conf=some.conf\n')
         conf_in_config_file_err = 'Error: Error reading configuration file: conf cannot be set in the configuration file; use includeconf= if you want to include additional config files'
         self.nodes[0].assert_start_raises_init_error(
@@ -75,7 +75,7 @@ class ConfArgsTest(BGLTestFramework):
                 conf.write("wallet=foo\n")
             self.nodes[0].assert_start_raises_init_error(expected_msg=f'Error: Config setting for -wallet only applied on {self.chain} network when in [{self.chain}] section.')
 
-        main_conf_file_path = os.path.join(self.options.tmpdir, 'node0', 'BGL_main.conf')
+        main_conf_file_path = self.nodes[0].datadir_path / "BGL_main.conf"
         util.write_config(main_conf_file_path, n=0, chain='', extra_config=f'includeconf={inc_conf_file_path}\n')
         with open(inc_conf_file_path, 'w', encoding='utf-8') as conf:
             conf.write('regtest=0\n') # mainnet
@@ -130,8 +130,8 @@ class ConfArgsTest(BGLTestFramework):
         # Write a bitcoin.conf file in the default data directory containing a
         # datadir= line pointing at the node datadir.
         node = self.nodes[0]
-        conf_text = pathlib.Path(node.bitcoinconf).read_text()
-        conf_path = default_datadir / "bitcoin.conf"
+        conf_text = pathlib.Path(node.BGLconf).read_text()
+        conf_path = default_datadir / "BGL.conf"
         conf_path.write_text(f"datadir={node.datadir}\n{conf_text}")
 
         # Drop the node -datadir= argument during this test, because if it is
@@ -324,20 +324,20 @@ class ConfArgsTest(BGLTestFramework):
                 self.restart_node(0, extra_args=[connect_arg, '-seednode=fakeaddress2'])
 
     def test_ignored_conf(self):
-        self.log.info('Test error is triggered when the datadir in use contains a bitcoin.conf file that would be ignored '
+        self.log.info('Test error is triggered when the datadir in use contains a BGL.conf file that would be ignored '
                       'because a conflicting -conf file argument is passed.')
         node = self.nodes[0]
         with tempfile.NamedTemporaryFile(dir=self.options.tmpdir, mode="wt", delete=False) as temp_conf:
             temp_conf.write(f"datadir={node.datadir}\n")
         node.assert_start_raises_init_error([f"-conf={temp_conf.name}"], re.escape(
-            f'Error: Data directory "{node.datadir}" contains a "bitcoin.conf" file which is ignored, because a '
+            f'Error: Data directory "{node.datadir}" contains a "BGL.conf" file which is ignored, because a '
             f'different configuration file "{temp_conf.name}" from command line argument "-conf={temp_conf.name}" '
             f'is being used instead.') + r"[\s\S]*", match=ErrorMatch.FULL_REGEX)
 
         # Test that passing a redundant -conf command line argument pointing to
         # the same bitcoin.conf that would be loaded anyway does not trigger an
         # error.
-        self.start_node(0, [f'-conf={node.datadir}/bitcoin.conf'])
+        self.start_node(0, [f'-conf={node.datadir}/BGL.conf'])
         self.stop_node(0)
 
     def test_ignored_default_conf(self):
@@ -346,8 +346,8 @@ class ConfArgsTest(BGLTestFramework):
         if sys.platform == "win32":
             return
 
-        self.log.info('Test error is triggered when bitcoin.conf in the default data directory sets another datadir '
-                      'and it contains a different bitcoin.conf file that would be ignored')
+        self.log.info('Test error is triggered when BGL.conf in the default data directory sets another datadir '
+                      'and it contains a different BGL.conf file that would be ignored')
 
         # Create a temporary directory that will be treated as the default data
         # directory by bitcoind.
@@ -359,7 +359,7 @@ class ConfArgsTest(BGLTestFramework):
         # startup error because the node datadir contains a different
         # bitcoin.conf that would be ignored.
         node = self.nodes[0]
-        (default_datadir / "bitcoin.conf").write_text(f"datadir={node.datadir}\n")
+        (default_datadir / "BGL.conf").write_text(f"datadir={node.datadir}\n")
 
         # Drop the node -datadir= argument during this test, because if it is
         # specified it would take precedence over the datadir setting in the
@@ -367,8 +367,8 @@ class ConfArgsTest(BGLTestFramework):
         node_args = node.args
         node.args = [arg for arg in node.args if not arg.startswith("-datadir=")]
         node.assert_start_raises_init_error([], re.escape(
-            f'Error: Data directory "{node.datadir}" contains a "bitcoin.conf" file which is ignored, because a '
-            f'different configuration file "{default_datadir}/bitcoin.conf" from data directory "{default_datadir}" '
+            f'Error: Data directory "{node.datadir}" contains a "BGL.conf" file which is ignored, because a '
+            f'different configuration file "{default_datadir}/BGL.conf" from data directory "{default_datadir}" '
             f'is being used instead.') + r"[\s\S]*", env=env, match=ErrorMatch.FULL_REGEX)
         node.args = node_args
 
