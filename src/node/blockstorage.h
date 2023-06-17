@@ -248,7 +248,7 @@ public:
     void CleanupBlockRevFiles() const;
 };
 
-void ThreadImport(ChainstateManager& chainman, std::vector<fs::path> vImportFiles);
+void ImportBlocks(ChainstateManager& chainman, std::vector<fs::path> vImportFiles);
 } // namespace node
 
 #endif // BGL_NODE_BLOCKSTORAGE_H
