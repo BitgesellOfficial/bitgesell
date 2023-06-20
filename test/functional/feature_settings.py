@@ -21,8 +21,9 @@ class SettingsTest(BGLTestFramework):
 
     def run_test(self):
         node, = self.nodes
-        settings = Path(node.datadir, self.chain, "settings.json")
+        settings = Path(node.chain_path, "settings.json")
         conf = Path(node.datadir, "BGL.conf")
+
 
         # Assert empty settings file was created
         self.stop_node(0)

@@ -43,7 +43,7 @@ class RPCInterfaceTest(BGLTestFramework):
         command = info['active_commands'][0]
         assert_equal(command['method'], 'getrpcinfo')
         assert_greater_than_or_equal(command['duration'], 0)
-        assert_equal(info['logpath'], os.path.join(self.nodes[0].datadir, 'regtest', 'debug.log'))
+        assert_equal(info['logpath'], os.path.join(self.nodes[0].chain_path, 'debug.log'))
 
     def test_batch_request(self):
         self.log.info("Testing basic JSON-RPC batch request...")

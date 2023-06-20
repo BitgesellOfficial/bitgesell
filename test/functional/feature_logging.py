@@ -16,7 +16,7 @@ class LoggingTest(BGLTestFramework):
         self.setup_clean_chain = True
 
     def relative_log_path(self, name):
-        return os.path.join(self.nodes[0].datadir, "regtest", name)
+        return os.path.join(self.nodes[0].chain_path, name)
 
     def run_test(self):
         # test default log file name
