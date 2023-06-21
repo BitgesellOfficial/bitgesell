@@ -87,8 +87,7 @@ static void secp256k1_ecmult_gen_blind(secp256k1_ecmult_gen_context *ctx, const 
     secp256k1_fe s;
     unsigned char nonce32[32];
     secp256k1_rfc6979_hmac_sha256 rng;
-    int overflow;
-    unsigned char keydata[64] = {0};
+    unsigned char keydata[64];
     if (seed32 == NULL) {
         /* When seed is NULL, reset the initial point and blinding value. */
         secp256k1_gej_set_ge(&ctx->initial, &secp256k1_ge_const_g);
@@ -107,12 +106,11 @@ static void secp256k1_ecmult_gen_blind(secp256k1_ecmult_gen_context *ctx, const 
     }
     secp256k1_rfc6979_hmac_sha256_initialize(&rng, keydata, seed32 ? 64 : 32);
     memset(keydata, 0, sizeof(keydata));
-    /* Accept unobservably small non-uniformity. */
     secp256k1_rfc6979_hmac_sha256_generate(&rng, nonce32, 32);
-    overflow = !secp256k1_fe_set_b32(&s, nonce32);
-    overflow |= secp256k1_fe_is_zero(&s);
-    secp256k1_fe_cmov(&s, &secp256k1_fe_one, overflow);
-    /* Randomize the projection to defend against multiplier sidechannels. */
+    secp256k1_fe_set_b32_mod(&s, nonce32);
+    secp256k1_fe_cmov(&s, &secp256k1_fe_one, secp256k1_fe_normalizes_to_zero(&s));
+    /* Randomize the projection to defend against multiplier sidechannels.
+       Do this before our own call to secp256k1_ecmult_gen below. */
     secp256k1_gej_rescale(&ctx->initial, &s);
     secp256k1_fe_clear(&s);
     secp256k1_rfc6979_hmac_sha256_generate(&rng, nonce32, 32);

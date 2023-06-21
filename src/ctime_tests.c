@@ -30,6 +30,10 @@
 #include "../include/secp256k1_schnorrsig.h"
 #endif
 
+#ifdef ENABLE_MODULE_ELLSWIFT
+#include "../include/secp256k1_ellswift.h"
+#endif
+
 static void run_tests(secp256k1_context *ctx, unsigned char *key);
 
 int main(void) {
@@ -80,6 +84,10 @@ static void run_tests(secp256k1_context *ctx, unsigned char *key) {
 #endif
 #ifdef ENABLE_MODULE_EXTRAKEYS
     secp256k1_keypair keypair;
+#endif
+#ifdef ENABLE_MODULE_ELLSWIFT
+    unsigned char ellswift[64];
+    static const unsigned char prefix[64] = {'t', 'e', 's', 't'};
 #endif
 
     if (!RUNNING_ON_VALGRIND) {
@@ -195,6 +203,30 @@ static void run_tests(secp256k1_context *ctx, unsigned char *key) {
     CHECK(ret == 1);
 #endif
 
-    secp256k1_context_destroy(ctx);
-    return 0;
+#ifdef ENABLE_MODULE_ELLSWIFT
+    VALGRIND_MAKE_MEM_UNDEFINED(key, 32);
+    ret = secp256k1_ellswift_create(ctx, ellswift, key, NULL);
+    VALGRIND_MAKE_MEM_DEFINED(&ret, sizeof(ret));
+    CHECK(ret == 1);
+
+    VALGRIND_MAKE_MEM_UNDEFINED(key, 32);
+    ret = secp256k1_ellswift_create(ctx, ellswift, key, ellswift);
+    VALGRIND_MAKE_MEM_DEFINED(&ret, sizeof(ret));
+    CHECK(ret == 1);
+
+    for (i = 0; i < 2; i++) {
+        VALGRIND_MAKE_MEM_UNDEFINED(key, 32);
+        VALGRIND_MAKE_MEM_DEFINED(&ellswift, sizeof(ellswift));
+        ret = secp256k1_ellswift_xdh(ctx, msg, ellswift, ellswift, key, i, secp256k1_ellswift_xdh_hash_function_bip324, NULL);
+        VALGRIND_MAKE_MEM_DEFINED(&ret, sizeof(ret));
+        CHECK(ret == 1);
+
+        VALGRIND_MAKE_MEM_UNDEFINED(key, 32);
+        VALGRIND_MAKE_MEM_DEFINED(&ellswift, sizeof(ellswift));
+        ret = secp256k1_ellswift_xdh(ctx, msg, ellswift, ellswift, key, i, secp256k1_ellswift_xdh_hash_function_prefix, (void *)prefix);
+        VALGRIND_MAKE_MEM_DEFINED(&ret, sizeof(ret));
+        CHECK(ret == 1);
+    }
+
+#endif
 }

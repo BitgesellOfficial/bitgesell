@@ -22,5 +22,17 @@ RUN apt-get install --no-install-recommends --no-upgrade -y \
         wine gcc-mingw-w64-x86-64 \
         sagemath
 
-# Run a dummy command in wine to make it set up configuration
-RUN wine64-stable xcopy || true
+WORKDIR /root
+# The "wine" package provides a convience wrapper that we need
+RUN apt-get update && apt-get install --no-install-recommends -y \
+        git ca-certificates wine64 wine python3-simplejson python3-six msitools winbind procps && \
+    git clone https://github.com/mstorsjo/msvc-wine && \
+    mkdir /opt/msvc && \
+    python3 msvc-wine/vsdownload.py --accept-license --dest /opt/msvc Microsoft.VisualStudio.Workload.VCTools && \
+# Since commit 2146cbfaf037e21de56c7157ec40bb6372860f51, the
+# msvc-wine effectively initializes the wine prefix when running
+# the install.sh script.
+    msvc-wine/install.sh /opt/msvc && \
+# Wait until the wineserver process has exited before closing the session,
+# to avoid corrupting the wine prefix.
+    while (ps -A | grep wineserver) > /dev/null; do sleep 1; done
