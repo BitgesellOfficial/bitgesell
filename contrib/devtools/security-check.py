@@ -121,7 +121,7 @@ def check_ELF_control_flow(binary) -> bool:
     main = binary.get_function_address('main')
     content = binary.get_content_from_virtual_address(main, 4, lief.Binary.VA_TYPES.AUTO)
 
-    if content == [243, 15, 30, 250]: # endbr64
+    if content.tolist() == [243, 15, 30, 250]: # endbr64
         return True
     return False
 
@@ -150,7 +150,7 @@ def check_PE_control_flow(binary) -> bool:
 
     content = binary.get_content_from_virtual_address(virtual_address, 4, lief.Binary.VA_TYPES.VA)
 
-    if content == [243, 15, 30, 250]: # endbr64
+    if content.tolist() == [243, 15, 30, 250]: # endbr64
         return True
     return False
 
@@ -191,7 +191,7 @@ def check_MACHO_control_flow(binary) -> bool:
     '''
     content = binary.get_content_from_virtual_address(binary.entrypoint, 4, lief.Binary.VA_TYPES.AUTO)
 
-    if content == [243, 15, 30, 250]: # endbr64
+    if content.tolist() == [243, 15, 30, 250]: # endbr64
         return True
     return False
 
