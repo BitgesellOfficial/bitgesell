@@ -48,7 +48,7 @@ static const bool DEFAULT_WHITELISTRELAY = true;
 static const bool DEFAULT_WHITELISTFORCERELAY = false;
 
 /** Time after which to disconnect, after waiting for a ping response (or inactivity). */
-static const int TIMEOUT_INTERVAL = 20 * 60;
+static constexpr std::chrono::minutes TIMEOUT_INTERVAL{20};
 /** Run the feeler connection loop once every 2 minutes. **/
 static constexpr auto FEELER_INTERVAL = 2min;
 /** Run the extra block-relay-only connection loop once every 5 minutes. **/
@@ -97,14 +97,21 @@ struct AddedNodeInfo
 class CNodeStats;
 class CClientUIInterface;
 
-struct CSerializedNetMsg
-{
+struct CSerializedNetMsg {
     CSerializedNetMsg() = default;
     CSerializedNetMsg(CSerializedNetMsg&&) = default;
     CSerializedNetMsg& operator=(CSerializedNetMsg&&) = default;
-    // No copying, only moves.
+    // No implicit copying, only moves.
     CSerializedNetMsg(const CSerializedNetMsg& msg) = delete;
     CSerializedNetMsg& operator=(const CSerializedNetMsg&) = delete;
+
+    CSerializedNetMsg Copy() const
+    {
+        CSerializedNetMsg copy;
+        copy.data = data;
+        copy.m_type = m_type;
+        return copy;
+    }
 
     std::vector<unsigned char> data;
     std::string m_type;
@@ -241,11 +248,11 @@ public:
     NodeId nodeid;
     ServiceFlags nServices;
     bool fRelayTxes;
-    int64_t nLastSend;
-    int64_t nLastRecv;
-    int64_t nLastTXTime;
-    int64_t nLastBlockTime;
-    int64_t nTimeConnected;
+    std::chrono::seconds m_last_send;
+    std::chrono::seconds m_last_recv;
+    std::chrono::seconds m_last_tx_time;
+    std::chrono::seconds m_last_block_time;
+    std::chrono::seconds m_connected;
     int64_t nTimeOffset;
     std::string m_addr_name;
     int nVersion;
@@ -420,10 +427,10 @@ public:
 
     uint64_t nRecvBytes GUARDED_BY(cs_vRecv){0};
 
-    std::atomic<int64_t> nLastSend{0};
-    std::atomic<int64_t> nLastRecv{0};
-    //! Unix epoch time at peer connection, in seconds.
-    const int64_t nTimeConnected;
+    std::atomic<std::chrono::seconds> m_last_send{0s};
+    std::atomic<std::chrono::seconds> m_last_recv{0s};
+    //! Unix epoch time at peer connection
+    const std::chrono::seconds m_connected;
     std::atomic<int64_t> nTimeOffset{0};
     // Address of this peer
     const CAddress addr;
@@ -433,12 +440,12 @@ public:
     //! Whether this peer is an inbound onion, i.e. connected via our Tor onion service.
     const bool m_inbound_onion;
     std::atomic<int> nVersion{0};
-    RecursiveMutex cs_SubVer;
+    RecursiveMutex m_subver_mutex;
     /**
      * cleanSubVer is a sanitized string of the user agent byte array we read
      * from the wire. This cleaned string can safely be logged or displayed.
      */
-    std::string cleanSubVer GUARDED_BY(cs_SubVer){};
+    std::string cleanSubVer GUARDED_BY(m_subver_mutex){};
     bool m_prefer_evict{false}; // This peer is preferred for eviction.
     bool HasPermission(NetPermissionFlags permission) const {
         return NetPermissions::HasFlag(m_permissionFlags, permission);
@@ -557,18 +564,28 @@ public:
     // m_tx_relay == nullptr if we're not relaying transactions with this peer
     std::unique_ptr<TxRelay> m_tx_relay;
 
+    /** Whether we should relay transactions to this peer (their version
+     *  message did not include fRelay=false and this is not a block-relay-only
+     *  connection). This only changes from false to true. It will never change
+     *  back to false. Used only in inbound eviction logic. */
+    std::atomic_bool m_relays_txs{false};
+
+    /** Whether this peer has loaded a bloom filter. Used only in inbound
+     *  eviction logic. */
+    std::atomic_bool m_bloom_filter_loaded{false};
+
     /** UNIX epoch time of the last block received from this peer that we had
      * not yet seen (e.g. not already received from another peer), that passed
      * preliminary validity checks and was saved to disk, even if we don't
      * connect the block or it eventually fails connection. Used as an inbound
      * peer eviction criterium in CConnman::AttemptToEvictConnection. */
-    std::atomic<int64_t> nLastBlockTime{0};
+    std::atomic<std::chrono::seconds> m_last_block_time{0s};
 
     /** UNIX epoch time of the last transaction received from this peer that we
      * had not yet seen (e.g. not already received from another peer) and that
      * was accepted into our mempool. Used as an inbound peer eviction criterium
      * in CConnman::AttemptToEvictConnection. */
-    std::atomic<int64_t> nLastTXTime{0};
+    std::atomic<std::chrono::seconds> m_last_tx_time{0s};
 
     /** Last measured round-trip time. Used only for RPC/GUI stats/debugging.*/
     std::atomic<std::chrono::microseconds> m_last_ping_time{0us};
@@ -784,7 +801,7 @@ public:
         m_msgproc = connOptions.m_msgproc;
         nSendBufferMaxSize = connOptions.nSendBufferMaxSize;
         nReceiveFloodSize = connOptions.nReceiveFloodSize;
-        m_peer_connect_timeout = connOptions.m_peer_connect_timeout;
+        m_peer_connect_timeout = std::chrono::seconds{connOptions.m_peer_connect_timeout};
         {
             LOCK(cs_totalBytesSent);
             nMaxOutboundLimit = connOptions.nMaxOutboundLimit;
@@ -884,8 +901,8 @@ public:
      * Attempts to open a connection. Currently only used from tests.
      *
      * @param[in]   address     Address of node to try connecting to
-     * @param[in]   conn_type   ConnectionType::OUTBOUND or ConnectionType::BLOCK_RELAY
-     *                          or ConnectionType::ADDR_FETCH
+     * @param[in]   conn_type   ConnectionType::OUTBOUND, ConnectionType::BLOCK_RELAY,
+     *                          ConnectionType::ADDR_FETCH or ConnectionType::FEELER
      * @return      bool        Returns false if there are no available
      *                          slots for this connection:
      *                          - conn_type not a supported ConnectionType
@@ -935,14 +952,8 @@ public:
 
     void WakeMessageHandler();
 
-    /** Attempts to obfuscate tx time through exponentially distributed emitting.
-        Works assuming that a single interval is used.
-        Variable intervals will result in privacy decrease.
-    */
-    std::chrono::microseconds PoissonNextSendInbound(std::chrono::microseconds now, std::chrono::seconds average_interval);
-
     /** Return true if we should disconnect the peer for failing an inactivity check. */
-    bool ShouldRunInactivityChecks(const CNode& node, int64_t secs_now) const;
+    bool ShouldRunInactivityChecks(const CNode& node, std::chrono::seconds now) const;
 
 private:
     struct ListenSocket {
@@ -1037,7 +1048,7 @@ private:
     uint64_t nMaxOutboundLimit GUARDED_BY(cs_totalBytesSent);
 
     // P2P timeout in seconds
-    int64_t m_peer_connect_timeout;
+    std::chrono::seconds m_peer_connect_timeout;
 
     // Whitelisted ranges. Any node connecting from these is automatically
     // whitelisted (as well as those connecting to whitelisted binds).
@@ -1169,8 +1180,6 @@ private:
      */
     std::atomic_bool m_start_extra_block_relay_peers{false};
 
-    std::atomic<std::chrono::microseconds> m_next_send_inv_to_incoming{0us};
-
     /**
      * A vector of -bind=<address>:<port>=onion arguments each of which is
      * an address and port that are designated for incoming Tor connections.
@@ -1181,19 +1190,16 @@ private:
     friend struct ConnmanTestMsg;
 };
 
-/** Return a timestamp in the future (in microseconds) for exponentially distributed events. */
-std::chrono::microseconds PoissonNextSend(std::chrono::microseconds now, std::chrono::seconds average_interval);
-
 /** Dump binary message to file, with timestamp */
 void CaptureMessage(const CAddress& addr, const std::string& msg_type, const Span<const unsigned char>& data, bool is_incoming);
 
 struct NodeEvictionCandidate
 {
     NodeId id;
-    int64_t nTimeConnected;
+    std::chrono::seconds m_connected;
     std::chrono::microseconds m_min_ping_time;
-    int64_t nLastBlockTime;
-    int64_t nLastTXTime;
+    std::chrono::seconds m_last_block_time;
+    std::chrono::seconds m_last_tx_time;
     bool fRelevantServices;
     bool fRelayTxes;
     bool fBloomFilter;

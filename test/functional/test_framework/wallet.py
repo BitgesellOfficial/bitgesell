@@ -34,7 +34,6 @@ from test_framework.messages import (
     CTxIn,
     CTxInWitness,
     CTxOut,
-    tx_from_hex,
 )
 from test_framework.script import (
     CScript,
@@ -105,6 +104,16 @@ class MiniWallet:
 
     def _create_utxo(self, *, txid, vout, value, height):
         return {"txid": txid, "vout": vout, "value": value, "height": height}
+
+    def _bulk_tx(self, tx, target_weight):
+        """Pad a transaction with extra outputs until it reaches a target weight (or higher).
+        returns the tx
+        """
+        assert_greater_than_or_equal(target_weight, tx.get_weight())
+        while tx.get_weight() < target_weight:
+            script_pubkey = ( b"6a4d0200"  # OP_RETURN OP_PUSH2 512 bytes
+                + b"01" * 512 )
+            tx.vout.append(CTxOut(0, script_pubkey))
 
     def get_balance(self):
         return sum(u['value'] for u in self._utxos)
@@ -236,6 +245,7 @@ class MiniWallet:
         amount_per_output=0,
         sequence=0,
         fee_per_output=1000,
+        target_weight=0
     ):
         """
         Create and return a transaction that spends the given UTXOs and creates a
@@ -266,6 +276,10 @@ class MiniWallet:
         outputs_value_total = inputs_value_total - fee_per_output * num_outputs
         for o in tx.vout:
             o.nValue = amount_per_output or (outputs_value_total // num_outputs)
+
+        if target_weight:
+            self._bulk_tx(tx, target_weight)
+
         txid = tx.rehash()
         return {
             "new_utxos": [self._create_utxo(
@@ -279,7 +293,7 @@ class MiniWallet:
             "tx": tx,
         }
 
-    def create_self_transfer(self, *, fee_rate=Decimal("0.003"), fee=Decimal("0"), utxo_to_spend=None, locktime=0, sequence=0):
+    def create_self_transfer(self, *, fee_rate=Decimal("0.003"), fee=Decimal("0"), utxo_to_spend=None, locktime=0, sequence=0, target_weight=0):
         """Create and return a tx with the specified fee. If fee is 0, use fee_rate, where the resulting fee may be exact or at most one satoshi higher than needed."""
         utxo_to_spend = utxo_to_spend or self.get_utxo()
         if self._priv_key is None:
@@ -304,9 +318,13 @@ class MiniWallet:
         else:
             tx.wit.vtxinwit = [CTxInWitness()]
             tx.wit.vtxinwit[0].scriptWitness.stack = [CScript([OP_TRUE]), bytes([LEAF_VERSION_TAPSCRIPT]) + self._internal_key]
-        tx_hex = tx.serialize().hex()
 
         assert_equal(tx.get_vsize(), vsize)
+
+        if target_weight:
+            self._bulk_tx(tx, target_weight)
+
+        tx_hex = tx.serialize().hex()
         new_utxo = self._create_utxo(txid=tx.rehash(), vout=0, value=send_value, height=0)
 
         return {"txid": new_utxo["txid"], "wtxid": tx.getwtxid(), "hex": tx_hex, "tx": tx, "new_utxo": new_utxo}
@@ -315,6 +333,40 @@ class MiniWallet:
         txid = from_node.sendrawtransaction(hexstring=tx_hex, maxfeerate=maxfeerate, **kwargs)
         self.scan_tx(from_node.decoderawtransaction(tx_hex))
         return txid
+
+    def create_self_transfer_chain(self, *, chain_length):
+        """
+        Create a "chain" of chain_length transactions. The nth transaction in
+        the chain is a child of the n-1th transaction and parent of the n+1th transaction.
+
+        Returns a dic  {"chain_hex": chain_hex, "chain_txns" : chain_txns}
+
+        "chain_hex" is a list representing the chain's transactions in hexadecimal.
+        "chain_txns" is a list representing the chain's transactions in the CTransaction object.
+        """
+        chaintip_utxo = self.get_utxo()
+        chain_hex = []
+        chain_txns = []
+
+        for _ in range(chain_length):
+            tx = self.create_self_transfer(utxo_to_spend=chaintip_utxo)
+            chaintip_utxo = tx["new_utxo"]
+            chain_hex.append(tx["hex"])
+            chain_txns.append(tx["tx"])
+
+        return {"chain_hex": chain_hex, "chain_txns" : chain_txns}
+
+    def send_self_transfer_chain(self, *, from_node, chain_length, utxo_to_spend=None):
+        """Create and send a "chain" of chain_length transactions. The nth transaction in
+        the chain is a child of the n-1th transaction and parent of the n+1th transaction.
+
+        Returns the chaintip (nth) utxo
+        """
+        chaintip_utxo = utxo_to_spend or self.get_utxo()
+        for _ in range(chain_length):
+            chaintip_utxo = self.send_self_transfer(utxo_to_spend=chaintip_utxo, from_node=from_node)["new_utxo"]
+        return chaintip_utxo
+
 
 def getnewdestination(address_type='bech32m'):
     """Generate a random destination of the specified type and return the
@@ -350,75 +402,3 @@ def random_p2wpkh():
     key.generate()
     return key_to_p2wpkh_script(key.get_pubkey().get_bytes())
 
-
-def make_chain(node, address, privkeys, parent_txid, parent_value, n=0, parent_locking_script=None, fee=DEFAULT_FEE):
-    """Build a transaction that spends parent_txid.vout[n] and produces one output with
-    amount = parent_value with a fee deducted.
-    Return tuple (CTransaction object, raw hex, nValue, scriptPubKey of the output created).
-    """
-    inputs = [{"txid": parent_txid, "vout": n}]
-    my_value = parent_value - Decimal("0.0001")
-    outputs = {address : my_value}
-    rawtx = node.createrawtransaction(inputs, outputs)
-    prevtxs = [{
-        "txid": parent_txid,
-        "vout": n,
-        "scriptPubKey": parent_locking_script,
-        "amount": parent_value,
-    }] if parent_locking_script else None
-    signedtx = node.signrawtransactionwithkey(hexstring=rawtx, privkeys=privkeys, prevtxs=prevtxs)
-    assert signedtx["complete"]
-    tx = tx_from_hex(signedtx["hex"])
-    return (tx, signedtx["hex"], my_value, tx.vout[0].scriptPubKey.hex())
-
-def create_child_with_parents(node, address, privkeys, parents_tx, values, locking_scripts):
-    """Creates a transaction that spends the first output of each parent in parents_tx."""
-    num_parents = len(parents_tx)
-    total_value = sum(values)
-    inputs = [{"txid": tx.rehash(), "vout": 0} for tx in parents_tx]
-    outputs = {address : total_value - num_parents * Decimal("0.0001")}
-    rawtx_child = node.createrawtransaction(inputs, outputs)
-    prevtxs = []
-    for i in range(num_parents):
-        prevtxs.append({"txid": parents_tx[i].rehash(), "vout": 0, "scriptPubKey": locking_scripts[i], "amount": values[i]})
-    signedtx_child = node.signrawtransactionwithkey(hexstring=rawtx_child, privkeys=privkeys, prevtxs=prevtxs)
-    assert signedtx_child["complete"]
-    return signedtx_child["hex"]
-
-def create_raw_chain(node, first_coin, address, privkeys, chain_length=25):
-    """Helper function: create a "chain" of chain_length transactions. The nth transaction in the
-    chain is a child of the n-1th transaction and parent of the n+1th transaction.
-    """
-    parent_locking_script = None
-    txid = first_coin["txid"]
-    chain_hex = []
-    chain_txns = []
-    value = first_coin["amount"]
-
-    for _ in range(chain_length):
-        (tx, txhex, value, parent_locking_script) = make_chain(node, address, privkeys, txid, value, 0, parent_locking_script)
-        txid = tx.rehash()
-        chain_hex.append(txhex)
-        chain_txns.append(tx)
-
-    return (chain_hex, chain_txns)
-
-def bulk_transaction(tx, node, target_weight, privkeys, prevtxs=None):
-    """Pad a transaction with extra outputs until it reaches a target weight (or higher).
-    returns CTransaction object
-    """
-    tx_heavy = deepcopy(tx)
-    assert_greater_than_or_equal(target_weight, tx_heavy.get_weight())
-    while tx_heavy.get_weight() < target_weight:
-        random_spk = "6a4d0200"  # OP_RETURN OP_PUSH2 512 bytes
-        for _ in range(512*2):
-            random_spk += choice("0123456789ABCDEF")
-        tx_heavy.vout.append(CTxOut(0, bytes.fromhex(random_spk)))
-    # Re-sign the transaction
-    if privkeys:
-        signed = node.signrawtransactionwithkey(tx_heavy.serialize().hex(), privkeys, prevtxs)
-        return tx_from_hex(signed["hex"])
-    # OP_TRUE
-    tx_heavy.wit.vtxinwit = [CTxInWitness()]
-    tx_heavy.wit.vtxinwit[0].scriptWitness.stack = [CScript([OP_TRUE])]
-    return tx_heavy
