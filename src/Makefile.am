@@ -545,8 +545,6 @@ crypto_libBGL_crypto_base_la_LDFLAGS = $(AM_LDFLAGS) -static
 crypto_libBGL_crypto_base_la_SOURCES = \
   crypto/aes.cpp \
   crypto/aes.h \
-  crypto/chacha_poly_aead.h \
-  crypto/chacha_poly_aead.cpp \
   crypto/chacha20.h \
   crypto/chacha20.cpp \
   crypto/common.h \
