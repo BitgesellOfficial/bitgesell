@@ -7,7 +7,7 @@
 from copy import deepcopy
 from decimal import Decimal
 import math
-
+from test_framework.key import ECKey
 from test_framework.test_framework import BGLTestFramework
 from test_framework.messages import (
     MAX_BIP125_RBF_SEQUENCE,
@@ -49,7 +49,7 @@ class MempoolAcceptanceTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
         self.extra_args = [[
-            '-txindex',
+            '-txindex', '-permitbaremultisig=0',
         ]] * self.num_nodes
         self.supports_cli = False
 
@@ -112,7 +112,7 @@ class MempoolAcceptanceTest(BGLTestFramework):
         tx.vout[0].nValue = int(output_amount * COIN)
         raw_tx_final = tx.serialize().hex()
         tx = tx_from_hex(raw_tx_final)
-        fee_expected = Decimal('50.0') - output_amount
+        fee_expected = Decimal('200.0') - output_amount
         self.check_mempool_result(
             result_expected=[{'txid': tx.rehash(), 'allowed': True, 'vsize': tx.get_vsize(), 'fees': {'base': fee_expected}}],
             rawtxs=[tx.serialize().hex()],

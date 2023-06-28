@@ -22,6 +22,9 @@ class MempoolUpdateFromBlockTest(BGLTestFramework):
         self.num_nodes = 1
         self.extra_args = [['-limitdescendantsize=1000', '-limitancestorsize=1000', '-limitancestorcount=100']]
 
+    def skip_test_if_missing_module(self):
+        self.skip_if_no_wallet()
+
     def get_new_address(self):
         key = ECKey()
         key.generate()
