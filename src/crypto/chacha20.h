@@ -5,6 +5,10 @@
 #ifndef BGL_CRYPTO_CHACHA20_H
 #define BGL_CRYPTO_CHACHA20_H
 
+#include <span.h>
+
+#include <array>
+#include <cstddef>
 #include <cstdlib>
 #include <stdint.h>
 #include <utility>
@@ -31,8 +35,11 @@ public:
     /** Initialize a cipher with specified key (see SetKey for arguments). */
     ChaCha20Aligned(const unsigned char* key, size_t keylen);
 
-    /** set key with flexible keylength (16 or 32 bytes; 32 recommended). */
-    void SetKey(const unsigned char* key, size_t keylen);
+    /** Destructor to clean up private memory. */
+    ~ChaCha20Aligned();
+
+    /** set 32-byte key. */
+    void SetKey32(const unsigned char* key32);
 
     /** Type for 96-bit nonces used by the Set function below.
      *
@@ -72,8 +79,15 @@ public:
     /** Initialize a cipher with specified key (see SetKey for arguments). */
     ChaCha20(const unsigned char* key, size_t keylen) : m_aligned(key, keylen) {}
 
-    /** set key with flexible keylength (16 or 32 bytes; 32 recommended). */
-    void SetKey(const unsigned char* key, size_t keylen) { m_aligned.SetKey(key, keylen); }
+    /** Destructor to clean up private memory. */
+    ~ChaCha20();
+
+    /** set 32-byte key. */
+    void SetKey32(const unsigned char* key32)
+    {
+        m_aligned.SetKey32(key32);
+        m_bufleft = 0;
+    }
 
     /** 96-bit nonce type. */
     using Nonce96 = ChaCha20Aligned::Nonce96;
@@ -92,6 +106,45 @@ public:
      *  Used for encryption and decryption (XOR)
      */
     void Crypt(const unsigned char* input, unsigned char* output, size_t bytes);
+};
+
+/** Forward-secure ChaCha20
+ *
+ * This implements a stream cipher that automatically transitions to a new stream with a new key
+ * and new nonce after a predefined number of encryptions or decryptions.
+ *
+ * See BIP324 for details.
+ */
+class FSChaCha20
+{
+private:
+    /** Internal stream cipher. */
+    ChaCha20 m_chacha20;
+
+    /** The number of encryptions/decryptions before a rekey happens. */
+    const uint32_t m_rekey_interval;
+
+    /** The number of encryptions/decryptions since the last rekey. */
+    uint32_t m_chunk_counter{0};
+
+    /** The number of rekey operations that have happened. */
+    uint64_t m_rekey_counter{0};
+
+public:
+    /** Length of keys expected by the constructor. */
+    static constexpr unsigned KEYLEN = 32;
+
+    // No copy or move to protect the secret.
+    FSChaCha20(const FSChaCha20&) = delete;
+    FSChaCha20(FSChaCha20&&) = delete;
+    FSChaCha20& operator=(const FSChaCha20&) = delete;
+    FSChaCha20& operator=(FSChaCha20&&) = delete;
+
+    /** Construct an FSChaCha20 cipher that rekeys every rekey_interval Crypt() calls. */
+    FSChaCha20(Span<const std::byte> key, uint32_t rekey_interval) noexcept;
+
+    /** Encrypt or decrypt a chunk. */
+    void Crypt(Span<const std::byte> input, Span<std::byte> output) noexcept;
 };
 
 #endif // BGL_CRYPTO_CHACHA20_H
