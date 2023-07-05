@@ -681,16 +681,16 @@ bool CNode::ReceiveMsgBytes(Span<const uint8_t> msg_bytes, bool& complete)
     nRecvBytes += msg_bytes.size();
     while (msg_bytes.size() > 0) {
         // absorb network data
-        int handled = m_transport->ReceivedBytes(msg_bytes);
+        int handled = m_transport->Read(msg_bytes);
         if (handled < 0) {
             // Serious header problem, disconnect from the peer.
             return false;
         }
 
-        if (m_transport->ReceivedMessageComplete()) {
+        if (m_transport->Complete()) {
             // decompose a transport agnostic CNetMessage from the deserializer
             bool reject_message{false};
-            CNetMessage msg = m_transport->GetReceivedMessage(time, reject_message);
+            CNetMessage msg = m_transport->GetMessage(time, reject_message);
             if (reject_message) {
                 // Message deserialization failed. Drop the message but don't disconnect the peer.
                 // store the size of the corrupt message
@@ -717,7 +717,7 @@ bool CNode::ReceiveMsgBytes(Span<const uint8_t> msg_bytes, bool& complete)
     return true;
 }
 
-int V1TransportDeserializer::readHeader(Span<const uint8_t> msg_bytes)
+int V1Transport::readHeader(Span<const uint8_t> msg_bytes)
 {
     AssertLockHeld(m_recv_mutex);
     // copy data to temporary parsing buffer
@@ -758,7 +758,7 @@ int V1TransportDeserializer::readHeader(Span<const uint8_t> msg_bytes)
     return nCopy;
 }
 
-int V1TransportDeserializer::readData(Span<const uint8_t> msg_bytes)
+int V1Transport::readData(Span<const uint8_t> msg_bytes)
 {
     AssertLockHeld(m_recv_mutex);
     unsigned int nRemaining = hdr.nMessageSize - nDataPos;
@@ -776,7 +776,7 @@ int V1TransportDeserializer::readData(Span<const uint8_t> msg_bytes)
     return nCopy;
 }
 
-const uint256& V1TransportDeserializer::GetMessageHash() const
+const uint256& V1Transport::GetMessageHash() const
 {
     AssertLockHeld(m_recv_mutex);
     assert(CompleteInternal());
@@ -785,7 +785,7 @@ const uint256& V1TransportDeserializer::GetMessageHash() const
     return data_hash;
 }
 
-CNetMessage V1Transport::GetReceivedMessage(const std::chrono::microseconds time, bool& reject_message)
+CNetMessage V1Transport::GetMessage(const std::chrono::microseconds time, bool& reject_message)
 {
     AssertLockNotHeld(m_recv_mutex);
     // Initialize out parameter
@@ -824,7 +824,7 @@ CNetMessage V1Transport::GetReceivedMessage(const std::chrono::microseconds time
     return msg;
 }
 
-bool V1Transport::SetMessageToSend(CSerializedNetMsg& msg) noexcept
+void V1Transport::prepareForTransport(CSerializedNetMsg& msg, std::vector<unsigned char>& header) const
 {
     AssertLockNotHeld(m_send_mutex);
     // Determine whether a new message can be set.
@@ -2872,8 +2872,7 @@ CNode::CNode(NodeId idIn,
              ConnectionType conn_type_in,
              bool inbound_onion,
              CNodeOptions&& node_opts)
-    : m_deserializer{std::make_unique<V1TransportDeserializer>(V1TransportDeserializer(Params(), idIn, SER_NETWORK, INIT_PROTO_VERSION))},
-      m_serializer{std::make_unique<V1TransportSerializer>(V1TransportSerializer())},
+    : m_transport{std::make_unique<V1Transport>(Params(), idIn, SER_NETWORK, INIT_PROTO_VERSION)},
       m_permission_flags{node_opts.permission_flags},
       m_sock{sock},
       m_connected{GetTime<std::chrono::seconds>()},
@@ -2955,6 +2954,11 @@ void CConnman::PushMessage(CNode* pnode, CSerializedNetMsg&& msg)
         msg.data.size(),
         msg.data.data()
     );
+
+    // make sure we use the appropriate network transport format
+    std::vector<unsigned char> serializedHeader;
+    pnode->m_transport->prepareForTransport(msg, serializedHeader);
+    size_t nTotalSize = nMessageSize + serializedHeader.size();
 
     size_t nBytesSent = 0;
     {

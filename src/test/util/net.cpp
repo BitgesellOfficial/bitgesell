@@ -72,15 +72,12 @@ void ConnmanTestMsg::NodeReceiveMsgBytes(CNode& node, Span<const uint8_t> msg_by
 
 bool ConnmanTestMsg::ReceiveMsgFrom(CNode& node, CSerializedNetMsg&& ser_msg) const
 {
-    bool queued = node.m_transport->SetMessageToSend(ser_msg);
-    assert(queued);
-    bool complete{false};
-    while (true) {
-        const auto& [to_send, _more, _msg_type] = node.m_transport->GetBytesToSend();
-        if (to_send.empty()) break;
-        NodeReceiveMsgBytes(node, to_send, complete);
-        node.m_transport->MarkBytesSent(to_send.size());
-    }
+    std::vector<uint8_t> ser_msg_header;
+    node.m_transport->prepareForTransport(ser_msg, ser_msg_header);
+
+    bool complete;
+    NodeReceiveMsgBytes(node, ser_msg_header, complete);
+    NodeReceiveMsgBytes(node, ser_msg.data, complete);
     return complete;
 }
 
