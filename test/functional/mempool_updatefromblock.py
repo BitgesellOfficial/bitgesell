@@ -15,9 +15,13 @@ from test_framework.util import assert_equal
 from test_framework.address import key_to_p2pkh
 from test_framework.wallet_util import bytes_to_wif
 from test_framework.key import ECKey
+from test_framework.messages import MAX_BLOCK_WEIGHT
 
 
 class MempoolUpdateFromBlockTest(BGLTestFramework):
+    def add_options(self, parser):
+        self.add_wallet_options(parser)
+
     def set_test_params(self):
         self.num_nodes = 1
         self.extra_args = [['-limitdescendantsize=1000', '-limitancestorsize=1000', '-limitancestorcount=100']]
@@ -59,6 +63,7 @@ class MempoolUpdateFromBlockTest(BGLTestFramework):
         first_block_hash = ''
         tx_id = []
         tx_size = []
+        tx_weight = []
         self.log.info('Creating {} transactions...'.format(size))
         for i in range(0, size):
             self.log.debug('Preparing transaction #{}...'.format(i))
@@ -99,6 +104,7 @@ class MempoolUpdateFromBlockTest(BGLTestFramework):
             signed_raw_tx = self.nodes[0].signrawtransactionwithkey(unsigned_raw_tx, self.priv_keys)
             tx_id.append(self.nodes[0].sendrawtransaction(signed_raw_tx['hex']))
             tx_size.append(self.nodes[0].getmempoolentry(tx_id[-1])['vsize'])
+            tx_weight.append(self.nodes[0].getmempoolentry(tx_id[-1])['weight'])
 
             if tx_count in n_tx_to_mine:
                 # The created transactions are mined into blocks by batches.
@@ -106,7 +112,13 @@ class MempoolUpdateFromBlockTest(BGLTestFramework):
                 block_hash = self.generate(self.nodes[0], 1)[0]
                 if not first_block_hash:
                     first_block_hash = block_hash
+                # if mempool batch size is greater than BGL block size, generate blocks with the remaining transactions
+                if sum(tx_weight) > MAX_BLOCK_WEIGHT:
+                    # calculate number of additional blocks to mine
+                    additional_blocks_to_mine = sum(tx_weight) // MAX_BLOCK_WEIGHT
+                    self.generate(self.nodes[0], additional_blocks_to_mine)[0]
                 assert_equal(len(self.nodes[0].getrawmempool()), 0)
+                tx_weight = []
                 self.log.info('All of the transactions from the current batch have been mined into a block.')
             elif tx_count == size:
                 # At the end all of the mined blocks are invalidated, and all of the created
