@@ -716,6 +716,7 @@ libBGL_util_a_SOURCES = \
   logging.cpp \
   random.cpp \
   randomenv.cpp \
+  streams.cpp \
   support/cleanse.cpp \
   sync.cpp \
   util/asmap.cpp \
@@ -958,6 +959,7 @@ libBGLkernel_la_SOURCES = \
   script/sigcache.cpp \
   script/standard.cpp \
   signet.cpp \
+  streams.cpp \
   support/cleanse.cpp \
   support/lockedpool.cpp \
   sync.cpp \
