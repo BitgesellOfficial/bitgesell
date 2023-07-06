@@ -123,6 +123,7 @@ BGL_CORE_H = \
   banman.h \
   base58.h \
   bech32.h \
+  bip324.h \
   blockencodings.h \
   blockfilter.h \
   chain.h \
@@ -375,6 +376,7 @@ libBGL_node_a_SOURCES = \
   addrdb.cpp \
   addrman.cpp \
   banman.cpp \
+  bip324.cpp \
   blockencodings.cpp \
   blockfilter.cpp \
   chain.cpp \
