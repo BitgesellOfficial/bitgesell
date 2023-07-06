@@ -34,10 +34,6 @@ static_assert(BDB_DB_FILE_ID_LEN == DB_FILE_ID_LEN, "DB_FILE_ID_LEN should be 20
 
 namespace wallet {
 namespace {
-Span<const std::byte> SpanFromDbt(const SafeDbt& dbt)
-{
-    return {reinterpret_cast<const std::byte*>(dbt.get_data()), dbt.get_size()};
-}
 
 //! Make sure database has a unique fileid within the environment. If it
 //! doesn't, throw an error. BDB caches do not work properly when more than one
@@ -301,13 +297,6 @@ BerkeleyBatch::SafeDbt::operator Dbt*()
 static Span<const std::byte> SpanFromDbt(const SafeDbt& dbt)
 {
     return {reinterpret_cast<const std::byte*>(dbt.get_data()), dbt.get_size()};
-}
-
-BerkeleyDatabase::BerkeleyDatabase(std::shared_ptr<BerkeleyEnvironment> env, fs::path filename, const DatabaseOptions& options) :
-    WalletDatabase(), env(std::move(env)), m_filename(std::move(filename)), m_max_log_mb(options.max_log_mb)
-{
-    auto inserted = this->env->m_databases.emplace(m_filename, std::ref(*this));
-    assert(inserted.second);
 }
 
 bool BerkeleyDatabase::Verify(bilingual_str& errorStr)
