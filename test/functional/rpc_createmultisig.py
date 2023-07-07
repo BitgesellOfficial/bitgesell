@@ -144,7 +144,7 @@ class RpcCreateMultiSigTest(BGLTestFramework):
 
         height = node0.getblockchaininfo()["blocks"]
         assert 150 < height < 350
-        total = 149 * 200 + (height - 149 - 100) * 100 - decimal.Decimal("0.00038295")
+        total = 149 * 200 + (height - 149 - 100) * 100 - decimal.Decimal("0.000216")
         assert bal1 == 0
         assert bal2 == self.moved
         assert_equal(bal0 + bal1 + bal2 + balw, total)
