@@ -73,7 +73,7 @@ static std::vector<std::vector<std::string>> g_rpcauth;
 static std::map<std::string, std::set<std::string>> g_rpc_whitelist;
 static bool g_rpc_whitelist_default = false;
 
-static void JSONErrorReply(HTTPRequest* req, const UniValue& objError, const UniValue& id)
+static void JSONErrorReply(HTTPRequest* req, UniValue objError, const JSONRPCRequest& jreq)
 {
     // Send error reply from json-rpc error object
     int nStatus = HTTP_INTERNAL_SERVER_ERROR;
@@ -84,7 +84,7 @@ static void JSONErrorReply(HTTPRequest* req, const UniValue& objError, const Uni
     else if (code == RPC_METHOD_NOT_FOUND)
         nStatus = HTTP_NOT_FOUND;
 
-    std::string strReply = JSONRPCReply(NullUniValue, objError, id);
+    std::string strReply = JSONRPCReplyObj(NullUniValue, std::move(objError), jreq.id, jreq.m_json_version).write() + "\n";
 
     req->WriteHeader("Content-Type", "application/json");
     req->WriteReply(nStatus, strReply);
@@ -223,18 +223,31 @@ static bool HTTPReq_JSONRPC(const std::any& context, HTTPRequest* req)
                     }
                 }
             }
-            strReply = JSONRPCExecBatch(jreq, valRequest.get_array());
+
+            // Execute each request
+            reply = UniValue::VARR;
+            for (size_t i{0}; i < valRequest.size(); ++i) {
+                // Batches include errors in the batch response, they do not throw
+                try {
+                    jreq.parse(valRequest[i]);
+                    reply.push_back(JSONRPCExec(jreq));
+                } catch (UniValue& e) {
+                    reply.push_back(JSONRPCReplyObj(NullUniValue, std::move(e), jreq.id, jreq.m_json_version));
+                } catch (const std::exception& e) {
+                    reply.push_back(JSONRPCReplyObj(NullUniValue, JSONRPCError(RPC_PARSE_ERROR, e.what()), jreq.id, jreq.m_json_version));
+                }
+            }
         }
         else
             throw JSONRPCError(RPC_PARSE_ERROR, "Top-level object parse error");
 
         req->WriteHeader("Content-Type", "application/json");
-        req->WriteReply(HTTP_OK, strReply);
-    } catch (const UniValue& objError) {
-        JSONErrorReply(req, objError, jreq.id);
+        req->WriteReply(HTTP_OK, reply.write() + "\n");
+    } catch (UniValue& e) {
+        JSONErrorReply(req, std::move(e), jreq);
         return false;
     } catch (const std::exception& e) {
-        JSONErrorReply(req, JSONRPCError(RPC_PARSE_ERROR, e.what()), jreq.id);
+        JSONErrorReply(req, JSONRPCError(RPC_PARSE_ERROR, e.what()), jreq);
         return false;
     }
     return true;
