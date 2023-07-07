@@ -22,7 +22,7 @@ class RPCGenerateTest(BGLTestFramework):
         self.test_generateblock()
 
     def test_generatetoaddress(self):
-        self.generatetoaddress(self.nodes[0], 1, 'mneYUmWYsuk7kySiURxCi3AGxrAqZxLgPZ')
+        self.generatetoaddress(self.nodes[0], 1, 'rbgl1qqpmtreykaj2jphmyf3358sn3wudm6thfypzzut')
         assert_raises_rpc_error(-5, "Invalid address", self.generatetoaddress, self.nodes[0], 1, '3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy')
 
     def test_generateblock(self):
@@ -45,7 +45,7 @@ class RPCGenerateTest(BGLTestFramework):
 
         self.log.info('Generate an empty block to a combo descriptor with compressed pubkey')
         combo_key = '0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798'
-        combo_address = 'bcrt1qw508d6qejxtdg4y5r3zarvary0c5xw7kygt080'
+        combo_address = 'rbgl1qw508d6qejxtdg4y5r3zarvary0c5xw7kahx879'
         hash = self.generateblock(node, 'combo(' + combo_key + ')', [])['hash']
         block = node.getblock(hash, 2)
         assert_equal(len(block['tx']), 1)
@@ -53,7 +53,7 @@ class RPCGenerateTest(BGLTestFramework):
 
         self.log.info('Generate an empty block to a combo descriptor with uncompressed pubkey')
         combo_key = '0408ef68c46d20596cc3f6ddf7c8794f71913add807f1dc55949fa805d764d191c0b7ce6894c126fce0babc6663042f3dde9b0cf76467ea315514e5a6731149c67'
-        combo_address = 'mkc9STceoCcjoXEXe6cm66iJbmjM6zR9B2'
+        combo_address = 'Emahd6fU8JwGq9VrknyDkSkj8vtiNQSsoZ'
         hash = self.generateblock(node, 'combo(' + combo_key + ')', [])['hash']
         block = node.getblock(hash, 2)
         assert_equal(len(block['tx']), 1)
