@@ -847,45 +847,97 @@ case $host in
      ;;
 esac
 
-# Try if some desirable compiler flags are supported and append them to SECP_CFLAGS.
-#
-# These are our own flags, so we append them to our own SECP_CFLAGS variable (instead of CFLAGS) as
-# recommended in the automake manual (Section "Flag Variables Ordering"). CFLAGS belongs to the user
-# and we are not supposed to touch it. In the Makefile, we will need to ensure that SECP_CFLAGS
-# is prepended to CFLAGS when invoking the compiler so that the user always has the last word (flag).
-#
-# Another advantage of not touching CFLAGS is that the contents of CFLAGS will be picked up by
-# libtool for compiling helper executables. For example, when compiling for Windows, libtool will
-# generate entire wrapper executables (instead of simple wrapper scripts as on Unix) to ensure
-# proper operation of uninstalled programs linked by libtool against the uninstalled shared library.
-# These executables are compiled from C source file for which our flags may not be appropriate,
-# e.g., -std=c89 flag has lead to undesirable warnings in the past.
-#
-# TODO We should analogously not touch CPPFLAGS and LDFLAGS but currently there are no issues.
-AC_DEFUN([SECP_TRY_APPEND_DEFAULT_CFLAGS], [
-    # GCC and compatible (incl. clang)
-    if test "x$GCC" = "xyes"; then
-      # Try to append -Werror to CFLAGS temporarily. Otherwise checks for some unsupported
-      # flags will succeed.
-      # Note that failure to append -Werror does not necessarily mean that -Werror is not
-      # supported. The compiler may already be warning about something unrelated, for example
-      # about some path issue. If that is the case, -Werror cannot be used because all
-      # of those warnings would be turned into errors.
-      SECP_TRY_APPEND_DEFAULT_CFLAGS_saved_CFLAGS="$CFLAGS"
-      SECP_TRY_APPEND_CFLAGS([-Werror], CFLAGS)
+if test "$use_extended_functional_tests" != "no"; then
+  AC_SUBST(EXTENDED_FUNCTIONAL_TESTS, --extended)
+fi
 
-      SECP_TRY_APPEND_CFLAGS([-std=c89 -pedantic -Wno-long-long -Wnested-externs -Wshadow -Wstrict-prototypes -Wundef], $1) # GCC >= 3.0, -Wlong-long is implied by -pedantic.
-      SECP_TRY_APPEND_CFLAGS([-Wno-overlength-strings], $1) # GCC >= 4.2, -Woverlength-strings is implied by -pedantic.
-      SECP_TRY_APPEND_CFLAGS([-Wall], $1) # GCC >= 2.95 and probably many other compilers
-      SECP_TRY_APPEND_CFLAGS([-Wno-unused-function], $1) # GCC >= 3.0, -Wunused-function is implied by -Wall.
-      SECP_TRY_APPEND_CFLAGS([-Wextra], $1) # GCC >= 3.4, this is the newer name of -W, which we don't use because older GCCs will warn about unused functions.
-      SECP_TRY_APPEND_CFLAGS([-Wcast-align], $1) # GCC >= 2.95
-      SECP_TRY_APPEND_CFLAGS([-Wcast-align=strict], $1) # GCC >= 8.0
-      SECP_TRY_APPEND_CFLAGS([-Wconditional-uninitialized], $1) # Clang >= 3.0 only
-      SECP_TRY_APPEND_CFLAGS([-Wreserved-identifier], $1) # Clang >= 13.0 only
-      SECP_TRY_APPEND_CFLAGS([-fvisibility=hidden], $1) # GCC >= 4.0
+if test "$use_lcov" = "yes"; then
+  if test "$LCOV" = ""; then
+    AC_MSG_ERROR([lcov testing requested but lcov not found])
+  fi
+  if test "$PYTHON" = ""; then
+    AC_MSG_ERROR([lcov testing requested but python not found])
+  fi
+  if test "$GENHTML" = ""; then
+    AC_MSG_ERROR([lcov testing requested but genhtml not found])
+  fi
 
-      CFLAGS="$SECP_TRY_APPEND_DEFAULT_CFLAGS_saved_CFLAGS"
+  AC_MSG_CHECKING([whether compiler is Clang])
+  AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
+      #if defined(__clang__) && defined(__llvm__)
+      // Compiler is Clang
+      #else
+      #  error Compiler is not Clang
+      #endif
+    ]])],[
+      AC_MSG_RESULT([yes])
+      if test "$LLVM_COV" = ""; then
+        AC_MSG_ERROR([lcov testing requested but llvm-cov not found])
+      fi
+      COV_TOOL="$LLVM_COV gcov"
+    ],[
+      AC_MSG_RESULT([no])
+      if test "$GCOV" = "x"; then
+        AC_MSG_ERROR([lcov testing requested but gcov not found])
+      fi
+      COV_TOOL="$GCOV"
+  ])
+  AC_SUBST(COV_TOOL)
+  AC_SUBST(COV_TOOL_WRAPPER, "cov_tool_wrapper.sh")
+  LCOV="$LCOV --gcov-tool $(pwd)/$COV_TOOL_WRAPPER"
+
+  AX_CHECK_LINK_FLAG([--coverage], [CORE_LDFLAGS="$CORE_LDFLAGS --coverage"],
+    [AC_MSG_ERROR([lcov testing requested but --coverage linker flag does not work])])
+  AX_CHECK_COMPILE_FLAG([--coverage],[CORE_CXXFLAGS="$CORE_CXXFLAGS --coverage"],
+    [AC_MSG_ERROR([lcov testing requested but --coverage flag does not work])])
+  dnl If coverage is enabled, and the user hasn't overridden CXXFLAGS, clear
+  dnl them, to prevent autoconfs "-g -O2" being added. Otherwise we'd end up
+  dnl with "--coverage -Og -O0 -g -O2".
+  if test "$CXXFLAGS_overridden" = "no"; then
+  CXXFLAGS=""
+  fi
+  CORE_CXXFLAGS="$CORE_CXXFLAGS -Og -O0"
+fi
+
+if test "$use_lcov_branch" != "no"; then
+  AC_SUBST(LCOV_OPTS, "$LCOV_OPTS --rc lcov_branch_coverage=1")
+fi
+
+dnl Check for endianness
+AC_C_BIGENDIAN
+
+dnl Check for pthread compile/link requirements
+AX_PTHREAD
+
+dnl Check if -latomic is required for <std::atomic>
+CHECK_ATOMIC
+
+dnl The following macro will add the necessary defines to BGL-config.h, but
+dnl they also need to be passed down to any subprojects. Pull the results out of
+dnl the cache and add them to CPPFLAGS.
+AC_SYS_LARGEFILE
+dnl detect POSIX or GNU variant of strerror_r
+AC_FUNC_STRERROR_R
+
+if test "$ac_cv_sys_file_offset_bits" != "" &&
+   test "$ac_cv_sys_file_offset_bits" != "no" &&
+   test "$ac_cv_sys_file_offset_bits" != "unknown"; then
+  CORE_CPPFLAGS="$CORE_CPPFLAGS -D_FILE_OFFSET_BITS=$ac_cv_sys_file_offset_bits"
+fi
+
+if test "$ac_cv_sys_large_files" != "" &&
+   test "$ac_cv_sys_large_files" != "no" &&
+   test "$ac_cv_sys_large_files" != "unknown"; then
+  CORE_CPPFLAGS="$CORE_CPPFLAGS -D_LARGE_FILES=$ac_cv_sys_large_files"
+fi
+
+if test "$enable_gprof" = "yes"; then
+    dnl -pg is incompatible with -pie. Since hardening and profiling together doesn't make sense,
+    dnl we simply make them mutually exclusive here. Additionally, hardened toolchains may force
+    dnl -pie by default, in which case it needs to be turned off with -no-pie.
+
+    if test "$use_hardening" = "yes"; then
+        AC_MSG_ERROR([gprof profiling is not compatible with hardening. Reconfigure with --disable-hardening or --disable-gprof])
     fi
     use_hardening=no
     AX_CHECK_COMPILE_FLAG([-pg],[GPROF_CXXFLAGS="-pg"],
