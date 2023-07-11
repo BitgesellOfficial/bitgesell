@@ -5,11 +5,6 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 
-# Create folders that are mounted into the docker
-mkdir -p "${CCACHE_DIR}"
-mkdir -p "${PREVIOUS_RELEASES_DIR}"
-mkdir -p "${BASE_SCRATCH_DIR}"
-
 export ASAN_OPTIONS="detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1"
 export LSAN_OPTIONS="suppressions=${BASE_ROOT_DIR}/test/sanitizer_suppressions/lsan"
 export TSAN_OPTIONS="suppressions=${BASE_ROOT_DIR}/test/sanitizer_suppressions/tsan:halt_on_error=1:log_path=${BASE_SCRATCH_DIR}/sanitizer-output/tsan"
@@ -52,6 +47,9 @@ if [ -z "$DANGER_RUN_CI_ON_HOST" ]; then
   export CI_EXEC_CMD_PREFIX="docker exec ${CI_CONTAINER_ID}"
 else
   echo "Running on host system without docker wrapper"
+  echo "Create missing folders"
+  mkdir -p "${CCACHE_DIR}"
+  mkdir -p "${PREVIOUS_RELEASES_DIR}"
 fi
 
 CI_EXEC () {
