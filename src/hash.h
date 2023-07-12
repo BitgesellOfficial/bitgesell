@@ -236,49 +236,8 @@ public:
     int GetType() const { return nType; }
     int GetVersion() const { return nVersion; }
 
-    void write(Span<const std::byte> src)
-    {
-        ctx.Write(src);
-    }
-
-    /** Compute the double-SHA256 hash of all data written to this object.
-     *
-     * Invalidates this object.
-     */
-    uint256 GetHash() {
-        uint256 result;
-        ctx.Finalize(result.begin());
-        ctx.Reset().Write(result.begin(), CSHA256::OUTPUT_SIZE).Finalize(result.begin());
-        return result;
-    }
-//    uint256 GetHash() {
-//        uint256 result;
-//        ctx.Finalize(result.begin());
-//        return result;
-//    }
-
-    /** Compute the SHA256 hash of all data written to this object.
-     *
-     * Invalidates this object.
-     */
-    uint256 GetSHA256() {
-        uint256 result;
-        ctx.Finalize(result.begin());
-        return result;
-    }
-
-    /**
-     * Returns the first 64 bits from the resulting hash.
-     */
-    inline uint64_t GetCheapHash() {
-        unsigned char result[CHash256::OUTPUT_SIZE];
-        ctx.Finalize(result);
-        return ReadLE64(result);
-    }
-
-    template <typename T>
-    CHashWriterSHA256& operator<<(const T& obj)
-    {
+    template<typename T>
+    CHashWriterSHA256&& operator<<(const T& obj) {
         ::Serialize(*this, obj);
         return *this;
     }
@@ -347,7 +306,6 @@ public:
     template<typename T>
     CHashVerifier<Source>& operator>>(T&& obj)
     {
-        // Unserialize from this stream
         ::Unserialize(*this, obj);
         return (*this);
     }
