@@ -12,7 +12,6 @@
 #include <logging.h>
 #include <sync.h>
 #include <util/fs.h>
-#include <util/getuniquepath.h>
 #include <util/syserror.h>
 
 #include <cerrno>
@@ -90,19 +89,6 @@ void ReleaseDirectoryLocks()
 {
     LOCK(cs_dir_locks);
     dir_locks.clear();
-}
-
-bool DirIsWritable(const fs::path& directory)
-{
-    fs::path tmpFile = GetUniquePath(directory);
-
-    FILE* file = fsbridge::fopen(tmpFile, "a");
-    if (!file) return false;
-
-    fclose(file);
-    remove(tmpFile);
-
-    return true;
 }
 
 bool CheckDiskSpace(const fs::path& dir, uint64_t additional_bytes)
