@@ -91,32 +91,23 @@ compute_credits_template: &CREDITS_TEMPLATE
   use_compute_credits: $CIRRUS_REPO_FULL_NAME == 'BGL/BGL' && $CIRRUS_PR != ""
 
 task:
-  name: "x86_64: Linux (Debian stable)"
-  << : *LINUX_CONTAINER
-  matrix: &ENV_MATRIX
-    - env: {WIDEMUL:  int64,  RECOVERY: yes}
-    - env: {WIDEMUL:  int64,                 ECDH: yes, SCHNORRSIG: yes, ELLSWIFT: yes}
-    - env: {WIDEMUL: int128}
-    - env: {WIDEMUL: int128_struct,                                      ELLSWIFT: yes}
-    - env: {WIDEMUL: int128,  RECOVERY: yes,            SCHNORRSIG: yes, ELLSWIFT: yes}
-    - env: {WIDEMUL: int128,                 ECDH: yes, SCHNORRSIG: yes}
-    - env: {WIDEMUL: int128,  ASM: x86_64                              , ELLSWIFT: yes}
-    - env: {                  RECOVERY: yes,            SCHNORRSIG: yes}
-    - env: {CTIMETESTS: no,    RECOVERY: yes, ECDH: yes, SCHNORRSIG: yes, CPPFLAGS: -DVERIFY}
-    - env: {BUILD: distcheck, WITH_VALGRIND: no, CTIMETESTS: no, BENCH: no}
-    - env: {CPPFLAGS: -DDETERMINISTIC}
-    - env: {CFLAGS: -O0, CTIMETESTS: no}
-    - env: { ECMULTGENPRECISION: 2, ECMULTWINDOW: 2 }
-    - env: { ECMULTGENPRECISION: 8, ECMULTWINDOW: 4 }
-  matrix:
-    - env:
-        CC: gcc
-    - env:
-        CC: clang
-  << : *MERGE_BASE
-  test_script:
-    - ./ci/cirrus.sh
-  << : *CAT_LOGS
+  name: 'lint [bookworm]'
+  << : *BASE_TEMPLATE
+  container:
+    image: debian:bookworm
+    cpu: 1
+    memory: 1G
+  # For faster CI feedback, immediately schedule the linters
+  << : *CREDITS_TEMPLATE
+  python_cache:
+    folder: "/python_build"
+    fingerprint_script: cat .python-version /etc/os-release
+  unshallow_script:
+    - git fetch --unshallow --no-tags
+  lint_script:
+    - ./ci/lint_run_all.sh
+  env:
+    << : *CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
 
 task:
   name: 'tidy [lunar]'
