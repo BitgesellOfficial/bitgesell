@@ -5,10 +5,6 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 
-if [[ $QEMU_USER_CMD == qemu-s390* ]]; then
-  export LC_ALL=C
-fi
-
 # Create folders that are mounted into the docker
 mkdir -p "${CCACHE_DIR}"
 mkdir -p "${PREVIOUS_RELEASES_DIR}"
