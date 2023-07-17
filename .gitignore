@@ -1,3 +1,5 @@
+*.tar.gz
+
 bench
 bench_ecmult
 bench_internal
@@ -16,6 +18,19 @@ schnorr_example
 !.gitignore
 *.log
 *.trs
+*.pdb
+src/BGL
+src/BGLd
+src/BGL-cli
+src/BGL-gui
+src/BGL-node
+src/BGL-tx
+src/BGL-util
+src/BGL-chainstate
+src/BGL-wallet
+src/test/fuzz/fuzz
+src/test/test_BGL
+src/qt/test/test_BGL-qt
 
 # autoreconf
 Makefile.in
