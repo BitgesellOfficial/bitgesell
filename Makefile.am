@@ -149,41 +149,38 @@ exhaustive_tests_LDFLAGS = -static
 TESTS += exhaustive_tests
 endif
 
-BIN_CHECKS=$(top_srcdir)/contrib/devtools/symbol-check.py \
-           $(top_srcdir)/contrib/devtools/security-check.py \
-           $(top_srcdir)/contrib/devtools/utils.py
-
-WINDOWS_PACKAGING = $(top_srcdir)/share/pixmaps/BGL.ico \
-  $(top_srcdir)/share/pixmaps/nsis-header.bmp \
-  $(top_srcdir)/share/pixmaps/nsis-wizard.bmp \
-  $(top_srcdir)/doc/README_windows.txt
-
-OSX_PACKAGING = $(OSX_DEPLOY_SCRIPT) $(OSX_INSTALLER_ICONS) \
-  $(top_srcdir)/contrib/macdeploy/detached-sig-create.sh
-
-COVERAGE_INFO = $(COV_TOOL_WRAPPER) baseline.info \
-  test_BGL_filtered.info total_coverage.info \
-  baseline_filtered.info functional_test.info functional_test_filtered.info \
-  test_BGL_coverage.info test_BGL.info fuzz.info fuzz_filtered.info fuzz_coverage.info
-
-dist-hook:
-	-$(GIT) archive --format=tar HEAD -- src/clientversion.cpp | $(AMTAR) -C $(top_distdir) -xf -
-
-if TARGET_WINDOWS
-$(BGL_WIN_INSTALLER): all-recursive
-	$(MKDIR_P) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGLD_BIN) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_QT_BIN) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_TEST_BIN) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_CLI_BIN) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_TX_BIN) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_WALLET_BIN) $(top_builddir)/release
-	STRIPPROG="$(STRIP)" $(INSTALL_STRIP_PROGRAM) $(BGL_UTIL_BIN) $(top_builddir)/release
-	@test -f $(MAKENSIS) && echo 'OutFile "$@"' | cat $(top_builddir)/share/setup.nsi - | $(MAKENSIS) -V2 - || \
-	  echo error: could not build $@
-	@echo built $@
-
-deploy: $(BGL_WIN_INSTALLER)
+if USE_EXAMPLES
+noinst_PROGRAMS += ecdsa_example
+ecdsa_example_SOURCES = examples/ecdsa.c
+ecdsa_example_CPPFLAGS = -I$(top_srcdir)/include -DSECP256K1_STATIC
+ecdsa_example_LDADD = libsecp256k1.la
+ecdsa_example_LDFLAGS = -static
+if BUILD_WINDOWS
+ecdsa_example_LDFLAGS += -lbcrypt
+endif
+TESTS += ecdsa_example
+if ENABLE_MODULE_ECDH
+noinst_PROGRAMS += ecdh_example
+ecdh_example_SOURCES = examples/ecdh.c
+ecdh_example_CPPFLAGS = -I$(top_srcdir)/include -DSECP256K1_STATIC
+ecdh_example_LDADD = libsecp256k1.la
+ecdh_example_LDFLAGS = -static
+if BUILD_WINDOWS
+ecdh_example_LDFLAGS += -lbcrypt
+endif
+TESTS += ecdh_example
+endif
+if ENABLE_MODULE_SCHNORRSIG
+noinst_PROGRAMS += schnorr_example
+schnorr_example_SOURCES = examples/schnorr.c
+schnorr_example_CPPFLAGS = -I$(top_srcdir)/include -DSECP256K1_STATIC
+schnorr_example_LDADD = libsecp256k1.la
+schnorr_example_LDFLAGS = -static
+if BUILD_WINDOWS
+schnorr_example_LDFLAGS += -lbcrypt
+endif
+TESTS += schnorr_example
+endif
 endif
 
 ### Precomputed tables
