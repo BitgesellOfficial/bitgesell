@@ -12,6 +12,7 @@
 #include <tinyformat.h>
 #include <uint256.h>
 #include <util/strencodings.h>
+#include <util/transaction_identifier.h>
 #include <version.h>
 
 #include <cassert>
@@ -65,22 +66,22 @@ std::string CTxOut::ToString() const
 CMutableTransaction::CMutableTransaction() : nVersion(CTransaction::CURRENT_VERSION), nLockTime(0) {}
 CMutableTransaction::CMutableTransaction(const CTransaction& tx) : vin(tx.vin), vout(tx.vout), nVersion(tx.nVersion), nLockTime(tx.nLockTime) {}
 
-uint256 CMutableTransaction::GetHash() const
+Txid CMutableTransaction::GetHash() const
 {
-    return SerializeHashSHA256(*this, SER_GETHASH, SERIALIZE_TRANSACTION_NO_WITNESS);
+    return Txid::FromUint256((*this, SER_GETHASH, SERIALIZE_TRANSACTION_NO_WITNESS));
 }
 
-uint256 CTransaction::ComputeHash() const
+Txid CTransaction::ComputeHash() const
 {
-    return SerializeHashSHA256(*this, SER_GETHASH, SERIALIZE_TRANSACTION_NO_WITNESS);
+    return Txid::FromUint256(SerializeHashSHA256(*this, SER_GETHASH, SERIALIZE_TRANSACTION_NO_WITNESS));
 }
 
-uint256 CTransaction::ComputeWitnessHash() const
+Wtxid CTransaction::ComputeWitnessHash() const
 {
     if (!HasWitness()) {
-        return hash;
+        return Wtxid::FromUint256(hash.ToUint256());
     }
-    return SerializeHashSHA256(*this, SER_GETHASH, 0);
+    return Wtxid::FromUint256(SerializeHashSHA256(*this, SER_GETHASH, 0));
 }
 
 CTransaction::CTransaction(const CMutableTransaction& tx) : vin(tx.vin), vout(tx.vout), nVersion(tx.nVersion), nLockTime(tx.nLockTime), hash{ComputeHash()}, m_witness_hash{ComputeWitnessHash()} {}
