@@ -259,15 +259,63 @@ public:
  */
 class TransportDeserializer {
 public:
-    // returns true if the current deserialization is complete
-    virtual bool Complete() const = 0;
-    // set the serialization context version
-    virtual void SetVersion(int version) = 0;
-    /** read and deserialize data, advances msg_bytes data pointer */
-    virtual int Read(Span<const uint8_t>& msg_bytes) = 0;
-    // decomposes a message from the context
-    virtual CNetMessage GetMessage(std::chrono::microseconds time, bool& reject_message) = 0;
-    virtual ~TransportDeserializer() {}
+    virtual ~Transport() {}
+
+    // 1. Receiver side functions, for decoding bytes received on the wire into transport protocol
+    // agnostic CNetMessage (message type & payload) objects.
+
+    /** Returns true if the current message is complete (so GetReceivedMessage can be called). */
+    virtual bool ReceivedMessageComplete() const = 0;
+    /** Set the deserialization context version for objects returned by GetReceivedMessage. */
+    virtual void SetReceiveVersion(int version) = 0;
+    /** Feed wire bytes to the transport; chops off consumed bytes off front of msg_bytes. */
+    virtual int ReceivedBytes(Span<const uint8_t>& msg_bytes) = 0;
+    /** Retrieve a completed message from transport (only when ReceivedMessageComplete). */
+    virtual CNetMessage GetReceivedMessage(std::chrono::microseconds time, bool& reject_message) = 0;
+
+    // 2. Sending side functions, for converting messages into bytes to be sent over the wire.
+
+    /** Set the next message to send.
+     *
+     * If no message can currently be set (perhaps because the previous one is not yet done being
+     * sent), returns false, and msg will be unmodified. Otherwise msg is enqueued (and
+     * possibly moved-from) and true is returned.
+     */
+    virtual bool SetMessageToSend(CSerializedNetMsg& msg) noexcept = 0;
+
+    /** Return type for GetBytesToSend, consisting of:
+     *  - Span<const uint8_t> to_send: span of bytes to be sent over the wire (possibly empty).
+     *  - bool more: whether there will be more bytes to be sent after the ones in to_send are
+     *    all sent (as signaled by MarkBytesSent()).
+     *  - const std::string& m_type: message type on behalf of which this is being sent.
+     */
+    using BytesToSend = std::tuple<
+        Span<const uint8_t> /*to_send*/,
+        bool /*more*/,
+        const std::string& /*m_type*/
+    >;
+
+    /** Get bytes to send on the wire.
+     *
+     * As a const function, it does not modify the transport's observable state, and is thus safe
+     * to be called multiple times.
+     *
+     * The bytes returned by this function act as a stream which can only be appended to. This
+     * means that with the exception of MarkBytesSent, operations on the transport can only append
+     * to what is being returned.
+     *
+     * Note that m_type and to_send refer to data that is internal to the transport, and calling
+     * any non-const function on this object may invalidate them.
+     */
+    virtual BytesToSend GetBytesToSend() const noexcept = 0;
+
+    /** Report how many bytes returned by the last GetBytesToSend() have been sent.
+     *
+     * bytes_sent cannot exceed to_send.size() of the last GetBytesToSend() result.
+     *
+     * If bytes_sent=0, this call has no effect.
+     */
+    virtual void MarkBytesSent(size_t bytes_sent) noexcept = 0;
 };
 
 class V1TransportDeserializer final : public TransportDeserializer
@@ -298,6 +346,24 @@ private:
         data_hash.SetNull();
         hasher.Reset();
     }
+
+    bool CompleteInternal() const noexcept EXCLUSIVE_LOCKS_REQUIRED(m_recv_mutex)
+    {
+        AssertLockHeld(m_recv_mutex);
+        if (!in_data) return false;
+        return hdr.nMessageSize == nDataPos;
+    }
+
+    /** Lock for sending state. */
+    mutable Mutex m_send_mutex;
+    /** The header of the message currently being sent. */
+    std::vector<uint8_t> m_header_to_send GUARDED_BY(m_send_mutex);
+    /** The data of the message currently being sent. */
+    CSerializedNetMsg m_message_to_send GUARDED_BY(m_send_mutex);
+    /** Whether we're currently sending header bytes or message bytes. */
+    bool m_sending_header GUARDED_BY(m_send_mutex) {false};
+    /** How many bytes have been sent so far (from m_header_to_send, or from m_message_to_send.data). */
+    size_t m_bytes_sent GUARDED_BY(m_send_mutex) {0};
 
 public:
     V1TransportDeserializer(const CChainParams& chain_params, const NodeId node_id, int nTypeIn, int nVersionIn)
@@ -342,9 +408,9 @@ public:
     virtual ~TransportSerializer() {}
 };
 
-class V1TransportSerializer : public TransportSerializer {
-public:
-    void prepareForTransport(CSerializedNetMsg& msg, std::vector<unsigned char>& header) const override;
+    bool SetMessageToSend(CSerializedNetMsg& msg) noexcept override EXCLUSIVE_LOCKS_REQUIRED(!m_send_mutex);
+    BytesToSend GetBytesToSend() const noexcept override EXCLUSIVE_LOCKS_REQUIRED(!m_send_mutex);
+    void MarkBytesSent(size_t bytes_sent) noexcept override EXCLUSIVE_LOCKS_REQUIRED(!m_send_mutex);
 };
 
 struct CNodeOptions
@@ -359,8 +425,9 @@ struct CNodeOptions
 class CNode
 {
 public:
-    const std::unique_ptr<TransportDeserializer> m_deserializer; // Used only by SocketHandler thread
-    const std::unique_ptr<const TransportSerializer> m_serializer;
+    /** Transport serializer/deserializer. The receive side functions are only called under cs_vRecv, while
+     * the sending side functions are only called under cs_vSend. */
+    const std::unique_ptr<Transport> m_transport;
 
     const NetPermissionFlags m_permission_flags;
 
