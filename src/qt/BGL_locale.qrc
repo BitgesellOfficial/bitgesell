@@ -30,7 +30,6 @@
         <file alias="fr">locale/BGL_fr.qm</file>
         <file alias="gl_ES">locale/BGL_gl_ES.qm</file>
         <file alias="he">locale/BGL_he.qm</file>
-        <file alias="hi">locale/BGL_hi.qm</file>
         <file alias="hr">locale/BGL_hr.qm</file>
         <file alias="hu">locale/BGL_hu.qm</file>
         <file alias="id">locale/BGL_id.qm</file>
