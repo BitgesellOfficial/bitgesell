@@ -1291,12 +1291,12 @@ RPCHelpMan importmulti()
                                 },
                             },
                         },
-                        RPCArgOptions{.oneline_description="\"requests\""}},
+                        RPCArgOptions{.oneline_description="requests"}},
                     {"options", RPCArg::Type::OBJ_NAMED_PARAMS, RPCArg::Optional::OMITTED, "",
                         {
                             {"rescan", RPCArg::Type::BOOL, RPCArg::Default{true}, "Scan the chain and mempool for wallet transactions after all imports."},
                         },
-                        RPCArgOptions{.oneline_description="\"options\""}},
+                        RPCArgOptions{.oneline_description="options"}},
                 },
                 RPCResult{
                     RPCResult::Type::ARR, "", "Response is an array with the same size as the input that has the execution result",
@@ -1611,7 +1611,7 @@ RPCHelpMan importdescriptors()
                                 },
                             },
                         },
-                        RPCArgOptions{.oneline_description="\"requests\""}},
+                        RPCArgOptions{.oneline_description="requests"}},
                 },
                 RPCResult{
                     RPCResult::Type::ARR, "", "Response is an array with the same size as the input that has the execution result",
