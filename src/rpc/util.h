@@ -9,7 +9,6 @@
 #include <consensus/amount.h>
 #include <node/transaction.h>
 #include <outputtype.h>
-#include <protocol.h>
 #include <pubkey.h>
 #include <rpc/protocol.h>
 #include <rpc/request.h>
@@ -60,7 +59,6 @@ extern const std::string UNIX_EPOCH_TIME;
 extern const std::string EXAMPLE_ADDRESS[2];
 
 class FillableSigningProvider;
-class CPubKey;
 class CScript;
 struct Sections;
 
