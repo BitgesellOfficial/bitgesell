@@ -122,6 +122,9 @@ struct CSerializedNetMsg {
 
     std::vector<unsigned char> data;
     std::string m_type;
+
+    /** Compute total memory usage of this object (own memory + any dynamic memory). */
+    size_t GetMemoryUsage() const noexcept;
 };
 
 /**
@@ -400,7 +403,12 @@ public:
     }
     CNetMessage GetMessage(std::chrono::microseconds time, bool& reject_message) override;
 
-    void prepareForTransport(CSerializedNetMsg& msg, std::vector<unsigned char>& header) const override;
+    CNetMessage GetReceivedMessage(std::chrono::microseconds time, bool& reject_message) override EXCLUSIVE_LOCKS_REQUIRED(!m_recv_mutex);
+
+    bool SetMessageToSend(CSerializedNetMsg& msg) noexcept override EXCLUSIVE_LOCKS_REQUIRED(!m_send_mutex);
+    BytesToSend GetBytesToSend() const noexcept override EXCLUSIVE_LOCKS_REQUIRED(!m_send_mutex);
+    void MarkBytesSent(size_t bytes_sent) noexcept override EXCLUSIVE_LOCKS_REQUIRED(!m_send_mutex);
+    size_t GetSendMemoryUsage() const noexcept override EXCLUSIVE_LOCKS_REQUIRED(!m_send_mutex);
 };
 
 struct CNodeOptions
@@ -430,8 +438,9 @@ public:
      */
     std::shared_ptr<Sock> m_sock GUARDED_BY(m_sock_mutex);
 
-    /** Total size of all vSendMsg entries */
-    size_t nSendSize GUARDED_BY(cs_vSend){0};
+    /** Total memory usage of vSendMsg (counting the vectors and their dynamic usage, but not the
+     *  deque overhead). */
+    size_t m_send_memusage GUARDED_BY(cs_vSend){0};
     /** Offset inside the first vSendMsg already sent */
     size_t nSendOffset GUARDED_BY(cs_vSend){0};
     uint64_t nSendBytes GUARDED_BY(cs_vSend){0};
