@@ -2779,7 +2779,7 @@ std::vector<CAddress> CConnman::GetCurrentBlockRelayOnlyConns() const
     return ret;
 }
 
-std::vector<AddedNodeInfo> CConnman::GetAddedNodeInfo() const
+std::vector<AddedNodeInfo> CConnman::GetAddedNodeInfo(bool include_connected) const
 {
     std::vector<AddedNodeInfo> ret;
 
@@ -2814,6 +2814,9 @@ std::vector<AddedNodeInfo> CConnman::GetAddedNodeInfo() const
             // strAddNode is an IP:port
             auto it = mapConnected.find(service);
             if (it != mapConnected.end()) {
+                if (!include_connected) {
+                    continue;
+                }
                 addedNode.resolvedAddress = service;
                 addedNode.fConnected = true;
                 addedNode.fInbound = it->second;
@@ -2822,6 +2825,9 @@ std::vector<AddedNodeInfo> CConnman::GetAddedNodeInfo() const
             // strAddNode is a name
             auto it = mapConnectedByName.find(strAddNode);
             if (it != mapConnectedByName.end()) {
+                if (!include_connected) {
+                    continue;
+                }
                 addedNode.resolvedAddress = it->second.second;
                 addedNode.fConnected = true;
                 addedNode.fInbound = it->second.first;
@@ -2840,21 +2846,19 @@ void CConnman::ThreadOpenAddedConnections()
     while (true)
     {
         CSemaphoreGrant grant(*semAddnode);
-        std::vector<AddedNodeInfo> vInfo = GetAddedNodeInfo();
+        std::vector<AddedNodeInfo> vInfo = GetAddedNodeInfo(/*include_connected=*/false);
         bool tried = false;
         for (const AddedNodeInfo& info : vInfo) {
-            if (!info.fConnected) {
-                if (!grant) {
-                    // If we've used up our semaphore and need a new one, let's not wait here since while we are waiting
-                    // the addednodeinfo state might change.
-                    break;
-                }
-                tried = true;
-                CAddress addr(CService(), NODE_NONE);
-                OpenNetworkConnection(addr, false, std::move(grant), info.m_params.m_added_node.c_str(), ConnectionType::MANUAL, info.m_params.m_use_v2transport);
-                if (!interruptNet.sleep_for(std::chrono::milliseconds(500))) return;
-                grant = CSemaphoreGrant(*semAddnode, /*fTry=*/true);
+            if (!grant) {
+                // If we've used up our semaphore and need a new one, let's not wait here since while we are waiting
+                // the addednodeinfo state might change.
+                break;
             }
+            tried = true;
+            CAddress addr(CService(), NODE_NONE);
+            OpenNetworkConnection(addr, false, std::move(grant), info.m_params.m_added_node.c_str(), ConnectionType::MANUAL, info.m_params.m_use_v2transport);
+            if (!interruptNet.sleep_for(std::chrono::milliseconds(500))) return;
+            grant = CSemaphoreGrant(*semAddnode, /*fTry=*/true);
         }
         // Retry every 60 seconds if a connection was attempted, otherwise two seconds
         if (!interruptNet.sleep_for(std::chrono::seconds(tried ? 60 : 2)))
