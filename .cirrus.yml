@@ -31,7 +31,49 @@ cat_logs_snippet: &CAT_LOGS
     cat_ci_env_script:
       - env
 
-linux_container_snippet: &LINUX_CONTAINER
+# https://cirrus-ci.org/guide/persistent-workers/
+#
+# It is possible to select a specific persistent worker by label. Refer to the
+# Cirrus CI docs for more details.
+#
+# Generally, a persistent worker must run Ubuntu 23.04+ or Debian 12+.
+# Specifically,
+# - apt-get is required due to PACKAGE_MANAGER_INSTALL
+# - podman-docker-4.1+ is required due to the use of `podman` when
+#   RESTART_CI_DOCKER_BEFORE_RUN is set and 4.1+ due to the bugfix in 4.1
+#   (https://github.com/bitcoin/bitcoin/pull/21652)
+# - The ./ci/ depedencies should be installed:
+#   apt update && apt install screen python3 bash podman-docker curl -y
+#
+# The following specific types should exist, with the following requirements:
+# - lunar: For a machine running the Linux kernel shipped with Ubuntu Lunar 23.04. The machine is recommended to have 4 CPUs and 16 GB of memory.
+persistent_worker_template: &PERSISTENT_WORKER_TEMPLATE
+  persistent_worker: {}  # Only use this if the task does not care about the type at all
+
+# https://cirrus-ci.org/guide/tips-and-tricks/#sharing-configuration-between-tasks
+filter_template: &FILTER_TEMPLATE
+  skip: $CIRRUS_REPO_FULL_NAME == "BGL-core/gui" && $CIRRUS_PR == ""  # No need to run on the read-only mirror, unless it is a PR. https://cirrus-ci.org/guide/writing-tasks/#conditional-task-execution
+  stateful: false  # https://cirrus-ci.org/guide/writing-tasks/#stateful-tasks
+
+base_template: &BASE_TEMPLATE
+  << : *FILTER_TEMPLATE
+  merge_base_script:
+    # Unconditionally install git (used in fingerprint_script).
+    - bash -c "$PACKAGE_MANAGER_INSTALL git"
+    - if [ "$CIRRUS_PR" = "" ]; then exit 0; fi
+    - git fetch --depth=1 $CIRRUS_REPO_CLONE_URL "pull/${CIRRUS_PR}/merge"
+    - git checkout FETCH_HEAD  # Use merged changes to detect silent merge conflicts
+                               # Also, the merge commit is used to lint COMMIT_RANGE="HEAD~..HEAD"
+
+main_template: &MAIN_TEMPLATE
+  timeout_in: 120m  # https://cirrus-ci.org/faq/#instance-timed-out
+  ccache_cache:
+    folder: "/tmp/ccache_dir"
+  ci_script:
+    - ./ci/test_run_all.sh
+
+container_depends_template: &CONTAINER_DEPENDS_TEMPLATE
+  << : *BASE_TEMPLATE
   container:
     dockerfile: ci/linux-debian.Dockerfile
     # Reduce number of CPUs to be able to do more builds in parallel.
@@ -338,55 +380,12 @@ task:
 task:
   name: '[ASan + LSan + UBSan + integer, no depends, USDT] [lunar]'
   << : *GLOBAL_TASK_TEMPLATE
-  # We can't use a 'container' for the USDT interface tests as the CirrusCI
-  # containers don't have privileges to hook into bitcoind. CirrusCI uses
-  # Google Compute Engine instances: https://cirrus-ci.org/guide/custom-vms/
-  # Images can be found here: https://cloud.google.com/compute/docs/images/os-details
-  compute_engine_instance:
-    image_project: ubuntu-os-cloud
-    image: family/ubuntu-2304-amd64 # https://cirrus-ci.org/guide/custom-vms/#custom-compute-engine-vms
-    cpu: 4
-    disk: 100
-    memory: 12G
+  persistent_worker:
+    labels:
+      type: lunar  # Must use the lunar-specific worker (needed for USDT functional tests)
   env:
-    WRAPPER_CMD: wine
-    WERROR_CFLAGS: -WX
-    WITH_VALGRIND: no
-    ECDH: yes
-    RECOVERY: yes
-    EXPERIMENTAL: yes
-    SCHNORRSIG: yes
-    ELLSWIFT: yes
-    CTIMETESTS: no
-    # Use a MinGW-w64 host to tell ./configure we're building for Windows.
-    # This will detect some MinGW-w64 tools but then make will need only
-    # the MSVC tools CC, AR and NM as specified below.
-    HOST: x86_64-w64-mingw32
-    CC: /opt/msvc/bin/x64/cl
-    AR: /opt/msvc/bin/x64/lib
-    NM: /opt/msvc/bin/x64/dumpbin -symbols -headers
-    # Set non-essential options that affect the CLI messages here.
-    # (They depend on the user's taste, so we don't want to set them automatically in configure.ac.)
-    CFLAGS: -nologo -diagnostics:caret
-    LDFLAGS: -Xlinker -Xlinker -Xlinker -nologo
-  matrix:
-    - name: "x86_64 (MSVC): Windows (Debian stable, Wine)"
-    - name: "x86_64 (MSVC): Windows (Debian stable, Wine, int128_struct)"
-      env:
-        WIDEMUL: int128_struct
-    - name: "x86_64 (MSVC): Windows (Debian stable, Wine, int128_struct with __(u)mulh)"
-      env:
-        WIDEMUL: int128_struct
-        CPPFLAGS: -DSECP256K1_MSVC_MULH_TEST_OVERRIDE
-    - name: "i686 (MSVC): Windows (Debian stable, Wine)"
-      env:
-        HOST: i686-w64-mingw32
-        CC: /opt/msvc/bin/x86/cl
-        AR: /opt/msvc/bin/x86/lib
-        NM: /opt/msvc/bin/x86/dumpbin -symbols -headers
-  test_script:
-    - ./ci/cirrus.sh
-  << : *CAT_LOGS
+    << : *PERSISTENT_WORKER_TEMPLATE_ENV
+    FILE_ENV: "./ci/test/00_setup_env_native_asan.sh"
 
 task:
   name: '[fuzzer,address,undefined,integer, no depends] [lunar]'
