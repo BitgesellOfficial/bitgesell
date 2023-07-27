@@ -75,7 +75,7 @@ void bad_func3()
 }
 void bad_func4_ignored()
 {
-    LogPrintf("hello world!"); // NOLINT(bitcoin-unterminated-logprintf)
+    LogPrintf("hello world!"); // NOLINT(BGL-unterminated-logprintf)
 }
 void bad_func5()
 {

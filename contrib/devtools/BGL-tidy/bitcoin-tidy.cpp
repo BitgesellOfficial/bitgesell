@@ -7,16 +7,16 @@
 #include <clang-tidy/ClangTidyModule.h>
 #include <clang-tidy/ClangTidyModuleRegistry.h>
 
-class BitcoinModule final : public clang::tidy::ClangTidyModule
+class BGLModule final : public clang::tidy::ClangTidyModule
 {
 public:
     void addCheckFactories(clang::tidy::ClangTidyCheckFactories& CheckFactories) override
     {
-        CheckFactories.registerCheck<bitcoin::LogPrintfCheck>("bitcoin-unterminated-logprintf");
+        CheckFactories.registerCheck<BGL::LogPrintfCheck>("BGL-unterminated-logprintf");
     }
 };
 
-static clang::tidy::ClangTidyModuleRegistry::Add<BitcoinModule>
-    X("bitcoin-module", "Adds bitcoin checks.");
+static clang::tidy::ClangTidyModuleRegistry::Add<BGLModule>
+    X("BGL-module", "Adds BGL checks.");
 
-volatile int BitcoinModuleAnchorSource = 0;
+volatile int BGLModuleAnchorSource = 0;

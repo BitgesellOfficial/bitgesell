@@ -7,7 +7,7 @@
 
 #include <clang-tidy/ClangTidyCheck.h>
 
-namespace bitcoin {
+namespace BGL {
 
 class LogPrintfCheck final : public clang::tidy::ClangTidyCheck
 {
@@ -23,6 +23,6 @@ public:
     void check(const clang::ast_matchers::MatchFinder::MatchResult& Result) override;
 };
 
-} // namespace bitcoin
+} // namespace BGL
 
 #endif // LOGPRINTF_CHECK_H
