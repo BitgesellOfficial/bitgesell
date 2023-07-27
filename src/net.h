@@ -280,7 +280,7 @@ public:
 class V1Transport final : public Transport
 {
 private:
-    const CChainParams& m_chain_params;
+    CMessageHeader::MessageStartChars m_magic_bytes;
     const NodeId m_node_id; // Only for logging
     mutable Mutex m_recv_mutex; //!< Lock for receive state
     mutable CHash256 hasher GUARDED_BY(m_recv_mutex);
@@ -316,15 +316,7 @@ private:
     }
 
 public:
-    V1Transport(const CChainParams& chain_params, const NodeId node_id, int nTypeIn, int nVersionIn)
-        : m_chain_params(chain_params),
-          m_node_id(node_id),
-          hdrbuf(nTypeIn, nVersionIn),
-          vRecv(nTypeIn, nVersionIn)
-    {
-        LOCK(m_recv_mutex);
-        Reset();
-    }
+    V1Transport(const NodeId node_id, int nTypeIn, int nVersionIn) noexcept;
 
     bool ReceivedMessageComplete() const override EXCLUSIVE_LOCKS_REQUIRED(!m_recv_mutex)
     {
