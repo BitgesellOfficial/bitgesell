@@ -259,22 +259,76 @@ public:
     virtual ~Transport() {}
 
     // 1. Receiver side functions, for decoding bytes received on the wire into transport protocol
-    // agnostic CNetMessage (message type & payload) objects. Callers must guarantee that none of
-    // these functions are called concurrently w.r.t. one another.
+    // agnostic CNetMessage (message type & payload) objects.
 
-    // returns true if the current deserialization is complete
-    virtual bool Complete() const = 0;
-    // set the deserialization context version
-    virtual void SetVersion(int version) = 0;
-    /** read and deserialize data, advances msg_bytes data pointer */
-    virtual int Read(Span<const uint8_t>& msg_bytes) = 0;
-    // decomposes a message from the context
-    virtual CNetMessage GetMessage(std::chrono::microseconds time, bool& reject_message) = 0;
+    /** Returns true if the current message is complete (so GetReceivedMessage can be called). */
+    virtual bool ReceivedMessageComplete() const = 0;
+    /** Set the deserialization context version for objects returned by GetReceivedMessage. */
+    virtual void SetReceiveVersion(int version) = 0;
 
-    // 2. Sending side functions:
+    /** Feed wire bytes to the transport.
+     *
+     * @return false if some bytes were invalid, in which case the transport can't be used anymore.
+     *
+     * Consumed bytes are chopped off the front of msg_bytes.
+     */
+    virtual bool ReceivedBytes(Span<const uint8_t>& msg_bytes) = 0;
 
-    // prepare message for transport (header construction, error-correction computation, payload encryption, etc.)
-    virtual void prepareForTransport(CSerializedNetMsg& msg, std::vector<unsigned char>& header) const = 0;
+    /** Retrieve a completed message from transport.
+     *
+     * This can only be called when ReceivedMessageComplete() is true.
+     *
+     * If reject_message=true is returned the message itself is invalid, but (other than false
+     * returned by ReceivedBytes) the transport is not in an inconsistent state.
+     */
+    virtual CNetMessage GetReceivedMessage(std::chrono::microseconds time, bool& reject_message) = 0;
+
+    // 2. Sending side functions, for converting messages into bytes to be sent over the wire.
+
+    /** Set the next message to send.
+     *
+     * If no message can currently be set (perhaps because the previous one is not yet done being
+     * sent), returns false, and msg will be unmodified. Otherwise msg is enqueued (and
+     * possibly moved-from) and true is returned.
+     */
+    virtual bool SetMessageToSend(CSerializedNetMsg& msg) noexcept = 0;
+
+    /** Return type for GetBytesToSend, consisting of:
+     *  - Span<const uint8_t> to_send: span of bytes to be sent over the wire (possibly empty).
+     *  - bool more: whether there will be more bytes to be sent after the ones in to_send are
+     *    all sent (as signaled by MarkBytesSent()).
+     *  - const std::string& m_type: message type on behalf of which this is being sent.
+     */
+    using BytesToSend = std::tuple<
+        Span<const uint8_t> /*to_send*/,
+        bool /*more*/,
+        const std::string& /*m_type*/
+    >;
+
+    /** Get bytes to send on the wire.
+     *
+     * As a const function, it does not modify the transport's observable state, and is thus safe
+     * to be called multiple times.
+     *
+     * The bytes returned by this function act as a stream which can only be appended to. This
+     * means that with the exception of MarkBytesSent, operations on the transport can only append
+     * to what is being returned.
+     *
+     * Note that m_type and to_send refer to data that is internal to the transport, and calling
+     * any non-const function on this object may invalidate them.
+     */
+    virtual BytesToSend GetBytesToSend() const noexcept = 0;
+
+    /** Report how many bytes returned by the last GetBytesToSend() have been sent.
+     *
+     * bytes_sent cannot exceed to_send.size() of the last GetBytesToSend() result.
+     *
+     * If bytes_sent=0, this call has no effect.
+     */
+    virtual void MarkBytesSent(size_t bytes_sent) noexcept = 0;
+
+    /** Return the memory usage of this transport attributable to buffered data to send. */
+    virtual size_t GetSendMemoryUsage() const noexcept = 0;
 };
 
 class V1Transport final : public Transport
@@ -332,7 +386,7 @@ public:
         vRecv.SetVersion(nVersionIn);
     }
 
-    int ReceivedBytes(Span<const uint8_t>& msg_bytes) override EXCLUSIVE_LOCKS_REQUIRED(!m_recv_mutex)
+    bool ReceivedBytes(Span<const uint8_t>& msg_bytes) override EXCLUSIVE_LOCKS_REQUIRED(!m_recv_mutex)
     {
         AssertLockNotHeld(m_recv_mutex);
         LOCK(m_recv_mutex);
@@ -342,7 +396,7 @@ public:
         } else {
             msg_bytes = msg_bytes.subspan(ret);
         }
-        return ret;
+        return ret >= 0;
     }
     CNetMessage GetMessage(std::chrono::microseconds time, bool& reject_message) override;
 
