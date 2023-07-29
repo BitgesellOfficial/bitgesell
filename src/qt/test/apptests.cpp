@@ -6,6 +6,7 @@
 
 #include <chainparams.h>
 #include <key.h>
+#include <logging.h>
 #include <qt/BGL.h>
 #include <qt/BGLgui.h>
 #include <qt/networkstyle.h>
