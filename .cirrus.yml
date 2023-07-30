@@ -1,34 +1,13 @@
 env:
   ### cirrus config
   CIRRUS_CLONE_DEPTH: 1
-  ### compiler options
-  HOST:
-  WRAPPER_CMD:
-  # Specific warnings can be disabled with -Wno-error=foo.
-  # -pedantic-errors is not equivalent to -Werror=pedantic and thus not implied by -Werror according to the GCC manual.
-  WERROR_CFLAGS: -Werror -pedantic-errors
-  MAKEFLAGS: -j4
-  BUILD: check
-  ### secp256k1 config
-  ECMULTWINDOW: auto
-  ECMULTGENPRECISION: auto
-  ASM: no
-  WIDEMUL: auto
-  WITH_VALGRIND: yes
-  EXTRAFLAGS:
-  ### secp256k1 modules
-  EXPERIMENTAL: no
-  ECDH: no
-  RECOVERY: no
-  SCHNORRSIG: no
-  ELLSWIFT: no
-  ### test options
-  SECP256K1_TEST_ITERS:
-  BENCH: yes
-  SECP256K1_BENCH_ITERS: 2
-  CTIMETESTS: yes
-  # Compile and run the tests
-  EXAMPLES: yes
+  PACKAGE_MANAGER_INSTALL: "apt-get update && apt-get install -y"
+  MAKEJOBS: "-j10"
+  TEST_RUNNER_PORT_MIN: "14000"  # Must be larger than 12321, which is used for the http cache. See https://cirrus-ci.org/guide/writing-tasks/#http-cache
+  CI_FAILFAST_TEST_LEAVE_DANGLING: "1"  # Cirrus CI does not care about dangling process and setting this variable avoids killing the CI script itself on error
+  CCACHE_MAXSIZE: "200M"
+  CCACHE_DIR: "/tmp/ccache_dir"
+  CCACHE_NOHASHDIR: "1"  # Debug info might contain a stale path if the build dir changes, but this is fine
 
 cirrus_ephemeral_worker_template_env: &CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
   DANGER_RUN_CI_ON_HOST: "1"  # Containers will be discarded after the run, so there is no risk that the ci scripts modify the system
@@ -139,25 +118,92 @@ task:
     # Cirrus gives us a fixed number of 4 virtual CPUs. Not that we even have that many jobs at the moment...
     MAKEFLAGS: -j5
   env:
-    ASM: no
-    WITH_VALGRIND: no
-    CTIMETESTS: no
-    CC: clang
-  matrix:
-    - env: {WIDEMUL:  int64,  RECOVERY: yes, ECDH: yes, SCHNORRSIG: yes, ELLSWIFT: yes}
-    - env: {WIDEMUL:  int64,  RECOVERY: yes, ECDH: yes, SCHNORRSIG: yes, ELLSWIFT: yes, CC: gcc}
-    - env: {WIDEMUL: int128_struct, ECMULTGENPRECISION: 2, ECMULTWINDOW: 4}
-    - env: {WIDEMUL: int128,                 ECDH: yes, SCHNORRSIG: yes, ELLSWIFT: yes}
-    - env: {WIDEMUL: int128,  RECOVERY: yes,            SCHNORRSIG: yes}
-    - env: {WIDEMUL: int128,  RECOVERY: yes, ECDH: yes, SCHNORRSIG: yes, ELLSWIFT: yes, CC: gcc}
-    - env: {WIDEMUL: int128,  RECOVERY: yes, ECDH: yes, SCHNORRSIG: yes, ELLSWIFT: yes, CPPFLAGS: -DVERIFY}
-    - env: {BUILD: distcheck}
-  brew_script:
-    - brew install automake libtool gcc
-  test_script:
-    - ./ci/cirrus.sh
-  << : *CAT_LOGS
-  << : *CREDITS
+    PATH: 'C:\jom;C:\Python39;C:\Python39\Scripts;C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin;%PATH%'
+    PYTHONUTF8: 1
+    CI_VCPKG_TAG: '2023.01.09'
+    VCPKG_DOWNLOADS: 'C:\Users\ContainerAdministrator\AppData\Local\vcpkg\downloads'
+    VCPKG_DEFAULT_BINARY_CACHE: 'C:\Users\ContainerAdministrator\AppData\Local\vcpkg\archives'
+    CCACHE_DIR: 'C:\Users\ContainerAdministrator\AppData\Local\ccache'
+    WRAPPED_CL: 'C:\Users\ContainerAdministrator\AppData\Local\Temp\cirrus-ci-build\ci\test\wrapped-cl.bat'
+    QT_DOWNLOAD_URL: 'https://download.qt.io/official_releases/qt/5.15/5.15.5/single/qt-everywhere-opensource-src-5.15.5.zip'
+    QT_LOCAL_PATH: 'C:\qt-everywhere-opensource-src-5.15.5.zip'
+    QT_SOURCE_DIR: 'C:\qt-everywhere-src-5.15.5'
+    QTBASEDIR: 'C:\Qt_static'
+    x64_NATIVE_TOOLS: '"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"'
+    QT_CONFIGURE_COMMAND: '..\configure -release -silent -opensource -confirm-license -opengl desktop -static -static-runtime -mp -qt-zlib -qt-pcre -qt-libpng -nomake examples -nomake tests -nomake tools -no-angle -no-dbus -no-gif -no-gtk -no-ico -no-icu -no-libjpeg -no-libudev -no-sql-sqlite -no-sql-odbc -no-sqlite -no-vulkan -skip qt3d -skip qtactiveqt -skip qtandroidextras -skip qtcharts -skip qtconnectivity -skip qtdatavis3d -skip qtdeclarative -skip doc -skip qtdoc -skip qtgamepad -skip qtgraphicaleffects -skip qtimageformats -skip qtlocation -skip qtlottie -skip qtmacextras -skip qtmultimedia -skip qtnetworkauth -skip qtpurchasing -skip qtquick3d -skip qtquickcontrols -skip qtquickcontrols2 -skip qtquicktimeline -skip qtremoteobjects -skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qtsvg -skip qtvirtualkeyboard -skip qtwayland -skip qtwebchannel -skip qtwebengine -skip qtwebglplugin -skip qtwebsockets -skip qtwebview -skip qtx11extras -skip qtxmlpatterns -no-openssl -no-feature-bearermanagement -no-feature-printdialog -no-feature-printer -no-feature-printpreviewdialog -no-feature-printpreviewwidget -no-feature-sql -no-feature-sqlmodel -no-feature-textbrowser -no-feature-textmarkdownwriter -no-feature-textodfwriter -no-feature-xml'
+    IgnoreWarnIntDirInTempDetected: 'true'
+  merge_script:
+    - PowerShell -NoLogo -Command if ($env:CIRRUS_PR -ne $null) { git fetch $env:CIRRUS_REPO_CLONE_URL pull/$env:CIRRUS_PR/merge; git reset --hard FETCH_HEAD; }
+  msvc_qt_built_cache:
+    folder: "%QTBASEDIR%"
+    reupload_on_changes: false
+    fingerprint_script:
+      - echo %QT_DOWNLOAD_URL% %QT_CONFIGURE_COMMAND%
+      - msbuild -version
+    populate_script:
+      - curl -L -o C:\jom.zip http://download.qt.io/official_releases/jom/jom.zip
+      - mkdir C:\jom
+      - tar -xf C:\jom.zip -C C:\jom
+      - curl -L -o %QT_LOCAL_PATH% %QT_DOWNLOAD_URL%
+      - tar -xf %QT_LOCAL_PATH% -C C:\
+      - '%x64_NATIVE_TOOLS%'
+      - cd %QT_SOURCE_DIR%
+      - mkdir build
+      - cd build
+      - '%QT_CONFIGURE_COMMAND% -prefix %QTBASEDIR%'
+      - jom
+      - jom install
+  vcpkg_tools_cache:
+    folder: '%VCPKG_DOWNLOADS%\tools'
+    reupload_on_changes: false
+    fingerprint_script:
+      - echo %CI_VCPKG_TAG%
+      - msbuild -version
+  vcpkg_binary_cache:
+    folder: '%VCPKG_DEFAULT_BINARY_CACHE%'
+    reupload_on_changes: true
+    fingerprint_script:
+      - echo %CI_VCPKG_TAG%
+      - type build_msvc\vcpkg.json
+      - msbuild -version
+    populate_script:
+      - mkdir %VCPKG_DEFAULT_BINARY_CACHE%
+  ccache_cache:
+    folder: '%CCACHE_DIR%'
+  install_tools_script:
+    - choco install --yes --no-progress ccache --version=4.7.4
+    - choco install --yes --no-progress python3 --version=3.9.6
+    - pip install zmq
+    - ccache --version
+    - python -VV
+  install_vcpkg_script:
+    - cd ..
+    - git clone --quiet https://github.com/microsoft/vcpkg.git
+    - cd vcpkg
+    - git -c advice.detachedHead=false checkout %CI_VCPKG_TAG%
+    - .\bootstrap-vcpkg -disableMetrics
+    - echo set(VCPKG_BUILD_TYPE release) >> triplets\x64-windows-static.cmake
+    - .\vcpkg integrate install
+    - .\vcpkg version
+  build_script:
+    - '%x64_NATIVE_TOOLS%'
+    - cd %CIRRUS_WORKING_DIR%
+    - ccache --zero-stats
+    - python build_msvc\msvc-autogen.py
+    - msbuild build_msvc\BGL.sln -property:CLToolExe=%WRAPPED_CL%;UseMultiToolTask=true;Configuration=Release -maxCpuCount -verbosity:minimal -noLogo
+    - ccache --show-stats
+  check_script:
+    - src\test_BGL.exe -l test_suite
+    - src\bench_BGL.exe --sanity-check
+    - python test\util\test_runner.py
+    - python test\util\rpcauth-test.py
+  functional_tests_script:
+    # Increase the dynamic port range to the maximum allowed value to mitigate "OSError: [WinError 10048] Only one usage of each socket address (protocol/network address/port) is normally permitted".
+    # See: https://learn.microsoft.com/en-us/biztalk/technical-guides/settings-that-can-be-modified-to-improve-network-performance
+    - netsh int ipv4 set dynamicport tcp start=1025 num=64511
+    - netsh int ipv6 set dynamicport tcp start=1025 num=64511
+    # Exclude feature_dbcrash for now due to timeout
+    - python test\functional\test_runner.py --nocleanup --ci --quiet --combinedlogslen=99999999 --jobs=6 --timeout-factor=8 --extended --exclude feature_dbcrash
 
 task:
   name: 'ARM [unit tests, no functional tests] [bullseye]'
