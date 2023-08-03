@@ -606,7 +606,7 @@ public:
         bilingual_str error;
         std::unique_ptr<Wallet> wallet{MakeWallet(m_context, CreateWallet(m_context, name, /*load_on_start=*/true, options, status, error, warnings))};
         if (wallet) {
-            return {std::move(wallet)};
+            return wallet;
         } else {
             return util::Error{error};
         }
@@ -620,7 +620,7 @@ public:
         bilingual_str error;
         std::unique_ptr<Wallet> wallet{MakeWallet(m_context, LoadWallet(m_context, name, /*load_on_start=*/true, options, status, error, warnings))};
         if (wallet) {
-            return {std::move(wallet)};
+            return wallet;
         } else {
             return util::Error{error};
         }
@@ -631,10 +631,22 @@ public:
         bilingual_str error;
         std::unique_ptr<Wallet> wallet{MakeWallet(m_context, RestoreWallet(m_context, backup_file, wallet_name, /*load_on_start=*/true, status, error, warnings))};
         if (wallet) {
-            return {std::move(wallet)};
+            return wallet;
         } else {
             return util::Error{error};
         }
+    }
+    util::Result<WalletMigrationResult> migrateWallet(const std::string& name, const SecureString& passphrase) override
+    {
+        auto res = wallet::MigrateLegacyToDescriptor(name, passphrase, m_context);
+        if (!res) return util::Error{util::ErrorString(res)};
+        WalletMigrationResult out{
+            .wallet = MakeWallet(m_context, res->wallet),
+            .watchonly_wallet_name = res->watchonly_wallet ? std::make_optional(res->watchonly_wallet->GetName()) : std::nullopt,
+            .solvables_wallet_name = res->solvables_wallet ? std::make_optional(res->solvables_wallet->GetName()) : std::nullopt,
+            .backup_path = res->backup_path,
+        };
+        return out;
     }
     std::string getWalletDir() override
     {
