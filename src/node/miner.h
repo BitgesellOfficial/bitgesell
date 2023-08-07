@@ -20,10 +20,12 @@
 #include <boost/multi_index/tag.hpp>
 #include <boost/multi_index_container.hpp>
 
-class ChainstateManager;
+class ArgsManager;
 class CBlockIndex;
 class CChainParams;
 class CScript;
+class Chainstate;
+class ChainstateManager;
 
 namespace Consensus { struct Params; };
 
