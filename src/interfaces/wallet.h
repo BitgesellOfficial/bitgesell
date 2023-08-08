@@ -7,10 +7,11 @@
 
 #include <addresstype.h>
 #include <consensus/amount.h>
-#include <interfaces/chain.h>
-#include <pubkey.h>
+#include <interfaces/chain.h>          // For ChainClient
+#include <pubkey.h>                    // For CKeyID and CScriptID (definitions needed in CTxDestination instantiation)
 #include <script/script.h>
-#include <support/allocators/secure.h>
+#include <script/standard.h>           // For CTxDestination
+#include <support/allocators/secure.h> // For SecureString
 #include <util/fs.h>
 #include <util/message.h>
 #include <util/result.h>
