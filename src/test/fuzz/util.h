@@ -5,6 +5,7 @@
 #ifndef BGL_TEST_FUZZ_UTIL_H
 #define BGL_TEST_FUZZ_UTIL_H
 
+#include <addresstype.h>
 #include <arith_uint256.h>
 #include <coins.h>
 #include <compat/compat.h>

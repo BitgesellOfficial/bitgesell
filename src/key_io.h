@@ -6,6 +6,7 @@
 #ifndef BGL_KEY_IO_H
 #define BGL_KEY_IO_H
 
+#include <addresstype.h>
 #include <chainparams.h>
 #include <key.h>
 #include <pubkey.h>

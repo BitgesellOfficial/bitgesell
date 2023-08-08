@@ -6,6 +6,7 @@
 #ifndef BGL_WALLET_WALLET_H
 #define BGL_WALLET_WALLET_H
 
+#include <addresstype.h>
 #include <consensus/amount.h>
 #include <interfaces/chain.h>
 #include <interfaces/handler.h>
