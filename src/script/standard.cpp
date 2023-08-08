@@ -16,6 +16,8 @@
 
 typedef std::vector<unsigned char> valtype;
 
+CScriptID::CScriptID(const CScript& in) : BaseHash(Hash160(in)) {}
+
 ScriptHash::ScriptHash(const CScript& in) : BaseHash(Hash160(in)) {}
 ScriptHash::ScriptHash(const CScriptID& in) : BaseHash(static_cast<uint160>(in)) {}
 
