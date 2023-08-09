@@ -3,8 +3,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BGL_SCRIPT_STANDARD_H
-#define BGL_SCRIPT_STANDARD_H
+// The Solver functions are used by policy and the wallet, but not consensus.
+
+#ifndef BGL_SCRIPT_SOLVER_H
+#define BGL_SCRIPT_SOLVER_H
 
 #include <attributes.h>
 #include <script/script.h>
@@ -166,4 +168,4 @@ std::optional<std::pair<int, std::vector<Span<const unsigned char>>>> MatchMulti
 /** Generate a multisig script. */
 CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys);
 
-#endif // BGL_SCRIPT_STANDARD_H
+#endif // BGL_SCRIPT_SOLVER_H

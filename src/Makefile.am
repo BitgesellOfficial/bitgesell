@@ -265,7 +265,7 @@ BGL_CORE_H = \
   script/sigcache.h \
   script/sign.h \
   script/signingprovider.h \
-  script/standard.h \
+  script/solver.h \
   shutdown.h \
   signet.h \
   streams.h \
@@ -702,7 +702,7 @@ libBGL_common_a_SOURCES = \
   script/miniscript.cpp \
   script/sign.cpp \
   script/signingprovider.cpp \
-  script/standard.cpp \
+  script/solver.cpp \
   warnings.cpp \
   $(BGL_CORE_H)
 
@@ -963,7 +963,7 @@ libBGLkernel_la_SOURCES = \
   script/script.cpp \
   script/script_error.cpp \
   script/sigcache.cpp \
-  script/standard.cpp \
+  script/solver.cpp \
   signet.cpp \
   streams.cpp \
   support/cleanse.cpp \
