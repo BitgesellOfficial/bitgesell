@@ -7,18 +7,15 @@
 #define BGL_SCRIPT_STANDARD_H
 
 #include <attributes.h>
-#include <pubkey.h>
-#include <script/interpreter.h>
-#include <uint256.h>
-#include <util/hash_type.h>
+#include <script/script.h>
 
-#include <map>
 #include <string>
-#include <variant>
+#include <optional>
+#include <utility>
+#include <vector>
 
-static const bool DEFAULT_ACCEPT_DATACARRIER = true;
-
-class CScript;
+class CPubKey;
+template <typename C> class Span;
 
 /** A reference to a CScript: the Hash160 of its serialization (see script.h) */
 class CScriptID : public BaseHash<uint160>
