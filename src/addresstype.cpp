@@ -98,6 +98,7 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
     case TxoutType::MULTISIG:
     case TxoutType::NULL_DATA:
     case TxoutType::NONSTANDARD:
+        addressRet = CNoDestination(scriptPubKey);
         return false;
     } // no default case, so the compiler can warn about missing cases
     assert(false);
@@ -109,7 +110,7 @@ class CScriptVisitor
 public:
     CScript operator()(const CNoDestination& dest) const
     {
-        return CScript();
+        return dest.GetScript();
     }
 
     CScript operator()(const PubKeyDestination& dest) const

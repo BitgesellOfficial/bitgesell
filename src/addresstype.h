@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or https://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_ADDRESSTYPE_H
-#define BITCOIN_ADDRESSTYPE_H
+#ifndef BGL_ADDRESSTYPE_H
+#define BGL_ADDRESSTYPE_H
 
 #include <pubkey.h>
 #include <script/script.h>
@@ -14,9 +14,17 @@
 #include <algorithm>
 
 class CNoDestination {
+private:
+    CScript m_script;
+
 public:
-    friend bool operator==(const CNoDestination &a, const CNoDestination &b) { return true; }
-    friend bool operator<(const CNoDestination &a, const CNoDestination &b) { return true; }
+    CNoDestination() = default;
+    CNoDestination(const CScript& script) : m_script(script) {}
+
+    const CScript& GetScript() const { return m_script; }
+
+    friend bool operator==(const CNoDestination& a, const CNoDestination& b) { return a.GetScript() == b.GetScript(); }
+    friend bool operator<(const CNoDestination& a, const CNoDestination& b) { return a.GetScript() < b.GetScript(); }
 };
 
 struct PubKeyDestination {
@@ -104,7 +112,6 @@ struct WitnessUnknown
 /**
  * A txout script categorized into standard templates.
  *  * CNoDestination: Optionally a script, no corresponding address.
- *  * PubKeyDestination: TxoutType::PUBKEY (P2PK), no corresponding address
  *  * PKHash: TxoutType::PUBKEYHASH destination (P2PKH address)
  *  * ScriptHash: TxoutType::SCRIPTHASH destination (P2SH address)
  *  * WitnessV0ScriptHash: TxoutType::WITNESS_V0_SCRIPTHASH destination (P2WSH address)
@@ -125,8 +132,8 @@ bool IsValidDestination(const CTxDestination& dest);
  * is assigned to addressRet.
  * For all other scripts. addressRet is assigned as a CNoDestination containing the scriptPubKey.
  *
- * Returns true for standard destinations with addresses - P2PKH, P2SH, P2WPKH, P2WSH, P2TR and P2W??? scripts.
- * Returns false for non-standard destinations and those without addresses - P2PK, bare multisig, null data, and nonstandard scripts.
+ * Returns true for standard destinations - P2PK, P2PKH, P2SH, P2WPKH, P2WSH, and P2TR scripts.
+ * Returns false for non-standard destinations - P2PK with invalid pubkeys, P2W???, bare multisig, null data, and nonstandard scripts.
  */
 bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet);
 
@@ -137,4 +144,4 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
  */
 CScript GetScriptForDestination(const CTxDestination& dest);
 
-#endif // BITCOIN_ADDRESSTYPE_H
+#endif // BGL_ADDRESSTYPE_H
