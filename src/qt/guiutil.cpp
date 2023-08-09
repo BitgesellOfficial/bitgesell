@@ -9,6 +9,7 @@
 #include <qt/qvalidatedlineedit.h>
 #include <qt/sendcoinsrecipient.h>
 
+#include <addresstype.h>
 #include <base58.h>
 #include <chainparams.h>
 #include <common/args.h>
@@ -19,7 +20,6 @@
 #include <primitives/transaction.h>
 #include <protocol.h>
 #include <script/script.h>
-#include <script/standard.h>
 #include <util/chaintype.h>
 #include <util/exception.h>
 #include <util/fs.h>
