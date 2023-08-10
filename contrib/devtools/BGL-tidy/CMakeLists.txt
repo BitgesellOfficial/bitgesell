@@ -22,7 +22,13 @@ if (MSVC)
     target_compile_options(BGL-tidy PRIVATE /GR-)
 else()
     target_compile_options(BGL-tidy PRIVATE -fno-rtti)
-    target_compile_options(CMAKE_BUILD_RPATH_USE_ORIGIN-tidy PRIVATE -fno-exceptions)
+    target_compile_options(BGL-tidy PRIVATE -fno-exceptions)
+endif()
+
+if(CMAKE_HOST_APPLE)
+    # ld64 expects no undefined symbols by default
+    target_link_options(BGL-tidy PRIVATE -Wl,-flat_namespace)
+    target_link_options(BGL-tidy PRIVATE -Wl,-undefined -Wl,suppress)
 endif()
 
 # Add warnings
@@ -33,7 +39,12 @@ else()
     target_compile_options(BGL-tidy PRIVATE -Wextra)
 endif()
 
-set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}" "--load=${CMAKE_BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}bitcoin-tidy${CMAKE_SHARED_LIBRARY_SUFFIX}" "-checks=-*,bitcoin-*")
+if(CMAKE_VERSION VERSION_LESS 3.27)
+    set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}" "--load=${CMAKE_BINARY_DIR}/${CMAKE_SHARED_MODULE_PREFIX}BGL-tidy${CMAKE_SHARED_MODULE_SUFFIX}" "-checks=-*,BGL-*")
+else()
+    # CLANG_TIDY_COMMAND supports generator expressions as of 3.27
+    set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}" "--load=$<TARGET_FILE:BGL-tidy>" "-checks=-*,BGL-*")
+endif()
 
 # Create a dummy library that runs clang-tidy tests as a side-effect of building
 add_library(BGL-tidy-tests OBJECT EXCLUDE_FROM_ALL example_logprintf.cpp)
