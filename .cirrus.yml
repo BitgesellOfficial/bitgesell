@@ -12,25 +12,6 @@ env:
 cirrus_ephemeral_worker_template_env: &CIRRUS_EPHEMERAL_WORKER_TEMPLATE_ENV
   DANGER_RUN_CI_ON_HOST: "1"  # Containers will be discarded after the run, so there is no risk that the ci scripts modify the system
 
-cat_logs_snippet: &CAT_LOGS
-  always:
-    cat_tests_log_script:
-      - cat tests.log || true
-    cat_noverify_tests_log_script:
-      - cat noverify_tests.log || true
-    cat_exhaustive_tests_log_script:
-      - cat exhaustive_tests.log || true
-    cat_ctime_tests_log_script:
-      - cat ctime_tests.log || true
-    cat_bench_log_script:
-      - cat bench.log || true
-    cat_config_log_script:
-      - cat config.log || true
-    cat_test_env_script:
-      - cat test_env.log || true
-    cat_ci_env_script:
-      - env
-
 # https://cirrus-ci.org/guide/persistent-workers/
 #
 # It is possible to select a specific persistent worker by label. Refer to the
@@ -68,8 +49,6 @@ cat_logs_snippet: &CAT_LOGS
 # - medium: For an x86_64 machine, recommended to have 4 CPUs and 16 GB of memory.
 # - lunar: For a machine running the Linux kernel shipped with Ubuntu Lunar 23.04. The machine is recommended to have 4 CPUs and 16 GB of memory.
 # - arm64: For an aarch64 machine, recommended to have 2 CPUs and 8 GB of memory.
-persistent_worker_template: &PERSISTENT_WORKER_TEMPLATE
-  persistent_worker: {}  # Only use this if the task does not care about the type at all
 
 # https://cirrus-ci.org/guide/tips-and-tricks/#sharing-configuration-between-tasks
 filter_template: &FILTER_TEMPLATE
@@ -323,20 +302,11 @@ task:
   previous_releases_cache:
     folder: "releases"
   << : *GLOBAL_TASK_TEMPLATE
-  << : *PERSISTENT_WORKER_TEMPLATE
+  persistent_worker:
+    labels:
+      type: small
   env:
-    WRAPPER_CMD: qemu-aarch64
-    SECP256K1_TEST_ITERS: 16
-    HOST: aarch64-linux-gnu
-    WITH_VALGRIND: no
-    ECDH: yes
-    RECOVERY: yes
-    SCHNORRSIG: yes
-    ELLSWIFT: yes
-    CTIMETESTS: no
-  test_script:
-    - ./ci/cirrus.sh
-  << : *CAT_LOGS
+    FILE_ENV: "./ci/test/00_setup_env_native_qt5.sh"
 
 task:
   name: '[TSan, depends, gui] [lunar]'
@@ -397,7 +367,6 @@ task:
     labels:
       type: lunar  # Must use the lunar-specific worker (needed for USDT functional tests)
   env:
-    << : *PERSISTENT_WORKER_TEMPLATE_ENV
     FILE_ENV: "./ci/test/00_setup_env_native_asan.sh"
 
 task:
