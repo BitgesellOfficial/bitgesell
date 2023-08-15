@@ -75,13 +75,18 @@ main_template: &MAIN_TEMPLATE
 container_depends_template: &CONTAINER_DEPENDS_TEMPLATE
   << : *BASE_TEMPLATE
   container:
-    dockerfile: ci/linux-debian.Dockerfile
-    # Reduce number of CPUs to be able to do more builds in parallel.
-    cpu: 1
-    # Gives us more CPUs for free if they're available.
-    greedy: true
-    # More than enough for our scripts.
-    memory: 2G
+    # https://cirrus-ci.org/faq/#are-there-any-limits
+    # Each project has 16 CPU in total, assign 2 to each container, so that 8 tasks run in parallel
+    cpu: 2
+    memory: 8G  # Set to 8GB to avoid OOM. https://cirrus-ci.org/guide/linux/#linux-containers
+    dockerfile: ci/test_imagefile  # https://cirrus-ci.org/guide/docker-builder-vm/#dockerfile-as-a-ci-environment
+  base_depends_built_cache:
+    folder: "/ci_container_base/depends/built"
+    fingerprint_script: echo $CIRRUS_TASK_NAME $(git rev-parse HEAD:depends)
+
+global_task_template: &GLOBAL_TASK_TEMPLATE
+  << : *CONTAINER_DEPENDS_TEMPLATE
+  << : *MAIN_TEMPLATE
 
 task:
   name: "x86_64: Linux (Debian stable)"
