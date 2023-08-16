@@ -104,7 +104,7 @@ task:
   << : *CAT_LOGS
 
 task:
-  name: 'lint [bookworm]'
+  name: 'lint'
   << : *BASE_TEMPLATE
   container:
     image: debian:bookworm
@@ -121,7 +121,7 @@ task:
     - ./ci/lint_run_all.sh
 
 task:
-  name: 'tidy [lunar]'
+  name: 'tidy'
   << : *GLOBAL_TASK_TEMPLATE
   persistent_worker:
     labels:
@@ -226,7 +226,7 @@ task:
     - python test\functional\test_runner.py --nocleanup --ci --quiet --combinedlogslen=99999999 --jobs=6 --timeout-factor=8 --extended --exclude feature_dbcrash
 
 task:
-  name: 'ARM [unit tests, no functional tests] [bullseye]'
+  name: 'ARM, unit tests, no functional tests'
   << : *GLOBAL_TASK_TEMPLATE
   persistent_worker:
     labels:
@@ -235,7 +235,7 @@ task:
     FILE_ENV: "./ci/test/00_setup_env_arm.sh"
 
 task:
-  name: 'Win64 [unit tests, no gui tests, no boost::process, no functional tests] [jammy]'
+  name: 'Win64, unit tests, no gui tests, no boost::process, no functional tests'
   << : *GLOBAL_TASK_TEMPLATE
   persistent_worker:
     labels:
@@ -244,7 +244,7 @@ task:
     FILE_ENV: "./ci/test/00_setup_env_win64.sh"
 
 task:
-  name: '32-bit + dash [gui] [CentOS 9]'
+  name: '32-bit CentOS, dash, gui'
   << : *GLOBAL_TASK_TEMPLATE
   persistent_worker:
     labels:
@@ -253,7 +253,7 @@ task:
     FILE_ENV: "./ci/test/00_setup_env_i686_centos.sh"
 
 task:
-  name: '[previous releases, qt5 dev package and depends packages, DEBUG] [focal]'
+  name: 'previous releases, qt5 dev package and depends packages, DEBUG'
   << : *GLOBAL_TASK_TEMPLATE
   persistent_worker:
     labels:
@@ -262,7 +262,7 @@ task:
     FILE_ENV: "./ci/test/00_setup_env_native_qt5.sh"
 
 task:
-  name: '[TSan, depends, gui] [lunar]'
+  name: 'TSan, depends, gui'
   << : *GLOBAL_TASK_TEMPLATE
   persistent_worker:
     labels:
@@ -271,7 +271,7 @@ task:
     FILE_ENV: "./ci/test/00_setup_env_native_tsan.sh"
 
 task:
-  name: '[MSan, depends] [jammy]'
+  name: 'MSan, depends'
   << : *GLOBAL_TASK_TEMPLATE
   persistent_worker:
     labels:
@@ -281,7 +281,7 @@ task:
     FILE_ENV: "./ci/test/00_setup_env_native_msan.sh"
 
 task:
-  name: '[ASan + LSan + UBSan + integer, no depends, USDT] [lunar]'
+  name: 'ASan + LSan + UBSan + integer, no depends, USDT'
   enable_bpfcc_script:
     # In the image build step, no external environment variables are available,
     # so any settings will need to be written to the settings env file:
@@ -294,7 +294,7 @@ task:
     FILE_ENV: "./ci/test/00_setup_env_native_asan.sh"
 
 task:
-  name: '[fuzzer,address,undefined,integer, no depends] [lunar]'
+  name: 'fuzzer,address,undefined,integer, no depends'
   << : *GLOBAL_TASK_TEMPLATE
   persistent_worker:
     labels:
@@ -303,7 +303,7 @@ task:
     FILE_ENV: "./ci/test/00_setup_env_native_fuzz.sh"
 
 task:
-  name: '[multiprocess, i686, DEBUG] [focal]'
+  name: 'multiprocess, i686, DEBUG'
   << : *GLOBAL_TASK_TEMPLATE
   persistent_worker:
     labels:
@@ -312,16 +312,16 @@ task:
     FILE_ENV: "./ci/test/00_setup_env_i686_multiprocess.sh"
 
 task:
-  name: '[no wallet, libBGLkernel] [focal]'
+  name: 'no wallet, libBGLkernel'
   << : *GLOBAL_TASK_TEMPLATE
   persistent_worker:
     labels:
       type: small
   env:
-    FILE_ENV: "./ci/test/00_setup_env_native_nowallet_libbitcoinkernel.sh"
+    FILE_ENV: "./ci/test/00_setup_env_native_nowallet_libBGLkernel.sh"
 
 task:
-  name: 'macOS 11.0 [gui, no tests] [jammy]'
+  name: 'macOS-cross 11.0, gui, no tests'
   << : *GLOBAL_TASK_TEMPLATE
   persistent_worker:
     labels:
