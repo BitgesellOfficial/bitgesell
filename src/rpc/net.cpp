@@ -327,7 +327,7 @@ static RPCHelpMan addnode()
     if (strCommand == "onetry")
     {
         CAddress addr;
-        connman.OpenNetworkConnection(addr, /*fCountFailure=*/false, /*grantOutbound=*/nullptr, node_arg.c_str(), ConnectionType::MANUAL, /*use_v2transport=*/false);
+        connman.OpenNetworkConnection(addr, /*fCountFailure=*/false, /*grant_outbound=*/{}, node_arg.c_str(), ConnectionType::MANUAL, use_v2transport);
         return UniValue::VNULL;
     }
 
