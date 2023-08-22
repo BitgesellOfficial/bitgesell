@@ -390,9 +390,9 @@ namespace BCLog {
 
 std::string BCLog::Logger::GetLogPrefix(BCLog::LogFlags category, BCLog::Level level) const
 {
-    if (category == LogFlags::NONE) category = LogFlags::ALL;
+    const bool has_category{category != LogFlags::NONE};
 
-    const bool has_category{category != LogFlags::ALL};
+    if (!has_category && level == Level::None) return {};
 
     // If there is no category, Info is implied
     if (!has_category && level == Level::Info) return {};
@@ -400,16 +400,19 @@ std::string BCLog::Logger::GetLogPrefix(BCLog::LogFlags category, BCLog::Level l
     std::string s{"["};
     if (has_category) {
         s += LogCategoryToStr(category);
+
+        // If there is a category, Debug is implied
+        if (level == Level::Debug) level = Level::None;
     }
 
-    if (!has_category || level != Level::Debug) {
-        // If there is a category, Debug is implied, so don't add the level
-
+    if (level != Level::None) {
         // Only add separator if we have a category
         if (has_category) s += ":";
         s += Logger::LogLevelToStr(level);
     }
-    return {};
+
+    s += "] ";
+    return s;
 }
 
 void BCLog::Logger::LogPrintStr(const std::string& str, const std::string& logging_function, const std::string& source_file, int source_line, BCLog::LogFlags category, BCLog::Level level)
