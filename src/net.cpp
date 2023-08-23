@@ -1554,11 +1554,31 @@ void V2Transport::MarkBytesSent(size_t bytes_sent) noexcept
 
     m_send_pos += bytes_sent;
     Assume(m_send_pos <= m_send_buffer.size());
+    if (m_send_pos >= CMessageHeader::HEADER_SIZE) {
+        m_sent_v1_header_worth = true;
+    }
     // Wipe the buffer when everything is sent.
     if (m_send_pos == m_send_buffer.size()) {
         m_send_pos = 0;
         ClearShrink(m_send_buffer);
     }
+}
+
+bool V2Transport::ShouldReconnectV1() const noexcept
+{
+    AssertLockNotHeld(m_send_mutex);
+    AssertLockNotHeld(m_recv_mutex);
+    // Only outgoing connections need reconnection.
+    if (!m_initiating) return false;
+
+    LOCK(m_recv_mutex);
+    // We only reconnect in the very first state and when the receive buffer is empty. Together
+    // these conditions imply nothing has been received so far.
+    if (m_recv_state != RecvState::KEY) return false;
+    if (!m_recv_buffer.empty()) return false;
+    // Check if we've sent enough for the other side to disconnect us (if it was V1).
+    LOCK(m_send_mutex);
+    return m_sent_v1_header_worth;
 }
 
 size_t V2Transport::GetSendMemoryUsage() const noexcept
@@ -1876,6 +1896,13 @@ bool CConnman::AddConnection(const std::string& address, ConnectionType conn_typ
 
 void CConnman::DisconnectNodes()
 {
+    AssertLockNotHeld(m_nodes_mutex);
+    AssertLockNotHeld(m_reconnections_mutex);
+
+    // Use a temporary variable to accumulate desired reconnections, so we don't need
+    // m_reconnections_mutex while holding m_nodes_mutex.
+    decltype(m_reconnections) reconnections_to_add;
+
     {
         LOCK(m_nodes_mutex);
 
@@ -1897,6 +1924,19 @@ void CConnman::DisconnectNodes()
             {
                 // remove from m_nodes
                 m_nodes.erase(remove(m_nodes.begin(), m_nodes.end(), pnode), m_nodes.end());
+
+                // Add to reconnection list if appropriate. We don't reconnect right here, because
+                // the creation of a connection is a blocking operation (up to several seconds),
+                // and we don't want to hold up the socket handler thread for that long.
+                if (pnode->m_transport->ShouldReconnectV1()) {
+                    reconnections_to_add.push_back({
+                        .addr_connect = pnode->addr,
+                        .grant = std::move(pnode->grantOutbound),
+                        .destination = pnode->m_dest,
+                        .conn_type = pnode->m_conn_type,
+                        .use_v2transport = false});
+                    LogPrint(BCLog::NET, "retrying with v1 transport protocol for peer=%d\n", pnode->GetId());
+                }
 
                 // release outbound grant (if any)
                 pnode->grantOutbound.Release();
@@ -1924,6 +1964,11 @@ void CConnman::DisconnectNodes()
                 DeleteNode(pnode);
             }
         }
+    }
+    {
+        // Move entries from reconnections_to_add to m_reconnections.
+        LOCK(m_reconnections_mutex);
+        m_reconnections.splice(m_reconnections.end(), std::move(reconnections_to_add));
     }
 }
 
@@ -2397,6 +2442,7 @@ bool CConnman::MaybePickPreferredNetwork(std::optional<Network>& network)
 void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
 {
     AssertLockNotHeld(m_unused_i2p_sessions_mutex);
+    AssertLockNotHeld(m_reconnections_mutex);
     FastRandomContext rng;
     // Connect to specific addresses
     if (!connect.empty())
@@ -2439,6 +2485,8 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect)
 
         if (!interruptNet.sleep_for(std::chrono::milliseconds(500)))
             return;
+
+        PerformReconnections();
 
         CSemaphoreGrant grant(*semOutbound);
         if (interruptNet)
@@ -2786,6 +2834,7 @@ std::vector<AddedNodeInfo> CConnman::GetAddedNodeInfo() const
 void CConnman::ThreadOpenAddedConnections()
 {
     AssertLockNotHeld(m_unused_i2p_sessions_mutex);
+    AssertLockNotHeld(m_reconnections_mutex);
     while (true)
     {
         CSemaphoreGrant grant(*semAddnode);
@@ -2808,6 +2857,8 @@ void CConnman::ThreadOpenAddedConnections()
         // Retry every 60 seconds if a connection was attempted, otherwise two seconds
         if (!interruptNet.sleep_for(std::chrono::seconds(tried ? 60 : 2)))
             return;
+        // See if any reconnections are desired.
+        PerformReconnections();
     }
 }
 
@@ -3622,6 +3673,7 @@ CNode::CNode(NodeId idIn,
       addr{addrIn},
       addrBind{addrBindIn},
       m_addr_name{addrNameIn.empty() ? addr.ToStringAddrPort() : addrNameIn},
+      m_dest(addrNameIn),
       m_inbound_onion{inbound_onion},
       m_prefer_evict{node_opts.prefer_evict},
       nKeyedNetGroup{nKeyedNetGroupIn},
@@ -3752,10 +3804,38 @@ uint64_t CConnman::CalculateKeyedNetGroup(const CAddress& address) const
     return GetDeterministicRandomizer(RANDOMIZER_ID_NETGROUP).Write(vchNetGroup).Finalize();
 }
 
-void CaptureMessageToFile(const CAddress& addr,
-                          const std::string& msg_type,
-                          Span<const unsigned char> data,
-                          bool is_incoming)
+void CConnman::PerformReconnections()
+{
+    AssertLockNotHeld(m_reconnections_mutex);
+    AssertLockNotHeld(m_unused_i2p_sessions_mutex);
+    while (true) {
+        // Move first element of m_reconnections to todo (avoiding an allocation inside the lock).
+        decltype(m_reconnections) todo;
+        {
+            LOCK(m_reconnections_mutex);
+            if (m_reconnections.empty()) break;
+            todo.splice(todo.end(), m_reconnections, m_reconnections.begin());
+        }
+
+        auto& item = *todo.begin();
+        OpenNetworkConnection(item.addr_connect,
+                              // We only reconnect if the first attempt to connect succeeded at
+                              // connection time, but then failed after the CNode object was
+                              // created. Since we already know connecting is possible, do not
+                              // count failure to reconnect.
+                              /*fCountFailure=*/false,
+                              std::move(item.grant),
+                              item.destination.empty() ? nullptr : item.destination.c_str(),
+                              item.conn_type,
+                              item.use_v2transport);
+    }
+}
+
+// Dump binary message to file, with timestamp.
+static void CaptureMessageToFile(const CAddress& addr,
+                                 const std::string& msg_type,
+                                 Span<const unsigned char> data,
+                                 bool is_incoming)
 {
     // Note: This function captures the message at the time of processing,
     // not at socket receive/send time.
