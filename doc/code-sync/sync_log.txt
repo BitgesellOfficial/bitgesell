@@ -15787,6 +15787,132 @@ pr 2023-08-23 21:19:39 +0100 8ff90d9dcfee12090421675c9c421ee611e5ec8b Merge bitc
 cr 2023-08-23 21:33:02 +0100 fab7f5c01d0b4be00bdd8922d3bf8bd1a27ba8fb ci: Add missing docker.io prefix to CI_IMAGE_NAME_TAG
 pr 2023-08-23 21:37:28 +0100 23f3f402fca346302fe424427ae4077d8a458cbb Merge bitcoin/bitcoin#27829: rpc: fix data optionality for RPC calls.
 cr 2023-08-24 00:56:24 +0100 0de48fe858a1ffcced340eef2c849165216141c8 net: abstract sending side of transport serialization further
+cr 2023-08-24 00:56:24 +0100 27f9ba23efe82531a465c5e63bf7dc62b6a3a8db net: add V1Transport lock protecting receive state
+cr 2023-08-24 00:56:24 +0100 649a83c7f73db2ee115f5dce3df16622e318aeba refactor: rename Transport class receive functions
+cr 2023-08-24 00:56:24 +0100 93594e42c3f92d82427d2b284ff0f94cdbebe99c refactor: merge transport serializer and deserializer into Transport class
+v  2023-08-24 00:56:24 +0100 fb2c5edb79656a0b3b04ded6419928102ad696d6 net: make V1Transport implicitly use current chainparams
+v  2023-08-24 01:13:45 +0100 009ff8d65058430d614c9a0e0e6ae931b7255c37 fuzz: add bidirectional fragmented transport test
+cr 2023-08-24 01:13:49 +0100 8a3b6f33873a1075f932f5d9feb6d82e50d83c0c refactor: make Transport::ReceivedBytes just return success/fail
+cr 2023-08-24 01:13:49 +0100 a1a1060fd608a11dc525f76f2f54ab5b177dbd05 net: measure send buffer fullness based on memory usage
+v  2023-08-24 01:13:49 +0100 bb4aab90fd046f2fff61e082a0c0d01c5ee31297 net: move message conversion to wire bytes from PushMessage to SocketSendData
+v  2023-08-24 01:37:36 +0100 360ac64b90ee16cc24bd4c574ec7e11760515a79 test: previous releases: speed up fetching sources with shallow clone
+pr 2023-08-24 09:19:57 +0100 f3cc29fc5fe23a7537d516209a5bc1de91d22d7a Merge bitcoin/bitcoin#28324: guix: pre time-machine bump changes (Linux)
+pr 2023-08-24 09:28:49 +0100 cd5d2f5f0938ad4f8737caf4e7c501101818fd36 Merge bitcoin/bitcoin#27976: ci: Start with clean env
+v  2023-08-24 09:44:45 +0100 c00000df1605788acadceb90c22ae9f00db8a9dc rpc: Add MaybeArg() and Arg() default helper
+pr 2023-08-24 10:16:13 +0100 e0ad8470733f5a47a8711929210cebe51e6995f8 Merge bitcoin/bitcoin#28321: test: Fix intermittent issue in mempool_reorg
+pr 2023-08-24 10:17:14 +0100 94af164e5eb285822f9b9817a09a265fd885c1ae Merge bitcoin/bitcoin#28322: ci: Use concurrency for pull requests only
+pr 2023-08-24 10:30:58 +0100 e8989f295d18b8e14a28da68913d2c400045ba52 Merge bitcoin/bitcoin#28325: test: wallet_backup.py, fix intermittent failure in "restore using dumped wallet"
+pr 2023-08-24 10:37:41 +0100 7ee7c6d2c3b0cdf98289f5186394369e0e85d385 Merge bitcoin/bitcoin#28332: test: previous releases: speed up fetching sources with shallow clone
+pr 2023-08-24 10:56:03 +0100 27101d0f0cdd837da9f9fff144cc39e276beeeb1 Merge bitcoin/bitcoin#28330: ci: Add missing docker.io prefix for native tasks to CI_IMAGE_NAME_TAG
+pr 2023-08-24 11:57:12 +0100 083316c4fe20819fbe627c5d21f1a627e10af329 Merge bitcoin/bitcoin#28230: rpc: Add MaybeArg() and Arg() default helper
+pr 2023-08-24 13:55:41 +0100 1fa6411dde3a6c4c4a89d7aebfba03f114f12bb1 Merge bitcoin/bitcoin#28165: net: transport abstraction
+pr 2023-08-24 21:11:20 +0100 74d66359dabd21f9e6ffc48c47f3588000171712 Merge bitcoin/bitcoin#27585: fuzz: improve `coinselection`
+pr 2023-08-24 21:31:38 +0100 5ce200dda23752cf8bf6dccb23aea4b23f1653ae Merge bitcoin/bitcoin#27480: doc: Improve documentation of rpcallowip
+pr 2023-08-24 22:34:57 +0100 c9273f68f6a17b669890b0b2d38dbcc8b3c39d7b Merge bitcoin/bitcoin#28287: rpc, test: add `sendmsgtopeer` rpc and a test for net-level deadlock situation
+v  2023-08-25 10:56:09 +0100 4ab382c2cdb09fb4056711b4336807845cbe1ad5 miniscript: make GetStackSize independent of P2WSH context
+v  2023-08-25 10:56:10 +0100 bdba7667d2d65f31484760a8e8420c488fc5f801 miniscript: introduce a helper to get the maximum witness size
+cr 2023-08-25 11:40:11 +0100 8d870a98731e8db5ecc614bb5f7c064cbf30c7f4 script/signingprovider: introduce a MultiSigningProvider
+v  2023-08-25 11:40:11 +0100 fa7c46b503f0b69630f55dc43021d2099e3515ba descriptor: introduce a method to get the satisfaction size
+cr 2023-08-25 11:40:12 +0100 10546a569c6c96a5ec1b9708abf9ff5c8644f669 wallet: accurately account for the size of the witness stack
+cr 2023-08-25 11:40:12 +0100 9b7ec393b82ca9d7ada77d06e0835df0386a8b85 wallet: use descriptor satisfaction size to estimate inputs size
+cr 2023-08-25 13:50:04 +0100 6a4337298035683a8748ae446eae90e5c5f41d1b ci: Run "Win64 native" job on GitHub Actions
+s  2023-08-25 16:09:13 +0100 5555aa2d0ddcc478b95a431a57821199ef2c40ac refactor: Use HashWriter over legacy CHashWriter
+s  2023-08-25 16:09:32 +0100 99995cfe8da6ea2b93a6cd0e0bc84bb34cbb9d8c refactor: Use HashWriter over legacy CHashWriter (via SerializeHash)
+v  2023-08-26 08:49:34 +0100 03675b2ba37d4c6216be4ffe6fbf5352f3e93c69 Merge bitcoin/bitcoin#28328: guix: update time-machine
+v  2023-08-26 23:42:02 +0100 6c008a20067eb8574f4bd94acdd1d18ff7110d91 script: replace deprecated pkg_resources with importlib.metadata
+v  2023-08-27 10:02:55 +0100 94955b4b1dd1dfa2e8ee8de9181968e631e4e0c9 depends: use LLVM/Clang 15.0.6 for macOS cross-compile
+v  2023-08-27 10:03:00 +0100 ff42d81383d5555134ef2d760576b681cadc78d7 guix: use clang-toolchain-15 for macOS compilation
+pr 2023-08-27 14:54:48 +0100 83719146047947e588aa0c7b5eee02f44884553d Merge bitcoin/bitcoin#28337: build: use Clang 15 for macOS cross-compilation
+v  2023-08-27 19:16:43 +0100 df60de770d8e27c00eced29d8a4a4bce7c6e4b30 log: Print error message when coindb is in inconsistent state
+v  2023-08-27 21:28:57 +0100 faf7e69862a56be918bc011afc7f489978301320 test: Support powerpc64le in get_previous_releases.py
+v  2023-08-27 21:49:59 +0100 fa0df9d4c4cb93b0971f92f3fe6f9a1deb5b311f doc: Remove sudo from command that is already run as root
+v  2023-08-27 21:50:07 +0100 fa33354dcb6f289965e84a0cd4492c43dafd917b ci: Remove /ro_base bind mount
+v  2023-08-27 21:50:42 +0100 fa70cbd9693b0ccc56114647f0817c96b2f223ee ci: Remove unused TEST_RUNNER_ENV="LC_ALL=C" from s390x task
+pr 2023-08-28 11:27:29 +0100 db57574aa87c3c834db46d517dbd45dbf152236a Merge bitcoin/bitcoin#28173: ci: Run Windows native task on GitHub Actions
+v  2023-08-28 13:09:39 +0100 13eb8aa572644a53ae0d631916cb4cbc273a92d1 doc: Release notes for testnet defaulting to -acceptnonstdtxn=0
+v  2023-08-28 13:09:39 +0100 e1dc15d69061e69351c72907444e8ded0ac7c88c config: default acceptnonstdtxn=0 on all chains
+pr 2023-08-28 16:20:50 +0100 1c1a02bbd246101fd477b0897aef971b511b4241 Merge bitcoin/bitcoin#28341: refactor: Use HashWriter over legacy CHashWriter
+v  2023-08-28 16:48:15 +0100 aaaa3fa9477eef9ea72e4a501d130c57b47b470a Replace READWRITEAS macro with AsBase wrapping function
+v  2023-08-28 16:48:15 +0100 fac42e9d35f6ba046999b2e3a757ab720c51b6bb Rename CSerAction* to Action*
+v  2023-08-28 16:48:26 +0100 faec591d64e40ba7ec7656cbfdda1a05953bde13 Support for serialization parameters
+pr 2023-08-29 09:27:19 +0100 5175ae482ebc88101d4fe572fb935ff1e9d8f40d Merge bitcoin/bitcoin#28354: test: default acceptnonstdtxn=0 on all chains
+pr 2023-08-29 09:42:31 +0100 ab42b2ebdbf61225e636e4c00068fd29b2790d41 Merge bitcoin/bitcoin#28347: lint: replace deprecated pkg_resources with importlib.metadata
+cr 2023-08-29 16:41:22 +0100 3b8c17838a561616fd7c933753c7b98b6c6c7c99 [log] add more logs related to orphan handling
+cr 2023-08-29 16:41:22 +0100 51b3275cd1de467933f13d8b71286bf5ebd12b4b [log] add category TXPACKAGES for orphanage and package relay
+cr 2023-08-29 16:41:22 +0100 a33dde1e41d8923a46db84b50550175fa6149c48 [log] include wtxid in tx {relay,validation,orphanage} logging
+cr 2023-08-29 16:41:22 +0100 a33dde1e41d8923a46db84b50550175fa6149c48 [log] include wtxid in tx {relay,validation,orphanage} logging
+v  2023-08-29 16:41:22 +0100 a3b55c94b9ffde07386aa887149ddca91b364967 [doc] move comment about AlreadyHaveTx DoS score to the right place
+v  2023-08-30 09:52:27 +0100 fa07ac48d804beac38a98d23be2167f78cadefae ci: Asan with -ftrivial-auto-var-init=pattern
+cr 2023-08-30 11:10:53 +0100 588068d5a12b752b70bb7e4f3f8decb1ce2fe4e8 guix: remove GCC 10 workaround from NSIS
+v  2023-08-30 11:46:47 +0100 62ab3e98ff9f9d708615dc1ef3ec04ae27f89d00 ci, windows: Do not run extended functional tests for pull requests
+v  2023-08-30 13:02:08 +0100 fa3b8162406bb21425a6fb5c6a96d17175545a4c doc: Fill in the required skills in the good_first_issue template
+pr 2023-08-30 16:15:46 +0100 13e169a0c6e4fcd378c1855feca6b647e249e6b3 Merge bitcoin/bitcoin#28360: ci, windows: Do not run extended functional tests for pull requests2023-08-30 16:15:46 +0100 13e169a0c6e4fcd378c1855feca6b647e249e6b3 Merge bitcoin/bitcoin#28360: ci, windows: Do not run extended functional tests for pull requests
+pr 2023-08-30 16:16:44 +0100 1348454d82e813f3cb1023d92f6ced83c0d7dfdc Merge bitcoin/bitcoin#28352: test: Support powerpc64le in get_previous_releases.py
+pr 2023-08-30 16:19:59 +0100 505ea30b47e2a00c77ae6b65a7444655ece951f1 Merge bitcoin/bitcoin#28370: guix: remove GCC 10 workaround from NSIS
+pr 2023-08-30 16:23:39 +0100 df5af114df19730dc1d2936e5819e07273182a76 Merge bitcoin/bitcoin#28353: ci: Remove /ro_base bind mount, Remove LC_ALL=C from s390x task
+v  2023-08-30 16:34:37 +0100 96f2cf8d2c3e0fba2a39dabd991dee69124cc79d build: use -muse-unaligned-vector-move for Windows
+v  2023-08-30 16:45:51 +0100 1580e3be83bd03985b2f288ed70de510903068d9 fuzz: add ConstructPubKeyBytes function
+pr 2023-08-31 12:29:24 +0100 9561e497e9f6387b0173343ef686496efb515c51 Merge bitcoin-core/gui#749: make '-min' minimize wallet loading dialog
+pr 2023-08-31 13:37:09 +0100 a4e0bcb6c9a8db5a74c74c5cddbb065ba9182482 Merge bitcoin/bitcoin#28369: doc: Fill in the required skills in the good_first_issue template
+pr 2023-08-31 17:55:38 +0100 5666966dffeb620b4a628679d667346e02fd3b19 Merge bitcoin/bitcoin#28364: log: log wtxids when possible, add TXPACKAGES category
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
