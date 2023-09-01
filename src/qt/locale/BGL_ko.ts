@@ -3,7 +3,7 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation type="unfinished">우클릭하여 주소나 상표 수정하기</translation>
+        <translation type="unfinished">우클릭하여 주소 혹은 라벨 수정하기</translation>
     </message>
     <message>
         <source>Create a new address</source>
@@ -232,6 +232,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">지갑 암호가 성공적으로 변경되었습니다.</translation>
     </message>
     <message>
+        <source>Passphrase change failed</source>
+        <translation type="unfinished">암호 변경에 실패하였습니다.</translation>
+    </message>
+    <message>
         <source>Warning: The Caps Lock key is on!</source>
         <translation type="unfinished">경고: Caps Lock키가 켜져있습니다!</translation>
     </message>
@@ -287,14 +291,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">심각한 문제가 발생하였습니다. 세팅 파일이 작성가능한지 확인하거나 세팅없이 실행을 시도해보세요.</translation>
     </message>
     <message>
-        <source>Error: Specified data directory "%1" does not exist.</source>
-        <translation type="unfinished">오류: 지정한 데이터 폴더 "%1"은 존재하지 않습니다.</translation>
-    </message>
-    <message>
-        <source>Error: Cannot parse configuration file: %1.</source>
-        <translation type="unfinished">오류: 설성 파일 %1을 파싱할 수 없습니다</translation>
-    </message>
-    <message>
         <source>Error: %1</source>
         <translation type="unfinished">오류: %1</translation>
     </message>
@@ -317,10 +313,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Unroutable</source>
         <translation type="unfinished">라우팅할 수 없습니다.</translation>
-    </message>
-    <message>
-        <source>Internal</source>
-        <translation type="unfinished">내부</translation>
     </message>
     <message>
         <source>Inbound</source>
@@ -431,556 +423,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
 </context>
 <context>
-    <name>BGL-core</name>
-    <message>
-        <source>Settings file could not be read</source>
-        <translation type="unfinished">설정 파일을 읽을 수 없습니다</translation>
-    </message>
-    <message>
-        <source>Settings file could not be written</source>
-        <translation type="unfinished">설정파일이 쓰여지지 않았습니다.</translation>
-    </message>
-    <message>
-        <source>The %s developers</source>
-        <translation type="unfinished">%s 개발자들</translation>
-    </message>
-    <message>
-        <source>%s corrupt. Try using the wallet tool BGL-wallet to salvage or restoring a backup.</source>
-        <translation type="unfinished">%s가 손상되었습니다. '비트 코인-지갑'을 사용하여 백업을 구제하거나 복원하십시오.</translation>
-    </message>
-    <message>
-        <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
-        <translation type="unfinished">-maxtxfee 값이 너무 큽니다!  하나의 거래에 너무 큰 수수료가 지불 됩니다.</translation>
-    </message>
-    <message>
-        <source>Cannot downgrade wallet from version %i to version %i. Wallet version unchanged.</source>
-        <translation type="unfinished">%i버젼에서 %i버젼으로 다운그레이드 할 수 없습니다. 월렛 버젼은 변경되지 않았습니다.</translation>
-    </message>
-    <message>
-        <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
-        <translation type="unfinished">데이터 디렉토리 %s 에 락을 걸 수 없었습니다. %s가 이미 실행 중인 것으로 보입니다.</translation>
-    </message>
-    <message>
-        <source>Cannot upgrade a non HD split wallet from version %i to version %i without upgrading to support pre-split keypool. Please use version %i or no version specified.</source>
-        <translation type="unfinished">사전분리 키풀를 지원하기 위해서 업그레이드 하지 않고는 Non HD split 지갑의 %i버젼을 %i버젼으로 업그레이드 할 수 없습니다. %i버젼을 활용하거나 구체화되지 않은 버젼을 활용하세요.</translation>
-    </message>
-    <message>
-        <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
-        <translation type="unfinished">MIT 소프트웨어 라이센스에 따라 배포되었습니다. 첨부 파일 %s 또는 %s을 참조하십시오.</translation>
-    </message>
-    <message>
-        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
-        <translation type="unfinished">%s 불러오기 오류! 주소 키는 모두 정확하게 로드되었으나 거래 데이터와 주소록 필드에서 누락이나 오류가 존재할 수 있습니다.</translation>
-    </message>
-    <message>
-        <source>Error reading %s! Transaction data may be missing or incorrect. Rescanning wallet.</source>
-        <translation type="unfinished">%s를 읽는데 에러가 생겼습니다. 트랜잭션 데이터가 잘못되었거나 누락되었습니다. 지갑을 다시 스캐닝합니다.</translation>
-    </message>
-    <message>
-        <source>Error: Dumpfile format record is incorrect. Got "%s", expected "format".</source>
-        <translation type="unfinished">오류 : 덤프파일 포맷 기록이 잘못되었습니다. "포맷"이 아니라 "%s"를 얻었습니다.</translation>
-    </message>
-    <message>
-        <source>Error: Dumpfile identifier record is incorrect. Got "%s", expected "%s".</source>
-        <translation type="unfinished">오류 : 덤프파일 식별자 기록이 잘못되었습니다. "%s"이 아닌 "%s"를 얻었습니다.</translation>
-    </message>
-    <message>
-        <source>Error: Dumpfile version is not supported. This version of BGL-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">오류 : 덤프파일 버젼이 지원되지 않습니다. 이 비트코인 지갑 버젼은 오직 버젼1의 덤프파일을 지원합니다. %s버젼의 덤프파일을 얻었습니다.</translation>
-    </message>
-    <message>
-        <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>
-        <translation type="unfinished">오류 : 레거시 지갑주소는 "레거시", "p2sh-segwit", "bech32" 지갑 주소의 타입만 지원합니다.</translation>
-    </message>
-    <message>
-        <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>
-        <translation type="unfinished">수수료 추정이 실패했습니다. 고장 대체 수수료가 비활성화 상태입니다. 몇 블록을 기다리거나 -fallbackfee를 활성화 하십시오.</translation>
-    </message>
-    <message>
-        <source>File %s already exists. If you are sure this is what you want, move it out of the way first.</source>
-        <translation type="unfinished">%s 파일이 이미 존재합니다. 무엇을 하고자 하는지 확실하시다면, 파일을 먼저 다른 곳으로 옮기십시오.</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -maxtxfee=&lt;amount&gt;: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
-        <translation type="unfinished">유효하지 않은 금액 -maxtxfee=&lt;amount&gt;: '%s' (거래가 막히는 상황을 방지하게 위해 적어도 %s 의 중계 수수료를 지정해야 합니다)</translation>
-    </message>
-    <message>
-        <source>Invalid or corrupt peers.dat (%s). If you believe this is a bug, please report it to %s. As a workaround, you can move the file (%s) out of the way (rename, move, or delete) to have a new one created on the next start.</source>
-        <translation type="unfinished">유효하지 않거나 손상된 peers.dat(%s). 만약 이게 버그인 경우에, %s이쪽으로 리포트해주세요.  새로 만들어서 시작하기 위한 해결방법으로 %s파일을 옮길 수 있습니다. (이름 재설정, 파일 옮기기 혹은 삭제).</translation>
-    </message>
-    <message>
-        <source>More than one onion bind address is provided. Using %s for the automatically created Tor onion service.</source>
-        <translation type="unfinished">하나 이상의 양파 바인딩 주소가 제공됩니다. 자동으로 생성 된 Tor onion 서비스에 %s 사용.</translation>
-    </message>
-    <message>
-        <source>No dump file provided. To use createfromdump, -dumpfile=&lt;filename&gt; must be provided.</source>
-        <translation type="unfinished">덤프파일이 입력되지 않았습니다. 덤프파일을 사용하기 위해서는 -dumpfile=&lt;filename&gt;이 반드시 입력되어야 합니다. </translation>
-    </message>
-    <message>
-        <source>No dump file provided. To use dump, -dumpfile=&lt;filename&gt; must be provided.</source>
-        <translation type="unfinished">덤프파일이 입력되지 않았습니다. 덤프를 사용하기 위해서는 -dumpfile=&lt;filename&gt;이 반드시 입력되어야 합니다.</translation>
-    </message>
-    <message>
-        <source>No wallet file format provided. To use createfromdump, -format=&lt;format&gt; must be provided.</source>
-        <translation type="unfinished">shshhdchb bdfjj fb  rciivfjb doffbfbdjdj</translation>
-    </message>
-    <message>
-        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
-        <translation type="unfinished">컴퓨터의 날짜와 시간이 올바른지 확인하십시오! 시간이 잘못되면 %s은 제대로 동작하지 않습니다.</translation>
-    </message>
-    <message>
-        <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
-        <translation type="unfinished">%s가 유용하다고 생각한다면 프로젝트에 공헌해주세요. 이 소프트웨어에 대한 보다 자세한 정보는 %s를 방문해 주십시오.</translation>
-    </message>
-    <message>
-        <source>Prune configured below the minimum of %d MiB.  Please use a higher number.</source>
-        <translation type="unfinished">블록 축소가 최소치인 %d MiB 밑으로 설정되어 있습니다. 더 높은 값을 사용해 주십시오.</translation>
-    </message>
-    <message>
-        <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
-        <translation type="unfinished">블록 축소: 마지막 지갑 동기화 지점이 축소된 데이터보다 과거의 것 입니다. -reindex가 필요합니다 (축소된 노드의 경우 모든 블록체인을 재다운로드합니다)</translation>
-    </message>
-    <message>
-        <source>SQLiteDatabase: Unknown sqlite wallet schema version %d. Only version %d is supported</source>
-        <translation type="unfinished">에스큐엘라이트 데이터베이스 : 알 수 없는 에스큐엘라이트 지갑 스키마 버전 %d. %d 버전만 지원합니다.</translation>
-    </message>
-    <message>
-        <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
-        <translation type="unfinished">블록 데이터베이스에 미래의 블록이 포함되어 있습니다. 이것은 사용자의 컴퓨터의 날짜와 시간이 올바르게 설정되어 있지 않을때 나타날 수 있습니다. 블록 데이터 베이스의 재구성은 사용자의 컴퓨터의 날짜와 시간이 올바르다고 확신할 때에만 하십시오.</translation>
-    </message>
-    <message>
-        <source>The block index db contains a legacy 'txindex'. To clear the occupied disk space, run a full -reindex, otherwise ignore this error. This error message will not be displayed again.</source>
-        <translation type="unfinished">udhdbfjfjdnbdjfjf hdhdbjcn2owkd. jjwbdbdof dkdbdnck wdkdj </translation>
-    </message>
-    <message>
-        <source>The transaction amount is too small to send after the fee has been deducted</source>
-        <translation type="unfinished">거래액이 수수료를 지불하기엔 너무 작습니다</translation>
-    </message>
-    <message>
-        <source>This error could occur if this wallet was not shutdown cleanly and was last loaded using a build with a newer version of Berkeley DB. If so, please use the software that last loaded this wallet</source>
-        <translation type="unfinished">지갑이 완전히 종료되지 않고 최신 버전의 Berkeley DB 빌드를 사용하여 마지막으로 로드된 경우 오류가 발생할 수 있습니다. 이 지갑을 마지막으로 로드한 소프트웨어를 사용하십시오.</translation>
-    </message>
-    <message>
-        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
-        <translation type="unfinished">출시 전의 테스트 빌드 입니다. - 스스로의 책임하에 사용하십시오. - 채굴이나 상업적 용도로 사용하지 마십시오.</translation>
-    </message>
-    <message>
-        <source>This is the maximum transaction fee you pay (in addition to the normal fee) to prioritize partial spend avoidance over regular coin selection.</source>
-        <translation type="unfinished">이것은 일반 코인 선택보다 부분적 지출 회피를 우선시하기 위해 지불하는 최대 거래 수수료 (일반 수수료에 추가)입니다.</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you may discard if change is smaller than dust at this level</source>
-        <translation type="unfinished">이것은 거스름돈이 현재 레벨의 더스트보다 적은 경우 버릴 수 있는 수수료입니다.</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you may pay when fee estimates are not available.</source>
-        <translation type="unfinished">이것은 수수료 추정을 이용할 수 없을 때 사용되는 거래 수수료입니다.</translation>
-    </message>
-    <message>
-        <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
-        <translation type="unfinished">네트워크 버전 문자 (%i)의 길이가 최대길이 (%i)를 초과합니다. uacomments의 갯수나 길이를 줄이세요.</translation>
-    </message>
-    <message>
-        <source>Unable to replay blocks. You will need to rebuild the database using -reindex-chainstate.</source>
-        <translation type="unfinished">블록을 재생할 수 없습니다. -reindex-chainstate를 사용하여 데이터베이스를 다시 빌드 해야 합니다.</translation>
-    </message>
-    <message>
-        <source>Warning: Private keys detected in wallet {%s} with disabled private keys</source>
-        <translation type="unfinished">경고: 비활성화된 개인키 지갑 {%s} 에서 개인키들이 발견되었습니다</translation>
-    </message>
-    <message>
-        <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
-        <translation type="unfinished">경고: 현재 비트코인 버전이 다른 네트워크 참여자들과 동일하지 않은 것 같습니다. 당신 또는 다른 참여자들이 동일한 비트코인 버전으로 업그레이드 할 필요가 있습니다.</translation>
-    </message>
-    <message>
-        <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
-        <translation type="unfinished">블록 축소 모드를 해제하려면 데이터베이스를 재구성하기 위해 -reindex를 사용해야 합니다. 이 명령은 전체 블록체인을 다시 다운로드합니다.</translation>
-    </message>
-    <message>
-        <source>%s is set very high!</source>
-        <translation type="unfinished">%s가 매우 높게 설정되었습니다!</translation>
-    </message>
-    <message>
-        <source>-maxmempool must be at least %d MB</source>
-        <translation type="unfinished">-maxmempool은 최소한 %d MB 이어야 합니다</translation>
-    </message>
-    <message>
-        <source>A fatal internal error occurred, see debug.log for details</source>
-        <translation type="unfinished">치명적 내부 오류 발생. 상세한 내용을 debug.log 에서 확인하십시오</translation>
-    </message>
-    <message>
-        <source>Cannot resolve -%s address: '%s'</source>
-        <translation type="unfinished">%s 주소를 확인할 수 없습니다: '%s'</translation>
-    </message>
-    <message>
-        <source>Cannot set -forcednsseed to true when setting -dnsseed to false.</source>
-        <translation type="unfinished">naravfbj. dufb jdncnlfs. jx dhcji djc d jcbc jdnbfbicb </translation>
-    </message>
-    <message>
-        <source>Cannot set -peerblockfilters without -blockfilterindex.</source>
-        <translation type="unfinished">-blockfilterindex는 -peerblockfilters 없이 사용할 수 없습니다.</translation>
-    </message>
-    <message>
-        <source>Cannot write to data directory '%s'; check permissions.</source>
-        <translation type="unfinished">"%s" 데이터 폴더에 기록하지 못했습니다. 접근권한을 확인하십시오.</translation>
-    </message>
-    <message>
-        <source>Config setting for %s only applied on %s network when in [%s] section.</source>
-        <translation type="unfinished">%s의 설정은 %s 네트워크에만 적용되는 데, 이는 [%s] 항목에 있을 경우 뿐 입니다.</translation>
-    </message>
-    <message>
-        <source>Corrupted block database detected</source>
-        <translation type="unfinished">손상된 블록 데이터베이스가 감지되었습니다</translation>
-    </message>
-    <message>
-        <source>Could not find asmap file %s</source>
-        <translation type="unfinished">asmap file %s 을 찾을 수 없습니다</translation>
-    </message>
-    <message>
-        <source>Could not parse asmap file %s</source>
-        <translation type="unfinished">asmap file %s 을 파싱할 수 없습니다</translation>
-    </message>
-    <message>
-        <source>Disk space is too low!</source>
-        <translation type="unfinished">디스크 용량이 부족함!</translation>
-    </message>
-    <message>
-        <source>Do you want to rebuild the block database now?</source>
-        <translation type="unfinished">블록 데이터베이스를 다시 생성하시겠습니까?</translation>
-    </message>
-    <message>
-        <source>Done loading</source>
-        <translation type="unfinished">불러오기 완료</translation>
-    </message>
-    <message>
-        <source>Dump file %s does not exist.</source>
-        <translation type="unfinished">파일 버리기 1%s 존재 안함
-</translation>
-    </message>
-    <message>
-        <source>Error creating %s</source>
-        <translation type="unfinished">만들기 오류 1%s
-</translation>
-    </message>
-    <message>
-        <source>Error initializing block database</source>
-        <translation type="unfinished">블록 데이터베이스 초기화 오류 발생</translation>
-    </message>
-    <message>
-        <source>Error initializing wallet database environment %s!</source>
-        <translation type="unfinished">지갑 데이터베이스 %s 환경 초기화 오류 발생!</translation>
-    </message>
-    <message>
-        <source>Error loading %s</source>
-        <translation type="unfinished">%s 불러오기 오류 발생</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Private keys can only be disabled during creation</source>
-        <translation type="unfinished">%s 불러오기 오류: 개인키는 생성할때만 비활성화 할 수 있습니다</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Wallet corrupted</source>
-        <translation type="unfinished">%s 불러오기 오류: 지갑이 손상됨</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Wallet requires newer version of %s</source>
-        <translation type="unfinished">%s 불러오기 오류: 지갑은 새 버전의 %s이 필요합니다</translation>
-    </message>
-    <message>
-        <source>Error loading block database</source>
-        <translation type="unfinished">블록 데이터베이스 불러오는데 오류 발생</translation>
-    </message>
-    <message>
-        <source>Error opening block database</source>
-        <translation type="unfinished">블록 데이터베이스 열기 오류 발생</translation>
-    </message>
-    <message>
-        <source>Error reading from database, shutting down.</source>
-        <translation type="unfinished">데이터베이스를 불러오는데 오류가 발생하였습니다, 곧 종료됩니다.</translation>
-    </message>
-    <message>
-        <source>Error reading next record from wallet database</source>
-        <translation type="unfinished">지갑 데이터베이스에서 다음 기록을 불러오는데 오류가 발생하였습니다.</translation>
-    </message>
-    <message>
-        <source>Error: Disk space is low for %s</source>
-        <translation type="unfinished">오류: %s 하기엔 저장공간이 부족합니다</translation>
-    </message>
-    <message>
-        <source>Error: Keypool ran out, please call keypoolrefill first</source>
-        <translation type="unfinished">오류: 키풀이 바닥남, 키풀 리필을 먼저 호출할 하십시오</translation>
-    </message>
-    <message>
-        <source>Error: Missing checksum</source>
-        <translation type="unfinished">오류: 체크섬 누락</translation>
-    </message>
-    <message>
-        <source>Error: Unable to write record to new wallet</source>
-        <translation type="unfinished">오류: 새로운 지갑에 기록하지 못했습니다.</translation>
-    </message>
-    <message>
-        <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
-        <translation type="unfinished">포트 연결에 실패하였습니다. 필요하다면 -리슨=0 옵션을 사용하십시오.</translation>
-    </message>
-    <message>
-        <source>Failed to rescan the wallet during initialization</source>
-        <translation type="unfinished">지갑 스캔 오류</translation>
-    </message>
-    <message>
-        <source>Failed to verify database</source>
-        <translation type="unfinished">데이터베이스를 검증 실패</translation>
-    </message>
-    <message>
-        <source>Importing…</source>
-        <translation type="unfinished">불러오는 중...</translation>
-    </message>
-    <message>
-        <source>Incorrect or no genesis block found. Wrong datadir for network?</source>
-        <translation type="unfinished">제네시스 블록이 없거나 잘 못 되었습니다. 네트워크의 datadir을 확인해 주십시오.</translation>
-    </message>
-    <message>
-        <source>Initialization sanity check failed. %s is shutting down.</source>
-        <translation type="unfinished">무결성 확인 초기화에 실패하였습니다. %s가 곧 종료됩니다.</translation>
-    </message>
-    <message>
-        <source>Insufficient funds</source>
-        <translation type="unfinished">잔액이 부족합니다</translation>
-    </message>
-    <message>
-        <source>Invalid -i2psam address or hostname: '%s'</source>
-        <translation type="unfinished">올바르지 않은 -i2psam 주소 또는 호스트 이름: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid -onion address or hostname: '%s'</source>
-        <translation type="unfinished">올바르지 않은 -onion 주소 또는 호스트 이름: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid -proxy address or hostname: '%s'</source>
-        <translation type="unfinished">올바르지 않은 -proxy 주소 또는 호스트 이름: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid P2P permission: '%s'</source>
-        <translation type="unfinished">잘못된 P2P 권한: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
-        <translation type="unfinished">유효하지 않은 금액 -%s=&lt;amount&gt;: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -discardfee=&lt;amount&gt;: '%s'</source>
-        <translation type="unfinished">유효하지 않은 금액 -discardfee=&lt;amount&gt;: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -fallbackfee=&lt;amount&gt;: '%s'</source>
-        <translation type="unfinished">유효하지 않은 금액 -fallbackfee=&lt;amount&gt;: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -paytxfee=&lt;amount&gt;: '%s' (must be at least %s)</source>
-        <translation type="unfinished">유효하지 않은 금액 -paytxfee=&lt;amount&gt;: "%s" (최소 %s 이상이어야 합니다)</translation>
-    </message>
-    <message>
-        <source>Invalid netmask specified in -whitelist: '%s'</source>
-        <translation type="unfinished">유효하지 않은 넷마스크가 -whitelist: '%s" 를 통해 지정됨</translation>
-    </message>
-    <message>
-        <source>Loading P2P addresses…</source>
-        <translation type="unfinished">P2P 주소를 불러오는 중...</translation>
-    </message>
-    <message>
-        <source>Loading banlist…</source>
-        <translation type="unfinished">추방리스트를 불러오는 중...</translation>
-    </message>
-    <message>
-        <source>Loading block index…</source>
-        <translation type="unfinished">블록 인덱스를 불러오는 중...</translation>
-    </message>
-    <message>
-        <source>Loading wallet…</source>
-        <translation type="unfinished">지갑을 불러오는 중...</translation>
-    </message>
-    <message>
-        <source>Need to specify a port with -whitebind: '%s'</source>
-        <translation type="unfinished">-whitebind: '%s' 를 이용하여 포트를 지정해야 합니다</translation>
-    </message>
-    <message>
-        <source>Not enough file descriptors available.</source>
-        <translation type="unfinished">파일 디스크립터가 부족합니다.</translation>
-    </message>
-    <message>
-        <source>Prune cannot be configured with a negative value.</source>
-        <translation type="unfinished">블록 축소는 음수로 설정할 수 없습니다.</translation>
-    </message>
-    <message>
-        <source>Prune mode is incompatible with -txindex.</source>
-        <translation type="unfinished">블록 축소 모드는 -txindex와 호환되지 않습니다.</translation>
-    </message>
-    <message>
-        <source>Pruning blockstore…</source>
-        <translation type="unfinished">블록 데이터를 축소 중입니다...</translation>
-    </message>
-    <message>
-        <source>Reducing -maxconnections from %d to %d, because of system limitations.</source>
-        <translation type="unfinished">시스템 한계로 인하여 -maxconnections를 %d 에서 %d로 줄였습니다.</translation>
-    </message>
-    <message>
-        <source>Replaying blocks…</source>
-        <translation type="unfinished">블록 재생 중...</translation>
-    </message>
-    <message>
-        <source>Rescanning…</source>
-        <translation type="unfinished">재스캔 중...</translation>
-    </message>
-    <message>
-        <source>SQLiteDatabase: Failed to execute statement to verify database: %s</source>
-        <translation type="unfinished">에스큐엘라이트 데이터베이스 : 데이터베이스를 확인하는 실행문 출력을 실패하였습니다 : %s.</translation>
-    </message>
-    <message>
-        <source>SQLiteDatabase: Failed to prepare statement to verify database: %s</source>
-        <translation type="unfinished">에스큐엘라이트 데이터베이스 : 데이터베이스를 확인하는 실행문 준비에 실패하였습니다 : %s.</translation>
-    </message>
-    <message>
-        <source>SQLiteDatabase: Unexpected application id. Expected %u, got %u</source>
-        <translation type="unfinished">에스큐엘라이트 데이터베이스 : 예상 못한 어플리케이션 아이디. 예정: %u, 받음: %u</translation>
-    </message>
-    <message>
-        <source>Section [%s] is not recognized.</source>
-        <translation type="unfinished">[%s] 항목은 인정되지 않습니다.</translation>
-    </message>
-    <message>
-        <source>Signing transaction failed</source>
-        <translation type="unfinished">거래 서명에 실패했습니다</translation>
-    </message>
-    <message>
-        <source>Specified -walletdir "%s" does not exist</source>
-        <translation type="unfinished">지정한 -walletdir "%s"은 존재하지 않습니다</translation>
-    </message>
-    <message>
-        <source>Specified -walletdir "%s" is a relative path</source>
-        <translation type="unfinished">지정한 -walletdir "%s"은 상대 경로입니다</translation>
-    </message>
-    <message>
-        <source>Specified -walletdir "%s" is not a directory</source>
-        <translation type="unfinished">지정한 -walletdir "%s"은 디렉토리가 아닙니다</translation>
-    </message>
-    <message>
-        <source>Specified blocks directory "%s" does not exist.</source>
-        <translation type="unfinished">지정한 블록 디렉토리 "%s" 가 존재하지 않습니다.</translation>
-    </message>
-    <message>
-        <source>Starting network threads…</source>
-        <translation type="unfinished">네트워크 스레드 시작중...</translation>
-    </message>
-    <message>
-        <source>The source code is available from %s.</source>
-        <translation type="unfinished">소스코드는 %s 에서 확인하실 수 있습니다.</translation>
-    </message>
-    <message>
-        <source>The transaction amount is too small to pay the fee</source>
-        <translation type="unfinished">거래액이 수수료를 지불하기엔 너무 작습니다</translation>
-    </message>
-    <message>
-        <source>The wallet will avoid paying less than the minimum relay fee.</source>
-        <translation type="unfinished">지갑은 최소 중계 수수료보다 적은 금액을 지불하는 것을 피할 것입니다.</translation>
-    </message>
-    <message>
-        <source>This is experimental software.</source>
-        <translation type="unfinished">이 소프트웨어는 시험적입니다.</translation>
-    </message>
-    <message>
-        <source>This is the minimum transaction fee you pay on every transaction.</source>
-        <translation type="unfinished">이것은 모든 거래에서 지불하는 최소 거래 수수료입니다.</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you will pay if you send a transaction.</source>
-        <translation type="unfinished">이것은 거래를 보낼 경우 지불 할 거래 수수료입니다.</translation>
-    </message>
-    <message>
-        <source>Transaction amount too small</source>
-        <translation type="unfinished">거래액이 너무 적습니다</translation>
-    </message>
-    <message>
-        <source>Transaction amounts must not be negative</source>
-        <translation type="unfinished">거래액은 반드시 0보다 큰 값이어야 합니다.</translation>
-    </message>
-    <message>
-        <source>Transaction has too long of a mempool chain</source>
-        <translation type="unfinished">거래가 너무 긴 메모리 풀 체인을 갖고 있습니다</translation>
-    </message>
-    <message>
-        <source>Transaction must have at least one recipient</source>
-        <translation type="unfinished">거래에는 최소한 한명의 수령인이 있어야 합니다.</translation>
-    </message>
-    <message>
-        <source>Transaction too large</source>
-        <translation type="unfinished">거래가 너무 큽니다</translation>
-    </message>
-    <message>
-        <source>Unable to bind to %s on this computer (bind returned error %s)</source>
-        <translation type="unfinished">이 컴퓨터의 %s 에 바인딩할 수 없습니다 (바인딩 과정에 %s 오류 발생)</translation>
-    </message>
-    <message>
-        <source>Unable to bind to %s on this computer. %s is probably already running.</source>
-        <translation type="unfinished">이 컴퓨터의 %s에 바인딩 할 수 없습니다. 아마도 %s이 실행중인 것 같습니다.</translation>
-    </message>
-    <message>
-        <source>Unable to create the PID file '%s': %s</source>
-        <translation type="unfinished">PID 파일 생성 실패 '%s': %s</translation>
-    </message>
-    <message>
-        <source>Unable to generate initial keys</source>
-        <translation type="unfinished">초기 키값 생성 불가</translation>
-    </message>
-    <message>
-        <source>Unable to generate keys</source>
-        <translation type="unfinished">키 생성 불가</translation>
-    </message>
-    <message>
-        <source>Unable to open %s for writing</source>
-        <translation type="unfinished">%s을 쓰기 위하여 열 수 없습니다.</translation>
-    </message>
-    <message>
-        <source>Unable to start HTTP server. See debug log for details.</source>
-        <translation type="unfinished">HTTP 서버를 시작할 수 없습니다. 자세한 사항은 디버그 로그를 확인 하세요.</translation>
-    </message>
-    <message>
-        <source>Unknown -blockfilterindex value %s.</source>
-        <translation type="unfinished">알 수 없는 -blockfileterindex 값 %s.</translation>
-    </message>
-    <message>
-        <source>Unknown change type '%s'</source>
-        <translation type="unfinished">알 수 없는 변경 형식 '%s'</translation>
-    </message>
-    <message>
-        <source>Unknown network specified in -onlynet: '%s'</source>
-        <translation type="unfinished">-onlynet: '%s' 에 알수없는 네트워크가 지정되었습니다</translation>
-    </message>
-    <message>
-        <source>Unknown new rules activated (versionbit %i)</source>
-        <translation type="unfinished">알 수 없는 새로운 규칙이 활성화 되었습니다. (versionbit %i)</translation>
-    </message>
-    <message>
-        <source>Unsupported logging category %s=%s.</source>
-        <translation type="unfinished">지원되지 않는 로깅 카테고리 %s = %s.</translation>
-    </message>
-    <message>
-        <source>User Agent comment (%s) contains unsafe characters.</source>
-        <translation type="unfinished">사용자 정의 코멘트 (%s)에 안전하지 못한 글자가 포함되어 있습니다.</translation>
-    </message>
-    <message>
-        <source>Verifying blocks…</source>
-        <translation type="unfinished">블록 검증 중...</translation>
-    </message>
-    <message>
-        <source>Verifying wallet(s)…</source>
-        <translation type="unfinished">지갑(들) 검증 중...</translation>
-    </message>
-    <message>
-        <source>Wallet needed to be rewritten: restart %s to complete</source>
-        <translation type="unfinished">지갑을 새로 써야 합니다:  진행을 위해 %s 를 다시 시작하십시오</translation>
-    </message>
-</context>
-<context>
-    <name>BGLGUI</name>
+    <name>BitgesellGUI</name>
     <message>
         <source>&amp;Overview</source>
         <translation type="unfinished">개요(&amp;O)</translation>
@@ -1047,7 +490,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">프록시가 &lt;b&gt;활성화&lt;/b&gt; 되었습니다: %1</translation>
     </message>
     <message>
-        <source>Send coins to a BGL address</source>
+        <source>Send coins to a Bitgesell address</source>
         <translation type="unfinished">코인을 비트코인 주소로 전송합니다.</translation>
     </message>
     <message>
@@ -1091,7 +534,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">메시지 서명(&amp;M)</translation>
     </message>
     <message>
-        <source>Sign messages with your BGL addresses to prove you own them</source>
+        <source>Sign messages with your Bitgesell addresses to prove you own them</source>
         <translation type="unfinished">지갑 주소가 본인 소유인지 증명하기 위해 메시지를 서명합니다.</translation>
     </message>
     <message>
@@ -1099,7 +542,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">메시지 검증(&amp;V)</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified BGL addresses</source>
+        <source>Verify messages to ensure they were signed with specified Bitgesell addresses</source>
         <translation type="unfinished">해당 비트코인 주소로 서명되었는지 확인하기 위해 메시지를 검증합니다.</translation>
     </message>
     <message>
@@ -1155,16 +598,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">디스크에서 블록 처리 중...</translation>
     </message>
     <message>
-        <source>Reindexing blocks on disk…</source>
-        <translation type="unfinished">디스크에서 블록 다시 색인 중...</translation>
-    </message>
-    <message>
         <source>Connecting to peers…</source>
         <translation type="unfinished">피어에 연결 중...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and BGL: URIs)</source>
-        <translation type="unfinished">지불 요청하기 (QR 코드와 BGL을 생성합니다: URIs)</translation>
+        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
+        <translation type="unfinished">지불 요청하기 (QR 코드와 bitgesell을 생성합니다: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -1221,7 +660,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Crtl + Q</translation>
     </message>
     <message>
-        <source>Load Partially Signed BGL Transaction</source>
+        <source>Load Partially Signed Bitgesell Transaction</source>
         <translation type="unfinished">부분적으로 서명된 비트코인 트랜잭션 불러오기</translation>
     </message>
     <message>
@@ -1229,7 +668,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">PSBT 혹은 클립보드에서 불러오기</translation>
     </message>
     <message>
-        <source>Load Partially Signed BGL Transaction from clipboard</source>
+        <source>Load Partially Signed Bitgesell Transaction from clipboard</source>
         <translation type="unfinished">클립보드로부터 부분적으로 서명된 비트코인 트랜잭션 불러오기</translation>
     </message>
     <message>
@@ -1249,8 +688,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">받는 주소들(&amp;R)</translation>
     </message>
     <message>
-        <source>Open a BGL: URI</source>
-        <translation type="unfinished">BGL 열기: URI</translation>
+        <source>Open a bitgesell: URI</source>
+        <translation type="unfinished">bitgesell 열기: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -1279,7 +718,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">모든 지갑 닫기</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible BGL command-line options</source>
+        <source>Show the %1 help message to get a list with possible Bitgesell command-line options</source>
         <translation type="unfinished">사용할 수 있는 비트코인 명령줄 옵션 목록을 가져오기 위해 %1 도움말 메시지를 표시합니다.</translation>
     </message>
     <message>
@@ -1302,6 +741,16 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Wallet Data</source>
         <extracomment>Name of the wallet data file format.</extracomment>
         <translation type="unfinished">지갑 정보</translation>
+    </message>
+    <message>
+        <source>Load Wallet Backup</source>
+        <extracomment>The title for Restore Wallet File Windows</extracomment>
+        <translation type="unfinished">백업된 지갑 불러오기</translation>
+    </message>
+    <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of pop-up window shown when the user is attempting to restore a wallet.</extracomment>
+        <translation type="unfinished">지갑 복원하기</translation>
     </message>
     <message>
         <source>Wallet Name</source>
@@ -1333,7 +782,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">보여주기</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to BGL network.</source>
+        <source>%n active connection(s) to Bitgesell network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform>비트코인 네트워크에 활성화된 %n연결</numerusform>
@@ -1662,6 +1111,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
 </context>
 <context>
+    <name>RestoreWalletActivity</name>
+    <message>
+        <source>Restore Wallet</source>
+        <extracomment>Title of progress window which is displayed when wallets are being restored.</extracomment>
+        <translation type="unfinished">지갑 복원하기</translation>
+    </message>
+    </context>
+<context>
     <name>WalletController</name>
     <message>
         <source>Close wallet</source>
@@ -1791,7 +1248,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">보내는 주소 편집</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid BGL address.</source>
+        <source>The entered address "%1" is not a valid Bitgesell address.</source>
         <translation type="unfinished">입력한 "%1" 주소는 올바른 비트코인 주소가 아닙니다.</translation>
     </message>
     <message>
@@ -1837,13 +1294,13 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>Intro</name>
     <message>
-        <source>BGL</source>
+        <source>Bitgesell</source>
         <translation type="unfinished">비트코인</translation>
     </message>
     <message numerus="yes">
         <source>%n GB of space available</source>
         <translation type="unfinished">
-            <numerusform />
+            <numerusform>%nGB의 가용 공간</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -1874,7 +1331,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the BGL block chain.</source>
+        <source>%1 will download and store a copy of the Bitgesell block chain.</source>
         <translation type="unfinished">%1은 비트코인 블록체인의 사본을 다운로드하여 저장합니다.</translation>
     </message>
     <message>
@@ -1963,11 +1420,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">유형</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the BGL network, as detailed below.</source>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitgesell network, as detailed below.</source>
         <translation type="unfinished">최근 거래는 아직 보이지 않을 수 있습니다. 따라서 당신의 지갑의 잔액이 틀릴 수도 있습니다. 이 정보는 당신의 지갑이 비트코인 네트워크와 완전한 동기화를 완료하면, 아래의 설명과 같이 정확해집니다.</translation>
     </message>
     <message>
-        <source>Attempting to spend BGLs that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <source>Attempting to spend bitgesells that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">아직 표시되지 않은 거래의 영향을 받는 비트코인을 사용하려고 하는 것은 네트워크에서 허가되지 않습니다.</translation>
     </message>
     <message>
@@ -2014,7 +1471,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open BGL URI</source>
+        <source>Open bitgesell URI</source>
         <translation type="unfinished">비트코인 URI 열기</translation>
     </message>
     <message>
@@ -2167,11 +1624,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
  </translation>
     </message>
     <message>
-        <source>Full path to a BGL Core compatible script (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Beware: malware can steal your coins!</source>
-        <translation type="unfinished">비트코인 코어 호환 스크립트의 전체 경로 (예: C:\Downloads\whi.exe 또는 /Users/you/Downloads/hwi.py). 주의: 악성 프로그램이 코인을 훔칠 수 있습니다!</translation>
-    </message>
-    <message>
-        <source>Automatically open the BGL client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <source>Automatically open the Bitgesell client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation type="unfinished">라우터에서 비트코인 클라이언트 포트를 자동적으로 엽니다. 라우터에서 UPnP를 지원하고 활성화 했을 경우에만 동작합니다.</translation>
     </message>
     <message>
@@ -2179,7 +1632,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;UPnP를 이용해 포트 매핑</translation>
     </message>
     <message>
-        <source>Automatically open the BGL client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
+        <source>Automatically open the Bitgesell client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
         <translation type="unfinished">라우터에서 비트코인 클라이언트 포트를 자동으로 엽니다. 이는 라우터가 NAT-PMP를 지원하고 활성화 된 경우에만 작동합니다. 외부 포트는 무작위 일 수 있습니다.</translation>
     </message>
     <message>
@@ -2195,7 +1648,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">연결 요청을 허용 (&amp;G)</translation>
     </message>
     <message>
-        <source>Connect to the BGL network through a SOCKS5 proxy.</source>
+        <source>Connect to the Bitgesell network through a SOCKS5 proxy.</source>
         <translation type="unfinished">SOCKS5 프록시를 통해 비트코인 네트워크에 연결합니다.</translation>
     </message>
     <message>
@@ -2275,8 +1728,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">코인 상세 제어기능에 대한 표시 여부를 선택할 수 있습니다.</translation>
     </message>
     <message>
-        <source>Connect to the BGL network through a separate SOCKS5 proxy for Tor onion services.</source>
-        <translation type="unfinished">Tor onion 서비스를 위한 별도의 SOCKS5 프록시를 통해 BGL 네트워크에 연결합니다.</translation>
+        <source>Connect to the Bitgesell network through a separate SOCKS5 proxy for Tor onion services.</source>
+        <translation type="unfinished">Tor onion 서비스를 위한 별도의 SOCKS5 프록시를 통해 Bitgesell 네트워크에 연결합니다.</translation>
     </message>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
@@ -2372,7 +1825,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">유형</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the BGL network after a connection is established, but this process has not completed yet.</source>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitgesell network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">표시된 정보가 오래된 것 같습니다. 당신의 지갑은 비트코인 네트워크에 연결된 뒤 자동으로 동기화 하지만, 아직 과정이 끝나지 않았습니다.</translation>
     </message>
     <message>
@@ -2446,10 +1899,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 </context>
 <context>
     <name>PSBTOperationsDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation type="unfinished">다이얼로그</translation>
-    </message>
     <message>
         <source>Sign Tx</source>
         <translation type="unfinished">거래 서명</translation>
@@ -2579,7 +2028,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">지불 요청 오류</translation>
     </message>
     <message>
-        <source>Cannot start BGL: click-to-pay handler</source>
+        <source>Cannot start bitgesell: click-to-pay handler</source>
         <translation type="unfinished">비트코인을 시작할 수 없습니다: 지급을 위한 클릭 핸들러</translation>
     </message>
     <message>
@@ -2587,8 +2036,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">URI 핸들링</translation>
     </message>
     <message>
-        <source>'BGL://' is not a valid URI. Use 'BGL:' instead.</source>
-        <translation type="unfinished">'BGL://"은 잘못된 URI입니다. 'BGL:'을 사용하십시오.</translation>
+        <source>'bitgesell://' is not a valid URI. Use 'bitgesell:' instead.</source>
+        <translation type="unfinished">'bitgesell://"은 잘못된 URI입니다. 'bitgesell:'을 사용하십시오.</translation>
     </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
@@ -2599,7 +2048,7 @@ BIP70의 광범위한 보안 결함으로 인해 모든 가맹점에서는 지�
 이 오류가 발생하면 판매자에게 BIP21 호환 URI를 제공하도록 요청해야 합니다.</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid BGL address or malformed URI parameters.</source>
+        <source>URI cannot be parsed! This can be caused by an invalid Bitgesell address or malformed URI parameters.</source>
         <translation type="unfinished">URI의 파싱에 문제가 발생했습니다. 잘못된 비트코인 주소나 URI 파라미터 구성에 오류가 존재할 수 있습니다.</translation>
     </message>
     <message>
@@ -2876,14 +2325,6 @@ BIP70의 광범위한 보안 결함으로 인해 모든 가맹점에서는 지�
         <translation type="unfinished">서비스</translation>
     </message>
     <message>
-        <source>Whether the peer requested us to relay transactions.</source>
-        <translation type="unfinished">피어가 트랜잭션 중계를 요청했는지 여부.</translation>
-    </message>
-    <message>
-        <source>Wants Tx Relay</source>
-        <translation type="unfinished">Tx 릴레이를 원합니다</translation>
-    </message>
-    <message>
         <source>High bandwidth BIP152 compact block relay: %1</source>
         <translation type="unfinished">고대역폭 BIP152 소형 블록 릴레이: %1</translation>
     </message>
@@ -3135,7 +2576,7 @@ For more information on using this console, type %6.
         <translation type="unfinished">메시지(&amp;M):</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the BGL network.</source>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitgesell network.</source>
         <translation type="unfinished">지불 요청에 첨부되는 선택가능한 메시지 입니다. 이 메세지는 요청이 열릴 때 표시될 것 입니다. 메모: 이 메시지는 비트코인 네트워크로 전송되지 않습니다.</translation>
     </message>
     <message>
@@ -3420,7 +2861,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
 참고: 수수료는 바이트 단위로 계산되므로 500 가상 바이트(1kvB의 절반)의 트랜잭션 크기에 대해 "kvB당 100 사토시"의 수수료율은 궁극적으로 50사토시만 수수료를 산출합니다.</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for BGL transactions than the network can process.</source>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitgesell transactions than the network can process.</source>
         <translation type="unfinished">거래량이 블록에 남은 공간보다 적은 경우, 채굴자나 중계 노드들이 최소 수수료를 허용할 수 있습니다. 최소 수수료만 지불하는건 괜찮지만, 네트워크가 처리할 수 있는 용량을 넘는 비트코인 거래가 있을 경우에는 이 거래가 승인이 안될 수 있다는 점을 유의하세요.</translation>
     </message>
     <message>
@@ -3510,7 +2951,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">사인되지 않은 것을 생성(&amp;e)</translation>
     </message>
     <message>
-        <source>Creates a Partially Signed BGL Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Creates a Partially Signed Bitgesell Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished">오프라인 %1 지갑 또는 PSBT가 호환되는 하드웨어 지갑과의 사용을 위한 '부분적으로 서명 된 비트 코인 트랜잭션(PSBT)'를 생성합니다.</translation>
     </message>
     <message>
@@ -3554,6 +2995,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     </message>
     <message>
         <source>PSBT saved</source>
+        <extracomment>Popup message when a PSBT has been saved to a file</extracomment>
         <translation type="unfinished">PSBT 저장됨</translation>
     </message>
     <message>
@@ -3569,7 +3011,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">추후에 거래 수수료를 올릴 수 있습니다 ('수수료로-대체', BIP-125 지원)</translation>
     </message>
     <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed BGL Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Bitgesell Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
         <translation type="unfinished">거래 제안을 검토해 주십시오. 이것은 당신이 저장하거나 복사한 뒤 e.g. 오프라인 %1 지갑 또는 PSBT 호환 하드웨어 지갑으로 서명할 수 있는 PSBT (부분적으로 서명된 비트코인 트랜잭션)를 생성할 것입니다.</translation>
     </message>
@@ -3579,9 +3021,9 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">이 트랜잭션을 생성하겠습니까?</translation>
     </message>
     <message>
-        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed BGL Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Bitgesell Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
-        <translation type="unfinished">당신의 트랜잭션을 검토하세요. 당신은 트랜잭션을 생성하고 보낼 수 있습니다. 혹은 부분적으로 서명된 비트코인 트랜잭션 (PSBT, Partially Signed BGL Transaction)을 생성하고, 저장하거나 복사하여 오프라인 %1지갑으로 서명할수도 있습니다. PSBT가 적용되는 하드월렛으로 서명할 수도 있습니다. </translation>
+        <translation type="unfinished">당신의 트랜잭션을 검토하세요. 당신은 트랜잭션을 생성하고 보낼 수 있습니다. 혹은 부분적으로 서명된 비트코인 트랜잭션 (PSBT, Partially Signed Bitgesell Transaction)을 생성하고, 저장하거나 복사하여 오프라인 %1지갑으로 서명할수도 있습니다. PSBT가 적용되는 하드월렛으로 서명할 수도 있습니다. </translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -3643,7 +3085,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid BGL address</source>
+        <source>Warning: Invalid Bitgesell address</source>
         <translation type="unfinished">경고: 잘못된 비트코인 주소입니다</translation>
     </message>
     <message>
@@ -3682,7 +3124,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">이전에 사용한 주소를 선택하기</translation>
     </message>
     <message>
-        <source>The BGL address to send the payment to</source>
+        <source>The Bitgesell address to send the payment to</source>
         <translation type="unfinished">이 비트코인 주소로 송금됩니다</translation>
     </message>
     <message>
@@ -3698,7 +3140,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">선택한 단위로 보낼 수량</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less BGLs than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitgesells than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation type="unfinished">수수료가 송금되는 금액에서 공제됩니다. 수령자는 금액 필드에서 입력한 금액보다 적은 금액을 전송받게 됩니다. 받는 사람이 여러 명인 경우 수수료는 균등하게 나누어집니다.</translation>
     </message>
     <message>
@@ -3718,8 +3160,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">이 주소에 라벨을 입력하면 사용된 주소 목록에 라벨이 표시됩니다</translation>
     </message>
     <message>
-        <source>A message that was attached to the BGL: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the BGL network.</source>
-        <translation type="unfinished">BGL: URI에 추가된 메시지는 참고를 위해 거래내역과 함께 저장될 것입니다. Note: 이 메시지는 비트코인 네트워크로 전송되지 않습니다.</translation>
+        <source>A message that was attached to the bitgesell: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitgesell network.</source>
+        <translation type="unfinished">bitgesell: URI에 추가된 메시지는 참고를 위해 거래내역과 함께 저장될 것입니다. Note: 이 메시지는 비트코인 네트워크로 전송되지 않습니다.</translation>
     </message>
 </context>
 <context>
@@ -3744,11 +3186,11 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">메시지 서명(&amp;S)</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive BGLs sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <source>You can sign messages/agreements with your addresses to prove you can receive bitgesells sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">당신이 해당 주소로 비트코인을 받을 수 있다는 것을 증명하기 위해 메시지/합의문을 그 주소로 서명할 수 있습니다. 피싱 공격이 당신을 속일 수 있으므로 임의의 내용이나 모호한 내용에 서명하지 않도록 주의하세요. 당신이 동의하는 명확한 조항들에만 서명하세요.</translation>
     </message>
     <message>
-        <source>The BGL address to sign the message with</source>
+        <source>The Bitgesell address to sign the message with</source>
         <translation type="unfinished">메세지를 서명할 비트코인 주소</translation>
     </message>
     <message>
@@ -3772,7 +3214,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">이 서명을 시스템 클립보드로 복사</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this BGL address</source>
+        <source>Sign the message to prove you own this Bitgesell address</source>
         <translation type="unfinished">당신이 이 비트코인 주소를 소유한다는 증명을 위해 메시지를 서명합니다</translation>
     </message>
     <message>
@@ -3796,7 +3238,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">메시지를 검증하기 위해 아래 칸에 각각 지갑 주소와 메시지, 서명을 입력하세요 (메시지 원본의 띄어쓰기, 들여쓰기, 행 나눔 등이 정확하게 입력되어야 하므로 원본을 복사해서 입력하세요). 네트워크 침입자의 속임수에 넘어가지 않도록 서명된 메시지 내용 이외의 내용은 참고하지 않도록 유의하세요. 이 기능은 단순히 서명한 쪽에서 해당 주소로 송금을 받을 수 있다는 것을 증명하는 것 뿐이며 그 이상은 어떤 것도 보증하지 않습니다.</translation>
     </message>
     <message>
-        <source>The BGL address the message was signed with</source>
+        <source>The Bitgesell address the message was signed with</source>
         <translation type="unfinished">메세지의 서명에 사용된 비트코인 주소</translation>
     </message>
     <message>
@@ -3808,7 +3250,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">메세지의 서명되었을 때의 시그니처</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified BGL address</source>
+        <source>Verify the message to ensure it was signed with the specified Bitgesell address</source>
         <translation type="unfinished">입력된 비트코인 주소로 메시지가 서명되었는지 검증합니다</translation>
     </message>
     <message>
@@ -4460,6 +3902,531 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Cancel</source>
         <translation type="unfinished">취소</translation>
+    </message>
+</context>
+<context>
+    <name>bitgesell-core</name>
+    <message>
+        <source>The %s developers</source>
+        <translation type="unfinished">%s 개발자들</translation>
+    </message>
+    <message>
+        <source>%s corrupt. Try using the wallet tool bitgesell-wallet to salvage or restoring a backup.</source>
+        <translation type="unfinished">%s가 손상되었습니다. '비트 코인-지갑'을 사용하여 백업을 구제하거나 복원하십시오.</translation>
+    </message>
+    <message>
+        <source>Cannot downgrade wallet from version %i to version %i. Wallet version unchanged.</source>
+        <translation type="unfinished">%i버젼에서 %i버젼으로 다운그레이드 할 수 없습니다. 월렛 버젼은 변경되지 않았습니다.</translation>
+    </message>
+    <message>
+        <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
+        <translation type="unfinished">데이터 디렉토리 %s 에 락을 걸 수 없었습니다. %s가 이미 실행 중인 것으로 보입니다.</translation>
+    </message>
+    <message>
+        <source>Cannot upgrade a non HD split wallet from version %i to version %i without upgrading to support pre-split keypool. Please use version %i or no version specified.</source>
+        <translation type="unfinished">사전분리 키풀를 지원하기 위해서 업그레이드 하지 않고는 Non HD split 지갑의 %i버젼을 %i버젼으로 업그레이드 할 수 없습니다. %i버젼을 활용하거나 구체화되지 않은 버젼을 활용하세요.</translation>
+    </message>
+    <message>
+        <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
+        <translation type="unfinished">MIT 소프트웨어 라이센스에 따라 배포되었습니다. 첨부 파일 %s 또는 %s을 참조하십시오.</translation>
+    </message>
+    <message>
+        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
+        <translation type="unfinished">%s 불러오기 오류! 주소 키는 모두 정확하게 로드되었으나 거래 데이터와 주소록 필드에서 누락이나 오류가 존재할 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>Error reading %s! Transaction data may be missing or incorrect. Rescanning wallet.</source>
+        <translation type="unfinished">%s를 읽는데 에러가 생겼습니다. 트랜잭션 데이터가 잘못되었거나 누락되었습니다. 지갑을 다시 스캐닝합니다.</translation>
+    </message>
+    <message>
+        <source>Error: Dumpfile format record is incorrect. Got "%s", expected "format".</source>
+        <translation type="unfinished">오류 : 덤프파일 포맷 기록이 잘못되었습니다. "포맷"이 아니라 "%s"를 얻었습니다.</translation>
+    </message>
+    <message>
+        <source>Error: Dumpfile identifier record is incorrect. Got "%s", expected "%s".</source>
+        <translation type="unfinished">오류 : 덤프파일 식별자 기록이 잘못되었습니다. "%s"이 아닌 "%s"를 얻었습니다.</translation>
+    </message>
+    <message>
+        <source>Error: Dumpfile version is not supported. This version of bitgesell-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation type="unfinished">오류 : 덤프파일 버젼이 지원되지 않습니다. 이 비트코인 지갑 버젼은 오직 버젼1의 덤프파일을 지원합니다. %s버젼의 덤프파일을 얻었습니다.</translation>
+    </message>
+    <message>
+        <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>
+        <translation type="unfinished">오류 : 레거시 지갑주소는 "레거시", "p2sh-segwit", "bech32" 지갑 주소의 타입만 지원합니다.</translation>
+    </message>
+    <message>
+        <source>File %s already exists. If you are sure this is what you want, move it out of the way first.</source>
+        <translation type="unfinished">%s 파일이 이미 존재합니다. 무엇을 하고자 하는지 확실하시다면, 파일을 먼저 다른 곳으로 옮기십시오.</translation>
+    </message>
+    <message>
+        <source>Invalid or corrupt peers.dat (%s). If you believe this is a bug, please report it to %s. As a workaround, you can move the file (%s) out of the way (rename, move, or delete) to have a new one created on the next start.</source>
+        <translation type="unfinished">유효하지 않거나 손상된 peers.dat(%s). 만약 이게 버그인 경우에, %s이쪽으로 리포트해주세요.  새로 만들어서 시작하기 위한 해결방법으로 %s파일을 옮길 수 있습니다. (이름 재설정, 파일 옮기기 혹은 삭제).</translation>
+    </message>
+    <message>
+        <source>More than one onion bind address is provided. Using %s for the automatically created Tor onion service.</source>
+        <translation type="unfinished">하나 이상의 양파 바인딩 주소가 제공됩니다. 자동으로 생성 된 Tor onion 서비스에 %s 사용.</translation>
+    </message>
+    <message>
+        <source>No dump file provided. To use createfromdump, -dumpfile=&lt;filename&gt; must be provided.</source>
+        <translation type="unfinished">덤프파일이 입력되지 않았습니다. 덤프파일을 사용하기 위해서는 -dumpfile=&lt;filename&gt;이 반드시 입력되어야 합니다. </translation>
+    </message>
+    <message>
+        <source>No dump file provided. To use dump, -dumpfile=&lt;filename&gt; must be provided.</source>
+        <translation type="unfinished">덤프파일이 입력되지 않았습니다. 덤프를 사용하기 위해서는 -dumpfile=&lt;filename&gt;이 반드시 입력되어야 합니다.</translation>
+    </message>
+    <message>
+        <source>No wallet file format provided. To use createfromdump, -format=&lt;format&gt; must be provided.</source>
+        <translation type="unfinished">shshhdchb bdfjj fb  rciivfjb doffbfbdjdj</translation>
+    </message>
+    <message>
+        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
+        <translation type="unfinished">컴퓨터의 날짜와 시간이 올바른지 확인하십시오! 시간이 잘못되면 %s은 제대로 동작하지 않습니다.</translation>
+    </message>
+    <message>
+        <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
+        <translation type="unfinished">%s가 유용하다고 생각한다면 프로젝트에 공헌해주세요. 이 소프트웨어에 대한 보다 자세한 정보는 %s를 방문해 주십시오.</translation>
+    </message>
+    <message>
+        <source>Prune configured below the minimum of %d MiB.  Please use a higher number.</source>
+        <translation type="unfinished">블록 축소가 최소치인 %d MiB 밑으로 설정되어 있습니다. 더 높은 값을 사용해 주십시오.</translation>
+    </message>
+    <message>
+        <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
+        <translation type="unfinished">블록 축소: 마지막 지갑 동기화 지점이 축소된 데이터보다 과거의 것 입니다. -reindex가 필요합니다 (축소된 노드의 경우 모든 블록체인을 재다운로드합니다)</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Unknown sqlite wallet schema version %d. Only version %d is supported</source>
+        <translation type="unfinished">에스큐엘라이트 데이터베이스 : 알 수 없는 에스큐엘라이트 지갑 스키마 버전 %d. %d 버전만 지원합니다.</translation>
+    </message>
+    <message>
+        <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
+        <translation type="unfinished">블록 데이터베이스에 미래의 블록이 포함되어 있습니다. 이것은 사용자의 컴퓨터의 날짜와 시간이 올바르게 설정되어 있지 않을때 나타날 수 있습니다. 블록 데이터 베이스의 재구성은 사용자의 컴퓨터의 날짜와 시간이 올바르다고 확신할 때에만 하십시오.</translation>
+    </message>
+    <message>
+        <source>The block index db contains a legacy 'txindex'. To clear the occupied disk space, run a full -reindex, otherwise ignore this error. This error message will not be displayed again.</source>
+        <translation type="unfinished">udhdbfjfjdnbdjfjf hdhdbjcn2owkd. jjwbdbdof dkdbdnck wdkdj </translation>
+    </message>
+    <message>
+        <source>The transaction amount is too small to send after the fee has been deducted</source>
+        <translation type="unfinished">거래액이 수수료를 지불하기엔 너무 작습니다</translation>
+    </message>
+    <message>
+        <source>This error could occur if this wallet was not shutdown cleanly and was last loaded using a build with a newer version of Berkeley DB. If so, please use the software that last loaded this wallet</source>
+        <translation type="unfinished">지갑이 완전히 종료되지 않고 최신 버전의 Berkeley DB 빌드를 사용하여 마지막으로 로드된 경우 오류가 발생할 수 있습니다. 이 지갑을 마지막으로 로드한 소프트웨어를 사용하십시오.</translation>
+    </message>
+    <message>
+        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
+        <translation type="unfinished">출시 전의 테스트 빌드 입니다. - 스스로의 책임하에 사용하십시오. - 채굴이나 상업적 용도로 사용하지 마십시오.</translation>
+    </message>
+    <message>
+        <source>This is the maximum transaction fee you pay (in addition to the normal fee) to prioritize partial spend avoidance over regular coin selection.</source>
+        <translation type="unfinished">이것은 일반 코인 선택보다 부분적 지출 회피를 우선시하기 위해 지불하는 최대 거래 수수료 (일반 수수료에 추가)입니다.</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you may discard if change is smaller than dust at this level</source>
+        <translation type="unfinished">이것은 거스름돈이 현재 레벨의 더스트보다 적은 경우 버릴 수 있는 수수료입니다.</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you may pay when fee estimates are not available.</source>
+        <translation type="unfinished">이것은 수수료 추정을 이용할 수 없을 때 사용되는 거래 수수료입니다.</translation>
+    </message>
+    <message>
+        <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
+        <translation type="unfinished">네트워크 버전 문자 (%i)의 길이가 최대길이 (%i)를 초과합니다. uacomments의 갯수나 길이를 줄이세요.</translation>
+    </message>
+    <message>
+        <source>Unable to replay blocks. You will need to rebuild the database using -reindex-chainstate.</source>
+        <translation type="unfinished">블록을 재생할 수 없습니다. -reindex-chainstate를 사용하여 데이터베이스를 다시 빌드 해야 합니다.</translation>
+    </message>
+    <message>
+        <source>Warning: Private keys detected in wallet {%s} with disabled private keys</source>
+        <translation type="unfinished">경고: 비활성화된 개인키 지갑 {%s} 에서 개인키들이 발견되었습니다</translation>
+    </message>
+    <message>
+        <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
+        <translation type="unfinished">경고: 현재 비트코인 버전이 다른 네트워크 참여자들과 동일하지 않은 것 같습니다. 당신 또는 다른 참여자들이 동일한 비트코인 버전으로 업그레이드 할 필요가 있습니다.</translation>
+    </message>
+    <message>
+        <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
+        <translation type="unfinished">블록 축소 모드를 해제하려면 데이터베이스를 재구성하기 위해 -reindex를 사용해야 합니다. 이 명령은 전체 블록체인을 다시 다운로드합니다.</translation>
+    </message>
+    <message>
+        <source>%s is set very high!</source>
+        <translation type="unfinished">%s가 매우 높게 설정되었습니다!</translation>
+    </message>
+    <message>
+        <source>-maxmempool must be at least %d MB</source>
+        <translation type="unfinished">-maxmempool은 최소한 %d MB 이어야 합니다</translation>
+    </message>
+    <message>
+        <source>A fatal internal error occurred, see debug.log for details</source>
+        <translation type="unfinished">치명적 내부 오류 발생. 상세한 내용을 debug.log 에서 확인하십시오</translation>
+    </message>
+    <message>
+        <source>Cannot resolve -%s address: '%s'</source>
+        <translation type="unfinished">%s 주소를 확인할 수 없습니다: '%s'</translation>
+    </message>
+    <message>
+        <source>Cannot set -forcednsseed to true when setting -dnsseed to false.</source>
+        <translation type="unfinished">naravfbj. dufb jdncnlfs. jx dhcji djc d jcbc jdnbfbicb </translation>
+    </message>
+    <message>
+        <source>Cannot set -peerblockfilters without -blockfilterindex.</source>
+        <translation type="unfinished">-blockfilterindex는 -peerblockfilters 없이 사용할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Cannot write to data directory '%s'; check permissions.</source>
+        <translation type="unfinished">"%s" 데이터 폴더에 기록하지 못했습니다. 접근권한을 확인하십시오.</translation>
+    </message>
+    <message>
+        <source>Config setting for %s only applied on %s network when in [%s] section.</source>
+        <translation type="unfinished">%s의 설정은 %s 네트워크에만 적용되는 데, 이는 [%s] 항목에 있을 경우 뿐 입니다.</translation>
+    </message>
+    <message>
+        <source>Corrupted block database detected</source>
+        <translation type="unfinished">손상된 블록 데이터베이스가 감지되었습니다</translation>
+    </message>
+    <message>
+        <source>Could not find asmap file %s</source>
+        <translation type="unfinished">asmap file %s 을 찾을 수 없습니다</translation>
+    </message>
+    <message>
+        <source>Could not parse asmap file %s</source>
+        <translation type="unfinished">asmap file %s 을 파싱할 수 없습니다</translation>
+    </message>
+    <message>
+        <source>Disk space is too low!</source>
+        <translation type="unfinished">디스크 용량이 부족함!</translation>
+    </message>
+    <message>
+        <source>Do you want to rebuild the block database now?</source>
+        <translation type="unfinished">블록 데이터베이스를 다시 생성하시겠습니까?</translation>
+    </message>
+    <message>
+        <source>Done loading</source>
+        <translation type="unfinished">불러오기 완료</translation>
+    </message>
+    <message>
+        <source>Dump file %s does not exist.</source>
+        <translation type="unfinished">파일 버리기 1%s 존재 안함
+</translation>
+    </message>
+    <message>
+        <source>Error creating %s</source>
+        <translation type="unfinished">만들기 오류 1%s
+</translation>
+    </message>
+    <message>
+        <source>Error initializing block database</source>
+        <translation type="unfinished">블록 데이터베이스 초기화 오류 발생</translation>
+    </message>
+    <message>
+        <source>Error initializing wallet database environment %s!</source>
+        <translation type="unfinished">지갑 데이터베이스 %s 환경 초기화 오류 발생!</translation>
+    </message>
+    <message>
+        <source>Error loading %s</source>
+        <translation type="unfinished">%s 불러오기 오류 발생</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Private keys can only be disabled during creation</source>
+        <translation type="unfinished">%s 불러오기 오류: 개인키는 생성할때만 비활성화 할 수 있습니다</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet corrupted</source>
+        <translation type="unfinished">%s 불러오기 오류: 지갑이 손상됨</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet requires newer version of %s</source>
+        <translation type="unfinished">%s 불러오기 오류: 지갑은 새 버전의 %s이 필요합니다</translation>
+    </message>
+    <message>
+        <source>Error loading block database</source>
+        <translation type="unfinished">블록 데이터베이스 불러오는데 오류 발생</translation>
+    </message>
+    <message>
+        <source>Error opening block database</source>
+        <translation type="unfinished">블록 데이터베이스 열기 오류 발생</translation>
+    </message>
+    <message>
+        <source>Error reading from database, shutting down.</source>
+        <translation type="unfinished">데이터베이스를 불러오는데 오류가 발생하였습니다, 곧 종료됩니다.</translation>
+    </message>
+    <message>
+        <source>Error reading next record from wallet database</source>
+        <translation type="unfinished">지갑 데이터베이스에서 다음 기록을 불러오는데 오류가 발생하였습니다.</translation>
+    </message>
+    <message>
+        <source>Error: Disk space is low for %s</source>
+        <translation type="unfinished">오류: %s 하기엔 저장공간이 부족합니다</translation>
+    </message>
+    <message>
+        <source>Error: Keypool ran out, please call keypoolrefill first</source>
+        <translation type="unfinished">오류: 키풀이 바닥남, 키풀 리필을 먼저 호출할 하십시오</translation>
+    </message>
+    <message>
+        <source>Error: Missing checksum</source>
+        <translation type="unfinished">오류: 체크섬 누락</translation>
+    </message>
+    <message>
+        <source>Error: Unable to write record to new wallet</source>
+        <translation type="unfinished">오류: 새로운 지갑에 기록하지 못했습니다.</translation>
+    </message>
+    <message>
+        <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
+        <translation type="unfinished">포트 연결에 실패하였습니다. 필요하다면 -리슨=0 옵션을 사용하십시오.</translation>
+    </message>
+    <message>
+        <source>Failed to rescan the wallet during initialization</source>
+        <translation type="unfinished">지갑 스캔 오류</translation>
+    </message>
+    <message>
+        <source>Failed to verify database</source>
+        <translation type="unfinished">데이터베이스를 검증 실패</translation>
+    </message>
+    <message>
+        <source>Importing…</source>
+        <translation type="unfinished">불러오는 중...</translation>
+    </message>
+    <message>
+        <source>Incorrect or no genesis block found. Wrong datadir for network?</source>
+        <translation type="unfinished">제네시스 블록이 없거나 잘 못 되었습니다. 네트워크의 datadir을 확인해 주십시오.</translation>
+    </message>
+    <message>
+        <source>Initialization sanity check failed. %s is shutting down.</source>
+        <translation type="unfinished">무결성 확인 초기화에 실패하였습니다. %s가 곧 종료됩니다.</translation>
+    </message>
+    <message>
+        <source>Insufficient funds</source>
+        <translation type="unfinished">잔액이 부족합니다</translation>
+    </message>
+    <message>
+        <source>Invalid -i2psam address or hostname: '%s'</source>
+        <translation type="unfinished">올바르지 않은 -i2psam 주소 또는 호스트 이름: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid -onion address or hostname: '%s'</source>
+        <translation type="unfinished">올바르지 않은 -onion 주소 또는 호스트 이름: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid -proxy address or hostname: '%s'</source>
+        <translation type="unfinished">올바르지 않은 -proxy 주소 또는 호스트 이름: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid P2P permission: '%s'</source>
+        <translation type="unfinished">잘못된 P2P 권한: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
+        <translation type="unfinished">유효하지 않은 금액 -%s=&lt;amount&gt;: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid netmask specified in -whitelist: '%s'</source>
+        <translation type="unfinished">유효하지 않은 넷마스크가 -whitelist: '%s" 를 통해 지정됨</translation>
+    </message>
+    <message>
+        <source>Loading P2P addresses…</source>
+        <translation type="unfinished">P2P 주소를 불러오는 중...</translation>
+    </message>
+    <message>
+        <source>Loading banlist…</source>
+        <translation type="unfinished">추방리스트를 불러오는 중...</translation>
+    </message>
+    <message>
+        <source>Loading block index…</source>
+        <translation type="unfinished">블록 인덱스를 불러오는 중...</translation>
+    </message>
+    <message>
+        <source>Loading wallet…</source>
+        <translation type="unfinished">지갑을 불러오는 중...</translation>
+    </message>
+    <message>
+        <source>Need to specify a port with -whitebind: '%s'</source>
+        <translation type="unfinished">-whitebind: '%s' 를 이용하여 포트를 지정해야 합니다</translation>
+    </message>
+    <message>
+        <source>Not enough file descriptors available.</source>
+        <translation type="unfinished">파일 디스크립터가 부족합니다.</translation>
+    </message>
+    <message>
+        <source>Prune cannot be configured with a negative value.</source>
+        <translation type="unfinished">블록 축소는 음수로 설정할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Prune mode is incompatible with -txindex.</source>
+        <translation type="unfinished">블록 축소 모드는 -txindex와 호환되지 않습니다.</translation>
+    </message>
+    <message>
+        <source>Pruning blockstore…</source>
+        <translation type="unfinished">블록 데이터를 축소 중입니다...</translation>
+    </message>
+    <message>
+        <source>Reducing -maxconnections from %d to %d, because of system limitations.</source>
+        <translation type="unfinished">시스템 한계로 인하여 -maxconnections를 %d 에서 %d로 줄였습니다.</translation>
+    </message>
+    <message>
+        <source>Replaying blocks…</source>
+        <translation type="unfinished">블록 재생 중...</translation>
+    </message>
+    <message>
+        <source>Rescanning…</source>
+        <translation type="unfinished">재스캔 중...</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to execute statement to verify database: %s</source>
+        <translation type="unfinished">에스큐엘라이트 데이터베이스 : 데이터베이스를 확인하는 실행문 출력을 실패하였습니다 : %s.</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to prepare statement to verify database: %s</source>
+        <translation type="unfinished">에스큐엘라이트 데이터베이스 : 데이터베이스를 확인하는 실행문 준비에 실패하였습니다 : %s.</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Unexpected application id. Expected %u, got %u</source>
+        <translation type="unfinished">에스큐엘라이트 데이터베이스 : 예상 못한 어플리케이션 아이디. 예정: %u, 받음: %u</translation>
+    </message>
+    <message>
+        <source>Section [%s] is not recognized.</source>
+        <translation type="unfinished">[%s] 항목은 인정되지 않습니다.</translation>
+    </message>
+    <message>
+        <source>Signing transaction failed</source>
+        <translation type="unfinished">거래 서명에 실패했습니다</translation>
+    </message>
+    <message>
+        <source>Specified -walletdir "%s" does not exist</source>
+        <translation type="unfinished">지정한 -walletdir "%s"은 존재하지 않습니다</translation>
+    </message>
+    <message>
+        <source>Specified -walletdir "%s" is a relative path</source>
+        <translation type="unfinished">지정한 -walletdir "%s"은 상대 경로입니다</translation>
+    </message>
+    <message>
+        <source>Specified -walletdir "%s" is not a directory</source>
+        <translation type="unfinished">지정한 -walletdir "%s"은 디렉토리가 아닙니다</translation>
+    </message>
+    <message>
+        <source>Specified blocks directory "%s" does not exist.</source>
+        <translation type="unfinished">지정한 블록 디렉토리 "%s" 가 존재하지 않습니다.</translation>
+    </message>
+    <message>
+        <source>Starting network threads…</source>
+        <translation type="unfinished">네트워크 스레드 시작중...</translation>
+    </message>
+    <message>
+        <source>The source code is available from %s.</source>
+        <translation type="unfinished">소스코드는 %s 에서 확인하실 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>The transaction amount is too small to pay the fee</source>
+        <translation type="unfinished">거래액이 수수료를 지불하기엔 너무 작습니다</translation>
+    </message>
+    <message>
+        <source>The wallet will avoid paying less than the minimum relay fee.</source>
+        <translation type="unfinished">지갑은 최소 중계 수수료보다 적은 금액을 지불하는 것을 피할 것입니다.</translation>
+    </message>
+    <message>
+        <source>This is experimental software.</source>
+        <translation type="unfinished">이 소프트웨어는 시험적입니다.</translation>
+    </message>
+    <message>
+        <source>This is the minimum transaction fee you pay on every transaction.</source>
+        <translation type="unfinished">이것은 모든 거래에서 지불하는 최소 거래 수수료입니다.</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you will pay if you send a transaction.</source>
+        <translation type="unfinished">이것은 거래를 보낼 경우 지불 할 거래 수수료입니다.</translation>
+    </message>
+    <message>
+        <source>Transaction amount too small</source>
+        <translation type="unfinished">거래액이 너무 적습니다</translation>
+    </message>
+    <message>
+        <source>Transaction amounts must not be negative</source>
+        <translation type="unfinished">거래액은 반드시 0보다 큰 값이어야 합니다.</translation>
+    </message>
+    <message>
+        <source>Transaction has too long of a mempool chain</source>
+        <translation type="unfinished">거래가 너무 긴 메모리 풀 체인을 갖고 있습니다</translation>
+    </message>
+    <message>
+        <source>Transaction must have at least one recipient</source>
+        <translation type="unfinished">거래에는 최소한 한명의 수령인이 있어야 합니다.</translation>
+    </message>
+    <message>
+        <source>Transaction too large</source>
+        <translation type="unfinished">거래가 너무 큽니다</translation>
+    </message>
+    <message>
+        <source>Unable to bind to %s on this computer (bind returned error %s)</source>
+        <translation type="unfinished">이 컴퓨터의 %s 에 바인딩할 수 없습니다 (바인딩 과정에 %s 오류 발생)</translation>
+    </message>
+    <message>
+        <source>Unable to bind to %s on this computer. %s is probably already running.</source>
+        <translation type="unfinished">이 컴퓨터의 %s에 바인딩 할 수 없습니다. 아마도 %s이 실행중인 것 같습니다.</translation>
+    </message>
+    <message>
+        <source>Unable to create the PID file '%s': %s</source>
+        <translation type="unfinished">PID 파일 생성 실패 '%s': %s</translation>
+    </message>
+    <message>
+        <source>Unable to generate initial keys</source>
+        <translation type="unfinished">초기 키값 생성 불가</translation>
+    </message>
+    <message>
+        <source>Unable to generate keys</source>
+        <translation type="unfinished">키 생성 불가</translation>
+    </message>
+    <message>
+        <source>Unable to open %s for writing</source>
+        <translation type="unfinished">%s을 쓰기 위하여 열 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Unable to start HTTP server. See debug log for details.</source>
+        <translation type="unfinished">HTTP 서버를 시작할 수 없습니다. 자세한 사항은 디버그 로그를 확인 하세요.</translation>
+    </message>
+    <message>
+        <source>Unknown -blockfilterindex value %s.</source>
+        <translation type="unfinished">알 수 없는 -blockfileterindex 값 %s.</translation>
+    </message>
+    <message>
+        <source>Unknown change type '%s'</source>
+        <translation type="unfinished">알 수 없는 변경 형식 '%s'</translation>
+    </message>
+    <message>
+        <source>Unknown network specified in -onlynet: '%s'</source>
+        <translation type="unfinished">-onlynet: '%s' 에 알수없는 네트워크가 지정되었습니다</translation>
+    </message>
+    <message>
+        <source>Unknown new rules activated (versionbit %i)</source>
+        <translation type="unfinished">알 수 없는 새로운 규칙이 활성화 되었습니다. (versionbit %i)</translation>
+    </message>
+    <message>
+        <source>Unsupported logging category %s=%s.</source>
+        <translation type="unfinished">지원되지 않는 로깅 카테고리 %s = %s.</translation>
+    </message>
+    <message>
+        <source>User Agent comment (%s) contains unsafe characters.</source>
+        <translation type="unfinished">사용자 정의 코멘트 (%s)에 안전하지 못한 글자가 포함되어 있습니다.</translation>
+    </message>
+    <message>
+        <source>Verifying blocks…</source>
+        <translation type="unfinished">블록 검증 중...</translation>
+    </message>
+    <message>
+        <source>Verifying wallet(s)…</source>
+        <translation type="unfinished">지갑(들) 검증 중...</translation>
+    </message>
+    <message>
+        <source>Wallet needed to be rewritten: restart %s to complete</source>
+        <translation type="unfinished">지갑을 새로 써야 합니다:  진행을 위해 %s 를 다시 시작하십시오</translation>
+    </message>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">설정 파일을 읽을 수 없습니다</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">설정파일이 쓰여지지 않았습니다.</translation>
     </message>
 </context>
 </TS>

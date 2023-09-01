@@ -165,7 +165,7 @@
     </message>
     </context>
 <context>
-    <name>BitcoinApplication</name>
+    <name>BitgesellApplication</name>
     <message>
         <source>Internal error</source>
         <translation type="unfinished">Дотоод алдаа</translation>
@@ -233,18 +233,7 @@
     </message>
     </context>
 <context>
-    <name>BGL-core</name>
-    <message>
-        <source>Done loading</source>
-        <translation type="unfinished">Ачааллаж дууслаа</translation>
-    </message>
-    <message>
-        <source>Insufficient funds</source>
-        <translation type="unfinished">Таны дансны үлдэгдэл хүрэлцэхгүй байна</translation>
-    </message>
-    </context>
-<context>
-    <name>BGLGUI</name>
+    <name>BitgesellGUI</name>
     <message>
         <source>&amp;Transactions</source>
         <translation type="unfinished">Гүйлгээнүүд</translation>
@@ -361,7 +350,7 @@
     <message>
         <source>Date: %1
 </source>
-        <translation type="unfinished">Огноо%1
+        <translation type="unfinished">Огноо:%1
 </translation>
     </message>
     <message>
@@ -1113,6 +1102,17 @@
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation type="unfinished">Сонгогдсон таб дээрхи дата-г экспортлох</translation>
+    </message>
+    </context>
+<context>
+    <name>bitgesell-core</name>
+    <message>
+        <source>Done loading</source>
+        <translation type="unfinished">Ачааллаж дууслаа</translation>
+    </message>
+    <message>
+        <source>Insufficient funds</source>
+        <translation type="unfinished">Таны дансны үлдэгдэл хүрэлцэхгүй байна</translation>
     </message>
     </context>
 </TS>

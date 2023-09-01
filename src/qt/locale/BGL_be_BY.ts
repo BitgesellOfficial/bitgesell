@@ -259,64 +259,11 @@
         <source>%n year(s)</source>
         <translation type="unfinished">
             <numerusform />
-            <numerusform />
-            <numerusform />
         </translation>
     </message>
     </context>
 <context>
-    <name>BGL-core</name>
-    <message>
-        <source>Do you want to rebuild the block database now?</source>
-        <translation type="unfinished">Ці жадаеце вы перабудаваць зараз базу звестак блокаў?</translation>
-    </message>
-    <message>
-        <source>Done loading</source>
-        <translation type="unfinished">Загрузка выканана</translation>
-    </message>
-    <message>
-        <source>Error initializing block database</source>
-        <translation type="unfinished">Памылка ініцыялізацыі базвы звестак блокаў</translation>
-    </message>
-    <message>
-        <source>Error initializing wallet database environment %s!</source>
-        <translation type="unfinished">Памалка ініцыялізацыі асяроддзя базы звестак гаманца %s!</translation>
-    </message>
-    <message>
-        <source>Error loading block database</source>
-        <translation type="unfinished">Памылка загрузкі базвы звестак блокаў</translation>
-    </message>
-    <message>
-        <source>Error opening block database</source>
-        <translation type="unfinished">Памылка адчынення базы звестак блокаў</translation>
-    </message>
-    <message>
-        <source>Insufficient funds</source>
-        <translation type="unfinished">Недастаткова сродкаў</translation>
-    </message>
-    <message>
-        <source>Not enough file descriptors available.</source>
-        <translation type="unfinished">Не хапае файлавых дэскрыптараў.</translation>
-    </message>
-    <message>
-        <source>Signing transaction failed</source>
-        <translation type="unfinished">Памылка подпісу транзакцыі</translation>
-    </message>
-    <message>
-        <source>This is experimental software.</source>
-        <translation type="unfinished">Гэта эксперыментальная праграма.</translation>
-    </message>
-    <message>
-        <source>Transaction amount too small</source>
-        <translation type="unfinished">Транзакцыя занадта малая</translation>
-    </message>
-    <message>
-        <source>Transaction too large</source>
-        <translation type="unfinished">Транзакцыя занадта вялікая</translation>
-    </message>
-    </context>
-<context>
-    <name>BitcoinGUI</name>
+    <name>BitgesellGUI</name>
     <message>
         <source>&amp;Overview</source>
         <translation type="unfinished">Агляд</translation>
@@ -450,7 +397,7 @@
         <translation type="unfinished">Сінхранізавана</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Bitgesell network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -1168,6 +1115,57 @@
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation type="unfinished">Экспартаваць гэтыя звесткі у файл</translation>
+    </message>
+    </context>
+<context>
+    <name>bitgesell-core</name>
+    <message>
+        <source>Do you want to rebuild the block database now?</source>
+        <translation type="unfinished">Ці жадаеце вы перабудаваць зараз базу звестак блокаў?</translation>
+    </message>
+    <message>
+        <source>Done loading</source>
+        <translation type="unfinished">Загрузка выканана</translation>
+    </message>
+    <message>
+        <source>Error initializing block database</source>
+        <translation type="unfinished">Памылка ініцыялізацыі базвы звестак блокаў</translation>
+    </message>
+    <message>
+        <source>Error initializing wallet database environment %s!</source>
+        <translation type="unfinished">Памалка ініцыялізацыі асяроддзя базы звестак гаманца %s!</translation>
+    </message>
+    <message>
+        <source>Error loading block database</source>
+        <translation type="unfinished">Памылка загрузкі базвы звестак блокаў</translation>
+    </message>
+    <message>
+        <source>Error opening block database</source>
+        <translation type="unfinished">Памылка адчынення базы звестак блокаў</translation>
+    </message>
+    <message>
+        <source>Insufficient funds</source>
+        <translation type="unfinished">Недастаткова сродкаў</translation>
+    </message>
+    <message>
+        <source>Not enough file descriptors available.</source>
+        <translation type="unfinished">Не хапае файлавых дэскрыптараў.</translation>
+    </message>
+    <message>
+        <source>Signing transaction failed</source>
+        <translation type="unfinished">Памылка подпісу транзакцыі</translation>
+    </message>
+    <message>
+        <source>This is experimental software.</source>
+        <translation type="unfinished">Гэта эксперыментальная праграма.</translation>
+    </message>
+    <message>
+        <source>Transaction amount too small</source>
+        <translation type="unfinished">Транзакцыя занадта малая</translation>
+    </message>
+    <message>
+        <source>Transaction too large</source>
+        <translation type="unfinished">Транзакцыя занадта вялікая</translation>
     </message>
     </context>
 </TS>
