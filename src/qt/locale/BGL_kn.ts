@@ -14,11 +14,11 @@
         <translation type="unfinished">ಹುಡುಕಲು ವಿಳಾಸ ಅಥವಾ ಲೇಬಲ್ ನಮೂದಿಸಿ.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Bitgesell addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">ಕಾಣಿಕೆಗಳು ಕಳುಹಿಸಲು ನೀವು ಬಳಸಬಹುದಿರುವ ಬಿಟ್‌ಕಾಯಿನ್ ವಿಳಾಸಗಳು ಇವು. ನಾಣ್ಯದ ಹಣವನ್ನು ಕಳುಹಿಸುವ ಮುಂದೆ ಹಣದ ಮೊತ್ತವನ್ನು ಮತ್ತು ಪ್ರಾಪ್ತಿ ವಿಳಾಸವನ್ನು ಯಾವಾಗಲೂ ಪರಿಶೀಲಿಸಿ.</translation>
     </message>
     <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Bitgesell addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ನೀವು ಪಡೆಯಲು ಬಯಸುವ ಪಾವತಿಗಳನ್ನು ಸೇರಿಸಲು ನಿಮ್ಮ ಬಿಟ್‌ಕಾಯಿನ್ ವಿಳಾಸಗಳು ಇವು. ಹೊಸ ವಿಳಾಸಗಳನ್ನು ರಚಿಸಲು ಪಡೆಯುವ ಉಪಕರಣವಾಗಿ 'ಪಡೆಯುವ' ಟ್ಯಾಬ್ ನಲ್ಲಿರುವ 'ಹೊಸ ಪಾವತಿಯನ್ನು ರಚಿಸಿ' ಬಟನ್ ಅನ್ನು ಬಳಸಿ. ಸಹಿ ಮಾಡುವುದು ಕೇವಲ 'ಲೆಗೆಸಿ' ವಿಳಾಸಗಳ ವರ್ಗಕ್ಕೆ ಸೇರಿದ ವಿಳಾಸಗಳೊಂದಿಗೆ ಮಾತ್ರ ಸಾಧ್ಯ.</translation>
     </message>
@@ -34,7 +34,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ವಾಲೆಟ್ ಪಾಸ್‌ಫ್ರೇಸ್ ಹಳೆಯ ಮತ್ತು ಹೊಸ ಪಾಸ್‌ಫ್ರೇಸ್ ನಮೂದಿಸಲು ಸಿದ್ಧವಿರಿ.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
+        <source>Remember that encrypting your wallet cannot fully protect your bitgesells from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">ನಿಮ್ಮ ವಾಲೆಟ್ ಎನ್ಕ್ರಿಪ್ಟ್ ಮಾಡುವುದರಿಂದ ನಿಮ್ಮ ಕಂಪ್ಯೂಟರ್ ಸೋಕಿದ ಮಲ್ವೇರ್ ನೋಂದಣಿಗೆ ಬಲಗೊಳಿಸುವ ಕಾದಂಬರಿಗೆ ನಿಮ್ಮ ಬಿಟ್‌ಕಾಯಿನ್ ಪೂರ್ತಿಯಾಗಿ ಸುರಕ್ಷಿತವಾಗುವುದಿಲ್ಲವೆಂದು ನೆನಪಿಡಿ.</translation>
     </message>
     <message>
@@ -92,7 +92,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>BitgesellGUI</name>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
         <translation type="unfinished">
@@ -101,7 +101,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         </translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Bitgesell network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -162,7 +162,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     </context>
 <context>
-    <name>bitcoin-core</name>
+    <name>BGL-core</name>
     <message>
         <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
         <translation type="unfinished">ಬ್ಲಾಕ್ ಡೇಟಾಬೇಸ್ ಭವಿಷ್ಯದಿಂದ ಬಂದಿರುವ ಬ್ಲಾಕ್ ಹೊಂದಿದೆ ಎಂದು ತೋರುತ್ತದೆ. ಇದು ನಿಮ್ಮ ಕಂಪ್ಯೂಟರ್ನ ದಿನಾಂಕ ಮತ್ತು ಸಮಯವು ತಪ್ಪಾಗಿರಬಹುದು. ನಿಮ್ಮ ಕಂಪ್ಯೂಟರ್ನ ದಿನಾಂಕ ಮತ್ತು ಸಮಯ ಸರಿಯಾಗಿದ್ದರೆ, ಬ್ಲಾಕ್ ಡೇಟಾಬೇಸ್ ಮಾತ್ರವೇ ಪುನಃ ನಿರ್ಮಿಸಬೇಕು.</translation>
