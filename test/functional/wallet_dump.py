@@ -174,7 +174,7 @@ class WalletDumpTest(BGLTestFramework):
 
         # encrypt wallet, restart, unlock and dump
         self.nodes[0].encryptwallet('test')
-        self.nodes[0].walletpassphrase('test', 100)
+        self.nodes[0].walletpassphrase("test", 999000)
         # Should be a no-op:
         self.nodes[0].keypoolrefill()
         self.nodes[0].dumpwallet(wallet_enc_dump)
