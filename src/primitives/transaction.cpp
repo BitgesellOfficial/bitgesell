@@ -69,7 +69,7 @@ CMutableTransaction::CMutableTransaction(const CTransaction& tx) : vin(tx.vin), 
 
 Txid CMutableTransaction::GetHash() const
 {
-    return Txid::FromUint256((*this, SER_GETHASH, SERIALIZE_TRANSACTION_NO_WITNESS));
+    return Txid::FromUint256(SerializeHashSHA256(*this, SER_GETHASH, SERIALIZE_TRANSACTION_NO_WITNESS));
 }
 
 bool CTransaction::ComputeHasWitness() const
@@ -77,11 +77,12 @@ bool CTransaction::ComputeHasWitness() const
     return std::any_of(vin.begin(), vin.end(), [](const auto& input) {
         return !input.scriptWitness.IsNull();
     });
+    return Txid::FromUint256((SerializeHashSHA256(*this, SER_GETHASH, SERIALIZE_TRANSACTION_NO_WITNESS) << TX_NO_WITNESS(*this)).GetHash());
 }
 
 Txid CTransaction::ComputeHash() const
 {
-    return Txid::FromUint256(SerializeHashSHA256(*this, SER_GETHASH, SERIALIZE_TRANSACTION_NO_WITNESS));
+    return Txid::FromUint256((SerializeHashSHA256(*this, SER_GETHASH, SERIALIZE_TRANSACTION_NO_WITNESS) << TX_NO_WITNESS(*this)).GetHash());
 }
 
 Wtxid CTransaction::ComputeWitnessHash() const
@@ -89,7 +90,8 @@ Wtxid CTransaction::ComputeWitnessHash() const
     if (!HasWitness()) {
         return Wtxid::FromUint256(hash.ToUint256());
     }
-    return Wtxid::FromUint256(SerializeHashSHA256(*this, SER_GETHASH, 0));
+
+    return Wtxid::FromUint256((SerializeHashSHA256(*this, SER_GETHASH, 0) << TX_WITH_WITNESS(*this)).GetHash());
 }
 
 CTransaction::CTransaction(const CMutableTransaction& tx) : vin(tx.vin), vout(tx.vout), nVersion(tx.nVersion), nLockTime(tx.nLockTime), m_has_witness{ComputeHasWitness()}, hash{ComputeHash()}, m_witness_hash{ComputeWitnessHash()} {}
@@ -109,7 +111,7 @@ CAmount CTransaction::GetValueOut() const
 
 unsigned int CTransaction::GetTotalSize() const
 {
-    return ::GetSerializeSize(*this, PROTOCOL_VERSION);
+    return ::GetSerializeSize(TX_WITH_WITNESS(*this));
 }
 
 std::string CTransaction::ToString() const

@@ -16,8 +16,7 @@ namespace {
 class TxInputStream
 {
 public:
-    TxInputStream(int nVersionIn, const unsigned char *txTo, size_t txToLen) :
-    m_version(nVersionIn),
+    TxInputStream(const unsigned char *txTo, size_t txToLen) :
     m_data(txTo),
     m_remaining(txToLen)
     {}
@@ -48,9 +47,7 @@ public:
         return *this;
     }
 
-    int GetVersion() const { return m_version; }
 private:
-    const int m_version;
     const unsigned char* m_data;
     size_t m_remaining;
 };
@@ -73,24 +70,24 @@ static bool verify_flags(unsigned int flags)
 static int verify_script(const unsigned char *scriptPubKey, unsigned int scriptPubKeyLen, CAmount amount,
                                     const unsigned char *txTo        , unsigned int txToLen,
                                     const UTXO *spentOutputs, unsigned int spentOutputsLen,
-                                    unsigned int nIn, unsigned int flags, bitcoinconsensus_error* err)
+                                    unsigned int nIn, unsigned int flags, BGLconsensus_error* err)
 {
     if (!verify_flags(flags)) {
         return set_error(err, BGLconsensus_ERR_INVALID_FLAGS);
     }
 
-    if (flags & bitcoinconsensus_SCRIPT_FLAGS_VERIFY_TAPROOT && spentOutputs == nullptr) {
-        return set_error(err, bitcoinconsensus_ERR_SPENT_OUTPUTS_REQUIRED);
+    if (flags & BGLconsensus_SCRIPT_FLAGS_VERIFY_TAPROOT && spentOutputs == nullptr) {
+        return set_error(err, BGLconsensus_ERR_SPENT_OUTPUTS_REQUIRED);
     }
 
     try {
-        TxInputStream stream(PROTOCOL_VERSION, txTo, txToLen);
-        CTransaction tx(deserialize, stream);
+        TxInputStream stream(txTo, txToLen);
+        CTransaction tx(deserialize, TX_WITH_WITNESS, stream);
 
         std::vector<CTxOut> spent_outputs;
         if (spentOutputs != nullptr) {
             if (spentOutputsLen != tx.vin.size()) {
-                return set_error(err, bitcoinconsensus_ERR_SPENT_OUTPUTS_MISMATCH);
+                return set_error(err, BGLconsensus_ERR_SPENT_OUTPUTS_MISMATCH);
             }
             for (size_t i = 0; i < spentOutputsLen; i++) {
                 CScript spk = CScript(spentOutputs[i].scriptPubKey, spentOutputs[i].scriptPubKey + spentOutputs[i].scriptPubKeySize);
@@ -102,7 +99,7 @@ static int verify_script(const unsigned char *scriptPubKey, unsigned int scriptP
 
         if (nIn >= tx.vin.size())
             return set_error(err, BGLconsensus_ERR_TX_INDEX);
-        if (GetSerializeSize(tx, PROTOCOL_VERSION) != txToLen)
+        if (GetSerializeSize(TX_WITH_WITNESS(tx)) != txToLen)
             return set_error(err, BGLconsensus_ERR_TX_SIZE_MISMATCH);
 
         // Regardless of the verification result, the tx did not error.
@@ -110,7 +107,7 @@ static int verify_script(const unsigned char *scriptPubKey, unsigned int scriptP
 
         PrecomputedTransactionData txdata(tx);
 
-        if (spentOutputs != nullptr && flags & bitcoinconsensus_SCRIPT_FLAGS_VERIFY_TAPROOT) {
+        if (spentOutputs != nullptr && flags & BGLconsensus_SCRIPT_FLAGS_VERIFY_TAPROOT) {
             txdata.Init(tx, std::move(spent_outputs));
         }
 
@@ -123,7 +120,7 @@ static int verify_script(const unsigned char *scriptPubKey, unsigned int scriptP
 int BGLconsensus_verify_script_with_spent_outputs(const unsigned char *scriptPubKey, unsigned int scriptPubKeyLen, int64_t amount,
                                     const unsigned char *txTo        , unsigned int txToLen,
                                     const UTXO *spentOutputs, unsigned int spentOutputsLen,
-                                    unsigned int nIn, unsigned int flags, bitcoinconsensus_error* err)
+                                    unsigned int nIn, unsigned int flags, BGLconsensus_error* err)
 {
     CAmount am(amount);
     return ::verify_script(scriptPubKey, scriptPubKeyLen, am, txTo, txToLen, spentOutputs, spentOutputsLen, nIn, flags, err);
