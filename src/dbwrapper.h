@@ -6,7 +6,6 @@
 #define BGL_DBWRAPPER_H
 
 #include <attributes.h>
-#include <clientversion.h>
 #include <serialize.h>
 #include <span.h>
 #include <streams.h>
