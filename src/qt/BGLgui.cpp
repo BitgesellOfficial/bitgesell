@@ -239,7 +239,6 @@ BGLGUI::~BGLGUI()
         trayIcon->hide();
 #ifdef Q_OS_MACOS
     delete m_app_nap_inhibitor;
-    delete appMenuBar;
     MacDockIconHandler::cleanup();
 #endif
 
@@ -470,13 +469,7 @@ void BGLGUI::createActions()
 
 void BGLGUI::createMenuBar()
 {
-#ifdef Q_OS_MACOS
-    // Create a decoupled menu bar on Mac which stays even if the window is closed
-    appMenuBar = new QMenuBar();
-#else
-    // Get the main window's menu bar on other platforms
     appMenuBar = menuBar();
-#endif
 
     // Configure the menus
     QMenu *file = appMenuBar->addMenu(tr("&File"));
