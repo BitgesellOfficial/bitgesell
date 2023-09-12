@@ -413,6 +413,7 @@ inspecting signatures in Mach-O binaries.")
           `(append ,flags
             ;; https://gcc.gnu.org/install/configure.html
             (list "--enable-threads=posix",
+                  "--enable-default-ssp=yes",
                   building-on)))))))
 
 (define-public linux-base-gcc
