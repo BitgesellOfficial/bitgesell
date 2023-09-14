@@ -1163,12 +1163,11 @@ public:
 template <typename Params, typename T>
 class ParamsWrapper
 {
-    static_assert(std::is_lvalue_reference<T>::value, "ParamsWrapper needs an lvalue reference type T");
     const Params& m_params;
-    T m_object;
+    T& m_object;
 
 public:
-    explicit ParamsWrapper(const Params& params, T obj) : m_params{params}, m_object{obj} {}
+    explicit ParamsWrapper(const Params& params, T& obj) : m_params{params}, m_object{obj} {}
 
     template <typename Stream>
     void Serialize(Stream& s) const
@@ -1192,7 +1191,7 @@ public:
 template <typename Params, typename T>
 static auto WithParams(const Params& params, T&& t)
 {
-    return ParamsWrapper<Params, T&>{params, t};
+    return ParamsWrapper<Params, T>{params, t};
 }
 
 #endif // BGL_SERIALIZE_H
