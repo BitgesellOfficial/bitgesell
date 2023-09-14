@@ -42,16 +42,11 @@ env:
   EXAMPLES: 'yes'
 
 jobs:
-  docker_cache:
-    name: "Build Docker image"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          # See: https://github.com/moby/buildkit/issues/3969.
-          driver-opts: |
-            network=host
+  macos-native-x86_64:
+    name: 'macOS 13 native, x86_64, no depends, sqlite only, gui'
+    # Use latest image, but hardcode version to avoid silent upgrades (and breaks).
+    # See: https://github.com/actions/runner-images#available-images.
+    runs-on: macos-13  # Use M1 once available https://github.com/github/roadmap/issues/528
 
       - name: Build container
         uses: docker/build-push-action@v4
