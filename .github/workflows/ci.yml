@@ -152,13 +152,8 @@ jobs:
           - 'i686-linux-gnu-gcc'
           - 'clang --target=i686-pc-linux-gnu -isystem /usr/i686-linux-gnu/include'
 
-    env:
-      HOST: 'i686-linux-gnu'
-      ECDH: 'yes'
-      RECOVERY: 'yes'
-      SCHNORRSIG: 'yes'
-      ELLSWIFT: 'yes'
-      CC: ${{ matrix.cc }}
+      - name: Install Homebrew packages
+        run: brew install automake libtool pkg-config gnu-getopt ccache boost libevent miniupnpc libnatpmp zeromq qt@5 qrencode
 
     steps:
       - name: Checkout
