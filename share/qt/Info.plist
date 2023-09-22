@@ -3,7 +3,7 @@
 <plist version="0.9">
 <dict>
   <key>LSMinimumSystemVersion</key>
-  <string>10.15.0</string>
+  <string>11</string>
 
   <key>LSArchitecturePriority</key>
   <array>
@@ -22,13 +22,13 @@
   </array>
 
   <key>NSHumanReadableCopyright</key>
-  <string>0.1.9, Copyright © 2009-2022 The BGL Core developers</string>
+  <string>25.99.0, Copyright © 2009-2023 The Bitgesell Core developers</string>
 
   <key>CFBundleShortVersionString</key>
-  <string>0.1.9</string>
+  <string>25.99.0</string>
 
   <key>CFBundleVersion</key>
-  <string>0.1.9</string>
+  <string>25.99.0</string>
 
   <key>CFBundleSignature</key>
   <string>????</string>

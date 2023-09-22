@@ -104,13 +104,18 @@ const CTxOut& FindNonChangeParentOutput(const CWallet& wallet, const COutPoint& 
  */
 std::map<CTxDestination, std::vector<COutput>> ListCoins(const CWallet& wallet) EXCLUSIVE_LOCKS_REQUIRED(wallet.cs_wallet);
 
+struct SelectionFilter {
+    CoinEligibilityFilter filter;
+    bool allow_mixed_output_types{true};
+};
+
 /**
 * Group coins by the provided filters.
 */
-OutputGroupTypeMap GroupOutputs(const CWallet& wallet,
+FilteredOutputGroups GroupOutputs(const CWallet& wallet,
                           const CoinsResult& coins,
                           const CoinSelectionParams& coin_sel_params,
-                          const CoinEligibilityFilter& filter);
+                          const std::vector<SelectionFilter>& filters);
 
 /**
  * Attempt to find a valid input set that preserves privacy by not mixing OutputTypes.

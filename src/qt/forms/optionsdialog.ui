@@ -28,7 +28,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_Main">
        <item>
-        <widget class="QCheckBox" name="BitgesellAtStartup">
+        <widget class="QCheckBox" name="BGLAtStartup">
          <property name="toolTip">
           <string>Automatically start %1 after logging in to the system.</string>
          </property>
@@ -104,6 +104,9 @@
         <layout class="QHBoxLayout" name="horizontalLayout_2_Main">
          <item>
           <widget class="QLabel" name="databaseCacheLabel">
+           <property name="toolTip">
+            <string extracomment="Tooltip text for Options window setting that sets the size of the database cache. Explains the corresponding effects of increasing/decreasing this value.">Maximum database cache size. A larger cache can contribute to faster sync, after which the benefit is less pronounced for most use cases. Lowering the cache size will reduce memory usage. Unused mempool memory is shared for this cache.</string>
+           </property>
            <property name="text">
             <string>Size of &amp;database cache</string>
            </property>
@@ -147,6 +150,9 @@
         <layout class="QHBoxLayout" name="horizontalLayout_Main_VerifyLabel">
          <item>
           <widget class="QLabel" name="threadsScriptVerifLabel">
+           <property name="toolTip">
+            <string extracomment="Tooltip text for Options window setting that sets the number of script verification threads. Explains that negative values mean to leave these many cores free to the system.">Set the number of script verification threads. Negative values correspond to the number of cores you want to leave free to the system.</string>
+           </property>
            <property name="text">
             <string>Number of script &amp;verification threads</string>
            </property>
@@ -243,6 +249,16 @@
             </property>
             <property name="text">
              <string>&amp;Spend unconfirmed change</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="m_enable_psbt_controls">
+            <property name="text">
+             <string extracomment="An options window setting to enable PSBT controls.">Enable &amp;PSBT controls</string>
+            </property>
+            <property name="toolTip">
+             <string extracomment="Tooltip text for options window setting that enables PSBT controls.">Whether to show PSBT controls.</string>
             </property>
            </widget>
           </item>
@@ -733,10 +749,10 @@
          <item>
           <widget class="QLabel" name="thirdPartyTxUrlsLabel">
            <property name="toolTip">
-            <string>Third party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</string>
+            <string>Third-party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</string>
            </property>
            <property name="text">
-            <string>&amp;Third party transaction URLs</string>
+            <string>&amp;Third-party transaction URLs</string>
            </property>
            <property name="buddy">
             <cstring>thirdPartyTxUrls</cstring>
@@ -746,7 +762,7 @@
          <item>
           <widget class="QLineEdit" name="thirdPartyTxUrls">
            <property name="toolTip">
-            <string>Third party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</string>
+            <string>Third-party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</string>
            </property>
            <property name="placeholderText">
             <string notr="true">https://example.com/tx/%s</string>
@@ -788,14 +804,14 @@
               <item>
                <widget class="QLabel" name="embeddedFont_label_1">
                 <property name="text">
-                 <string notr="true">111.11111111 BGL</string>
+                 <string notr="true">111.11111111 BTC</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QLabel" name="embeddedFont_label_9">
                 <property name="text">
-                 <string notr="true">909.09090909 BGL</string>
+                 <string notr="true">909.09090909 BTC</string>
                 </property>
                </widget>
               </item>
@@ -837,14 +853,14 @@
               <item>
                <widget class="QLabel" name="systemFont_label_1">
                 <property name="text">
-                 <string notr="true">111.11111111 BGL</string>
+                 <string notr="true">111.11111111 BTC</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QLabel" name="systemFont_label_9">
                 <property name="text">
-                 <string notr="true">909.09090909 BGL</string>
+                 <string notr="true">909.09090909 BTC</string>
                 </property>
                </widget>
               </item>

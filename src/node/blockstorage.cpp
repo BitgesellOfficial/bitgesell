@@ -7,6 +7,7 @@
 #include <chain.h>
 #include <clientversion.h>
 #include <consensus/validation.h>
+#include <dbwrapper.h>
 #include <flatfile.h>
 #include <hash.h>
 #include <kernel/chainparams.h>
@@ -15,14 +16,124 @@
 #include <reverse_iterator.h>
 #include <signet.h>
 #include <streams.h>
+#include <sync.h>
 #include <undo.h>
 #include <util/batchpriority.h>
 #include <util/fs.h>
 #include <util/signalinterrupt.h>
+#include <util/translation.h>
 #include <validation.h>
 
 #include <map>
 #include <unordered_map>
+
+namespace kernel {
+static constexpr uint8_t DB_BLOCK_FILES{'f'};
+static constexpr uint8_t DB_BLOCK_INDEX{'b'};
+static constexpr uint8_t DB_FLAG{'F'};
+static constexpr uint8_t DB_REINDEX_FLAG{'R'};
+static constexpr uint8_t DB_LAST_BLOCK{'l'};
+// Keys used in previous version that might still be found in the DB:
+// BlockTreeDB::DB_TXINDEX_BLOCK{'T'};
+// BlockTreeDB::DB_TXINDEX{'t'}
+// BlockTreeDB::ReadFlag("txindex")
+
+bool BlockTreeDB::ReadBlockFileInfo(int nFile, CBlockFileInfo& info)
+{
+    return Read(std::make_pair(DB_BLOCK_FILES, nFile), info);
+}
+
+bool BlockTreeDB::WriteReindexing(bool fReindexing)
+{
+    if (fReindexing) {
+        return Write(DB_REINDEX_FLAG, uint8_t{'1'});
+    } else {
+        return Erase(DB_REINDEX_FLAG);
+    }
+}
+
+void BlockTreeDB::ReadReindexing(bool& fReindexing)
+{
+    fReindexing = Exists(DB_REINDEX_FLAG);
+}
+
+bool BlockTreeDB::ReadLastBlockFile(int& nFile)
+{
+    return Read(DB_LAST_BLOCK, nFile);
+}
+
+bool BlockTreeDB::WriteBatchSync(const std::vector<std::pair<int, const CBlockFileInfo*>>& fileInfo, int nLastFile, const std::vector<const CBlockIndex*>& blockinfo)
+{
+    CDBBatch batch(*this);
+    for (const auto& [file, info] : fileInfo) {
+        batch.Write(std::make_pair(DB_BLOCK_FILES, file), *info);
+    }
+    batch.Write(DB_LAST_BLOCK, nLastFile);
+    for (const CBlockIndex* bi : blockinfo) {
+        batch.Write(std::make_pair(DB_BLOCK_INDEX, bi->GetBlockHash()), CDiskBlockIndex{bi});
+    }
+    return WriteBatch(batch, true);
+}
+
+bool BlockTreeDB::WriteFlag(const std::string& name, bool fValue)
+{
+    return Write(std::make_pair(DB_FLAG, name), fValue ? uint8_t{'1'} : uint8_t{'0'});
+}
+
+bool BlockTreeDB::ReadFlag(const std::string& name, bool& fValue)
+{
+    uint8_t ch;
+    if (!Read(std::make_pair(DB_FLAG, name), ch)) {
+        return false;
+    }
+    fValue = ch == uint8_t{'1'};
+    return true;
+}
+
+bool BlockTreeDB::LoadBlockIndexGuts(const Consensus::Params& consensusParams, std::function<CBlockIndex*(const uint256&)> insertBlockIndex, const util::SignalInterrupt& interrupt)
+{
+    AssertLockHeld(::cs_main);
+    std::unique_ptr<CDBIterator> pcursor(NewIterator());
+    pcursor->Seek(std::make_pair(DB_BLOCK_INDEX, uint256()));
+
+    // Load m_block_index
+    while (pcursor->Valid()) {
+        if (interrupt) return false;
+        std::pair<uint8_t, uint256> key;
+        if (pcursor->GetKey(key) && key.first == DB_BLOCK_INDEX) {
+            CDiskBlockIndex diskindex;
+            if (pcursor->GetValue(diskindex)) {
+                // Construct block index object
+                CBlockIndex* pindexNew = insertBlockIndex(diskindex.ConstructBlockHash());
+                pindexNew->pprev          = insertBlockIndex(diskindex.hashPrev);
+                pindexNew->nHeight        = diskindex.nHeight;
+                pindexNew->nFile          = diskindex.nFile;
+                pindexNew->nDataPos       = diskindex.nDataPos;
+                pindexNew->nUndoPos       = diskindex.nUndoPos;
+                pindexNew->nVersion       = diskindex.nVersion;
+                pindexNew->hashMerkleRoot = diskindex.hashMerkleRoot;
+                pindexNew->nTime          = diskindex.nTime;
+                pindexNew->nBits          = diskindex.nBits;
+                pindexNew->nNonce         = diskindex.nNonce;
+                pindexNew->nStatus        = diskindex.nStatus;
+                pindexNew->nTx            = diskindex.nTx;
+
+                if (!CheckProofOfWork(pindexNew->GetBlockHash(), pindexNew->nBits, consensusParams)) {
+                    return error("%s: CheckProofOfWork failed: %s", __func__, pindexNew->ToString());
+                }
+
+                pcursor->Next();
+            } else {
+                return error("%s: failed to read value", __func__);
+            }
+        } else {
+            break;
+        }
+    }
+
+    return true;
+}
+} // namespace kernel
 
 namespace node {
 std::atomic_bool fReindex(false);
@@ -365,6 +476,23 @@ bool BlockManager::LoadBlockIndexDB()
     return true;
 }
 
+void BlockManager::ScanAndUnlinkAlreadyPrunedFiles()
+{
+    AssertLockHeld(::cs_main);
+    if (!m_have_pruned) {
+        return;
+    }
+
+    std::set<int> block_files_to_prune;
+    for (int file_number = 0; file_number < m_last_blockfile; file_number++) {
+        if (m_blockfile_info[file_number].nSize == 0) {
+            block_files_to_prune.insert(file_number);
+        }
+    }
+
+    UnlinkPrunedFiles(block_files_to_prune);
+}
+
 const CBlockIndex* BlockManager::GetLastCheckpoint(const CCheckpointData& data)
 {
     const MapCheckpoints& checkpoints = data.mapCheckpoints;
@@ -497,14 +625,14 @@ bool BlockManager::UndoReadFromDisk(CBlockUndo& blockundo, const CBlockIndex& in
     }
 
     // Open history file to read
-    AutoFile filein{OpenUndoFile(pos, true)};
+      CAutoFile filein(OpenUndoFile(pos, true), SER_DISK, CLIENT_VERSION);
     if (filein.IsNull()) {
         return error("%s: OpenUndoFile failed", __func__);
     }
 
     // Read block
     uint256 hashChecksum;
-    HashVerifier verifier{filein}; // Use HashVerifier as reserializing may lose data, c.f. commit d342424301013ec47dc146a4beb49d5c9319d80a
+    CHashVerifier<CAutoFile> verifier(&filein); // Use HashVerifier as reserializing may lose data, c.f. commit d342424301013ec47dc146a4beb49d5c9319d80a
     try {
         verifier << index.pprev->GetBlockHash();
         verifier >> blockundo;
@@ -564,6 +692,7 @@ uint64_t BlockManager::CalculateCurrentUsage()
 
 void BlockManager::UnlinkPrunedFiles(const std::set<int>& setFilesToPrune) const
 {
+    std::error_code ec;
     for (std::set<int>::iterator it = setFilesToPrune.begin(); it != setFilesToPrune.end(); ++it) {
         FlatFilePos pos(*it, 0);
         const bool removed_blockfile{fs::remove(BlockFileSeq().FileName(pos), ec)};

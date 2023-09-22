@@ -59,34 +59,34 @@ void URITests::uriTests()
     QVERIFY(GUIUtil::parseBGLURI(uri, &rv));
 
     // Commas in amounts are not allowed.
-    uri.setUrl(QString("bitcoin:175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?amount=1,000&label=Wikipedia Example"));
-    QVERIFY(!GUIUtil::parseBitcoinURI(uri, &rv));
+    uri.setUrl(QString("BGL:BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L?amount=1,000&label=Wikipedia Example"));
+    QVERIFY(!GUIUtil::parseBGLURI(uri, &rv));
 
-    uri.setUrl(QString("bitcoin:175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?amount=1,000.0&label=Wikipedia Example"));
-    QVERIFY(!GUIUtil::parseBitcoinURI(uri, &rv));
+    uri.setUrl(QString("BGL:BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L?amount=1,000.0&label=Wikipedia Example"));
+    QVERIFY(!GUIUtil::parseBGLURI(uri, &rv));
 
     // There are two amount specifications. The last value wins.
-    uri.setUrl(QString("bitcoin:175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?amount=100&amount=200&label=Wikipedia Example"));
-    QVERIFY(GUIUtil::parseBitcoinURI(uri, &rv));
-    QVERIFY(rv.address == QString("175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W"));
+    uri.setUrl(QString("BGL:BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L?amount=100&amount=200&label=Wikipedia Example"));
+    QVERIFY(GUIUtil::parseBGLURI(uri, &rv));
+    QVERIFY(rv.address == QString("BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L"));
     QVERIFY(rv.amount == 20000000000LL);
     QVERIFY(rv.label == QString("Wikipedia Example"));
 
     // The first amount value is correct. However, the second amount value is not valid. Hence, the URI is not valid.
-    uri.setUrl(QString("bitcoin:175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?amount=100&amount=1,000&label=Wikipedia Example"));
-    QVERIFY(!GUIUtil::parseBitcoinURI(uri, &rv));
+    uri.setUrl(QString("BGL:BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L?amount=100&amount=1,000&label=Wikipedia Example"));
+    QVERIFY(!GUIUtil::parseBGLURI(uri, &rv));
 
     // Test label containing a question mark ('?').
-    uri.setUrl(QString("bitcoin:175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?amount=100&label=?"));
-    QVERIFY(GUIUtil::parseBitcoinURI(uri, &rv));
-    QVERIFY(rv.address == QString("175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W"));
+    uri.setUrl(QString("BGL:BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L?amount=100&label=?"));
+    QVERIFY(GUIUtil::parseBGLURI(uri, &rv));
+    QVERIFY(rv.address == QString("BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L"));
     QVERIFY(rv.amount == 10000000000LL);
     QVERIFY(rv.label == QString("?"));
 
     // Escape sequences are not supported.
-    uri.setUrl(QString("bitcoin:175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W?amount=100&label=%3F"));
-    QVERIFY(GUIUtil::parseBitcoinURI(uri, &rv));
-    QVERIFY(rv.address == QString("175tWpb8K1S7NmH4Zx6rewF9WQrcZv245W"));
+    uri.setUrl(QString("BGL:BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L?amount=100&label=%3F"));
+    QVERIFY(GUIUtil::parseBGLURI(uri, &rv));
+    QVERIFY(rv.address == QString("BGL1Q6SUSZC7DLTLJGGRR7S27325VQ53QE7S5CW6V7L"));
     QVERIFY(rv.amount == 10000000000LL);
     QVERIFY(rv.label == QString("%3F"));
 }

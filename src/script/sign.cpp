@@ -171,13 +171,14 @@ static bool CreateTaprootScriptSig(const BaseSignatureCreator& creator, Signatur
     return false;
 }
 
-static bool SignTaprootScript(const SigningProvider& provider, const BaseSignatureCreator& creator, SignatureData& sigdata, int leaf_version, const CScript& script, std::vector<valtype>& result)
+static bool SignTaprootScript(const SigningProvider& provider, const BaseSignatureCreator& creator, SignatureData& sigdata, int leaf_version, Span<const unsigned char> script_bytes, std::vector<valtype>& result)
 {
     // Only BIP342 tapscript signing is supported for now.
     if (leaf_version != TAPROOT_LEAF_TAPSCRIPT) return false;
     SigVersion sigversion = SigVersion::TAPSCRIPT;
 
-    uint256 leaf_hash = (CHashWriterSHA256{HASHER_TAPLEAF} << uint8_t(leaf_version) << script).GetSHA256();
+    uint256 leaf_hash = ComputeTapleafHash(leaf_version, script_bytes);
+    CScript script = CScript(script_bytes.begin(), script_bytes.end());
 
     // <xonly pubkey> OP_CHECKSIG
     if (script.size() == 34 && script[33] == OP_CHECKSIG && script[0] == 0x20) {
@@ -293,8 +294,7 @@ static bool SignStep(const SigningProvider& provider, const BaseSignatureCreator
     std::vector<valtype> vSolutions;
     whichTypeRet = Solver(scriptPubKey, vSolutions);
 
-    switch (whichTypeRet)
-    {
+    switch (whichTypeRet) {
     case TxoutType::NONSTANDARD:
     case TxoutType::NULL_DATA:
     case TxoutType::WITNESS_UNKNOWN:
@@ -543,17 +543,17 @@ bool ProduceSignature(const SigningProvider& provider, const BaseSignatureCreato
 }
 
 namespace {
-class SignatureExtractorChecker final : public BaseSignatureChecker
+class SignatureExtractorChecker final : public DeferringSignatureChecker
 {
 private:
     SignatureData& sigdata;
-    BaseSignatureChecker& checker;
 
 public:
-    SignatureExtractorChecker(SignatureData& sigdata, BaseSignatureChecker& checker) : sigdata(sigdata), checker(checker) {}
+    SignatureExtractorChecker(SignatureData& sigdata, BaseSignatureChecker& checker) : DeferringSignatureChecker(checker), sigdata(sigdata) {}
+
     bool CheckECDSASignature(const std::vector<unsigned char>& scriptSig, const std::vector<unsigned char>& vchPubKey, const CScript& scriptCode, SigVersion sigversion) const override
     {
-        if (checker.CheckECDSASignature(scriptSig, vchPubKey, scriptCode, sigversion)) {
+        if (m_checker.CheckECDSASignature(scriptSig, vchPubKey, scriptCode, sigversion)) {
             CPubKey pubkey(vchPubKey);
             sigdata.signatures.emplace(pubkey.GetID(), SigPair(pubkey, scriptSig));
             return true;

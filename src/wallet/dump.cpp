@@ -48,7 +48,8 @@ bool DumpWallet(const ArgsManager& args, CWallet& wallet, bilingual_str& error)
     std::unique_ptr<DatabaseBatch> batch = db.MakeBatch();
 
     bool ret = true;
-    if (!batch->StartCursor()) {
+    std::unique_ptr<DatabaseCursor> cursor = batch->GetNewCursor();
+    if (!cursor) {
         error = _("Error: Couldn't create cursor into database");
         ret = false;
     }
@@ -73,8 +74,9 @@ bool DumpWallet(const ArgsManager& args, CWallet& wallet, bilingual_str& error)
             if (status == DatabaseCursor::Status::DONE) {
                 ret = true;
                 break;
-            } else if (!ret) {
+            } else if (status == DatabaseCursor::Status::FAIL) {
                 error = _("Error reading next record from wallet database");
+                ret = false;
                 break;
             }
             std::string key_str = HexStr(ss_key);
@@ -85,7 +87,7 @@ bool DumpWallet(const ArgsManager& args, CWallet& wallet, bilingual_str& error)
         }
     }
 
-    batch->CloseCursor();
+    cursor.reset();
     batch.reset();
 
     // Close the wallet after we're done with it. The caller won't be doing this
@@ -105,7 +107,7 @@ bool DumpWallet(const ArgsManager& args, CWallet& wallet, bilingual_str& error)
 }
 
 // The standard wallet deleter function blocks on the validation interface
-// queue, which doesn't exist for the BGL-wallet. Define our own
+// queue, which doesn't exist for the bitcoin-wallet. Define our own
 // deleter here.
 static void WalletToolReleaseWallet(CWallet* wallet)
 {

@@ -5,7 +5,7 @@
 #include <node/kernel_notifications.h>
 
 #if defined(HAVE_CONFIG_H)
-#include <config/bitcoin-config.h>
+#include <config/BGL-config.h>
 #endif
 
 #include <chain.h>

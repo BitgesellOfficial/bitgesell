@@ -8,7 +8,7 @@ Test case is:
 4 nodes. 1 2 and 3 send transactions between each other,
 fourth node is a miner.
 1 2 3 each mine a block to start, then
-Miner creates 100 blocks so 1 2 3 each have 200 mature
+Miner creates 100 blocks so 1 2 3 each have 50 mature
 coins to spend.
 Then 5 iterations of 1/2/3 sending coins amongst
 themselves to get transactions in the wallets,
@@ -21,7 +21,7 @@ Miner then generates 101 more blocks, so any
 transaction fees paid mature.
 
 Sanity check:
-  Sum(1,2,3,4 balances) == 114*200
+  Sum(1,2,3,4 balances) == 114*50
 
 1/2/3 are shutdown, and their wallets erased.
 Then restore using wallet.dat backup. And
@@ -138,6 +138,7 @@ class WalletBackupTest(BGLTestFramework):
         wallet_file = os.path.join(node.wallets_path, wallet_name)
         error_message = "Failed to create database path '{}'. Database already exists.".format(wallet_file)
         assert_raises_rpc_error(-36, error_message, node.restorewallet, wallet_name, backup_file)
+        assert os.path.exists(wallet_file)
 
     def run_test(self):
         self.log.info("Generating initial blockchain")
@@ -146,9 +147,9 @@ class WalletBackupTest(BGLTestFramework):
         self.generate(self.nodes[2], 1)
         self.generate(self.nodes[3], COINBASE_MATURITY)
 
-        assert_equal(self.nodes[0].getbalance(), 200)
-        assert_equal(self.nodes[1].getbalance(), 200)
-        assert_equal(self.nodes[2].getbalance(), 200)
+        assert_equal(self.nodes[0].getbalance(), 50)
+        assert_equal(self.nodes[1].getbalance(), 50)
+        assert_equal(self.nodes[2].getbalance(), 50)
         assert_equal(self.nodes[3].getbalance(), 0)
 
         self.log.info("Creating transactions")
@@ -181,8 +182,8 @@ class WalletBackupTest(BGLTestFramework):
         total = balance0 + balance1 + balance2 + balance3
 
         # At this point, there are 214 blocks (103 for setup, then 10 rounds, then 101.)
-        # 114 are mature, so the sum of all wallets should be 114 * 200 = 22800.
-        assert_equal(round(total), 22800)
+        # 114 are mature, so the sum of all wallets should be 114 * 50 = 5700.
+        assert_equal(total, 5700)
 
         ##
         # Test restoring spender wallets from backups
@@ -219,9 +220,8 @@ class WalletBackupTest(BGLTestFramework):
             self.stop_three()
             self.erase_three()
 
-
             #start node2 with no chain
-            shutil.rmtree(os.path.join(self.nodes[2].chain_path, 'blocks'))
+            shutil.rmtree(os.path.join(self.nodes[2].blocks_path))
             shutil.rmtree(os.path.join(self.nodes[2].chain_path, 'chainstate'))
 
             self.start_three(["-nowallet"])

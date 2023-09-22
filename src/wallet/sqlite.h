@@ -5,6 +5,7 @@
 #ifndef BGL_WALLET_SQLITE_H
 #define BGL_WALLET_SQLITE_H
 
+#include <sync.h>
 #include <wallet/db.h>
 
 struct bilingual_str;
@@ -40,8 +41,6 @@ class SQLiteBatch : public DatabaseBatch
 {
 private:
     SQLiteDatabase& m_database;
-
-    bool m_cursor_init = false;
 
     sqlite3_stmt* m_read_stmt{nullptr};
     sqlite3_stmt* m_insert_stmt{nullptr};
@@ -85,7 +84,16 @@ private:
 
     const std::string m_file_path;
 
-    void Cleanup() noexcept;
+    /**
+     * This mutex protects SQLite initialization and shutdown.
+     * sqlite3_config() and sqlite3_shutdown() are not thread-safe (sqlite3_initialize() is).
+     * Concurrent threads that execute SQLiteDatabase::SQLiteDatabase() should have just one
+     * of them do the init and the rest wait for it to complete before all can proceed.
+     */
+    static Mutex g_sqlite_mutex;
+    static int g_sqlite_count GUARDED_BY(g_sqlite_mutex);
+
+    void Cleanup() noexcept EXCLUSIVE_LOCKS_REQUIRED(!g_sqlite_mutex);
 
 public:
     SQLiteDatabase() = delete;

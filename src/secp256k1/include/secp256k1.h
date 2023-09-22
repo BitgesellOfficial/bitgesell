@@ -7,7 +7,7 @@ extern "C" {
 
 #include <stddef.h>
 
-/* Unless explicitly stated all pointer arguments must not be NULL.
+/** Unless explicitly stated all pointer arguments must not be NULL.
  *
  * The following rules specify the order of arguments in API calls:
  *
@@ -24,15 +24,19 @@ extern "C" {
  * 5. Opaque data pointers follow the function pointer they are to be passed to.
  */
 
-/** Opaque data structure that holds context information (precomputed tables etc.).
+/** Opaque data structure that holds context information
  *
- *  The purpose of context structures is to cache large precomputed data tables
- *  that are expensive to construct, and also to maintain the randomization data
- *  for blinding.
+ *  The primary purpose of context objects is to store randomization data for
+ *  enhanced protection against side-channel leakage. This protection is only
+ *  effective if the context is randomized after its creation. See
+ *  secp256k1_context_create for creation of contexts and
+ *  secp256k1_context_randomize for randomization.
  *
- *  Do not create a new context object for each operation, as construction is
- *  far slower than all other API calls (~100 times slower than an ECDSA
- *  verification).
+ *  A secondary purpose of context objects is to store pointers to callback
+ *  functions that the library will call when certain error states arise. See
+ *  secp256k1_context_set_error_callback as well as
+ *  secp256k1_context_set_illegal_callback for details. Future library versions
+ *  may use context objects for additional purposes.
  *
  *  A constructed context can safely be used from multiple threads
  *  simultaneously, but API calls that take a non-const pointer to a context
@@ -45,7 +49,7 @@ extern "C" {
  */
 typedef struct secp256k1_context_struct secp256k1_context;
 
-/** Opaque data structure that holds rewriteable "scratch space"
+/** Opaque data structure that holds rewritable "scratch space"
  *
  *  The purpose of this structure is to replace dynamic memory allocations,
  *  because we target architectures where this may not be available. It is
@@ -161,9 +165,9 @@ typedef int (*secp256k1_nonce_function)(
 # endif
 #endif
 
-/**Warning attributes
-  * NONNULL is not used if SECP256K1_BUILD is set to avoid the compiler optimizing out
-  * some paranoid null checks. */
+/* Warning attributes
+ * NONNULL is not used if SECP256K1_BUILD is set to avoid the compiler optimizing out
+ * some paranoid null checks. */
 # if defined(__GNUC__) && SECP256K1_GNUC_PREREQ(3, 4)
 #  define SECP256K1_WARN_UNUSED_RESULT __attribute__ ((__warn_unused_result__))
 # else
@@ -175,7 +179,7 @@ typedef int (*secp256k1_nonce_function)(
 #  define SECP256K1_ARG_NONNULL(_x)
 # endif
 
-/** Attribute for marking functions, types, and variables as deprecated */
+/* Attribute for marking functions, types, and variables as deprecated */
 #if !defined(SECP256K1_BUILD) && defined(__has_attribute)
 # if __has_attribute(__deprecated__)
 #  define SECP256K1_DEPRECATED(_msg) __attribute__ ((__deprecated__(_msg)))
@@ -186,22 +190,26 @@ typedef int (*secp256k1_nonce_function)(
 # define SECP256K1_DEPRECATED(_msg)
 #endif
 
-/** All flags' lower 8 bits indicate what they're for. Do not use directly. */
+/* All flags' lower 8 bits indicate what they're for. Do not use directly. */
 #define SECP256K1_FLAGS_TYPE_MASK ((1 << 8) - 1)
 #define SECP256K1_FLAGS_TYPE_CONTEXT (1 << 0)
 #define SECP256K1_FLAGS_TYPE_COMPRESSION (1 << 1)
-/** The higher bits contain the actual data. Do not use directly. */
+/* The higher bits contain the actual data. Do not use directly. */
 #define SECP256K1_FLAGS_BIT_CONTEXT_VERIFY (1 << 8)
 #define SECP256K1_FLAGS_BIT_CONTEXT_SIGN (1 << 9)
 #define SECP256K1_FLAGS_BIT_CONTEXT_DECLASSIFY (1 << 10)
 #define SECP256K1_FLAGS_BIT_COMPRESSION (1 << 8)
 
-/** Flags to pass to secp256k1_context_create, secp256k1_context_preallocated_size, and
+/** Context flags to pass to secp256k1_context_create, secp256k1_context_preallocated_size, and
  *  secp256k1_context_preallocated_create. */
+#define SECP256K1_CONTEXT_NONE (SECP256K1_FLAGS_TYPE_CONTEXT)
+
+/** Deprecated context flags. These flags are treated equivalent to SECP256K1_CONTEXT_NONE. */
 #define SECP256K1_CONTEXT_VERIFY (SECP256K1_FLAGS_TYPE_CONTEXT | SECP256K1_FLAGS_BIT_CONTEXT_VERIFY)
 #define SECP256K1_CONTEXT_SIGN (SECP256K1_FLAGS_TYPE_CONTEXT | SECP256K1_FLAGS_BIT_CONTEXT_SIGN)
+
+/* Testing flag. Do not use. */
 #define SECP256K1_CONTEXT_DECLASSIFY (SECP256K1_FLAGS_TYPE_CONTEXT | SECP256K1_FLAGS_BIT_CONTEXT_DECLASSIFY)
-#define SECP256K1_CONTEXT_NONE (SECP256K1_FLAGS_TYPE_CONTEXT)
 
 /** Flag to pass to secp256k1_ec_pubkey_serialize. */
 #define SECP256K1_EC_COMPRESSED (SECP256K1_FLAGS_TYPE_COMPRESSION | SECP256K1_FLAGS_BIT_COMPRESSION)
@@ -247,18 +255,33 @@ SECP256K1_DEPRECATED("Use secp256k1_context_static instead");
  *  If the tests fail, this function will call the default error handler to abort the
  *  program (see secp256k1_context_set_error_callback).
  */
-SECP256K1_API extern const secp256k1_context *secp256k1_context_no_precomp;
+SECP256K1_API void secp256k1_selftest(void);
+
 
 /** Create a secp256k1 context object (in dynamically allocated memory).
  *
  *  This function uses malloc to allocate memory. It is guaranteed that malloc is
  *  called at most once for every call of this function. If you need to avoid dynamic
- *  memory allocation entirely, see the functions in secp256k1_preallocated.h.
+ *  memory allocation entirely, see secp256k1_context_static and the functions in
+ *  secp256k1_preallocated.h.
  *
  *  Returns: a newly created context object.
- *  In:      flags: which parts of the context to initialize.
+ *  In:      flags: Always set to SECP256K1_CONTEXT_NONE (see below).
  *
- *  See also secp256k1_context_randomize.
+ *  The only valid non-deprecated flag in recent library versions is
+ *  SECP256K1_CONTEXT_NONE, which will create a context sufficient for all functionality
+ *  offered by the library. All other (deprecated) flags will be treated as equivalent
+ *  to the SECP256K1_CONTEXT_NONE flag. Though the flags parameter primarily exists for
+ *  historical reasons, future versions of the library may introduce new flags.
+ *
+ *  If the context is intended to be used for API functions that perform computations
+ *  involving secret keys, e.g., signing and public key generation, then it is highly
+ *  recommended to call secp256k1_context_randomize on the context before calling
+ *  those API functions. This will provide enhanced protection against side-channel
+ *  leakage, see secp256k1_context_randomize for details.
+ *
+ *  Do not create a new context object for each operation, as construction and
+ *  randomization can take non-negligible time.
  */
 SECP256K1_API secp256k1_context *secp256k1_context_create(
     unsigned int flags
@@ -342,7 +365,10 @@ SECP256K1_API void secp256k1_context_set_illegal_callback(
 ) SECP256K1_ARG_NONNULL(1);
 
 /** Set a callback function to be called when an internal consistency check
- *  fails. The default is crashing.
+ *  fails.
+ *
+ *  The default callback writes an error message to stderr and calls abort
+ *  to abort the program.
  *
  *  This can only trigger in case of a hardware failure, miscompilation,
  *  memory corruption, serious bug in the library, or other error would can
@@ -460,8 +486,8 @@ SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_pubkey_cmp(
  *  encoding is invalid. R and S with value 0 are allowed in the encoding.
  *
  *  After the call, sig will always be initialized. If parsing failed or R or
- *  S are zero, the resulting sig value is guaranteed to fail validation for any
- *  message and public key.
+ *  S are zero, the resulting sig value is guaranteed to fail verification for
+ *  any message and public key.
  */
 SECP256K1_API int secp256k1_ecdsa_signature_parse_compact(
     const secp256k1_context *ctx,
@@ -481,7 +507,7 @@ SECP256K1_API int secp256k1_ecdsa_signature_parse_compact(
  *  encoded numbers are out of range.
  *
  *  After the call, sig will always be initialized. If parsing failed or the
- *  encoded numbers are out of range, signature validation with it is
+ *  encoded numbers are out of range, signature verification with it is
  *  guaranteed to fail for every message and public key.
  */
 SECP256K1_API int secp256k1_ecdsa_signature_parse_der(
@@ -528,7 +554,7 @@ SECP256K1_API int secp256k1_ecdsa_signature_serialize_compact(
  *
  *  Returns: 1: correct signature
  *           0: incorrect or unparseable signature
- *  Args:    ctx:       a secp256k1 context object, initialized for verification.
+ *  Args:    ctx:       a secp256k1 context object.
  *  In:      sig:       the signature being verified.
  *           msghash32: the 32-byte message hash being verified.
  *                      The verifier must make sure to apply a cryptographic
@@ -545,7 +571,7 @@ SECP256K1_API int secp256k1_ecdsa_signature_serialize_compact(
  *
  * If you need to accept ECDSA signatures from sources that do not obey this
  * rule, apply secp256k1_ecdsa_signature_normalize to the signature prior to
- * validation, but be aware that doing so results in malleable signatures.
+ * verification, but be aware that doing so results in malleable signatures.
  *
  * For details, see the comments for that function.
  */
@@ -616,7 +642,7 @@ SECP256K1_API const secp256k1_nonce_function secp256k1_nonce_function_default;
  *
  *  Returns: 1: signature created
  *           0: the nonce generation function failed, or the secret key was invalid.
- *  Args:    ctx:       pointer to a context object, initialized for signing.
+ *  Args:    ctx:       pointer to a context object (not secp256k1_context_static).
  *  Out:     sig:       pointer to an array where the signature will be placed.
  *  In:      msghash32: the 32-byte message hash being signed.
  *           seckey:    pointer to a 32-byte secret key.
@@ -660,7 +686,7 @@ SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_seckey_verify(
  *
  *  Returns: 1: secret was valid, public key stores.
  *           0: secret was invalid, try again.
- *  Args:    ctx:    pointer to a context object, initialized for signing.
+ *  Args:    ctx:    pointer to a context object (not secp256k1_context_static).
  *  Out:     pubkey: pointer to the created public key.
  *  In:      seckey: pointer to a 32-byte secret key.
  */
@@ -739,7 +765,7 @@ SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_privkey_tweak_add(
  *  Returns: 0 if the arguments are invalid or the resulting public key would be
  *           invalid (only when the tweak is the negation of the corresponding
  *           secret key). 1 otherwise.
- *  Args:    ctx:   pointer to a context object initialized for validation.
+ *  Args:    ctx:   pointer to a context object.
  *  In/Out: pubkey: pointer to a public key object. pubkey will be set to an
  *                  invalid value if this function returns 0.
  *  In:    tweak32: pointer to a 32-byte tweak, which must be valid according to
@@ -784,7 +810,7 @@ SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_privkey_tweak_mul(
 /** Tweak a public key by multiplying it by a tweak value.
  *
  *  Returns: 0 if the arguments are invalid. 1 otherwise.
- *  Args:    ctx:   pointer to a context object initialized for validation.
+ *  Args:    ctx:   pointer to a context object.
  *  In/Out: pubkey: pointer to a public key object. pubkey will be set to an
  *                  invalid value if this function returns 0.
  *  In:    tweak32: pointer to a 32-byte tweak. If the tweak is invalid according to
@@ -805,8 +831,8 @@ SECP256K1_API SECP256K1_WARN_UNUSED_RESULT int secp256k1_ec_pubkey_tweak_mul(
  *  Args:    ctx:       pointer to a context object (not secp256k1_context_static).
  *  In:      seed32:    pointer to a 32-byte random seed (NULL resets to initial state).
  *
- * While secp256k1 code is written to be constant-time no matter what secret
- * values are, it's possible that a future compiler may output code which isn't,
+ * While secp256k1 code is written and tested to be constant-time no matter what
+ * secret values are, it is possible that a compiler may output code which is not,
  * and also that the CPU may not emit the same radio frequencies or draw the same
  * amount of power for all values. Randomization of the context shields against
  * side-channel observations which aim to exploit secret-dependent behaviour in

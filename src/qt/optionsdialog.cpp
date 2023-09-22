@@ -31,11 +31,9 @@
 #include <QSystemTrayIcon>
 #include <QTimer>
 
-OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
-    QDialog(parent),
-    ui(new Ui::OptionsDialog),
-    model(nullptr),
-    mapper(nullptr)
+OptionsDialog::OptionsDialog(QWidget* parent, bool enableWallet)
+    : QDialog(parent, GUIUtil::dialog_flags),
+      ui(new Ui::OptionsDialog)
 {
     ui->setupUi(this);
 
@@ -79,8 +77,8 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     /* remove Window tab on Mac */
     ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabWindow));
     /* hide launch at startup option on macOS */
-    ui->BitgesellAtStartup->setVisible(false);
-    ui->verticalLayout_Main->removeWidget(ui->BitgesellAtStartup);
+    ui->BGLAtStartup->setVisible(false);
+    ui->verticalLayout_Main->removeWidget(ui->BGLAtStartup);
     ui->verticalLayout_Main->removeItem(ui->horizontalSpacer_0_Main);
 #endif
 
@@ -101,8 +99,8 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
     /* Display elements init */
     QDir translations(":translations");
 
-    ui->BitgesellAtStartup->setToolTip(ui->BitgesellAtStartup->toolTip().arg(PACKAGE_NAME));
-    ui->BitgesellAtStartup->setText(ui->BitgesellAtStartup->text().arg(PACKAGE_NAME));
+    ui->BGLAtStartup->setToolTip(ui->BGLAtStartup->toolTip().arg(PACKAGE_NAME));
+    ui->BGLAtStartup->setText(ui->BGLAtStartup->text().arg(PACKAGE_NAME));
 
     ui->openBGLConfButton->setToolTip(ui->openBGLConfButton->toolTip().arg(PACKAGE_NAME));
 
@@ -237,7 +235,7 @@ void OptionsDialog::setCurrentTab(OptionsDialog::Tab tab)
 void OptionsDialog::setMapper()
 {
     /* Main */
-    mapper->addMapping(ui->BitgesellAtStartup, OptionsModel::StartAtStartup);
+    mapper->addMapping(ui->BGLAtStartup, OptionsModel::StartAtStartup);
     mapper->addMapping(ui->threadsScriptVerif, OptionsModel::ThreadsScriptVerif);
     mapper->addMapping(ui->databaseCache, OptionsModel::DatabaseCache);
     mapper->addMapping(ui->prune, OptionsModel::Prune);
@@ -248,6 +246,7 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->coinControlFeatures, OptionsModel::CoinControlFeatures);
     mapper->addMapping(ui->subFeeFromAmount, OptionsModel::SubFeeFromAmount);
     mapper->addMapping(ui->externalSignerPath, OptionsModel::ExternalSignerPath);
+    mapper->addMapping(ui->m_enable_psbt_controls, OptionsModel::EnablePSBTControls);
 
     /* Network */
     mapper->addMapping(ui->mapPortUpnp, OptionsModel::MapPortUPnP);
@@ -288,11 +287,19 @@ void OptionsDialog::on_resetButton_clicked()
 {
     if (model) {
         // confirmation dialog
+        /*: Text explaining that the settings changed will not come into effect
+            until the client is restarted. */
+        QString reset_dialog_text = tr("Client restart required to activate changes.") + "<br><br>";
+        /*: Text explaining to the user that the client's current settings
+            will be backed up at a specific location. %1 is a stand-in
+            argument for the backup location's path. */
+        reset_dialog_text.append(tr("Current settings will be backed up at \"%1\".").arg(m_client_model->dataDir()) + "<br><br>");
+        /*: Text asking the user to confirm if they would like to proceed
+            with a client shutdown. */
+        reset_dialog_text.append(tr("Client will be shut down. Do you want to proceed?"));
+        //: Window title text of pop-up window shown when the user has chosen to reset options.
         QMessageBox::StandardButton btnRetVal = QMessageBox::question(this, tr("Confirm options reset"),
-            tr("Client restart required to activate changes.") + "<br><br>" +
-            tr("Current settings will be backed up at \"%1\".").arg(m_client_model->dataDir()) + "<br><br>" +
-            tr("Client will be shut down. Do you want to proceed?"),
-            QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
+            reset_dialog_text, QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Cancel);
 
         if (btnRetVal == QMessageBox::Cancel)
             return;
@@ -348,7 +355,6 @@ void OptionsDialog::on_showTrayIcon_stateChanged(int state)
         ui->minimizeToTray->setChecked(false);
         ui->minimizeToTray->setEnabled(false);
     }
-
 }
 
 void OptionsDialog::togglePruneWarning(bool enabled)
@@ -404,23 +410,16 @@ void OptionsDialog::updateDefaultProxyNets()
     const CService ui_proxy{ui_proxy_netaddr.value_or(CNetAddr{}), ui->proxyPort->text().toUShort()};
 
     Proxy proxy;
-    std::string strProxy;
-    QString strDefaultProxyGUI;
+    bool has_proxy;
 
-    model->node().getProxy(NET_IPV4, proxy);
-    strProxy = proxy.proxy.ToStringIP() + ":" + proxy.proxy.ToStringPort();
-    strDefaultProxyGUI = ui->proxyIp->text() + ":" + ui->proxyPort->text();
-    (strProxy == strDefaultProxyGUI.toStdString()) ? ui->proxyReachIPv4->setChecked(true) : ui->proxyReachIPv4->setChecked(false);
+    has_proxy = model->node().getProxy(NET_IPV4, proxy);
+    ui->proxyReachIPv4->setChecked(has_proxy && proxy.proxy == ui_proxy);
 
-    model->node().getProxy(NET_IPV6, proxy);
-    strProxy = proxy.proxy.ToStringIP() + ":" + proxy.proxy.ToStringPort();
-    strDefaultProxyGUI = ui->proxyIp->text() + ":" + ui->proxyPort->text();
-    (strProxy == strDefaultProxyGUI.toStdString()) ? ui->proxyReachIPv6->setChecked(true) : ui->proxyReachIPv6->setChecked(false);
+    has_proxy = model->node().getProxy(NET_IPV6, proxy);
+    ui->proxyReachIPv6->setChecked(has_proxy && proxy.proxy == ui_proxy);
 
-    model->node().getProxy(NET_ONION, proxy);
-    strProxy = proxy.proxy.ToStringIP() + ":" + proxy.proxy.ToStringPort();
-    strDefaultProxyGUI = ui->proxyIp->text() + ":" + ui->proxyPort->text();
-    (strProxy == strDefaultProxyGUI.toStdString()) ? ui->proxyReachTor->setChecked(true) : ui->proxyReachTor->setChecked(false);
+    has_proxy = model->node().getProxy(NET_ONION, proxy);
+    ui->proxyReachTor->setChecked(has_proxy && proxy.proxy == ui_proxy);
 }
 
 ProxyAddressValidator::ProxyAddressValidator(QObject *parent) :

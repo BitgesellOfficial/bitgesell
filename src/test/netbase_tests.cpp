@@ -92,10 +92,10 @@ bool static TestSplitHost(const std::string& test, const std::string& host, uint
 
 BOOST_AUTO_TEST_CASE(netbase_splithost)
 {
-    BOOST_CHECK(TestSplitHost("www.BGLcore.org", "www.BGLcore.org", 0));
-    BOOST_CHECK(TestSplitHost("[www.BGLcore.org]", "www.BGLcore.org", 0));
-    BOOST_CHECK(TestSplitHost("www.BGLcore.org:80", "www.BGLcore.org", 80));
-    BOOST_CHECK(TestSplitHost("[www.BGLcore.org]:80", "www.BGLcore.org", 80));
+    BOOST_CHECK(TestSplitHost("www.bitcoincore.org", "www.bitcoincore.org", 0));
+    BOOST_CHECK(TestSplitHost("[www.bitcoincore.org]", "www.bitcoincore.org", 0));
+    BOOST_CHECK(TestSplitHost("www.bitcoincore.org:80", "www.bitcoincore.org", 80));
+    BOOST_CHECK(TestSplitHost("[www.bitcoincore.org]:80", "www.bitcoincore.org", 80));
     BOOST_CHECK(TestSplitHost("127.0.0.1", "127.0.0.1", 0));
     BOOST_CHECK(TestSplitHost("127.0.0.1:8333", "127.0.0.1", 8333));
     BOOST_CHECK(TestSplitHost("[127.0.0.1]", "127.0.0.1", 0));
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE(netbase_splithost)
 bool static TestParse(std::string src, std::string canon)
 {
     CService addr(LookupNumeric(src, 65535));
-    return canon == addr.ToString();
+    return canon == addr.ToStringAddrPort();
 }
 
 BOOST_AUTO_TEST_CASE(netbase_lookupnumeric)
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(embedded_test)
     CNetAddr addr1(ResolveIP("1.2.3.4"));
     CNetAddr addr2(ResolveIP("::FFFF:0102:0304"));
     BOOST_CHECK(addr2.IsIPv4());
-    BOOST_CHECK_EQUAL(addr1.ToString(), addr2.ToString());
+    BOOST_CHECK_EQUAL(addr1.ToStringAddr(), addr2.ToStringAddr());
 }
 
 BOOST_AUTO_TEST_CASE(subnet_test)
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE(subnet_test)
 
     subnet = CSubNet(tor_addr);
     BOOST_CHECK(subnet.IsValid());
-    BOOST_CHECK_EQUAL(subnet.ToString(), tor_addr.ToString());
+    BOOST_CHECK_EQUAL(subnet.ToString(), tor_addr.ToStringAddr());
     BOOST_CHECK(subnet.Match(tor_addr));
     BOOST_CHECK(
         !subnet.Match(ResolveIP("kpgvmscirrdqpekbqjsvw5teanhatztpp2gl6eee4zkowvwfxwenqaid.onion")));

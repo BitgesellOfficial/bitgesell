@@ -260,6 +260,13 @@ bool WalletBatch::WriteDescriptorParentCache(const CExtPubKey& xpub, const uint2
     return WriteIC(std::make_pair(std::make_pair(DBKeys::WALLETDESCRIPTORCACHE, desc_id), key_exp_index), ser_xpub);
 }
 
+bool WalletBatch::WriteDescriptorLastHardenedCache(const CExtPubKey& xpub, const uint256& desc_id, uint32_t key_exp_index)
+{
+    std::vector<unsigned char> ser_xpub(BIP32_EXTKEY_SIZE);
+    xpub.Encode(ser_xpub.data());
+    return WriteIC(std::make_pair(std::make_pair(DBKeys::WALLETDESCRIPTORLHCACHE, desc_id), key_exp_index), ser_xpub);
+}
+
 bool WalletBatch::WriteDescriptorCacheItems(const uint256& desc_id, const DescriptorCache& cache)
 {
     for (const auto& parent_xpub_pair : cache.GetCachedParentExtPubKeys()) {
@@ -272,6 +279,11 @@ bool WalletBatch::WriteDescriptorCacheItems(const uint256& desc_id, const Descri
             if (!WriteDescriptorDerivedCache(derived_xpub_pair.second, desc_id, derived_xpub_map_pair.first, derived_xpub_pair.first)) {
                 return false;
             }
+        }
+    }
+    for (const auto& lh_xpub_pair : cache.GetCachedLastHardenedExtPubKeys()) {
+        if (!WriteDescriptorLastHardenedCache(lh_xpub_pair.second, desc_id, lh_xpub_pair.first)) {
+            return false;
         }
     }
     return true;
@@ -1184,7 +1196,6 @@ DBErrors WalletBatch::LoadWallet(CWallet* pwallet)
         // Any uncaught exceptions will be caught here and treated as critical.
         result = DBErrors::CORRUPT;
     }
-    m_batch->CloseCursor();
 
     // Any wallet corruption at all: skip any rewriting or
     // upgrading, we don't want to make it worse.
@@ -1231,7 +1242,8 @@ DBErrors WalletBatch::FindWalletTxHashes(std::vector<uint256>& tx_hashes)
         }
 
         // Get cursor
-        if (!m_batch->StartCursor())
+        std::unique_ptr<DatabaseCursor> cursor = m_batch->GetNewCursor();
+        if (!cursor)
         {
             LogPrintf("Error getting wallet database cursor\n");
             return DBErrors::CORRUPT;
@@ -1245,8 +1257,7 @@ DBErrors WalletBatch::FindWalletTxHashes(std::vector<uint256>& tx_hashes)
             DatabaseCursor::Status status = cursor->Next(ssKey, ssValue);
             if (status == DatabaseCursor::Status::DONE) {
                 break;
-            } else if (!ret) {
-                m_batch->CloseCursor();
+            } else if (status == DatabaseCursor::Status::FAIL) {
                 LogPrintf("Error reading next record from wallet database\n");
                 return DBErrors::CORRUPT;
             }
@@ -1262,7 +1273,6 @@ DBErrors WalletBatch::FindWalletTxHashes(std::vector<uint256>& tx_hashes)
     } catch (...) {
         result = DBErrors::CORRUPT;
     }
-    m_batch->CloseCursor();
 
     return result;
 }
@@ -1370,7 +1380,8 @@ bool WalletBatch::EraseRecords(const std::unordered_set<std::string>& types)
     if (!m_batch->TxnBegin()) return false;
 
     // Get cursor
-    if (!m_batch->StartCursor())
+    std::unique_ptr<DatabaseCursor> cursor = m_batch->GetNewCursor();
+    if (!cursor)
     {
         return false;
     }

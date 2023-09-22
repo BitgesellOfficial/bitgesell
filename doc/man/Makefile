@@ -69,10 +69,10 @@ am__make_running_with_option = \
   test $$has_opt = yes
 am__make_dryrun = (target_option=n; $(am__make_running_with_option))
 am__make_keepgoing = (target_option=k; $(am__make_running_with_option))
-pkgdatadir = $(datadir)/bitgesell
-pkgincludedir = $(includedir)/bitgesell
-pkglibdir = $(libdir)/bitgesell
-pkglibexecdir = $(libexecdir)/bitgesell
+pkgdatadir = $(datadir)/bitcoin
+pkgincludedir = $(includedir)/bitcoin
+pkglibdir = $(libdir)/bitcoin
+pkglibexecdir = $(libexecdir)/bitcoin
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 install_sh_DATA = $(install_sh) -c -m 644
 install_sh_PROGRAM = $(install_sh) -c
@@ -106,7 +106,6 @@ am__aclocal_m4_deps = $(top_srcdir)/build-aux/m4/BGL_find_bdb48.m4 \
 	$(top_srcdir)/build-aux/m4/ax_cxx_compile_stdcxx.m4 \
 	$(top_srcdir)/build-aux/m4/ax_pthread.m4 \
 	$(top_srcdir)/build-aux/m4/l_atomic.m4 \
-	$(top_srcdir)/build-aux/m4/l_filesystem.m4 \
 	$(top_srcdir)/build-aux/m4/l_socket.m4 \
 	$(top_srcdir)/build-aux/m4/libtool.m4 \
 	$(top_srcdir)/build-aux/m4/ltoptions.m4 \
@@ -197,25 +196,25 @@ BGL_DAEMON_NAME = BGLd
 BGL_GUI_NAME = BGL-qt
 BGL_MP_GUI_NAME = BGL-gui
 BGL_MP_NODE_NAME = BGL-node
+BGL_TEST_NAME = test_BGL
 BGL_TX_NAME = BGL-tx
 BGL_UTIL_NAME = BGL-util
 BGL_WALLET_TOOL_NAME = BGL-wallet
 BOOST_CPPFLAGS = -I/usr/include -DBOOST_MULTI_INDEX_DISABLE_SERIALIZATION -DBOOST_NO_CXX98_FUNCTION_BASE
-BOOST_LDFLAGS = -L/usr/lib/x86_64-linux-gnu
 BREW = 
 CC = /usr/local/bin/ccache clang
 CCACHE = /usr/local/bin/ccache
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
-CLIENT_VERSION_BUILD = 9
-CLIENT_VERSION_IS_RELEASE = true
-CLIENT_VERSION_MAJOR = 0
-CLIENT_VERSION_MINOR = 1
+CLIENT_VERSION_BUILD = 0
+CLIENT_VERSION_IS_RELEASE = false
+CLIENT_VERSION_MAJOR = 25
+CLIENT_VERSION_MINOR = 99
 CLMUL_CXXFLAGS = -mpclmul
 COPYRIGHT_HOLDERS = The %s developers
-COPYRIGHT_HOLDERS_FINAL = The BGL Core developers
-COPYRIGHT_HOLDERS_SUBSTITUTION = BGL Core
-COPYRIGHT_YEAR = 2022
+COPYRIGHT_HOLDERS_FINAL = The Bitgesell Core developers
+COPYRIGHT_HOLDERS_SUBSTITUTION = Bitgesell Core
+COPYRIGHT_YEAR = 2023
 CORE_CPPFLAGS =  -DHAVE_BUILD_INFO -DPROVIDE_FUZZ_MAIN_FUNCTION
 CORE_CXXFLAGS = 
 CORE_LDFLAGS = 
@@ -226,7 +225,7 @@ CPPFLAGS =
 CXX = /usr/local/bin/ccache clang++ -std=c++17
 CXXCPP = clang++ -std=c++17 -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O2
+CXXFLAGS = -fPIE
 CYGPATH_W = echo
 DEBUG_CPPFLAGS =  -fmacro-prefix-map=$(abs_top_srcdir)=.
 DEBUG_CXXFLAGS =  -fdebug-prefix-map=$(abs_top_srcdir)=.
@@ -255,8 +254,8 @@ GIT = /usr/bin/git
 GPROF_CXXFLAGS = 
 GPROF_LDFLAGS = 
 GREP = /bin/grep
-HARDENED_CPPFLAGS =  -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
-HARDENED_CXXFLAGS =  -Wstack-protector -fstack-protector-all -fcf-protection=full
+HARDENED_CPPFLAGS =  -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3
+HARDENED_CXXFLAGS =  -Wstack-protector -fstack-protector-all -fcf-protection=full -fstack-clash-protection
 HARDENED_LDFLAGS =  -Wl,-z,relro -Wl,-z,now -Wl,-z,separate-code -pie
 HAVE_BUILTIN_PREFETCH = 1
 HAVE_CXX17 = 1
@@ -309,7 +308,7 @@ NATPMP_CPPFLAGS =
 NATPMP_LIBS = 
 NM = /usr/bin/nm -B
 NMEDIT = 
-NOWARN_CXXFLAGS =  -Wno-unused-parameter -Wno-self-assign -Wno-deprecated-copy
+NOWARN_CXXFLAGS = 
 OBJCOPY = /usr/bin/objcopy
 OBJCXX = clang++ -std=c++17
 OBJCXXDEPMODE = depmode=gcc3
@@ -318,24 +317,24 @@ OBJDUMP = objdump
 OBJEXT = o
 OTOOL = 
 OTOOL64 = 
-PACKAGE = bitgesell
-PACKAGE_BUGREPORT = https://github.com/bitgesellofficial/bitgesell/issues
-PACKAGE_NAME = BGL Core
-PACKAGE_STRING = BGL Core 0.1.9
-PACKAGE_TARNAME = bitgesell
-PACKAGE_URL = https://bitgesell.ca/
-PACKAGE_VERSION = 0.1.9
+PACKAGE = bitcoin
+PACKAGE_BUGREPORT = https://github.com/bitcoin/bitcoin/issues
+PACKAGE_NAME = Bitgesell Core
+PACKAGE_STRING = Bitgesell Core 25.99.0
+PACKAGE_TARNAME = bitcoin
+PACKAGE_URL = https://bitcoincore.org/
+PACKAGE_VERSION = 25.99.0
 PATH_SEPARATOR = :
 PIC_FLAGS = -fPIC
 PIE_FLAGS = -fPIE
-PKG_CONFIG = /usr/bin/pkg-config
+PKG_CONFIG = env PKG_CONFIG_PATH=/usr/local/lib/pkgconfig: /usr/bin/pkg-config
 PKG_CONFIG_LIBDIR = 
 PKG_CONFIG_PATH = /usr/local/lib/pkgconfig:
 PTHREAD_CC = clang
 PTHREAD_CFLAGS = -pthread
 PTHREAD_CXX = clang++ -std=c++17
 PTHREAD_LIBS = -lpthread
-PYTHON = /home/emeka/anaconda3/bin/python3.7
+PYTHON = /usr/bin/python3.8
 PYTHONPATH = 
 QR_CFLAGS = 
 QR_LIBS = -lqrencode
@@ -346,7 +345,7 @@ QT_CLIPBOARD_LIBS =
 QT_CORE_CFLAGS = -DQT_CORE_LIB -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/x86_64-linux-gnu/qt5
 QT_CORE_LIBS = -lQt5Core
 QT_DBUS_CFLAGS = -DQT_DBUS_LIB -DQT_CORE_LIB -I/usr/include/x86_64-linux-gnu/qt5/QtDBus -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/x86_64-linux-gnu/qt5
-QT_DBUS_INCLUDES = -DQT_DBUS_LIB -DQT_CORE_LIB -I/usr/include/x86_64-linux-gnu/qt5/QtDBus -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/x86_64-linux-gnu/qt5
+QT_DBUS_INCLUDES = -DQT_DBUS_LIB -DQT_CORE_LIB -isystem /usr/include/x86_64-linux-gnu/qt5/QtDBus -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/include/x86_64-linux-gnu/qt5
 QT_DBUS_LIBS = -lQt5DBus -lQt5Core
 QT_DEVICEDISCOVERY_CFLAGS = 
 QT_DEVICEDISCOVERY_LIBS = 
@@ -364,7 +363,7 @@ QT_GRAPHICS_CFLAGS =
 QT_GRAPHICS_LIBS = 
 QT_GUI_CFLAGS = -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/x86_64-linux-gnu/qt5
 QT_GUI_LIBS = -lQt5Gui -lQt5Core
-QT_INCLUDES = -DQT_NETWORK_LIB -DQT_CORE_LIB -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/x86_64-linux-gnu/qt5 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/x86_64-linux-gnu/qt5 -DQT_GUI_LIB -DQT_CORE_LIB -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/x86_64-linux-gnu/qt5 -DQT_CORE_LIB -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/x86_64-linux-gnu/qt5 
+QT_INCLUDES = -DQT_NETWORK_LIB -DQT_CORE_LIB -isystem /usr/include/x86_64-linux-gnu/qt5/QtNetwork -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/include/x86_64-linux-gnu/qt5 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/include/x86_64-linux-gnu/qt5 -DQT_GUI_LIB -DQT_CORE_LIB -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/include/x86_64-linux-gnu/qt5 -DQT_CORE_LIB -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/include/x86_64-linux-gnu/qt5
 QT_INPUT_CFLAGS = 
 QT_INPUT_LIBS = 
 QT_LDFLAGS = 
@@ -376,7 +375,7 @@ QT_SELECT = qt5
 QT_SERVICE_CFLAGS = 
 QT_SERVICE_LIBS = 
 QT_TEST_CFLAGS = -DQT_TESTLIB_LIB -DQT_CORE_LIB -I/usr/include/x86_64-linux-gnu/qt5/QtTest -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/x86_64-linux-gnu/qt5
-QT_TEST_INCLUDES = -DQT_TESTLIB_LIB -DQT_CORE_LIB -I/usr/include/x86_64-linux-gnu/qt5/QtTest -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/x86_64-linux-gnu/qt5
+QT_TEST_INCLUDES = -DQT_TESTLIB_LIB -DQT_CORE_LIB -isystem /usr/include/x86_64-linux-gnu/qt5/QtTest -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -isystem /usr/include/x86_64-linux-gnu/qt5
 QT_TEST_LIBS = -lQt5Test -lQt5Core
 QT_THEME_CFLAGS = 
 QT_THEME_LIBS = 
@@ -407,8 +406,8 @@ USE_BDB =
 USE_QRCODE = 
 USE_SQLITE = 
 USE_UPNP = 
-VERSION = 0.1.9
-WARN_CXXFLAGS =  -Wall -Wextra -Wgnu -Wformat -Wformat-security -Wvla -Wshadow-field -Wthread-safety -Wrange-loop-analysis -Wredundant-decls -Wunused-member-function -Wdate-time -Wconditional-uninitialized -Woverloaded-virtual -Wunreachable-code-loop-increment -Wimplicit-fallthrough
+VERSION = 25.99.0
+WARN_CXXFLAGS = 
 WINDRES = 
 X86_SHANI_CXXFLAGS = -msse4 -msha
 XGETTEXT = /usr/bin/xgettext

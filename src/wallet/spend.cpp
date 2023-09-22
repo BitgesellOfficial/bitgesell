@@ -59,19 +59,20 @@ static std::optional<int64_t> MaxInputWeight(const Descriptor& desc, const std::
                                              const CCoinControl* coin_control, const bool tx_is_segwit,
                                              const bool can_grind_r) {
     if (const auto sat_weight = desc.MaxSatisfactionWeight(!can_grind_r || UseMaxSig(txin, coin_control))) {
-        const bool is_segwit = IsSegwit(desc);
-        // Account for the size of the scriptsig and the number of elements on the witness stack. Note
-        // that if any input in the transaction is spending a witness program, we need to specify the
-        // witness stack size for every input regardless of whether it is segwit itself.
-        // NOTE: this also works in case of mixed scriptsig-and-witness such as in p2sh-wrapped segwit v0
-        // outputs. In this case the size of the scriptsig length will always be one (since the redeemScript
-        // is always a push of the witness program in this case, which is smaller than 253 bytes).
-        const int64_t scriptsig_len = is_segwit ? 1 : GetSizeOfCompactSize(*sat_weight / WITNESS_SCALE_FACTOR);
-        // FIXME: use the real number of stack elements instead of the "1" placeholder.
-        const int64_t witstack_len = is_segwit ? GetSizeOfCompactSize(1) : (tx_is_segwit ? 1 : 0);
-        // previous txid + previous vout + sequence + scriptsig len + witstack size + scriptsig or witness
-        // NOTE: sat_weight already accounts for the witness discount accordingly.
-        return (32 + 4 + 4 + scriptsig_len) * WITNESS_SCALE_FACTOR + witstack_len + *sat_weight;
+        if (const auto elems_count = desc.MaxSatisfactionElems()) {
+            const bool is_segwit = IsSegwit(desc);
+            // Account for the size of the scriptsig and the number of elements on the witness stack. Note
+            // that if any input in the transaction is spending a witness program, we need to specify the
+            // witness stack size for every input regardless of whether it is segwit itself.
+            // NOTE: this also works in case of mixed scriptsig-and-witness such as in p2sh-wrapped segwit v0
+            // outputs. In this case the size of the scriptsig length will always be one (since the redeemScript
+            // is always a push of the witness program in this case, which is smaller than 253 bytes).
+            const int64_t scriptsig_len = is_segwit ? 1 : GetSizeOfCompactSize(*sat_weight / WITNESS_SCALE_FACTOR);
+            const int64_t witstack_len = is_segwit ? GetSizeOfCompactSize(*elems_count) : (tx_is_segwit ? 1 : 0);
+            // previous txid + previous vout + sequence + scriptsig len + witstack size + scriptsig or witness
+            // NOTE: sat_weight already accounts for the witness discount accordingly.
+            return (32 + 4 + 4 + scriptsig_len) * WITNESS_SCALE_FACTOR + witstack_len + *sat_weight;
+        }
     }
 
     return {};
@@ -497,13 +498,13 @@ std::map<CTxDestination, std::vector<COutput>> ListCoins(const CWallet& wallet)
     return result;
 }
 
-OutputGroupTypeMap GroupOutputs(const CWallet& wallet,
+FilteredOutputGroups GroupOutputs(const CWallet& wallet,
                           const CoinsResult& coins,
                           const CoinSelectionParams& coin_sel_params,
                           const std::vector<SelectionFilter>& filters,
                           std::vector<OutputGroup>& ret_discarded_groups)
 {
-    OutputGroupTypeMap output_groups;
+    FilteredOutputGroups filtered_groups;
 
     if (!coin_sel_params.m_avoid_partial_spends) {
         // Allowing partial spends means no grouping. Each COutput gets its own OutputGroup
@@ -528,7 +529,7 @@ OutputGroupTypeMap GroupOutputs(const CWallet& wallet,
                 if (!accepted) ret_discarded_groups.emplace_back(group);
             }
         }
-        return output_groups;
+        return filtered_groups;
     }
 
     // We want to combine COutputs that have the same scriptPubKey into single OutputGroups
@@ -612,7 +613,7 @@ OutputGroupTypeMap GroupOutputs(const CWallet& wallet,
     push_output_groups(spk_to_groups_map, /*positive_only=*/ false);
     push_output_groups(spk_to_positive_groups_map, /*positive_only=*/ true);
 
-    return output_groups;
+    return filtered_groups;
 }
 
 FilteredOutputGroups GroupOutputs(const CWallet& wallet,
@@ -630,11 +631,10 @@ static bool HasErrorMsg(const util::Result<SelectionResult>& res) { return !util
 util::Result<SelectionResult> AttemptSelection(const CAmount& nTargetValue, OutputGroupTypeMap& groups,
                                const CoinSelectionParams& coin_selection_params, bool allow_mixed_output_types)
 {
-    // Calculate all the output groups filtered by type at once
-    OutputGroupTypeMap groups = GroupOutputs(wallet, available_coins, coin_selection_params, {eligibility_filter});
-        auto group_for_type = groups.Find(type);
-        if (!group_for_type) continue;
-        auto result{ChooseSelectionResult(nTargetValue, *group_for_type, coin_selection_params)};
+    // Run coin selection on each OutputType and compute the Waste Metric
+    std::vector<SelectionResult> results;
+    for (auto& [type, group] : groups.groups_by_type) {
+        auto result{ChooseSelectionResult(nTargetValue, group, coin_selection_params)};
         // If any specific error message appears here, then something particularly wrong happened.
         if (HasErrorMsg(result)) return result; // So let's return the specific error.
         // Append the favorable result.
@@ -647,7 +647,7 @@ util::Result<SelectionResult> AttemptSelection(const CAmount& nTargetValue, Outp
     // If we can't fund the transaction from any individual OutputType, run coin selection one last time
     // over all available coins, which would allow mixing.
     // If TypesCount() <= 1, there is nothing to mix.
-    if (allow_mixed_output_types && available_coins.TypesCount() > 1) {
+    if (allow_mixed_output_types && groups.TypesCount() > 1) {
         return ChooseSelectionResult(nTargetValue, groups.all_groups, coin_selection_params);
     }
     // Either mixing is not allowed and we couldn't find a solution from any single OutputType, or mixing was allowed and we still couldn't
@@ -671,7 +671,7 @@ util::Result<SelectionResult> ChooseSelectionResult(const CAmount& nTargetValue,
     // Maximum allowed weight
     int max_inputs_weight = MAX_STANDARD_TX_WEIGHT - (coin_selection_params.tx_noinputs_size * WITNESS_SCALE_FACTOR);
 
-    if (auto bnb_result{SelectCoinsBnB(groups.positive_group, nTargetValue, coin_selection_params.m_cost_of_change)}) {
+    if (auto bnb_result{SelectCoinsBnB(groups.positive_group, nTargetValue, coin_selection_params.m_cost_of_change, max_inputs_weight)}) {
         results.push_back(*bnb_result);
     } else append_error(bnb_result);
 
@@ -1011,7 +1011,7 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
     }
     if (feeCalc.reason == FeeReason::FALLBACK && !wallet.m_allow_fallback_fee) {
         // eventually allow a fallback fee
-        return util::Error{_("Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.")};
+        return util::Error{strprintf(_("Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable %s."), "-fallbackfee")};
     }
 
     // Calculate the cost of change

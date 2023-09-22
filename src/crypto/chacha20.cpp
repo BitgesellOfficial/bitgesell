@@ -65,7 +65,7 @@ inline void ChaCha20Aligned::Keystream(Span<std::byte> output) noexcept
     assert(blocks * BLOCKLEN == output.size());
 
     uint32_t x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15;
-    uint32_t j0, j1, j2, j3, j4, j5, j6, j7, j8, j9, j10, j11, j12, j13, j14, j15;
+    uint32_t j4, j5, j6, j7, j8, j9, j10, j11, j12, j13, j14, j15;
 
     if (!blocks) return;
 
@@ -83,10 +83,10 @@ inline void ChaCha20Aligned::Keystream(Span<std::byte> output) noexcept
     j15 = input[11];
 
     for (;;) {
-        x0 = j0;
-        x1 = j1;
-        x2 = j2;
-        x3 = j3;
+        x0 = 0x61707865;
+        x1 = 0x3320646e;
+        x2 = 0x79622d32;
+        x3 = 0x6b206574;
         x4 = j4;
         x5 = j5;
         x6 = j6;
@@ -150,8 +150,8 @@ inline void ChaCha20Aligned::Keystream(Span<std::byte> output) noexcept
         WriteLE32(c + 60, x15);
 
         if (blocks == 1) {
-            input[12] = j12;
-            input[13] = j13;
+            input[8] = j12;
+            input[9] = j13;
             return;
         }
         blocks -= 1;
@@ -168,7 +168,7 @@ inline void ChaCha20Aligned::Crypt(Span<const std::byte> in_bytes, Span<std::byt
     assert(blocks * BLOCKLEN == out_bytes.size());
 
     uint32_t x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15;
-    uint32_t j0, j1, j2, j3, j4, j5, j6, j7, j8, j9, j10, j11, j12, j13, j14, j15;
+    uint32_t j4, j5, j6, j7, j8, j9, j10, j11, j12, j13, j14, j15;
 
     if (!blocks) return;
 
@@ -186,10 +186,10 @@ inline void ChaCha20Aligned::Crypt(Span<const std::byte> in_bytes, Span<std::byt
     j15 = input[11];
 
     for (;;) {
-        x0 = j0;
-        x1 = j1;
-        x2 = j2;
-        x3 = j3;
+        x0 = 0x61707865;
+        x1 = 0x3320646e;
+        x2 = 0x79622d32;
+        x3 = 0x6b206574;
         x4 = j4;
         x5 = j5;
         x6 = j6;
@@ -270,8 +270,8 @@ inline void ChaCha20Aligned::Crypt(Span<const std::byte> in_bytes, Span<std::byt
         WriteLE32(c + 60, x15);
 
         if (blocks == 1) {
-            input[12] = j12;
-            input[13] = j13;
+            input[8] = j12;
+            input[9] = j13;
             return;
         }
         blocks -= 1;

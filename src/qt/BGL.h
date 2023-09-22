@@ -93,10 +93,10 @@ protected:
 
 private:
     std::optional<InitExecutor> m_executor;
-    OptionsModel *optionsModel;
-    ClientModel *clientModel;
-    BGLGUI *window;
-    QTimer *pollShutdownTimer;
+    OptionsModel* optionsModel{nullptr};
+    ClientModel* clientModel{nullptr};
+    BGLGUI* window{nullptr};
+    QTimer* pollShutdownTimer{nullptr};
 #ifdef ENABLE_WALLET
     PaymentServer* paymentServer{nullptr};
     WalletController* m_wallet_controller{nullptr};

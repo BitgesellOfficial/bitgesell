@@ -35,7 +35,7 @@ bool TxOrphanage::AddTx(const CTransactionRef& tx, NodeId peer)
     unsigned int sz = GetTransactionWeight(*tx);
     if (sz > MAX_STANDARD_TX_WEIGHT)
     {
-        LogPrint(BCLog::MEMPOOL, "ignoring large orphan tx (size: %u, txid: %s, wtxid: %s)\n", sz, hash.ToString(), wtxid.ToString());
+        LogPrint(BCLog::TXPACKAGES, "ignoring large orphan tx (size: %u, txid: %s, wtxid: %s)\n", sz, hash.ToString(), wtxid.ToString());
         return false;
     }
 
@@ -48,7 +48,7 @@ bool TxOrphanage::AddTx(const CTransactionRef& tx, NodeId peer)
         m_outpoint_to_orphan_it[txin.prevout].insert(ret.first);
     }
 
-    LogPrint(BCLog::MEMPOOL, "stored orphan tx %s (wtxid=%s) (mapsz %u outsz %u)\n", hash.ToString(), wtxid.ToString(),
+    LogPrint(BCLog::TXPACKAGES, "stored orphan tx %s (wtxid=%s) (mapsz %u outsz %u)\n", hash.ToString(), wtxid.ToString(),
              m_orphans.size(), m_outpoint_to_orphan_it.size());
     return true;
 }
@@ -148,17 +148,19 @@ void TxOrphanage::LimitOrphans(unsigned int max_orphans)
     if (nEvicted > 0) LogPrint(BCLog::TXPACKAGES, "orphanage overflow, removed %u tx\n", nEvicted);
 }
 
-void TxOrphanage::AddChildrenToWorkSet(const CTransaction& tx, NodeId peer)
+void TxOrphanage::AddChildrenToWorkSet(const CTransaction& tx)
 {
     LOCK(m_mutex);
 
-    // Get this peer's work set, emplacing an empty set it didn't exist
-    std::set<uint256>& orphan_work_set = m_peer_work_set.try_emplace(peer).first->second;
 
     for (unsigned int i = 0; i < tx.vout.size(); i++) {
         const auto it_by_prev = m_outpoint_to_orphan_it.find(COutPoint(tx.GetHash(), i));
         if (it_by_prev != m_outpoint_to_orphan_it.end()) {
             for (const auto& elem : it_by_prev->second) {
+                // Get this source peer's work set, emplacing an empty set if it didn't exist
+                // (note: if this peer wasn't still connected, we would have removed the orphan tx already)
+                std::set<uint256>& orphan_work_set = m_peer_work_set.try_emplace(elem->second.fromPeer).first->second;
+                // Add this tx to the work set
                 orphan_work_set.insert(elem->first);
                 LogPrint(BCLog::TXPACKAGES, "added %s (wtxid=%s) to peer %d workset\n",
                          tx.GetHash().ToString(), tx.GetWitnessHash().ToString(), elem->second.fromPeer);

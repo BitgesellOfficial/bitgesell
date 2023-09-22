@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_KERNEL_CHAINPARAMS_H
-#define BITCOIN_KERNEL_CHAINPARAMS_H
+#ifndef BGL_KERNEL_CHAINPARAMS_H
+#define BGL_KERNEL_CHAINPARAMS_H
 
 #include <consensus/params.h>
 #include <netaddress.h>
@@ -184,4 +184,4 @@ protected:
     ChainTxData chainTxData;
 };
 
-#endif // BITCOIN_KERNEL_CHAINPARAMS_H
+#endif // BGL_KERNEL_CHAINPARAMS_H

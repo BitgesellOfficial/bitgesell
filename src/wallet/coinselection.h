@@ -273,6 +273,8 @@ struct OutputGroupTypeMap
     size_t TypesCount() { return groups_by_type.size(); }
 };
 
+typedef std::map<CoinEligibilityFilter, OutputGroupTypeMap> FilteredOutputGroups;
+
 /** Compute the waste for this result given the cost of change
  * and the opportunity cost of spending these inputs now vs in the future.
  * If change exists, waste = change_cost + inputs * (effective_feerate - long_term_feerate)
@@ -427,4 +429,4 @@ util::Result<SelectionResult> KnapsackSolver(std::vector<OutputGroup>& groups, c
                                              CAmount change_target, FastRandomContext& rng, int max_weight);
 } // namespace wallet
 
-#endif // BITCOIN_WALLET_COINSELECTION_H
+#endif // BGL_WALLET_COINSELECTION_H

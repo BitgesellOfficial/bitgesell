@@ -1,4 +1,4 @@
-Name "BGL Core (64-bit)"
+Name "Bitgesell Core (64-bit)"
 
 RequestExecutionLevel highest
 SetCompressor /SOLID lzma
@@ -11,8 +11,8 @@ Unicode true
 
 # General Symbol Definitions
 !define REGKEY "SOFTWARE\$(^Name)"
-!define COMPANY "BGL Core project"
-!define URL https://bitgesell.ca/
+!define COMPANY "Bitgesell Core project"
+!define URL https://bitcoincore.org/
 
 # MUI Symbol Definitions
 !define MUI_ICON "/home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell/share/pixmaps/BGL.ico"
@@ -24,7 +24,7 @@ Unicode true
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT HKLM
 !define MUI_STARTMENUPAGE_REGISTRY_KEY ${REGKEY}
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME StartMenuGroup
-!define MUI_STARTMENUPAGE_DEFAULTFOLDER "BGL Core"
+!define MUI_STARTMENUPAGE_DEFAULTFOLDER "Bitgesell Core"
 !define MUI_FINISHPAGE_RUN "$WINDIR\explorer.exe"
 !define MUI_FINISHPAGE_RUN_PARAMETERS $INSTDIR\BGL-qt
 !define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
@@ -57,14 +57,14 @@ CRCCheck force
 XPStyle on
 BrandingText " "
 ShowInstDetails show
-VIProductVersion 0.1.9.0
-VIAddVersionKey ProductName "BGL Core"
-VIAddVersionKey ProductVersion "0.1.9"
+VIProductVersion 25.99.0.0
+VIAddVersionKey ProductName "Bitgesell Core"
+VIAddVersionKey ProductVersion "25.99.0"
 VIAddVersionKey CompanyName "${COMPANY}"
 VIAddVersionKey CompanyWebsite "${URL}"
-VIAddVersionKey FileVersion "0.1.9"
-VIAddVersionKey FileDescription "Installer for BGL Core"
-VIAddVersionKey LegalCopyright "Copyright (C) 2009-2022 The BGL Core developers"
+VIAddVersionKey FileVersion "25.99.0"
+VIAddVersionKey FileDescription "Installer for Bitgesell Core"
+VIAddVersionKey LegalCopyright "Copyright (C) 2009-2023 The Bitgesell Core developers"
 InstallDirRegKey HKCU "${REGKEY}" Path
 ShowUninstDetails show
 
@@ -75,13 +75,15 @@ Section -Main SEC0000
     File /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell/release/BGL-qt
     File /oname=COPYING.txt /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell/COPYING
     File /oname=readme.txt /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell/doc/README_windows.txt
+    File /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell/share/examples/BGL.conf
+    SetOutPath $INSTDIR\share\rpcauth
+    File /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell/share/rpcauth/*.*
     SetOutPath $INSTDIR\daemon
     File /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell/release/BGLd
     File /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell/release/BGL-cli
     File /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell/release/BGL-tx
     File /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell/release/BGL-wallet
-    SetOutPath $INSTDIR\doc
-    File /r /x Makefile* /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell/doc\*.*
+    File /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell/release/test_BGL
     SetOutPath $INSTDIR
     WriteRegStr HKCU "${REGKEY}\Components" Main 1
 SectionEnd
@@ -93,21 +95,21 @@ Section -post SEC0001
     !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
     CreateDirectory $SMPROGRAMS\$StartMenuGroup
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\$(^Name).lnk" $INSTDIR\BGL-qt
-    CreateShortcut "$SMPROGRAMS\$StartMenuGroup\BGL Core (testnet, 64-bit).lnk" "$INSTDIR\BGL-qt" "-testnet" "$INSTDIR\BGL-qt" 1
+    CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Bitgesell Core (testnet, 64-bit).lnk" "$INSTDIR\BGL-qt" "-testnet" "$INSTDIR\BGL-qt" 1
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Uninstall $(^Name).lnk" $INSTDIR\uninstall.exe
     !insertmacro MUI_STARTMENU_WRITE_END
     WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" DisplayName "$(^Name)"
-    WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" DisplayVersion "0.1.9"
+    WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" DisplayVersion "25.99.0"
     WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" Publisher "${COMPANY}"
     WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" URLInfoAbout "${URL}"
     WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" DisplayIcon $INSTDIR\BGL-qt.exe
     WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" UninstallString $INSTDIR\uninstall.exe
     WriteRegDWORD HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" NoModify 1
     WriteRegDWORD HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" NoRepair 1
-    WriteRegStr HKCR "bitgesell" "URL Protocol" ""
-    WriteRegStr HKCR "bitgesell" "" "URL:BGL"
-    WriteRegStr HKCR "bitgesell\DefaultIcon" "" $INSTDIR\BGL-qt
-    WriteRegStr HKCR "bitgesell\shell\open\command" "" '"$INSTDIR\BGL-qt" "%1"'
+    WriteRegStr HKCR "bitcoin" "URL Protocol" ""
+    WriteRegStr HKCR "bitcoin" "" "URL:BGL"
+    WriteRegStr HKCR "bitcoin\DefaultIcon" "" $INSTDIR\BGL-qt
+    WriteRegStr HKCR "bitcoin\shell\open\command" "" '"$INSTDIR\BGL-qt" "%1"'
 SectionEnd
 
 # Macro for selecting uninstaller sections
@@ -128,8 +130,9 @@ Section /o -un.Main UNSEC0000
     Delete /REBOOTOK $INSTDIR\BGL-qt
     Delete /REBOOTOK $INSTDIR\COPYING.txt
     Delete /REBOOTOK $INSTDIR\readme.txt
+    Delete /REBOOTOK $INSTDIR\BGL.conf
+    RMDir /r /REBOOTOK $INSTDIR\share
     RMDir /r /REBOOTOK $INSTDIR\daemon
-    RMDir /r /REBOOTOK $INSTDIR\doc
     DeleteRegValue HKCU "${REGKEY}\Components" Main
 SectionEnd
 
@@ -137,7 +140,7 @@ Section -un.post UNSEC0001
     DeleteRegKey HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)"
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\Uninstall $(^Name).lnk"
     Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\$(^Name).lnk"
-    Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\BGL Core (testnet, 64-bit).lnk"
+    Delete /REBOOTOK "$SMPROGRAMS\$StartMenuGroup\Bitgesell Core (testnet, 64-bit).lnk"
     Delete /REBOOTOK "$SMSTARTUP\BGL.lnk"
     Delete /REBOOTOK $INSTDIR\uninstall.exe
     Delete /REBOOTOK $INSTDIR\debug.log
@@ -146,7 +149,7 @@ Section -un.post UNSEC0001
     DeleteRegValue HKCU "${REGKEY}" Path
     DeleteRegKey /IfEmpty HKCU "${REGKEY}\Components"
     DeleteRegKey /IfEmpty HKCU "${REGKEY}"
-    DeleteRegKey HKCR "bitgesell"
+    DeleteRegKey HKCR "bitcoin"
     RmDir /REBOOTOK $SMPROGRAMS\$StartMenuGroup
     RmDir /REBOOTOK $INSTDIR
     Push $R0

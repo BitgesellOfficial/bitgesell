@@ -7,6 +7,9 @@
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
 
+/* Defined to avoid Boost::Process trying to use Boost Filesystem */
+#undef BOOST_PROCESS_USE_STD_FS
+
 /* Define this symbol if type char equals int8_t */
 #undef CHAR_EQUALS_INT8
 
@@ -56,7 +59,7 @@
 /* Define this symbol to build code that uses x86 SHA-NI intrinsics */
 #undef ENABLE_X86_SHANI
 
-/* Define to 1 to enable ZMQ functions */
+/* Define this symbol to enable ZMQ functions */
 #undef ENABLE_ZMQ
 
 /* define if the Boost library is available */
@@ -192,6 +195,9 @@
    sys/random.h */
 #undef HAVE_GETENTROPY_RAND
 
+/* Define this symbol if the Linux getrandom function call is available */
+#undef HAVE_GETRANDOM
+
 /* Define this symbol if gmtime_r is available */
 #undef HAVE_GMTIME_R
 
@@ -279,9 +285,6 @@
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
-/* Define to 1 if you have the <stdio.h> header file. */
-#undef HAVE_STDIO_H
-
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
 
@@ -308,9 +311,6 @@
 
 /* Define to 1 if you have the <sys/endian.h> header file. */
 #undef HAVE_SYS_ENDIAN_H
-
-/* Define this symbol if the Linux getrandom system call is available */
-#undef HAVE_SYS_GETRANDOM
 
 /* Define to 1 if you have the <sys/prctl.h> header file. */
 #undef HAVE_SYS_PRCTL_H
@@ -403,8 +403,7 @@
 /* Define if dbus support should be compiled in */
 #undef USE_DBUS
 
-/* NAT-PMP support not compiled if undefined, otherwise value (0 or 1)
-   determines default state */
+/* Define to 1 if UPnP support should be compiled in. */
 #undef USE_NATPMP
 
 /* Define if QR support should be compiled in */
@@ -413,11 +412,7 @@
 /* Define if sqlite support should be compiled in */
 #undef USE_SQLITE
 
-/* Define this symbol to build with syscall sandbox support. */
-#undef USE_SYSCALL_SANDBOX
-
-/* UPnP support not compiled if undefined, otherwise value (0 or 1) determines
-   default state */
+/* Define to 1 if UPnP support should be compiled in. */
 #undef USE_UPNP
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most

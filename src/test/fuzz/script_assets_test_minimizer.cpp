@@ -184,10 +184,7 @@ void Test(const std::string& str)
     }
 }
 
-void test_init()
-{
-    static ECCVerifyHandle handle;
-}
+void test_init() {}
 
 FUZZ_TARGET(script_assets_test_minimizer, .init = test_init, .hidden = true)
 {

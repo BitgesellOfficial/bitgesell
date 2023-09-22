@@ -171,6 +171,9 @@ public:
     Dbc* dbc() const { return m_cursor; }
 };
 
+/** RAII class that provides access to a Berkeley database */
+class BerkeleyBatch : public DatabaseBatch
+{
 private:
     bool ReadKey(DataStream&& key, DataStream& value) override;
     bool WriteKey(DataStream&& key, DataStream&& value, bool overwrite = true) override;

@@ -88,11 +88,17 @@ static void add_coin(CoinsResult& available_coins, CWallet& wallet, const CAmoun
     available_coins.Add(OutputType::BECH32, {COutPoint(wtx.GetHash(), nInput), txout, nAge, custom_size == 0 ? CalculateMaximumSignedInputSize(txout, &wallet, /*coin_control=*/nullptr) : custom_size, /*spendable=*/ true, /*solvable=*/ true, /*safe=*/ true, wtx.GetTxTime(), fIsFromMe, feerate});
 }
 
-// Helper
+// Helpers
 std::optional<SelectionResult> KnapsackSolver(std::vector<OutputGroup>& groups, const CAmount& nTargetValue,
                                               CAmount change_target, FastRandomContext& rng)
 {
     auto res{KnapsackSolver(groups, nTargetValue, change_target, rng, MAX_STANDARD_TX_WEIGHT)};
+    return res ? std::optional<SelectionResult>(*res) : std::nullopt;
+}
+
+std::optional<SelectionResult> SelectCoinsBnB(std::vector<OutputGroup>& utxo_pool, const CAmount& selection_target, const CAmount& cost_of_change)
+{
+    auto res{SelectCoinsBnB(utxo_pool, selection_target, cost_of_change, MAX_STANDARD_TX_WEIGHT)};
     return res ? std::optional<SelectionResult>(*res) : std::nullopt;
 }
 
@@ -165,7 +171,7 @@ inline std::vector<OutputGroup>& KnapsackGroupOutputs(const CoinsResult& availab
         /*avoid_partial=*/ false,
     };
     static OutputGroupTypeMap static_groups;
-    static_groups = GroupOutputs(wallet, available_coins, coin_selection_params, {filter});
+    static_groups = GroupOutputs(wallet, available_coins, coin_selection_params, {{filter}})[filter];
     return static_groups.all_groups.mixed_group;
 }
 
@@ -253,17 +259,6 @@ BOOST_AUTO_TEST_CASE(bnb_search_test)
     BOOST_CHECK_EQUAL(result5->GetSelectedValue(), 10 * CENT);
     expected_result.Clear();
 
-    // Negative effective value
-    // Select 10 Cent but have 1 Cent not be possible because too small
-    add_coin(5 * CENT, 5, expected_result);
-    add_coin(3 * CENT, 3, expected_result);
-    add_coin(2 * CENT, 2, expected_result);
-    const auto result6 = SelectCoinsBnB(GroupCoins(utxo_pool), 10 * CENT, 5000);
-    BOOST_CHECK(result6);
-    BOOST_CHECK_EQUAL(result6->GetSelectedValue(), 10 * CENT);
-    // FIXME: this test is redundant with the above, because 1 Cent is selected, not "too small"
-    // BOOST_CHECK(EquivalentResult(expected_result, *result));
-
     // Select 0.25 Cent, not possible
     BOOST_CHECK(!SelectCoinsBnB(GroupCoins(utxo_pool), 0.25 * CENT, 0.5 * CENT));
     expected_result.Clear();
@@ -323,6 +318,8 @@ BOOST_AUTO_TEST_CASE(bnb_search_test)
     coin_selection_params_bnb.m_change_fee = coin_selection_params_bnb.m_effective_feerate.GetFee(coin_selection_params_bnb.change_output_size);
     coin_selection_params_bnb.m_cost_of_change = coin_selection_params_bnb.m_effective_feerate.GetFee(coin_selection_params_bnb.change_spend_size) + coin_selection_params_bnb.m_change_fee;
     coin_selection_params_bnb.min_viable_change = coin_selection_params_bnb.m_effective_feerate.GetFee(coin_selection_params_bnb.change_spend_size);
+    coin_selection_params_bnb.m_subtract_fee_outputs = true;
+
     {
         std::unique_ptr<CWallet> wallet = NewWallet(m_node);
 
@@ -336,7 +333,6 @@ BOOST_AUTO_TEST_CASE(bnb_search_test)
         available_coins.Clear();
         add_coin(available_coins, *wallet, 1 * CENT, coin_selection_params_bnb.m_effective_feerate);
         available_coins.All().at(0).input_bytes = 40;
-        coin_selection_params_bnb.m_subtract_fee_outputs = true;
         const auto result9 = SelectCoinsBnB(GroupCoins(available_coins.All()), 1 * CENT, coin_selection_params_bnb.m_cost_of_change);
         BOOST_CHECK(result9);
         BOOST_CHECK_EQUAL(result9->GetSelectedValue(), 1 * CENT);
@@ -423,11 +419,7 @@ BOOST_AUTO_TEST_CASE(bnb_search_test)
         // Test bnb max weight exceeded
         // Inputs set [10, 9, 8, 5, 3, 1], Selection Target = 16 and coin 5 exceeding the max weight.
 
-        std::unique_ptr<CWallet> wallet = std::make_unique<CWallet>(m_node.chain.get(), "", m_args, CreateMockWalletDatabase());
-        wallet->LoadWallet();
-        LOCK(wallet->cs_wallet);
-        wallet->SetWalletFlag(WALLET_FLAG_DESCRIPTORS);
-        wallet->SetupDescriptorScriptPubKeyMans();
+        std::unique_ptr<CWallet> wallet = NewWallet(m_node);
 
         CoinsResult available_coins;
         add_coin(available_coins, *wallet, 10 * CENT, coin_selection_params_bnb.m_effective_feerate, 6 * 24, false, 0, true);
@@ -972,95 +964,6 @@ static util::Result<SelectionResult> SelectCoinsSRD(const CAmount& target,
                                                     const node::NodeContext& m_node,
                                                     int max_weight,
                                                     std::function<CoinsResult(CWallet&)> coin_setup)
-{
-    std::unique_ptr<CWallet> wallet = std::make_unique<CWallet>(m_node.chain.get(), "", CreateMockWalletDatabase());
-    wallet->LoadWallet();
-    LOCK(wallet->cs_wallet);
-    wallet->SetWalletFlag(WALLET_FLAG_DESCRIPTORS);
-    wallet->SetupDescriptorScriptPubKeyMans();
-
-    CoinEligibilityFilter filter(0, 0, 0); // accept all coins without ancestors
-    Groups group = GroupOutputs(*wallet, coin_setup(*wallet), cs_params, {{filter}})[filter].all_groups;
-    return SelectCoinsSRD(group.positive_group, target, cs_params.rng_fast, max_weight);
-}
-
-BOOST_AUTO_TEST_CASE(srd_tests)
-{
-    // Test SRD:
-    // 1) Insufficient funds, select all provided coins and fail.
-    // 2) Exceeded max weight, coin selection always surpasses the max allowed weight.
-    // 3) Select coins without surpassing the max weight (some coins surpasses the max allowed weight, some others not)
-
-    FastRandomContext rand;
-    CoinSelectionParams dummy_params{ // Only used to provide the 'avoid_partial' flag.
-            rand,
-            /*change_output_size=*/34,
-            /*change_spend_size=*/68,
-            /*min_change_target=*/CENT,
-            /*effective_feerate=*/CFeeRate(0),
-            /*long_term_feerate=*/CFeeRate(0),
-            /*discard_feerate=*/CFeeRate(0),
-            /*tx_noinputs_size=*/10 + 34, // static header size + output size
-            /*avoid_partial=*/false,
-    };
-
-    {
-        // #########################################################
-        // 1) Insufficient funds, select all provided coins and fail
-        // #########################################################
-        CAmount target = 49.5L * COIN;
-        int max_weight = 10000; // high enough to not fail for this reason.
-        const auto& res = SelectCoinsSRD(target, dummy_params, m_node, max_weight, [&](CWallet& wallet) {
-            CoinsResult available_coins;
-            for (int j = 0; j < 10; ++j) {
-                add_coin(available_coins, wallet, CAmount(1 * COIN));
-                add_coin(available_coins, wallet, CAmount(2 * COIN));
-            }
-            return available_coins;
-        });
-        BOOST_CHECK(!res);
-        BOOST_CHECK(util::ErrorString(res).empty()); // empty means "insufficient funds"
-    }
-
-    {
-        // ###########################
-        // 2) Test max weight exceeded
-        // ###########################
-        CAmount target = 49.5L * COIN;
-        int max_weight = 3000;
-        const auto& res = SelectCoinsSRD(target, dummy_params, m_node, max_weight, [&](CWallet& wallet) {
-            CoinsResult available_coins;
-            for (int j = 0; j < 10; ++j) {
-                add_coin(available_coins, wallet, CAmount(1 * COIN), CFeeRate(0), 144, false, 0, true);
-                add_coin(available_coins, wallet, CAmount(2 * COIN), CFeeRate(0), 144, false, 0, true);
-            }
-            return available_coins;
-        });
-        BOOST_CHECK(!res);
-        BOOST_CHECK(util::ErrorString(res).original.find("The inputs size exceeds the maximum weight") != std::string::npos);
-    }
-
-    {
-        // ################################################################################################################
-        // 3) Test selection when some coins surpass the max allowed weight while others not. --> must find a good solution
-        // ################################################################################################################
-        CAmount target = 25.33L * COIN;
-        int max_weight = 10000; // WU
-        const auto& res = SelectCoinsSRD(target, dummy_params, m_node, max_weight, [&](CWallet& wallet) {
-            CoinsResult available_coins;
-            for (int j = 0; j < 60; ++j) { // 60 UTXO --> 19,8 BTC total --> 60 × 272 WU = 16320 WU
-                add_coin(available_coins, wallet, CAmount(0.33 * COIN), CFeeRate(0), 144, false, 0, true);
-            }
-            for (int i = 0; i < 10; i++) { // 10 UTXO --> 20 BTC total --> 10 × 272 WU = 2720 WU
-                add_coin(available_coins, wallet, CAmount(2 * COIN), CFeeRate(0), 144, false, 0, true);
-            }
-            return available_coins;
-        });
-        BOOST_CHECK(res);
-    }
-}
-
-static util::Result<SelectionResult> select_coins(const CAmount& target, const CoinSelectionParams& cs_params, const CCoinControl& cc, std::function<CoinsResult(CWallet&)> coin_setup, interfaces::Chain* chain)
 {
     std::unique_ptr<CWallet> wallet = NewWallet(m_node);
     CoinEligibilityFilter filter(0, 0, 0); // accept all coins without ancestors

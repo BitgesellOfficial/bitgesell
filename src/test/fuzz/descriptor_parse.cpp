@@ -8,6 +8,7 @@
 #include <script/descriptor.h>
 #include <test/fuzz/fuzz.h>
 #include <util/chaintype.h>
+#include <util/strencodings.h>
 
 //! Types are raw (un)compressed pubkeys, raw xonly pubkeys, raw privkeys (WIF), xpubs, xprvs.
 static constexpr uint8_t KEY_TYPES_COUNT{6};
@@ -148,7 +149,6 @@ static void TestDescriptor(const Descriptor& desc, FlatSigningProvider& sig_prov
 
 void initialize_descriptor_parse()
 {
-    static const ECCVerifyHandle verify_handle;
     ECC_Start();
     SelectParams(ChainType::MAIN);
 }

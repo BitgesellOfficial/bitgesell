@@ -36,8 +36,8 @@
 #include <utility>
 #include <variant>
 
-const char * const BITCOIN_CONF_FILENAME = "bitcoin.conf";
-const char * const BITCOIN_SETTINGS_FILENAME = "settings.json";
+const char * const BGL_CONF_FILENAME = "BGL.conf";
+const char * const BGL_SETTINGS_FILENAME = "settings.json";
 
 ArgsManager gArgs;
 
@@ -374,7 +374,7 @@ bool ArgsManager::IsArgSet(const std::string& strArg) const
 
 bool ArgsManager::GetSettingsPath(fs::path* filepath, bool temp, bool backup) const
 {
-    fs::path settings = GetPathArg("-settings", BITCOIN_SETTINGS_FILENAME);
+    fs::path settings = GetPathArg("-settings", BGL_SETTINGS_FILENAME);
     if (settings.empty()) {
         return false;
     }
@@ -690,7 +690,7 @@ fs::path GetDefaultDataDir()
     // Unix-like: ~/.bitcoin
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "Bitcoin";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "BGL";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -700,10 +700,10 @@ fs::path GetDefaultDataDir()
         pathRet = fs::path(pszHome);
 #ifdef MAC_OSX
     // macOS
-    return pathRet / "Library/Application Support/Bitcoin";
+    return pathRet / "Library/Application Support/BGL";
 #else
     // Unix-like
-    return pathRet / ".bitcoin";
+    return pathRet / ".BGL";
 #endif
 #endif
 }

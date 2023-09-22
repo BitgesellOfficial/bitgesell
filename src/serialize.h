@@ -1192,4 +1192,3 @@ static auto WithParams(const Params& params, T&& t)
 }
 
 #endif // BGL_SERIALIZE_H
-

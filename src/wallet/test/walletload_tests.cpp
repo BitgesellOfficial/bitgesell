@@ -85,7 +85,9 @@ BOOST_FIXTURE_TEST_CASE(wallet_load_descriptors, TestingSetup)
 bool HasAnyRecordOfType(WalletDatabase& db, const std::string& key)
 {
     std::unique_ptr<DatabaseBatch> batch = db.MakeBatch(false);
-    BOOST_CHECK(batch->StartCursor());
+    BOOST_CHECK(batch);
+    std::unique_ptr<DatabaseCursor> cursor = batch->GetNewCursor();
+    BOOST_CHECK(cursor);
     while (true) {
         DataStream ssKey{};
         DataStream ssValue{};
@@ -132,10 +134,12 @@ BOOST_FIXTURE_TEST_CASE(wallet_load_ckey, TestingSetup)
         BOOST_CHECK(wallet->EncryptWallet("encrypt"));
         wallet->Flush();
 
-        DatabaseOptions options;
-        for (int i=0; i < NUMBER_OF_TESTS; i++) {
-            dbs.emplace_back(DuplicateMockDatabase(wallet->GetDatabase()));
-        }
+        // Store a copy of all the records
+        records = GetMockableDatabase(*wallet).m_records;
+
+        // Get the record for the retrieved key
+        ckey_record_key = MakeSerializeData(DBKeys::CRYPTED_KEY, first_key.GetPubKey());
+        ckey_record_value = records.at(ckey_record_key);
     }
 
     {

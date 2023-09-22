@@ -80,7 +80,6 @@ void ApplyArgsManOptions(const ArgsManager& args, BlockAssembler::Options& optio
         if (const auto parsed{ParseMoney(*blockmintxfee)}) options.blockMinFeeRate = CFeeRate{*parsed};
     }
 }
-
 static BlockAssembler::Options ConfiguredOptions()
 {
     BlockAssembler::Options options;
@@ -89,7 +88,7 @@ static BlockAssembler::Options ConfiguredOptions()
 }
 
 BlockAssembler::BlockAssembler(Chainstate& chainstate, const CTxMemPool* mempool)
-    : BlockAssembler(chainstate, mempool, DefaultOptions()) {}
+    : BlockAssembler(chainstate, mempool, ConfiguredOptions()) {}
 
 void BlockAssembler::resetBlock()
 {
@@ -262,13 +261,9 @@ static int UpdatePackagesForAdded(const CTxMemPool& mempool,
             modtxiter mit = mapModifiedTx.find(desc);
             if (mit == mapModifiedTx.end()) {
                 CTxMemPoolModifiedEntry modEntry(desc);
-                modEntry.nSizeWithAncestors -= it->GetTxSize();
-                modEntry.nModFeesWithAncestors -= it->GetModifiedFee();
-                modEntry.nSigOpCostWithAncestors -= it->GetSigOpCost();
-                mapModifiedTx.insert(modEntry);
-            } else {
-                mapModifiedTx.modify(mit, update_for_parent_inclusion(it));
+                mit = mapModifiedTx.insert(modEntry).first;
             }
+            mapModifiedTx.modify(mit, update_for_parent_inclusion(it));
         }
     }
     return nDescendantsUpdated;

@@ -260,12 +260,12 @@ SafeDbt::SafeDbt()
     m_dbt.set_flags(DB_DBT_MALLOC);
 }
 
-BerkeleyBatch::SafeDbt::SafeDbt(void* data, size_t size)
+SafeDbt::SafeDbt(void* data, size_t size)
     : m_dbt(data, size)
 {
 }
 
-BerkeleyBatch::SafeDbt::~SafeDbt()
+SafeDbt::~SafeDbt()
 {
     if (m_dbt.get_data() != nullptr) {
         // Clear memory, e.g. in case it was a private key
@@ -279,17 +279,17 @@ BerkeleyBatch::SafeDbt::~SafeDbt()
     }
 }
 
-const void* BerkeleyBatch::SafeDbt::get_data() const
+const void* SafeDbt::get_data() const
 {
     return m_dbt.get_data();
 }
 
-uint32_t BerkeleyBatch::SafeDbt::get_size() const
+uint32_t SafeDbt::get_size() const
 {
     return m_dbt.get_size();
 }
 
-BerkeleyBatch::SafeDbt::operator Dbt*()
+SafeDbt::operator Dbt*()
 {
     return &m_dbt;
 }
@@ -297,6 +297,13 @@ BerkeleyBatch::SafeDbt::operator Dbt*()
 static Span<const std::byte> SpanFromDbt(const SafeDbt& dbt)
 {
     return {reinterpret_cast<const std::byte*>(dbt.get_data()), dbt.get_size()};
+}
+
+BerkeleyDatabase::BerkeleyDatabase(std::shared_ptr<BerkeleyEnvironment> env, fs::path filename, const DatabaseOptions& options) :
+    WalletDatabase(), env(std::move(env)), m_filename(std::move(filename)), m_max_log_mb(options.max_log_mb)
+{
+    auto inserted = this->env->m_databases.emplace(m_filename, std::ref(*this));
+    assert(inserted.second);
 }
 
 bool BerkeleyDatabase::Verify(bilingual_str& errorStr)
@@ -438,7 +445,6 @@ void BerkeleyBatch::Close()
         activeTxn->abort();
     activeTxn = nullptr;
     pdb = nullptr;
-    CloseCursor();
 
     if (fFlushOnClose)
         Flush();
@@ -526,14 +532,15 @@ bool BerkeleyDatabase::Rewrite(const char* pszSkip)
                         fSuccess = false;
                     }
 
-                    if (db.StartCursor()) {
+                    std::unique_ptr<DatabaseCursor> cursor = db.GetNewCursor();
+                    if (cursor) {
                         while (fSuccess) {
                             DataStream ssKey{};
                             DataStream ssValue{};
                             DatabaseCursor::Status ret1 = cursor->Next(ssKey, ssValue);
                             if (ret1 == DatabaseCursor::Status::DONE) {
                                 break;
-                            } else if (!ret1) {
+                            } else if (ret1 == DatabaseCursor::Status::FAIL) {
                                 fSuccess = false;
                                 break;
                             }
@@ -551,7 +558,7 @@ bool BerkeleyDatabase::Rewrite(const char* pszSkip)
                             if (ret2 > 0)
                                 fSuccess = false;
                         }
-                        db.CloseCursor();
+                        cursor.reset();
                     }
                     if (fSuccess) {
                         db.Close();
@@ -721,8 +728,7 @@ BerkeleyCursor::BerkeleyCursor(BerkeleyDatabase& database, const BerkeleyBatch& 
 
 DatabaseCursor::Status BerkeleyCursor::Next(DataStream& ssKey, DataStream& ssValue)
 {
-    complete = false;
-    if (m_cursor == nullptr) return false;
+    if (m_cursor == nullptr) return Status::FAIL;
     // Read at cursor
     SafeDbt datKey(m_key_prefix.data(), m_key_prefix.size());
     SafeDbt datValue;
@@ -739,10 +745,6 @@ DatabaseCursor::Status BerkeleyCursor::Next(DataStream& ssKey, DataStream& ssVal
     if (ret != 0) {
         return Status::FAIL;
     }
-    if (ret != 0)
-        return false;
-    else if (datKey.get_data() == nullptr || datValue.get_data() == nullptr)
-        return false;
 
     Span<const std::byte> raw_key = SpanFromDbt(datKey);
     if (!m_key_prefix.empty() && std::mismatch(raw_key.begin(), raw_key.end(), m_key_prefix.begin(), m_key_prefix.end()).second != m_key_prefix.end()) {
@@ -757,7 +759,7 @@ DatabaseCursor::Status BerkeleyCursor::Next(DataStream& ssKey, DataStream& ssVal
     return Status::MORE;
 }
 
-void BerkeleyBatch::CloseCursor()
+BerkeleyCursor::~BerkeleyCursor()
 {
     if (!m_cursor) return;
     m_cursor->close();

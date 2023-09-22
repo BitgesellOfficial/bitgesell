@@ -35,8 +35,6 @@ ClientModel::ClientModel(interfaces::Node& node, OptionsModel *_optionsModel, QO
     QObject(parent),
     m_node(node),
     optionsModel(_optionsModel),
-    peerTableModel(nullptr),
-    banTableModel(nullptr),
     m_thread(new QThread(this))
 {
     cachedBestHeaderHeight = -1;
@@ -283,7 +281,7 @@ bool ClientModel::getProxyInfo(std::string& ip_port) const
 {
     Proxy ipv4, ipv6;
     if (m_node.getProxy((Network) 1, ipv4) && m_node.getProxy((Network) 2, ipv6)) {
-      ip_port = ipv4.proxy.ToStringIPPort();
+      ip_port = ipv4.proxy.ToStringAddrPort();
       return true;
     }
     return false;

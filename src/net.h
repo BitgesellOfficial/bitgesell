@@ -372,6 +372,17 @@ private:
         return hdr.nMessageSize == nDataPos;
     }
 
+    /** Lock for sending state. */
+    mutable Mutex m_send_mutex;
+    /** The header of the message currently being sent. */
+    std::vector<uint8_t> m_header_to_send GUARDED_BY(m_send_mutex);
+    /** The data of the message currently being sent. */
+    CSerializedNetMsg m_message_to_send GUARDED_BY(m_send_mutex);
+    /** Whether we're currently sending header bytes or message bytes. */
+    bool m_sending_header GUARDED_BY(m_send_mutex) {false};
+    /** How many bytes have been sent so far (from m_header_to_send, or from m_message_to_send.data). */
+    size_t m_bytes_sent GUARDED_BY(m_send_mutex) {0};
+
 public:
     V1Transport(const NodeId node_id, int nTypeIn, int nVersionIn) noexcept;
 
@@ -401,7 +412,6 @@ public:
         }
         return ret >= 0;
     }
-    CNetMessage GetMessage(std::chrono::microseconds time, bool& reject_message) override;
 
     CNetMessage GetReceivedMessage(std::chrono::microseconds time, bool& reject_message) override EXCLUSIVE_LOCKS_REQUIRED(!m_recv_mutex);
 
@@ -423,7 +433,8 @@ struct CNodeOptions
 class CNode
 {
 public:
-    /** Transport serializer/deserializer. The receive side functions are only called under cs_vRecv. */
+    /** Transport serializer/deserializer. The receive side functions are only called under cs_vRecv, while
+     * the sending side functions are only called under cs_vSend. */
     const std::unique_ptr<Transport> m_transport;
 
     const NetPermissionFlags m_permission_flags;

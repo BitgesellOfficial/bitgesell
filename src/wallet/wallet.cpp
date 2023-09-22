@@ -5,82 +5,51 @@
 
 #include <wallet/wallet.h>
 
-#if defined(HAVE_CONFIG_H)
-#include <config/bitcoin-config.h>
-#endif
-#include <addresstype.h>
 #include <blockfilter.h>
 #include <chain.h>
-#include <coins.h>
 #include <common/args.h>
-#include <common/settings.h>
-#include <common/system.h>
 #include <consensus/amount.h>
 #include <consensus/consensus.h>
 #include <consensus/validation.h>
 #include <external_signer.h>
 #include <interfaces/chain.h>
-#include <interfaces/handler.h>
 #include <interfaces/wallet.h>
-#include <kernel/mempool_removal_reason.h>
 #include <key.h>
 #include <key_io.h>
-#include <logging.h>
 #include <outputtype.h>
-#include <policy/feerate.h>
+#include <policy/fees.h>
+#include <policy/policy.h>
 #include <primitives/block.h>
 #include <primitives/transaction.h>
 #include <psbt.h>
-#include <pubkey.h>
 #include <random.h>
 #include <script/descriptor.h>
-#include <script/interpreter.h>
 #include <script/script.h>
-#include <script/sign.h>
 #include <script/signingprovider.h>
 #include <script/solver.h>
-#include <serialize.h>
-#include <span.h>
-#include <streams.h>
-#include <support/allocators/secure.h>
-#include <support/allocators/zeroafterfree.h>
 #include <support/cleanse.h>
-#include <sync.h>
-#include <tinyformat.h>
-#include <uint256.h>
-#include <univalue.h>
+#include <txmempool.h>
+#include <util/bip32.h>
 #include <util/check.h>
 #include <util/error.h>
+#include <util/fees.h>
 #include <util/fs.h>
 #include <util/fs_helpers.h>
-#include <util/message.h>
 #include <util/moneystr.h>
-#include <util/result.h>
+#include <util/rbf.h>
 #include <util/string.h>
-#include <util/time.h>
 #include <util/translation.h>
 #include <wallet/coincontrol.h>
 #include <wallet/context.h>
-#include <wallet/crypter.h>
-#include <wallet/db.h>
 #include <wallet/external_signer_scriptpubkeyman.h>
+#include <wallet/fees.h>
 #include <wallet/scriptpubkeyman.h>
-#include <wallet/transaction.h>
-#include <wallet/types.h>
-#include <wallet/walletdb.h>
-#include <wallet/walletutil.h>
+
+#include <univalue.h>
 
 #include <algorithm>
-#include <cassert>
-#include <condition_variable>
-#include <exception>
+#include <assert.h>
 #include <optional>
-#include <stdexcept>
-#include <thread>
-#include <tuple>
-#include <variant>
-
-struct KeyOriginInfo;
 
 using interfaces::FoundBlock;
 
@@ -270,7 +239,7 @@ std::shared_ptr<CWallet> LoadWalletInternal(WalletContext& context, const std::s
         }
 
         context.chain->initMessage(_("Loading wallet…").translated);
-        const std::shared_ptr<CWallet> wallet = CWallet::Create(context, name, std::move(database), options.create_flags, error, warnings);
+        std::shared_ptr<CWallet> wallet = CWallet::Create(context, name, std::move(database), options.create_flags, error, warnings);
         if (!wallet) {
             error = Untranslated("Wallet loading failed.") + Untranslated(" ") + error;
             status = DatabaseStatus::FAILED_LOAD;
@@ -415,7 +384,7 @@ std::shared_ptr<CWallet> CreateWallet(WalletContext& context, const std::string&
 
     // Make the wallet
     context.chain->initMessage(_("Loading wallet…").translated);
-    const std::shared_ptr<CWallet> wallet = CWallet::Create(context, name, std::move(database), wallet_creation_flags, error, warnings);
+    std::shared_ptr<CWallet> wallet = CWallet::Create(context, name, std::move(database), wallet_creation_flags, error, warnings);
     if (!wallet) {
         error = Untranslated("Wallet creation failed.") + Untranslated(" ") + error;
         status = DatabaseStatus::FAILED_CREATE;
@@ -506,8 +475,7 @@ std::shared_ptr<CWallet> RestoreWallet(WalletContext& context, const fs::path& b
         error += strprintf(Untranslated("Unexpected exception: %s"), e.what());
     }
     if (!wallet) {
-        fs::remove(wallet_file);
-        fs::remove(wallet_path);
+        fs::remove_all(wallet_path);
     }
 
     return wallet;
@@ -683,8 +651,7 @@ bool CWallet::HasWalletSpend(const CTransactionRef& tx) const
     AssertLockHeld(cs_wallet);
     const uint256& txid = tx->GetHash();
     for (unsigned int i = 0; i < tx->vout.size(); ++i) {
-        auto iter = mapTxSpends.find(COutPoint(txid, i));
-        if (iter != mapTxSpends.end()) {
+        if (IsSpent(COutPoint(txid, i))) {
             return true;
         }
     }
@@ -2173,34 +2140,7 @@ TransactionError CWallet::FillPSBT(PartiallySignedTransaction& psbtx, bool& comp
         }
     }
 
-    // Only drop non_witness_utxos if sighash_type != SIGHASH_ANYONECANPAY
-    if ((sighash_type & 0x80) != SIGHASH_ANYONECANPAY) {
-        // Figure out if any non_witness_utxos should be dropped
-        std::vector<unsigned int> to_drop;
-        for (unsigned int i = 0; i < psbtx.inputs.size(); ++i) {
-            const auto& input = psbtx.inputs.at(i);
-            int wit_ver;
-            std::vector<unsigned char> wit_prog;
-            if (input.witness_utxo.IsNull() || !input.witness_utxo.scriptPubKey.IsWitnessProgram(wit_ver, wit_prog)) {
-                // There's a non-segwit input or Segwit v0, so we cannot drop any witness_utxos
-                to_drop.clear();
-                break;
-            }
-            if (wit_ver == 0) {
-                // Segwit v0, so we cannot drop any non_witness_utxos
-                to_drop.clear();
-                break;
-            }
-            if (input.non_witness_utxo) {
-                to_drop.push_back(i);
-            }
-        }
-
-        // Drop the non_witness_utxos that we can drop
-        for (unsigned int i : to_drop) {
-            psbtx.inputs.at(i).non_witness_utxo = nullptr;
-        }
-    }
+    RemoveUnnecessaryTransactions(psbtx, sighash_type);
 
     // Complete if every input is now signed
     complete = true;
@@ -2290,7 +2230,7 @@ OutputType CWallet::TransactionChangeType(const std::optional<OutputType>& chang
 void CWallet::CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::vector<std::pair<std::string, std::string>> orderForm)
 {
     LOCK(cs_wallet);
-    WalletLogPrintf("CommitTransaction:\n%s", tx->ToString()); // NOLINT(bitcoin-unterminated-logprintf)
+    WalletLogPrintf("CommitTransaction:\n%s", tx->ToString()); // NOLINT(BGL-unterminated-logprintf)
 
     // Add tx to wallet, because if it has change it's also ours,
     // otherwise just for transaction history.
@@ -3037,7 +2977,7 @@ std::shared_ptr<CWallet> CWallet::Create(WalletContext& context, const std::stri
     if (args.IsArgSet("-fallbackfee")) {
         std::optional<CAmount> fallback_fee = ParseMoney(args.GetArg("-fallbackfee", ""));
         if (!fallback_fee) {
-            error = strprintf(_("Invalid amount for -fallbackfee=<amount>: '%s'"), args.GetArg("-fallbackfee", ""));
+            error = strprintf(_("Invalid amount for %s=<amount>: '%s'"), "-fallbackfee", args.GetArg("-fallbackfee", ""));
             return nullptr;
         } else if (fallback_fee.value() > HIGH_TX_FEE_PER_KB) {
             warnings.push_back(AmountHighWarn("-fallbackfee") + Untranslated(" ") +
@@ -3052,7 +2992,7 @@ std::shared_ptr<CWallet> CWallet::Create(WalletContext& context, const std::stri
     if (args.IsArgSet("-discardfee")) {
         std::optional<CAmount> discard_fee = ParseMoney(args.GetArg("-discardfee", ""));
         if (!discard_fee) {
-            error = strprintf(_("Invalid amount for -discardfee=<amount>: '%s'"), args.GetArg("-discardfee", ""));
+            error = strprintf(_("Invalid amount for %s=<amount>: '%s'"), "-discardfee", args.GetArg("-discardfee", ""));
             return nullptr;
         } else if (discard_fee.value() > HIGH_TX_FEE_PER_KB) {
             warnings.push_back(AmountHighWarn("-discardfee") + Untranslated(" ") +
@@ -3074,8 +3014,8 @@ std::shared_ptr<CWallet> CWallet::Create(WalletContext& context, const std::stri
         walletInstance->m_pay_tx_fee = CFeeRate{pay_tx_fee.value(), 1000};
 
         if (chain && walletInstance->m_pay_tx_fee < chain->relayMinFee()) {
-            error = strprintf(_("Invalid amount for -paytxfee=<amount>: '%s' (must be at least %s)"),
-                args.GetArg("-paytxfee", ""), chain->relayMinFee().ToString());
+            error = strprintf(_("Invalid amount for %s=<amount>: '%s' (must be at least %s)"),
+                "-paytxfee", args.GetArg("-paytxfee", ""), chain->relayMinFee().ToString());
             return nullptr;
         }
     }
@@ -3086,12 +3026,12 @@ std::shared_ptr<CWallet> CWallet::Create(WalletContext& context, const std::stri
             error = AmountErrMsg("maxtxfee", args.GetArg("-maxtxfee", ""));
             return nullptr;
         } else if (max_fee.value() > HIGH_MAX_TX_FEE) {
-            warnings.push_back(_("-maxtxfee is set very high! Fees this large could be paid on a single transaction."));
+            warnings.push_back(strprintf(_("%s is set very high! Fees this large could be paid on a single transaction."), "-maxtxfee"));
         }
 
         if (chain && CFeeRate{max_fee.value(), 1000} < chain->relayMinFee()) {
-            error = strprintf(_("Invalid amount for -maxtxfee=<amount>: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)"),
-                args.GetArg("-maxtxfee", ""), chain->relayMinFee().ToString());
+            error = strprintf(_("Invalid amount for %s=<amount>: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)"),
+                "-maxtxfee", args.GetArg("-maxtxfee", ""), chain->relayMinFee().ToString());
             return nullptr;
         }
 
@@ -3249,17 +3189,6 @@ bool CWallet::AttachChain(const std::shared_ptr<CWallet>& walletInstance, interf
 
         chain.initMessage(_("Rescanning…").translated);
         walletInstance->WalletLogPrintf("Rescanning last %i blocks (from block %i)...\n", *tip_height - rescan_height, rescan_height);
-
-        // No need to read and scan block if block was created before
-        // our wallet birthday (as adjusted for block time variability)
-        std::optional<int64_t> time_first_key;
-        for (auto spk_man : walletInstance->GetAllScriptPubKeyMans()) {
-            int64_t time = spk_man->GetTimeFirstKey();
-            if (!time_first_key || time < *time_first_key) time_first_key = time;
-        }
-        if (time_first_key) {
-            chain.findFirstBlockWithTimeAndHeight(*time_first_key - TIMESTAMP_WINDOW, rescan_height, FoundBlock().height(rescan_height));
-        }
 
         {
             WalletRescanReserver reserver(*walletInstance);
@@ -3816,12 +3745,13 @@ bool CWallet::MigrateToSQLite(bilingual_str& error)
 
     // Get all of the records for DB type migration
     std::unique_ptr<DatabaseBatch> batch = m_database->MakeBatch();
+    std::unique_ptr<DatabaseCursor> cursor = batch->GetNewCursor();
     std::vector<std::pair<SerializeData, SerializeData>> records;
-    if (!batch->StartCursor()) {
+    if (!cursor) {
         error = _("Error: Unable to begin reading all records in the database");
         return false;
     }
-    bool complete = false;
+    DatabaseCursor::Status status = DatabaseCursor::Status::FAIL;
     while (true) {
         DataStream ss_key{};
         DataStream ss_value{};
@@ -3833,9 +3763,9 @@ bool CWallet::MigrateToSQLite(bilingual_str& error)
         SerializeData value(ss_value.begin(), ss_value.end());
         records.emplace_back(key, value);
     }
-    batch->CloseCursor();
+    cursor.reset();
     batch.reset();
-    if (!complete) {
+    if (status != DatabaseCursor::Status::DONE) {
         error = _("Error: Unable to read all records in the database");
         return false;
     }

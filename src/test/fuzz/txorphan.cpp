@@ -69,7 +69,7 @@ FUZZ_TARGET(txorphan, .init = initialize_orphanage)
             for (auto& in : tx_mut.vin) {
                 outpoints.push_back(in.prevout);
             }
-            const auto new_tx = MakeTransactionRef(tx_mut);
+            auto new_tx = MakeTransactionRef(tx_mut);
             // add newly constructed transaction to outpoints
             for (uint32_t i = 0; i < num_out; i++) {
                 outpoints.emplace_back(new_tx->GetHash(), i);
@@ -85,7 +85,7 @@ FUZZ_TARGET(txorphan, .init = initialize_orphanage)
             CallOneOf(
                 fuzzed_data_provider,
                 [&] {
-                    orphanage.AddChildrenToWorkSet(*tx, peer_id);
+                    orphanage.AddChildrenToWorkSet(*tx);
                 },
                 [&] {
                     {

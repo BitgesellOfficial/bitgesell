@@ -11,6 +11,7 @@
 #include <arith_uint256.h>
 #include <chain.h>
 #include <checkqueue.h>
+#include <clientversion.h>
 #include <consensus/amount.h>
 #include <consensus/consensus.h>
 #include <consensus/merkle.h>
@@ -27,8 +28,6 @@
 #include <logging/timer.h>
 #include <node/blockstorage.h>
 #include <node/utxo_snapshot.h>
-#include <node/coins_view_args.h>
-#include <node/database_args.h>
 #include <policy/policy.h>
 #include <policy/rbf.h>
 #include <policy/settings.h>
@@ -595,6 +594,11 @@ private:
         CAmount m_conflicting_fees{0};
         /** Total virtual size of all transactions being replaced. */
         size_t m_conflicting_size{0};
+
+        /** If we're doing package validation (i.e. m_package_feerates=true), the "effective"
+         * package feerate of this transaction is the total fees divided by the total size of
+         * transactions (which may include its ancestors and/or descendants). */
+        CFeeRate m_package_feerate{0};
 
         const CTransactionRef& m_ptx;
         /** Txid. */
@@ -1299,6 +1303,7 @@ PackageMempoolAcceptResult MemPoolAccept::AcceptMultipleTransactions(const std::
     std::transform(workspaces.cbegin(), workspaces.cend(), std::back_inserter(all_package_wtxids),
                    [](const auto& ws) { return ws.m_ptx->GetWitnessHash(); });
     for (Workspace& ws : workspaces) {
+        ws.m_package_feerate = package_feerate;
         if (!PolicyScriptChecks(args, ws)) {
             // Exit early to avoid doing pointless work. Update the failed tx result; the rest are unfinished.
             package_state.Invalid(PackageValidationResult::PCKG_TX, "transaction failed");
@@ -1372,8 +1377,7 @@ PackageMempoolAcceptResult MemPoolAccept::AcceptPackage(const Package& package, 
     // require inputs to be confirmed if they aren't in the package.
     m_view.SetBackend(m_active_chainstate.CoinsTip());
     const auto package_or_confirmed = [this, &unconfirmed_parent_txids](const auto& input) {
-        return unconfirmed_parent_txids.count(input.prevout.hash) > 0 || m_view.HaveCoin(input.prevout);
-
+         return unconfirmed_parent_txids.count(input.prevout.hash) > 0 || m_view.HaveCoin(input.prevout);
     };
     if (!std::all_of(child->vin.cbegin(), child->vin.cend(), package_or_confirmed)) {
         package_state_quit_early.Invalid(PackageValidationResult::PCKG_POLICY, "package-not-child-with-unconfirmed-parents");
@@ -1496,7 +1500,7 @@ MempoolAcceptResult AcceptToMemoryPool(Chainstate& active_chainstate, const CTra
 
     std::vector<COutPoint> coins_to_uncache;
     auto args = MemPoolAccept::ATMPArgs::SingleAccept(chainparams, accept_time, bypass_limits, coins_to_uncache, test_accept);
-    const MempoolAcceptResult result = MemPoolAccept(pool, active_chainstate).AcceptSingleTransaction(tx, args);
+    MempoolAcceptResult result = MemPoolAccept(pool, active_chainstate).AcceptSingleTransaction(tx, args);
     if (result.m_result_type != MempoolAcceptResult::ResultType::VALID) {
         // Remove coins that were not present in the coins cache before calling
         // AcceptSingleTransaction(); this is to prevent memory DoS in case we receive a large
@@ -1525,7 +1529,7 @@ PackageMempoolAcceptResult ProcessNewPackage(Chainstate& active_chainstate, CTxM
 
     std::vector<COutPoint> coins_to_uncache;
     const CChainParams& chainparams = active_chainstate.m_chainman.GetParams();
-    const auto result = [&]() EXCLUSIVE_LOCKS_REQUIRED(cs_main) {
+    auto result = [&]() EXCLUSIVE_LOCKS_REQUIRED(cs_main) {
         AssertLockHeld(cs_main);
         if (test_accept) {
             auto args = MemPoolAccept::ATMPArgs::PackageTestAccept(chainparams, GetTime(), coins_to_uncache);
@@ -1600,13 +1604,13 @@ void Chainstate::InitCoinsDB(
 
     m_coins_views = std::make_unique<CoinsViews>(
         DBParams{
-            .path = gArgs.GetDataDirNet() / leveldb_name,
+            .path = m_chainman.m_options.datadir / leveldb_name,
             .cache_bytes = cache_size_bytes,
             .memory_only = in_memory,
             .wipe_data = should_wipe,
             .obfuscate = true,
-            .options = [] { DBOptions options; node::ReadDatabaseArgs(gArgs, options); return options; }()},
-        [] { CoinsViewOptions options; node::ReadCoinsViewArgs(gArgs, options); return options; }());
+            .options = m_chainman.m_options.coins_db},
+        m_chainman.m_options.coins_view);
 }
 
 void Chainstate::InitCoinsCache(size_t cache_size_bytes)
@@ -1911,11 +1915,21 @@ DisconnectResult Chainstate::DisconnectBlock(const CBlock& block, const CBlockIn
         return DISCONNECT_FAILED;
     }
 
+    // Ignore blocks that contain transactions which are 'overwritten' by later transactions,
+    // unless those are already completely spent.
+    // See https://github.com/bitcoin/bitcoin/issues/22596 for additional information.
+    // Note: the blocks specified here are different than the ones used in ConnectBlock because DisconnectBlock
+    // unwinds the blocks in reverse. As a result, the inconsistency is not discovered until the earlier
+    // blocks with the duplicate coinbase transactions are disconnected.
+    bool fEnforceBIP30 = !((pindex->nHeight==91722 && pindex->GetBlockHash() == uint256S("0x00000000000271a2dc26e7667f8419f2e15416dc6955e5a6c6cdf3f2574dd08e")) ||
+                           (pindex->nHeight==91812 && pindex->GetBlockHash() == uint256S("0x00000000000af0aed4792b1acee3d966af36cf5def14935db8de83d6f9306f2f")));
+
     // undo transactions in reverse order
     for (int i = block.vtx.size() - 1; i >= 0; i--) {
         const CTransaction &tx = *(block.vtx[i]);
         uint256 hash = tx.GetHash();
         bool is_coinbase = tx.IsCoinBase();
+        bool is_bip30_exception = (is_coinbase && !fEnforceBIP30);
 
         // Check that all outputs are available and match the outputs in the block itself
         // exactly.
@@ -1925,7 +1939,9 @@ DisconnectResult Chainstate::DisconnectBlock(const CBlock& block, const CBlockIn
                 Coin coin;
                 bool is_spent = view.SpendCoin(out, &coin);
                 if (!is_spent || tx.vout[o] != coin.out || pindex->nHeight != coin.nHeight || is_coinbase != coin.fCoinBase) {
-                    fClean = false; // transaction output mismatch
+                    if (!is_bip30_exception) {
+                        fClean = false; // transaction output mismatch
+                    }
                 }
             }
         }
@@ -2222,7 +2238,6 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
 
     // Enforce BIP68 (sequence locks)
     int nLockTimeFlags = 0;
-    // CSVHeight is set to zero which means that the below check is not actually checking DeploymentAtiveAt
     if (DeploymentActiveAt(*pindex, m_chainman, Consensus::DEPLOYMENT_CSV)) {
         nLockTimeFlags |= LOCKTIME_VERIFY_SEQUENCE;
     }
@@ -2282,14 +2297,9 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
                 prevheights[j] = view.AccessCoin(tx.vin[j].prevout).nHeight;
             }
 
-            // CSVHeight is set to zero which means DeploymentActiveAt is not properly checked.
-            // However, we use 200 as cut off to cover unit test cases.
             if (!SequenceLocks(tx, nLockTimeFlags, prevheights, *pindex)) {
-                if(prevheights[tx.vin.size() - 1] > 200) {
-                    LogPrintf("ERROR: %s: contains a non-BIP68-final transaction\n", __func__);
-                    return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-txns-nonfinal");
-                }
-
+                LogPrintf("ERROR: %s: contains a non-BIP68-final transaction\n", __func__);
+                return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-txns-nonfinal");
             }
         }
 
@@ -3614,14 +3624,6 @@ std::vector<unsigned char> ChainstateManager::GenerateCoinbaseCommitment(CBlock&
     return commitment;
 }
 
-bool nBitsNotIn(uint32_t nBits) {
-    // These numbers are computed from UintToArith256(params.powLimit).GetCompact() for each chain
-	if (nBits == 553705471 || nBits == 521142271 || nBits == 503543726) {
-		return false;
-	}
-	return true;
-}
-
 bool HasValidProofOfWork(const std::vector<CBlockHeader>& headers, const Consensus::Params& consensusParams)
 {
     return std::all_of(headers.cbegin(), headers.cend(),
@@ -3655,11 +3657,8 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, BlockValidatio
 
     // Check proof of work
     const Consensus::Params& consensusParams = chainman.GetConsensus();
-    if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams)) {
-        if (nBitsNotIn(block.nBits)) {
-            return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "bad-diffbits", "incorrect proof of work");
-        }
-    }
+    if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams))
+        return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "bad-diffbits", "incorrect proof of work");
 
     // Check against checkpoints
     if (chainman.m_options.checkpoints_enabled) {
@@ -3724,12 +3723,10 @@ static bool ContextualCheckBlock(const CBlock& block, BlockValidationState& stat
     // Enforce rule that the coinbase starts with serialized block height
     if (DeploymentActiveAfter(pindexPrev, chainman, Consensus::DEPLOYMENT_HEIGHTINCB))
     {
-        if(nHeight > 200) { // 200 is not a magic number it is there to cover miner_tests where height is less than 200
-            CScript expect = CScript() << nHeight;
-            if (block.vtx[0]->vin[0].scriptSig.size() < expect.size() ||
-                !std::equal(expect.begin(), expect.end(), block.vtx[0]->vin[0].scriptSig.begin())) {
-                return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-cb-height", "block height mismatch in coinbase");
-            }
+        CScript expect = CScript() << nHeight;
+        if (block.vtx[0]->vin[0].scriptSig.size() < expect.size() ||
+            !std::equal(expect.begin(), expect.end(), block.vtx[0]->vin[0].scriptSig.begin())) {
+            return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-cb-height", "block height mismatch in coinbase");
         }
     }
 
@@ -3764,10 +3761,8 @@ static bool ContextualCheckBlock(const CBlock& block, BlockValidationState& stat
     // No witness data is allowed in blocks that don't commit to witness data, as this would otherwise leave room for spam
     if (!fHaveWitness) {
       for (const auto& tx : block.vtx) {
-            if(nHeight > 200) { // 200 is not a magic number it is there to cover miner_tests where height is less than 200
-                if (tx->HasWitness()) {
-                    return state.Invalid(BlockValidationResult::BLOCK_MUTATED, "unexpected-witness", strprintf("%s : unexpected witness data found", __func__));
-                }
+            if (tx->HasWitness()) {
+                return state.Invalid(BlockValidationResult::BLOCK_MUTATED, "unexpected-witness", strprintf("%s : unexpected witness data found", __func__));
             }
         }
     }
@@ -4440,6 +4435,8 @@ bool ChainstateManager::LoadBlockIndex()
         bool ret{m_blockman.LoadBlockIndexDB()};
         if (!ret) return false;
 
+        m_blockman.ScanAndUnlinkAlreadyPrunedFiles();
+
         std::vector<CBlockIndex*> vSortedByHeight{m_blockman.GetAllBlockIndices()};
         std::sort(vSortedByHeight.begin(), vSortedByHeight.end(),
                   CBlockIndexHeightOnlyComparator());
@@ -4668,7 +4665,18 @@ void ChainstateManager::LoadExternalBlockFile(
                     }
                 }
             } catch (const std::exception& e) {
-                LogPrintf("%s: Deserialize or I/O error - %s\n", __func__, e.what());
+                // historical bugs added extra data to the block files that does not deserialize cleanly.
+                // commonly this data is between readable blocks, but it does not really matter. such data is not fatal to the import process.
+                // the code that reads the block files deals with invalid data by simply ignoring it.
+                // it continues to search for the next {4 byte magic message start bytes + 4 byte length + block} that does deserialize cleanly
+                // and passes all of the other block validation checks dealing with POW and the merkle root, etc...
+                // we merely note with this informational log message when unexpected data is encountered.
+                // we could also be experiencing a storage system read error, or a read of a previous bad write. these are possible, but
+                // less likely scenarios. we don't have enough information to tell a difference here.
+                // the reindex process is not the place to attempt to clean and/or compact the block files. if so desired, a studious node operator
+                // may use knowledge of the fact that the block files are not entirely pristine in order to prepare a set of pristine, and
+                // perhaps ordered, block files for later reindexing.
+                LogPrint(BCLog::REINDEX, "%s: unexpected data at file offset 0x%x - %s. continuing\n", __func__, (nRewind - 1), e.what());
             }
         }
     } catch (const std::runtime_error& e) {

@@ -77,10 +77,10 @@ FUZZ_TARGET(p2p_transport_serialization, .init = initialize_p2p_transport_serial
         if (!recv_transport.ReceivedBytes(msg_bytes)) {
             break;
         }
-        if (recv_transport.Complete()) {
+        if (recv_transport.ReceivedMessageComplete()) {
             const std::chrono::microseconds m_time{std::numeric_limits<int64_t>::max()};
             bool reject_message{false};
-            CNetMessage msg = recv_transport.GetMessage(m_time, reject_message);
+            CNetMessage msg = recv_transport.GetReceivedMessage(m_time, reject_message);
             assert(msg.m_type.size() <= CMessageHeader::COMMAND_SIZE);
             assert(msg.m_raw_message_size <= mutable_msg_bytes.size());
             assert(msg.m_raw_message_size == CMessageHeader::HEADER_SIZE + msg.m_message_size);
@@ -88,7 +88,16 @@ FUZZ_TARGET(p2p_transport_serialization, .init = initialize_p2p_transport_serial
 
             std::vector<unsigned char> header;
             auto msg2 = CNetMsgMaker{msg.m_recv.GetVersion()}.Make(msg.m_type, Span{msg.m_recv});
-            send_transport.prepareForTransport(msg2, header);
+            bool queued = send_transport.SetMessageToSend(msg2);
+            assert(queued);
+            std::optional<bool> known_more;
+            while (true) {
+                const auto& [to_send, more, _msg_type] = send_transport.GetBytesToSend();
+                if (known_more) assert(!to_send.empty() == *known_more);
+                if (to_send.empty()) break;
+                send_transport.MarkBytesSent(to_send.size());
+                known_more = more;
+            }
         }
     }
 }

@@ -679,7 +679,7 @@ void BGLGUI::enableHistoryAction(bool privacy)
     if (historyAction->isChecked()) gotoOverviewPage();
 }
 
-void BGLGUI::setWalletController(WalletController* wallet_controller)
+void BGLGUI::setWalletController(WalletController* wallet_controller, bool show_loading_minimized)
 {
     assert(!m_wallet_controller);
     assert(wallet_controller);
@@ -698,9 +698,8 @@ void BGLGUI::setWalletController(WalletController* wallet_controller)
         m_wallet_controller = nullptr;
     });
 
-
     auto activity = new LoadWalletsActivity(m_wallet_controller, this);
-    activity->load();
+    activity->load(show_loading_minimized);
 }
 
 WalletController* BGLGUI::getWalletController()
@@ -1061,6 +1060,7 @@ void BGLGUI::openOptionsDialogWithTab(OptionsDialog::Tab tab)
     auto dlg = new OptionsDialog(this, enableWallet);
     connect(dlg, &OptionsDialog::quitOnReset, this, &BGLGUI::quitRequested);
     dlg->setCurrentTab(tab);
+    dlg->setClientModel(clientModel);
     dlg->setModel(clientModel->getOptionsModel());
     GUIUtil::ShowModalDialogAsynchronously(dlg);
 }
@@ -1557,10 +1557,8 @@ bool BGLGUI::isPrivacyModeActivated() const
     return m_mask_values_action->isChecked();
 }
 
-UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle *platformStyle)
-    : optionsModel(nullptr),
-      menu(nullptr),
-      m_platform_style{platformStyle}
+UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle* platformStyle)
+    : m_platform_style{platformStyle}
 {
     createContextMenu();
     setToolTip(tr("Unit to show amounts in. Click to select another unit."));

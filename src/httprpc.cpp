@@ -161,7 +161,7 @@ static bool HTTPReq_JSONRPC(const std::any& context, HTTPRequest* req)
 
     JSONRPCRequest jreq;
     jreq.context = context;
-    jreq.peerAddr = req->GetPeer().ToString();
+    jreq.peerAddr = req->GetPeer().ToStringAddrPort();
     if (!RPCAuthorized(authHeader.second, jreq.authUser)) {
         LogPrintf("ThreadRPCServer incorrect password attempt from %s\n", jreq.peerAddr);
 
@@ -260,6 +260,9 @@ static bool InitRPCAuthentication()
                 fields.pop_back();
                 fields.insert(fields.end(), salt_hmac.begin(), salt_hmac.end());
                 g_rpcauth.push_back(fields);
+            } else {
+                LogPrintf("Invalid -rpcauth argument.\n");
+                return false;
             }
         }
     }

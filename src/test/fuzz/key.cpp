@@ -31,7 +31,6 @@
 
 void initialize_key()
 {
-    static const ECCVerifyHandle ecc_verify_handle;
     ECC_Start();
     SelectParams(ChainType::REGTEST);
 }

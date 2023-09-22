@@ -14,6 +14,7 @@
 #include <common/url.h>
 #include <compat/compat.h>
 #include <interfaces/init.h>
+#include <key.h>
 #include <logging.h>
 #include <pubkey.h>
 #include <tinyformat.h>
@@ -21,7 +22,10 @@
 #include <util/translation.h>
 #include <wallet/wallettool.h>
 
+#include <exception>
 #include <functional>
+#include <string>
+#include <tuple>
 
 const std::function<std::string(const char*)> G_TRANSLATION_FUN = nullptr;
 UrlDecodeFn* const URL_DECODE = nullptr;
@@ -128,7 +132,6 @@ MAIN_FUNCTION
         return EXIT_FAILURE;
     }
 
-    ECCVerifyHandle globalVerifyHandle;
     ECC_Start();
     if (!wallet::WalletTool::ExecuteWalletToolFunc(args, command->command)) {
         return EXIT_FAILURE;

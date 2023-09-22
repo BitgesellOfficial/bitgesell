@@ -177,49 +177,15 @@ static void initTranslations(QTranslator &qtTranslatorBase, QTranslator &qtTrans
 
 static bool ErrorSettingsRead(const bilingual_str& error, const std::vector<std::string>& details)
 {
-    gArgs.EnsureDataDir();
-    if (!gArgs.GetSettingsPath()) {
-        return true; // Do nothing if settings file disabled.
-    }
-
-    std::vector<std::string> errors;
-    if (!gArgs.ReadSettingsFile(&errors)) {
-        std::string error = QT_TRANSLATE_NOOP("Bitgesell-core", "Settings file could not be read");
-        std::string error_translated = QCoreApplication::translate("Bitgesell-core", error.c_str()).toStdString();
-        InitError(Untranslated(strprintf("%s:\n%s", error, MakeUnorderedList(errors))));
-
-        QMessageBox messagebox(QMessageBox::Critical, PACKAGE_NAME, QString::fromStdString(strprintf("%s.", error_translated)), QMessageBox::Reset | QMessageBox::Abort);
-        /*: Explanatory text shown on startup when the settings file cannot be read.
-            Prompts user to make a choice between resetting or aborting. */
-        messagebox.setInformativeText(QObject::tr("Do you want to reset settings to default values, or to abort without making changes?"));
-        messagebox.setDetailedText(QString::fromStdString(MakeUnorderedList(errors)));
-        messagebox.setTextFormat(Qt::PlainText);
-        messagebox.setDefaultButton(QMessageBox::Reset);
-        switch (messagebox.exec()) {
-        case QMessageBox::Reset:
-            break;
-        case QMessageBox::Abort:
-            return false;
-        default:
-            assert(false);
-        }
-    }
-
-    errors.clear();
-    if (!gArgs.WriteSettingsFile(&errors)) {
-        std::string error = QT_TRANSLATE_NOOP("Bitgesell-core", "Settings file could not be written");
-        std::string error_translated = QCoreApplication::translate("Bitgesell-core", error.c_str()).toStdString();
-        InitError(Untranslated(strprintf("%s:\n%s", error, MakeUnorderedList(errors))));
-
-        QMessageBox messagebox(QMessageBox::Critical, PACKAGE_NAME, QString::fromStdString(strprintf("%s.", error_translated)), QMessageBox::Ok);
-        /*: Explanatory text shown on startup when the settings file could not be written.
-            Prompts user to check that we have the ability to write to the file.
-            Explains that the user has the option of running without a settings file.*/
-        messagebox.setInformativeText(QObject::tr("A fatal error occurred. Check that settings file is writable, or try running with -nosettings."));
-        messagebox.setDetailedText(QString::fromStdString(MakeUnorderedList(errors)));
-        messagebox.setTextFormat(Qt::PlainText);
-        messagebox.setDefaultButton(QMessageBox::Ok);
-        messagebox.exec();
+    QMessageBox messagebox(QMessageBox::Critical, PACKAGE_NAME, QString::fromStdString(strprintf("%s.", error.translated)), QMessageBox::Reset | QMessageBox::Abort);
+    /*: Explanatory text shown on startup when the settings file cannot be read.
+      Prompts user to make a choice between resetting or aborting. */
+    messagebox.setInformativeText(QObject::tr("Do you want to reset settings to default values, or to abort without making changes?"));
+    messagebox.setDetailedText(QString::fromStdString(MakeUnorderedList(details)));
+    messagebox.setTextFormat(Qt::PlainText);
+    messagebox.setDefaultButton(QMessageBox::Reset);
+    switch (messagebox.exec()) {
+    case QMessageBox::Reset:
         return false;
     case QMessageBox::Abort:
         return true;
@@ -255,14 +221,8 @@ void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
 static int qt_argc = 1;
 static const char* qt_argv = "BGL-qt";
 
-BGLApplication::BGLApplication():
-    QApplication(qt_argc, const_cast<char **>(&qt_argv)),
-    optionsModel(nullptr),
-    clientModel(nullptr),
-    window(nullptr),
-    pollShutdownTimer(nullptr),
-    returnValue(0),
-    platformStyle(nullptr)
+BGLApplication::BGLApplication()
+    : QApplication(qt_argc, const_cast<char**>(&qt_argv))
 {
     // Qt runs setlocale(LC_ALL, "") on initialization.
     RegisterMetaTypes();
@@ -447,18 +407,21 @@ void BGLApplication::initializeResult(bool success, interfaces::BlockAndHeaderTi
         qInfo() << "Platform customization:" << platformStyle->getName();
         clientModel = new ClientModel(node(), optionsModel);
         window->setClientModel(clientModel, &tip_info);
+
+        // If '-min' option passed, start window minimized (iconified) or minimized to tray
+        bool start_minimized = gArgs.GetBoolArg("-min", false);
 #ifdef ENABLE_WALLET
         if (WalletModel::isWalletEnabled()) {
             m_wallet_controller = new WalletController(*clientModel, platformStyle, this);
-            window->setWalletController(m_wallet_controller);
+            window->setWalletController(m_wallet_controller, /*show_loading_minimized=*/start_minimized);
             if (paymentServer) {
                 paymentServer->setOptionsModel(optionsModel);
             }
         }
 #endif // ENABLE_WALLET
 
-        // If -min option passed, start window minimized (iconified) or minimized to tray
-        if (!gArgs.GetBoolArg("-min", false)) {
+        // Show or minimize window
+        if (!start_minimized) {
             window->show();
         } else if (clientModel->getOptionsModel()->getMinimizeToTray() && window->hasTrayIcon()) {
             // do nothing as the window is managed by the tray icon
@@ -617,34 +580,23 @@ int GuiMain(int argc, char* argv[])
     // Gracefully exit if the user cancels
     if (!Intro::showIfNeeded(did_show_intro, prune_MiB)) return EXIT_SUCCESS;
 
-    /// 6a. Determine availability of data directory
-    if (!CheckDataDirOption(gArgs)) {
-        InitError(strprintf(Untranslated("Specified data directory \"%s\" does not exist."), gArgs.GetArg("-datadir", "")));
-        QMessageBox::critical(nullptr, PACKAGE_NAME,
-            QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(gArgs.GetArg("-datadir", ""))));
-        return EXIT_FAILURE;
-    }
-    try {
-        /// 6b. Parse bitcoin.conf
-        /// - Do not call gArgs.GetDataDirNet() before this step finishes
-        if (!gArgs.ReadConfigFiles(error, true)) {
-            InitError(strprintf(Untranslated("Error reading configuration file: %s"), error));
-            QMessageBox::critical(nullptr, PACKAGE_NAME,
-                QObject::tr("Error: Cannot parse configuration file: %1.").arg(QString::fromStdString(error)));
-            return EXIT_FAILURE;
+    /// 6-7. Parse bitcoin.conf, determine network, switch to network specific
+    /// options, and create datadir and settings.json.
+    // - Do not call gArgs.GetDataDirNet() before this step finishes
+    // - Do not call Params() before this step
+    // - QSettings() will use the new application name after this, resulting in network-specific settings
+    // - Needs to be done before createOptionsModel
+    if (auto error = common::InitConfig(gArgs, ErrorSettingsRead)) {
+        InitError(error->message, error->details);
+        if (error->status == common::ConfigStatus::FAILED_WRITE) {
+            // Show a custom error message to provide more information in the
+            // case of a datadir write error.
+            ErrorSettingsWrite(error->message, error->details);
+        } else if (error->status != common::ConfigStatus::ABORTED) {
+            // Show a generic message in other cases, and no additional error
+            // message in the case of a read error if the user decided to abort.
+            QMessageBox::critical(nullptr, PACKAGE_NAME, QObject::tr("Error: %1").arg(QString::fromStdString(error->message.translated)));
         }
-
-        /// 7. Determine network (and switch to network specific options)
-        // - Do not call Params() before this step
-        // - Do this after parsing the configuration file, as the network can be switched there
-        // - QSettings() will use the new application name after this, resulting in network-specific settings
-        // - Needs to be done before createOptionsModel
-
-        // Check for chain settings (Params() calls are only valid after this clause)
-        SelectParams(gArgs.GetChainName());
-    } catch(std::exception &e) {
-        InitError(Untranslated(strprintf("%s", e.what())));
-        QMessageBox::critical(nullptr, PACKAGE_NAME, QObject::tr("Error: %1").arg(e.what()));
         return EXIT_FAILURE;
     }
 #ifdef ENABLE_WALLET

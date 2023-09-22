@@ -25,9 +25,7 @@
 class ChaCha20Aligned
 {
 private:
-    ChaCha20Aligned m_aligned;
-    unsigned char m_buffer[64] = {0};
-    unsigned m_bufleft{0};
+    uint32_t input[12];
 
 public:
     /** Expected key length in constructor and SetKey. */
@@ -75,7 +73,7 @@ public:
     void Crypt(Span<const std::byte> input, Span<std::byte> output) noexcept;
 };
 
-/** Unrestricted ChaCha20 cipher. Seeks forward to a multiple of 64 bytes after every operation. */
+/** Unrestricted ChaCha20 cipher. */
 class ChaCha20
 {
 private:

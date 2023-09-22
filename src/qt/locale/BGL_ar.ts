@@ -66,11 +66,11 @@
         <translation type="unfinished">العناوين المستلمة</translation>
     </message>
     <message>
-        <source>These are your BGL addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Bitgesell addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">‫هذه عناوين البتكوين الخاصة بك لإرسال المدفوعات. تأكد دائما من القيم المدخلة ومن العنوان المستلم قبل الارسال.‬</translation>
     </message>
     <message>
-        <source>These are your BGL addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Bitgesell addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">هذه عناوين البتكوين الخاصة بك لاستلام المدفوعات. قم بالنقر على زر انشاء عنوان استلام جديد لإنشاء عناوين جديدة.
 التوقيع ممكن باستخدام العناوين القديمة "Legacy" فقط.</translation>
@@ -250,10 +250,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ملف الاعدادات %1 قد يكون تالف او غير صالح</translation>
     </message>
     <message>
-        <source>Settings file %1 might be corrupt or invalid.</source>
-        <translation type="unfinished">ملف الاعدادات %1 قد يكون تالف او غير صالح</translation>
-    </message>
-    <message>
         <source>Runaway exception</source>
         <translation type="unfinished">‫‫Runaway exception‬</translation>
     </message>
@@ -338,9 +334,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <extracomment>Peer connection type that relays network information about blocks and not transactions or addresses.</extracomment>
         <translation type="unfinished">‫موصل طابق‬</translation>
     </message>
-</context>
-<context>
-    <name>BGL-core</name>
     <message>
         <source>Manual</source>
         <extracomment>Peer connection type established manually through one of several methods.</extracomment>
@@ -473,14 +466,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 </context>
 <context>
     <name>BGL-core</name>
-    <message>
-        <source>Settings file could not be read</source>
-        <translation type="unfinished">‫ملف الاعدادات لا يمكن قراءته‬</translation>
-    </message>
-    <message>
-        <source>Settings file could not be written</source>
-        <translation type="unfinished">‫لم نتمكن من كتابة ملف الاعدادات‬</translation>
-    </message>
     <message>
         <source>Settings file could not be read</source>
         <translation type="unfinished">‫ملف الاعدادات لا يمكن قراءته‬</translation>
@@ -3879,7 +3864,11 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">‫وقع الرسالة لتثبت انك تملك عنوان البتكوين هذا‬</translation>
     </message>
     <message>
+        <source>Sign &amp;Message</source>
+        <translation type="unfinished">توقيع &amp;الرسالة</translation>
+    </message>
     <message>
+        <source>Reset all sign message fields</source>
         <translation type="unfinished">‫إعادة تعيين كافة حقول توقيع الرسالة‬</translation>
     </message>
     <message>

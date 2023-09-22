@@ -81,7 +81,7 @@ public:
     */
     void setClientModel(ClientModel *clientModel = nullptr, interfaces::BlockAndHeaderTipInfo* tip_info = nullptr);
 #ifdef ENABLE_WALLET
-    void setWalletController(WalletController* wallet_controller);
+    void setWalletController(WalletController* wallet_controller, bool show_loading_minimized);
     WalletController* getWalletController();
 #endif
 
@@ -335,8 +335,8 @@ protected:
     void changeEvent(QEvent* e) override;
 
 private:
-    OptionsModel *optionsModel;
-    QMenu* menu;
+    OptionsModel* optionsModel{nullptr};
+    QMenu* menu{nullptr};
     const PlatformStyle* m_platform_style;
 
     /** Shows context menu with Display Unit options by the mouse coordinates */

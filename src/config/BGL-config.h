@@ -8,32 +8,35 @@
 /* Define if building universal (internal helper macro) */
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
 
+/* Defined to avoid Boost::Process trying to use Boost Filesystem */
+#define BOOST_PROCESS_USE_STD_FS 1
+
 /* Define this symbol if type char equals int8_t */
 /* #undef CHAR_EQUALS_INT8 */
 
 /* Version Build */
-#define CLIENT_VERSION_BUILD 9
+#define CLIENT_VERSION_BUILD 0
 
 /* Version is release */
-#define CLIENT_VERSION_IS_RELEASE true
+#define CLIENT_VERSION_IS_RELEASE false
 
 /* Major version */
-#define CLIENT_VERSION_MAJOR 0
+#define CLIENT_VERSION_MAJOR 25
 
 /* Minor version */
-#define CLIENT_VERSION_MINOR 1
+#define CLIENT_VERSION_MINOR 99
 
 /* Copyright holder(s) before %s replacement */
 #define COPYRIGHT_HOLDERS "The %s developers"
 
 /* Copyright holder(s) */
-#define COPYRIGHT_HOLDERS_FINAL "The BGL Core developers"
+#define COPYRIGHT_HOLDERS_FINAL "The Bitgesell Core developers"
 
 /* Replacement for %s in copyright holders string */
-#define COPYRIGHT_HOLDERS_SUBSTITUTION "BGL Core"
+#define COPYRIGHT_HOLDERS_SUBSTITUTION "Bitgesell Core"
 
 /* Copyright year */
-#define COPYRIGHT_YEAR 2022
+#define COPYRIGHT_YEAR 2023
 
 /* Define this symbol to build code that uses ARMv8 SHA-NI intrinsics */
 /* #undef ENABLE_ARM_SHANI */
@@ -57,7 +60,7 @@
 /* Define this symbol to build code that uses x86 SHA-NI intrinsics */
 #define ENABLE_X86_SHANI 1
 
-/* Define to 1 to enable ZMQ functions */
+/* Define this symbol to enable ZMQ functions */
 #define ENABLE_ZMQ 1
 
 /* define if the Boost library is available */
@@ -193,6 +196,9 @@
    sys/random.h */
 #define HAVE_GETENTROPY_RAND 1
 
+/* Define this symbol if the Linux getrandom function call is available */
+#define HAVE_GETRANDOM 1
+
 /* Define this symbol if gmtime_r is available */
 #define HAVE_GMTIME_R 1
 
@@ -280,9 +286,6 @@
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
 
-/* Define to 1 if you have the <stdio.h> header file. */
-#define HAVE_STDIO_H 1
-
 /* Define to 1 if you have the <stdlib.h> header file. */
 #define HAVE_STDLIB_H 1
 
@@ -309,9 +312,6 @@
 
 /* Define to 1 if you have the <sys/endian.h> header file. */
 /* #undef HAVE_SYS_ENDIAN_H */
-
-/* Define this symbol if the Linux getrandom system call is available */
-#define HAVE_SYS_GETRANDOM 1
 
 /* Define to 1 if you have the <sys/prctl.h> header file. */
 #define HAVE_SYS_PRCTL_H 1
@@ -350,22 +350,22 @@
 #define LT_OBJDIR ".libs/"
 
 /* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "https://github.com/bitgesellofficial/bitgesell/issues"
+#define PACKAGE_BUGREPORT "https://github.com/bitcoin/bitcoin/issues"
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "BGL Core"
+#define PACKAGE_NAME "Bitgesell Core"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "BGL Core 0.1.9"
+#define PACKAGE_STRING "Bitgesell Core 25.99.0"
 
 /* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "bitgesell"
+#define PACKAGE_TARNAME "bitcoin"
 
 /* Define to the home page for this package. */
-#define PACKAGE_URL "https://bitgesell.ca/"
+#define PACKAGE_URL "https://bitcoincore.org/"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.1.9"
+#define PACKAGE_VERSION "25.99.0"
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
@@ -404,8 +404,7 @@
 /* Define if dbus support should be compiled in */
 #define USE_DBUS 1
 
-/* NAT-PMP support not compiled if undefined, otherwise value (0 or 1)
-   determines default state */
+/* Define to 1 if UPnP support should be compiled in. */
 /* #undef USE_NATPMP */
 
 /* Define if QR support should be compiled in */
@@ -414,11 +413,7 @@
 /* Define if sqlite support should be compiled in */
 #define USE_SQLITE 1
 
-/* Define this symbol to build with syscall sandbox support. */
-#define USE_SYSCALL_SANDBOX 1
-
-/* UPnP support not compiled if undefined, otherwise value (0 or 1) determines
-   default state */
+/* Define to 1 if UPnP support should be compiled in. */
 /* #undef USE_UPNP */
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most

@@ -106,6 +106,9 @@ static void SetPragma(sqlite3* db, const std::string& key, const std::string& va
     }
 }
 
+Mutex SQLiteDatabase::g_sqlite_mutex;
+int SQLiteDatabase::g_sqlite_count = 0;
+
 SQLiteDatabase::SQLiteDatabase(const fs::path& dir_path, const fs::path& file_path, const DatabaseOptions& options, bool mock)
     : WalletDatabase(), m_mock(mock), m_dir_path(fs::PathToString(dir_path)), m_file_path(fs::PathToString(file_path)), m_use_unsafe_sync(options.use_unsafe_sync)
 {
@@ -169,6 +172,8 @@ SQLiteDatabase::~SQLiteDatabase()
 
 void SQLiteDatabase::Cleanup() noexcept
 {
+    AssertLockNotHeld(g_sqlite_mutex);
+
     Close();
 
     LOCK(g_sqlite_mutex);
@@ -275,7 +280,7 @@ void SQLiteDatabase::Open()
     // Now begin a transaction to acquire the exclusive lock. This lock won't be released until we close because of the exclusive locking mode.
     int ret = sqlite3_exec(m_db, "BEGIN EXCLUSIVE TRANSACTION", nullptr, nullptr, nullptr);
     if (ret != SQLITE_OK) {
-        throw std::runtime_error("SQLiteDatabase: Unable to obtain an exclusive lock on the database, is it being used by another instance of Bitgesell Core?\n");
+        throw std::runtime_error("SQLiteDatabase: Unable to obtain an exclusive lock on the database, is it being used by another instance of " PACKAGE_NAME "?\n");
     }
     ret = sqlite3_exec(m_db, "COMMIT", nullptr, nullptr, nullptr);
     if (ret != SQLITE_OK) {
@@ -513,26 +518,13 @@ bool SQLiteBatch::HasKey(DataStream&& key)
 
 DatabaseCursor::Status SQLiteCursor::Next(DataStream& key, DataStream& value)
 {
-    assert(!m_cursor_init);
-    if (!m_database.m_db) return false;
-    m_cursor_init = true;
-    return true;
-}
-
-bool SQLiteBatch::ReadAtCursor(CDataStream& key, CDataStream& value, bool& complete)
-{
-    complete = false;
-
-    if (!m_cursor_init) return false;
-
     int res = sqlite3_step(m_cursor_stmt);
     if (res == SQLITE_DONE) {
-        complete = true;
-        return true;
+        return Status::DONE;
     }
     if (res != SQLITE_ROW) {
-        LogPrintf("SQLiteBatch::ReadAtCursor: Unable to execute cursor step: %s\n", sqlite3_errstr(res));
-        return false;
+        LogPrintf("%s: Unable to execute cursor step: %s\n", __func__, sqlite3_errstr(res));
+        return Status::FAIL;
     }
 
     key.clear();
@@ -544,11 +536,30 @@ bool SQLiteBatch::ReadAtCursor(CDataStream& key, CDataStream& value, bool& compl
     return Status::MORE;
 }
 
-void SQLiteBatch::CloseCursor()
+SQLiteCursor::~SQLiteCursor()
 {
     sqlite3_clear_bindings(m_cursor_stmt);
     sqlite3_reset(m_cursor_stmt);
-    m_cursor_init = false;
+    int res = sqlite3_finalize(m_cursor_stmt);
+    if (res != SQLITE_OK) {
+        LogPrintf("%s: cursor closed but could not finalize cursor statement: %s\n",
+                  __func__, sqlite3_errstr(res));
+    }
+}
+
+std::unique_ptr<DatabaseCursor> SQLiteBatch::GetNewCursor()
+{
+    if (!m_database.m_db) return nullptr;
+    auto cursor = std::make_unique<SQLiteCursor>();
+
+    const char* stmt_text = "SELECT key, value FROM main";
+    int res = sqlite3_prepare_v2(m_database.m_db, stmt_text, -1, &cursor->m_cursor_stmt, nullptr);
+    if (res != SQLITE_OK) {
+        throw std::runtime_error(strprintf(
+            "%s: Failed to setup cursor SQL statement: %s\n", __func__, sqlite3_errstr(res)));
+    }
+
+    return cursor;
 }
 
 std::unique_ptr<DatabaseCursor> SQLiteBatch::GetNewPrefixCursor(Span<const std::byte> prefix)

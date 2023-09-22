@@ -186,4 +186,6 @@ static inline size_t DynamicUsage(const std::unordered_map<Key,
     return usage_resource + usage_chunks + MallocUsage(sizeof(void*) * m.bucket_count());
 }
 
+} // namespace memusage
+
 #endif // BGL_MEMUSAGE_H

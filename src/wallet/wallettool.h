@@ -5,12 +5,13 @@
 #ifndef BGL_WALLET_WALLETTOOL_H
 #define BGL_WALLET_WALLETTOOL_H
 
-#include <wallet/wallet.h>
+#include <string>
+
+class ArgsManager;
 
 namespace wallet {
 namespace WalletTool {
 
-void WalletShowInfo(CWallet* wallet_instance);
 bool ExecuteWalletToolFunc(const ArgsManager& args, const std::string& command);
 
 } // namespace WalletTool
