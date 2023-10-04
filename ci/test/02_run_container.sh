@@ -5,6 +5,8 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 
+set -ex
+
 if [ -z "$DANGER_RUN_CI_ON_HOST" ]; then
   # Export all env vars to avoid missing some.
   # Though, exclude those with newlines to avoid parsing problems.
