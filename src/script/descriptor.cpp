@@ -1492,13 +1492,17 @@ struct KeyParser {
         if (miniscript::IsTapscript(m_script_ctx) && end - begin == 32) {
             XOnlyPubKey pubkey;
             std::copy(begin, end, pubkey.begin());
-            m_keys.push_back(InferPubkey(pubkey.GetEvenCorrespondingCPubKey(), ParseContext(), *m_in));
-            return key;
-        } else if (!miniscript::IsTapscript(m_script_ctx)) {
-            CPubKey pubkey(begin, end);
-            if (auto pubkey_provider = InferPubkey(pubkey, ParseContext(), *m_in)) {
+            if (auto pubkey_provider = InferPubkey(pubkey.GetEvenCorrespondingCPubKey(), ParseContext(), *m_in)) {
                 m_keys.push_back(std::move(pubkey_provider));
                 return key;
+            }
+        } else if (!miniscript::IsTapscript(m_script_ctx)) {
+            CPubKey pubkey(begin, end);
+            if (pubkey.IsValidNonHybrid()) {
+                if (auto pubkey_provider = InferPubkey(pubkey, ParseContext(), *m_in)) {
+                    m_keys.push_back(std::move(pubkey_provider));
+                    return key;
+                }
             }
         }
         return {};
@@ -1513,9 +1517,11 @@ struct KeyParser {
         CKeyID keyid(hash);
         CPubKey pubkey;
         if (m_in->GetPubKey(keyid, pubkey)) {
-            Key key = m_keys.size();
-            m_keys.push_back(InferPubkey(pubkey, ParseContext(), *m_in));
-            return key;
+            if (auto pubkey_provider = InferPubkey(pubkey, ParseContext(), *m_in)) {
+                Key key = m_keys.size();
+                m_keys.push_back(std::move(pubkey_provider));
+                return key;
+            }
         }
         return {};
     }
@@ -1850,8 +1856,10 @@ std::unique_ptr<DescriptorImpl> InferScript(const CScript& script, ParseScriptCo
 
     if (txntype == TxoutType::PUBKEY && (ctx == ParseScriptContext::TOP || ctx == ParseScriptContext::P2SH || ctx == ParseScriptContext::P2WSH)) {
         CPubKey pubkey(data[0]);
-        if (auto pubkey_provider = InferPubkey(pubkey, ctx, provider)) {
-            return std::make_unique<PKDescriptor>(std::move(pubkey_provider));
+        if (pubkey.IsValidNonHybrid()) {
+            if (auto pubkey_provider = InferPubkey(pubkey, ctx, provider)) {
+                return std::make_unique<PKDescriptor>(std::move(pubkey_provider));
+            }
         }
     }
     if (txntype == TxoutType::PUBKEYHASH && (ctx == ParseScriptContext::TOP || ctx == ParseScriptContext::P2SH || ctx == ParseScriptContext::P2WSH)) {
@@ -1859,7 +1867,9 @@ std::unique_ptr<DescriptorImpl> InferScript(const CScript& script, ParseScriptCo
         CKeyID keyid(hash);
         CPubKey pubkey;
         if (provider.GetPubKey(keyid, pubkey)) {
-            return std::make_unique<PKHDescriptor>(InferPubkey(pubkey, ctx, provider));
+            if (auto pubkey_provider = InferPubkey(pubkey, ctx, provider)) {
+                return std::make_unique<PKHDescriptor>(std::move(pubkey_provider));
+            }
         }
     }
     if (txntype == TxoutType::WITNESS_V0_KEYHASH && (ctx == ParseScriptContext::TOP || ctx == ParseScriptContext::P2SH)) {
@@ -1867,18 +1877,24 @@ std::unique_ptr<DescriptorImpl> InferScript(const CScript& script, ParseScriptCo
         CKeyID keyid(hash);
         CPubKey pubkey;
         if (provider.GetPubKey(keyid, pubkey)) {
-            if (auto pubkey_provider = InferPubkey(pubkey, ParseScriptContext::P2WPKH, provider)) {
+            if (auto pubkey_provider = InferPubkey(pubkey, ctx, provider)) {
                 return std::make_unique<WPKHDescriptor>(std::move(pubkey_provider));
             }
         }
     }
     if (txntype == TxoutType::MULTISIG && (ctx == ParseScriptContext::TOP || ctx == ParseScriptContext::P2SH || ctx == ParseScriptContext::P2WSH)) {
+        bool ok = true;
         std::vector<std::unique_ptr<PubkeyProvider>> providers;
         for (size_t i = 1; i + 1 < data.size(); ++i) {
             CPubKey pubkey(data[i]);
-            providers.push_back(InferPubkey(pubkey, ctx, provider));
+            if (auto pubkey_provider = InferPubkey(pubkey, ctx, provider)) {
+                providers.push_back(std::move(pubkey_provider));
+            } else {
+                ok = false;
+                break;
+            }
         }
-        return std::make_unique<MultisigDescriptor>((int)data[0][0], std::move(providers));
+        if (ok) return std::make_unique<MultisigDescriptor>((int)data[0][0], std::move(providers));
     }
     if (txntype == TxoutType::SCRIPTHASH && ctx == ParseScriptContext::TOP) {
         uint160 hash(data[0]);
