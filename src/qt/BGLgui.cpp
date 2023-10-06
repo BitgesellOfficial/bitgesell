@@ -109,7 +109,7 @@ BGLGUI::BGLGUI(interfaces::Node& node, const PlatformStyle *_platformStyle, cons
     {
         /** Create wallet frame and make it the central widget */
         walletFrame = new WalletFrame(_platformStyle, this);
-        connect(walletFrame, &WalletFrame::createWalletButtonClicked, this, &BitcoinGUI::createWallet);
+        connect(walletFrame, &WalletFrame::createWalletButtonClicked, this, &BGLGUI::createWallet);
         connect(walletFrame, &WalletFrame::message, [this](const QString& title, const QString& message, unsigned int style) {
             this->message(title, message, style);
         });
@@ -388,7 +388,7 @@ void BGLGUI::createActions()
         connect(usedSendingAddressesAction, &QAction::triggered, walletFrame, &WalletFrame::usedSendingAddresses);
         connect(usedReceivingAddressesAction, &QAction::triggered, walletFrame, &WalletFrame::usedReceivingAddresses);
         connect(openAction, &QAction::triggered, this, &BGLGUI::openClicked);
-        connect(m_open_wallet_menu, &QMenu::aboutToShow, [this] {
+        connect(m_open_wallet_menu, &QMenu::aboutToShow, m_wallet_controller, [this] {
             m_open_wallet_menu->clear();
             for (const std::pair<const std::string, bool>& i : m_wallet_controller->listWalletDir()) {
                 const std::string& path = i.first;
@@ -405,7 +405,7 @@ void BGLGUI::createActions()
                     continue;
                 }
 
-                connect(action, &QAction::triggered, [this, path] {
+                connect(action, &QAction::triggered, m_wallet_controller, [this, path] {
                     auto activity = new OpenWalletActivity(m_wallet_controller, this);
                     connect(activity, &OpenWalletActivity::opened, this, &BGLGUI::setCurrentWallet, Qt::QueuedConnection);
                     connect(activity, &OpenWalletActivity::opened, rpcConsole, &RPCConsole::setCurrentWallet, Qt::QueuedConnection);
@@ -417,7 +417,7 @@ void BGLGUI::createActions()
                 action->setEnabled(false);
             }
         });
-        connect(m_restore_wallet_action, &QAction::triggered, [this] {
+        connect(m_restore_wallet_action, &QAction::triggered, m_wallet_controller, [this] {
             //: Name of the wallet data file format.
             QString name_data_file = tr("Wallet Data");
 
@@ -443,12 +443,17 @@ void BGLGUI::createActions()
             auto backup_file_path = fs::PathFromString(backup_file.toStdString());
             activity->restore(backup_file_path, wallet_name.toStdString());
         });
-        connect(m_close_wallet_action, &QAction::triggered, [this] {
+        connect(m_close_wallet_action, &QAction::triggered, m_wallet_controller, [this] {
             m_wallet_controller->closeWallet(walletFrame->currentWalletModel(), this);
         });
-        connect(m_create_wallet_action, &QAction::triggered, this, &BitcoinGUI::createWallet);
-        connect(m_close_all_wallets_action, &QAction::triggered, [this] {
+        connect(m_create_wallet_action, &QAction::triggered, this, &BGLGUI::createWallet);
+        connect(m_close_all_wallets_action, &QAction::triggered, m_wallet_controller, [this] {
             m_wallet_controller->closeAllWallets(this);
+        });
+        connect(m_migrate_wallet_action, &QAction::triggered, m_wallet_controller, [this] {
+            auto activity = new MigrateWalletActivity(m_wallet_controller, this);
+            connect(activity, &MigrateWalletActivity::migrated, this, &BGLGUI::setCurrentWallet);
+            activity->migrate(walletFrame->currentWalletModel());
         });
         connect(m_mask_values_action, &QAction::toggled, this, &BGLGUI::setPrivacy);
         connect(m_mask_values_action, &QAction::toggled, this, &BGLGUI::enableHistoryAction);
@@ -1171,7 +1176,7 @@ void BGLGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVerific
     progressBar->setToolTip(tooltip);
 }
 
-void BitcoinGUI::createWallet()
+void BGLGUI::createWallet()
 {
 #ifdef ENABLE_WALLET
 #ifndef USE_SQLITE
@@ -1180,7 +1185,7 @@ void BitcoinGUI::createWallet()
     return;
 #endif // USE_SQLITE
     auto activity = new CreateWalletActivity(getWalletController(), this);
-    connect(activity, &CreateWalletActivity::created, this, &BitcoinGUI::setCurrentWallet);
+    connect(activity, &CreateWalletActivity::created, this, &BGLGUI::setCurrentWallet);
     connect(activity, &CreateWalletActivity::created, rpcConsole, &RPCConsole::setCurrentWallet);
     activity->create();
 #endif // ENABLE_WALLET
