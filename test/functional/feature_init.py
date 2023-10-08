@@ -5,6 +5,8 @@
 """Stress tests related to node initialization."""
 import os
 from pathlib import Path
+from random import randint
+import shutil
 
 from test_framework.test_framework import BGLTestFramework, SkipTest
 from test_framework.test_node import ErrorMatch
@@ -138,8 +140,8 @@ class InitStressTest(BGLTestFramework):
                     # Since the genesis block is not checked by -checkblocks, the
                     # perturbation window must be chosen such that a higher block
                     # in blk*.dat is affected.
-                    tf.seek(150)
-                    tf.write(b'1' * 200)
+                    tf.seek(randint (150, 15000))
+                    tf.write(b'1' * randint(20, 2000))
 
             start_expecting_error(err_fragment)
 
