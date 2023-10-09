@@ -95,7 +95,7 @@ class ValidationTracepointTest(BGLTestFramework):
         ctx.enable_probe(probe="validation:block_connected",
                          fn_name="trace_block_connected")
         bpf = BPF(text=validation_blockconnected_program,
-                  usdt_contexts=[ctx], debug=0)
+                  usdt_contexts=[ctx], debug=0, cflags=["-Wno-error=implicit-function-declaration"])
 
         def handle_blockconnected(_, data, __):
             nonlocal events, blocks_checked
