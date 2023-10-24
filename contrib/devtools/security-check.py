@@ -9,7 +9,6 @@ Otherwise the exit status will be 1 and it will log which executables failed whi
 Needs `objdump` (for PE).
 '''
 import sys
-from typing import List
 
 import lief
 
@@ -263,7 +262,7 @@ if __name__ == '__main__':
                 retval = 1
                 continue
 
-            failed: List[str] = []
+            failed: list[str] = []
             for (name, func) in CHECKS[etype][arch]:
                 if not func(binary):
                     failed.append(name)
