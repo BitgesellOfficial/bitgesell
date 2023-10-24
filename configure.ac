@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 AC_PREREQ([2.60])
 
 # The package (a.k.a. release) version is based on semantic versioning 2.0.0 of
