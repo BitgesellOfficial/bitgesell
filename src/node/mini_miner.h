@@ -90,10 +90,6 @@ class MiniMiner
     // the same tx will have the same bumpfee. Excludes non-mempool transactions.
     std::map<uint256, std::vector<COutPoint>> m_requested_outpoints_by_txid;
 
-    // Txid to a number representing the order in which this transaction was included (smaller
-    // number = included earlier).  Transactions included in an ancestor set together have the same
-    // sequence number.
-    std::map<Txid, uint32_t> m_inclusion_order;
     // What we're trying to calculate. Outpoint to the fee needed to bring the transaction to the target feerate.
     std::map<COutPoint, CAmount> m_bump_fees;
 
@@ -124,8 +120,9 @@ public:
     /** Returns true if CalculateBumpFees may be called, false if not. */
     bool IsReadyToCalculate() const { return m_ready_to_calculate; }
 
-    /** Build a block template until the target feerate is hit. */
-    void BuildMockTemplate(const CFeeRate& target_feerate);
+    /** Build a block template until the target feerate is hit. If target_feerate is not given,
+     * builds a block template until all transactions have been selected. */
+    void BuildMockTemplate(std::optional<CFeeRate> target_feerate);
 
     /** Returns set of txids in the block template if one has been constructed. */
     std::set<uint256> GetMockTemplateTxids() const { return m_in_block; }
@@ -160,11 +157,6 @@ public:
      * if it cannot be calculated. */
     std::optional<CAmount> CalculateTotalBumpFees(const CFeeRate& target_feerate);
 
-    /** Construct a new block template with all of the transactions and calculate the order in which
-     * they are selected. Returns the sequence number (lower = selected earlier) with which each
-     * transaction was selected, indexed by txid, or an empty map if it cannot be calculated.
-     */
-    std::map<Txid, uint32_t> Linearize();
 };
 } // namespace node
 
