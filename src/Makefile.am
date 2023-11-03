@@ -953,7 +953,6 @@ libBGLkernel_la_SOURCES = \
   node/chainstate.cpp \
   node/utxo_snapshot.cpp \
   policy/feerate.cpp \
-  policy/fees.cpp \
   policy/packages.cpp \
   policy/policy.cpp \
   policy/rbf.cpp \
