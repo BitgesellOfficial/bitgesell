@@ -374,8 +374,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: CI script
-        uses: ./.github/actions/run-in-docker-action
+      - name: Configure Developer Command Prompt for Microsoft Visual C++
+        # Using microsoft/setup-msbuild is not enough.
+        uses: ilammy/msvc-dev-cmd@v1
         with:
           dockerfile: ./ci/linux-debian.Dockerfile
           tag: linux-debian-image
