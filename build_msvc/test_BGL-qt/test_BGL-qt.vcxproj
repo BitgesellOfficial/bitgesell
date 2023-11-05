@@ -80,7 +80,8 @@
       <AdditionalIncludeDirectories>..\libBGL_qt\$(GeneratedFilesOutDir)\..\;$(QtIncludeDir)\QtTest;$(QtIncludes);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(QtReleaseLibaries);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(QtLibraryDir)\Qt5Test.lib;$(QtReleaseLibraries);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/LTCG:OFF</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
 
