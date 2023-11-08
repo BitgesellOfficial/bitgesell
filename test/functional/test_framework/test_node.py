@@ -710,10 +710,10 @@ class TestNode():
         p2p_conn.wait_for_connect()
         self.p2ps.append(p2p_conn)
 
-        if wait_for_verack:
-            p2p_conn.wait_for_verack()
-            p2p_conn.sync_with_ping()
-
+            p2p_conn.wait_until(lambda: not p2p_conn.on_connection_send_msg)
+            if wait_for_verack:
+                p2p_conn.wait_for_verack()
+                p2p_conn.sync_with_ping()
         return p2p_conn
 
     def num_test_p2p_connections(self):
