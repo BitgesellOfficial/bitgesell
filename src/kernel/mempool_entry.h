@@ -176,4 +176,6 @@ public:
     mutable Epoch::Marker m_epoch_marker; //!< epoch when last touched, useful for graph algorithms
 };
 
+using CTxMemPoolEntryRef = CTxMemPoolEntry::CTxMemPoolEntryRef;
+
 #endif // BGL_KERNEL_MEMPOOL_ENTRY_H
