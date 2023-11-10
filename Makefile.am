@@ -14,8 +14,6 @@ endif
 .PHONY: deploy FORCE
 .INTERMEDIATE: $(COVERAGE_INFO)
 
-export PYTHONPATH
-
 if BUILD_BGL_LIBS
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libBGLconsensus.pc
