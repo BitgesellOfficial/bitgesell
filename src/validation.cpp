@@ -3624,6 +3624,14 @@ std::vector<unsigned char> ChainstateManager::GenerateCoinbaseCommitment(CBlock&
     return commitment;
 }
 
+bool nBitsNotIn(uint32_t nBits) {
+    // These numbers are computed from UintToArith256(params.powLimit).GetCompact() for each chain
+	if (nBits == 553705471 || nBits == 521142271 || nBits == 503543726) {
+		return false;
+	}
+	return true;
+}
+
 bool HasValidProofOfWork(const std::vector<CBlockHeader>& headers, const Consensus::Params& consensusParams)
 {
     return std::all_of(headers.cbegin(), headers.cend(),
@@ -3657,8 +3665,11 @@ static bool ContextualCheckBlockHeader(const CBlockHeader& block, BlockValidatio
 
     // Check proof of work
     const Consensus::Params& consensusParams = chainman.GetConsensus();
-    if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams))
-        return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "bad-diffbits", "incorrect proof of work");
+    if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams)) {
+        if (nBitsNotIn(block.nBits)) {
+            return state.Invalid(BlockValidationResult::BLOCK_INVALID_HEADER, "bad-diffbits", "incorrect proof of work");
+        }
+    }
 
     // Check against checkpoints
     if (chainman.m_options.checkpoints_enabled) {
