@@ -123,8 +123,9 @@ To build BGL Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mo
 
 #### SQLite
 
-Usually, macOS installation already has a suitable SQLite installation.
-Also, the Homebrew package could be installed:
+If `berkeley-db@4` is installed, then legacy wallet support will be built.
+If `sqlite` is installed, then descriptor wallet support will also be built.
+Additionally, this explicitly disables the GUI.
 
 ```shell
 brew install sqlite
