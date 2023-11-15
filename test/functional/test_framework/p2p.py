@@ -71,6 +71,7 @@ from test_framework.messages import (
     msg_wtxidrelay,
     NODE_NETWORK,
     NODE_WITNESS,
+    MAGIC_BYTES,
     sha256,
 )
 from test_framework.util import (
@@ -137,13 +138,6 @@ MESSAGEMAP = {
     b"verack": msg_verack,
     b"version": msg_version,
     b"wtxidrelay": msg_wtxidrelay,
-}
-
-MAGIC_BYTES = {
-    "mainnet": b"\x8a\xb4\x91\xe8",  # mainnet
-    "testnet3": b"\x0b\x11\x09\x07",  # testnet3
-    "regtest": b"\xd9\x8c\xbf\xba",  # regtest
-    "signet": b"\x0a\x03\xcf\x40",  # signet
 }
 
 
