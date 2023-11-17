@@ -14,5 +14,4 @@ export DEP_OPTS="DEBUG=1 MULTIPROCESS=1"
 export GOAL="install"
 export BGL_CONFIG="--enable-debug CC='clang -m32' CXX='clang++ -m32' \
 LDFLAGS='--rtlib=compiler-rt -lgcc_s' CPPFLAGS='-DBOOST_MULTI_INDEX_ENABLE_SAFE_MODE'"
-export TEST_RUNNER_ENV="BGLD=BGL-node"
-export NO_WERROR=1  # Temporary workaround to avoid -Wdeprecated-declarations from KJ
+export TEST_RUNNER_ENV="BGLD=bitcoin-node"
