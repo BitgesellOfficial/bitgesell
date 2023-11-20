@@ -130,6 +130,9 @@ class NetTest(BGLTestFramework):
         peer_info = self.nodes[0].getpeerinfo()[no_version_peer_id]
         peer_info.pop("addr")
         peer_info.pop("addrbind")
+        # The next two fields will vary for v2 connections because we send a rng-based number of decoy messages
+        peer_info.pop("bytesrecv")
+        peer_info.pop("bytessent")
         assert_equal(
             peer_info,
             {
@@ -138,9 +141,7 @@ class NetTest(BGLTestFramework):
                 "addr_relay_enabled": False,
                 "bip152_hb_from": False,
                 "bip152_hb_to": False,
-                "bytesrecv": 0,
                 "bytesrecv_per_msg": {},
-                "bytessent": 0,
                 "bytessent_per_msg": {},
                 "connection_type": "inbound",
                 "conntime": no_version_peer_conntime,
@@ -149,8 +150,8 @@ class NetTest(BGLTestFramework):
                 "inflight": [],
                 "last_block": 0,
                 "last_transaction": 0,
-                "lastrecv": 0,
-                "lastsend": 0,
+                "lastrecv": 0 if not self.options.v2transport else no_version_peer_conntime,
+                "lastsend": 0 if not self.options.v2transport else no_version_peer_conntime,
                 "minfeefilter": Decimal("0E-8"),
                 "network": "not_publicly_routable",
                 "permissions": [],
@@ -158,13 +159,13 @@ class NetTest(BGLTestFramework):
                 "relaytxes": False,
                 "services": "0000000000000000",
                 "servicesnames": [],
-                "session_id": "",
+                "session_id": "" if not self.options.v2transport else no_version_peer.v2_state.peer['session_id'].hex(),
                 "startingheight": -1,
                 "subver": "",
                 "synced_blocks": -1,
                 "synced_headers": -1,
                 "timeoffset": 0,
-                "transport_protocol_type": "v1" if not self.options.v2transport else "detecting",
+                "transport_protocol_type": "v1" if not self.options.v2transport else "v2",
                 "version": 0,
             },
         )
