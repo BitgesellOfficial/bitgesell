@@ -1003,7 +1003,7 @@ libBGLkernel_la_SOURCES = \
 # Required for obj/build.h to be generated first.
 # More details: https://www.gnu.org/software/automake/manual/html_node/Built-Sources-Example.html
 libBGLkernel_la-clientversion.l$(OBJEXT): obj/build.h
-endif # BUILD_BITCOIN_KERNEL_LIB
+endif # BUILD_BGL_KERNEL_LIB
 #
 
 # bitcoinconsensus library #
@@ -1093,6 +1093,7 @@ ipc/capnp/libBGL_ipc_a-protocol.$(OBJEXT): $(libBGL_ipc_mpgen_input:=.h)
 if BUILD_MULTIPROCESS
 LIBBGL_IPC=libBGL_ipc.a
 libBGL_ipc_a_SOURCES = \
+  ipc/capnp/common-types.h \
   ipc/capnp/context.h \
   ipc/capnp/init-types.h \
   ipc/capnp/protocol.cpp \
