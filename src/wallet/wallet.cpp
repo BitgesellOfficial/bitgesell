@@ -1050,6 +1050,9 @@ CWalletTx* CWallet::AddToWallet(CTransactionRef tx, const TxState& state, const 
         wtx.m_it_wtxOrdered = wtxOrdered.insert(std::make_pair(wtx.nOrderPos, &wtx));
         wtx.nTimeSmart = ComputeTimeSmart(wtx, rescanning_old_block);
         AddToSpends(wtx, &batch);
+
+        // Update birth time when tx time is older than it.
+        MaybeUpdateBirthTime(wtx.GetTxTime());
     }
 
     if (!fInsertedNew)
@@ -1169,6 +1172,10 @@ bool CWallet::LoadToWallet(const uint256& hash, const UpdateWalletTxFn& fill_wtx
             }
         }
     }
+
+    // Update birth time when tx time is older than it.
+    MaybeUpdateBirthTime(wtx.GetTxTime());
+
     return true;
 }
 
@@ -3057,7 +3064,7 @@ std::shared_ptr<CWallet> CWallet::Create(WalletContext& context, const std::stri
         int64_t time = spk_man->GetTimeFirstKey();
         if (!time_first_key || time < *time_first_key) time_first_key = time;
     }
-    if (time_first_key) walletInstance->m_birth_time = *time_first_key;
+    if (time_first_key) walletInstance->MaybeUpdateBirthTime(*time_first_key);
 
     if (chain && !AttachChain(walletInstance, *chain, rescan_required, error, warnings)) {
         return nullptr;
