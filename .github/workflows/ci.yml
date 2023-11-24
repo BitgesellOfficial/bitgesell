@@ -700,8 +700,17 @@ jobs:
 
       - name: Install Homebrew packages
         run: |
-          brew install automake libtool gcc
-          ln -s $(brew --prefix gcc)/bin/gcc-?? /usr/local/bin/gcc
+          Set-Location "$env:VCPKG_INSTALLATION_ROOT"
+          Add-Content -Path "triplets\x64-windows-static.cmake" -Value "set(VCPKG_BUILD_TYPE release)"
+          .\vcpkg.exe --vcpkg-root "$env:VCPKG_INSTALLATION_ROOT" integrate install
+          git rev-parse HEAD | Out-File -FilePath "$env:GITHUB_WORKSPACE\vcpkg_commit"
+          Get-Content -Path "$env:GITHUB_WORKSPACE\vcpkg_commit"
+
+      - name: vcpkg tools cache
+        uses: actions/cache@v3
+        with:
+          path: C:/vcpkg/downloads/tools
+          key: ${{ github.job }}-vcpkg-tools
 
       - name: Install and cache Valgrind
         uses: ./.github/actions/install-homebrew-valgrind
