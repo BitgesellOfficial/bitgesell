@@ -464,24 +464,18 @@ jobs:
           - env_vars: { CC: 'clang',                                      ASM: 'no', ECMULTGENPRECISION: 2, ECMULTWINDOW: 2 }
           - env_vars: { CC: 'i686-linux-gnu-gcc', HOST: 'i686-linux-gnu', ASM: 'no', ECMULTGENPRECISION: 2, ECMULTWINDOW: 2 }
 
-    env:
-      # The `--error-exitcode` is required to make the test fail if valgrind found errors,
-      # otherwise it will return 0 (https://www.valgrind.org/docs/manual/manual-core.html).
-      WRAPPER_CMD: 'valgrind --error-exitcode=42'
-      ECDH: 'yes'
-      RECOVERY: 'yes'
-      SCHNORRSIG: 'yes'
-      ELLSWIFT: 'yes'
-      CTIMETESTS: 'no'
-      SECP256K1_TEST_ITERS: 2
+      - name: Check MSBuild and Qt
+        run: |
+          msbuild -version | Out-File -FilePath "$env:GITHUB_WORKSPACE\msbuild_version"
+          Get-Content -Path "$env:GITHUB_WORKSPACE\msbuild_version"
+          $env:VCToolsVersion | Out-File -FilePath "$env:GITHUB_WORKSPACE\toolset_version"
+          Get-Content -Path "$env:GITHUB_WORKSPACE\toolset_version"
+          $env:CI_QT_URL | Out-File -FilePath "$env:GITHUB_WORKSPACE\qt_url"
+          $env:CI_QT_CONF | Out-File -FilePath "$env:GITHUB_WORKSPACE\qt_conf"
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: CI script
-        env: ${{ matrix.configuration.env_vars }}
-        uses: ./.github/actions/run-in-docker-action
+      - name: Restore static Qt cache
+        id: static-qt-cache
+        uses: actions/cache/restore@v3
         with:
           dockerfile: ./ci/linux-debian.Dockerfile
           tag: linux-debian-image
@@ -702,6 +696,7 @@ jobs:
         run: |
           Set-Location "$env:VCPKG_INSTALLATION_ROOT"
           Add-Content -Path "triplets\x64-windows-static.cmake" -Value "set(VCPKG_BUILD_TYPE release)"
+          Add-Content -Path "triplets\x64-windows-static.cmake" -Value "set(VCPKG_PLATFORM_TOOLSET_VERSION $env:VCToolsVersion)"
           .\vcpkg.exe --vcpkg-root "$env:VCPKG_INSTALLATION_ROOT" integrate install
           git rev-parse HEAD | Out-File -FilePath "$env:GITHUB_WORKSPACE\vcpkg_commit"
           Get-Content -Path "$env:GITHUB_WORKSPACE\vcpkg_commit"
@@ -712,8 +707,11 @@ jobs:
           path: C:/vcpkg/downloads/tools
           key: ${{ github.job }}-vcpkg-tools
 
-      - name: Install and cache Valgrind
-        uses: ./.github/actions/install-homebrew-valgrind
+      - name: vcpkg binary cache
+        uses: actions/cache@v3
+        with:
+          path: ~/AppData/Local/vcpkg/archives
+          key: ${{ github.job }}-vcpkg-binary-${{ hashFiles('vcpkg_commit', 'msbuild_version', 'toolset_version', 'build_msvc/vcpkg.json') }}
 
       - name: CI script
         env: ${{ matrix.env_vars }}
