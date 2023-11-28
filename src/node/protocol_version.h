@@ -1,9 +1,9 @@
-// Copyright (c) 2012-2020 The Bitcoin Core developers
+// Copyright (c) 2012-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BGL_VERSION_H
-#define BGL_VERSION_H
+#ifndef BGL_NODE_PROTOCOL_VERSION_H
+#define BGL_NODE_PROTOCOL_VERSION_H
 
 /**
  * network protocol versioning
@@ -35,4 +35,4 @@ static const int INVALID_CB_NO_BAN_VERSION = 70015;
 //! "wtxidrelay" command for wtxid-based relay starts with this version
 static const int WTXID_RELAY_VERSION = 70016;
 
-#endif // BGL_VERSION_H
+#endif // BGL_NODE_PROTOCOL_VERSION_H
