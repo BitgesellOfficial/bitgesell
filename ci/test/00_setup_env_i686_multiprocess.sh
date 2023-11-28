@@ -14,4 +14,4 @@ export DEP_OPTS="DEBUG=1 MULTIPROCESS=1"
 export GOAL="install"
 export BGL_CONFIG="--enable-debug CC='clang -m32' CXX='clang++ -m32' \
 LDFLAGS='--rtlib=compiler-rt -lgcc_s' CPPFLAGS='-DBOOST_MULTI_INDEX_ENABLE_SAFE_MODE'"
-export TEST_RUNNER_ENV="BGLD=bitcoin-node"
+export BITCOIND=BGL-node  # Used in functional tests
