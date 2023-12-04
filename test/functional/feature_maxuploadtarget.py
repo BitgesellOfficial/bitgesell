@@ -27,6 +27,9 @@ from test_framework.util import (
 from test_framework.wallet import MiniWallet
 
 
+UPLOAD_TARGET_MB = 800
+
+
 class TestP2PConn(P2PInterface):
     def __init__(self):
         super().__init__()
@@ -45,12 +48,21 @@ class MaxUploadTest(BGLTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 1
         self.extra_args = [[
-            "-maxuploadtarget=800M",
+            f"-maxuploadtarget={UPLOAD_TARGET_MB}M",
             "-datacarriersize=100000",
         ]]
         self.supports_cli = False
 
+    def assert_uploadtarget_state(self, *, target_reached, serve_historical_blocks):
+        """Verify the node's current upload target state via the `getnettotals` RPC call."""
+        uploadtarget = self.nodes[0].getnettotals()["uploadtarget"]
+        assert_equal(uploadtarget["target_reached"], target_reached)
+        assert_equal(uploadtarget["serve_historical_blocks"], serve_historical_blocks)
+
     def run_test(self):
+        # Initially, neither historical blocks serving limit nor total limit are reached
+        self.assert_uploadtarget_state(target_reached=False, serve_historical_blocks=True)
+
         # Before we connect anything, we first set the time on the node
         # to be in the past, otherwise things break because the CNode
         # time counters can't be reset backward after initialization
@@ -93,8 +105,8 @@ class MaxUploadTest(BGLTestFramework):
         getdata_request = msg_getdata()
         getdata_request.inv.append(CInv(MSG_BLOCK, big_old_block))
 
-        max_bytes_per_day = 800*1024*1024
-        daily_buffer = 144 * 400000
+        max_bytes_per_day = UPLOAD_TARGET_MB * 1024 *1024
+        daily_buffer = 144 * 4000000
         max_bytes_available = max_bytes_per_day - daily_buffer
         success_count = max_bytes_available // old_block_size
         # 576MB will be reserved for relaying new blocks, so expect this to
@@ -112,6 +124,9 @@ class MaxUploadTest(BGLTestFramework):
         assert_equal(len(self.nodes[0].getpeerinfo()), 2)
         self.log.info("Peer 0 disconnected after downloading old block too many times")
 
+        # Historical blocks serving limit is reached by now, but total limit still isn't
+        self.assert_uploadtarget_state(target_reached=False, serve_historical_blocks=False)
+
         # Requesting the current block on p2p_conns[1] should succeed indefinitely,
         # even when over the max upload target.
         # We'll try 800 times
@@ -119,6 +134,9 @@ class MaxUploadTest(BGLTestFramework):
         for i in range(800):
             p2p_conns[1].send_and_ping(getdata_request)
             assert_equal(p2p_conns[1].block_receive_map[big_new_block], i+1)
+
+        # Both historical blocks serving limit and total limit are reached
+        self.assert_uploadtarget_state(target_reached=True, serve_historical_blocks=False)
 
         self.log.info("Peer 1 able to repeatedly download new block")
 
@@ -138,6 +156,7 @@ class MaxUploadTest(BGLTestFramework):
         p2p_conns[2].sync_with_ping()
         p2p_conns[2].send_and_ping(getdata_request)
         assert_equal(p2p_conns[2].block_receive_map[big_old_block], 1)
+        self.assert_uploadtarget_state(target_reached=False, serve_historical_blocks=True)
 
         self.log.info("Peer 2 able to download old block")
 
@@ -145,6 +164,8 @@ class MaxUploadTest(BGLTestFramework):
 
         self.log.info("Restarting node 0 with download permission and 1MB maxuploadtarget")
         self.restart_node(0, ["-whitelist=download@127.0.0.1", "-maxuploadtarget=1"])
+        # Total limit isn't reached after restart, but 1 MB is too small to serve historical blocks
+        self.assert_uploadtarget_state(target_reached=False, serve_historical_blocks=False)
 
         # Reconnect to self.nodes[0]
         peer = self.nodes[0].add_p2p_connection(TestP2PConn())
@@ -154,6 +175,9 @@ class MaxUploadTest(BGLTestFramework):
         for i in range(20):
             peer.send_and_ping(getdata_request)
             assert_equal(peer.block_receive_map[big_new_block], i+1)
+
+        # Total limit is exceeded
+        self.assert_uploadtarget_state(target_reached=True, serve_historical_blocks=False)
 
         getdata_request.inv = [CInv(MSG_BLOCK, big_old_block)]
         peer.send_and_ping(getdata_request)
