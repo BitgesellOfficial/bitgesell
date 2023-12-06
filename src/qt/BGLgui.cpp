@@ -668,8 +668,10 @@ void BGLGUI::setClientModel(ClientModel *_clientModel, interfaces::BlockAndHeade
 #ifdef ENABLE_WALLET
 void BGLGUI::enableHistoryAction(bool privacy)
 {
-    historyAction->setEnabled(!privacy);
-    if (historyAction->isChecked()) gotoOverviewPage();
+    if (walletFrame->currentWalletModel()) {
+        historyAction->setEnabled(!privacy);
+        if (historyAction->isChecked()) gotoOverviewPage();
+    }
 }
 
 void BGLGUI::setWalletController(WalletController* wallet_controller, bool show_loading_minimized)
