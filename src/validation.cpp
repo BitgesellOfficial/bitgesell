@@ -2366,6 +2366,44 @@ DisconnectResult Chainstate::DisconnectBlock(const CBlock& block, const CBlockIn
     return fClean ? DISCONNECT_OK : DISCONNECT_UNCLEAN;
 }
 
+/**
+ * Threshold condition checker that triggers when unknown versionbits are seen on the network.
+ */
+class WarningBitsConditionChecker : public AbstractThresholdConditionChecker
+{
+private:
+    const ChainstateManager& m_chainman;
+    int m_bit;
+
+public:
+    explicit WarningBitsConditionChecker(const ChainstateManager& chainman, int bit) : m_chainman{chainman}, m_bit(bit) {}
+
+    int64_t BeginTime() const override { return 0; }
+    int64_t EndTime() const override { return std::numeric_limits<int64_t>::max(); }
+    int Period() const override {
+        if (m_chainman.GetParams().IsTestChain()) {
+            return m_chainman.GetConsensus().DifficultyAdjustmentInterval();
+        } else {
+            return 2016;
+        }
+    }
+    int Threshold() const override {
+        if (m_chainman.GetParams().IsTestChain()) {
+            return m_chainman.GetConsensus().DifficultyAdjustmentInterval() * 3 / 4; // 75% for test nets per BIP9 suggestion
+        } else {
+            return 1815; // 90% threshold used in BIP 341
+        }
+    }
+
+    bool Condition(const CBlockIndex* pindex) const override
+    {
+        return pindex->nHeight >= m_chainman.GetConsensus().MinBIP9WarningHeight &&
+               ((pindex->nVersion & VERSIONBITS_TOP_MASK) == VERSIONBITS_TOP_BITS) &&
+               ((pindex->nVersion >> m_bit) & 1) != 0 &&
+               ((m_chainman.m_versionbitscache.ComputeBlockVersion(pindex->pprev, m_chainman.GetConsensus()) >> m_bit) & 1) == 0;
+    }
+};
+
 static unsigned int GetBlockScriptFlags(const CBlockIndex& block_index, const ChainstateManager& chainman)
 {
     const Consensus::Params& consensusparams = chainman.GetConsensus();
