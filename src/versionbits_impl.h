@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_VERSIONBITS_IMPL_H
-#define BITCOIN_VERSIONBITS_IMPL_H
+#ifndef BGL_VERSIONBITS_IMPL_H
+#define BGL_VERSIONBITS_IMPL_H
 
 #include <chain.h>
 #include <sync.h>
@@ -22,9 +22,6 @@ enum class ThresholdState : uint8_t {
     FAILED,    // For all blocks once the first retarget period after the timeout time is hit, if LOCKED_IN wasn't already reached (final state)
 };
 
-/** Get a string with the state name */
-std::string StateName(ThresholdState state);
-
 /**
  * Abstract class that implements BIP9-style threshold logic, and caches results.
  */
@@ -38,8 +35,6 @@ protected:
     virtual int Threshold() const =0;
 
 public:
-    virtual ~AbstractThresholdConditionChecker() = default;
-
     /** Returns the numerical statistics of an in-progress BIP9 softfork in the period including pindex
      * If provided, signalling_blocks is set to true/false based on whether each block in the period signalled
      */
@@ -51,35 +46,4 @@ public:
     int GetStateSinceHeightFor(const CBlockIndex* pindexPrev, ThresholdConditionCache& cache) const;
 };
 
-/**
- * Class to implement versionbits logic.
- */
-class VersionBitsConditionChecker : public AbstractThresholdConditionChecker {
-private:
-    const Consensus::BIP9Deployment& dep;
-
-protected:
-    int64_t BeginTime() const override { return dep.nStartTime; }
-    int64_t EndTime() const override { return dep.nTimeout; }
-    int MinActivationHeight() const override { return dep.min_activation_height; }
-    int Period() const override { return dep.period; }
-    int Threshold() const override { return dep.threshold; }
-
-    bool Condition(const CBlockIndex* pindex) const override
-    {
-        return Condition(pindex->nVersion);
-    }
-
-public:
-    explicit VersionBitsConditionChecker(const Consensus::BIP9Deployment& dep) : dep{dep} {}
-    explicit VersionBitsConditionChecker(const Consensus::Params& params, Consensus::DeploymentPos id) : VersionBitsConditionChecker{params.vDeployments[id]} {}
-
-    uint32_t Mask() const { return (uint32_t{1}) << dep.bit; }
-
-    bool Condition(int32_t nVersion) const
-    {
-        return (((nVersion & VERSIONBITS_TOP_MASK) == VERSIONBITS_TOP_BITS) && (nVersion & Mask()) != 0);
-    }
-};
-
-#endif // BITCOIN_VERSIONBITS_IMPL_H
+#endif // BGL_VERSIONBITS_IMPL_H
