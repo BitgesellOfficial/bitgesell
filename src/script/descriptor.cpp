@@ -21,6 +21,7 @@
 #include <util/strencodings.h>
 #include <util/vector.h>
 
+#include <algorithm>
 #include <memory>
 #include <numeric>
 #include <optional>
@@ -1562,11 +1563,11 @@ std::vector<std::unique_ptr<PubkeyProvider>> ParsePubkeyInner(uint32_t key_exp_i
     }
     std::vector<KeyPath> paths;
     DeriveType type = DeriveType::NO;
-    if (split.back() == Span{"*"}.first(1)) {
+    if (std::ranges::equal(split.back(), Span{"*"}.first(1))) {
         split.pop_back();
         type = DeriveType::UNHARDENED;
-    } else if (split.back() == Span{"*'"}.first(2) || split.back() == Span{"*h"}.first(2)) {
-        apostrophe = split.back() == Span{"*'"}.first(2);
+    } else if (std::ranges::equal(split.back(), Span{"*'"}.first(2)) || std::ranges::equal(split.back(), Span{"*h"}.first(2))) {
+        apostrophe = std::ranges::equal(split.back(), Span{"*'"}.first(2));
         split.pop_back();
         type = DeriveType::HARDENED;
     }
