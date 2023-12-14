@@ -177,6 +177,8 @@ jobs:
           - 'clang --target=i686-pc-linux-gnu -isystem /usr/i686-linux-gnu/include'
 
       - name: Install Homebrew packages
+        env:
+          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
         run: brew install automake libtool pkg-config gnu-getopt ccache boost libevent miniupnpc libnatpmp zeromq qt@5 qrencode
 
     steps:
