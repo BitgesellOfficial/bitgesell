@@ -241,6 +241,7 @@ BGL_CORE_H = \
   node/validation_cache_args.h \
   noui.h \
   outputtype.h \
+  policy/v3_policy.h \
   policy/feerate.h \
   policy/fees.h \
   policy/fees_args.h \
@@ -440,6 +441,7 @@ libBGL_node_a_SOURCES = \
   node/utxo_snapshot.cpp \
   node/validation_cache_args.cpp \
   noui.cpp \
+  policy/v3_policy.cpp \
   policy/fees.cpp \
   policy/fees_args.cpp \
   policy/packages.cpp \
@@ -703,6 +705,7 @@ libBGL_common_a_SOURCES = \
   netbase.cpp \
   net_permissions.cpp \
   outputtype.cpp \
+  policy/v3_policy.cpp \
   policy/feerate.cpp \
   policy/policy.cpp \
   protocol.cpp \
@@ -961,6 +964,7 @@ libBGLkernel_la_SOURCES = \
   node/blockstorage.cpp \
   node/chainstate.cpp \
   node/utxo_snapshot.cpp \
+  policy/v3_policy.cpp \
   policy/feerate.cpp \
   policy/packages.cpp \
   policy/policy.cpp \
