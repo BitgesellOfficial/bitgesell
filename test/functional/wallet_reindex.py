@@ -53,10 +53,15 @@ class WalletReindexTest(BGLTestFramework):
         wallet_watch_only.importaddress(wallet_addr, rescan=False)
         assert_equal(len(wallet_watch_only.listtransactions()), 0)
 
+        # Depending on the wallet type, the birth time changes.
+        wallet_birthtime = wallet_watch_only.getwalletinfo()['birthtime']
+        # As blocks were generated every 10 min, the chain MTP timestamp is node_time - 60 min.
+        assert_equal(self.node_time - BLOCK_TIME * 6, wallet_birthtime)
+
         # Rescan the wallet to detect the missing transaction
         wallet_watch_only.rescanblockchain()
         assert_equal(wallet_watch_only.gettransaction(tx_id)['confirmations'], 50)
-        assert_equal(wallet_watch_only.getbalances()['mine' if self.options.descriptors else 'watchonly']['trusted'], 2)
+        assert_equal(wallet_watch_only.getbalances()['mine']['trusted'], 2)
 
         # Reindex and wait for it to finish
         with node.assert_debug_log(expected_msgs=["initload thread exit"]):
@@ -65,7 +70,12 @@ class WalletReindexTest(BGLTestFramework):
 
         # Verify the transaction is still 'confirmed' after reindex
         wallet_watch_only = node.get_wallet_rpc('watch_only')
-        assert_equal(wallet_watch_only.gettransaction(tx_id)['confirmations'], 50)
+        tx_info = wallet_watch_only.gettransaction(tx_id)
+        assert_equal(tx_info['confirmations'], 50)
+
+        # Depending on the wallet type, the birth time changes.
+        # For descriptors, verify the wallet updated the birth time to the transaction time
+        assert_equal(tx_info['time'], wallet_watch_only.getwalletinfo()['birthtime'])
 
         wallet_watch_only.unloadwallet()
 
