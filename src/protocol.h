@@ -341,10 +341,6 @@ ServiceFlags GetDesirableServiceFlags(ServiceFlags services);
  */
 constexpr ServiceFlags SeedsServiceFlags() { return ServiceFlags(NODE_NETWORK | NODE_WITNESS); }
 
-/** Set the current IBD status in order to figure out the desirable service flags */
-void SetServiceFlagsIBDCache(bool status);
-bool GetServicesFlagsIBDCache();
-
 /**
  * Checks if a peer with the given service flags may be capable of having a
  * robust address-storage DB.
