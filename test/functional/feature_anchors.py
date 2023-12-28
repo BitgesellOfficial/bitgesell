@@ -64,14 +64,15 @@ class AnchorsTest(BGLTestFramework):
         self.log.info("Check the addresses in anchors.dat")
 
         with open(node_anchors_path, "rb") as file_handler:
-            anchors = file_handler.read().hex()
+            anchors = file_handler.read()
 
+        anchors_hex = anchors.hex()
         for port in block_relay_nodes_port:
             ip_port = ip + port
-            assert ip_port in anchors
+            assert ip_port in anchors_hex
         for port in inbound_nodes_port:
             ip_port = ip + port
-            assert ip_port not in anchors
+            assert ip_port not in anchors_hex
 
         self.log.info("Perturb anchors.dat to test it doesn't throw an error during initialization")
         with self.nodes[0].assert_debug_log(["0 block-relay-only anchors will be tried for connections."]):

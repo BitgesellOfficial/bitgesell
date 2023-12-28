@@ -43,10 +43,6 @@ from .script_util import (
     keys_to_multisig_script,
     script_to_p2wsh_script,
 )
-from .script_util import (
-    key_to_p2wpkh_script,
-    script_to_p2wsh_script,
-)
 from .util import assert_equal
 
 WITNESS_SCALE_FACTOR = 4
