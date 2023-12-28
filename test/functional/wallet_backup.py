@@ -147,9 +147,9 @@ class WalletBackupTest(BGLTestFramework):
         self.generate(self.nodes[2], 1)
         self.generate(self.nodes[3], COINBASE_MATURITY)
 
-        assert_equal(self.nodes[0].getbalance(), 50)
-        assert_equal(self.nodes[1].getbalance(), 50)
-        assert_equal(self.nodes[2].getbalance(), 50)
+        assert_equal(self.nodes[0].getbalance(), 200)
+        assert_equal(self.nodes[1].getbalance(), 200)
+        assert_equal(self.nodes[2].getbalance(), 200)
         assert_equal(self.nodes[3].getbalance(), 0)
 
         self.log.info("Creating transactions")
