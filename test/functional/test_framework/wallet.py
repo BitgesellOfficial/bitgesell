@@ -53,12 +53,9 @@ from test_framework.util import (
     assert_equal,
     assert_greater_than_or_equal,
 )
-<<<<<<< HEAD
 from enum import Enum
 from test_framework.blocktools import COINBASE_MATURITY
-=======
 from test_framework.wallet_util import generate_keypair
->>>>>>> 1a572ce7d6... test: refactor: introduce `generate_keypair` helper with WIF support
 
 DEFAULT_FEE = Decimal("0.0001")
 
