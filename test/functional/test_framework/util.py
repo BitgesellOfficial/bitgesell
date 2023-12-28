@@ -428,7 +428,7 @@ def get_temp_default_datadir(temp_dir: pathlib.Path) -> Tuple[dict, pathlib.Path
         if sys.platform == "darwin":
             datadir = temp_dir / "Library/Application Support/Bitcoin"
         else:
-            datadir = temp_dir / ".bitcoin"
+            datadir = temp_dir / ".BGL"
     return env, datadir
 
 
