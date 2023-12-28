@@ -102,7 +102,6 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         self.rpc_timeout = 60  # Wait for up to 60 seconds for the RPC server to respond
         self.supports_cli = True
         self.bind_to_localhost_only = True
-        self.set_test_params()
         self.parse_args()
         self.default_wallet_name = "default_wallet" if self.options.descriptors else ""
         self.wallet_data_filename = "wallet.dat"
@@ -159,13 +158,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         previous_releases_path = os.getenv("PREVIOUS_RELEASES_DIR") or os.getcwd() + "/releases"
         parser = argparse.ArgumentParser(usage="%(prog)s [options]")
         parser.add_argument("--nocleanup", dest="nocleanup", default=False, action="store_true",
-<<<<<<< HEAD
                             help="Leave BGLds and test.* datadir on exit or error")
-        parser.add_argument("--nosandbox", dest="nosandbox", default=False, action="store_true",
-                            help="Don't use the syscall sandbox")
-=======
-                            help="Leave bitcoinds and test.* datadir on exit or error")
->>>>>>> 32e2ffc393... Remove the syscall sandbox
         parser.add_argument("--noshutdown", dest="noshutdown", default=False, action="store_true",
                             help="Don't stop BGLds after the test execution")
         parser.add_argument("--cachedir", dest="cachedir", default=os.path.abspath(os.path.dirname(os.path.realpath(__file__)) + "/../../cache"),
@@ -236,10 +229,10 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         """Update self.options with the paths of all binaries from environment variables or their default values"""
 
         binaries = {
-            "bitcoind": ("bitcoind", "BITCOIND"),
-            "bitcoin-cli": ("bitcoincli", "BITCOINCLI"),
-            "bitcoin-util": ("bitcoinutil", "BITCOINUTIL"),
-            "bitcoin-wallet": ("bitcoinwallet", "BITCOINWALLET"),
+            "BGLd": ("BGLd", "BGLD"),
+            "BGL-cli": ("BGLcli", "BGLCLI"),
+            "BGL-util": ("BGLutil", "BGLUTIL"),
+            "BGL-wallet": ("BGLwallet", "BGLWALLET"),
         }
         for binary, [attribute_name, env_variable_name] in binaries.items():
             default_filename = os.path.join(
@@ -517,9 +510,9 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
                 chain=self.chain,
                 rpchost=rpchost,
                 timewait=self.rpc_timeout,
+                timeout_factor=self.options.timeout_factor,
                 BGLd=binary[i],
                 BGL_cli=binary_cli[i],
-                timeout_factor=self.options.timeout_factor,
                 version=versions[i],
                 coverage_dir=self.options.coveragedir,
                 cwd=self.options.tmpdir,
@@ -745,7 +738,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         # User can provide log level as a number or string (eg DEBUG). loglevel was caught as a string, so try to convert it to an int
         ll = int(self.options.loglevel) if self.options.loglevel.isdigit() else self.options.loglevel.upper()
         ch.setLevel(ll)
-        # Format logs the same as BGLd's debug.log with microprecision (so log files can be concatenated and sorted)
+        # Format logs the same as bitcoind's debug.log with microprecision (so log files can be concatenated and sorted)
         formatter = logging.Formatter(fmt='%(asctime)s.%(msecs)03d000Z %(name)s (%(levelname)s): %(message)s', datefmt='%Y-%m-%dT%H:%M:%S')
         formatter.converter = time.gmtime
         fh.setFormatter(formatter)
@@ -784,9 +777,9 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
                     extra_args=['-disablewallet'],
                     rpchost=None,
                     timewait=self.rpc_timeout,
+                    timeout_factor=self.options.timeout_factor,
                     BGLd=self.options.BGLd,
                     BGL_cli=self.options.BGLcli,
-                    timeout_factor=self.options.timeout_factor,
                     coverage_dir=None,
                     cwd=self.options.tmpdir,
                     descriptors=self.options.descriptors,
@@ -812,7 +805,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
                 self.generatetoaddress(
                     cache_node,
                     nblocks=25 if i != 7 else 24,
-                    address=gen_addresses[i % 4],
+                    address=gen_addresses[i % len(gen_addresses)],
                 )
 
             assert_equal(cache_node.getblockchaininfo()["blocks"], 199)
@@ -826,7 +819,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
 
             os.rmdir(cache_path('wallets'))  # Remove empty wallets dir
             for entry in os.listdir(cache_path()):
-                if entry not in ['chainstate', 'blocks']:  # Only keep chainstate and blocks folder
+                if entry not in ['chainstate', 'blocks', 'indexes']:  # Only indexes, chainstate and blocks folders
                     os.remove(cache_path(entry))
 
         for i in range(self.num_nodes):
@@ -865,7 +858,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             raise SkipTest("bcc python module not available")
 
     def skip_if_no_BGLd_tracepoints(self):
-        """Skip the running test if BGLd has not been compiled with USDT tracepoint support."""
+        """Skip the running test if bitcoind has not been compiled with USDT tracepoint support."""
         if not self.is_usdt_compiled():
             raise SkipTest("BGLd has not been built with USDT tracepoints enabled.")
 
@@ -885,8 +878,8 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         if os.name != 'posix':
             raise SkipTest("not on a POSIX system")
 
-    def skip_if_no_bitcoind_zmq(self):
-        """Skip the running test if BGLd has not been compiled with zmq support."""
+    def skip_if_no_BGLd_zmq(self):
+        """Skip the running test if bitcoind has not been compiled with zmq support."""
         if not self.is_zmq_compiled():
             raise SkipTest("BGLd has not been built with zmq enabled.")
 
@@ -911,17 +904,17 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             raise SkipTest("BDB has not been compiled.")
 
     def skip_if_no_wallet_tool(self):
-        """Skip the running test if BGL-wallet has not been compiled."""
+        """Skip the running test if bitcoin-wallet has not been compiled."""
         if not self.is_wallet_tool_compiled():
             raise SkipTest("BGL-wallet has not been compiled")
 
     def skip_if_no_BGL_util(self):
-        """Skip the running test if BGL-util has not been compiled."""
+        """Skip the running test if bitcoin-util has not been compiled."""
         if not self.is_BGL_util_compiled():
             raise SkipTest("BGL-util has not been compiled")
 
     def skip_if_no_cli(self):
-        """Skip the running test if BGL-cli has not been compiled."""
+        """Skip the running test if bitcoin-cli has not been compiled."""
         if not self.is_cli_compiled():
             raise SkipTest("BGL-cli has not been compiled.")
 
@@ -944,7 +937,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             raise SkipTest("external signer support has not been compiled.")
 
     def is_cli_compiled(self):
-        """Checks whether BGL-cli was compiled."""
+        """Checks whether bitcoin-cli was compiled."""
         return self.config["components"].getboolean("ENABLE_CLI")
 
     def is_external_signer_compiled(self):
