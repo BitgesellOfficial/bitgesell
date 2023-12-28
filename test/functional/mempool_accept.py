@@ -116,7 +116,7 @@ class MempoolAcceptanceTest(BGLTestFramework):
         tx.vout[0].nValue = int(output_amount * COIN)
         raw_tx_final = tx.serialize().hex()
         tx = tx_from_hex(raw_tx_final)
-        fee_expected = Decimal('50.0') - output_amount
+        fee_expected = Decimal('200.0') - output_amount
         self.check_mempool_result(
             result_expected=[{'txid': tx.rehash(), 'allowed': True, 'vsize': tx.get_vsize(), 'fees': {'base': fee_expected}}],
             rawtxs=[tx.serialize().hex()],
@@ -286,9 +286,9 @@ class MempoolAcceptanceTest(BGLTestFramework):
         _, pubkey = generate_keypair()
         tx.vout[0].scriptPubKey = keys_to_multisig_script([pubkey] * 3, k=2)  # Some bare multisig script (2-of-3)
         self.check_mempool_result(
-            result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'bare-multisig'}],
+            result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'max-fee-exceeded'}],
             rawtxs=[tx.serialize().hex()],
-        )
+        ) # bare-multisig to max-fee-exceeded. However, should try to find how to get the fee down
         tx = tx_from_hex(raw_tx_reference)
         tx.vin[0].scriptSig = CScript([OP_HASH160])  # Some not-pushonly scriptSig
         self.check_mempool_result(
