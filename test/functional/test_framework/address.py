@@ -81,6 +81,7 @@ def base58_to_byte(s):
     if not s:
         return b''
     n = 0
+    print(s)
     for c in s:
         n *= 58
         assert c in b58chars

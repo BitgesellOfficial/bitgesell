@@ -8,15 +8,11 @@ from itertools import product
 
 from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.descriptors import descsum_create
-<<<<<<< HEAD
-from test_framework.test_framework import BGLTestFramework
-=======
 from test_framework.messages import (
     COIN,
     DEFAULT_ANCESTOR_LIMIT,
 )
-from test_framework.test_framework import BitcoinTestFramework
->>>>>>> ffffe622e9... test: Move test_chain_listunspent wallet check from mempool_packages to wallet_basic
+from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_array_result,
     assert_equal,
