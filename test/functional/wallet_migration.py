@@ -313,14 +313,17 @@ class WalletMigrationTest(BGLTestFramework):
         send = default.sendall(recipients=[default.getnewaddress()], inputs=[received_sent_watchonly_utxo])
         sent_watchonly_txid = send["txid"]
 
-        self.generate(self.nodes[0], 1)
+        # Tx that has both a watchonly and spendable output
+        watchonly_spendable_txid = default.send(outputs=[{received_addr: 1}, {import_addr:1}])["txid"]
+
+        self.generate(self.nodes[0], 2)
         received_watchonly_tx_info = imports0.gettransaction(received_watchonly_txid, True)
         received_sent_watchonly_tx_info = imports0.gettransaction(received_sent_watchonly_utxo["txid"], True)
 
         balances = imports0.getbalances()
         spendable_bal = balances["mine"]["trusted"]
         watchonly_bal = balances["watchonly"]["trusted"]
-        assert_equal(len(imports0.listtransactions(include_watchonly=True)), 4)
+        assert_equal(len(imports0.listtransactions(include_watchonly=True)), 6)
 
         # Mock time forward a bit so we can check that tx metadata is preserved
         self.nodes[0].setmocktime(int(time.time()) + 100)
@@ -332,8 +335,9 @@ class WalletMigrationTest(BGLTestFramework):
         assert_raises_rpc_error(-5, "Invalid or non-wallet transaction id", imports0.gettransaction, received_watchonly_txid)
         assert_raises_rpc_error(-5, "Invalid or non-wallet transaction id", imports0.gettransaction, received_sent_watchonly_utxo['txid'])
         assert_raises_rpc_error(-5, "Invalid or non-wallet transaction id", imports0.gettransaction, sent_watchonly_txid)
-        assert_equal(len(imports0.listtransactions(include_watchonly=True)), 1)
+        assert_equal(len(imports0.listtransactions(include_watchonly=True)), 2)
         imports0.gettransaction(received_txid)
+        imports0.gettransaction(watchonly_spendable_txid)
         assert_equal(imports0.getbalance(), spendable_bal)
 
         assert_equal("imports0_watchonly" in self.nodes[0].listwallets(), True)
@@ -349,9 +353,10 @@ class WalletMigrationTest(BGLTestFramework):
         assert_equal(received_sent_watchonly_tx_info["time"], received_sent_migrated_watchonly_tx_info["time"])
         assert_equal(received_sent_watchonly_tx_info["timereceived"], received_sent_migrated_watchonly_tx_info["timereceived"])
         watchonly.gettransaction(sent_watchonly_txid)
+        watchonly.gettransaction(watchonly_spendable_txid)
         assert_equal(watchonly.getbalance(), watchonly_bal)
         assert_raises_rpc_error(-5, "Invalid or non-wallet transaction id", watchonly.gettransaction, received_txid)
-        assert_equal(len(watchonly.listtransactions(include_watchonly=True)), 3)
+        assert_equal(len(watchonly.listtransactions(include_watchonly=True)), 4)
 
         # Check that labels were migrated and persisted to watchonly wallet
         self.nodes[0].unloadwallet("imports0_watchonly")
