@@ -121,6 +121,7 @@ git fetch origin "v${VERSION}"
 git checkout "v${VERSION}"
 popd
 ```
+<<<<<<< HEAD
 
 Ensure your guix.sigs are up-to-date if you wish to `guix-verify` your builds
 against other `guix-attest` signatures.
@@ -152,8 +153,28 @@ pushd ./guix.sigs
 git add "${VERSION}/${SIGNER}"/noncodesigned.SHA256SUMS{,.asc}
 git commit -m "Add attestations by ${SIGNER} for ${VERSION} non-codesigned"
 popd
+=======
+2. Check installation with autotools:
+```shell
+dir=$(mktemp -d)
+./autogen.sh && ./configure --prefix=$dir && make clean && make install && ls -RlAh $dir
+gcc -o ecdsa examples/ecdsa.c $(PKG_CONFIG_PATH=$dir/lib/pkgconfig pkg-config --cflags --libs libsecp256k1) -Wl,-rpath,"$dir/lib" && ./ecdsa
+```
+3. Check installation with CMake:
+```shell
+dir=$(mktemp -d)
+build=$(mktemp -d)
+cmake -B $build -DCMAKE_INSTALL_PREFIX=$dir && cmake --build $build --target install && ls -RlAh $dir
+gcc -o ecdsa examples/ecdsa.c -I $dir/include -L $dir/lib*/ -l secp256k1 -Wl,-rpath,"$dir/lib",-rpath,"$dir/lib64" && ./ecdsa
+>>>>>>> 29fde0223a... Squashed 'src/secp256k1/' changes from 199d27cea3..efe85c70a2
+```
+4. Use the [`check-abi.sh`](/tools/check-abi.sh) tool to ensure there are no unexpected ABI incompatibilities and that the version number and release notes accurately reflect all potential ABI changes. To run this tool, the `abi-dumper` and `abi-compliance-checker` packages are required.
+
+```shell
+tools/check-abi.sh
 ```
 
+<<<<<<< HEAD
 Then open a Pull Request to the [guix.sigs repository](https://github.com/bitcoin-core/guix.sigs).
 
 ## Codesigning
@@ -321,3 +342,56 @@ To calculate `m_assumed_chain_state_size`, take the size in GiB of these directo
 Notes:
 - When taking the size for `m_assumed_blockchain_size`, there's no need to exclude the `/chainstate` directory since it's a guideline value and an overhead will be added anyway.
 - The expected overhead for growth may change over time. Consider whether the percentage needs to be changed in response; if so, update it here in this section.
+=======
+## Regular release
+
+1. Open a PR to the master branch with a commit (using message `"release: prepare for $MAJOR.$MINOR.$PATCH"`, for example) that
+   * finalizes the release notes in [CHANGELOG.md](../CHANGELOG.md) by
+       * adding a section for the release (make sure that the version number is a link to a diff between the previous and new version),
+       * removing the `[Unreleased]` section header, and
+       * including an entry for `### ABI Compatibility` if it doesn't exist,
+   * sets `_PKG_VERSION_IS_RELEASE` to `true` in `configure.ac`, and
+   * if this is not a patch release
+       * updates `_PKG_VERSION_*` and `_LIB_VERSION_*`  in `configure.ac` and
+       * updates `project(libsecp256k1 VERSION ...)` and `${PROJECT_NAME}_LIB_VERSION_*` in `CMakeLists.txt`.
+2. After the PR is merged, tag the commit and push it:
+   ```
+   RELEASE_COMMIT=<merge commit of step 1>
+   git tag -s v$MAJOR.$MINOR.$PATCH -m "libsecp256k1 $MAJOR.$MINOR.$PATCH" $RELEASE_COMMIT
+   git push git@github.com:bitcoin-core/secp256k1.git v$MAJOR.$MINOR.$PATCH
+   ```
+3. Open a PR to the master branch with a commit (using message `"release cleanup: bump version after $MAJOR.$MINOR.$PATCH"`, for example) that
+   * sets `_PKG_VERSION_IS_RELEASE` to `false` and increments `_PKG_VERSION_PATCH` and `_LIB_VERSION_REVISION` in `configure.ac`,
+   * increments the `$PATCH` component of `project(libsecp256k1 VERSION ...)` and `${PROJECT_NAME}_LIB_VERSION_REVISION` in `CMakeLists.txt`, and
+   * adds an `[Unreleased]` section header to the [CHANGELOG.md](../CHANGELOG.md).
+
+   If other maintainers are not present to approve the PR, it can be merged without ACKs.
+4. Create a new GitHub release with a link to the corresponding entry in [CHANGELOG.md](../CHANGELOG.md).
+
+## Maintenance release
+
+Note that bugfixes only need to be backported to releases for which no compatible release without the bug exists.
+
+1. If there's no maintenance branch `$MAJOR.$MINOR`, create one:
+   ```
+   git checkout -b $MAJOR.$MINOR v$MAJOR.$MINOR.$((PATCH - 1))
+   git push git@github.com:bitcoin-core/secp256k1.git $MAJOR.$MINOR
+   ```
+2. Open a pull request to the `$MAJOR.$MINOR` branch that
+   * includes the bugfixes,
+   * finalizes the release notes similar to a regular release,
+   * increments `_PKG_VERSION_PATCH` and `_LIB_VERSION_REVISION` in `configure.ac`
+     and the `$PATCH` component of `project(libsecp256k1 VERSION ...)` and `${PROJECT_NAME}_LIB_VERSION_REVISION` in `CMakeLists.txt`
+     (with commit message `"release: bump versions for $MAJOR.$MINOR.$PATCH"`, for example).
+3. After the PRs are merged, update the release branch and tag the commit:
+   ```
+   git checkout $MAJOR.$MINOR && git pull
+   git tag -s v$MAJOR.$MINOR.$PATCH -m "libsecp256k1 $MAJOR.$MINOR.$PATCH"
+   ```
+4. Push tag:
+   ```
+   git push git@github.com:bitcoin-core/secp256k1.git v$MAJOR.$MINOR.$PATCH
+   ```
+5. Create a new GitHub release with a link to the corresponding entry in [CHANGELOG.md](../CHANGELOG.md).
+6. Open PR to the master branch that includes a commit (with commit message `"release notes: add $MAJOR.$MINOR.$PATCH"`, for example) that adds release notes to [CHANGELOG.md](../CHANGELOG.md).
+>>>>>>> 29fde0223a... Squashed 'src/secp256k1/' changes from 199d27cea3..efe85c70a2

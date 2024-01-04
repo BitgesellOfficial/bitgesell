@@ -5,8 +5,8 @@ AC_PREREQ([2.60])
 # backwards-compatible and therefore at most increase the minor version.
 define(_PKG_VERSION_MAJOR, 0)
 define(_PKG_VERSION_MINOR, 4)
-define(_PKG_VERSION_PATCH, 0)
-define(_PKG_VERSION_IS_RELEASE, true)
+define(_PKG_VERSION_PATCH, 2)
+define(_PKG_VERSION_IS_RELEASE, false)
 
 # The library version is based on libtool versioning of the ABI. The set of
 # rules for updating the version can be found here:
@@ -14,7 +14,7 @@ define(_PKG_VERSION_IS_RELEASE, true)
 # All changes in experimental modules are treated as if they don't affect the
 # interface and therefore only increase the revision.
 define(_LIB_VERSION_CURRENT, 3)
-define(_LIB_VERSION_REVISION, 0)
+define(_LIB_VERSION_REVISION, 2)
 define(_LIB_VERSION_AGE, 1)
 define(_COPYRIGHT_YEAR, 2024)
 define(_COPYRIGHT_HOLDERS,[The %s developers])
@@ -1179,151 +1179,90 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
  [ AC_MSG_RESULT([no])]
 )
 
-AC_MSG_CHECKING([for sysctl])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
-  #include <sys/sysctl.h>]],
- [[ #ifdef __linux__
-    #error "Don't use sysctl on Linux, it's deprecated even when it works"
-    #endif
-    sysctl(nullptr, 2, nullptr, nullptr, nullptr, 0); ]])],
- [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_SYSCTL], [1], [Define this symbol if the BSD sysctl() is available]) ],
- [ AC_MSG_RESULT([no])]
-)
+AC_ARG_ENABLE(tests,
+    AS_HELP_STRING([--enable-tests],[compile tests [default=yes]]), [],
+    [SECP_SET_DEFAULT([enable_tests], [yes], [yes])])
 
-AC_MSG_CHECKING([for sysctl KERN_ARND])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
-  #include <sys/sysctl.h>]],
- [[ #ifdef __linux__
-    #error "Don't use sysctl on Linux, it's deprecated even when it works"
-    #endif
-    static int name[2] = {CTL_KERN, KERN_ARND};
-    sysctl(name, 2, nullptr, nullptr, nullptr, 0); ]])],
- [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_SYSCTL_ARND], [1], [Define this symbol if the BSD sysctl(KERN_ARND) is available]) ],
- [ AC_MSG_RESULT([no])]
-)
+AC_ARG_ENABLE(ctime_tests,
+    AS_HELP_STRING([--enable-ctime-tests],[compile constant-time tests [default=yes if valgrind enabled]]), [],
+    [SECP_SET_DEFAULT([enable_ctime_tests], [auto], [auto])])
 
-AC_MSG_CHECKING([for if type char equals int8_t])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <stdint.h>
-  #include <type_traits>]],
- [[ static_assert(std::is_same<int8_t, char>::value, ""); ]])],
- [ AC_MSG_RESULT([yes]); AC_DEFINE([CHAR_EQUALS_INT8], [1], [Define this symbol if type char equals int8_t]) ],
- [ AC_MSG_RESULT([no])]
-)
+AC_ARG_ENABLE(experimental,
+    AS_HELP_STRING([--enable-experimental],[allow experimental configure options [default=no]]), [],
+    [SECP_SET_DEFAULT([enable_experimental], [no], [yes])])
 
-AC_MSG_CHECKING([for fdatasync])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <unistd.h>]],
- [[ fdatasync(0); ]])],
- [ AC_MSG_RESULT([yes]); HAVE_FDATASYNC=1 ],
- [ AC_MSG_RESULT([no]); HAVE_FDATASYNC=0 ]
-)
-AC_DEFINE_UNQUOTED([HAVE_FDATASYNC], [$HAVE_FDATASYNC], [Define to 1 if fdatasync is available.])
+AC_ARG_ENABLE(exhaustive_tests,
+    AS_HELP_STRING([--enable-exhaustive-tests],[compile exhaustive tests [default=yes]]), [],
+    [SECP_SET_DEFAULT([enable_exhaustive_tests], [yes], [yes])])
 
-AC_MSG_CHECKING([for F_FULLFSYNC])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <fcntl.h>]],
- [[ fcntl(0, F_FULLFSYNC, 0); ]])],
- [ AC_MSG_RESULT([yes]); HAVE_FULLFSYNC=1 ],
- [ AC_MSG_RESULT([no]); HAVE_FULLFSYNC=0 ]
-)
+AC_ARG_ENABLE(examples,
+    AS_HELP_STRING([--enable-examples],[compile the examples [default=no]]), [],
+    [SECP_SET_DEFAULT([enable_examples], [no], [yes])])
 
-AC_MSG_CHECKING([for O_CLOEXEC])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <fcntl.h>]],
- [[ open("", O_CLOEXEC); ]])],
- [ AC_MSG_RESULT([yes]); HAVE_O_CLOEXEC=1 ],
- [ AC_MSG_RESULT([no]); HAVE_O_CLOEXEC=0 ]
-)
-AC_DEFINE_UNQUOTED([HAVE_O_CLOEXEC], [$HAVE_O_CLOEXEC], [Define to 1 if O_CLOEXEC flag is available.])
+AC_ARG_ENABLE(module_ecdh,
+    AS_HELP_STRING([--enable-module-ecdh],[enable ECDH module [default=yes]]), [],
+    [SECP_SET_DEFAULT([enable_module_ecdh], [yes], [yes])])
 
-dnl crc32c platform checks
-AC_MSG_CHECKING([for __builtin_prefetch])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[ ]], [[
-  char data = 0;
-  const char* address = &data;
-  __builtin_prefetch(address, 0, 0);
-  ]])],
- [ AC_MSG_RESULT([yes]); HAVE_BUILTIN_PREFETCH=1 ],
- [ AC_MSG_RESULT([no]); HAVE_BUILTIN_PREFETCH=0 ]
-)
+AC_ARG_ENABLE(module_recovery,
+    AS_HELP_STRING([--enable-module-recovery],[enable ECDSA pubkey recovery module [default=no]]), [],
+    [SECP_SET_DEFAULT([enable_module_recovery], [no], [yes])])
 
-AC_MSG_CHECKING([for _mm_prefetch])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <xmmintrin.h>]], [[
-  char data = 0;
-  const char* address = &data;
-  _mm_prefetch(address, _MM_HINT_NTA);
-  ]])],
- [ AC_MSG_RESULT([yes]); HAVE_MM_PREFETCH=1 ],
- [ AC_MSG_RESULT([no]); HAVE_MM_PREFETCH=0 ]
-)
+AC_ARG_ENABLE(module_extrakeys,
+    AS_HELP_STRING([--enable-module-extrakeys],[enable extrakeys module [default=yes]]), [],
+    [SECP_SET_DEFAULT([enable_module_extrakeys], [yes], [yes])])
 
-AC_MSG_CHECKING([for strong getauxval support in the system headers])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-    #include <sys/auxv.h>
-  ]], [[
-    getauxval(AT_HWCAP);
-  ]])],
- [ AC_MSG_RESULT([yes]); HAVE_STRONG_GETAUXVAL=1; AC_DEFINE([HAVE_STRONG_GETAUXVAL], [1], [Define this symbol to build code that uses getauxval)]) ],
- [ AC_MSG_RESULT([no]); HAVE_STRONG_GETAUXVAL=0 ]
-)
+AC_ARG_ENABLE(module_schnorrsig,
+    AS_HELP_STRING([--enable-module-schnorrsig],[enable schnorrsig module [default=yes]]), [],
+    [SECP_SET_DEFAULT([enable_module_schnorrsig], [yes], [yes])])
 
-have_any_system=no
-AC_MSG_CHECKING([for std::system])
-AC_LINK_IFELSE(
-    [ AC_LANG_PROGRAM(
-        [[ #include <cstdlib> ]],
-        [[ int nErr = std::system(""); ]]
-    )],
-    [ AC_MSG_RESULT([yes]); have_any_system=yes],
-    [ AC_MSG_RESULT([no]) ]
-)
+AC_ARG_ENABLE(module_ellswift,
+    AS_HELP_STRING([--enable-module-ellswift],[enable ElligatorSwift module [default=yes]]), [],
+    [SECP_SET_DEFAULT([enable_module_ellswift], [yes], [yes])])
 
-AC_MSG_CHECKING([for ::_wsystem])
-AC_LINK_IFELSE(
-    [ AC_LANG_PROGRAM(
-        [[ #include <stdlib.h> ]],
-        [[ int nErr = ::_wsystem(NULL); ]]
-    )],
-    [ AC_MSG_RESULT([yes]); have_any_system=yes],
-    [ AC_MSG_RESULT([no]) ]
-)
+AC_ARG_ENABLE(external_default_callbacks,
+    AS_HELP_STRING([--enable-external-default-callbacks],[enable external default callback functions [default=no]]), [],
+    [SECP_SET_DEFAULT([enable_external_default_callbacks], [no], [no])])
 
-if test "$have_any_system" != "no"; then
-  AC_DEFINE([HAVE_SYSTEM], [1], [Define to 1 if std::system or ::wsystem is available.])
-fi
+# Test-only override of the (autodetected by the C code) "widemul" setting.
+# Legal values are:
+#  * int64 (for [u]int64_t),
+#  * int128 (for [unsigned] __int128),
+#  * int128_struct (for int128 implemented as a structure),
+#  *  and auto (the default).
+AC_ARG_WITH([test-override-wide-multiply], [] ,[set_widemul=$withval], [set_widemul=auto])
 
-dnl SUPPRESSED_CPPFLAGS=SUPPRESS_WARNINGS([$SOME_CPPFLAGS])
-dnl Replace -I with -isystem in $SOME_CPPFLAGS to suppress warnings from
-dnl headers from its include directories and return the result.
-dnl See -isystem documentation:
-dnl https://gcc.gnu.org/onlinedocs/gcc/Directory-Options.html
-dnl https://clang.llvm.org/docs/ClangCommandLineReference.html#cmdoption-clang-isystem-directory
-dnl Do not change "-I/usr/include" to "-isystem /usr/include" because that
-dnl is not necessary (/usr/include is already a system directory) and because
-dnl it would break GCC's #include_next.
-AC_DEFUN([SUPPRESS_WARNINGS],
-         [[$(echo $1 |${SED} -E -e 's/(^| )-I/\1-isystem /g' -e 's;-isystem /usr/include/*( |$);-I/usr/include\1;g')]])
+AC_ARG_WITH([asm], [AS_HELP_STRING([--with-asm=x86_64|arm32|no|auto],
+[assembly to use (experimental: arm32) [default=auto]])],[req_asm=$withval], [req_asm=auto])
 
-dnl enable-fuzz should disable all other targets
-if test "$enable_fuzz" = "yes"; then
-  AC_MSG_WARN([enable-fuzz will disable all other targets and force --enable-fuzz-binary=yes])
-  build_BGL_utils=no
-  build_BGL_cli=no
-  build_BGL_tx=no
-  build_BGL_util=no
-  build_BGL_chainstate=no
-  build_BGL_wallet=no
-  build_BGLd=no
-  build_BGL_libs=no
-  BGL_enable_qt=no
-  BGL_enable_qt_test=no
-  BGL_enable_qt_dbus=no
-  use_bench=no
-  use_tests=no
-  use_external_signer=no
-  use_upnp=no
-  use_natpmp=no
-  use_zmq=no
-  enable_fuzz_binary=yes
+AC_ARG_WITH([ecmult-window], [AS_HELP_STRING([--with-ecmult-window=SIZE|auto],
+[window size for ecmult precomputation for verification, specified as integer in range [2..24].]
+[Larger values result in possibly better performance at the cost of an exponentially larger precomputed table.]
+[The table will store 2^(SIZE-1) * 64 bytes of data but can be larger in memory due to platform-specific padding and alignment.]
+[A window size larger than 15 will require you delete the prebuilt precomputed_ecmult.c file so that it can be rebuilt.]
+[For very large window sizes, use "make -j 1" to reduce memory use during compilation.]
+["auto" is a reasonable setting for desktop machines (currently 15). [default=auto]]
+)],
+[req_ecmult_window=$withval], [req_ecmult_window=auto])
 
-  AX_CHECK_PREPROC_FLAG([-DABORT_ON_FAILED_ASSUME], [DEBUG_CPPFLAGS="$DEBUG_CPPFLAGS -DABORT_ON_FAILED_ASSUME"], [], [$CXXFLAG_WERROR])
+AC_ARG_WITH([ecmult-gen-precision], [AS_HELP_STRING([--with-ecmult-gen-precision=2|4|8|auto],
+[Precision bits to tune the precomputed table size for signing.]
+[The size of the table is 32kB for 2 bits, 64kB for 4 bits, 512kB for 8 bits of precision.]
+[A larger table size usually results in possible faster signing.]
+["auto" is a reasonable setting for desktop machines (currently 4). [default=auto]]
+)],
+[req_ecmult_gen_precision=$withval], [req_ecmult_gen_precision=auto])
+
+AC_ARG_WITH([valgrind], [AS_HELP_STRING([--with-valgrind=yes|no|auto],
+[Build with extra checks for running inside Valgrind [default=auto]]
+)],
+[req_valgrind=$withval], [req_valgrind=auto])
+
+###
+### Handle config options (except for modules)
+###
+
+if test x"$req_valgrind" = x"no"; then
+  enable_valgrind=no
 else
   BGL_QT_INIT
 
@@ -1464,160 +1403,44 @@ fi
 if test "$build_BGL_wallet$build_BGL_cli$build_BGL_tx$build_BGL_util$build_BGLd$BGL_enable_qt$use_tests$use_bench$enable_fuzz_binary" = "nonononononononono"; then
   use_boost=no
 else
-  use_boost=yes
-fi
-
-if test "$use_boost" = "yes"; then
-
-  dnl Check for Boost headers
-  AX_BOOST_BASE([1.73.0],[],[AC_MSG_ERROR([Boost is not available!])])
-  if test "$want_boost" = "no"; then
-    AC_MSG_ERROR([only libBGLconsensus can be built without Boost])
-  fi
-
-  dnl we don't use multi_index serialization
-  BOOST_CPPFLAGS="$BOOST_CPPFLAGS -DBOOST_MULTI_INDEX_DISABLE_SERIALIZATION"
-
-  dnl Prevent use of std::unary_function, which was removed in C++17,
-  dnl and will generate warnings with newer compilers for Boost
-  dnl older than 1.80.
-  dnl See: https://github.com/boostorg/config/pull/430.
-  AX_CHECK_PREPROC_FLAG([-DBOOST_NO_CXX98_FUNCTION_BASE], [BOOST_CPPFLAGS="$BOOST_CPPFLAGS -DBOOST_NO_CXX98_FUNCTION_BASE"], [], [$CXXFLAG_WERROR],
-                        [AC_LANG_PROGRAM([[#include <boost/config.hpp>]])])
-
-  if test "$suppress_external_warnings" != "no"; then
-    BOOST_CPPFLAGS=SUPPRESS_WARNINGS($BOOST_CPPFLAGS)
-  fi
-fi
-
-if test "$use_external_signer" != "no"; then
-  AC_MSG_CHECKING([whether Boost.Process can be used])
-  TEMP_CXXFLAGS="$CXXFLAGS"
-  dnl Boost 1.78 requires the following workaround.
-  dnl See: https://github.com/boostorg/process/issues/235
-  CXXFLAGS="$CXXFLAGS -Wno-error=narrowing"
-  TEMP_CPPFLAGS="$CPPFLAGS"
-  CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
-  TEMP_LDFLAGS="$LDFLAGS"
-  dnl Boost 1.73 and older require the following workaround.
-  LDFLAGS="$LDFLAGS $PTHREAD_CFLAGS"
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-    #define BOOST_PROCESS_USE_STD_FS
-    #include <boost/process.hpp>
-  ]],[[
-    namespace bp = boost::process;
-    bp::opstream stdin_stream;
-    bp::ipstream stdout_stream;
-    bp::child c("dummy", bp::std_out > stdout_stream, bp::std_err > stdout_stream, bp::std_in < stdin_stream);
-    stdin_stream << std::string{"test"} << std::endl;
-    if (c.running()) c.terminate();
-    c.wait();
-    c.exit_code();
-  ]])],
-    [have_boost_process="yes"],
-    [have_boost_process="no"])
-  LDFLAGS="$TEMP_LDFLAGS"
-  CPPFLAGS="$TEMP_CPPFLAGS"
-  CXXFLAGS="$TEMP_CXXFLAGS"
-  AC_MSG_RESULT([$have_boost_process])
-  if test "$have_boost_process" = "yes"; then
-    case $host in
-      dnl Boost Process for Windows uses Boost ASIO. Boost ASIO performs
-      dnl pre-main init of Windows networking libraries, which we do not
-      dnl want.
-      *mingw*)
-        use_external_signer="no"
-      ;;
-      *)
-        use_external_signer="yes"
-        AC_DEFINE([ENABLE_EXTERNAL_SIGNER], [1], [Define if external signer support is enabled])
-        AC_DEFINE([BOOST_PROCESS_USE_STD_FS], [1], [Defined to avoid Boost::Process trying to use Boost Filesystem])
-      ;;
-    esac
-  else
-    if test "$use_external_signer" = "yes"; then
-      AC_MSG_ERROR([External signing is not supported for this Boost version])
+  set_asm=$req_asm
+  case $set_asm in
+  x86_64)
+    SECP_X86_64_ASM_CHECK
+    if test x"$has_x86_64_asm" != x"yes"; then
+      AC_MSG_ERROR([x86_64 assembly requested but not available])
     fi
-    use_external_signer="no";
-  fi
-fi
-AM_CONDITIONAL([ENABLE_EXTERNAL_SIGNER], [test "$use_external_signer" = "yes"])
-
-dnl Check for reduced exports
-if test "$use_reduce_exports" = "yes"; then
-  AX_CHECK_COMPILE_FLAG([-fvisibility=hidden], [CORE_CXXFLAGS="$CORE_CXXFLAGS -fvisibility=hidden"],
-  [AC_MSG_ERROR([Cannot set hidden symbol visibility. Use --disable-reduce-exports.])], [$CXXFLAG_WERROR])
-  AX_CHECK_LINK_FLAG([-Wl,--exclude-libs,ALL], [RELDFLAGS="-Wl,--exclude-libs,ALL"], [], [$LDFLAG_WERROR])
-fi
-
-if test "$use_tests" = "yes"; then
-
-  if test "$HEXDUMP" = ""; then
-    AC_MSG_ERROR([hexdump is required for tests])
-  fi
-fi
-
-dnl libevent check
-
-use_libevent=no
-if test "$build_BGL_cli$build_BGLd$BGL_enable_qt$enable_fuzz_binary$use_tests$use_bench" != "nononononono"; then
-  PKG_CHECK_MODULES([EVENT], [libevent >= 2.1.8], [use_libevent=yes], [AC_MSG_ERROR([libevent version 2.1.8 or greater not found.])])
-  if test "$TARGET_OS" != "windows"; then
-    PKG_CHECK_MODULES([EVENT_PTHREADS], [libevent_pthreads >= 2.1.8], [], [AC_MSG_ERROR([libevent_pthreads version 2.1.8 or greater not found.])])
-  fi
-
-  if test "$suppress_external_warnings" != "no"; then
-    EVENT_CFLAGS=SUPPRESS_WARNINGS($EVENT_CFLAGS)
-  fi
-fi
-
-if test x$use_libevent = xyes; then
-  TEMP_CXXFLAGS="$CXXFLAGS"
-  CXXFLAGS="$CXXFLAGS $EVENT_CFLAGS"
-  AC_MSG_CHECKING([if evhttp_connection_get_peer expects const char**])
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-      #include <cstdint>
-      #include <event2/http.h>
-    ]], [[
-      evhttp_connection *conn = (evhttp_connection *)1;
-      const char *host;
-      uint16_t port;
-
-      evhttp_connection_get_peer(conn, &host, &port);
-    ]])],
-    [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_EVHTTP_CONNECTION_GET_PEER_CONST_CHAR], [1], [Define this symbol if evhttp_connection_get_peer expects const char**]) ],
-    [ AC_MSG_RESULT([no]) ]
-  )
-  CXXFLAGS="$TEMP_CXXFLAGS"
-fi
-
-dnl QR Code encoding library check
-
-if test "$use_qr" != "no"; then
-  BGL_QT_CHECK([PKG_CHECK_MODULES([QR], [libqrencode], [have_qrencode=yes], [have_qrencode=no])])
-fi
-
-dnl ZMQ check
-
-if test "$use_zmq" = "yes"; then
-  PKG_CHECK_MODULES([ZMQ], [libzmq >= 4],
-    AC_DEFINE([ENABLE_ZMQ], [1], [Define this symbol to enable ZMQ functions]),
-    [AC_MSG_WARN([libzmq version 4.x or greater not found, disabling])
-    use_zmq=no])
-fi
-
-if test "$use_zmq" = "yes"; then
-  dnl Assume libzmq was built for static linking
-  case $host in
-    *mingw*)
-      ZMQ_CFLAGS="$ZMQ_CFLAGS -DZMQ_STATIC"
+    ;;
+  arm32)
+    SECP_ARM32_ASM_CHECK
+    if test x"$has_arm32_asm" != x"yes"; then
+      AC_MSG_ERROR([ARM32 assembly requested but not available])
+    fi
+    ;;
+  no)
+    ;;
+  *)
+    AC_MSG_ERROR([invalid assembly selection])
     ;;
   esac
 fi
 
-AM_CONDITIONAL([ENABLE_ZMQ], [test "$use_zmq" = "yes"])
+# Select assembly
+enable_external_asm=no
 
-dnl libmultiprocess library check
+case $set_asm in
+x86_64)
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DUSE_ASM_X86_64=1"
+  ;;
+arm32)
+  enable_external_asm=yes
+  ;;
+no)
+  ;;
+*)
+  AC_MSG_ERROR([invalid assembly selection])
+  ;;
+esac
 
 libmultiprocess_found=no
 if test "$with_libmultiprocess" = "yes" || test "$with_libmultiprocess" = "auto"; then
@@ -1811,11 +1634,9 @@ AC_MSG_CHECKING([whether to reduce exports])
 if test "$use_reduce_exports" = "yes"; then
   AC_MSG_RESULT([yes])
 else
-  AC_MSG_RESULT([no])
-fi
-
-if test "$build_BGL_wallet$build_BGL_cli$build_BGL_tx$build_BGL_util$build_BGL_libs$build_BGLd$BGL_enable_qt$enable_fuzz_binary$use_bench$use_tests" = "nononononononononono"; then
-  AC_MSG_ERROR([No targets! Please specify at least one of: --with-utils --with-libs --with-daemon --with-gui --enable-fuzz(-binary) --enable-bench or --enable-tests])
+  if test x"$set_asm" = x"arm32"; then
+    AC_MSG_ERROR([ARM32 assembly is experimental. Use --enable-experimental to allow.])
+  fi
 fi
 
 AM_CONDITIONAL([TARGET_DARWIN], [test "$TARGET_OS" = "darwin"])

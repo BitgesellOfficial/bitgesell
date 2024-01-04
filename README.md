@@ -1,56 +1,12 @@
-<!-- PROJECT LOGO -->
-<br />
-<p align="center">
-  <a href="https://github.com/BitgesellOfficial/bitgesell">
-    <img src="https://github.com/BitgesellOfficial/bitgesell/blob/master/share/pixmaps/BGL64.png" alt="Logo" width="80" height="80">
-  </a>
+libsecp256k1
+============
 
-  <h3 align="center">Bitgesell (BGL)</h3>
+![Dependencies: None](https://img.shields.io/badge/dependencies-none-success)
+[![irc.libera.chat #secp256k1](https://img.shields.io/badge/irc.libera.chat-%23secp256k1-success)](https://web.libera.chat/#secp256k1)
 
-  <p align="center">
-    Bitgesell (BGL) is an experimental digital currency
-    <br />
-    <a href="https://bitgesell.ca/"><strong>Explore more about project »</strong></a>
-    <br />
-    <br />
-    <a href="#">English</a>
-    ·
-    <a href="https://github.com/BitgesellOfficial/bitgesell/blob/master/README-zh.md">Chinese</a>
-  </p>
-</p>
+High-performance high-assurance C library for digital signatures and other cryptographic primitives on the secp256k1 elliptic curve.
 
-
-
-<!-- TABLE OF CONTENTS -->
-<details open="open">
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <!-- <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul> -->
-    </li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgements">Translations</a></li>
-  </ol>
-</details>
-
-
-<!-- ABOUT THE PROJECT -->
-## About The Project
-
-![Product Name Screen Shot](https://github.com/BitgesellOfficial/bitgesell/blob/master/share/pixmaps/BGL64.png) 
+This library is intended to be the highest quality publicly available library for cryptography on the secp256k1 curve. However, the primary focus of its development has been for usage in the Bitcoin system and usage unlike Bitcoin's may be less well tested, verified, or suffer from a less well thought out interface. Correct usage requires some care and consideration that the library is fit for your application's purpose.
 
 Features:
 * secp256k1 ECDSA signing/verification and key generation.
@@ -99,7 +55,7 @@ Features:
   * Expose only higher level interfaces to minimize the API surface and improve application security. ("Be difficult to use insecurely.")
 * Field operations
   * Optimized implementation of arithmetic modulo the curve's field size (2^256 - 0x1000003D1).
-    * Using 5 52-bit limbs (including hand-optimized assembly for x86_64, by Diederik Huys).
+    * Using 5 52-bit limbs
     * Using 10 26-bit limbs (including hand-optimized assembly for 32-bit ARM, by Wladimir J. van der Laan).
       * This is an experimental feature that has not received enough scrutiny to satisfy the standard of quality of this library but is made available for testing and review by the community.
 * Scalar operations
@@ -182,57 +138,9 @@ Usage examples can be found in the [examples](examples) directory. To compile th
 
 To compile the Schnorr signature and ECDH examples, you also need to configure with `--enable-module-schnorrsig` and `--enable-module-ecdh`.
 
-Test coverage
------------
-
-This library aims to have full coverage of the reachable lines and branches.
-
-To create a test coverage report, configure with `--enable-coverage` (use of GCC is necessary):
-
-    $ ./configure --enable-coverage
-
-Run the tests:
-
-    $ make check
-
-To create a report, `gcovr` is recommended, as it includes branch coverage reporting:
-
-    $ gcovr --exclude 'src/bench*' --print-summary
-
-To create a HTML report with coloured and annotated source code:
-
-    $ mkdir -p coverage
-    $ gcovr --exclude 'src/bench*' --html --html-details -o coverage/coverage.html
-
-If you don't mind more setup in return for more speed, replace
-`autocomplete-clang` and `linter-clang` with `you-complete-me`. This requires
-[setting up ycmd](https://github.com/ycm-core/ycmd#building).
-
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-1. Fork the Project
-2. Create your Feature Branch 
-3. Commit your Changes 
-4. Push to the Branch  
-5. Open a Pull Request
-
-
-
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See [LICENSE](https://github.com/BitgesellOfficial/bitgesell/blob/master/COPYING) for more information.
-
-
-
-<!-- CONTACT -->
-## Contact
-
-Discord - [Bitgesell](https://discord.com/invite/Ubp359vZEF)
-
-Twitter: [Bitgesell](https://twitter.com/Bitgesell)
-
-Medium: [Bitgesell](https://bitgesell.medium.com/)
+Benchmark
+------------
+If configured with `--enable-benchmark` (which is the default), binaries for benchmarking the libsecp256k1 functions will be present in the root directory after the build.
 
 Facebook: [Bitgesell](https://www.facebook.com/Bitgesell)
 
@@ -246,5 +154,9 @@ Changes to translations as well as new translations can be submitted to
 Translations are periodically pulled from Transifex and merged into the git repository. See the
 [translation process](doc/translation_process.md) for details on how this works.
 
-**Important**: We do not accept translation changes as GitHub pull requests because the next
-pull from Transifex would automatically overwrite them again.
+See [SECURITY.md](SECURITY.md)
+
+Contributing to libsecp256k1
+------------
+
+See [CONTRIBUTING.md](CONTRIBUTING.md)

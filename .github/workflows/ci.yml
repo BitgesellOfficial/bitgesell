@@ -50,9 +50,8 @@ jobs:
     env:
       MAX_COUNT: 6
     steps:
-      - name: Determine fetch depth
-        run: echo "FETCH_DEPTH=$((${{ github.event.pull_request.commits }} + 2))" >> "$GITHUB_ENV"
-      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: ${{ env.FETCH_DEPTH }}
@@ -95,7 +94,7 @@ jobs:
     runs-on: macos-13
 
       - name: Build container
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           file: ./ci/linux-debian.Dockerfile
           tags: linux-debian-image
@@ -836,7 +835,7 @@ jobs:
 
       - name: Check installation with Autotools
         env:
-          CI_INSTALL: ${{ runner.temp }}/${{ github.run_id }}${{ github.action }}
+          CI_INSTALL: ${{ runner.temp }}/${{ github.run_id }}${{ github.action }}/install
         run: |
           ./autogen.sh && ./configure --prefix=${{ env.CI_INSTALL }} && make clean && make install && ls -RlAh ${{ env.CI_INSTALL }}
           gcc -o ecdsa examples/ecdsa.c $(PKG_CONFIG_PATH=${{ env.CI_INSTALL }}/lib/pkgconfig pkg-config --cflags --libs libsecp256k1) -Wl,-rpath,"${{ env.CI_INSTALL }}/lib" && ./ecdsa
