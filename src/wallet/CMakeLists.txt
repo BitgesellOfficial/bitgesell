@@ -46,6 +46,6 @@ target_link_libraries(BGL_wallet
 )
 
 if(USE_BDB)
-  target_sources(BGL_wallet PRIVATE bdb.cpp salvage.cpp)
+  target_sources(BGL_wallet PRIVATE bdb.cpp)
   target_link_libraries(BGL_wallet PUBLIC BerkeleyDB::BerkeleyDB)
 endif()
