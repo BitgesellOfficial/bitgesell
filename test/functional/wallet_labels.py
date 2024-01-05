@@ -19,9 +19,6 @@ import random
 
 
 class WalletLabelsTest(BGLTestFramework):
-    def add_options(self, parser):
-        self.add_wallet_options(parser)
-
     def set_test_params(self):
         self.setup_clean_chain = True
         self.num_nodes = 1
@@ -42,23 +39,11 @@ class WalletLabelsTest(BGLTestFramework):
             [node.getreceivedbylabel],
             [node.listsinceblock, node.getblockhash(0), 1, False, True, False],
         ]
-        if self.options.descriptors:
-            response = node.importdescriptors([{
-                'desc': f'pkh({pubkey})',
-                'label': '*',
-                'timestamp': 'now',
-            }])
-        else:
-            rpc_calls.extend([
-                [node.importprivkey, node.dumpprivkey(address)],
-                [node.importaddress, address],
-            ])
-
-            response = node.importmulti([{
-                'scriptPubKey': {'address': address},
-                'label': '*',
-                'timestamp': 'now',
-            }])
+        response = node.importdescriptors([{
+            'desc': f'pkh({pubkey})',
+            'label': '*',
+            'timestamp': 'now',
+        }])
 
         assert_equal(response[0]['success'], False)
         assert_equal(response[0]['error']['code'], -11)
@@ -161,18 +146,6 @@ class WalletLabelsTest(BGLTestFramework):
             label.verify(node)
             assert_raises_rpc_error(-11, "No addresses with label", node.getaddressesbylabel, "")
 
-        # Check that addmultisigaddress can assign labels.
-        if not self.options.descriptors:
-            for label in labels:
-                addresses = []
-                for _ in range(10):
-                    addresses.append(node.getnewaddress())
-                multisig_address = node.addmultisigaddress(5, addresses, label.name)['address']
-                label.add_address(multisig_address)
-                label.purpose[multisig_address] = "send"
-                label.verify(node)
-            self.generate(node, COINBASE_MATURITY + 1)
-
         # Check that setlabel can change the label of an address from a
         # different label.
         change_label(node, labels[0].addresses[0], labels[0], labels[1])
@@ -181,19 +154,20 @@ class WalletLabelsTest(BGLTestFramework):
         # in the label. This is a no-op.
         change_label(node, labels[2].addresses[0], labels[2], labels[2])
 
+        self.invalid_label_name_test()
+
+        # This is a descriptor wallet test because of segwit v1+ addresses
         self.log.info('Check watchonly labels')
         node.createwallet(wallet_name='watch_only', disable_private_keys=True)
         wallet_watch_only = node.get_wallet_rpc('watch_only')
         BECH32_VALID = {
-            '✔️':'rbgl1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqv0fdzt',
-            # '✔️_VER15_PROG40': 'rbgl10qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq9sf544',
-            # '✔️_VER16_PROG03': 'rbgl1sqqqqqkdgcyl',
-            # '✔️_VER16_PROB02': 'rbgl1sqqqqjsfprr',
+            '✔️_VER15_PROG40': 'bcrt10qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxkg7fn',
+            '✔️_VER16_PROG03': 'bcrt1sqqqqq8uhdgr',
+            '✔️_VER16_PROB02': 'bcrt1sqqqq4wstyw',
         }
         BECH32_INVALID = {
-            '❌': 'rbgl1sqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqajlxj8',
-            # '❌_VER15_PROG41': 'rbgl1sqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqajlxj8',
-            # '❌_VER16_PROB01': 'rbgl1sqq5r4036',
+            '❌_VER15_PROG41': 'bcrt1sqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqajlxj8',
+            '❌_VER16_PROB01': 'bcrt1sqq5r4036',
         }
         for l in BECH32_VALID:
             ad = BECH32_VALID[l]
@@ -205,7 +179,7 @@ class WalletLabelsTest(BGLTestFramework):
             ad = BECH32_INVALID[l]
             assert_raises_rpc_error(
                 -5,
-                "Address is not valid" if self.options.descriptors else "Invalid Bitgesell address or script",
+                "Address is not valid",
                 lambda: wallet_watch_only.importaddress(label=l, rescan=False, address=ad),
             )
 

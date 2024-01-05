@@ -25,12 +25,10 @@ def notify_outputname(walletname, txid):
 
 
 class NotificationsTest(BGLTestFramework):
-    def add_options(self, parser):
-        self.add_wallet_options(parser)
-
     def set_test_params(self):
         self.num_nodes = 2
         self.setup_clean_chain = True
+        self.uses_wallet = None
 
     def setup_network(self):
         self.wallet = ''.join(chr(i) for i in range(FILE_CHAR_START, FILE_CHAR_END) if chr(i) not in FILE_CHARS_DISALLOWED)
@@ -54,7 +52,6 @@ class NotificationsTest(BGLTestFramework):
     def run_test(self):
         if self.is_wallet_compiled():
             # Setup the descriptors to be imported to the wallet
-            seed = "cTdGmKFWpbvpKQ7ejrdzqYT2hhjyb3GPHnLAK7wdi5Em67YLwSm9"
             xpriv = "tprv8ZgxMBicQKsPfHCsTwkiM1KT56RXbGGTqvc2hgqzycpwbHqqpcajQeMRZoBD35kW4RtyCemu6j34Ku5DEspmgjKdt2qe4SvRch5Kk8B8A2v"
             desc_imports = [{
                 "desc": descsum_create(f"wpkh({xpriv}/0/*)"),
@@ -71,11 +68,8 @@ class NotificationsTest(BGLTestFramework):
             # Make the wallets and import the descriptors
             # Ensures that node 0 and node 1 share the same wallet for the conflicting transaction tests below.
             for i, name in enumerate(self.wallet_names):
-                self.nodes[i].createwallet(wallet_name=name, descriptors=self.options.descriptors, blank=True, load_on_startup=True)
-                if self.options.descriptors:
-                    self.nodes[i].importdescriptors(desc_imports)
-                else:
-                    self.nodes[i].sethdseed(True, seed)
+                self.nodes[i].createwallet(wallet_name=name, blank=True, load_on_startup=True)
+                self.nodes[i].importdescriptors(desc_imports)
 
         self.log.info("test -blocknotify")
         block_count = 10

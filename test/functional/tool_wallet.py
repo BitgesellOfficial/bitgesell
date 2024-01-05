@@ -5,7 +5,6 @@
 """Test BGL-wallet."""
 
 import os
-import random
 import stat
 import subprocess
 import textwrap
@@ -22,7 +21,6 @@ from test_framework.util import (
 
 class ToolWalletTest(BGLTestFramework):
     def add_options(self, parser):
-        self.add_wallet_options(parser)
         parser.add_argument("--bdbro", action="store_true", help="Use the BerkeleyRO internal parser when dumping a Berkeley DB wallet file")
         parser.add_argument("--swap-bdb-endian", action="store_true",help="When making Legacy BDB wallets, always make then byte swapped internally")
 
@@ -39,8 +37,6 @@ class ToolWalletTest(BGLTestFramework):
 
     def BGL_wallet_process(self, *args):
         default_args = ['-datadir={}'.format(self.nodes[0].datadir_path), '-chain=%s' % self.chain]
-        if not self.options.descriptors and 'create' in args:
-            default_args.append('-legacy')
         if "dump" in args and self.options.bdbro:
             default_args.append("-withinternalbdb")
 
@@ -79,34 +75,19 @@ class ToolWalletTest(BGLTestFramework):
 
     def get_expected_info_output(self, name="", transactions=0, keypool=2, address=0, imported_privs=0):
         wallet_name = self.default_wallet_name if name == "" else name
-        if self.options.descriptors:
-            output_types = 4  # p2pkh, p2sh, segwit, bech32m
-            return textwrap.dedent('''\
-                Wallet info
-                ===========
-                Name: %s
-                Format: sqlite
-                Descriptors: yes
-                Encrypted: no
-                HD (hd seed available): yes
-                Keypool Size: %d
-                Transactions: %d
-                Address Book: %d
-            ''' % (wallet_name, keypool * output_types, transactions, imported_privs * 3 + address))
-        else:
-            output_types = 3  # p2pkh, p2sh, segwit. Legacy wallets do not support bech32m.
-            return textwrap.dedent('''\
-                Wallet info
-                ===========
-                Name: %s
-                Format: bdb
-                Descriptors: no
-                Encrypted: no
-                HD (hd seed available): yes
-                Keypool Size: %d
-                Transactions: %d
-                Address Book: %d
-            ''' % (wallet_name, keypool, transactions, (address + imported_privs) * output_types))
+        output_types = 4  # p2pkh, p2sh, segwit, bech32m
+        return textwrap.dedent('''\
+            Wallet info
+            ===========
+            Name: %s
+            Format: sqlite
+            Descriptors: yes
+            Encrypted: no
+            HD (hd seed available): yes
+            Keypool Size: %d
+            Transactions: %d
+            Address Book: %d
+        ''' % (wallet_name, keypool * output_types, transactions, imported_privs * 3 + address))
 
     def read_dump(self, filename):
         dump = OrderedDict()
@@ -194,10 +175,7 @@ class ToolWalletTest(BGLTestFramework):
         self.assert_raises_tool_error('Error parsing command line arguments: Invalid parameter -foo', '-foo')
         self.assert_raises_tool_error('No method provided. Run `BGL-wallet -help` for valid methods.')
         self.assert_raises_tool_error('Wallet name must be provided when creating a new wallet.', 'create')
-        locked_dir = self.nodes[0].wallets_path
-        error = 'Error initializing wallet database environment "{}"!'.format(locked_dir)
-        if self.options.descriptors:
-            error = f"SQLiteDatabase: Unable to obtain an exclusive lock on the database, is it being used by another instance of {self.config['environment']['CLIENT_NAME']}?"
+        error = f"SQLiteDatabase: Unable to obtain an exclusive lock on the database, is it being used by another instance of {self.config['environment']['CLIENT_NAME']}?"
         self.assert_raises_tool_error(
             error,
             '-wallet=' + self.default_wallet_name,
@@ -309,27 +287,13 @@ class ToolWalletTest(BGLTestFramework):
         self.log.debug('Wallet file timestamp after calling getwalletinfo: {}'.format(timestamp_after))
 
         assert_equal(0, out['txcount'])
-        if not self.options.descriptors:
-            assert_equal(1000, out['keypoolsize'])
-            assert_equal(1000, out['keypoolsize_hd_internal'])
-            assert_equal(True, 'hdseedid' in out)
-        else:
-            assert_equal(4000, out['keypoolsize'])
-            assert_equal(4000, out['keypoolsize_hd_internal'])
+        assert_equal(4000, out['keypoolsize'])
+        assert_equal(4000, out['keypoolsize_hd_internal'])
 
         self.log_wallet_timestamp_comparison(timestamp_before, timestamp_after)
         assert_equal(timestamp_before, timestamp_after)
         assert_equal(shasum_after, shasum_before)
         self.log.debug('Wallet file shasum unchanged\n')
-
-    def test_salvage(self):
-        # TODO: Check salvage actually salvages and doesn't break things. https://github.com/bitcoin/bitcoin/issues/7463
-        self.log.info('Check salvage')
-        self.start_node(0)
-        self.nodes[0].createwallet("salvage")
-        self.stop_node(0)
-
-        self.assert_tool_output('', '-wallet=salvage', 'salvage')
 
     def test_dump_createfromdump(self):
         self.start_node(0)
@@ -450,38 +414,19 @@ class ToolWalletTest(BGLTestFramework):
         self.stop_node(0)
 
         # Wallet tool should successfully give info for this wallet
-        expected_output = textwrap.dedent(f'''\
+        expected_output = textwrap.dedent('''\
             Wallet info
             ===========
             Name: conflicts
-            Format: {"sqlite" if self.options.descriptors else "bdb"}
-            Descriptors: {"yes" if self.options.descriptors else "no"}
+            Format: sqlite
+            Descriptors: yes
             Encrypted: no
             HD (hd seed available): yes
-            Keypool Size: {"8" if self.options.descriptors else "1"}
+            Keypool Size: 8
             Transactions: 4
             Address Book: 4
         ''')
         self.assert_tool_output(expected_output, "-wallet=conflicts", "info")
-
-    def test_dump_endianness(self):
-        self.log.info("Testing dumps of the same contents with different BDB endianness")
-
-        self.start_node(0)
-        self.nodes[0].createwallet("endian")
-        self.stop_node(0)
-
-        wallet_dump = self.nodes[0].datadir_path / "endian.dump"
-        self.assert_tool_output("The dumpfile may contain private keys. To ensure the safety of your Bitgesell, do not share the dumpfile.\n", "-wallet=endian", f"-dumpfile={wallet_dump}", "dump")
-        expected_dump = self.read_dump(wallet_dump)
-
-        self.do_tool_createfromdump("native_endian", "endian.dump", "bdb")
-        native_dump = self.read_dump(self.nodes[0].datadir_path / "rt-native_endian.dump")
-        self.assert_dump(expected_dump, native_dump)
-
-        self.do_tool_createfromdump("other_endian", "endian.dump", "bdb_swap")
-        other_dump = self.read_dump(self.nodes[0].datadir_path / "rt-other_endian.dump")
-        self.assert_dump(expected_dump, other_dump)
 
     def test_dump_very_large_records(self):
         self.log.info("Test that wallets with large records are successfully dumped")
@@ -519,31 +464,18 @@ class ToolWalletTest(BGLTestFramework):
         else:
             assert False, "Big transaction was not found in wallet dump"
 
-    def test_no_create_legacy(self):
-        self.log.info("Test that legacy wallets cannot be created")
-
-        self.assert_raises_tool_error("The -legacy option must be set to \"false\"", "-wallet=legacy", "-legacy", "create")
-        assert not (self.nodes[0].wallets_path / "legacy").exists()
-        self.assert_raises_tool_error("The -descriptors option must be set to \"true\"", "-wallet=legacy", "-descriptors=false", "create")
-        assert not (self.nodes[0].wallets_path / "legacy").exists()
-
     def run_test(self):
         self.wallet_path = self.nodes[0].wallets_path / self.default_wallet_name / self.wallet_data_filename
         self.test_invalid_tool_commands_and_args()
         # Warning: The following tests are order-dependent.
         self.test_tool_wallet_info()
         self.test_tool_wallet_info_after_transaction()
-        if not self.options.descriptors:
-            # TODO: Wallet tool needs more create options at which point these can be enabled.
-            self.test_tool_wallet_create_on_existing_wallet()
-            self.test_getwalletinfo_on_different_wallet()
-            # Salvage is a legacy wallet only thing
-            self.test_salvage()
-            self.test_dump_endianness()
+        self.test_tool_wallet_create_on_existing_wallet()
+        self.test_getwalletinfo_on_different_wallet()
         self.test_dump_createfromdump()
         self.test_chainless_conflicts()
         self.test_dump_very_large_records()
-        self.test_no_create_legacy()
+
 
 if __name__ == '__main__':
     ToolWalletTest(__file__).main()
