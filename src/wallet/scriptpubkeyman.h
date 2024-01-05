@@ -316,8 +316,6 @@ public:
     std::unordered_set<CScript, SaltedSipHasher> GetScriptPubKeys() const override;
     std::unique_ptr<SigningProvider> GetSolvingProvider(const CScript& script) const override;
     uint256 GetID() const override { return uint256::ONE; }
-    // TODO: Remove IsMine when deleting LegacyScriptPubKeyMan
-    isminetype IsMine(const CScript& script) const override;
 
     // FillableSigningProvider overrides
     bool HaveKey(const CKeyID &address) const override;
@@ -356,18 +354,6 @@ public:
 
     //! Fetches a pubkey from mapWatchKeys if it exists there
     bool GetWatchPubKey(const CKeyID &address, CPubKey &pubkey_out) const;
-
-    /**
-     * Retrieves scripts that were imported by bugs into the legacy spkm and are
-     * simply invalid, such as a sh(sh(pkh())) script, or not watched.
-     */
-    std::unordered_set<CScript, SaltedSipHasher> GetNotMineScriptPubKeys() const;
-
-    /** Get the DescriptorScriptPubKeyMans (with private keys) that have the same scriptPubKeys as this LegacyScriptPubKeyMan.
-     * Does not modify this ScriptPubKeyMan. */
-    std::optional<MigrationData> MigrateToDescriptor();
-    /** Delete all the records ofthis LegacyScriptPubKeyMan from disk*/
-    bool DeleteRecords();
 };
 
 // Implements the full legacy wallet behavior
@@ -562,6 +548,18 @@ public:
     const std::map<CKeyID, int64_t>& GetAllReserveKeys() const { return m_pool_key_to_index; }
 
     std::set<CKeyID> GetKeys() const override;
+
+    /**
+     * Retrieves scripts that were imported by bugs into the legacy spkm and are
+     * simply invalid, such as a sh(sh(pkh())) script, or not watched.
+     */
+    std::unordered_set<CScript, SaltedSipHasher> GetNotMineScriptPubKeys() const;
+
+    /** Get the DescriptorScriptPubKeyMans (with private keys) that have the same scriptPubKeys as this LegacyScriptPubKeyMan.
+     * Does not modify this ScriptPubKeyMan. */
+    std::optional<MigrationData> MigrateToDescriptor();
+    /** Delete all the records ofthis LegacyScriptPubKeyMan from disk*/
+    bool DeleteRecords();
 };
 
 /** Wraps a LegacyScriptPubKeyMan so that it can be returned in a new unique_ptr. Does not provide privkeys */
