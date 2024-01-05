@@ -48,7 +48,11 @@ LIBBGL_WALLET=libBGL_wallet.a
 LIBBGL_WALLET_TOOL=libBGL_wallet_tool.a
 endif
 
-LIBBGL_CRYPTO = $(LIBBGL_CRYPTO_BASE)
+LIBBGL_CRYPTO = $(LIBGL_CRYPTO_BASE)
+if USE_ASM
+LIBBGL_CRYPTO_SSE4 = crypto/libBGL_crypto_sse4.la
+LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_SSE4)
+endif
 if ENABLE_SSE41
 LIBBGL_CRYPTO_SSE41 = crypto/libBGL_crypto_sse41.la
 LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_SSE41)
@@ -540,6 +544,10 @@ libBGL_wallet_tool_a_SOURCES = \
 #
 
 # crypto #
+
+# crypto_base contains the unspecialized (unoptimized) versions of our
+# crypto functions. Functions that require custom compiler flags and/or
+# runtime opt-in are omitted.
 crypto_libBGL_crypto_base_la_CPPFLAGS = $(AM_CPPFLAGS)
 
 # Specify -static in both CXXFLAGS and LDFLAGS so libtool will only build a
@@ -582,9 +590,12 @@ crypto_libBGL_crypto_base_la_SOURCES = \
   crypto/sha3/sha3.c \
   crypto/sha3/sha3.h
 
-if USE_ASM
-crypto_libBGL_crypto_base_la_SOURCES += crypto/sha256_sse4.cpp
-endif
+# See explanation for -static in crypto_libbitcoin_crypto_base_la's LDFLAGS and
+# CXXFLAGS above
+crypto_libBGL_crypto_sse4_la_LDFLAGS = $(AM_LDFLAGS) -static
+crypto_libBGL_crypto_sse4_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -static
+crypto_libBGL_crypto_sse4_la_CPPFLAGS = $(AM_CPPFLAGS)
+crypto_libBGL_crypto_sse4_la_SOURCES = crypto/sha256_sse4.cpp
 
 # See explanation for -static in crypto_libbitcoin_crypto_base_la's LDFLAGS and
 # CXXFLAGS above
@@ -1013,7 +1024,7 @@ libBGLconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libBGL_crypto_base_la_
 
 libBGLconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS)
 libBGLconsensus_la_LIBADD = $(LIBSECP256K1)
-libBGLconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BITCOIN_INTERNAL -DDISABLE_OPTIMIZED_SHA256
+libBGLconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BGL_INTERNAL -DDISABLE_OPTIMIZED_SHA256
 libBGLconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
 endif
