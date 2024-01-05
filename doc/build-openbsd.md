@@ -26,33 +26,11 @@ git clone https://github.com/BitgesellOfficial/bitgesell.git
 #### Wallet Dependencies
 
 It is not necessary to build wallet functionality to run either `BGLd` or `BGL-qt`.
+SQLite is required to build the wallet.
 
-###### Descriptor Wallet Support
-
-SQLite is required to support [descriptor wallets](descriptors.md).
 
 ``` bash
 pkg_add sqlite3
-```
-
-###### Legacy Wallet Support
-BerkeleyDB is only required to support legacy wallets.
-
-It is recommended to use Berkeley DB 4.8. You cannot use the BerkeleyDB library
-from ports. However you can build it yourself, [using depends](/depends).
-
-Refer to [depends/README.md](/depends/README.md) for detailed instructions.
-
-```bash
-gmake -C depends NO_BOOST=1 NO_LIBEVENT=1 NO_QT=1 NO_ZMQ=1 NO_USDT=1
-...
-to: /path/to/bitgesell/depends/*-unknown-openbsd*
-```
-
-Then set `BDB_PREFIX`:
-
-```bash
-export BDB_PREFIX="[path displayed above]"
 ```
 
 #### GUI Dependencies
@@ -80,7 +58,7 @@ Otherwise, if you don't need QR encoding support, use the `-DWITH_QRENCODE=OFF` 
 #### Notifications
 ###### ZeroMQ
 
-Bitcoin Core can provide notifications via ZeroMQ. If the package is installed, support will be compiled in.
+Bitgesell Core can provide notifications via ZeroMQ. If the package is installed, support will be compiled in.
 ```bash
 pkg_add zeromq
 ```
@@ -93,7 +71,7 @@ To run the test suite (recommended), you will need to have Python 3 installed:
 pkg_add python py3-zmq  # Select the newest version of the python package if necessary.
 ```
 
-## Building Bitcoin Core
+## Building Bitgesell Core
 
 ### 1. Configuration
 
@@ -107,13 +85,6 @@ cmake -B build -DBUILD_GUI=ON
 ```
 
 Run `cmake -B build -LH` to see the full list of available options.
-
-##### Descriptor & Legacy Wallet. No GUI:
-This enables support for both wallet types:
-
-```bash
-cmake -B build -DBerkeleyDB_INCLUDE_DIR:PATH="${BDB_PREFIX}/include" -DWITH_BDB=ON
-```
 
 ### 2. Compile
 

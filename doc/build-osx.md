@@ -47,7 +47,7 @@ To install, run the following from your terminal:
 brew install cmake boost pkgconf libevent
 ```
 
-### 4. Clone Bitcoin repository
+### 4. Clone Bitgesell repository
 
 `git` should already be installed by default on your system.
 Now that all the required dependencies are installed, let's clone the BGL Core repository to a directory.
@@ -70,14 +70,6 @@ It is not necessary to build wallet functionality to run `BGLd` or  `BGL-qt`.
 macOS ships with a useable `sqlite` package, meaning you don't need to
 install anything.
 
-###### Legacy Wallet Support
-
-`berkeley-db@4` is only required to support for legacy wallets.
-Skip if you don't intend to use legacy wallets.
-
-``` bash
-brew install berkeley-db@4
-```
 ---
 
 #### GUI Dependencies
@@ -153,15 +145,11 @@ It is required that you have `python` and `zip` installed.
 The wallet support requires one or both of the dependencies ([*SQLite*](#sqlite) and [*Berkeley DB*](#berkeley-db)) in the sections below.
 To build BGL Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mode).
 
-#### SQLite
+### 1. Configuration
 
-If `berkeley-db@4` or `sqlite` are not installed, this will throw an error.
+There are many ways to configure Bitgesell Core, here are a few common examples:
 
-``` bash
-cmake -B build -DWITH_BDB=ON
-```
-
-In that case the Homebrew package will prevail.
+##### Wallet (only SQlite) and GUI Support:
 
 This enables the GUI.
 If `sqlite` or `qt` are not installed, this will throw an error.

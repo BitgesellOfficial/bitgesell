@@ -19,8 +19,16 @@ if (MP_STANDALONE)
   add_custom_target(check DEPENDS mpcheck)
 endif()
 
-if(BUILD_TESTING AND TARGET CapnProto::kj-test)
-  set_property(SOURCE ${MP_PROXY_HDRS} PROPERTY GENERATED 1)
+  set_configure_variable(ENABLE_WALLET ENABLE_WALLET)
+  set_configure_variable(BUILD_CLI BUILD_BGL_CLI)
+  set_configure_variable(BUILD_UTIL BUILD_BGL_UTIL)
+  set_configure_variable(BUILD_UTIL_CHAINSTATE BUILD_BGL_CHAINSTATE)
+  set_configure_variable(BUILD_WALLET_TOOL BUILD_BGL_WALLET)
+  set_configure_variable(BUILD_DAEMON BUILD_BGLD)
+  set_configure_variable(BUILD_FUZZ_BINARY ENABLE_FUZZ_BINARY)
+  set_configure_variable(WITH_ZMQ ENABLE_ZMQ)
+  set_configure_variable(ENABLE_EXTERNAL_SIGNER ENABLE_EXTERNAL_SIGNER)
+  set_configure_variable(WITH_USDT ENABLE_USDT_TRACEPOINTS)
 
   add_executable(mptest
     ${MP_PROXY_HDRS}
