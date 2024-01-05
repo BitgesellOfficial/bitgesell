@@ -30,7 +30,7 @@ from test_framework.util import (
 
 class BackwardsCompatibilityTest(BGLTestFramework):
     def add_options(self, parser):
-        self.add_wallet_options(parser)
+        self.add_wallet_options(parser, legacy=False)
 
     def set_test_params(self):
         self.setup_clean_chain = True
@@ -221,12 +221,12 @@ class BackwardsCompatibilityTest(BGLTestFramework):
         self.test_v19_addmultisigaddress()
 
         self.log.info("Test that a wallet made on master can be opened on:")
-        # In descriptors wallet mode, run this test on the nodes that support descriptor wallets
-        # In legacy wallets mode, run this test on the nodes that support legacy wallets
-        for node in descriptors_nodes if self.options.descriptors else legacy_nodes:
+        # This test only works on the nodes that support descriptor wallets
+        # since we can no longer create legacy wallets.
+        for node in descriptors_nodes:
             self.log.info(f"- {node.version}")
             for wallet_name in ["w1", "w2", "w3"]:
-                if self.major_version_less_than(node, 22) and wallet_name == "w1" and self.options.descriptors:
+                if self.major_version_less_than(node, 22) and wallet_name == "w1":
                     # Descriptor wallets created after 0.21 have taproot descriptors which 0.21 does not support, tested below
                     continue
                 # Also try to reopen on master after opening on old
@@ -266,28 +266,23 @@ class BackwardsCompatibilityTest(BGLTestFramework):
                         )
 
         # Check that descriptor wallets don't work on legacy only nodes
-        if self.options.descriptors:
-            self.log.info("Test descriptor wallet incompatibility on:")
-            for node in legacy_only_nodes:
-                self.log.info(f"- {node.version}")
-                # Descriptor wallets appear to be corrupted wallets to old software
-                assert self.major_version_less_than(node, 21)
-                for wallet_name in ["w1", "w2", "w3"]:
-                    assert_raises_rpc_error(-4, "Wallet file verification failed: wallet.dat corrupt, salvage failed", node.loadwallet, wallet_name)
+        self.log.info("Test descriptor wallet incompatibility on:")
+        for node in legacy_only_nodes:
+            self.log.info(f"- {node.version}")
+            # Descriptor wallets appear to be corrupted wallets to old software
+            assert self.major_version_less_than(node, 21)
+            for wallet_name in ["w1", "w2", "w3"]:
+                assert_raises_rpc_error(-4, "Wallet file verification failed: wallet.dat corrupt, salvage failed", node.loadwallet, wallet_name)
 
-        # When descriptors are enabled, w1 cannot be opened by 0.21 since it contains a taproot descriptor
-        if self.options.descriptors:
-            self.log.info("Test that 0.21 cannot open wallet containing tr() descriptors")
-            assert_raises_rpc_error(-1, "map::at", node_v21.loadwallet, "w1")
+        # w1 cannot be opened by 0.21 since it contains a taproot descriptor
+        self.log.info("Test that 0.21 cannot open wallet containing tr() descriptors")
+        assert_raises_rpc_error(-1, "map::at", node_v21.loadwallet, "w1")
 
         self.log.info("Test that a wallet can upgrade to and downgrade from master, from:")
-        for node in descriptors_nodes if self.options.descriptors else legacy_nodes:
+        for node in descriptors_nodes:
             self.log.info(f"- {node.version}")
             wallet_name = f"up_{node.version}"
-            if self.major_version_at_least(node, 21):
-                node.rpc.createwallet(wallet_name=wallet_name, descriptors=self.options.descriptors)
-            else:
-                node.rpc.createwallet(wallet_name=wallet_name)
+            node.rpc.createwallet(wallet_name=wallet_name, descriptors=True)
             wallet_prev = node.get_wallet_rpc(wallet_name)
             address = wallet_prev.getnewaddress('', "bech32")
             addr_info = wallet_prev.getaddressinfo(address)
@@ -305,35 +300,8 @@ class BackwardsCompatibilityTest(BGLTestFramework):
             # Restore the wallet to master
             load_res = node_master.restorewallet(wallet_name, backup_path)
 
-        self.log.info("Test wallet upgrade path...")
-        # u1: regular wallet, created with v0.17
-        node_v17.rpc.createwallet(wallet_name="u1_v17")
-        wallet = node_v17.get_wallet_rpc("u1_v17")
-        address = wallet.getnewaddress("bech32")
-        v17_info = wallet.getaddressinfo(address)
-        hdkeypath = v17_info["hdkeypath"].replace("'", "h")
-        pubkey = v17_info["pubkey"]
-
-        if self.is_bdb_compiled():
-            # Old wallets are BDB and will only work if BDB is compiled
-            # Copy the 0.16 wallet to the last Bitcoin Core version and open it:
-            shutil.copyfile(
-                os.path.join(node_v16_wallets_dir, "wallets/u1_v16"),
-                os.path.join(node_master_wallets_dir, "u1_v16")
-            )
-            load_res = node_master.loadwallet("u1_v16")
-            # Make sure this wallet opens with only the migration warning. See https://github.com/bitcoin/bitcoin/pull/19054
-            if int(node_master.getnetworkinfo()["version"]) >= 249900:
-                # loadwallet#warnings (added in v25) -- only present if there is a warning
-                # Legacy wallets will have only a deprecation warning
-                assert_equal(load_res["warnings"], ["Wallet loaded successfully. The legacy wallet type is being deprecated and support for creating and opening legacy wallets will be removed in the future. Legacy wallets can be migrated to a descriptor wallet with migratewallet."])
-            else:
-                # loadwallet#warning (deprecated in v25) -- always present, but empty string if no warning
-                assert_equal(load_res["warning"], '')
-            wallet = node_master.get_wallet_rpc("u1_v16")
-            info = wallet.getaddressinfo(v16_addr)
-            descriptor = f"wpkh([{info['hdmasterfingerprint']}{hdkeypath[1:]}]{v16_pubkey})"
-            assert_equal(info["desc"], descsum_create(descriptor))
+            # There should be no warnings
+            assert "warnings" not in load_res
 
             # Now copy that same wallet back to 0.16 to make sure no automatic upgrade breaks it
             node_master.unloadwallet("u1_v16")
@@ -371,14 +339,23 @@ class BackwardsCompatibilityTest(BGLTestFramework):
             info = wallet.getaddressinfo(address)
             assert_equal(info, v17_info)
 
-            # Copy the 0.19 wallet to the last Bitcoin Core version and open it:
-            shutil.copytree(
-                os.path.join(node_v19_wallets_dir, "w1_v19"),
-                os.path.join(node_master_wallets_dir, "w1_v19")
-            )
-            node_master.loadwallet("w1_v19")
-            wallet = node_master.get_wallet_rpc("w1_v19")
-            assert wallet.getaddressinfo(address_18075)["solvable"]
+            # Check that taproot descriptors can be added to 0.21 wallets
+            # This must be done after the backup is created so that 0.21 can still load
+            # the backup
+            if self.major_version_equals(node, 21):
+                assert_raises_rpc_error(-12, "No bech32m addresses available", wallet.getnewaddress, address_type="bech32m")
+                xpubs = wallet.gethdkeys(active_only=True)
+                assert_equal(len(xpubs), 1)
+                assert_equal(len(xpubs[0]["descriptors"]), 6)
+                wallet.createwalletdescriptor("bech32m")
+                xpubs = wallet.gethdkeys(active_only=True)
+                assert_equal(len(xpubs), 1)
+                assert_equal(len(xpubs[0]["descriptors"]), 8)
+                tr_descs = [desc["desc"] for desc in xpubs[0]["descriptors"] if desc["desc"].startswith("tr(")]
+                assert_equal(len(tr_descs), 2)
+                for desc in tr_descs:
+                    assert info["hdmasterfingerprint"] in desc
+                wallet.getnewaddress(address_type="bech32m")
 
             wallet.unloadwallet()
 
