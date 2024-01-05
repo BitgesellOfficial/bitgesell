@@ -21,7 +21,6 @@ class uint256;
 struct CBlockLocator;
 
 namespace wallet {
-class CKeyPool;
 class CMasterKey;
 class CWallet;
 class CWalletTx;
@@ -238,8 +237,6 @@ public:
     bool WriteCryptedKey(const CPubKey& vchPubKey, const std::vector<unsigned char>& vchCryptedSecret, const CKeyMetadata &keyMeta);
     bool WriteMasterKey(unsigned int nID, const CMasterKey& kMasterKey);
 
-    bool WriteCScript(const uint160& hash, const CScript& redeemScript);
-
     bool WriteWatchOnly(const CScript &script, const CKeyMetadata &keymeta);
     bool EraseWatchOnly(const CScript &script);
 
@@ -250,10 +247,6 @@ public:
     bool IsEncrypted();
 
     bool WriteOrderPosNext(int64_t nOrderPosNext);
-
-    bool ReadPool(int64_t nPool, CKeyPool& keypool);
-    bool WritePool(int64_t nPool, const CKeyPool& keypool);
-    bool ErasePool(int64_t nPool);
 
     bool WriteMinVersion(int nVersion);
 
@@ -277,9 +270,6 @@ public:
     bool EraseActiveScriptPubKeyMan(uint8_t type, bool internal);
 
     DBErrors LoadWallet(CWallet* pwallet);
-
-    //! write the hdchain model (external chain child index counter)
-    bool WriteHDChain(const CHDChain& chain);
 
     //! Delete records of the given types
     bool EraseRecords(const std::unordered_set<std::string>& types);
