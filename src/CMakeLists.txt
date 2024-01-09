@@ -32,6 +32,8 @@ add_subdirectory(crypto)
 add_subdirectory(univalue)
 add_subdirectory(util)
 
+add_subdirectory(univalue)
+
 #=============================
 # secp256k1 subtree
 #=============================
