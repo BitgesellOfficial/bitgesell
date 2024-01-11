@@ -2869,8 +2869,7 @@ bool Chainstate::DisconnectTip(BlockValidationState& state, DisconnectedBlockTra
         CCoinsViewCache view(&CoinsTip());
         assert(view.GetBestBlock() == pindexDelete->GetBlockHash());
         if (DisconnectBlock(block, pindexDelete, view) != DISCONNECT_OK) {
-            error("DisconnectTip(): DisconnectBlock %s failed", pindexDelete->GetBlockHash().ToString());
-            return false;
+            return error("DisconnectTip(): DisconnectBlock %s failed", pindexDelete->GetBlockHash().ToString());
         }
         bool flushed = view.Flush();
         assert(flushed);
@@ -4404,16 +4403,13 @@ bool TestBlockValidity(BlockValidationState& state,
 
     // NOTE: CheckBlockHeader is called by CheckBlock
     if (!ContextualCheckBlockHeader(block, state, chainstate.m_blockman, chainstate.m_chainman, pindexPrev)) {
-        error("%s: Consensus::ContextualCheckBlockHeader: %s", __func__, state.ToString());
-        return false;
+        return error("%s: Consensus::ContextualCheckBlockHeader: %s", __func__, state.ToString());
     }
     if (!CheckBlock(block, state, chainparams.GetConsensus(), fCheckPOW, fCheckMerkleRoot)) {
-        error("%s: Consensus::CheckBlock: %s", __func__, state.ToString());
-        return false;
+        return error("%s: Consensus::CheckBlock: %s", __func__, state.ToString());
     }
     if (!ContextualCheckBlock(block, state, chainstate.m_chainman, pindexPrev)) {
-        error("%s: Consensus::ContextualCheckBlock: %s", __func__, state.ToString());
-        return false;
+        return error("%s: Consensus::ContextualCheckBlock: %s", __func__, state.ToString());
     }
     if (!chainstate.ConnectBlock(block, state, &indexDummy, viewNew, true)) {
         return false;
@@ -4644,8 +4640,7 @@ bool Chainstate::ReplayBlocks()
     std::vector<uint256> hashHeads = db.GetHeadBlocks();
     if (hashHeads.empty()) return true; // We're already in a consistent state.
     if (hashHeads.size() != 2) {
-        error("ReplayBlocks(): unknown inconsistent state");
-        return false;
+        return error("ReplayBlocks(): unknown inconsistent state");
     }
 
     m_chainman.GetNotifications().progress(_("Replaying blocks…"), 0, false);

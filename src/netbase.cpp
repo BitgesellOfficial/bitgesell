@@ -393,8 +393,7 @@ bool Socks5(const std::string& strDest, uint16_t port, const ProxyCredentials* a
             std::vector<uint8_t> vAuth;
             vAuth.push_back(0x01); // Current (and only) version of user/pass subnegotiation
             if (auth->username.size() > 255 || auth->password.size() > 255) {
-                error("Proxy username or password too long");
-                return false;
+                return error("Proxy username or password too long");
             }
             vAuth.push_back(auth->username.size());
             vAuth.insert(vAuth.end(), auth->username.begin(), auth->username.end());
@@ -467,8 +466,7 @@ bool Socks5(const std::string& strDest, uint16_t port, const ProxyCredentials* a
             break;
         }
         default: {
-            error("Error: malformed proxy response");
-            return false;
+            return error("Error: malformed proxy response");
         }
         }
         if (recvr != IntrRecvError::OK) {
