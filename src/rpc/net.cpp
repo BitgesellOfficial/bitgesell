@@ -313,6 +313,7 @@ static RPCHelpMan addnode()
                 {
                     {"node", RPCArg::Type::STR, RPCArg::Optional::NO, "The node (see getpeerinfo for nodes)"},
                     {"command", RPCArg::Type::STR, RPCArg::Optional::NO, "'add' to add a node to the list, 'remove' to remove a node from the list, 'onetry' to try a connection to the node once"},
+                    {"v2transport", RPCArg::Type::BOOL, RPCArg::DefaultHint{"set by -v2transport"}, "Attempt to connect using BIP324 v2 transport protocol (ignored for 'remove' command)"},
                 },
                 RPCResult{RPCResult::Type::NONE, "", ""},
                 RPCExamples{
@@ -332,9 +333,15 @@ static RPCHelpMan addnode()
     NodeContext& node = EnsureAnyNodeContext(request.context);
     CConnman& connman = EnsureConnman(node);
 
-    std::string strNode = request.params[0].get_str();
+    const std::string node_arg{request.params[0].get_str()};
+    bool node_v2transport = connman.GetLocalServices() & NODE_P2P_V2;
+    bool use_v2transport = self.MaybeArg<bool>(2).value_or(node_v2transport);
 
-    if (strCommand == "onetry")
+    if (use_v2transport && !node_v2transport) {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Error: v2transport requested but not enabled (see -v2transport)");
+    }
+
+    if (command == "onetry")
     {
         CAddress addr;
         connman.OpenNetworkConnection(addr, /*fCountFailure=*/false, /*grant_outbound=*/{}, node_arg.c_str(), ConnectionType::MANUAL, use_v2transport);
