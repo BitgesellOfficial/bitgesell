@@ -45,7 +45,7 @@ bool SerializeDB(Stream& stream, const Data& data)
         hasher << Params().MessageStart() << data;
         stream << hasher.GetHash();
     } catch (const std::exception& e) {
-        error("%s: Serialize or I/O error - %s", __func__, e.what());
+        LogError("%s: Serialize or I/O error - %s\n", __func__, e.what());
         return false;
     }
 
@@ -66,7 +66,7 @@ bool SerializeFileDB(const std::string& prefix, const fs::path& path, const Data
     if (fileout.IsNull()) {
         fileout.fclose();
         remove(pathTmp);
-        error("%s: Failed to open file %s", __func__, fs::PathToString(pathTmp));
+        LogError("%s: Failed to open file %s\n", __func__, fs::PathToString(pathTmp));
         return false;
     }
 
@@ -79,7 +79,7 @@ bool SerializeFileDB(const std::string& prefix, const fs::path& path, const Data
     if (!FileCommit(fileout.Get())) {
         fileout.fclose();
         remove(pathTmp);
-        error("%s: Failed to flush file %s", __func__, fs::PathToString(pathTmp));
+        LogError("%s: Failed to flush file %s\n", __func__, fs::PathToString(pathTmp));
         return false;
     }
     fileout.fclose();
@@ -87,7 +87,7 @@ bool SerializeFileDB(const std::string& prefix, const fs::path& path, const Data
     // replace existing file, if any, with new file
     if (!RenameOver(pathTmp, path)) {
         remove(pathTmp);
-        error("%s: Rename-into-place failed", __func__);
+        LogError("%s: Rename-into-place failed\n", __func__);
         return false;
     }
 
@@ -145,7 +145,7 @@ bool CBanDB::Write(const banmap_t& banSet)
     }
 
     for (const auto& err : errors) {
-        error("%s", err);
+        LogError("%s\n", err);
     }
     return false;
 }
