@@ -49,6 +49,13 @@ env:
 # The above machine types are matched to each task by their label. Refer to the
 # Cirrus CI docs for more details.
 #
+# When a contributor maintains a fork of the repo, any pull request they make
+# to their own fork, or to the main repository, will trigger two CI runs:
+# one for the branch push and one for the pull request.
+# This can be avoided by setting SKIP_BRANCH_PUSH=true as a custom env variable
+# in Cirrus repository settings, accessible from
+# https://cirrus-ci.com/github/my-organization/my-repository
+#
 # On machines that are persisted between CI jobs, RESTART_CI_DOCKER_BEFORE_RUN=1
 # ensures that previous containers and artifacts are cleared before each run.
 # This requires installing Podman instead of Docker.
@@ -81,7 +88,10 @@ env:
 
 # https://cirrus-ci.org/guide/tips-and-tricks/#sharing-configuration-between-tasks
 filter_template: &FILTER_TEMPLATE
-  skip: $CIRRUS_REPO_FULL_NAME == "BGL-core/gui" && $CIRRUS_PR == ""  # No need to run on the read-only mirror, unless it is a PR. https://cirrus-ci.org/guide/writing-tasks/#conditional-task-execution
+  # Allow forks to specify SKIP_BRANCH_PUSH=true and skip CI runs when a branch is pushed,
+  # but still run CI when a PR is created.
+  # https://cirrus-ci.org/guide/writing-tasks/#conditional-task-execution
+  skip: $SKIP_BRANCH_PUSH == "true" && $CIRRUS_PR == ""
   stateful: false  # https://cirrus-ci.org/guide/writing-tasks/#stateful-tasks
 
 base_template: &BASE_TEMPLATE
@@ -266,13 +276,13 @@ task:
     FILE_ENV: "./ci/test/00_setup_env_i686_multiprocess.sh"
 
 task:
-  name: 'no wallet, libbitcoinkernel'
+  name: 'no wallet, libBGLkernel'
   << : *GLOBAL_TASK_TEMPLATE
   persistent_worker:
     labels:
       type: small
   env:
-    FILE_ENV: "./ci/test/00_setup_env_native_nowallet_libbitcoinkernel.sh"
+    FILE_ENV: "./ci/test/00_setup_env_native_nowallet_libBGLkernel.sh"
 
 task:
   name: 'macOS-cross, gui, no tests'
