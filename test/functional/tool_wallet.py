@@ -191,7 +191,7 @@ class ToolWalletTest(BGLTestFramework):
         locked_dir = self.nodes[0].wallets_path
         error = 'Error initializing wallet database environment "{}"!'.format(locked_dir)
         if self.options.descriptors:
-            error = "SQLiteDatabase: Unable to obtain an exclusive lock on the database, is it being used by another BGLd?"
+            error = "SQLiteDatabase: Unable to obtain an exclusive lock on the database, is it being used by another instance of Bitgesell Core?"
         self.assert_raises_tool_error(
             error,
             '-wallet=' + self.default_wallet_name,

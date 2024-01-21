@@ -78,7 +78,8 @@ class ListDescriptorsTest(BGLTestFramework):
                  'timestamp': TIME_GENESIS_BLOCK,
                  'active': False,
                  'range': [0, 0],
-                 'next': 0},
+                 'next': 0,
+                 'next_index': 0},
             ],
         }
         assert_equal(expected, wallet.listdescriptors())
@@ -92,7 +93,8 @@ class ListDescriptorsTest(BGLTestFramework):
                  'timestamp': TIME_GENESIS_BLOCK,
                  'active': False,
                  'range': [0, 0],
-                 'next': 0},
+                 'next': 0,
+                 'next_index': 0},
             ],
         }
         assert_equal(expected_private, wallet.listdescriptors(True))
