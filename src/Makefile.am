@@ -292,6 +292,7 @@ BGL_CORE_H = \
   util/batchpriority.h \
   util/bip32.h \
   util/bitdeque.h \
+  util/bitset.h \
   util/bytevectorhash.h \
   util/chaintype.h \
   util/check.h \
