@@ -87,7 +87,7 @@ static std::vector<RPCResult> ScriptPubKeyDoc() {
              {RPCResult::Type::STR, "asm", "Disassembly of the public key script"},
              {RPCResult::Type::STR, "desc", "Inferred descriptor for the output"},
              {RPCResult::Type::STR_HEX, "hex", "The raw public key script bytes, hex-encoded"},
-             {RPCResult::Type::STR, "address", /*optional=*/true, "The Bitcoin address (only if a well-defined address exists)"},
+             {RPCResult::Type::STR, "address", /*optional=*/true, "The BGL address (only if a well-defined address exists)"},
              {RPCResult::Type::STR, "type", "The type (one of: " + GetAllOutputTypes() + ")"},
          };
 }
@@ -155,7 +155,7 @@ static std::vector<RPCArg> CreateTxDoc()
             {
                 {"", RPCArg::Type::OBJ_USER_KEYS, RPCArg::Optional::OMITTED, "",
                     {
-                        {"address", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "A key-value pair. The key (string) is the Bitgesell address, the value (float or string) is the amount in " + CURRENCY_UNIT},
+                        {"address", RPCArg::Type::AMOUNT, RPCArg::Optional::NO, "A key-value pair. The key (string) is the bitcoin address, the value (float or string) is the amount in " + CURRENCY_UNIT},
                     },
                 },
                 {"", RPCArg::Type::OBJ, RPCArg::Optional::OMITTED, "",
@@ -182,38 +182,63 @@ PartiallySignedTransaction ProcessPSBT(const std::string& psbt_string, const std
         throw JSONRPCError(RPC_DESERIALIZATION_ERROR, strprintf("TX decode failed %s", error));
     }
 
-    // Fetch previous transactions (inputs):
-    CCoinsView viewDummy;
-    CCoinsViewCache view(&viewDummy);
-    {
-        NodeContext& node = EnsureAnyNodeContext(context);
-        const CTxMemPool& mempool = EnsureMemPool(node);
-        ChainstateManager& chainman = EnsureChainman(node);
-        LOCK2(cs_main, mempool.cs);
-        CCoinsViewCache &viewChain = chainman.ActiveChainstate().CoinsTip();
-        CCoinsViewMemPool viewMempool(&viewChain, mempool);
-        view.SetBackend(viewMempool); // temporarily switch cache backend to db+mempool view
+    if (g_txindex) g_txindex->BlockUntilSyncedToCurrentChain();
+    const NodeContext& node = EnsureAnyNodeContext(context);
 
-        for (const CTxIn& txin : psbtx.tx->vin) {
-            view.AccessCoin(txin.prevout); // Load entries from viewChain into view; can fail.
+    // If we can't find the corresponding full transaction for all of our inputs,
+    // this will be used to find just the utxos for the segwit inputs for which
+    // the full transaction isn't found
+    std::map<COutPoint, Coin> coins;
+
+    // Fetch previous transactions:
+    // First, look in the txindex and the mempool
+    for (unsigned int i = 0; i < psbtx.tx->vin.size(); ++i) {
+        PSBTInput& psbt_input = psbtx.inputs.at(i);
+        const CTxIn& tx_in = psbtx.tx->vin.at(i);
+
+        // The `non_witness_utxo` is the whole previous transaction
+        if (psbt_input.non_witness_utxo) continue;
+
+        CTransactionRef tx;
+
+        // Look in the txindex
+        if (g_txindex) {
+            uint256 block_hash;
+            g_txindex->FindTx(tx_in.prevout.hash, block_hash, tx);
         }
-
-        view.SetBackend(viewDummy); // switch back to avoid locking mempool for too long
+        // If we still don't have it look in the mempool
+        if (!tx) {
+            tx = node.mempool->get(tx_in.prevout.hash);
+        }
+        if (tx) {
+            psbt_input.non_witness_utxo = tx;
+        } else {
+            coins[tx_in.prevout]; // Create empty map entry keyed by prevout
+        }
     }
 
-    // Fill the inputs
-    const PrecomputedTransactionData txdata = PrecomputePSBTData(psbtx);
-    for (unsigned int i = 0; i < psbtx.tx->vin.size(); ++i) {
-        PSBTInput& input = psbtx.inputs.at(i);
+    // If we still haven't found all of the inputs, look for the missing ones in the utxo set
+    if (!coins.empty()) {
+        FindCoins(node, coins);
+        for (unsigned int i = 0; i < psbtx.tx->vin.size(); ++i) {
+            PSBTInput& input = psbtx.inputs.at(i);
 
-        if (input.non_witness_utxo || !input.witness_utxo.IsNull()) {
-            continue;
+            // If there are still missing utxos, add them if they were found in the utxo set
+            if (!input.non_witness_utxo) {
+                const CTxIn& tx_in = psbtx.tx->vin.at(i);
+                const Coin& coin = coins.at(tx_in.prevout);
+                if (!coin.out.IsNull() && IsSegWitOutput(provider, coin.out.scriptPubKey)) {
+                    input.witness_utxo = coin.out;
+                }
+            }
         }
+    }
 
-        const Coin& coin = view.AccessCoin(psbtx.tx->vin[i].prevout);
+    const PrecomputedTransactionData& txdata = PrecomputePSBTData(psbtx);
 
-        if (IsSegWitOutput(provider, coin.out.scriptPubKey)) {
-            input.witness_utxo = coin.out;
+    for (unsigned int i = 0; i < psbtx.tx->vin.size(); ++i) {
+        if (PSBTInputSigned(psbtx.inputs.at(i))) {
+            continue;
         }
 
         // Update script/keypath information using descriptor data.
@@ -227,6 +252,9 @@ PartiallySignedTransaction ProcessPSBT(const std::string& psbt_string, const std
     for (unsigned int i = 0; i < psbtx.tx->vout.size(); ++i) {
         UpdatePSBTOutput(provider, psbtx, i);
     }
+
+    RemoveUnnecessaryTransactions(psbtx, /*sighash_type=*/1);
+
     return psbtx;
 }
 
@@ -482,7 +510,7 @@ static RPCHelpMan decodescript()
                 {RPCResult::Type::STR, "asm", "Script public key"},
                 {RPCResult::Type::STR, "desc", "Inferred descriptor for the script"},
                 {RPCResult::Type::STR, "type", "The output type (e.g. " + GetAllOutputTypes() + ")"},
-                {RPCResult::Type::STR, "address", /*optional=*/true, "The Bitgesell address (only if a well-defined address exists)"},
+                {RPCResult::Type::STR, "address", /*optional=*/true, "The BGL address (only if a well-defined address exists)"},
                 {RPCResult::Type::STR, "p2sh", /*optional=*/true,
                  "address of P2SH script wrapping this redeem script (not returned for types that should not be wrapped)"},
                 {RPCResult::Type::OBJ, "segwit", /*optional=*/true,
@@ -806,7 +834,7 @@ const RPCResult decodepsbt_inputs{
                     {RPCResult::Type::STR, "desc", "Inferred descriptor for the output"},
                     {RPCResult::Type::STR_HEX, "hex", "The raw public key script bytes, hex-encoded"},
                     {RPCResult::Type::STR, "type", "The type, eg 'pubkeyhash'"},
-                    {RPCResult::Type::STR, "address", /*optional=*/true, "The Bitcoin address (only if a well-defined address exists)"},
+                    {RPCResult::Type::STR, "address", /*optional=*/true, "The BGL address (only if a well-defined address exists)"},
                 }},
             }},
             {RPCResult::Type::OBJ_DYN, "partial_signatures", /*optional=*/true, "",
@@ -986,7 +1014,7 @@ static RPCHelpMan decodepsbt()
 {
     return RPCHelpMan{
         "decodepsbt",
-        "Return a JSON object representing the serialized, base64-encoded partially signed Bitgesell transaction.",
+        "Return a JSON object representing the serialized, base64-encoded partially signed BGL transaction.",
                 {
                     {"psbt", RPCArg::Type::STR, RPCArg::Optional::NO, "The PSBT base64 string"},
                 },
@@ -1638,7 +1666,7 @@ static RPCHelpMan converttopsbt()
 static RPCHelpMan utxoupdatepsbt()
 {
     return RPCHelpMan{"utxoupdatepsbt",
-            "\nUpdates all segwit inputs and outputs in a PSBT with data from output descriptors, the UTXO set or the mempool.\n",
+            "\nUpdates all segwit inputs and outputs in a PSBT with data from output descriptors, the UTXO set, txindex, or the mempool.\n",
             {
                 {"psbt", RPCArg::Type::STR, RPCArg::Optional::NO, "A base64 string of a PSBT"},
                 {"descriptors", RPCArg::Type::ARR, RPCArg::Optional::OMITTED, "An array of either strings or objects", {
@@ -1742,6 +1770,13 @@ static RPCHelpMan joinpsbts()
         }
         for (unsigned int i = 0; i < psbt.tx->vout.size(); ++i) {
             merged_psbt.AddOutput(psbt.tx->vout[i], psbt.outputs[i]);
+        }
+        for (auto& xpub_pair : psbt.m_xpubs) {
+            if (merged_psbt.m_xpubs.count(xpub_pair.first) == 0) {
+                merged_psbt.m_xpubs[xpub_pair.first] = xpub_pair.second;
+            } else {
+                merged_psbt.m_xpubs[xpub_pair.first].insert(xpub_pair.second.begin(), xpub_pair.second.end());
+            }
         }
         merged_psbt.unknown.insert(psbt.unknown.begin(), psbt.unknown.end());
     }
