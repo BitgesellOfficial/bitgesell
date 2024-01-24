@@ -41,7 +41,7 @@ INPUTS = [
     {'txid': '83a4f6a6b73660e13ee6cb3c6063fa3759c50c9b7521d0536022961898f4fb02', 'vout': 0,
      'scriptPubKey': '76a914669b857c03a5ed269d5d85a1ffac9ed5d663072788ac'},
 ]
-OUTPUTS = {'mpLQjfK79b7CCV4VMJWEWAj5Mpx8Up5zxB': 0.1}
+OUTPUTS = {'EqJxvJMvUhRjE7KpTzrhAWmVtz7VpNQZe3': 0.1}
 
 class SignRawTransactionWithKeyTest(BGLTestFramework):
     def set_test_params(self):
@@ -57,6 +57,7 @@ class SignRawTransactionWithKeyTest(BGLTestFramework):
         return txid
 
     def assert_signing_completed_successfully(self, signed_tx):
+        print(signed_tx)
         assert 'errors' not in signed_tx
         assert 'complete' in signed_tx
         assert_equal(signed_tx['complete'], True)
@@ -109,7 +110,8 @@ class SignRawTransactionWithKeyTest(BGLTestFramework):
         }.get(tx_type, "Invalid tx_type")
         redeem_script = script_to_p2wsh_script(witness_script).hex()
         addr = script_to_p2sh(redeem_script)
-        script_pub_key = address_to_scriptpubkey(addr).hex()
+        #script_pub_key = address_to_scriptpubkey(addr).hex() TODO: address_to_scriptpubkey does not cover all address format.
+        script_pub_key = self.nodes[1].validateaddress(addr)['scriptPubKey'] # Added to use source code for address format
         # Fund that address
         txid = self.send_to_address(addr, 10)
         vout = find_vout_for_address(self.nodes[0], txid, addr)
