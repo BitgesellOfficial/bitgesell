@@ -110,7 +110,7 @@ class RPCPackagesTest(BGLTestFramework):
         assert_equal(testres_bad_sig, self.independent_txns_testres + [{
             "txid": tx_bad_sig.rehash(),
             "wtxid": tx_bad_sig.getwtxid(), "allowed": False,
-            "reject-reason": "non-mandatory-script-verify-flag (Witness program hash mismatch)"
+            "reject-reason": "mandatory-script-verify-flag-failed (Witness program hash mismatch)"
         }])
 
         self.log.info("Check testmempoolaccept reports txns in packages that exceed max feerate")
