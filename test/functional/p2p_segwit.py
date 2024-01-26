@@ -1173,7 +1173,7 @@ class SegWitTest(BGLTestFramework):
                 if not self.wit.is_null():
                     flags |= 1
                 r = b""
-                r += self.nVersion.to_bytes(4, "little")
+                r += self.version.to_bytes(4, "little")
                 if flags:
                     dummy = []
                     r += ser_vector(dummy)
@@ -1982,7 +1982,7 @@ class SegWitTest(BGLTestFramework):
         def serialize_with_bogus_witness(tx):
             flags = 3
             r = b""
-            r += tx.nVersion.to_bytes(4, "little")
+            r += tx.version.to_bytes(4, "little")
             if flags:
                 dummy = []
                 r += ser_vector(dummy)
