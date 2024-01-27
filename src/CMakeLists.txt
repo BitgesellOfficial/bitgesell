@@ -2,6 +2,9 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or https://opensource.org/license/mit/.
 
+include(GNUInstallDirs)
+include(AddWindowsResources)
+
 configure_file(${PROJECT_SOURCE_DIR}/cmake/BGL-config.h.in config/BGL-config.h @ONLY)
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -167,6 +170,7 @@ if(ENABLE_WALLET)
       init/BGL-wallet.cpp
       wallet/wallettool.cpp
     )
+    add_windows_resources(BGL-wallet BGL-wallet-res.rc)
     target_link_libraries(BGL-wallet
       core_interface
       BGL_wallet
@@ -286,7 +290,7 @@ target_link_libraries(BGL_node
     $<TARGET_NAME_IF_EXISTS:libevent::pthreads>
     $<TARGET_NAME_IF_EXISTS:NATPMP::NATPMP>
     $<TARGET_NAME_IF_EXISTS:MiniUPnPc::MiniUPnPc>
-    $<TARGET_NAME_IF_EXISTS:bitcoin_zmq>
+    $<TARGET_NAME_IF_EXISTS:BGL_zmq>
     $<TARGET_NAME_IF_EXISTS:USDT::headers>
 )
 
@@ -297,6 +301,7 @@ if(BUILD_DAEMON)
     BGLd.cpp
     init/BGLd.cpp
   )
+  add_windows_resources(BGLd BGLd-res.rc)
   target_link_libraries(BGLd
     core_interface
     BGL_node
@@ -304,15 +309,15 @@ if(BUILD_DAEMON)
   )
 endif()
 if(WITH_MULTIPROCESS)
-  add_executable(bitcoin-node
-    bitcoind.cpp
-    init/bitcoin-node.cpp
+  add_executable(BGL-node
+    BGLd.cpp
+    init/BGL-node.cpp
   )
-  target_link_libraries(bitcoin-node
+  target_link_libraries(BGL-node
     core_interface
-    bitcoin_node
-    bitcoin_ipc
-    $<TARGET_NAME_IF_EXISTS:bitcoin_wallet>
+    BGL_node
+    BGL_ipc
+    $<TARGET_NAME_IF_EXISTS:BGL_wallet>
   )
 endif()
 
@@ -331,6 +336,7 @@ target_link_libraries(BGL_cli
 # Bitcoin Core RPC client
 if(BUILD_CLI)
   add_executable(BGL-cli BGL-cli.cpp)
+  add_windows_resources(BGL-cli BGL-cli-res.rc)
   target_link_libraries(BGL-cli
     core_interface
     BGL_cli
@@ -343,6 +349,7 @@ endif()
 
 if(BUILD_TX)
   add_executable(BGL-tx BGL-tx.cpp)
+  add_windows_resources(BGL-tx BGL-tx-res.rc)
   target_link_libraries(BGL-tx
     core_interface
     BGL_common
@@ -353,11 +360,12 @@ endif()
 
 
 if(BUILD_UTIL)
-  add_executable(bitcoin-util bitcoin-util.cpp)
-  target_link_libraries(bitcoin-util
+  add_executable(BGL-util BGL-util.cpp)
+  add_windows_resources(BGL-util BGL-util-res.rc)
+  target_link_libraries(BGL-util
     core_interface
-    bitcoin_common
-    bitcoin_util
+    BGL_common
+    BGL_util
   )
 endif()
 
@@ -372,8 +380,8 @@ if(BUILD_KERNEL_LIB)
 endif()
 
 if(BUILD_UTIL_CHAINSTATE)
-  add_executable(bitcoin-chainstate
-    bitcoin-chainstate.cpp
+  add_executable(BGL-chainstate
+    BGL-chainstate.cpp
   )
   # TODO: The `SKIP_BUILD_RPATH` property setting can be deleted
   #       in the future after reordering Guix script commands to
@@ -381,13 +389,13 @@ if(BUILD_UTIL_CHAINSTATE)
   # Relevant discussions:
   # - https://github.com/hebasto/bitcoin/pull/236#issuecomment-2183120953
   # - https://github.com/bitcoin/bitcoin/pull/30312#issuecomment-2191235833
-  set_target_properties(bitcoin-chainstate PROPERTIES
+  set_target_properties(BGL-chainstate PROPERTIES
     SKIP_BUILD_RPATH OFF
   )
-  target_link_libraries(bitcoin-chainstate
+  target_link_libraries(BGL-chainstate
     PRIVATE
       core_interface
-      bitcoinkernel
+      BGLkernel
   )
 endif()
 

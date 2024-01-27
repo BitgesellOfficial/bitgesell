@@ -227,6 +227,8 @@ add_executable(BGL-qt
   ../init/BGL-qt.cpp
 )
 
+add_windows_resources(BGL-qt res/BGL-qt-res.rc)
+
 target_link_libraries(BGL-qt
   core_interface
   BGLqt
@@ -240,19 +242,19 @@ if(WIN32)
 endif()
 
 if(WITH_MULTIPROCESS)
-  add_executable(bitcoin-gui
+  add_executable(BGL-gui
     main.cpp
-    ../init/bitcoin-gui.cpp
+    ../init/BGL-gui.cpp
   )
-  target_link_libraries(bitcoin-gui
+  target_link_libraries(BGL-gui
     core_interface
-    bitcoinqt
-    bitcoin_node
-    bitcoin_ipc
+    BGLqt
+    BGL_node
+    BGL_ipc
   )
-  import_plugins(bitcoin-gui)
+  import_plugins(BGL-gui)
   if(WIN32)
-    set_target_properties(bitcoin-gui PROPERTIES WIN32_EXECUTABLE TRUE)
+    set_target_properties(BGL-gui PROPERTIES WIN32_EXECUTABLE TRUE)
   endif()
 endif()
 
