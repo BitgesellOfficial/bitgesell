@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or https://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_UTIL_RESULT_H
-#define BITCOIN_UTIL_RESULT_H
+#ifndef BGL_UTIL_RESULT_H
+#define BGL_UTIL_RESULT_H
 
 #include <attributes.h>
 #include <util/translation.h>
@@ -84,4 +84,4 @@ bilingual_str ErrorString(const Result<T>& result)
 }
 } // namespace util
 
-#endif // BITCOIN_UTIL_RESULT_H
+#endif // BGL_UTIL_RESULT_H
