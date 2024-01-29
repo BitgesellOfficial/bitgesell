@@ -21,7 +21,6 @@ std::string ExternalSigner::NetworkArg() const
     return " --chain " + m_chain;
 }
 
-
 bool ExternalSigner::Enumerate(const std::string& command, std::vector<ExternalSigner>& signers, const std::string chain)
 {
     // Call <command> enumerate
@@ -60,7 +59,6 @@ bool ExternalSigner::Enumerate(const std::string& command, std::vector<ExternalS
     return true;
 }
 
-
 UniValue ExternalSigner::DisplayAddress(const std::string& descriptor) const
 {
     return RunCommandParseJSON(m_command + " --fingerprint \"" + m_fingerprint + "\"" + NetworkArg() + " displayaddress --desc \"" + descriptor + "\"");
@@ -82,6 +80,9 @@ bool ExternalSigner::SignTransaction(PartiallySignedTransaction& psbtx, std::str
     auto matches_signer_fingerprint = [&](const PSBTInput& input) {
         for (const auto& entry : input.hd_keypaths) {
             if (parsed_m_fingerprint == MakeUCharSpan(entry.second.fingerprint)) return true;
+        }
+        for (const auto& entry : input.m_tap_bip32_paths) {
+            if (parsed_m_fingerprint == MakeUCharSpan(entry.second.second.fingerprint)) return true;
         }
         return false;
     };
