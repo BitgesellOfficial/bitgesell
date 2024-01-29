@@ -59,6 +59,7 @@ bool ExternalSigner::Enumerate(const std::string& command, std::vector<ExternalS
     return true;
 }
 
+
 UniValue ExternalSigner::DisplayAddress(const std::string& descriptor) const
 {
     return RunCommandParseJSON(m_command + " --fingerprint \"" + m_fingerprint + "\"" + NetworkArg() + " displayaddress --desc \"" + descriptor + "\"");
