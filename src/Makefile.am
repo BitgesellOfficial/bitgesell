@@ -132,6 +132,7 @@ BGL_CORE_H = \
   chainparamsseeds.h \
   checkqueue.h \
   clientversion.h \
+  cluster_linearize.h \
   coins.h \
   common/args.h \
   common/bloom.h \
