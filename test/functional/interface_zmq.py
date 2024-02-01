@@ -19,6 +19,7 @@ from test_framework.test_framework import BGLTestFramework
 from test_framework.messages import (
     hash256,
     tx_from_hex,
+    keccak256
 )
 from test_framework.util import (
     assert_equal,
