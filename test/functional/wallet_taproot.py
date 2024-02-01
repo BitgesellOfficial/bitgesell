@@ -319,6 +319,7 @@ class WalletTaprootTest(BGLTestFramework):
         self.nodes[1].createwallet(wallet_name=f"psbt_offline_{wallet_uuid}", descriptors=True, blank=True)
         psbt_online = self.nodes[0].get_wallet_rpc(f"psbt_online_{wallet_uuid}")
         psbt_offline = self.nodes[1].get_wallet_rpc(f"psbt_offline_{wallet_uuid}")
+        key_only_wallet = self.nodes[1].get_wallet_rpc(f"key_only_wallet_{wallet_uuid}")
 
         desc_pay = self.make_desc(pattern, privmap, keys_pay, False)
         desc_change = self.make_desc(pattern, privmap, keys_change, False)

@@ -81,7 +81,6 @@ def base58_to_byte(s):
     if not s:
         return b''
     n = 0
-    print(s)
     for c in s:
         n *= 58
         assert c in b58chars
@@ -170,7 +169,7 @@ def check_script(script):
 
 def bech32_to_bytes(address):
     hrp = address.split('1')[0]
-    if hrp not in ['bc', 'tb', 'bcrt']:
+    if hrp not in ['bgl', 'tb', 'rbgl']:
         return (None, None)
     version, payload = decode_segwit_address(hrp, address)
     if version is None:
