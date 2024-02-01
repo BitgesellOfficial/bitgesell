@@ -282,9 +282,11 @@ class P2PConnection(asyncio.Protocol):
         if not is_mac_auth:
             raise ValueError("invalid v2 mac tag in handshake authentication")
         self.recvbuf = self.recvbuf[length:]
-        if self.v2_state.tried_v2_handshake and self.on_connection_send_msg:
-            self.send_message(self.on_connection_send_msg)
-            self.on_connection_send_msg = None
+        if self.v2_state.tried_v2_handshake:
+            self.send_version()
+            # process post-v2-handshake data immediately, if available
+            if len(self.recvbuf) > 0:
+                self._on_data()
 
     # Socket read methods
 
