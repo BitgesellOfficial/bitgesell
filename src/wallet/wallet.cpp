@@ -525,7 +525,7 @@ void CWallet::UpgradeDescriptorCache()
     SetWalletFlag(WALLET_FLAG_LAST_HARDENED_XPUB_CACHED);
 }
 
-bool CWallet::Unlock(const SecureString& strWalletPassphrase, bool accept_no_keys)
+bool CWallet::Unlock(const SecureString& strWalletPassphrase)
 {
     CCrypter crypter;
     CKeyingMaterial _vMasterKey;
@@ -538,7 +538,7 @@ bool CWallet::Unlock(const SecureString& strWalletPassphrase, bool accept_no_key
                 return false;
             if (!crypter.Decrypt(pMasterKey.second.vchCryptedKey, _vMasterKey))
                 continue; // try another master key
-            if (Unlock(_vMasterKey, accept_no_keys)) {
+            if (Unlock(_vMasterKey)) {
                 // Now that we've unlocked, upgrade the key metadata
                 UpgradeKeyMetadata();
                 // Now that we've unlocked, upgrade the descriptor cache
@@ -3334,12 +3334,12 @@ bool CWallet::Lock()
     return true;
 }
 
-bool CWallet::Unlock(const CKeyingMaterial& vMasterKeyIn, bool accept_no_keys)
+bool CWallet::Unlock(const CKeyingMaterial& vMasterKeyIn)
 {
     {
         LOCK(cs_wallet);
         for (const auto& spk_man_pair : m_spk_managers) {
-            if (!spk_man_pair.second->CheckDecryptionKey(vMasterKeyIn, accept_no_keys)) {
+            if (!spk_man_pair.second->CheckDecryptionKey(vMasterKeyIn)) {
                 return false;
             }
         }
