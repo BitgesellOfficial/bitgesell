@@ -240,6 +240,29 @@ class AssumeutxoTest(BitcoinTestFramework):
         assert_equal(loaded['coins_loaded'], SNAPSHOT_BASE_HEIGHT)
         assert_equal(loaded['base_height'], SNAPSHOT_BASE_HEIGHT)
 
+        def check_tx_counts(final: bool) -> None:
+            """Check nTx and nChainTx intermediate values right after loading
+            the snapshot, and final values after the snapshot is validated."""
+            for height, block in blocks.items():
+                tx = n1.getblockheader(block.hash)["nTx"]
+                chain_tx = n1.getchaintxstats(nblocks=1, blockhash=block.hash)["txcount"]
+
+                # Intermediate nTx of the starting block should be set, but nTx of
+                # later blocks should be 0 before they are downloaded.
+                if final or height == START_HEIGHT:
+                    assert_equal(tx, block.tx)
+                else:
+                    assert_equal(tx, 0)
+
+                # Intermediate nChainTx of the starting block and snapshot block
+                # should be set, but others should be 0 until they are downloaded.
+                if final or height in (START_HEIGHT, SNAPSHOT_BASE_HEIGHT):
+                    assert_equal(chain_tx, block.chain_tx)
+                else:
+                    assert_equal(chain_tx, 0)
+
+        check_tx_counts(final=False)
+
         normal, snapshot = n1.getchainstates()["chainstates"]
         assert_equal(normal['blocks'], START_HEIGHT)
         assert_equal(normal.get('snapshot_blockhash'), None)
