@@ -219,16 +219,16 @@ endif # ENABLE_WALLET
 
 if BUILD_MULTIPROCESS
 # Add boost ipc_tests definition to BITCOIN_TESTS
-BITCOIN_TESTS += test/ipc_tests.cpp
+BGL_TESTS += test/ipc_tests.cpp
 
 # Build ipc_test code in a separate library so it can be compiled with custom
 # LIBMULTIPROCESS_CFLAGS without those flags affecting other tests
-LIBBITCOIN_IPC_TEST=libBGL_ipc_test.a
-EXTRA_LIBRARIES += $(LIBBITCOIN_IPC_TEST)
+LIBBGL_IPC_TEST=libBGL_ipc_test.a
+EXTRA_LIBRARIES += $(LIBBGL_IPC_TEST)
 libBGL_ipc_test_a_SOURCES = \
   test/ipc_test.cpp \
   test/ipc_test.h
-libBGL_ipc_test_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+libBGL_ipc_test_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
 libBGL_ipc_test_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(LIBMULTIPROCESS_CFLAGS)
 
 # Generate various .c++/.h files from the ipc_test.capnp file
@@ -250,15 +250,15 @@ endif
 # https://www.gnu.org/software/automake/manual/html_node/Built-Sources-Example.html#Recording-Dependencies-manually
 test/libBGL_ipc_test_a-ipc_test.$(OBJEXT): test/ipc_test.capnp.h
 
-test_test_BGL_SOURCES = $(BITCOIN_TEST_SUITE) $(BITCOIN_TESTS) $(JSON_TEST_FILES) $(RAW_TEST_FILES)
-test_test_BGL_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(TESTDEFS) $(BOOST_CPPFLAGS) $(EVENT_CFLAGS)
+test_test_BGL_SOURCES = $(BGL_TEST_SUITE) $(BGL_TESTS) $(JSON_TEST_FILES) $(RAW_TEST_FILES)
+test_test_BGL_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(TESTDEFS) $(BOOST_CPPFLAGS) $(EVENT_CFLAGS)
 test_test_BGL_LDADD = $(LIBTEST_UTIL)
 if ENABLE_WALLET
 test_test_BGL_LDADD += $(LIBBGL_WALLET)
 test_test_BGL_CPPFLAGS += $(BDB_CPPFLAGS)
 endif
 if BUILD_MULTIPROCESS
-test_test_BGL_LDADD += $(LIBBITCOIN_IPC_TEST) $(LIBMULTIPROCESS_LIBS)
+test_test_BGL_LDADD += $(LIBBGL_IPC_TEST) $(LIBMULTIPROCESS_LIBS)
 endif
 
 test_test_BGL_LDADD += $(LIBBGL_NODE) $(LIBBGL_CLI) $(LIBBGL_COMMON) $(LIBBGL_UTIL) $(LIBBGL_CONSENSUS) $(LIBBGL_CRYPTO) $(LIBUNIVALUE) \
@@ -418,7 +418,9 @@ BGL_test_check: $(TEST_BINARY) FORCE
 BGL_test_clean : FORCE
 	rm -f $(CLEAN_BGL_TEST) $(test_test_BGL_OBJECTS) $(TEST_BINARY)
 
-check-local: $(BGL_TESTS:.cpp=.cpp.test)
+check-unit: $(BGL_TESTS:.cpp=.cpp.test)
+
+check-local: check-unit
 if BUILD_BGL_TX
 	@echo "Running test/util/test_runner.py..."
 	$(PYTHON) $(top_builddir)/test/util/test_runner.py
