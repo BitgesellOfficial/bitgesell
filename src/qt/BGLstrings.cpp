@@ -81,7 +81,7 @@ QT_TRANSLATE_NOOP("bitgesell-core", ""
 QT_TRANSLATE_NOOP("bitgesell-core", ""
 "Error: Dumpfile identifier record is incorrect. Got \"%s\", expected \"%s\"."),
 QT_TRANSLATE_NOOP("bitgesell-core", ""
-"Error: Dumpfile version is not supported. This version of BGL-wallet "
+"Error: Dumpfile version is not supported. This version of bitgesell-wallet "
 "only supports version 1 dumpfiles. Got dumpfile with version %s"),
 QT_TRANSLATE_NOOP("bitgesell-core", ""
 "Error: Duplicate descriptors created during migration. Your wallet may be "
