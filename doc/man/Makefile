@@ -202,7 +202,7 @@ BGL_UTIL_NAME = BGL-util
 BGL_WALLET_TOOL_NAME = BGL-wallet
 BOOST_CPPFLAGS = -I/usr/include -DBOOST_MULTI_INDEX_DISABLE_SERIALIZATION -DBOOST_NO_CXX98_FUNCTION_BASE
 BREW = 
-CC = /usr/local/bin/ccache clang
+CC = /usr/local/bin/ccache gcc
 CCACHE = /usr/local/bin/ccache
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
@@ -216,16 +216,16 @@ COPYRIGHT_HOLDERS_FINAL = The Bitgesell Core developers
 COPYRIGHT_HOLDERS_SUBSTITUTION = Bitgesell Core
 COPYRIGHT_YEAR = 2023
 CORE_CPPFLAGS =  -DHAVE_BUILD_INFO -DPROVIDE_FUZZ_MAIN_FUNCTION
-CORE_CXXFLAGS = 
+CORE_CXXFLAGS =  -fno-extended-identifiers
 CORE_LDFLAGS = 
 COV_TOOL = 
 COV_TOOL_WRAPPER = 
-CPP = clang -E
+CPP = gcc -E
 CPPFLAGS = 
-CXX = /usr/local/bin/ccache clang++ -std=c++17
-CXXCPP = clang++ -std=c++17 -E
+CXX = /usr/local/bin/ccache g++ -std=c++17
+CXXCPP = g++ -std=c++17 -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -fPIE
+CXXFLAGS = -g -O2
 CYGPATH_W = echo
 DEBUG_CPPFLAGS =  -fmacro-prefix-map=$(abs_top_srcdir)=.
 DEBUG_CXXFLAGS =  -fdebug-prefix-map=$(abs_top_srcdir)=.
@@ -255,7 +255,7 @@ GPROF_CXXFLAGS =
 GPROF_LDFLAGS = 
 GREP = /bin/grep
 HARDENED_CPPFLAGS =  -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3
-HARDENED_CXXFLAGS =  -Wstack-protector -fstack-protector-all -fcf-protection=full -fstack-clash-protection
+HARDENED_CXXFLAGS =  -fstack-reuse=none -Wstack-protector -fstack-protector-all -fcf-protection=full -fstack-clash-protection
 HARDENED_LDFLAGS =  -Wl,-z,relro -Wl,-z,now -Wl,-z,separate-code -pie
 HAVE_BUILTIN_PREFETCH = 1
 HAVE_CXX17 = 1
@@ -308,11 +308,11 @@ NATPMP_CPPFLAGS =
 NATPMP_LIBS = 
 NM = /usr/bin/nm -B
 NMEDIT = 
-NOWARN_CXXFLAGS = 
+NOWARN_CXXFLAGS =  -Wno-unused-parameter
 OBJCOPY = /usr/bin/objcopy
-OBJCXX = clang++ -std=c++17
+OBJCXX = g++ -std=c++17
 OBJCXXDEPMODE = depmode=gcc3
-OBJCXXFLAGS = -g -O2
+OBJCXXFLAGS = 
 OBJDUMP = objdump
 OBJEXT = o
 OTOOL = 
@@ -330,11 +330,11 @@ PIE_FLAGS = -fPIE
 PKG_CONFIG = env PKG_CONFIG_PATH=/usr/local/lib/pkgconfig: /usr/bin/pkg-config
 PKG_CONFIG_LIBDIR = 
 PKG_CONFIG_PATH = /usr/local/lib/pkgconfig:
-PTHREAD_CC = clang
+PTHREAD_CC = gcc
 PTHREAD_CFLAGS = -pthread
-PTHREAD_CXX = clang++ -std=c++17
+PTHREAD_CXX = g++ -std=c++17
 PTHREAD_LIBS = -lpthread
-PYTHON = /usr/bin/python3.8
+PYTHON = /home/emeka/.pyenv/shims/python3.8
 PYTHONPATH = 
 QR_CFLAGS = 
 QR_LIBS = -lqrencode
@@ -407,7 +407,7 @@ USE_QRCODE =
 USE_SQLITE = 
 USE_UPNP = 
 VERSION = 25.99.0
-WARN_CXXFLAGS = 
+WARN_CXXFLAGS =  -Wall -Wextra -Wformat -Wformat-security -Wvla -Wredundant-decls -Wdate-time -Wduplicated-branches -Wduplicated-cond -Wlogical-op -Woverloaded-virtual -Wsuggest-override -Wimplicit-fallthrough
 WINDRES = 
 X86_SHANI_CXXFLAGS = -msse4 -msha
 XGETTEXT = /usr/bin/xgettext
@@ -419,8 +419,8 @@ abs_srcdir = /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell/doc/man
 abs_top_builddir = /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell
 abs_top_srcdir = /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell
 ac_ct_AR = ar
-ac_ct_CC = clang
-ac_ct_CXX = 
+ac_ct_CC = gcc
+ac_ct_CXX = g++
 ac_ct_DUMPBIN = 
 ac_ct_OBJCXX = 
 am__include = include
