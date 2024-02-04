@@ -205,7 +205,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
     </message>
     <message>
         <location line="+1"/>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BGLS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -334,6 +334,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+178"/>
         <source>Runaway exception</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4149,6 +4150,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of &quot;100 
         <location line="+14"/>
         <source>Estimated to begin confirmation within %n block(s).</source>
         <translation>
+            <numerusform>Estimated to begin confirmation within %n block.</numerusform>
             <numerusform>Estimated to begin confirmation within %n blocks.</numerusform>
         </translation>
     </message>
@@ -5298,7 +5300,7 @@ Go to File &gt; Open Wallet to load a wallet.
 <context>
     <name>BGL-core</name>
     <message>
-        <location filename="../BGLstrings.cpp" line="+12"/>
+        <location filename="../bitcoinstrings.cpp" line="+12"/>
         <source>The %s developers</source>
         <translation type="unfinished"></translation>
     </message>
