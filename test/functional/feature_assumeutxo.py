@@ -34,6 +34,7 @@ Interesting starting states could be loading a snapshot when the current chain t
 """
 from shutil import rmtree
 
+from dataclasses import dataclass
 from test_framework.messages import tx_from_hex
 from test_framework.test_framework import BitcoinTestFramework
 from test_framework.util import (
@@ -174,21 +175,17 @@ class AssumeutxoTest(BitcoinTestFramework):
 
         # Generate a series of blocks that `n0` will have in the snapshot,
         # but that n1 and n2 don't yet see.
+        assert n0.getblockcount() == START_HEIGHT
+        blocks = {START_HEIGHT: Block(n0.getbestblockhash(), 1, START_HEIGHT + 1)}
         for i in range(100):
+            block_tx = 1
             if i % 3 == 0:
                 self.mini_wallet.send_self_transfer(from_node=n0)
+                block_tx += 1
             self.generate(n0, nblocks=1, sync_fun=self.no_op)
             height = n0.getblockcount()
             hash = n0.getbestblockhash()
             blocks[height] = Block(hash, block_tx, blocks[height-1].chain_tx + block_tx)
-            if i == 4:
-                # Create a stale block that forks off the main chain before the snapshot.
-                temp_invalid = n0.getbestblockhash()
-                n0.invalidateblock(temp_invalid)
-                stale_hash = self.generateblock(n0, output="raw(aaaa)", transactions=[], sync_fun=self.no_op)["hash"]
-                n0.invalidateblock(stale_hash)
-                n0.reconsiderblock(temp_invalid)
-                stale_block = n0.getblock(stale_hash, 0)
 
 
         self.log.info("-- Testing assumeutxo + some indexes + pruning")
@@ -219,7 +216,7 @@ class AssumeutxoTest(BitcoinTestFramework):
         assert_equal(
             dump_output['txoutset_hash'],
             "a4bf3407ccb2cc0145c49ebba8fa91199f8a3903daf0883875941497d2493c27")
-        assert_equal(dump_output["nchaintx"], 334)
+        assert_equal(dump_output["nchaintx"], blocks[SNAPSHOT_BASE_HEIGHT].chain_tx)
         assert_equal(n0.getblockchaininfo()["blocks"], SNAPSHOT_BASE_HEIGHT)
 
         # Mine more blocks on top of the snapshot that n1 hasn't yet seen. This
@@ -247,19 +244,20 @@ class AssumeutxoTest(BitcoinTestFramework):
                 tx = n1.getblockheader(block.hash)["nTx"]
                 chain_tx = n1.getchaintxstats(nblocks=1, blockhash=block.hash)["txcount"]
 
-                # Intermediate nTx of the starting block should be set, but nTx of
-                # later blocks should be 0 before they are downloaded.
+                # Intermediate nTx of the starting block should be real, but nTx of
+                # later blocks should be fake 1 values set by snapshot loading code.
                 if final or height == START_HEIGHT:
                     assert_equal(tx, block.tx)
                 else:
-                    assert_equal(tx, 0)
+                    assert_equal(tx, 1)
 
                 # Intermediate nChainTx of the starting block and snapshot block
-                # should be set, but others should be 0 until they are downloaded.
+                # should be real, but others will be fake values set by snapshot
+                # loading code.
                 if final or height in (START_HEIGHT, SNAPSHOT_BASE_HEIGHT):
                     assert_equal(chain_tx, block.chain_tx)
                 else:
-                    assert_equal(chain_tx, 0)
+                    assert_equal(chain_tx, height + 1)
 
         check_tx_counts(final=False)
 
@@ -345,6 +343,8 @@ class AssumeutxoTest(BitcoinTestFramework):
         }
         self.wait_until(lambda: n1.getindexinfo() == completed_idx_state)
 
+        self.log.info("Re-check nTx and nChainTx values")
+        check_tx_counts(final=True)
 
         for i in (0, 1):
             n = self.nodes[i]
@@ -419,6 +419,11 @@ class AssumeutxoTest(BitcoinTestFramework):
         self.connect_nodes(0, 2)
         self.wait_until(lambda: n2.getblockcount() == FINAL_HEIGHT)
 
+@dataclass
+class Block:
+    hash: str
+    tx: int
+    chain_tx: int
 
 if __name__ == '__main__':
     AssumeutxoTest().main()
