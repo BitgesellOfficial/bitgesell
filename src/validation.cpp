@@ -3877,6 +3877,37 @@ bool HasValidProofOfWork(const std::vector<CBlockHeader>& headers, const Consens
             [&](const auto& header) { return CheckProofOfWork(header.GetHash(), header.nBits, consensusParams);});
 }
 
+bool IsBlockMutated(const CBlock& block, bool check_witness_root)
+{
+    BlockValidationState state;
+    if (!CheckMerkleRoot(block, state)) {
+        LogDebug(BCLog::VALIDATION, "Block mutated: %s\n", state.ToString());
+        return true;
+    }
+
+    if (block.vtx.empty() || !block.vtx[0]->IsCoinBase()) {
+        // Consider the block mutated if any transaction is 64 bytes in size (see 3.1
+        // in "Weaknesses in Bitcoin’s Merkle Root Construction":
+        // https://lists.linuxfoundation.org/pipermail/bitcoin-dev/attachments/20190225/a27d8837/attachment-0001.pdf).
+        //
+        // Note: This is not a consensus change as this only applies to blocks that
+        // don't have a coinbase transaction and would therefore already be invalid.
+        return std::any_of(block.vtx.begin(), block.vtx.end(),
+                           [](auto& tx) { return GetSerializeSize(TX_NO_WITNESS(tx)) == 64; });
+    } else {
+        // Theoretically it is still possible for a block with a 64 byte
+        // coinbase transaction to be mutated but we neglect that possibility
+        // here as it requires at least 224 bits of work.
+    }
+
+    if (!CheckWitnessMalleation(block, check_witness_root, state)) {
+        LogDebug(BCLog::VALIDATION, "Block mutated: %s\n", state.ToString());
+        return true;
+    }
+
+    return false;
+}
+
 arith_uint256 CalculateHeadersWork(const std::vector<CBlockHeader>& headers)
 {
     arith_uint256 total_work{0};
