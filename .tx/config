@@ -1,7 +1,7 @@
 [main]
 host = https://www.transifex.com
 
-[o:BGL:p:BGL:r:qt-translation-026x]
+[o:BGL:p:BGL:r:qt-translation-027x]
 file_filter = src/qt/locale/BGL_<lang>.xlf
 source_file = src/qt/locale/BGL_en.xlf
 source_lang = en
