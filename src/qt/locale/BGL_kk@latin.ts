@@ -1,4 +1,4 @@
-<TS version="2.1" language="kk">
+<TS version="2.1" language="kk@latin">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -150,8 +150,8 @@
         <translation type="unfinished">Әмиян шифрлауды растау</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BGLS&lt;/b&gt;!</source>
-        <translation type="unfinished">Ескерту: әмияныңызды шифрлап, құпиясөйлеміңізден айырылып қалсаңыз, &lt;b&gt;БАРЛЫҚ BGL-ІҢІЗДЕН ДЕ АЙЫРЫЛАСЫЗ&lt;/b&gt;!</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <translation type="unfinished">Ескерту: әмияныңызды шифрлап, құпиясөйлеміңізден айырылып қалсаңыз, &lt;b&gt;БАРЛЫҚ BITCOIN-ІҢІЗДЕН ДЕ АЙЫРЫЛАСЫЗ&lt;/b&gt;!</translation>
     </message>
     <message>
         <source>Are you sure you wish to encrypt your wallet?</source>
@@ -170,7 +170,7 @@
         <translation type="unfinished">Әмияныңыздың ескі құпиясөйлемі мен жаңа құпиясөйлемін енгізіңіз.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your BGLs from being stolen by malware infecting your computer.</source>
+        <source>Remember that encrypting your wallet cannot fully protect your bitgesells from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">Шифрлау биткоиніңізді компьютер жұқтырған зиянды БЖ-дан толығымен қорғай алмайтынын есіңізде сақтаңыз.</translation>
     </message>
     <message>
@@ -226,7 +226,7 @@
     </message>
     </context>
 <context>
-    <name>BGLApplication</name>
+    <name>BitgesellApplication</name>
     <message>
         <source>Internal error</source>
         <translation type="unfinished">Ішкі қате</translation>
@@ -357,8 +357,8 @@
         <translation type="unfinished">Прокси &lt;b&gt;қосулы&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a BGL address</source>
-        <translation type="unfinished">BGL мекенжайына тиын жіберу</translation>
+        <source>Send coins to a Bitgesell address</source>
+        <translation type="unfinished">Bitgesell мекенжайына тиын жіберу</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -401,16 +401,16 @@
         <translation type="unfinished">Хатқа &amp;қол қою…</translation>
     </message>
     <message>
-        <source>Sign messages with your BGL addresses to prove you own them</source>
-        <translation type="unfinished">Хатқа BGL мекенжайларын қосып, олар сізге тиесілі екенін дәлелдеу</translation>
+        <source>Sign messages with your Bitgesell addresses to prove you own them</source>
+        <translation type="unfinished">Хатқа Bitgesell мекенжайларын қосып, олар сізге тиесілі екенін дәлелдеу</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Хат тексеру…</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified BGL addresses</source>
-        <translation type="unfinished">Хат тексеріп, берілген BGL мекенжайлары қосылғанына көз жеткізу</translation>
+        <source>Verify messages to ensure they were signed with specified Bitgesell addresses</source>
+        <translation type="unfinished">Хат тексеріп, берілген Bitgesell мекенжайлары қосылғанына көз жеткізу</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
@@ -520,7 +520,7 @@
         <translation type="unfinished">&amp;Терезе</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to BGL network.</source>
+        <source>%n active connection(s) to Bitgesell network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -599,7 +599,7 @@
 <context>
     <name>Intro</name>
     <message>
-        <source>BGL</source>
+        <source>Bitgesell</source>
         <translation type="unfinished">Биткоин</translation>
     </message>
     <message numerus="yes">
@@ -632,8 +632,8 @@
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the BGL block chain.</source>
-        <translation type="unfinished">%1 BGL блокчейнінің көшірмесін жүктеп сақтайды.</translation>
+        <source>%1 will download and store a copy of the Bitgesell block chain.</source>
+        <translation type="unfinished">%1 Bitgesell блокчейнінің көшірмесін жүктеп сақтайды.</translation>
     </message>
     <message>
         <source>Error</source>
@@ -874,7 +874,7 @@
     </message>
     </context>
 <context>
-    <name>bitgesell-core</name>
+    <name>BGL-core</name>
     <message>
         <source>Transaction amount too small</source>
         <translation type="unfinished">Транзакция өте кішкентай</translation>

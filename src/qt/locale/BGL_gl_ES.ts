@@ -58,21 +58,13 @@
         <translation type="unfinished">Selecciona</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Enderezos de envío</translation>
+        <source>These are your Bitgesell addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Estes son os teus enderezos de Bitgesell para enviar pagamentos. Asegurate sempre de comprobar a cantidade e maila dirección antes de enviar moedas.</translation>
     </message>
     <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Enderezos de recepción</translation>
-    </message>
-    <message>
-        <source>These are your BGL addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Estes son os teus enderezos de BGL para enviar pagamentos. Asegurate sempre de comprobar a cantidade e maila dirección antes de enviar moedas.</translation>
-    </message>
-    <message>
-        <source>These are your Bitcoin addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Bitgesell addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Estes son os teus enderezos de Bitcoin para recibir pagamentos. Emprega o botón 'Crear novo enderezo para recibir pagamentos' na solapa de recibir para crear novos enderezos.
+        <translation type="unfinished">Estes son os teus enderezos de Bitgesell para recibir pagamentos. Emprega o botón 'Crear novo enderezo para recibir pagamentos' na solapa de recibir para crear novos enderezos.
 Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
     </message>
     <message>
@@ -633,10 +625,6 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
         <translation type="unfinished">taxa:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">po:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Despois de taxas:</translation>
     </message>
@@ -705,24 +693,12 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
         <translation type="unfinished">Copiar bytes</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Copiar po</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Copiar cambio</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 bloqueado)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">sí</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">Esta etiqueta tórnase vermella se algún receptor recibe unha cantidade máis pequena que o actual límite de po.</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -1022,10 +998,6 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
         <translation type="unfinished">Cambio:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">po:</translation>
-    </message>
-    <message>
         <source>Copy quantity</source>
         <translation type="unfinished">Copiar cantidade</translation>
     </message>
@@ -1044,10 +1016,6 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
     <message>
         <source>Copy bytes</source>
         <translation type="unfinished">Copiar bytes</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Copiar po</translation>
     </message>
     <message>
         <source>Copy change</source>

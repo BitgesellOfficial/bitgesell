@@ -1,6 +1,6 @@
 QT_TS = \
+  qt/locale/BGL_af.ts \
   qt/locale/BGL_am.ts \
-  qt/locale/BGL_ar.ts \
   qt/locale/BGL_az.ts \
   qt/locale/BGL_az@latin.ts \
   qt/locale/BGL_be.ts \
@@ -31,6 +31,7 @@ QT_TS = \
   qt/locale/BGL_fa.ts \
   qt/locale/BGL_fi.ts \
   qt/locale/BGL_fil.ts \
+  qt/locale/BGL_fo.ts \
   qt/locale/BGL_fr.ts \
   qt/locale/BGL_fr_CM.ts \
   qt/locale/BGL_fr_LU.ts \
@@ -52,6 +53,7 @@ QT_TS = \
   qt/locale/BGL_ja.ts \
   qt/locale/BGL_ka.ts \
   qt/locale/BGL_kk.ts \
+  qt/locale/BGL_kk@latin.ts \
   qt/locale/BGL_kl.ts \
   qt/locale/BGL_km.ts \
   qt/locale/BGL_kn.ts \
@@ -60,15 +62,18 @@ QT_TS = \
   qt/locale/BGL_ku_IQ.ts \
   qt/locale/BGL_ky.ts \
   qt/locale/BGL_la.ts \
+  qt/locale/BGL_lb.ts \
   qt/locale/BGL_lt.ts \
   qt/locale/BGL_lv.ts \
   qt/locale/BGL_mg.ts \
+  qt/locale/BGL_mi.ts \
   qt/locale/BGL_mk.ts \
   qt/locale/BGL_ml.ts \
   qt/locale/BGL_mn.ts \
   qt/locale/BGL_mr.ts \
   qt/locale/BGL_mr_IN.ts \
   qt/locale/BGL_ms.ts \
+  qt/locale/BGL_mt.ts \
   qt/locale/BGL_my.ts \
   qt/locale/BGL_nb.ts \
   qt/locale/BGL_ne.ts \
@@ -78,11 +83,12 @@ QT_TS = \
   qt/locale/BGL_pam.ts \
   qt/locale/BGL_pl.ts \
   qt/locale/BGL_pt.ts \
-  qt/locale/BGL_pt@qtfiletype.ts \
   qt/locale/BGL_pt_BR.ts \
   qt/locale/BGL_ro.ts \
   qt/locale/BGL_ru.ts \
+  qt/locale/BGL_ru_RU.ts \
   qt/locale/BGL_sc.ts \
+  qt/locale/BGL_sd.ts \
   qt/locale/BGL_si.ts \
   qt/locale/BGL_sk.ts \
   qt/locale/BGL_sl.ts \

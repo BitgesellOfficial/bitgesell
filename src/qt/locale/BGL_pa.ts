@@ -58,15 +58,7 @@
         <translation type="unfinished">ਚੁਣੋ </translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">bhejan wale pate</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">ਆਉਣ ਵਾਲੇ ਪਤੇ </translation>
-    </message>
-    <message>
-        <source>These are your BGL addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Bitgesell addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">ਇਹ ਭੁਗਤਾਨ ਭੇਜਣ ਲਈ ਤੁਹਾਡੇ ਬਿਟਕੋਇਨ ਪਤੇ ਹਨ। ਸਿੱਕੇ ਭੇਜਣ ਤੋਂ ਪਹਿਲਾਂ ਹਮੇਸ਼ਾਂ ਰਕਮ ਅਤੇ ਪ੍ਰਾਪਤ ਕਰਨ ਵਾਲੇ ਪਤੇ ਦੀ ਜਾਂਚ ਕਰੋ।</translation>
     </message>
     <message>

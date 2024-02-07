@@ -1,115 +1,75 @@
-<TS version="2.1" language="ha">
+<TS version="2.1" language="lb">
 <context>
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation type="unfinished">Danna dama don gyara adireshi ko labil</translation>
+        <translation type="unfinished">Riets-drécken fir Redaktioun adress oder label</translation>
     </message>
     <message>
         <source>Create a new address</source>
-        <translation type="unfinished">Ƙirƙiri sabon adireshi</translation>
+        <translation type="unfinished">Erschaf een nei adress</translation>
     </message>
     <message>
         <source>&amp;New</source>
-        <translation type="unfinished">&amp;Sabonta</translation>
+        <translation type="unfinished">&amp;Nei</translation>
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
-        <translation type="unfinished">Kwafi adireshin da aka zaɓa a halin yanzu domin yin amfani dashi</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="unfinished">&amp;Kwafi</translation>
-    </message>
-    <message>
-        <source>C&amp;lose</source>
-        <translation type="unfinished">C&amp;ɓatar</translation>
+        <translation type="unfinished">Kopéiert déi aktuell ausgewielte Adress an de System-Zwëschenofklaaf.</translation>
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
-        <translation type="unfinished">Share adireshin da aka zaɓa a halin yanzu daga jerin </translation>
+        <translation type="unfinished">Läscht déi aktuell ausgewielte Adress aus der Lëscht.</translation>
     </message>
     <message>
         <source>Enter address or label to search</source>
-        <translation type="unfinished">Shigar da adireshi ko lakabi don bincika</translation>
+        <translation type="unfinished">Gitt d'Adress oder d'Etikett an fir ze sichen.</translation>
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
-        <translation type="unfinished">Fitar da bayanan da ke cikin shafin na yanzu zuwa fayil</translation>
-    </message>
-    <message>
-        <source>&amp;Export</source>
-        <translation type="unfinished">&amp; Fitarwa</translation>
-    </message>
-    <message>
-        <source>&amp;Delete</source>
-        <translation type="unfinished">&amp;Sharewa</translation>
+        <translation type="unfinished">Exportéiert déi Dateien op der aktueller Tabell an eng Datei.</translation>
     </message>
     <message>
         <source>Choose the address to send coins to</source>
-        <translation type="unfinished">zaɓi adireshin don aika tsabar kudi</translation>
+        <translation type="unfinished">Wielt déi Adress, wou Dir d'Mënz hinschécken wëllt.</translation>
     </message>
     <message>
         <source>Choose the address to receive coins with</source>
-        <translation type="unfinished">Zaɓi adireshin don karɓar kuɗi internet da shi</translation>
-    </message>
-    <message>
-        <source>C&amp;hoose</source>
-        <translation type="unfinished">c&amp;zaɓi</translation>
+        <translation type="unfinished">Wielt déi Adress, fir Mënz mat ze erhuelen.</translation>
     </message>
     <message>
         <source>These are your Bitgesell addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Waɗannan adiresoshin Bitgesell ne don tura kuɗi bitgesell . ka tabbatar da cewa adreshin daidai ne kamin ka tura abua a ciki</translation>
+        <translation type="unfinished">Dat sinn är Bitgesell-Adressen fir Bezuelungen ze schécken. Iwwerpréift ëmmer de Betrag an d'Erhaltsadress virum Mënz ze schécken.</translation>
     </message>
     <message>
-        <source>These are your BGL addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Bitgesell addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Waɗannan adiresoshin BGL ne don karɓar kuɗi. Yi amfani da maɓallin 'Ƙirƙiri sabon adireshin karɓa' a cikin shafin karɓa don ƙirƙirar sababbin adireshi.
-zaka iya shiga ne kawai da adiresoshin 'na musamman' kawai.</translation>
-    </message>
-    <message>
-        <source>&amp;Copy Address</source>
-        <translation type="unfinished">&amp;Kwafi Adireshin</translation>
-    </message>
-    <message>
-        <source>Copy &amp;Label</source>
-        <translation type="unfinished">Kwafi &amp; Lakabi</translation>
-    </message>
-    <message>
-        <source>&amp;Edit</source>
-        <translation type="unfinished">&amp;Gyara</translation>
-    </message>
-    <message>
-        <source>Export Address List</source>
-        <translation type="unfinished">Fitarwar Jerin Adreshi</translation>
-    </message>
-    <message>
-        <source>Comma separated file</source>
-        <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
-        <translation type="unfinished">waƙafin rabuwar fayil</translation>
+        <translation type="unfinished">Dat sinn är Bitgesell-Adressen fir Zuelungen ze erhuelen. Benotzt de 'Nei Erhaltsadress erstellen' Knäppchen am 'Erhalts'-Tab, fir nei Adressen ze erstellen. 
+D'Signatur ass nëmmen mat Adressen vum Typ 'legacy' méiglech.</translation>
     </message>
     <message>
         <source>There was an error trying to save the address list to %1. Please try again.</source>
         <extracomment>An error message. %1 is a stand-in argument for the name of the file we attempted to save to.</extracomment>
-        <translation type="unfinished">An sami kuskure wajen ƙoƙarin ajiye jerin adireshi zuwa 1 %1. Da fatan za a sake gwadawa.</translation>
-    </message>
-    <message>
-        <source>Exporting Failed</source>
-        <translation type="unfinished">Ba a yi nasarar fitarwa ba</translation>
-    </message>
-</context>
-<context>
-    <name>AddressTableModel</name>
-    <message>
-        <source>Address</source>
-        <translation type="unfinished">Adireshi</translation>
+        <translation type="unfinished">Et gouf en Feeler beim Versuch, d'Adressenlëscht op %1 ze speichern. Versicht et w.e.g. nach eng Kéier.</translation>
     </message>
     </context>
 <context>
     <name>AskPassphraseDialog</name>
     <message>
-        <source>Unlock wallet</source>
-        <translation type="unfinished">Bude Walet</translation>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <translation type="unfinished">Warnung: Wann Dir Är Portemonnaie verschlësselt an Äert Passwort verléiert, da verléiert Dir 1ALLE ÄRE BITCOINS1!</translation>
+    </message>
+    <message>
+        <source>Are you sure you wish to encrypt your wallet?</source>
+        <translation type="unfinished">Sidd Dir sécher, dass Dir Är Portemonnaie verschlësselen wëllt?</translation>
+    </message>
+    <message>
+        <source>Enter the old passphrase and new passphrase for the wallet.</source>
+        <translation type="unfinished">Gitt deen alten Passwort an den neien Passwort fir d'Portemonnaie an</translation>
+    </message>
+    <message>
+        <source>Remember that encrypting your wallet cannot fully protect your bitgesells from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Erënner Iech, dass d'Verschlësselung vun ärer Portemonnaie Är Bitgesells net vollstänneg vir Malware schützen kann, déi Äre Computer infizéiert.</translation>
     </message>
     </context>
 <context>
@@ -158,7 +118,7 @@ zaka iya shiga ne kawai da adiresoshin 'na musamman' kawai.</translation>
     </message>
     </context>
 <context>
-    <name>BGLGUI</name>
+    <name>BitgesellGUI</name>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
         <translation type="unfinished">
@@ -167,7 +127,7 @@ zaka iya shiga ne kawai da adiresoshin 'na musamman' kawai.</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to BGL network.</source>
+        <source>%n active connection(s) to Bitgesell network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
             <numerusform />
@@ -177,10 +137,6 @@ zaka iya shiga ne kawai da adiresoshin 'na musamman' kawai.</translation>
     </context>
 <context>
     <name>Intro</name>
-    <message>
-        <source>BGL</source>
-        <translation type="unfinished">Bitkoin</translation>
-    </message>
     <message numerus="yes">
         <source>%n GB of space available</source>
         <translation type="unfinished">
@@ -212,14 +168,6 @@ zaka iya shiga ne kawai da adiresoshin 'na musamman' kawai.</translation>
     </message>
     </context>
 <context>
-    <name>PeerTableModel</name>
-    <message>
-        <source>Address</source>
-        <extracomment>Title of Peers Table column which contains the IP/Onion/I2P address of the connected peer.</extracomment>
-        <translation type="unfinished">Adireshi</translation>
-    </message>
-    </context>
-<context>
     <name>SendCoinsDialog</name>
     <message numerus="yes">
         <source>Estimated to begin confirmation within %n block(s).</source>
@@ -240,30 +188,10 @@ zaka iya shiga ne kawai da adiresoshin 'na musamman' kawai.</translation>
     </message>
     </context>
 <context>
-    <name>TransactionView</name>
-    <message>
-        <source>Comma separated file</source>
-        <extracomment>Expanded name of the CSV file format. See: https://en.wikipedia.org/wiki/Comma-separated_values.</extracomment>
-        <translation type="unfinished">waƙafin rabuwar fayil</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation type="unfinished">Adireshi</translation>
-    </message>
-    <message>
-        <source>Exporting Failed</source>
-        <translation type="unfinished">Ba a yi nasarar fitarwa ba</translation>
-    </message>
-    </context>
-<context>
     <name>WalletView</name>
     <message>
-        <source>&amp;Export</source>
-        <translation type="unfinished">&amp; Fitarwa</translation>
-    </message>
-    <message>
         <source>Export the data in the current tab to a file</source>
-        <translation type="unfinished">Fitar da bayanan da ke cikin shafin na yanzu zuwa fayil</translation>
+        <translation type="unfinished">Exportéiert déi Dateien op der aktueller Tabell an eng Datei.</translation>
     </message>
     </context>
 </TS>

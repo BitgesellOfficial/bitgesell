@@ -46,16 +46,8 @@
         <translation type="unfinished">S&amp;ciobera</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Incarreramentu de inviu</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Incarreramentu destinatàriu</translation>
-    </message>
-    <message>
-        <source>These are your BGL addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Custus funt is incarreramentu BGL tuus po mandai pagamentus. Càstia sempri sa cantidadi e s'incarreramentu destinatàriu antis de inviais is monedas</translation>
+        <source>These are your Bitgesell addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Custus funt is incarreramentu Bitgesell tuus po mandai pagamentus. Càstia sempri sa cantidadi e s'incarreramentu destinatàriu antis de inviais is monedas</translation>
     </message>
     </context>
 <context>

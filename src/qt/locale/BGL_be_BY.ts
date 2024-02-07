@@ -58,19 +58,11 @@
         <translation type="unfinished">Выбраць</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">адрасы Адпраўкі</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">адрасы Прымання</translation>
-    </message>
-    <message>
-        <source>These are your BGL addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Bitgesell addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Тут знаходзяцца Біткойн-адрасы для высылання плацяжоў. Заўсёды спраўджвайце колькасць і адрас прызначэння перад здзяйсненнем транзакцыі.</translation>
     </message>
     <message>
-        <source>These are your BGL addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
+        <source>These are your Bitgesell addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
         <translation>Тут знаходзяцца Біткойн-адрасы для прымання плацяжоў. Пажадана выкарыстоўваць новы адрас для кожнай транзакцыі.</translation>
     </message>
     <message>
@@ -471,10 +463,6 @@
         <translation type="unfinished">Камісія:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Пыл:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Пасля камісіі:</translation>
     </message>
@@ -533,18 +521,6 @@
     <message>
         <source>Copy bytes</source>
         <translation type="unfinished">Капіяваць байты</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Капіяваць пыл</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">так</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">не</translation>
     </message>
     <message>
         <source>(no label)</source>
@@ -804,10 +780,6 @@
         <translation type="unfinished">Даслаць адразу некалькім атрымальнікам</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Пыл:</translation>
-    </message>
-    <message>
         <source>Balance:</source>
         <translation type="unfinished">Баланс:</translation>
     </message>
@@ -834,10 +806,6 @@
     <message>
         <source>Copy bytes</source>
         <translation type="unfinished">Капіяваць байты</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Капіяваць пыл</translation>
     </message>
     <message>
         <source>Confirm send coins</source>
@@ -981,10 +949,6 @@
         <translation type="unfinished">Даслана да</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">Плацёж самому сабе</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">Здабыта</translation>
     </message>
@@ -1042,10 +1006,6 @@
     <message>
         <source>Sent to</source>
         <translation type="unfinished">Даслана да</translation>
-    </message>
-    <message>
-        <source>To yourself</source>
-        <translation type="unfinished">Да сябе</translation>
     </message>
     <message>
         <source>Mined</source>
