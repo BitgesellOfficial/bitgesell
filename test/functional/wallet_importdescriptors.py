@@ -414,9 +414,9 @@ class ImportDescriptorsTest(BGLTestFramework):
         txid = w0.sendtoaddress(address, 49.99995540)
         self.generatetoaddress(self.nodes[0], 6, w0.getnewaddress())
         self.sync_blocks()
+        self.sync_blocks()
         tx = wpriv.createrawtransaction([{"txid": txid, "vout": 0}], {w0.getnewaddress(): 49.999})
         signed_tx = wpriv.signrawtransactionwithwallet(tx)
-        print(signed_tx)
         w1.sendrawtransaction(signed_tx['hex'])
 
         # Make sure that we can use import and use multisig as addresses
@@ -489,7 +489,7 @@ class ImportDescriptorsTest(BGLTestFramework):
         addr = wmulti_pub.getnewaddress('', 'bech32')
         assert_equal(addr, 'rbgl1qp8s25ckjl7gr6x2q3dx3tn2pytwp05upkjztk6ey857tt50r5aeqwnwc9u') # Derived at m/84'/0'/0'/1
         change_addr = wmulti_pub.getrawchangeaddress('bech32')
-        assert_equal(change_addr, 'rbgl1qzxl0qz2t88kljdnkzg4n4gapr6kte26390gttrg79x66nt4p04fsdmp94x')
+        assert_equal(change_addr, 'rbgl1qp6j3jw8yetefte7kw6v5pc89rkgakzy98p6gf7ayslaveaxqyjusw8pnfp')
         assert(send_txid in self.nodes[0].getrawmempool(True))
         assert(send_txid in (x['txid'] for x in wmulti_pub.listunspent(0)))
         assert_equal(wmulti_pub.getwalletinfo()['keypoolsize'], 999)
@@ -503,8 +503,7 @@ class ImportDescriptorsTest(BGLTestFramework):
         vout2 = find_vout_for_address(self.nodes[0], txid2, addr2)
 
         self.generate(self.nodes[0], 6) 
-        assert_equal(wmulti_pub.getbalance(), wmulti_priv.getbalance() * 2) # Added multiplication by 2. This is a hack.
-
+        assert_equal(wmulti_pub.getbalance(), wmulti_priv.getbalance())
         # Make sure that descriptor wallets containing multiple xpubs in a single descriptor load correctly
         wmulti_pub.unloadwallet()
         self.nodes[1].loadwallet('wmulti_pub')
@@ -532,7 +531,6 @@ class ImportDescriptorsTest(BGLTestFramework):
         assert_equal(res[0]['warnings'][0], 'Not all private keys provided. Some wallet functionality may return unexpected errors')
         assert_equal(res[1]['success'], True)
         assert_equal(res[1]['warnings'][0], 'Not all private keys provided. Some wallet functionality may return unexpected errors')
-
         self.nodes[1].createwallet(wallet_name='wmulti_priv2', blank=True, descriptors=True)
         wmulti_priv2 = self.nodes[1].get_wallet_rpc('wmulti_priv2')
         res = wmulti_priv2.importdescriptors([
@@ -694,7 +692,7 @@ class ImportDescriptorsTest(BGLTestFramework):
 
         encrypted_wallet.walletpassphrase("passphrase", 99999)
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as thread:
-            with self.nodes[0].assert_debug_log(expected_msgs=["Rescan started from block 0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206... (slow variant inspecting all blocks)"], timeout=5):
+            with self.nodes[0].assert_debug_log(expected_msgs=["Rescan started from block 2e14eaec9745ec9690602feddf650eb6e436d32a3ae8453cf6a90ef1d53a6c42... (slow variant inspecting all blocks)"], timeout=5):
                 importing = thread.submit(encrypted_wallet.importdescriptors, requests=[descriptor])
 
             # Set the passphrase timeout to 1 to test that the wallet remains unlocked during the rescan
