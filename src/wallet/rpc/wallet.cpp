@@ -352,7 +352,7 @@ static RPCHelpMan createwallet()
             RPCResult::Type::OBJ, "", "",
             {
                 {RPCResult::Type::STR, "name", "The wallet name if created successfully. If the wallet was created using a full path, the wallet_name will be the full path."},
-                {RPCResult::Type::ARR, "warnings", /*optional=*/true, "Warning messages, if any, related to creating the wallet.",
+                {RPCResult::Type::ARR, "warnings", /*optional=*/true, "Warning messages, if any, related to creating and loading the wallet.",
                 {
                     {RPCResult::Type::STR, "", ""},
                 }},
@@ -499,8 +499,8 @@ static RPCHelpMan sethdseed()
     return RPCHelpMan{"sethdseed",
                 "\nSet or generate a new HD wallet seed. Non-HD wallets will not be upgraded to being a HD wallet. Wallets that are already\n"
                 "HD will have a new HD seed set so that new keys added to the keypool will be derived from this new seed.\n"
-                "\nNote that you will need to MAKE A NEW BACKUP of your wallet after setting the HD wallet seed." +
-        HELP_REQUIRING_PASSPHRASE,
+                "\nNote that you will need to MAKE A NEW BACKUP of your wallet after setting the HD wallet seed." + HELP_REQUIRING_PASSPHRASE +
+                "Note: This command is only compatible with legacy wallets.\n",
                 {
                     {"newkeypool", RPCArg::Type::BOOL, RPCArg::Default{true}, "Whether to flush old unused addresses, including change addresses, from the keypool and regenerate it.\n"
                                          "If true, the next address from getnewaddress and change address from getrawchangeaddress will be from this new seed.\n"
@@ -766,14 +766,15 @@ static RPCHelpMan migratewallet()
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
         {
             std::string wallet_name;
-            {
-                std::shared_ptr<CWallet> wallet = GetWalletForJSONRPCRequest(request);
-                if (!wallet) return NullUniValue;
-
-                if (wallet->IsCrypted()) {
-                    throw JSONRPCError(RPC_WALLET_WRONG_ENC_STATE, "Error: migratewallet on encrypted wallets is currently unsupported.");
+            if (GetWalletNameFromJSONRPCRequest(request, wallet_name)) {
+                if (!(request.params[0].isNull() || request.params[0].get_str() == wallet_name)) {
+                    throw JSONRPCError(RPC_INVALID_PARAMETER, "RPC endpoint wallet and wallet_name parameter specify different wallets");
                 }
-                wallet_name = wallet->GetName();
+            } else {
+                if (request.params[0].isNull()) {
+                    throw JSONRPCError(RPC_INVALID_PARAMETER, "Either RPC endpoint wallet or wallet_name parameter must be provided");
+                }
+                wallet_name = request.params[0].get_str();
             }
 
             SecureString wallet_pass;
