@@ -44,21 +44,7 @@ Visit the [Transifex Signup](https://www.transifex.com/signup/) page to create a
 You can find the BGL translation project at [https://www.transifex.com/BGL/BGL/](https://www.transifex.com/BGL/BGL/).
 
 ### Installing the Transifex client command-line tool
-The client is used to fetch updated translations. If you are having problems, or need more details, see [https://docs.transifex.com/client/installing-the-client](https://docs.transifex.com/client/installing-the-client)
-
-`pip install transifex-client`
-
-Setup your Transifex client config as follows. Please *ignore the token field*.
-
-```ini
-nano ~/.transifexrc
-
-[https://www.transifex.com]
-hostname = https://www.transifex.com
-password = PASSWORD
-token =
-username = USERNAME
-```
+The client is used to fetch updated translations. Please check installation instructions and any other details at https://developers.transifex.com/docs/cli.
 
 The Transifex BGL project config file is included as part of the repo. It can be found at `.tx/config`, however you shouldn’t need to change anything.
 
