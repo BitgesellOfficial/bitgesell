@@ -5,10 +5,6 @@
 #ifndef BGL_NETBASE_H
 #define BGL_NETBASE_H
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
-
 #include <compat/compat.h>
 #include <netaddress.h>
 #include <serialize.h>

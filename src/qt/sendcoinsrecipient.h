@@ -5,10 +5,6 @@
 #ifndef BGL_QT_SENDCOINSRECIPIENT_H
 #define BGL_QT_SENDCOINSRECIPIENT_H
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
-
 #include <consensus/amount.h>
 #include <serialize.h>
 

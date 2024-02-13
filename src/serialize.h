@@ -6,6 +6,10 @@
 #ifndef BGL_SERIALIZE_H
 #define BGL_SERIALIZE_H
 
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
+
 #include <attributes.h>
 #include <compat/assumptions.h> // IWYU pragma: keep
 #include <compat/endian.h>

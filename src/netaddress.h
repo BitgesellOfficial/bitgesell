@@ -5,10 +5,6 @@
 #ifndef BGL_NETADDRESS_H
 #define BGL_NETADDRESS_H
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
-
 #include <compat/compat.h>
 #include <crypto/siphash.h>
 #include <prevector.h>

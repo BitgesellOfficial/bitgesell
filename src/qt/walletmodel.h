@@ -5,10 +5,6 @@
 #ifndef BGL_QT_WALLETMODEL_H
 #define BGL_QT_WALLETMODEL_H
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
-
 #include <key.h>
 
 #include <qt/walletmodeltransaction.h>
