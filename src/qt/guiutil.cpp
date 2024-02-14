@@ -11,6 +11,7 @@
 
 #include <addresstype.h>
 #include <base58.h>
+#include <bech32.h>
 #include <chainparams.h>
 #include <common/args.h>
 #include <interfaces/node.h>
@@ -104,22 +105,14 @@ QFont fixedPitchFont(bool use_embedded_font)
     return QFontDatabase::systemFont(QFontDatabase::FixedFont);
 }
 
-// Just some dummy data to generate a convincing random-looking (but consistent) address
-static const uint8_t dummydata[] = {0xeb,0x15,0x23,0x1d,0xfc,0xeb,0x60,0x92,0x58,0x86,0xb6,0x7d,0x06,0x52,0x99,0x92,0x59,0x15,0xae,0xb1,0x72,0xc0,0x66,0x47};
-
-// Generate a dummy address with invalid CRC, starting with the network prefix.
-static std::string DummyAddress(const CChainParams &params)
+// Generate an example address
+static std::string ExampleAddress(const CChainParams &params)
 {
-    std::vector<unsigned char> sourcedata = params.Base58Prefix(CChainParams::PUBKEY_ADDRESS);
-    sourcedata.insert(sourcedata.end(), dummydata, dummydata + sizeof(dummydata));
-    for(int i=0; i<256; ++i) { // Try every trailing byte
-        std::string s = EncodeBase58(sourcedata);
-        if (!IsValidDestinationString(s)) {
-            return s;
-        }
-        sourcedata[sourcedata.size()-1] += 1;
-    }
-    return "";
+    std::vector<uint8_t> v = ParseHex("b6706320f9b107c75ad7cf7c4cd30f4767bbb7fe");
+    std::vector<unsigned char> tmp = {0};
+    tmp.reserve(1 + 32 * 8 / 5);
+    ConvertBits<8, 5, true>([&](unsigned char c) { tmp.push_back(c); }, v.begin(), v.end());
+    return bech32::Encode(bech32::Encoding::BECH32, params.Bech32HRP(), tmp);
 }
 
 void setupAddressWidget(QValidatedLineEdit *widget, QWidget *parent)
@@ -130,7 +123,7 @@ void setupAddressWidget(QValidatedLineEdit *widget, QWidget *parent)
     // We don't want translators to use own addresses in translations
     // and this is the only place, where this address is supplied.
     widget->setPlaceholderText(QObject::tr("Enter a Bitgesell address (e.g. %1)").arg(
-        QString::fromStdString(DummyAddress(Params()))));
+        QString::fromStdString(ExampleAddress(Params()))));
     widget->setValidator(new BGLAddressEntryValidator(parent));
     widget->setCheckValidator(new BGLAddressCheckValidator(parent));
 }

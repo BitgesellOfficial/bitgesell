@@ -12,7 +12,7 @@ Unicode true
 # General Symbol Definitions
 !define REGKEY "SOFTWARE\$(^Name)"
 !define COMPANY "Bitgesell Core project"
-!define URL https://bitcoincore.org/
+!define URL https://bitgesell.ca/
 
 # MUI Symbol Definitions
 !define MUI_ICON "/home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell/share/pixmaps/BGL.ico"
@@ -57,14 +57,14 @@ CRCCheck force
 XPStyle on
 BrandingText " "
 ShowInstDetails show
-VIProductVersion 25.99.0.0
+VIProductVersion 0.1.11.0
 VIAddVersionKey ProductName "Bitgesell Core"
-VIAddVersionKey ProductVersion "25.99.0"
+VIAddVersionKey ProductVersion "0.1.11"
 VIAddVersionKey CompanyName "${COMPANY}"
 VIAddVersionKey CompanyWebsite "${URL}"
-VIAddVersionKey FileVersion "25.99.0"
+VIAddVersionKey FileVersion "0.1.11"
 VIAddVersionKey FileDescription "Installer for Bitgesell Core"
-VIAddVersionKey LegalCopyright "Copyright (C) 2009-2023 The Bitgesell Core developers"
+VIAddVersionKey LegalCopyright "Copyright (C) 2009-2024 The Bitgesell Core developers"
 InstallDirRegKey HKCU "${REGKEY}" Path
 ShowUninstDetails show
 
@@ -99,7 +99,7 @@ Section -post SEC0001
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Uninstall $(^Name).lnk" $INSTDIR\uninstall.exe
     !insertmacro MUI_STARTMENU_WRITE_END
     WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" DisplayName "$(^Name)"
-    WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" DisplayVersion "25.99.0"
+    WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" DisplayVersion "0.1.11"
     WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" Publisher "${COMPANY}"
     WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" URLInfoAbout "${URL}"
     WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" DisplayIcon $INSTDIR\BGL-qt.exe

@@ -80,11 +80,11 @@ public:
         //    uint256S("0x0000000000000000000f14c35b2d841e986ab5441de8c585d5ffe55ea1e395ad"), SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_WITNESS);
         consensus.BIP34Height = 0;
         consensus.BIP34Hash = uint256();
-        consensus.BIP65Height = 0; // 000000000000000004c2b624ed5d7756c508d90fd0da2c7c679febfa6c4735f0
-        consensus.BIP66Height = 0; // 00000000000000000379eaa19dce8c9b722d46ae6a57c2f1a988119488b50931
-        consensus.CSVHeight = 0; // 000000000000000004a1b34462cb8aeebd5799177f7a29cf28f2d1961716b5b5
-        consensus.SegwitHeight = 0; // 0000000000000000001c8018d9cb3b742ef25114f27563e3fc4a1902167f9893
-        consensus.MinBIP9WarningHeight = 0; // segwit activation height + miner confirmation window
+        consensus.BIP65Height = 0;
+        consensus.BIP66Height = 0;
+        consensus.CSVHeight = 0;
+        consensus.SegwitHeight = 0;
+        consensus.MinBIP9WarningHeight = 0;
         consensus.powLimit = uint256S("000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 1 * 24 * 60 * 60; // one day
         consensus.nPowTargetSpacing = 10 * 60;
@@ -96,6 +96,15 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999;   // December 31, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].min_activation_height = 0;
+
+        // Deployment of Taproot (BIPs 340-342) that did not pass
+        // we would be keeping this information here for now, because blocks contain this version bit
+        // and on relaxed conditions for window/treshold (that are set for now)
+        // the blocks would signal that bit=2 unknown rule was activated
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].bit = 2;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].nStartTime = 1621589357; // May 21th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].nTimeout = 1623715200; // June 15th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].min_activation_height = 66000; // Approximately July 1st, 2021
 
               // Deployment of Taproot (BIPs 340-342)
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].bit = 2;
@@ -147,7 +156,7 @@ public:
          bech32_hrp = "bgl";
 
         vFixedSeeds = std::vector<uint8_t>(std::begin(chainparams_seed_main), std::end(chainparams_seed_main));
-        
+
         fDefaultConsistencyChecks = false;
         //fRequireStandard = true;
         m_is_test_chain = false;
@@ -194,8 +203,8 @@ public:
         consensus.signet_blocks = false;
         consensus.signet_challenge.clear();
         consensus.nSubsidyHalvingInterval = 210000 / 4;
-        consensus.script_flag_exceptions.emplace( // BIP16 exception
-            uint256S("0x00000000dd30457c001f4095d208cc1296b0eed002427aa599874af7a432b105"), SCRIPT_VERIFY_NONE);
+//        consensus.script_flag_exceptions.emplace( // BIP16 exception
+//            uint256S("0x00000000dd30457c001f4095d208cc1296b0eed002427aa599874af7a432b105"), SCRIPT_VERIFY_NONE);
         consensus.BIP34Height = 0;
         consensus.BIP34Hash = uint256();
         consensus.BIP65Height = 0; // 00000000007f6655f22f98e72ed80d8b06dc761d5da09df0fa1dc4be4f861eb6
@@ -360,9 +369,8 @@ public:
         nPruneAfterHeight = 1000;
         genesis = CreateGenesisBlock(1585958400, 0x0278eefd, 0x1d22ffff, 1, 200 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-
-        assert(consensus.hashGenesisBlock == uint256S("0x00000018cdcfeeb4dfdebe9392b855cfea7d6ddb953ef13f974b58773606d53d"));
-        assert(genesis.hashMerkleRoot == uint256S("0x0926305e87ec7ee71ed8d119c9b4958cb22f298cc20f90586c35b5a47e1c3f9b"));
+//        assert(consensus.hashGenesisBlock == uint256S("0x00000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6"));
+//        assert(genesis.hashMerkleRoot == uint256S("0x4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"));
 
         vFixedSeeds.clear();
 

@@ -36,7 +36,7 @@
 #define COPYRIGHT_HOLDERS_SUBSTITUTION "Bitgesell Core"
 
 /* Copyright year */
-#define COPYRIGHT_YEAR 2023
+#define COPYRIGHT_YEAR 2024
 
 /* Define this symbol to build code that uses ARMv8 SHA-NI intrinsics */
 /* #undef ENABLE_ARM_SHANI */
@@ -350,22 +350,22 @@
 #define LT_OBJDIR ".libs/"
 
 /* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "https://github.com/bitcoin/bitcoin/issues"
+#define PACKAGE_BUGREPORT "https://github.com//BitgesellOfficial/bitgesell/issues"
 
 /* Define to the full name of this package. */
 #define PACKAGE_NAME "Bitgesell Core"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "Bitgesell Core 25.99.0"
+#define PACKAGE_STRING "Bitgesell Core 0.1.11"
 
 /* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "bitcoin"
+#define PACKAGE_TARNAME "BGL"
 
 /* Define to the home page for this package. */
-#define PACKAGE_URL "https://bitcoincore.org/"
+#define PACKAGE_URL "https://bitgesell.ca/"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "25.99.0"
+#define PACKAGE_VERSION "0.1.11"
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */
