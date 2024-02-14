@@ -3,8 +3,8 @@
 builddir = $(shell pwd)
 destdir = $(builddir)/debian/bitgesell
 
-CC  = gcc-8
-CXX = g++-8
+CC  = gcc-9
+CXX = g++-9
 
 .PHONY: distrib download-distrib unpack-distrib berkeleydb libevent miniupnpc
 

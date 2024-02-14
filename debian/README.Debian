@@ -1,5 +1,5 @@
 To create the Debian package installable on multiple systems including
-Ubunutu 18.04, run:
+Ubuntu 20.04, run:
 
 ./debian/build-in-docker.sh
 
