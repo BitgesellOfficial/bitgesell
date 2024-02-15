@@ -74,7 +74,7 @@ class NULLDUMMYTest(BGLTestFramework):
         cms = self.nodes[0].createmultisig(1, [self.pubkey.hex()])
         wms = self.nodes[0].createmultisig(1, [self.pubkey.hex()], 'p2sh-segwit')
         self.ms_address = cms["address"]
-        ms_unlock_details = {"scriptPubKey": address_to_scriptpubkey(self.ms_address).hex(),
+        ms_unlock_details = {"scriptPubKey": self.nodes[0].validateaddress(self.ms_address)["scriptPubKey"],
                              "redeemScript": cms["redeemScript"]}
         self.wit_ms_address = wms['address']
 
