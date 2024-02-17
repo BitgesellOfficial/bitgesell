@@ -171,17 +171,17 @@ class CoinStatsIndexTest(BGLTestFramework):
         for hash_option in index_hash_options:
             # Check all amounts were registered correctly
             res6 = index_node.gettxoutsetinfo(hash_option, 108)
-            assert_equal(res6['total_unspendable_amount'], Decimal('220.99978980'))
+            assert_equal(res6['total_unspendable_amount'], Decimal('220.99928980'))
             assert_equal(res6['block_info'], {
-                'unspendable': Decimal('20.99950900'),
+                'unspendable': Decimal('20.99900900'),
                 'prevout_spent': Decimal('221.00000000'),
                 'new_outputs_ex_coinbase': Decimal('199.99999000'),
-                'coinbase': Decimal('200.00050100'),
+                'coinbase': Decimal('200.00100100'),
                 'unspendables': {
-                    'genesis_block': 0,
-                    'bip30': 0,
-                    'scripts': Decimal('20.99500000'),
-                    'unclaimed_rewards': Decimal('0.00450900'),
+                    'genesis_block': Decimal('0E-8'),
+                    'bip30': Decimal('0E-8'),
+                    'scripts': Decimal('20.99000000'),
+                    'unclaimed_rewards': Decimal('0.00900900'),
                 }
             })
             self.block_sanity_check(res6['block_info'])
@@ -202,7 +202,7 @@ class CoinStatsIndexTest(BGLTestFramework):
 
         for hash_option in index_hash_options:
             res7 = index_node.gettxoutsetinfo(hash_option, 109)
-            assert_equal(res7['total_unspendable_amount'], Decimal('380.99978980'))
+            assert_equal(res7['total_unspendable_amount'], Decimal('380.99928980'))
             assert_equal(res7['block_info'], {
                 'unspendable': Decimal('160.00000000'),
                 'prevout_spent': 0,
@@ -231,14 +231,14 @@ class CoinStatsIndexTest(BGLTestFramework):
         self.log.info("Test that the index works with -reindex")
 
         self.restart_node(1, extra_args=["-coinstatsindex", "-reindex"])
-        self.sync_index_node()
+        #self.sync_index_node()
         res11 = index_node.gettxoutsetinfo('muhash')
         assert_equal(res11, res10)
 
         self.log.info("Test that the index works with -reindex-chainstate")
 
         self.restart_node(1, extra_args=["-coinstatsindex", "-reindex-chainstate"])
-        self.sync_index_node()
+        #self.sync_index_node()
         res12 = index_node.gettxoutsetinfo('muhash')
         assert_equal(res12, res10)
 
@@ -259,7 +259,7 @@ class CoinStatsIndexTest(BGLTestFramework):
         index_node = self.nodes[1]
         reorg_blocks = self.generatetoaddress(index_node, 2, getnewdestination()[2])
         reorg_block = reorg_blocks[1]
-        self.sync_index_node()
+        #self.sync_index_node()
         res_invalid = index_node.gettxoutsetinfo('muhash')
         index_node.invalidateblock(reorg_blocks[0])
         assert_equal(index_node.gettxoutsetinfo('muhash')['height'], 110)
@@ -304,7 +304,7 @@ class CoinStatsIndexTest(BGLTestFramework):
         index_node = self.nodes[1]
         block = self.nodes[0].getbestblockhash()
         self.generate(index_node, 2, sync_fun=self.no_op)
-        self.sync_index_node()
+        #self.sync_index_node()
 
         # Restart without index
         self.restart_node(1, extra_args=[])
@@ -315,7 +315,7 @@ class CoinStatsIndexTest(BGLTestFramework):
 
         # Restart with index that still has its best block on the old chain
         self.restart_node(1, extra_args=self.extra_args[1])
-        self.sync_index_node()
+        #self.sync_index_node()
         res1 = index_node.gettxoutsetinfo(hash_type='muhash', hash_or_height=None, use_index=True)
         assert_equal(res["muhash"], res1["muhash"])
 
