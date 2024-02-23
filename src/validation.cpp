@@ -3631,7 +3631,7 @@ std::vector<unsigned char> ChainstateManager::GenerateCoinbaseCommitment(CBlock&
 
 bool nBitsNotIn(uint32_t nBits) {
     // These numbers are computed from UintToArith256(params.powLimit).GetCompact() for each chain
-	if (nBits == 553705471 || nBits == 521142271 || nBits == 503543726) {
+	if (nBits == 553705471 || nBits == 521142271 || nBits == 503543726 || nBits == 545259519) {
 		return false;
 	}
 	return true;
