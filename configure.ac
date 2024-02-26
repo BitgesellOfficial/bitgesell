@@ -1164,90 +1164,143 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
  [ AC_MSG_RESULT([no])]
 )
 
-AC_ARG_ENABLE(tests,
-    AS_HELP_STRING([--enable-tests],[compile tests [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_tests], [yes], [yes])])
+AC_MSG_CHECKING([for sysctl])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
+  #include <sys/sysctl.h>]],
+ [[ #ifdef __linux__
+    #error "Don't use sysctl on Linux, it's deprecated even when it works"
+    #endif
+    sysctl(nullptr, 2, nullptr, nullptr, nullptr, 0); ]])],
+ [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_SYSCTL], [1], [Define this symbol if the BSD sysctl() is available]) ],
+ [ AC_MSG_RESULT([no])]
+)
 
-AC_ARG_ENABLE(ctime_tests,
-    AS_HELP_STRING([--enable-ctime-tests],[compile constant-time tests [default=yes if valgrind enabled]]), [],
-    [SECP_SET_DEFAULT([enable_ctime_tests], [auto], [auto])])
+AC_MSG_CHECKING([for sysctl KERN_ARND])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
+  #include <sys/sysctl.h>]],
+ [[ #ifdef __linux__
+    #error "Don't use sysctl on Linux, it's deprecated even when it works"
+    #endif
+    static int name[2] = {CTL_KERN, KERN_ARND};
+    sysctl(name, 2, nullptr, nullptr, nullptr, 0); ]])],
+ [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_SYSCTL_ARND], [1], [Define this symbol if the BSD sysctl(KERN_ARND) is available]) ],
+ [ AC_MSG_RESULT([no])]
+)
 
-AC_ARG_ENABLE(experimental,
-    AS_HELP_STRING([--enable-experimental],[allow experimental configure options [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_experimental], [no], [yes])])
+AC_MSG_CHECKING([for fdatasync])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <unistd.h>]],
+ [[ fdatasync(0); ]])],
+ [ AC_MSG_RESULT([yes]); HAVE_FDATASYNC=1 ],
+ [ AC_MSG_RESULT([no]); HAVE_FDATASYNC=0 ]
+)
+AC_DEFINE_UNQUOTED([HAVE_FDATASYNC], [$HAVE_FDATASYNC], [Define to 1 if fdatasync is available.])
 
-AC_ARG_ENABLE(exhaustive_tests,
-    AS_HELP_STRING([--enable-exhaustive-tests],[compile exhaustive tests [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_exhaustive_tests], [yes], [yes])])
+AC_MSG_CHECKING([for F_FULLFSYNC])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <fcntl.h>]],
+ [[ fcntl(0, F_FULLFSYNC, 0); ]])],
+ [ AC_MSG_RESULT([yes]); HAVE_FULLFSYNC=1 ],
+ [ AC_MSG_RESULT([no]); HAVE_FULLFSYNC=0 ]
+)
 
-AC_ARG_ENABLE(examples,
-    AS_HELP_STRING([--enable-examples],[compile the examples [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_examples], [no], [yes])])
+AC_MSG_CHECKING([for O_CLOEXEC])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <fcntl.h>]],
+ [[ open("", O_CLOEXEC); ]])],
+ [ AC_MSG_RESULT([yes]); HAVE_O_CLOEXEC=1 ],
+ [ AC_MSG_RESULT([no]); HAVE_O_CLOEXEC=0 ]
+)
+AC_DEFINE_UNQUOTED([HAVE_O_CLOEXEC], [$HAVE_O_CLOEXEC], [Define to 1 if O_CLOEXEC flag is available.])
 
-AC_ARG_ENABLE(module_ecdh,
-    AS_HELP_STRING([--enable-module-ecdh],[enable ECDH module [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_module_ecdh], [yes], [yes])])
+dnl crc32c platform checks
+AC_MSG_CHECKING([for __builtin_prefetch])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[ ]], [[
+  char data = 0;
+  const char* address = &data;
+  __builtin_prefetch(address, 0, 0);
+  ]])],
+ [ AC_MSG_RESULT([yes]); HAVE_BUILTIN_PREFETCH=1 ],
+ [ AC_MSG_RESULT([no]); HAVE_BUILTIN_PREFETCH=0 ]
+)
 
-AC_ARG_ENABLE(module_recovery,
-    AS_HELP_STRING([--enable-module-recovery],[enable ECDSA pubkey recovery module [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_module_recovery], [no], [yes])])
+AC_MSG_CHECKING([for _mm_prefetch])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <xmmintrin.h>]], [[
+  char data = 0;
+  const char* address = &data;
+  _mm_prefetch(address, _MM_HINT_NTA);
+  ]])],
+ [ AC_MSG_RESULT([yes]); HAVE_MM_PREFETCH=1 ],
+ [ AC_MSG_RESULT([no]); HAVE_MM_PREFETCH=0 ]
+)
 
-AC_ARG_ENABLE(module_extrakeys,
-    AS_HELP_STRING([--enable-module-extrakeys],[enable extrakeys module [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_module_extrakeys], [yes], [yes])])
+AC_MSG_CHECKING([for strong getauxval support in the system headers])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <sys/auxv.h>
+  ]], [[
+    getauxval(AT_HWCAP);
+  ]])],
+ [ AC_MSG_RESULT([yes]); HAVE_STRONG_GETAUXVAL=1; AC_DEFINE([HAVE_STRONG_GETAUXVAL], [1], [Define this symbol to build code that uses getauxval)]) ],
+ [ AC_MSG_RESULT([no]); HAVE_STRONG_GETAUXVAL=0 ]
+)
 
-AC_ARG_ENABLE(module_schnorrsig,
-    AS_HELP_STRING([--enable-module-schnorrsig],[enable schnorrsig module [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_module_schnorrsig], [yes], [yes])])
+have_any_system=no
+AC_MSG_CHECKING([for std::system])
+AC_LINK_IFELSE(
+    [ AC_LANG_PROGRAM(
+        [[ #include <cstdlib> ]],
+        [[ int nErr = std::system(""); ]]
+    )],
+    [ AC_MSG_RESULT([yes]); have_any_system=yes],
+    [ AC_MSG_RESULT([no]) ]
+)
 
-AC_ARG_ENABLE(module_ellswift,
-    AS_HELP_STRING([--enable-module-ellswift],[enable ElligatorSwift module [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_module_ellswift], [yes], [yes])])
+AC_MSG_CHECKING([for ::_wsystem])
+AC_LINK_IFELSE(
+    [ AC_LANG_PROGRAM(
+        [[ #include <stdlib.h> ]],
+        [[ int nErr = ::_wsystem(NULL); ]]
+    )],
+    [ AC_MSG_RESULT([yes]); have_any_system=yes],
+    [ AC_MSG_RESULT([no]) ]
+)
 
-AC_ARG_ENABLE(external_default_callbacks,
-    AS_HELP_STRING([--enable-external-default-callbacks],[enable external default callback functions [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_external_default_callbacks], [no], [no])])
+if test "$have_any_system" != "no"; then
+  AC_DEFINE([HAVE_SYSTEM], [1], [Define to 1 if std::system or ::wsystem is available.])
+fi
 
-# Test-only override of the (autodetected by the C code) "widemul" setting.
-# Legal values are:
-#  * int64 (for [u]int64_t),
-#  * int128 (for [unsigned] __int128),
-#  * int128_struct (for int128 implemented as a structure),
-#  *  and auto (the default).
-AC_ARG_WITH([test-override-wide-multiply], [] ,[set_widemul=$withval], [set_widemul=auto])
+dnl SUPPRESSED_CPPFLAGS=SUPPRESS_WARNINGS([$SOME_CPPFLAGS])
+dnl Replace -I with -isystem in $SOME_CPPFLAGS to suppress warnings from
+dnl headers from its include directories and return the result.
+dnl See -isystem documentation:
+dnl https://gcc.gnu.org/onlinedocs/gcc/Directory-Options.html
+dnl https://clang.llvm.org/docs/ClangCommandLineReference.html#cmdoption-clang-isystem-directory
+dnl Do not change "-I/usr/include" to "-isystem /usr/include" because that
+dnl is not necessary (/usr/include is already a system directory) and because
+dnl it would break GCC's #include_next.
+AC_DEFUN([SUPPRESS_WARNINGS],
+         [[$(echo $1 |${SED} -E -e 's/(^| )-I/\1-isystem /g' -e 's;-isystem /usr/include/*( |$);-I/usr/include\1;g')]])
 
-AC_ARG_WITH([asm], [AS_HELP_STRING([--with-asm=x86_64|arm32|no|auto],
-[assembly to use (experimental: arm32) [default=auto]])],[req_asm=$withval], [req_asm=auto])
+dnl enable-fuzz should disable all other targets
+if test "$enable_fuzz" = "yes"; then
+  AC_MSG_WARN([enable-fuzz will disable all other targets and force --enable-fuzz-binary=yes])
+  build_BGL_utils=no
+  build_BGL_cli=no
+  build_BGL_tx=no
+  build_BGL_util=no
+  build_BGL_chainstate=no
+  build_BGL_wallet=no
+  build_BGLd=no
+  build_BGL_libs=no
+  BGL_enable_qt=no
+  BGL_enable_qt_test=no
+  BGL_enable_qt_dbus=no
+  use_bench=no
+  use_tests=no
+  use_external_signer=no
+  use_upnp=no
+  use_natpmp=no
+  use_zmq=no
+  enable_fuzz_binary=yes
 
-AC_ARG_WITH([ecmult-window], [AS_HELP_STRING([--with-ecmult-window=SIZE|auto],
-[window size for ecmult precomputation for verification, specified as integer in range [2..24].]
-[Larger values result in possibly better performance at the cost of an exponentially larger precomputed table.]
-[The table will store 2^(SIZE-1) * 64 bytes of data but can be larger in memory due to platform-specific padding and alignment.]
-[A window size larger than 15 will require you delete the prebuilt precomputed_ecmult.c file so that it can be rebuilt.]
-[For very large window sizes, use "make -j 1" to reduce memory use during compilation.]
-["auto" is a reasonable setting for desktop machines (currently 15). [default=auto]]
-)],
-[req_ecmult_window=$withval], [req_ecmult_window=auto])
-
-AC_ARG_WITH([ecmult-gen-precision], [AS_HELP_STRING([--with-ecmult-gen-precision=2|4|8|auto],
-[Precision bits to tune the precomputed table size for signing.]
-[The size of the table is 32kB for 2 bits, 64kB for 4 bits, 512kB for 8 bits of precision.]
-[A larger table size usually results in possible faster signing.]
-["auto" is a reasonable setting for desktop machines (currently 4). [default=auto]]
-)],
-[req_ecmult_gen_precision=$withval], [req_ecmult_gen_precision=auto])
-
-AC_ARG_WITH([valgrind], [AS_HELP_STRING([--with-valgrind=yes|no|auto],
-[Build with extra checks for running inside Valgrind [default=auto]]
-)],
-[req_valgrind=$withval], [req_valgrind=auto])
-
-###
-### Handle config options (except for modules)
-###
-
-if test x"$req_valgrind" = x"no"; then
-  enable_valgrind=no
+  AX_CHECK_PREPROC_FLAG([-DABORT_ON_FAILED_ASSUME], [DEBUG_CPPFLAGS="$DEBUG_CPPFLAGS -DABORT_ON_FAILED_ASSUME"], [], [$CXXFLAG_WERROR])
 else
   BGL_QT_INIT
 
