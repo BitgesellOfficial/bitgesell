@@ -226,7 +226,7 @@ AC_DEFUN([BGL_QT_CONFIGURE],[
   BGL_QT_PATH_PROGS([LUPDATE], [lupdate-qt5 lupdate5 lupdate],$qt_bin_path, yes)
   BGL_QT_PATH_PROGS([LCONVERT], [lconvert-qt5 lconvert5 lconvert], $qt_bin_path, yes)
 
-  MOC_DEFS='-DHAVE_CONFIG_H -I$(srcdir)'
+  MOC_DEFS='-I$(srcdir)'
   case $host in
     *darwin*)
      BGL_QT_CHECK([
