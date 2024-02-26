@@ -14,9 +14,7 @@
 #include <QDialog>
 #include <QString>
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h> /* for USE_QRCODE */
-#endif
+#include <config/BGL-config.h> // IWYU pragma: keep
 
 ReceiveRequestDialog::ReceiveRequestDialog(QWidget *parent) :
     QDialog(parent, GUIUtil::dialog_flags),

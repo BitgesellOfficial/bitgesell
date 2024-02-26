@@ -6,9 +6,7 @@
 #ifndef BGL_QT_BGLGUI_H
 #define BGL_QT_BGLGUI_H
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
+#include <config/BGL-config.h> // IWYU pragma: keep
 
 #include <qt/BGLunits.h>
 #include <qt/clientmodel.h>

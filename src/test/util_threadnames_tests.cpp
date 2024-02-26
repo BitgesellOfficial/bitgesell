@@ -11,9 +11,7 @@
 #include <thread>
 #include <vector>
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
+#include <config/BGL-config.h> // IWYU pragma: keep
 
 #include <boost/test/unit_test.hpp>
 
