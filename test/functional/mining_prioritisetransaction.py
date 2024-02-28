@@ -13,6 +13,7 @@ from test_framework.messages import (
 )
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
+    assert_not_equal,
     assert_equal,
     assert_raises_rpc_error,
     create_lots_of_big_transactions,
@@ -300,7 +301,7 @@ class PrioritiseTransactionTest(BGLTestFramework):
         self.nodes[0].setmocktime(mock_time+10)
         new_template = self.nodes[0].getblocktemplate({'rules': ['segwit']})
 
-        assert template != new_template
+        assert_not_equal(template, new_template)
 
 if __name__ == '__main__':
     PrioritiseTransactionTest(__file__).main()
