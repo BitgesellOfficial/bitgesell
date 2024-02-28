@@ -982,6 +982,7 @@ void BGLGUI::gotoLoadPSBT(bool from_clipboard)
 
 void BGLGUI::updateNetworkState()
 {
+    if (!clientModel) return;
     int count = clientModel->getNumConnections();
     QString icon;
     switch(count)
