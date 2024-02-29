@@ -98,7 +98,7 @@ class InvalidBlockRequestTest(BGLTestFramework):
 
         self.log.info("Test very broken block.")
 
-        block3 = create_block(tip, create_coinbase(height, nValue=100), block_time)
+        block3 = create_block(tip, create_coinbase(height, nValue=500), block_time) # 100BTC would not make the block invalid for Bitgesell because of Genesis of 400 BGL. We, therefore, chose 500 BGL
         block_time += 1
         block3.solve()
 
