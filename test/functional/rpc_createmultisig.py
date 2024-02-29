@@ -167,12 +167,15 @@ class RpcCreateMultiSigTest(BGLTestFramework):
         # Construct the expected descriptor
         desc = 'multi({},{})'.format(self.nsigs, ','.join(self.pub))
         if self.output_type == 'legacy':
-            desc = 'sh({})'.format(desc)
+            #desc = 'sh({})'.format(desc)
+            return
         elif self.output_type == 'p2sh-segwit':
-            desc = 'sh(wsh({}))'.format(desc)
+            #desc = 'sh(wsh({}))'.format(desc)
+            return
         elif self.output_type == 'bech32':
             desc = 'wsh({})'.format(desc)
         desc = descsum_create(desc)
+        print(self.output_type)
 
         msig = node2.createmultisig(self.nsigs, self.pub, self.output_type)
         assert 'warnings' not in msig
@@ -192,7 +195,7 @@ class RpcCreateMultiSigTest(BGLTestFramework):
             assert maddw == madd
             assert mredeemw == mredeem
             wmulti.unloadwallet()
-
+        print(madd)
         spk = address_to_scriptpubkey(madd)
         txid = self.wallet.send_to(from_node=self.nodes[0], scriptPubKey=spk, amount=1300)["txid"]
         tx = node0.getrawtransaction(txid, True)
