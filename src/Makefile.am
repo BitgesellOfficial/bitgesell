@@ -49,8 +49,6 @@ LIBBGL_WALLET_TOOL=libBGL_wallet_tool.a
 endif
 
 LIBBGL_CRYPTO = $(LIBBGL_CRYPTO_BASE)
-LIBBGL_CRYPTO_SSE4 = crypto/libBGL_crypto_sse4.la
-LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_SSE4)
 if ENABLE_SSE41
 LIBBGL_CRYPTO_SSE41 = crypto/libBGL_crypto_sse41.la
 LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_SSE41)
@@ -582,6 +580,7 @@ crypto_libBGL_crypto_base_la_SOURCES = \
   crypto/sha1.h \
   crypto/sha256.cpp \
   crypto/sha256.h \
+  crypto/sha256_sse4.cpp \
   crypto/sha3.cpp \
   crypto/sha3.h \
   crypto/sha512.cpp \
@@ -590,13 +589,6 @@ crypto_libBGL_crypto_base_la_SOURCES = \
   crypto/siphash.h \
   crypto/sha3/sha3.c \
   crypto/sha3/sha3.h
-
-# See explanation for -static in crypto_libbitcoin_crypto_base_la's LDFLAGS and
-# CXXFLAGS above
-crypto_libBGL_crypto_sse4_la_LDFLAGS = $(AM_LDFLAGS) -static
-crypto_libBGL_crypto_sse4_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -static
-crypto_libBGL_crypto_sse4_la_CPPFLAGS = $(AM_CPPFLAGS)
-crypto_libBGL_crypto_sse4_la_SOURCES = crypto/sha256_sse4.cpp
 
 # See explanation for -static in crypto_libbitcoin_crypto_base_la's LDFLAGS and
 # CXXFLAGS above
