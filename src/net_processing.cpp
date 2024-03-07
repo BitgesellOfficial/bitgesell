@@ -23,6 +23,7 @@
 #include <netbase.h>
 #include <netmessagemaker.h>
 #include <node/blockstorage.h>
+#include <node/timeoffsets.h>
 #include <node/txreconciliation.h>
 #include <policy/fees.h>
 #include <policy/policy.h>
@@ -751,6 +752,8 @@ private:
 
     /** Next time to check for stale tip */
     std::chrono::seconds m_stale_tip_check_time GUARDED_BY(cs_main){0s};
+
+    TimeOffsets m_outbound_time_offsets;
 
     const Options m_opts;
 
@@ -3680,8 +3683,9 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
 
         peer->m_time_offset = NodeSeconds{std::chrono::seconds{nTime}} - Now<NodeSeconds>();
         if (!pfrom.IsInboundConn()) {
-            // Don't use timedata samples from inbound peers to make it
+            // Don't use time offset samples from inbound peers to make it
             // harder for others to create false warnings about our clock being out of sync.
+            AddTimeData(pfrom.addr, Ticks<std::chrono::seconds>(peer->m_time_offset.load()));
             m_outbound_time_offsets.Add(peer->m_time_offset);
             m_outbound_time_offsets.WarnIfOutOfSync();
         }
