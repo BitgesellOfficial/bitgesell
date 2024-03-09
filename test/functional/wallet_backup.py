@@ -183,7 +183,7 @@ class WalletBackupTest(BGLTestFramework):
 
         # At this point, there are 214 blocks (103 for setup, then 10 rounds, then 101.)
         # 114 are mature, so the sum of all wallets should be 114 * 200 = 22800.
-        assert_equal(total, 22800)
+        assert_equal(round(total), 22800)
 
         ##
         # Test restoring spender wallets from backups

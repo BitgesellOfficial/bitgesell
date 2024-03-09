@@ -156,13 +156,14 @@ class ProxyTest(BGLTestFramework):
 
         if test_onion:
             addr = "BGLostk4e4re.onion:8333"
+            addr = "35k2va6vyw4oo5ly2quvcszgdqr56kcnfgcqpnpcffut4jn3mhhwgbid.onion:18333"
             self.log.debug("Test: outgoing onion connection through node for address {}".format(addr))
             node.addnode(addr, "onetry")
             cmd = proxies[2].queue.get()
             assert isinstance(cmd, Socks5Command)
             assert_equal(cmd.atyp, AddressType.DOMAINNAME)
-            assert_equal(cmd.addr, b"BGLostk4e4re.onion")
-            assert_equal(cmd.port, 8333)
+            assert_equal(cmd.addr, b"35k2va6vyw4oo5ly2quvcszgdqr56kcnfgcqpnpcffut4jn3mhhwgbid.onion")
+            assert_equal(cmd.port, 18333)
             if not auth:
                 assert_equal(cmd.username, None)
                 assert_equal(cmd.password, None)

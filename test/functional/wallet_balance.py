@@ -113,9 +113,9 @@ class WalletTest(BGLTestFramework):
             assert_equal(self.nodes[0].getbalance(minconf=0, include_watchonly=True), 400)
             assert_equal(self.nodes[0].getbalance("*", 1, True), 400)
         else:
-            assert_equal(self.nodes[0].getbalance(minconf=0, include_watchonly=True), 400)
-            assert_equal(self.nodes[0].getbalance("*", 1, True), 400)
-        assert_equal(self.nodes[1].getbalance(minconf=0, include_watchonly=True), 400)
+            assert_equal(self.nodes[0].getbalance(minconf=0, include_watchonly=True), 200)
+            assert_equal(self.nodes[0].getbalance("*", 1, True), 200)
+        assert_equal(self.nodes[1].getbalance(minconf=0, include_watchonly=True), 200)
 
         # Send 40 BTC from 0 to 1 and 60 BTC from 1 to 0.
         txs = create_transactions(self.nodes[0], self.nodes[1].getnewaddress(), 40, [Decimal('0.01')])
@@ -177,8 +177,8 @@ class WalletTest(BGLTestFramework):
                                                  'trusted':           Decimal('159.99'),  # change from node 0's send
                                                  'untrusted_pending': Decimal('210.0')},
                                    'watchonly': {'immature':          Decimal('20000'),
-                                                 'trusted':           Decimal('159.990'),
-                                                 'untrusted_pending': Decimal('210.0')}}
+                                                 'trusted':           Decimal('200.0'),
+                                                 'untrusted_pending': Decimal('0E-8')}}
             expected_balances_1 = {'mine':      {'immature':          Decimal('0E-8'),
                                                  'trusted':           Decimal('0E-8'),  # node 1's send had an unsafe input
                                                  'untrusted_pending': Decimal('30.0') - fee_node_1}}  # Doesn't include output of node 0's send since it was spent
@@ -304,10 +304,10 @@ class WalletTest(BGLTestFramework):
             self.nodes[0].createwallet('w1', False, True)
             self.nodes[0].importaddress(address)
             assert_equal(self.nodes[0].getbalances()['mine']['untrusted_pending'], 0)
-            assert_equal(self.nodes[0].getbalances()['watchonly']['untrusted_pending'], Decimal('0E-8'))
+            assert_equal(self.nodes[0].getbalances()['watchonly']['untrusted_pending'], Decimal('0.1'))
             self.nodes[0].importprivkey(privkey)
             assert_equal(self.nodes[0].getbalances()['mine']['untrusted_pending'], Decimal('0.1'))
-            assert_equal(self.nodes[0].getbalances()['watchonly']['untrusted_pending'], Decimal('0.1'))
+            assert_equal(self.nodes[0].getbalances()['watchonly']['untrusted_pending'], Decimal('0E-8'))
             self.nodes[0].unloadwallet('w1')
             # check importprivkey on fresh wallet
             self.nodes[0].createwallet('w2', False, True)

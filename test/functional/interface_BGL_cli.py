@@ -19,9 +19,9 @@ import time
 
 # The block reward of coinbaseoutput.nValue (200) BGL/block matures after
 # COINBASE_MATURITY (100) blocks. Therefore, after mining 101 blocks we expect
-# node 0 to have a balance of (BLOCKS - COINBASE_MATURITY) * 50 BTC/block.
+# node 0 to have a balance of (BLOCKS - COINBASE_MATURITY) * 200 BLG/block.
 BLOCKS = COINBASE_MATURITY + 1
-BALANCE = (BLOCKS - 100) * 50
+BALANCE = (BLOCKS - 100) * 200
 
 JSON_PARSING_ERROR = 'error: Error parsing JSON: foo'
 BLOCKS_VALUE_OF_ZERO = 'error: the first argument (number of blocks to generate, default: 1) must be an integer value greater than zero'

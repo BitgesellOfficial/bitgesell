@@ -112,7 +112,7 @@ class TransactionTimeRescanTest(BGLTestFramework):
         assert_equal(minernode.getblockcount(), initial_mine + 500)
 
         self.log.info('Check user\'s final balance and transaction count')
-        assert_equal(wo_wallet.getbalance(), 32)
+        assert_equal(wo_wallet.getbalance(), 16)
         assert_equal(len(wo_wallet.listtransactions()), 3)
 
         self.log.info('Check transaction times')
@@ -155,7 +155,7 @@ class TransactionTimeRescanTest(BGLTestFramework):
         restorewo_wallet.rescanblockchain()
 
         self.log.info('Check user\'s final balance and transaction count after restoration')
-        assert_equal(restorewo_wallet.getbalance(), 32)
+        assert_equal(restorewo_wallet.getbalance(), 16)
         assert_equal(len(restorewo_wallet.listtransactions()), 3)
 
         self.log.info('Check transaction times after restoration')
@@ -202,7 +202,7 @@ class TransactionTimeRescanTest(BGLTestFramework):
             encrypted_wallet.sethdseed(seed=hd_seed)
 
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as thread:
-                with minernode.assert_debug_log(expected_msgs=["Rescan started from block 0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206... (slow variant inspecting all blocks)"], timeout=5):
+                with minernode.assert_debug_log(expected_msgs=["Rescan started from block 2e14eaec9745ec9690602feddf650eb6e436d32a3ae8453cf6a90ef1d53a6c42... (slow variant inspecting all blocks)"], timeout=5):
                     rescanning = thread.submit(encrypted_wallet.rescanblockchain)
 
                 # set the passphrase timeout to 1 to test that the wallet remains unlocked during the rescan

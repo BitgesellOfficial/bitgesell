@@ -422,11 +422,11 @@ def get_temp_default_datadir(temp_dir: pathlib.Path) -> Tuple[dict, pathlib.Path
     temp_dir, as well as the complete path it would return."""
     if sys.platform == "win32":
         env = dict(APPDATA=str(temp_dir))
-        datadir = temp_dir / "Bitcoin"
+        datadir = temp_dir / "BGL"
     else:
         env = dict(HOME=str(temp_dir))
         if sys.platform == "darwin":
-            datadir = temp_dir / "Library/Application Support/Bitcoin"
+            datadir = temp_dir / "Library/Application Support/BGL"
         else:
             datadir = temp_dir / ".BGL"
     return env, datadir
@@ -504,12 +504,12 @@ def find_output(node, txid, amount, *, blockhash=None):
 
 # Create large OP_RETURN txouts that can be appended to a transaction
 # to make it large (helper for constructing large transactions). The
-# total serialized size of the txouts is about 66k vbytes.
+# total serialized size of the txouts is about 6k vbytes.
 def gen_return_txouts():
     from .messages import CTxOut
     from .script import CScript, OP_RETURN
-    txouts = [CTxOut(nValue=0, scriptPubKey=CScript([OP_RETURN, b'\x01'*67437]))]
-    assert_equal(sum([len(txout.serialize()) for txout in txouts]), 67456)
+    txouts = [CTxOut(nValue=0, scriptPubKey=CScript([OP_RETURN, b'\x01'*6743]))]
+    assert_equal(sum([len(txout.serialize()) for txout in txouts]), 6758)
     return txouts
 
 
@@ -531,11 +531,10 @@ def create_lots_of_big_transactions(mini_wallet, node, fee, tx_batch_size, txout
 
 
 def mine_large_block(test_framework, mini_wallet, node):
-    # generate a 66k transaction,
-    # and 14 of them is close to the 1MB block limit
+    # generate a large block with 16 transactions close to the 400kB block limit
     txouts = gen_return_txouts()
     fee = 100 * node.getnetworkinfo()["relayfee"]
-    create_lots_of_big_transactions(mini_wallet, node, fee, 14, txouts)
+    create_lots_of_big_transactions(mini_wallet, node, fee, 16, txouts)
     test_framework.generate(node, 1)
 
 

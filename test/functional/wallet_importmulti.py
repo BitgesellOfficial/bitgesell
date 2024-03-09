@@ -578,8 +578,8 @@ class ImportMultiTest(BGLTestFramework):
 
         # Test ranged descriptor fails if range is not specified
         xpriv = "tprv8ZgxMBicQKsPeuVhWwi6wuMQGfPKi9Li5GtX35jVNknACgqe3CY4g5xgkfDDJcmtF7o1QnxWDRYw4H5P26PXq7sbcUkEqeR4fg3Kxp2tigg"
-        addresses = ["2N7yv4p8G8yEaPddJxY41kPihnWvs39qCMf", "2MsHxyb2JS3pAySeNUsJ7mNnurtpeenDzLA"] # hdkeypath=m/0'/0'/0' and 1'
-        addresses += ["bcrt1qrd3n235cj2czsfmsuvqqpr3lu6lg0ju7scl8gn", "bcrt1qfqeppuvj0ww98r6qghmdkj70tv8qpchehegrg8"] # wpkh subscripts corresponding to the above addresses
+        addresses = ["MNdrJxcCUdaezMGfPHRUx5yqtsK9FyJXV1", "M7wuDjWEmiAFaAHiucfay543yFCvpH2FCd"] # hdkeypath=m/0'/0'/0' and 1'
+        addresses += ["rbgl1qrd3n235cj2czsfmsuvqqpr3lu6lg0ju7f8j03e", "rbgl1qfqeppuvj0ww98r6qghmdkj70tv8qpchewx9t3d"] # wpkh subscripts corresponding to the above addresses
         desc = "sh(wpkh(" + xpriv + "/0'/0'/*'" + "))"
         self.log.info("Ranged descriptor import should fail without a specified range")
         self.test_importmulti({"desc": descsum_create(desc),
@@ -617,7 +617,7 @@ class ImportMultiTest(BGLTestFramework):
 
         # Test importing a descriptor containing a WIF private key
         wif_priv = "cTe1f5rdT8A8DFgVWTjyPwACsDPJM9ff4QngFxUixCSvvbg1x6sh"
-        address = "2MuhcG52uHPknxDgmGPsV18jSHFBnnRgjPg"
+        address = "MAMYWDWqd46sYwL7h9ExCpzaPba53HhMh8"
         desc = "sh(wpkh(" + wif_priv + "))"
         self.log.info("Should import a descriptor with a WIF private key as spendable")
         self.test_importmulti({"desc": descsum_create(desc),
@@ -748,7 +748,7 @@ class ImportMultiTest(BGLTestFramework):
         self.log.info("Bech32m addresses and descriptors cannot be imported")
         self.test_importmulti(
             {
-                "scriptPubKey": {"address": "bcrt1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqc8gma6"},
+                "scriptPubKey": {"address": "rbgl1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vq9wa0mr"},
                 "timestamp": "now",
             },
             success=False,
@@ -859,11 +859,11 @@ class ImportMultiTest(BGLTestFramework):
         assert_equal(wrpc.getwalletinfo()["private_keys_enabled"], False)
         xpub = "tpubDAXcJ7s7ZwicqjprRaEWdPoHKrCS215qxGYxpusRLLmJuT69ZSicuGdSfyvyKpvUNYBW1s2U3NSrT6vrCYB9e6nZUEvrqnwXPF8ArTCRXMY"
         addresses = [
-            'bcrt1qtmp74ayg7p24uslctssvjm06q5phz4yrxucgnv', # m/0'/0'/0
-            'bcrt1q8vprchan07gzagd5e6v9wd7azyucksq2xc76k8', # m/0'/0'/1
-            'bcrt1qtuqdtha7zmqgcrr26n2rqxztv5y8rafjp9lulu', # m/0'/0'/2
-            'bcrt1qau64272ymawq26t90md6an0ps99qkrse58m640', # m/0'/0'/3
-            'bcrt1qsg97266hrh6cpmutqen8s4s962aryy77jp0fg0', # m/0'/0'/4
+            'rbgl1qtmp74ayg7p24uslctssvjm06q5phz4yrlr4q2x', # m/0'/0'/0
+            'rbgl1q8vprchan07gzagd5e6v9wd7azyucksq2l8nj0d', # m/0'/0'/1
+            'rbgl1qtuqdtha7zmqgcrr26n2rqxztv5y8rafjc6j5xk', # m/0'/0'/2
+            'rbgl1qau64272ymawq26t90md6an0ps99qkrsedckjv9', # m/0'/0'/3
+            'rbgl1qsg97266hrh6cpmutqen8s4s962aryy77t7zp39', # m/0'/0'/4
         ]
         result = wrpc.importmulti(
             [{

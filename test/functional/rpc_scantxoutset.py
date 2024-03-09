@@ -44,18 +44,18 @@ class ScantxoutsetTest(BGLTestFramework):
         self.sendtodestination(spk_BECH32, 0.004)
 
         #send to child keys of tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK
-        self.sendtodestination("mkHV1C6JLheLoUSSZYk7x3FH5tnx9bu7yc", 0.008)  # (m/0'/0'/0')
-        self.sendtodestination("mipUSRmJAj2KrjSvsPQtnP8ynUon7FhpCR", 0.016)  # (m/0'/0'/1')
-        self.sendtodestination("n37dAGe6Mq1HGM9t4b6rFEEsDGq7Fcgfqg", 0.032)  # (m/0'/0'/1500')
-        self.sendtodestination("mqS9Rpg8nNLAzxFExsgFLCnzHBsoQ3PRM6", 0.064)  # (m/0'/0'/0)
-        self.sendtodestination("mnTg5gVWr3rbhHaKjJv7EEEc76ZqHgSj4S", 0.128)  # (m/0'/0'/1)
-        self.sendtodestination("mketCd6B9U9Uee1iCsppDJJBHfvi6U6ukC", 0.256)  # (m/0'/0'/1500)
-        self.sendtodestination("mj8zFzrbBcdaWXowCQ1oPZ4qioBVzLzAp7", 0.512)  # (m/1/1/0')
-        self.sendtodestination("mfnKpKQEftniaoE1iXuMMePQU3PUpcNisA", 1.024)  # (m/1/1/1')
-        self.sendtodestination("mou6cB1kaP1nNJM1sryW6YRwnd4shTbXYQ", 2.048)  # (m/1/1/1500')
-        self.sendtodestination("mtfUoUax9L4tzXARpw1oTGxWyoogp52KhJ", 4.096)  # (m/1/1/0)
-        self.sendtodestination("mxp7w7j8S1Aq6L8StS2PqVvtt4HGxXEvdy", 8.192)  # (m/1/1/1)
-        self.sendtodestination("mpQ8rokAhp1TAtJQR6F6TaUmjAWkAWYYBq", 16.384)  # (m/1/1/1500)
+        self.sendtodestination("rbgl1qx3x8pd2j82774x9v5jtrt67v6eq0xg33h9wtfn", 0.008)  # (m/0'/0'/0')
+        self.sendtodestination("rbgl1qysufe22kf66mz3jtq33f0d88arruws4ye5egv0", 0.016)  # (m/0'/0'/1')
+        self.sendtodestination("rbgl1qan5n5jj47futj90060396taeegswnhusutx05j", 0.032)  # (m/0'/0'/1500')
+        self.sendtodestination("rbgl1qdny83c9q5x3glq86aa68gevelzqwwu9qhdhxqa", 0.064)  # (m/0'/0'/0)
+        self.sendtodestination("rbgl1qfs4pjvfdkscn82qraqvvwahw0fyd20ykgp4hjd", 0.128)  # (m/0'/0'/1)
+        self.sendtodestination("rbgl1q8pvg59ekgx6lryuysvqf4ljtgyjr8nsl3kl00s", 0.256)  # (m/0'/0'/1500)
+        self.sendtodestination("rbgl1qy7u0mmtl4qz4833p8f43v63m7nqmscls6jgxc8", 0.512)  # (m/1/1/0')
+        self.sendtodestination("rbgl1qqt5rga2600fjzhlvh89p8qy7nyrp9e6807hwha", 1.024)  # (m/1/1/1')
+        self.sendtodestination("rbgl1qt0c33ft6cfw852p6chqvqpkwxvmfl8vnzy02zv", 2.048)  # (m/1/1/1500')
+        self.sendtodestination("rbgl1qjqmxmkpmxt80xz4y3746zgt0q3u3ferrg2ss57", 4.096)  # (m/1/1/0)
+        self.sendtodestination("rbgl1qhku5rq7jz8ulufe2y6fkcpnlvpsta7rqv2cz5w", 8.192)  # (m/1/1/1)
+        self.sendtodestination("rbgl1qv9hs5rhkgcx0ef6f9g26k3k83hmhugjtart6dr", 16.384)  # (m/1/1/1500)
 
         self.generate(self.nodes[0], 1)
 
@@ -112,9 +112,9 @@ class ScantxoutsetTest(BGLTestFramework):
         assert_equal(self.nodes[0].scantxoutset("start", [{"desc": "combo(tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B/1/1/*)", "range": [1500, 1500]}])['total_amount'], Decimal("16.384"))
 
         # Test the reported descriptors for a few matches
-        assert_equal(descriptors(self.nodes[0].scantxoutset("start", [{"desc": "combo(tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK/0h/0h/*)", "range": 1499}])), ["pkh([0c5f9a1e/0h/0h/0]026dbd8b2315f296d36e6b6920b1579ca75569464875c7ebe869b536a7d9503c8c)#rthll0rg", "pkh([0c5f9a1e/0h/0h/1]033e6f25d76c00bedb3a8993c7d5739ee806397f0529b1b31dda31ef890f19a60c)#mcjajulr"])
-        assert_equal(descriptors(self.nodes[0].scantxoutset("start", ["combo(tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK/1/1/0)"])), ["pkh([0c5f9a1e/1/1/0]03e1c5b6e650966971d7e71ef2674f80222752740fc1dfd63bbbd220d2da9bd0fb)#cxmct4w8"])
-        assert_equal(descriptors(self.nodes[0].scantxoutset("start", [{"desc": "combo(tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B/1/1/*)", "range": 1500}])), ['pkh([0c5f9a1e/1/1/0]03e1c5b6e650966971d7e71ef2674f80222752740fc1dfd63bbbd220d2da9bd0fb)#cxmct4w8', 'pkh([0c5f9a1e/1/1/1500]03832901c250025da2aebae2bfb38d5c703a57ab66ad477f9c578bfbcd78abca6f)#vchwd07g', 'pkh([0c5f9a1e/1/1/1]030d820fc9e8211c4169be8530efbc632775d8286167afd178caaf1089b77daba7)#z2t3ypsa'])
+        assert_equal(descriptors(self.nodes[0].scantxoutset("start", [{"desc": "combo(tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK/0h/0h/*)", "range": 1499}])), ['wpkh([0c5f9a1e/0h/0h/0]026dbd8b2315f296d36e6b6920b1579ca75569464875c7ebe869b536a7d9503c8c)#7749nfmx', 'wpkh([0c5f9a1e/0h/0h/1]033e6f25d76c00bedb3a8993c7d5739ee806397f0529b1b31dda31ef890f19a60c)#9rz6d7gh'])
+        assert_equal(descriptors(self.nodes[0].scantxoutset("start", ["combo(tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK/1/1/0)"])), ['wpkh([0c5f9a1e/1/1/0]03e1c5b6e650966971d7e71ef2674f80222752740fc1dfd63bbbd220d2da9bd0fb)#87kxggfx'])
+        assert_equal(descriptors(self.nodes[0].scantxoutset("start", [{"desc": "combo(tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B/1/1/*)", "range": 1500}])), ['wpkh([0c5f9a1e/1/1/0]03e1c5b6e650966971d7e71ef2674f80222752740fc1dfd63bbbd220d2da9bd0fb)#87kxggfx', 'wpkh([0c5f9a1e/1/1/1500]03832901c250025da2aebae2bfb38d5c703a57ab66ad477f9c578bfbcd78abca6f)#52n9r9yl', 'wpkh([0c5f9a1e/1/1/1]030d820fc9e8211c4169be8530efbc632775d8286167afd178caaf1089b77daba7)#5qr0rhvk'])
 
         # Check that status and abort don't need second arg
         assert_equal(self.nodes[0].scantxoutset("status"), None)

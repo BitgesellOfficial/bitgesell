@@ -98,8 +98,7 @@ class MempoolUpdateFromBlockTest(BGLTestFramework):
             assert_equal(entry['ancestorsize'], sum(tx_size[0:(k + 1)]))
 
     def run_test(self):
-        # Use batch size limited by DEFAULT_ANCESTOR_LIMIT = 25 to not fire "too many unconfirmed parents" error.
-        self.transaction_graph_test(size=100, n_tx_to_mine=[25, 50, 75])
+        self.transaction_graph_test(size=90, n_tx_to_mine=[15, 30, 45, 60, 75])
 
 
 if __name__ == '__main__':

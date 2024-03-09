@@ -153,9 +153,9 @@ class RawTransactionsTest(BGLTestFramework):
     def test_change_position(self):
         """Ensure setting changePosition in fundraw with an exact match is handled properly."""
         self.log.info("Test fundrawtxn changePosition option")
-        rawmatch = self.nodes[2].createrawtransaction([], {self.nodes[2].getnewaddress():50})
+        rawmatch = self.nodes[2].createrawtransaction([], {self.nodes[2].getnewaddress():200})
         rawmatch = self.nodes[2].fundrawtransaction(rawmatch, changePosition=1, subtractFeeFromOutputs=[0])
-        #assert_equal(rawmatch["changepos"], -1) #ChangePosition is returning 1 instead of -1
+        assert_equal(rawmatch["changepos"], -1)
 
         self.nodes[3].createwallet(wallet_name="wwatch", disable_private_keys=True)
         wwatch = self.nodes[3].get_wallet_rpc('wwatch')
@@ -546,7 +546,7 @@ class RawTransactionsTest(BGLTestFramework):
         if not self.options.descriptors:
             wmulti.importaddress(mSigObj)
 
-        # Send 1.2 BTC to msig addr.
+        # Send 1.2 BGL to msig addr.
         self.nodes[0].sendtoaddress(mSigObj, 1.2)
         self.generate(self.nodes[0], 1)
 
@@ -777,7 +777,7 @@ class RawTransactionsTest(BGLTestFramework):
         wwatch.unloadwallet()
 
     def test_option_feerate(self):
-        self.log.info("Test fundrawtxn with explicit fee rates (fee_rate sat/vB and feeRate BTC/kvB)")
+        self.log.info("Test fundrawtxn with explicit fee rates (fee_rate sat/vB and feeRate BGL/kvB)")
         node = self.nodes[3]
         # Make sure there is exactly one input so coin selection can't skew the result.
         assert_equal(len(self.nodes[3].listunspent(1)), 1)
@@ -786,10 +786,10 @@ class RawTransactionsTest(BGLTestFramework):
         rawtx = node.createrawtransaction(inputs, outputs)
 
         result = node.fundrawtransaction(rawtx)  # uses self.min_relay_tx_fee (set by settxfee)
-        btc_kvb_to_sat_vb = 100000  # (1e5)
-        result1 = node.fundrawtransaction(rawtx, fee_rate=str(2 * btc_kvb_to_sat_vb * self.min_relay_tx_fee))
+        BGL_kvb_to_sat_vb = 100000  # (1e5)
+        result1 = node.fundrawtransaction(rawtx, fee_rate=str(2 * BGL_kvb_to_sat_vb * self.min_relay_tx_fee))
         result2 = node.fundrawtransaction(rawtx, feeRate=2 * self.min_relay_tx_fee)
-        result3 = node.fundrawtransaction(rawtx, fee_rate=10 * btc_kvb_to_sat_vb * self.min_relay_tx_fee)
+        result3 = node.fundrawtransaction(rawtx, fee_rate=10 * BGL_kvb_to_sat_vb * self.min_relay_tx_fee)
         result4 = node.fundrawtransaction(rawtx, feeRate=str(10 * self.min_relay_tx_fee))
 
         result_fee_rate = result['fee'] * 1000 / count_bytes(result['hex'])
@@ -890,7 +890,7 @@ class RawTransactionsTest(BGLTestFramework):
         outputs = {self.nodes[2].getnewaddress(): 1}
         rawtx = self.nodes[3].createrawtransaction(inputs, outputs)
 
-        # Test subtract fee from outputs with feeRate (BTC/kvB)
+        # Test subtract fee from outputs with feeRate (BGL/kvB)
         result = [self.nodes[3].fundrawtransaction(rawtx),  # uses self.min_relay_tx_fee (set by settxfee)
             self.nodes[3].fundrawtransaction(rawtx, subtractFeeFromOutputs=[]),  # empty subtraction list
             self.nodes[3].fundrawtransaction(rawtx, subtractFeeFromOutputs=[0]),  # uses self.min_relay_tx_fee (set by settxfee)
@@ -910,12 +910,12 @@ class RawTransactionsTest(BGLTestFramework):
         assert_equal(change[3] + result[3]['fee'], change[4])
 
         # Test subtract fee from outputs with fee_rate (sat/vB)
-        btc_kvb_to_sat_vb = 100000  # (1e5)
+        BGL_kvb_to_sat_vb = 100000  # (1e5)
         result = [self.nodes[3].fundrawtransaction(rawtx),  # uses self.min_relay_tx_fee (set by settxfee)
             self.nodes[3].fundrawtransaction(rawtx, subtractFeeFromOutputs=[]),  # empty subtraction list
             self.nodes[3].fundrawtransaction(rawtx, subtractFeeFromOutputs=[0]),  # uses self.min_relay_tx_fee (set by settxfee)
-            self.nodes[3].fundrawtransaction(rawtx, fee_rate=2 * btc_kvb_to_sat_vb * self.min_relay_tx_fee),
-            self.nodes[3].fundrawtransaction(rawtx, fee_rate=2 * btc_kvb_to_sat_vb * self.min_relay_tx_fee, subtractFeeFromOutputs=[0]),]
+            self.nodes[3].fundrawtransaction(rawtx, fee_rate=2 * BGL_kvb_to_sat_vb * self.min_relay_tx_fee),
+            self.nodes[3].fundrawtransaction(rawtx, fee_rate=2 * BGL_kvb_to_sat_vb * self.min_relay_tx_fee, subtractFeeFromOutputs=[0]),]
         dec_tx = [self.nodes[3].decoderawtransaction(tx_['hex']) for tx_ in result]
         output = [d['vout'][1 - r['changepos']]['value'] for d, r in zip(dec_tx, result)]
         change = [d['vout'][r['changepos']]['value'] for d, r in zip(dec_tx, result)]
@@ -982,7 +982,7 @@ class RawTransactionsTest(BGLTestFramework):
         self.nodes[0].sendrawtransaction(signedtx['hex'])
 
     def test_transaction_too_large(self):
-        self.log.info("Test fundrawtx where BnB solution would result in a too large transaction, but Knapsack would not")
+        self.log.info("Test too large transaction")
         self.nodes[0].createwallet("large")
         wallet = self.nodes[0].get_wallet_rpc(self.default_wallet_name)
         recipient = self.nodes[0].get_wallet_rpc("large")
@@ -1404,7 +1404,7 @@ class RawTransactionsTest(BGLTestFramework):
         # If rounding up, then the calculated fee will be 126 + 78 = 204.
         # In the former case, the calculated needed fee is higher than the actual fee being paid, so an assertion is reached
         # To test this does not happen, we subtract 202 sats from the input value. If working correctly, this should
-        # fail with insufficient funds rather than bitcoind asserting.
+        # fail with insufficient funds rather than BGLd asserting.
         rawtx = w.createrawtransaction(inputs=[], outputs=[{self.nodes[0].getnewaddress(address_type="bech32"): 1 - 0.00000202}])
         assert_raises_rpc_error(-4, "Insufficient funds", w.fundrawtransaction, rawtx, fee_rate=1.85)
 
