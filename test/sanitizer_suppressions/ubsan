@@ -78,3 +78,4 @@ shift-base:streams.h
 shift-base:FormatHDKeypath
 shift-base:XoRoShiRo128PlusPlus::operator()
 shift-base:RandomMixin<*>::randbits
+shift-base:RandomMixin<*>::randbits<*>
