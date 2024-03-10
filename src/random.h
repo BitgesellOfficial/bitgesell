@@ -153,6 +153,8 @@ template<typename T>
 concept RandomNumberGenerator = requires(T& rng, Span<std::byte> s) {
     // A random number generator must provide rand64().
     { rng.rand64() } noexcept -> std::same_as<uint64_t>;
+    // A random number generator must provide randfill(Span<std::byte>).
+    { rng.fillrand(s) } noexcept;
     // A random number generator must derive from RandomMixin, which adds other rand* functions.
     requires std::derived_from<std::remove_reference_t<T>, RandomMixin<std::remove_reference_t<T>>>;
 };
@@ -170,17 +172,19 @@ template<typename T>
 class RandomMixin
 {
 private:
-    bool requires_seed;
-    ChaCha20 rng;
-
     uint64_t bitbuf;
-    int bitbuf_size;
+    int bitbuf_size{0};
 
-    void RandomSeed() noexcept;
+    /** Access the underlying generator.
+     *
+     * This also enforces the RandomNumberGenerator concept. We cannot declare that in the template
+     * (no template<RandomNumberGenerator T>) because the type isn't fully instantiated yet there.
+     */
+    RandomNumberGenerator auto& Impl() noexcept { return static_cast<T&>(*this); }
 
     void FillBitBuffer() noexcept
     {
-        bitbuf = rand64();
+        bitbuf = Impl().rand64();
         bitbuf_size = 64;
     }
 
@@ -193,7 +197,6 @@ public:
 
     RandomMixin(RandomMixin&& other) noexcept : bitbuf(other.bitbuf), bitbuf_size(other.bitbuf_size)
     {
-        other.bitbuf = 0;
         other.bitbuf_size = 0;
     }
 
@@ -201,7 +204,6 @@ public:
     {
         bitbuf = other.bitbuf;
         bitbuf_size = other.bitbuf_size;
-        other.bitbuf = 0;
         other.bitbuf_size = 0;
         return *this;
     }
@@ -209,13 +211,13 @@ public:
     /** Generate a random (bits)-bit integer. */
     uint64_t randbits(int bits) noexcept
     {
-        Assume(bits <= 64);
-        // Requests for the full 64 bits are passed through.
-        if (bits == 64) return Impl().rand64();
-        uint64_t ret;
-        if (bits <= bitbuf_size) {
-            // If there is enough entropy left in bitbuf, return its bottom bits bits.
-            ret = bitbuf;
+        if (bits == 0) {
+            return 0;
+        } else if (bits > 32) {
+            return Impl().rand64() >> (64 - bits);
+        } else {
+            if (bitbuf_size < bits) FillBitBuffer();
+            uint64_t ret = bitbuf & (~uint64_t{0} >> (64 - bits));
             bitbuf >>= bits;
             bitbuf_size -= bits;
         } else {
@@ -273,9 +275,6 @@ public:
         return ret;
     }
 
-    /** Fill a byte Span with random bytes. */
-    void fillrand(Span<std::byte> output) noexcept;
-
     /** Generate a random 32-bit integer. */
     uint32_t rand32() noexcept { return Impl().randbits(32); }
 
@@ -329,7 +328,6 @@ private:
     void RandomSeed() noexcept;
 
 public:
-    /** Construct a FastRandomContext with GetRandHash()-based entropy (or zero key if fDeterministic). */
     explicit FastRandomContext(bool fDeterministic = false) noexcept;
 
     /** Initialize with explicit seed (only for testing) */
@@ -352,59 +350,8 @@ public:
         return ReadLE64(UCharCast(buf.data()));
     }
 
-    /** Fill a byte Span with random bytes. This overrides the RandomMixin version. */
+    /** Fill a byte Span with random bytes. */
     void fillrand(Span<std::byte> output) noexcept;
-};
-
-/** xoroshiro128++ PRNG. Extremely fast, not appropriate for cryptographic purposes.
- *
- * Memory footprint is 128bit, period is 2^128 - 1.
- * This class is not thread-safe.
- *
- * Reference implementation available at https://prng.di.unimi.it/xoroshiro128plusplus.c
- * See https://prng.di.unimi.it/
- */
-class XoRoShiRo128PlusPlus
-{
-    uint64_t m_s0;
-    uint64_t m_s1;
-
-    [[nodiscard]] constexpr static uint64_t SplitMix64(uint64_t& seedval) noexcept
-    {
-        uint64_t z = (seedval += 0x9e3779b97f4a7c15);
-        z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9;
-        z = (z ^ (z >> 27)) * 0x94d049bb133111eb;
-        return z ^ (z >> 31);
-    }
-
-public:
-    using result_type = uint64_t;
-
-    constexpr explicit XoRoShiRo128PlusPlus(uint64_t seedval) noexcept
-        : m_s0(SplitMix64(seedval)), m_s1(SplitMix64(seedval)) {}
-
-    // no copy - that is dangerous, we don't want accidentally copy the RNG and then have two streams
-    // with exactly the same results.
-    XoRoShiRo128PlusPlus(const XoRoShiRo128PlusPlus&) = delete;
-    XoRoShiRo128PlusPlus& operator=(const XoRoShiRo128PlusPlus&) = delete;
-
-    // allow moves
-    XoRoShiRo128PlusPlus(XoRoShiRo128PlusPlus&&) = default;
-    XoRoShiRo128PlusPlus& operator=(XoRoShiRo128PlusPlus&&) = default;
-
-    constexpr result_type operator()() noexcept
-    {
-        uint64_t s0 = m_s0, s1 = m_s1;
-        const uint64_t result = std::rotl(s0 + s1, 17) + s0;
-        s1 ^= s0;
-        m_s0 = std::rotl(s0, 49) ^ s1 ^ (s1 << 21);
-        m_s1 = std::rotl(s1, 28);
-        return result;
-    }
-
-    static constexpr result_type min() noexcept { return std::numeric_limits<result_type>::min(); }
-    static constexpr result_type max() noexcept { return std::numeric_limits<result_type>::max(); }
-    static constexpr double entropy() noexcept { return 0.0; }
 };
 
 /** More efficient than using std::shuffle on a FastRandomContext.
