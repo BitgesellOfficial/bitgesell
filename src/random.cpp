@@ -679,6 +679,13 @@ void RandAddPeriodic() noexcept
 
 void RandAddEvent(const uint32_t event_info) noexcept { GetRNGState().AddEvent(event_info); }
 
+void RandAddPeriodic() noexcept
+{
+    return FastRandomContext().randrange(nMax);
+}
+
+void RandAddEvent(const uint32_t event_info) noexcept { GetRNGState().AddEvent(event_info); }
+
 uint256 GetRandHash() noexcept
 {
     uint256 hash;
