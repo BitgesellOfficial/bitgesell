@@ -63,12 +63,6 @@
  * When mixing in new entropy, H = SHA512(entropy || old_rng_state) is computed, and
  * (up to) the first 32 bytes of H are produced as output, while the last 32 bytes
  * become the new RNG state.
- *
- * During tests, the RNG can be put into a special deterministic mode, in which the output
- * of all RNG functions, with the exception of GetStrongRandBytes(), is replaced with the
- * output of a deterministic RNG. This deterministic RNG does not gather entropy, and is
- * unaffected by RandAddPeriodic() or RandAddEvent(). It produces pseudorandom data that
- * only depends on the seed it was initialized with, possibly until it is reinitialized.
 */
 
 /**
@@ -80,6 +74,42 @@
  * Thread-safe.
  */
 void GetRandBytes(Span<unsigned char> bytes) noexcept;
+/** Generate a uniform random integer in the range [0..range). Precondition: range > 0 */
+uint64_t GetRandInternal(uint64_t nMax) noexcept;
+/** Generate a uniform random integer of type T in the range [0..nMax)
+ *  nMax defaults to std::numeric_limits<T>::max()
+ *  Precondition: nMax > 0, T is an integral type, no larger than uint64_t
+ */
+template<typename T>
+T GetRand(T nMax=std::numeric_limits<T>::max()) noexcept {
+    static_assert(std::is_integral<T>(), "T must be integral");
+    static_assert(std::numeric_limits<T>::max() <= std::numeric_limits<uint64_t>::max(), "GetRand only supports up to uint64_t");
+    return T(GetRandInternal(nMax));
+}
+/** Generate a uniform random duration in the range [0..max). Precondition: max.count() > 0 */
+template <typename D>
+D GetRandomDuration(typename std::common_type<D>::type max) noexcept
+// Having the compiler infer the template argument from the function argument
+// is dangerous, because the desired return value generally has a different
+// type than the function argument. So std::common_type is used to force the
+// call site to specify the type of the return value.
+{
+    assert(max.count() > 0);
+    return D{GetRand(max.count())};
+};
+constexpr auto GetRandMicros = GetRandomDuration<std::chrono::microseconds>;
+constexpr auto GetRandMillis = GetRandomDuration<std::chrono::milliseconds>;
+
+/**
+ * Return a timestamp in the future sampled from an exponential distribution
+ * (https://en.wikipedia.org/wiki/Exponential_distribution). This distribution
+ * is memoryless and should be used for repeated network events (e.g. sending a
+ * certain type of message) to minimize leaking information to observers.
+ *
+ * The probability of an event occurring before time x is 1 - e^-(x/a) where a
+ * is the average interval between events.
+ * */
+std::chrono::microseconds GetExponentialRand(std::chrono::microseconds now, std::chrono::seconds average_interval);
 
 uint256 GetRandHash() noexcept;
 
@@ -117,19 +147,11 @@ template<typename T>
 concept RandomNumberGenerator = requires(T& rng, Span<std::byte> s) {
     // A random number generator must provide rand64().
     { rng.rand64() } noexcept -> std::same_as<uint64_t>;
+    // A random number generator must provide randfill(Span<std::byte>).
+    { rng.fillrand(s) } noexcept;
     // A random number generator must derive from RandomMixin, which adds other rand* functions.
     requires std::derived_from<std::remove_reference_t<T>, RandomMixin<std::remove_reference_t<T>>>;
 };
-
-/** A concept for C++ std::chrono durations. */
-template<typename T>
-concept StdChronoDuration = requires {
-    []<class Rep, class Period>(std::type_identity<std::chrono::duration<Rep, Period>>){}(
-        std::type_identity<T>());
-};
-
-/** Given a uniformly random uint64_t, return an exponentially distributed double with mean 1. */
-double MakeExponentiallyDistributed(uint64_t uniform) noexcept;
 
 /** Mixin class that provides helper randomness functions.
  *
@@ -201,71 +223,18 @@ public:
         return ret & ((uint64_t{1} << bits) - 1);
     }
 
-    /** Same as above, but with compile-time fixed bits count. */
-    template<int Bits>
-    uint64_t randbits() noexcept
+    /** Generate a random integer in the range [0..range).
+     * Precondition: range > 0.
+     */
+    uint64_t randrange(uint64_t range) noexcept
     {
-        static_assert(Bits >= 0 && Bits <= 64);
-        if constexpr (Bits == 64) {
-            return Impl().rand64();
-        } else {
-            uint64_t ret;
-            if (Bits <= bitbuf_size) {
-                ret = bitbuf;
-                bitbuf >>= Bits;
-                bitbuf_size -= Bits;
-            } else {
-                uint64_t gen = Impl().rand64();
-                ret = (gen << bitbuf_size) | bitbuf;
-                bitbuf = gen >> (Bits - bitbuf_size);
-                bitbuf_size = 64 + bitbuf_size - Bits;
-            }
-            constexpr uint64_t MASK = (uint64_t{1} << Bits) - 1;
-            return ret & MASK;
-        }
-    }
-
-    /** Generate a random integer in the range [0..range), with range > 0. */
-    template<std::integral I>
-    I randrange(I range) noexcept
-    {
-        static_assert(std::numeric_limits<I>::max() <= std::numeric_limits<uint64_t>::max());
-        Assume(range > 0);
-        uint64_t maxval = range - 1U;
-        int bits = std::bit_width(maxval);
+        assert(range);
+        --range;
+        int bits = std::bit_width(range);
         while (true) {
             uint64_t ret = Impl().randbits(bits);
-            if (ret <= maxval) return ret;
+            if (ret <= range) return ret;
         }
-    }
-
-    /** Fill a Span with random bytes. */
-    void fillrand(Span<std::byte> span) noexcept
-    {
-        while (span.size() >= 8) {
-            uint64_t gen = Impl().rand64();
-            WriteLE64(UCharCast(span.data()), gen);
-            span = span.subspan(8);
-        }
-        if (span.size() >= 4) {
-            uint32_t gen = Impl().rand32();
-            WriteLE32(UCharCast(span.data()), gen);
-            span = span.subspan(4);
-        }
-        while (span.size()) {
-            span[0] = std::byte(Impl().template randbits<8>());
-            span = span.subspan(1);
-        }
-    }
-
-    /** Generate a random integer in its entire (non-negative) range. */
-    template<std::integral I>
-    I rand() noexcept
-    {
-        static_assert(std::numeric_limits<I>::max() <= std::numeric_limits<uint64_t>::max());
-        static constexpr auto BITS = std::bit_width(uint64_t(std::numeric_limits<I>::max()));
-        static_assert(std::numeric_limits<I>::max() == std::numeric_limits<uint64_t>::max() >> (64 - BITS));
-        return I(Impl().template randbits<BITS>());
     }
 
     /** Generate random bytes. */
@@ -278,7 +247,7 @@ public:
     }
 
     /** Generate a random 32-bit integer. */
-    uint32_t rand32() noexcept { return Impl().template randbits<32>(); }
+    uint32_t rand32() noexcept { return Impl().randbits(32); }
 
     /** generate a random uint256. */
     uint256 rand256() noexcept
@@ -289,7 +258,7 @@ public:
     }
 
     /** Generate a random boolean. */
-    bool randbool() noexcept { return Impl().template randbits<1>(); }
+    bool randbool() noexcept { return Impl().randbits(1); }
 
     /** Return the time point advanced by a uniform random duration. */
     template <typename Tp>
@@ -299,7 +268,7 @@ public:
     }
 
     /** Generate a uniform random duration in the range from 0 (inclusive) to range (exclusive). */
-    template <typename Chrono> requires StdChronoDuration<typename Chrono::duration>
+    template <typename Chrono>
     typename Chrono::duration rand_uniform_duration(typename Chrono::duration range) noexcept
     {
         using Dur = typename Chrono::duration;
@@ -307,34 +276,6 @@ public:
                range.count() < 0 ? /* interval (range..0] */ -Dur{Impl().randrange(-range.count())} :
                                    /* interval [0..0] */ Dur{0};
     };
-
-    /** Generate a uniform random duration in the range [0..max). Precondition: max.count() > 0 */
-    template <StdChronoDuration Dur>
-    Dur randrange(typename std::common_type_t<Dur> range) noexcept
-    // Having the compiler infer the template argument from the function argument
-    // is dangerous, because the desired return value generally has a different
-    // type than the function argument. So std::common_type is used to force the
-    // call site to specify the type of the return value.
-    {
-        return Dur{Impl().randrange(range.count())};
-    }
-
-    /**
-     * Return a duration sampled from an exponential distribution
-     * (https://en.wikipedia.org/wiki/Exponential_distribution). Successive events
-     * whose intervals are distributed according to this form a memoryless Poisson
-     * process. This should be used for repeated network events (e.g. sending a
-     * certain type of message) to minimize leaking information to observers.
-     *
-     * The probability of an event occurring before time x is 1 - e^-(x/a) where a
-     * is the average interval between events.
-     * */
-    std::chrono::microseconds rand_exp_duration(std::chrono::microseconds mean) noexcept
-    {
-        using namespace std::chrono_literals;
-        auto unscaled = MakeExponentiallyDistributed(Impl().rand64());
-        return std::chrono::duration_cast<std::chrono::microseconds>(unscaled * mean + 0.5us);
-    }
 
     // Compatibility with the UniformRandomBitGenerator concept
     typedef uint64_t result_type;
@@ -358,7 +299,6 @@ private:
     void RandomSeed() noexcept;
 
 public:
-    /** Construct a FastRandomContext with GetRandHash()-based entropy (or zero key if fDeterministic). */
     explicit FastRandomContext(bool fDeterministic = false) noexcept;
 
     /** Initialize with explicit seed (only for testing) */
@@ -381,53 +321,8 @@ public:
         return ReadLE64(UCharCast(buf.data()));
     }
 
-    /** Fill a byte Span with random bytes. This overrides the RandomMixin version. */
+    /** Fill a byte Span with random bytes. */
     void fillrand(Span<std::byte> output) noexcept;
-};
-
-/** xoroshiro128++ PRNG. Extremely fast, not appropriate for cryptographic purposes.
- *
- * Memory footprint is very small, period is 2^128 - 1.
- * This class is not thread-safe.
- *
- * Reference implementation available at https://prng.di.unimi.it/xoroshiro128plusplus.c
- * See https://prng.di.unimi.it/
- */
-class InsecureRandomContext : public RandomMixin<InsecureRandomContext>
-{
-    uint64_t m_s0;
-    uint64_t m_s1;
-
-    [[nodiscard]] constexpr static uint64_t SplitMix64(uint64_t& seedval) noexcept
-    {
-        uint64_t z = (seedval += 0x9e3779b97f4a7c15);
-        z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9;
-        z = (z ^ (z >> 27)) * 0x94d049bb133111eb;
-        return z ^ (z >> 31);
-    }
-
-public:
-    constexpr explicit InsecureRandomContext(uint64_t seedval) noexcept
-        : m_s0(SplitMix64(seedval)), m_s1(SplitMix64(seedval)) {}
-
-    // no copy - that is dangerous, we don't want accidentally copy the RNG and then have two streams
-    // with exactly the same results.
-    InsecureRandomContext(const InsecureRandomContext&) = delete;
-    InsecureRandomContext& operator=(const InsecureRandomContext&) = delete;
-
-    // allow moves
-    InsecureRandomContext(InsecureRandomContext&&) = default;
-    InsecureRandomContext& operator=(InsecureRandomContext&&) = default;
-
-    constexpr uint64_t rand64() noexcept
-    {
-        uint64_t s0 = m_s0, s1 = m_s1;
-        const uint64_t result = std::rotl(s0 + s1, 17) + s0;
-        s1 ^= s0;
-        m_s0 = std::rotl(s0, 49) ^ s1 ^ (s1 << 21);
-        m_s1 = std::rotl(s1, 28);
-        return result;
-    }
 };
 
 /** More efficient than using std::shuffle on a FastRandomContext.
