@@ -153,6 +153,13 @@ concept RandomNumberGenerator = requires(T& rng, Span<std::byte> s) {
     requires std::derived_from<std::remove_reference_t<T>, RandomMixin<std::remove_reference_t<T>>>;
 };
 
+/** A concept for C++ std::chrono durations. */
+template<typename T>
+concept StdChronoDuration = requires {
+    []<class Rep, class Period>(std::type_identity<std::chrono::duration<Rep, Period>>){}(
+        std::type_identity<T>());
+};
+
 /** Mixin class that provides helper randomness functions.
  *
  * Intended to be used through CRTP: https://en.cppreference.com/w/cpp/language/crtp.
@@ -315,10 +322,24 @@ public:
     }
 
     /** Generate a uniform random duration in the range from 0 (inclusive) to range (exclusive). */
-    template <typename Chrono>
+    template <typename Chrono> requires StdChronoDuration<typename Chrono::duration>
+    typename Chrono::duration rand_uniform_duration(typename Chrono::duration range) noexcept
+    {
+        using Dur = typename Chrono::duration;
         return range.count() > 0 ? /* interval [0..range) */ Dur{Impl().randrange(range.count())} :
                                    /* interval [0..0] */ Dur{0};
     };
+
+    /** Generate a uniform random duration in the range [0..max). Precondition: max.count() > 0 */
+    template <StdChronoDuration Dur>
+    Dur randrange(typename std::common_type_t<Dur> range) noexcept
+    // Having the compiler infer the template argument from the function argument
+    // is dangerous, because the desired return value generally has a different
+    // type than the function argument. So std::common_type is used to force the
+    // call site to specify the type of the return value.
+    {
+        return Dur{Impl().randrange(range.count())};
+    }
 
     // Compatibility with the UniformRandomBitGenerator concept
     typedef uint64_t result_type;
@@ -447,7 +468,17 @@ void Shuffle(I first, I last, R&& rng)
     }
 }
 
-/* ============================= MISCELLANEOUS TEST-ONLY FUNCTIONS ============================= */
+/* Number of random bytes returned by GetOSRand.
+ * When changing this constant make sure to change all call sites, and make
+ * sure that the underlying OS APIs for all platforms support the number.
+ * (many cap out at 256 bytes).
+ */
+static const int NUM_OS_RANDOM_BYTES = 32;
+
+/** Get 32 bytes of system entropy. Do not use this in application code: use
+ * GetStrongRandBytes instead.
+ */
+void GetOSRand(unsigned char* ent32);
 
 /** Check that OS randomness is available and returning the requested number
  * of bytes.
