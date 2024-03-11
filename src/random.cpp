@@ -776,6 +776,5 @@ void RandomInit()
 
 double MakeExponentiallyDistributed(uint64_t uniform) noexcept
 {
-    double unscaled = -std::log1p(FastRandomContext().randbits<48>() * -0.0000000000000035527136788 /* -1/2^48 */);
-    return now + std::chrono::duration_cast<std::chrono::microseconds>(unscaled * average_interval + 0.5us);
+    return -std::log1p((uniform >> 16) * -0.0000000000000035527136788 /* -1/2^48 */);
 }
