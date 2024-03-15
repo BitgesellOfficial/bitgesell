@@ -594,11 +594,11 @@ class ImportMultiTest(BGLTestFramework):
                                "timestamp": "now",
                                "range": 1},
                               success=True)
-        #for address in addresses:
-        #    test_address(self.nodes[1],
-        #                 address,
-        #                 solvable=True,
-        #                 ismine=True)
+        for address in addresses:
+            test_address(self.nodes[1],
+                         address,
+                         solvable=True,
+                         ismine=True)
 
         self.test_importmulti({"desc": descsum_create(desc), "timestamp": "now", "range": -1},
                               success=False, error_code=-8, error_message='End of range is too high')
