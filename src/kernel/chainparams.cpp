@@ -183,7 +183,7 @@ public:
         chainTxData = ChainTxData{
             // Data from RPC: getchaintxstats 4096 000000000000000000026811d149d4d261995ec5b3f64f439a0a10e1a464af9a
             .nTime    = 1704194835,
-            .nTxCount = 946728933,
+            .tx_count = 946728933,
             .dTxRate  = 6.569290261471664,
         };
     }
@@ -273,7 +273,7 @@ public:
             {
                 .height = 2'500'000,
                 .hash_serialized = AssumeutxoHash{uint256S("0xf841584909f68e47897952345234e37fcd9128cd818f41ee6c3ca68db8071be7")},
-                .nChainTx = 66484552,
+                .m_chain_tx_count = 66484552,
                 .blockhash = uint256S("0x0000000000000093bcb68c03a9a168ae252572d348a2eaeba2cdf9231d73206f")
             }
         };
@@ -281,7 +281,7 @@ public:
         chainTxData = ChainTxData{
             // Data from RPC: getchaintxstats 4096 000000000001323071f38f21ea5aae529ece491eadaccce506a59bcc2d968917
             .nTime    = 1703579240,
-            .nTxCount = 67845391,
+            .tx_count = 67845391,
             .dTxRate  = 1.464436832560951,
         };
     }
@@ -310,7 +310,7 @@ public:
             chainTxData = ChainTxData{
                 // Data from RPC: getchaintxstats 4096 0000000870f15246ba23c16e370a7ffb1fc8a3dcf8cb4492882ed4b0e3d4cd26
                 .nTime    = 1706331472,
-                .nTxCount = 2425380,
+                .tx_count = 2425380,
                 .dTxRate  = 0.008277759863833788,
             };
         } else {
@@ -381,7 +381,7 @@ public:
             {
                 .height = 160'000,
                 .hash_serialized = AssumeutxoHash{uint256S("0xfe0a44309b74d6b5883d246cb419c6221bcccf0b308c9b59b7d70783dbdf928a")},
-                .nChainTx = 2289496,
+                .m_chain_tx_count = 2289496,
                 .blockhash = uint256S("0x0000003ca3c99aff040f2563c2ad8f8ec88bd0fd6b8f0895cfaf1ef90353a62c")
             }
         };
@@ -508,7 +508,7 @@ public:
                 // For use by fuzz target src/test/fuzz/utxo_snapshot.cpp
                 .height = 200,
                 .hash_serialized = AssumeutxoHash{uint256S("0x4f34d431c3e482f6b0d67b64609ece3964dc8d7976d02ac68dd7c9c1421738f2")},
-                .nChainTx = 201,
+                .m_chain_tx_count = 201,
                 .blockhash = uint256S("0x5e93653318f294fb5aa339d00bbf8cf1c3515488ad99412c37608b139ea63b27"),
             },
             {
@@ -518,11 +518,6 @@ public:
                 .nChainTx = 334,
                 .blockhash = uint256S("0x1e6b433578be026c430295078d3faca1d757c0aafec3252e385c300b35f3824b")
             },
-        };
-
-
-        chainTxData = ChainTxData{
-            0,
             0,
             0};
 
