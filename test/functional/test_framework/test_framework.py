@@ -738,7 +738,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         # User can provide log level as a number or string (eg DEBUG). loglevel was caught as a string, so try to convert it to an int
         ll = int(self.options.loglevel) if self.options.loglevel.isdigit() else self.options.loglevel.upper()
         ch.setLevel(ll)
-        # Format logs the same as bitcoind's debug.log with microprecision (so log files can be concatenated and sorted)
+        # Format logs the same as BGLd's debug.log with microprecision (so log files can be concatenated and sorted)
         formatter = logging.Formatter(fmt='%(asctime)s.%(msecs)03d000Z %(name)s (%(levelname)s): %(message)s', datefmt='%Y-%m-%dT%H:%M:%S')
         formatter.converter = time.gmtime
         fh.setFormatter(formatter)
@@ -904,7 +904,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             raise SkipTest("BDB has not been compiled.")
 
     def skip_if_no_wallet_tool(self):
-        """Skip the running test if bitcoin-wallet has not been compiled."""
+        """Skip the running test if BGL-wallet has not been compiled."""
         if not self.is_wallet_tool_compiled():
             raise SkipTest("BGL-wallet has not been compiled")
 
@@ -914,7 +914,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             raise SkipTest("BGL-util has not been compiled")
 
     def skip_if_no_cli(self):
-        """Skip the running test if bitcoin-cli has not been compiled."""
+        """Skip the running test if BGL-cli has not been compiled."""
         if not self.is_cli_compiled():
             raise SkipTest("BGL-cli has not been compiled.")
 
@@ -937,7 +937,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             raise SkipTest("external signer support has not been compiled.")
 
     def is_cli_compiled(self):
-        """Checks whether bitcoin-cli was compiled."""
+        """Checks whether BGL-cli was compiled."""
         return self.config["components"].getboolean("ENABLE_CLI")
 
     def is_external_signer_compiled(self):

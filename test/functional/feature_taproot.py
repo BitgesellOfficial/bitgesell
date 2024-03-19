@@ -1738,7 +1738,7 @@ class TaprootTest(BGLTestFramework):
         aux = tx_test.setdefault("auxiliary", {})
         aux['fullySignedTx'] = tx.serialize().hex()
         keypath_tests.append(tx_test)
-        assert_equal(hashlib.sha256(tx.serialize()).hexdigest(), "31bd332c65d7cc5303377b84db007e4d6a27942a52546fb03377496448426d7a")
+        assert_equal(hashlib.sha256(tx.serialize()).hexdigest(), "9edad9338a58341384422264bd17b7597cd22be06a458cb6cae5ed72ecb9fc3f")
         # Mine the spending transaction
         #self.block_submit(self.nodes[0], [tx], "Spending txn", None, sigops_weight=10000, accept=True, witness=True)
 

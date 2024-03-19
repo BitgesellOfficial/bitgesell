@@ -502,7 +502,7 @@ class ImportDescriptorsTest(BGLTestFramework):
         txid2 = w0.sendtoaddress(addr2, 10)
         vout2 = find_vout_for_address(self.nodes[0], txid2, addr2)
 
-        self.generate(self.nodes[0], 6) 
+        self.generate(self.nodes[0], 6)
         assert_equal(wmulti_pub.getbalance(), wmulti_priv.getbalance())
         # Make sure that descriptor wallets containing multiple xpubs in a single descriptor load correctly
         wmulti_pub.unloadwallet()

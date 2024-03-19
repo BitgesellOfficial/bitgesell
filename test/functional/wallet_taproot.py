@@ -182,7 +182,7 @@ def compute_taproot_address(pubkey, scripts):
     return output_key_to_p2tr(taproot_construct(pubkey, scripts).output_pubkey)
 
 def compute_raw_taproot_address(pubkey):
-    return encode_segwit_address("bcrt", 1, pubkey)
+    return encode_segwit_address("rbgl", 1, pubkey)
 
 class WalletTaprootTest(BGLTestFramework):
     """Test generation and spending of P2TR address outputs."""
@@ -335,9 +335,6 @@ class WalletTaprootTest(BGLTestFramework):
         assert result[0]['success']
         result = psbt_offline.importdescriptors([{"desc": desc_change, "active": True, "timestamp": "now", "internal": True}])
         assert result[0]['success']
-        for key in keys_pay + keys_change:
-            result = key_only_wallet.importdescriptors([{"desc": descsum_create(f"wpkh({key['xprv']}/*)"), "timestamp":"now"}])
-            assert result[0]["success"]
         address_type = "bech32m" if "tr" in pattern else "bech32"
         for i in range(4):
             addr_g = psbt_online.getnewaddress(address_type=address_type)

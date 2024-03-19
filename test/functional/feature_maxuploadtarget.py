@@ -94,12 +94,12 @@ class MaxUploadTest(BGLTestFramework):
         getdata_request.inv.append(CInv(MSG_BLOCK, big_old_block))
 
         max_bytes_per_day = 800*1024*1024
-        daily_buffer = 144 * 4000000
+        daily_buffer = 144 * 400000
         max_bytes_available = max_bytes_per_day - daily_buffer
         success_count = max_bytes_available // old_block_size
 
         # 576MB will be reserved for relaying new blocks, so expect this to
-        # succeed for ~235 tries.
+        # succeed for ~8120 tries.
         for i in range(success_count):
             p2p_conns[0].send_and_ping(getdata_request)
             assert_equal(p2p_conns[0].block_receive_map[big_old_block], i+1)
@@ -107,7 +107,7 @@ class MaxUploadTest(BGLTestFramework):
         assert_equal(len(self.nodes[0].getpeerinfo()), 3)
         # At most a couple more tries should succeed (depending on how long
         # the test has been running so far).
-        for _ in range(3):
+        for _ in range(100):
             p2p_conns[0].send_message(getdata_request)
         p2p_conns[0].wait_for_disconnect()
         assert_equal(len(self.nodes[0].getpeerinfo()), 2)

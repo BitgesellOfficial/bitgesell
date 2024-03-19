@@ -526,7 +526,13 @@ class FullBlockTest(BGLTestFramework):
         self.move_tip(39)
         b40 = self.next_block(40, spend=out[12])
         sigops = get_legacy_sigopcount_block(b40)
-        numTxes = (MAX_BLOCK_SIGOPS - sigops) // b39_sigops_per_output
+        # BGL max block weight is ten times smaller than Bitcoin, and even that consensus defines the same
+        # maximum number of SIGOPS in the block, due to signatures and transactions overhead, measured
+        # empirically using bisection, real maximum number of numTxes in sigops test for BGL is ~9 times
+        # less than the Bitcoin. The exact maximum measured is 371 numTxes for the maximum value b39
+        # block size 399784 bytes.
+        BGL_SIGOPS_COEFFICIENT = 9
+        numTxes = int(MAX_BLOCK_SIGOPS - sigops) // (b39_sigops_per_output * BGL_SIGOPS_COEFFICIENT)
         assert_equal(numTxes <= b39_outputs, True)
 
         lastOutpoint = COutPoint(b40.vtx[1].sha256, 0)
@@ -809,7 +815,7 @@ class FullBlockTest(BGLTestFramework):
         self.log.info("Reject a block with a transaction with outputs > inputs")
         self.move_tip(57)
         b59 = self.next_block(59)
-        tx = self.create_and_sign_transaction(out[17], 51 * COIN)
+        tx = self.create_and_sign_transaction(out[17], 201 * COIN)
         b59 = self.update_block(59, [tx])
         self.send_blocks([b59], success=False, reject_reason='bad-txns-in-belowout', reconnect=True)
 

@@ -31,7 +31,7 @@ class ConfArgsTest(BGLTestFramework):
         self.log.info('Test config file parser')
         self.stop_node(0)
 
-        # Check that startup fails if conf= is set in bitcoin.conf or in an included conf file
+        # Check that startup fails if conf= is set in BGL.conf or in an included conf file
         bad_conf_file_path = self.nodes[0].datadir_path / "BGL_bad.conf"
         util.write_config(bad_conf_file_path, n=0, chain='', extra_config=f'conf=some.conf\n')
         conf_in_config_file_err = 'Error: Error reading configuration file: conf cannot be set in the configuration file; use includeconf= if you want to include additional config files'
@@ -123,11 +123,11 @@ class ConfArgsTest(BGLTestFramework):
         self.log.info('Test that correct configuration path is changed when configuration file changes the datadir')
 
         # Create a temporary directory that will be treated as the default data
-        # directory by bitcoind.
+        # directory by BGL.
         env, default_datadir = util.get_temp_default_datadir(pathlib.Path(self.options.tmpdir, "test_config_file_log"))
         default_datadir.mkdir(parents=True)
 
-        # Write a bitcoin.conf file in the default data directory containing a
+        # Write a BGL.conf file in the default data directory containing a
         # datadir= line pointing at the node datadir.
         node = self.nodes[0]
         conf_text = pathlib.Path(node.BGLconf).read_text()
@@ -354,10 +354,10 @@ class ConfArgsTest(BGLTestFramework):
         env, default_datadir = util.get_temp_default_datadir(pathlib.Path(self.options.tmpdir, "home"))
         default_datadir.mkdir(parents=True)
 
-        # Write a bitcoin.conf file in the default data directory containing a
+        # Write a BGL.conf file in the default data directory containing a
         # datadir= line pointing at the node datadir. This will trigger a
         # startup error because the node datadir contains a different
-        # bitcoin.conf that would be ignored.
+        # BGL.conf that would be ignored.
         node = self.nodes[0]
         (default_datadir / "BGL.conf").write_text(f"datadir={node.datadir}\n")
 
@@ -374,7 +374,7 @@ class ConfArgsTest(BGLTestFramework):
 
     def test_acceptstalefeeestimates_arg_support(self):
         self.log.info("Test -acceptstalefeeestimates option support")
-        conf_file = self.nodes[0].datadir_path / "bitcoin.conf"
+        conf_file = self.nodes[0].datadir_path / "BGL.conf"
         for chain, chain_name in {("main", ""), ("test", "testnet3"), ("signet", "signet")}:
             util.write_config(conf_file, n=0, chain=chain_name, extra_config='acceptstalefeeestimates=1\n')
             self.nodes[0].assert_start_raises_init_error(expected_msg=f'Error: acceptstalefeeestimates is not supported on {chain} chain.')
