@@ -58,7 +58,10 @@ static int AppInitUtil(ArgsManager& args, int argc, char* argv[])
             strUsage += FormatParagraph(LicenseInfo());
         } else {
             strUsage += "\n"
-                "Usage:  BGL-util [options] [commands]  Do stuff\n";
+                "The BGL-util tool provides bitgesell related functionality that does not rely on the ability to access a running node. Available [commands] are listed below.\n"
+                "\n"
+                "Usage:  BGL-util [options] [command]\n"
+                "or:     BGL-util [options] grind <hex-block-header>\n";
             strUsage += "\n" + args.GetHelpMessage();
         }
 
