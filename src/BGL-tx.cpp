@@ -113,8 +113,11 @@ static int AppInitRawTx(int argc, char* argv[])
             strUsage += FormatParagraph(LicenseInfo());
         } else {
             strUsage += "\n"
-                "Usage:  BGL-tx [options] <hex-tx> [commands]  Update hex-encoded BGL transaction\n"
-                "or:     BGL-tx [options] -create [commands]   Create hex-encoded BGL transaction\n"
+                "The BGL-tx tool is used for creating and modifying bitgesell transactions.\n\n"
+                "BGL-tx can be used with \"<hex-tx> [commands]\" to update a hex-encoded bitgesell transaction, or with \"-create [commands]\" to create a hex-encoded bitgesell transaction.\n"
+                "\n"
+                "Usage: BGL-tx [options] <hex-tx> [commands]\n"
+                "or:    BGL-tx [options] -create [commands]\n"
                 "\n";
             strUsage += gArgs.GetHelpMessage();
         }
