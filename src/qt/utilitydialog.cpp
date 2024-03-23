@@ -2,11 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-<<<<<<< HEAD
-#include <config/BGL-config.h> // IWYU pragma: keep
-=======
-#include <bitcoin-build-config.h> // IWYU pragma: keep
->>>>>>> 1786be7b4a... scripted-diff: drop config/ subdir for bitcoin-config.h, rename to bitcoin-build-config.h
+#include <BGL-build-config.h> // IWYU pragma: keep
 
 #include <qt/utilitydialog.h>
 
@@ -60,8 +56,11 @@ HelpMessageDialog::HelpMessageDialog(QWidget *parent, bool about) :
         ui->helpMessage->setVisible(false);
     } else {
         setWindowTitle(tr("Command-line options"));
-        QString header = "Usage: BGL-qt [command-line options] [URI]\n\n"
-                         "Optional URI is a Bitcoin address in BIP21 URI format.\n";
+        QString header = "The BGL-qt application provides a graphical interface for interacting with " CLIENT_NAME ".\n\n"
+                         "It combines the core functionalities of BGLd with a user-friendly interface for wallet management, transaction history, and network statistics.\n\n"
+                         "It is suitable for users who prefer a graphical over a command-line interface.\n\n"
+                         "You can optionally specify a payment [URI], in e.g. the BIP21 URI format.\n\n"
+                         "Usage: BGL-qt [options] [URI]\n\n";
         QTextCursor cursor(ui->helpMessage->document());
         cursor.insertText(version);
         cursor.insertBlock();
