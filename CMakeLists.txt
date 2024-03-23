@@ -23,7 +23,7 @@ endif()
 #=============================
 # Project / Package metadata
 #=============================
-set(PACKAGE_NAME "Bitcoin Core")
+set(PACKAGE_NAME "Bitgesell Core")
 set(CLIENT_VERSION_MAJOR 27)
 set(CLIENT_VERSION_MINOR 99)
 set(CLIENT_VERSION_BUILD 0)
@@ -31,10 +31,10 @@ set(CLIENT_VERSION_RC 0)
 set(CLIENT_VERSION_IS_RELEASE "false")
 set(COPYRIGHT_YEAR "2024")
 
-project(BitcoinCore
+project(BGLCore
   VERSION ${CLIENT_VERSION_MAJOR}.${CLIENT_VERSION_MINOR}.${CLIENT_VERSION_BUILD}
-  DESCRIPTION "Bitcoin client software"
-  HOMEPAGE_URL "https://bitcoincore.org/"
+  DESCRIPTION "Bitgesell client software"
+  HOMEPAGE_URL "https://bitgesell.org/"
   LANGUAGES NONE
 )
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -46,7 +46,7 @@ endif()
 
 set(COPYRIGHT_HOLDERS "The %s developers")
 set(COPYRIGHT_HOLDERS_FINAL "The ${PACKAGE_NAME} developers")
-set(PACKAGE_BUGREPORT "https://github.com/bitcoin/bitcoin/issues")
+set(PACKAGE_BUGREPORT "https://github.com/bitgesellofficial/bitgesell/issues")
 
 #=============================
 # Language setup
@@ -63,6 +63,29 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(configure_warnings)
+
+# The core_interface library aims to encapsulate common build flags.
+# It is a usage requirement for all targets except for secp256k1, which
+# gets its flags by other means.
+add_library(core_interface INTERFACE)
+add_library(core_interface_relwithdebinfo INTERFACE)
+add_library(core_interface_debug INTERFACE)
+target_link_libraries(core_interface INTERFACE
+  $<$<CONFIG:RelWithDebInfo>:core_interface_relwithdebinfo>
+  $<$<CONFIG:Debug>:core_interface_debug>
+)
+
+include(cmake/introspection.cmake)
+
+# TODO: The `CMAKE_SKIP_BUILD_RPATH` variable setting can be deleted
+#       in the future after reordering Guix script commands to
+#       perform binary checks after the installation step.
+# Relevant discussions:
+# - https://github.com/hebasto/bitcoin/pull/236#issuecomment-2183120953
+# - https://github.com/bitcoin/bitcoin/pull/30312#issuecomment-2191235833
+set(CMAKE_SKIP_BUILD_RPATH TRUE)
+set(CMAKE_SKIP_INSTALL_RPATH TRUE)
+add_subdirectory(src)
 
 message("\n")
 message("Configure summary")
