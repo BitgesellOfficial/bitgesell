@@ -286,7 +286,7 @@ class MempoolAcceptanceTest(BGLTestFramework):
         _, pubkey = generate_keypair()
         tx.vout[0].scriptPubKey = keys_to_multisig_script([pubkey] * 3, k=2)  # Some bare multisig script (2-of-3)
         self.check_mempool_result(
-            result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'max-fee-exceeded'}],
+            result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'bare-multisig'}],
             rawtxs=[tx.serialize().hex()],
         ) # bare-multisig to max-fee-exceeded. However, should try to find how to get the fee down
         tx = tx_from_hex(raw_tx_reference)
