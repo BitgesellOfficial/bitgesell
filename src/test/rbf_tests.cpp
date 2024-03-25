@@ -420,7 +420,7 @@ BOOST_FIXTURE_TEST_CASE(calc_feerate_diagram_rbf, TestChain100Setup)
     BOOST_CHECK(new_diagram[0] == FeeFrac(0, 0));
     BOOST_CHECK(new_diagram[1] == FeeFrac(high_fee, low_size_2));
 
-    // You can have more than two direct conflicts if the there are multiple effected clusters, all of size 2 or less
+    // You can have more than two direct conflicts if the there are multiple affected clusters, all of size 2 or less
     const auto conflict_1 = make_tx(/*inputs=*/ {m_coinbase_txns[2]}, /*output_values=*/ {10 * COIN});
     pool.addUnchecked(entry.Fee(low_fee).FromTx(conflict_1));
     const auto conflict_1_entry = pool.GetIter(conflict_1->GetHash()).value();
