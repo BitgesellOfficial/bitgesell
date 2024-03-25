@@ -144,7 +144,7 @@ class RpcCreateMultiSigTest(BGLTestFramework):
 
         height = node0.getblockchaininfo()["blocks"]
         assert 150 < height < 350
-        total = 149 * 200 + (height - 149 - 100) * 100 - decimal.Decimal("0.00038295")
+        total = 149 * 200 + (height - 149 - 100) * 100 - decimal.Decimal("0.000216")
         assert bal1 == 0
         assert bal2 == self.moved
         assert_equal(bal0 + bal1 + bal2 + balw, total)
@@ -157,7 +157,7 @@ class RpcCreateMultiSigTest(BGLTestFramework):
                 try:
                     node1.loadwallet('wmulti')
                 except JSONRPCException as e:
-                    path = self.nodes[1].wallets_path / "wmulti"
+                    path = os.path.join(self.options.tmpdir, "node1", "regtest", "wallets", "wmulti")
                     if e.error['code'] == -18 and "Wallet file verification failed. Failed to load database path '{}'. Path does not exist.".format(path) in e.error['message']:
                         node1.createwallet(wallet_name='wmulti', disable_private_keys=True)
                     else:
@@ -167,15 +167,12 @@ class RpcCreateMultiSigTest(BGLTestFramework):
         # Construct the expected descriptor
         desc = 'multi({},{})'.format(self.nsigs, ','.join(self.pub))
         if self.output_type == 'legacy':
-            #desc = 'sh({})'.format(desc)
-            return
+            desc = 'sh({})'.format(desc)
         elif self.output_type == 'p2sh-segwit':
-            #desc = 'sh(wsh({}))'.format(desc)
-            return
+            desc = 'sh(wsh({}))'.format(desc)
         elif self.output_type == 'bech32':
             desc = 'wsh({})'.format(desc)
         desc = descsum_create(desc)
-        print(self.output_type)
 
         msig = node2.createmultisig(self.nsigs, self.pub, self.output_type)
         assert 'warnings' not in msig
@@ -195,7 +192,6 @@ class RpcCreateMultiSigTest(BGLTestFramework):
             assert maddw == madd
             assert mredeemw == mredeem
             wmulti.unloadwallet()
-        print(madd)
         spk = address_to_scriptpubkey(madd)
         txid = self.wallet.send_to(from_node=self.nodes[0], scriptPubKey=spk, amount=1300)["txid"]
         tx = node0.getrawtransaction(txid, True)

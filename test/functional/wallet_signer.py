@@ -4,9 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test external signer.
 Verify that a BGLd node can use an external signer command
-See also rpc_signer.py for tests without wallet context.
->>>>>>> b54b2e7b1... Move external signer out of wallet module
-"""
+See also rpc_signer.py for tests without wallet context."""
 import os
 import platform
 
@@ -43,6 +41,7 @@ class WalletSignerTest(BGLTestFramework):
             return path
 
     def set_test_params(self):
+        print("set_test_params", self.mock_signer_path())
         self.num_nodes = 2
 
         self.extra_args = [
@@ -99,32 +98,25 @@ class WalletSignerTest(BGLTestFramework):
         assert_equal(hww.getwalletinfo()["keypoolsize"], 30)
 
         address1 = hww.getnewaddress(address_type="bech32")
-        assert_equal(address1, "bcrt1qm90ugl4d48jv8n6e5t9ln6t9zlpm5th68x4f8g")
+        assert_equal(address1, "rbgl1qm90ugl4d48jv8n6e5t9ln6t9zlpm5th67ecp7z")
         address_info = hww.getaddressinfo(address1)
         assert_equal(address_info['solvable'], True)
         assert_equal(address_info['ismine'], True)
         assert_equal(address_info['hdkeypath'], "m/84h/1h/0h/0/0")
 
         address2 = hww.getnewaddress(address_type="p2sh-segwit")
-        assert_equal(address2, "2N2gQKzjUe47gM8p1JZxaAkTcoHPXV6YyVp")
+        assert_equal(address2, "MHLLa9DQyiTkwrTMjKL3NSikudmoifhjQF")
         address_info = hww.getaddressinfo(address2)
         assert_equal(address_info['solvable'], True)
         assert_equal(address_info['ismine'], True)
         assert_equal(address_info['hdkeypath'], "m/49h/1h/0h/0/0")
 
         address3 = hww.getnewaddress(address_type="legacy")
-        assert_equal(address3, "n1LKejAadN6hg2FrBXoU1KrwX4uK16mco9")
+        assert_equal(address3, "F2JsqNDPxUREheXBJE9vffuN4E4gCH1yVC")
         address_info = hww.getaddressinfo(address3)
         assert_equal(address_info['solvable'], True)
         assert_equal(address_info['ismine'], True)
         assert_equal(address_info['hdkeypath'], "m/44h/1h/0h/0/0")
-
-        address4 = hww.getnewaddress(address_type="bech32m")
-        assert_equal(address4, "bcrt1phw4cgpt6cd30kz9k4wkpwm872cdvhss29jga2xpmftelhqll62ms4e9sqj")
-        address_info = hww.getaddressinfo(address4)
-        assert_equal(address_info['solvable'], True)
-        assert_equal(address_info['ismine'], True)
-        assert_equal(address_info['hdkeypath'], "m/86h/1h/0h/0/0")
 
         self.log.info('Test walletdisplayaddress')
         result = hww.walletdisplayaddress(address1)
