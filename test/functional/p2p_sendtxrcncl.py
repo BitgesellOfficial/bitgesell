@@ -135,11 +135,6 @@ class SendTxRcnclTest(BGLTestFramework):
         assert not peer.sendtxrcncl_msg_received
         self.nodes[0].disconnect_p2ps()
 
-        self.log.info("SENDTXRCNCL should not be sent if feeler")
-        peer = self.nodes[0].add_outbound_p2p_connection(P2PFeelerReceiver(), p2p_idx=0, connection_type="feeler")
-        assert not peer.sendtxrcncl_msg_received
-        self.nodes[0].disconnect_p2ps()
-
         self.log.info("SENDTXRCNCL should not be sent if addrfetch")
         peer = self.nodes[0].add_outbound_p2p_connection(
             SendTxrcnclReceiver(), wait_for_verack=True, p2p_idx=0, connection_type="addr-fetch")

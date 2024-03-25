@@ -57,9 +57,6 @@ COINBASE_MATURITY = 100
 
 MAX_FUTURE_BLOCK_TIME = 2 * 60 * 60
 
-# Coinbase transaction outputs can only be spent after this number of new blocks (network rule)
-COINBASE_MATURITY = 100
-
 # From BIP141
 WITNESS_COMMITMENT_HEADER = b"\xaa\x21\xa9\xed"
 

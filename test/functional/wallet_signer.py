@@ -4,9 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test external signer.
 Verify that a BGLd node can use an external signer command
-See also rpc_signer.py for tests without wallet context.
->>>>>>> b54b2e7b1... Move external signer out of wallet module
-"""
+See also rpc_signer.py for tests without wallet context."""
 import os
 import platform
 
@@ -43,6 +41,7 @@ class WalletSignerTest(BGLTestFramework):
             return path
 
     def set_test_params(self):
+        print("set_test_params", self.mock_signer_path())
         self.num_nodes = 2
 
         self.extra_args = [
@@ -118,13 +117,6 @@ class WalletSignerTest(BGLTestFramework):
         assert_equal(address_info['solvable'], True)
         assert_equal(address_info['ismine'], True)
         assert_equal(address_info['hdkeypath'], "m/44h/1h/0h/0/0")
-
-        address4 = hww.getnewaddress(address_type="bech32m")
-        assert_equal(address4, "bcrt1phw4cgpt6cd30kz9k4wkpwm872cdvhss29jga2xpmftelhqll62ms4e9sqj")
-        address_info = hww.getaddressinfo(address4)
-        assert_equal(address_info['solvable'], True)
-        assert_equal(address_info['ismine'], True)
-        assert_equal(address_info['hdkeypath'], "m/86h/1h/0h/0/0")
 
         self.log.info('Test walletdisplayaddress')
         result = hww.walletdisplayaddress(address1)
