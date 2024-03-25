@@ -314,7 +314,7 @@ class AssumeutxoTest(BGLTestFramework):
             the snapshot, and final values after the snapshot is validated."""
             for height, block in blocks.items():
                 tx = n1.getblockheader(block.hash)["nTx"]
-                chain_tx = n1.getchaintxstats(nblocks=1, blockhash=block.hash)["txcount"]
+                chain_tx = n1.getchaintxstats(nblocks=1, blockhash=block.hash).get("txcount", None)
 
                 # Intermediate nTx of the starting block should be set, but nTx of
                 # later blocks should be 0 before they are downloaded.
@@ -324,11 +324,11 @@ class AssumeutxoTest(BGLTestFramework):
                     assert_equal(tx, 0)
 
                 # Intermediate nChainTx of the starting block and snapshot block
-                # should be set, but others should be 0 until they are downloaded.
+                # should be set, but others should be None until they are downloaded.
                 if final or height in (START_HEIGHT, SNAPSHOT_BASE_HEIGHT):
                     assert_equal(chain_tx, block.chain_tx)
                 else:
-                    assert_equal(chain_tx, 0)
+                    assert_equal(chain_tx, None)
 
         check_tx_counts(final=False)
 
