@@ -24,7 +24,6 @@ from test_framework.wallet import (
     MiniWallet,
 )
 
-
 class RPCPackagesTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1

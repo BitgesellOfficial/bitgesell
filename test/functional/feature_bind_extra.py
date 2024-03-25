@@ -23,7 +23,6 @@ from test_framework.util import (
     rpc_port,
 )
 
-
 class BindExtraTest(BGLTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True

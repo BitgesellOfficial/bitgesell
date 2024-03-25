@@ -223,6 +223,17 @@ class BlockchainTest(BGLTestFramework):
                 },
                 'active': False
             },
+            'taproot_discarded': {
+                'type': 'bip9',
+                'bip9': {
+                    'status': 'defined',
+                    'start_time': 1621589357,
+                    'timeout': 1623715200,
+                    'since': 0,
+                    'min_activation_height': 0
+                },
+                'active': False
+            },
             'taproot': {
                 'type': 'bip9',
                 'bip9': {

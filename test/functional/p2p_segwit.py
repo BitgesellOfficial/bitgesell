@@ -886,7 +886,7 @@ class SegWitTest(BGLTestFramework):
         # This should give us plenty of room to tweak the spending tx's
         # virtual size.
         NUM_DROPS = 200  # 201 max ops per script!
-        NUM_OUTPUTS = 50
+        NUM_OUTPUTS = 5
 
         witness_script = CScript([OP_2DROP] * NUM_DROPS + [OP_TRUE])
         script_pubkey = script_to_p2wsh_script(witness_script)
@@ -927,8 +927,10 @@ class SegWitTest(BGLTestFramework):
         block.solve()
         assert_equal(block.get_weight(), MAX_BLOCK_WEIGHT + 1)
         # Make sure that our test case would exceed the old max-network-message
-        # limit
-        assert len(block.serialize()) > 2 * 1024 * 1024
+        # limit. For BGL this value is adjusted to MAX_BLOCK_WEIGHT / 2 since the
+        # Segwit is enabled by default and the serialized block size is less than
+        # len(block.get_weight())
+        assert len(block.serialize()) > MAX_BLOCK_WEIGHT / 2
 
         test_witness_block(self.nodes[0], self.test_node, block, accepted=False)
 
@@ -1996,6 +1998,7 @@ class SegWitTest(BGLTestFramework):
             r += struct.pack("<I", tx.nLockTime)
             return r
 
+
         class msg_bogus_tx(msg_tx):
             def serialize(self):
                 return serialize_with_bogus_witness(self.tx)
@@ -2006,6 +2009,11 @@ class SegWitTest(BGLTestFramework):
             self.test_node.send_and_ping(msg_bogus_tx(tx))
         tx.wit.vtxinwit = []  # drop witness
         assert_raises_rpc_error(-22, "TX decode failed", self.nodes[0].decoderawtransaction, hexstring=serialize_with_bogus_witness(tx).hex(), iswitness=True)
+        with self.nodes[0].assert_debug_log(['Superfluous witness record']):
+            self.test_node.send_and_ping(msg_bogus_tx(tx))
+        tx.wit.vtxinwit = []  # drop witness
+        assert_raises_rpc_error(-22, "TX decode failed", self.nodes[0].decoderawtransaction,
+                                hexstring=serialize_with_bogus_witness(tx).hex(), iswitness=True)
         with self.nodes[0].assert_debug_log(['Superfluous witness record']):
             self.test_node.send_and_ping(msg_bogus_tx(tx))
 

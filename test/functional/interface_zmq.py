@@ -38,8 +38,8 @@ try:
 except ImportError:
     pass
 
-def hash256_reversed(byte_str):
-    return hash256(byte_str)[::-1]
+def keccak256_reversed(byte_str):
+    return keccak256(byte_str)[::-1]
 
 def keccak256_reversed(byte_str):
     return keccak256(byte_str)[::-1]
@@ -181,6 +181,7 @@ class ZMQTest (BGLTestFramework):
         return subscribers
 
     def test_basic(self):
+
         # Invalid zmq arguments don't take down the node, see #17185.
         self.restart_node(0, ["-zmqpubrawtx=foo", "-zmqpubhashtx=bar"])
 

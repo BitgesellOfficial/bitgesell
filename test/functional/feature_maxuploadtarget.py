@@ -97,7 +97,6 @@ class MaxUploadTest(BGLTestFramework):
         daily_buffer = 144 * 400000
         max_bytes_available = max_bytes_per_day - daily_buffer
         success_count = max_bytes_available // old_block_size
-
         # 576MB will be reserved for relaying new blocks, so expect this to
         # succeed for ~8120 tries.
         for i in range(success_count):

@@ -3,8 +3,7 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the rawtransaction RPCs.
-
-Test the following RPCs:
+Test the following RPCs:rpc_createmultisig.py
    - getrawtransaction
    - createrawtransaction
    - signrawtransactionwithwallet
@@ -45,12 +44,10 @@ TXID = "1d1d4e24ed99057e84c3f80fd8fbec79ed9e1acee37da269356ecea000000000"
 
 class multidict(dict):
     """Dictionary that allows duplicate keys.
-
     Constructed with a list of (key, value) tuples. When dumped by the json module,
     will output invalid json with repeated keys, eg:
     >>> json.dumps(multidict([(1,2),(1,2)])
     '{"1": 2, "1": 2}'
-
     Used to test calls to rpc methods with repeated keys in the json object."""
 
     def __init__(self, x):

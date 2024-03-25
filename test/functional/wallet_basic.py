@@ -98,10 +98,10 @@ class WalletTest(BGLTestFramework):
         assert_equal(txout['value'], 200)
 
         # Send 21 BGL from 0 to 2 using sendtoaddress call.
-        fees=0
+        fees = 0
         balance=self.nodes[0].getbalance()
         self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 11)
-        fees+= balance - self.nodes[0].getbalance()-11
+        fees += balance - self.nodes[0].getbalance()-11
         balance = self.nodes[0].getbalance()
         mempool_txid = self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 10)
         fees += balance - self.nodes[0].getbalance() - 10
@@ -212,7 +212,7 @@ class WalletTest(BGLTestFramework):
 
         # node0 should end up with 100 BGL in block rewards plus fees, but
         # minus the 21 plus fees sent to node2
-        assert_equal(self.nodes[0].getbalance(), 400 - 21 -fees*Decimal("0.9"))
+        assert_equal(self.nodes[0].getbalance(), 400 - 21 - fees * Decimal("0.9"))
         assert_equal(self.nodes[2].getbalance(), 21)
 
         # Node0 should have two unspent outputs.
@@ -239,7 +239,7 @@ class WalletTest(BGLTestFramework):
         self.generate(self.nodes[1], 1, sync_fun=lambda: self.sync_all(self.nodes[0:3]))
 
         assert_equal(self.nodes[0].getbalance(), 0)
-        assert_equal(self.nodes[2].getbalance(), 394-fees*Decimal("0.9"))
+        assert_equal(self.nodes[2].getbalance(), 394 - fees * Decimal("0.9"))
 
         # Verify that a spent output cannot be locked anymore
         spent_0 = {"txid": node0utxos[0]["txid"], "vout": node0utxos[0]["vout"]}

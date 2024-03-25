@@ -5,7 +5,7 @@ Setup
 ---------------------
 BGL Core is the original BGL client and it builds the backbone of the network. It downloads and, by default, stores the entire history of BGL transactions, which requires a few hundred gigabytes of disk space. Depending on the speed of your computer and network connection, the synchronization process can take anywhere from a few hours to a day or more.
 
-To download BGL Core, visit [BGLcore.org](https://BGLcore.org/en/download/).
+To download BGL Core, visit [bitgesell.ca](https://bitgesell.ca/en/download/).
 
 Running
 ---------------------
@@ -54,7 +54,7 @@ The BGL repo's [root README](/README.md) contains relevant information on the de
 - [Developer Notes](developer-notes.md)
 - [Productivity Notes](productivity.md)
 - [Release Process](release-process.md)
-- [Source Code Documentation (External Link)](https://doxygen.BGLcore.org/)
+- [Source Code Documentation (External Link)](https://doxygen.bitgesell.ca/)
 - [Translation Process](translation_process.md)
 - [Translation Strings Policy](translation_strings_policy.md)
 - [JSON-RPC Interface](JSON-RPC-interface.md)

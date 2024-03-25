@@ -407,7 +407,7 @@ class ConfArgsTest(BGLTestFramework):
         # Check that using non-existent datadir in conf file fails
         conf_file = os.path.join(default_data_dir, "BGL.conf")
 
-        # datadir needs to be set before [chain] section
+        # datadir needs to be set before [regtest] section
         with open(conf_file, encoding='utf8') as f:
             conf_file_contents = f.read()
         with open(conf_file, 'w', encoding='utf8') as f:

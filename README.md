@@ -64,8 +64,31 @@ Features:
 * Optional module for ECDH key exchange.
 * Optional module for Schnorr signatures according to [BIP-340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki).
 
-Implementation details
-----------------------
+<b>Bitgesell is a fork of Bitcoin with the following changes:</b> <br>
+* Block Reward [Burn rate is 90% of tx fees]
+  ```sh
+  nFees*0.1 + GetBlockSubsidy()  
+  ```
+* Block Weight [10 times smaller than Bitcoin]
+  ```sh
+  <= 400,000
+  ```
+* 100% Segwit 
+  ```sh
+  Eliminates problems with legacy type of transactions
+  ```
+* Halving Interval [Halving cycle of bitgetsell is 1yr while that of BGL is 4yr]
+  ```sh
+  210000 blocks/4
+  ```
+* Block Subsidy [Max coins = 21,000,000] <br>
+  `210000 blocks/4` <br> <hr>
+  `Hashing algorithm for blocks is Keccak (sha-3).` <br> <hr>
+  `The master branch is regularly built (see` [doc/build-*.md](https://github.com/BitgesellOfficial/bitgesell/tree/master/doc) `for instructions) and tested, but is not guaranteed to be completely stable.` <br> <hr>
+  [tags](https://github.com/BitgesellOfficial/bitgesell/tags) `are created regularly to indicate new official, stable release versions of BGL Core.` <br>
+ 
+ 
+### Built With
 
 * General
   * No runtime heap allocation.

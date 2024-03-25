@@ -87,9 +87,10 @@ Install Guix using one of the installation methods detailed in
 Check out the source code in the following directory hierarchy.
 
     cd /path/to/your/toplevel/build
-    git clone https://github.com/bitcoin-core/guix.sigs.git
-    git clone https://github.com/bitcoin-core/bitcoin-detached-sigs.git
-    git clone https://github.com/bitcoin/bitcoin.git
+    git clone https://github.com/BGL-core/gitian.sigs.git
+    git clone https://github.com/BGL-core/BGL-detached-sigs.git
+    git clone https://github.com/devrandom/gitian-builder.git
+    git clone https://github.com/BitgesellOfficial/bitgesell.git
 
 ### Write the release notes
 
@@ -281,13 +282,13 @@ cat "$VERSION"/*/all.SHA256SUMS.asc > SHA256SUMS.asc
 
       - Archive the release notes for the new version to `doc/release-notes/` (branch `master` and branch of the release)
 
-      - Create a [new GitHub release](https://github.com/bitcoin/bitcoin/releases/new) with a link to the archived release notes
+      - Create a [new GitHub release](https://github.com/BitgesellOfficial/bitgesell/releases/new) with a link to the archived release notes
 
 - Announce the release:
 
   - bitcoin-dev and bitcoin-core-dev mailing list
 
-  - Bitcoin Core announcements list https://bitcoincore.org/en/list/announcements/join/
+  - BGL Core announcements list https://bitgesell.ca/en/list/announcements/join/
 
   - Bitcoin Core Twitter https://twitter.com/bitcoincoreorg
 

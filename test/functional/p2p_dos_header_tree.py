@@ -49,6 +49,7 @@ class RejectLowDifficultyHeadersTest(BGLTestFramework):
         self.log.info("Feed all non-fork headers, including and up to the first checkpoint")
         peer_checkpoint = self.nodes[0].add_p2p_connection(P2PInterface())
         peer_checkpoint.send_and_ping(msg_headers(self.headers))
+
         assert {
             'height': 546,
             'hash': '000000033f0ecd6bc1c46eb98a2856cf2fe48bc3e90ef11ac24ea5272c1adbf8',

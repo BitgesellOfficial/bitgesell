@@ -44,12 +44,7 @@ NO_UPNP ?=
 NO_USDT ?=
 NO_NATPMP ?=
 MULTIPROCESS ?=
-LTO ?=
-NO_HARDEN ?=
-FALLBACK_DOWNLOAD_PATH ?= https://bitcoincore.org/depends-sources
-
-C_STANDARD ?= c11
-CXX_STANDARD ?= c++17
+FALLBACK_DOWNLOAD_PATH ?= https://bitgesell.ca/depends-sources
 
 BUILD = $(shell ./config.guess)
 HOST ?= $(BUILD)
