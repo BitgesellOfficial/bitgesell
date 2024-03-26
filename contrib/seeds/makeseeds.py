@@ -216,7 +216,7 @@ def main():
     print(f'{ip_stats(ips):s} Require a known and recent user agent', file=sys.stderr)
     # Sort by availability (and use last success as tie breaker)
     ips.sort(key=lambda x: (x['uptime'], x['lastsuccess'], x['ip']), reverse=True)
-    # Filter out hosts with multiple bitcoin ports, these are likely abusive
+    # Filter out hosts with multiple ports, these are likely abusive
     ips = filtermultiport(ips)
     print(f'{ip_stats(ips):s} Filter out hosts with multiple BGL ports', file=sys.stderr)
     # Look up ASNs and limit results, both per ASN and globally.

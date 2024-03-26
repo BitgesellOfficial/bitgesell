@@ -59,9 +59,9 @@ class ChainstateWriteCrashTest(BGLTestFramework):
 
         # Set different crash ratios and cache sizes.  Note that not all of
         # -dbcache goes to the in-memory coins cache.
-        self.node0_args = ["-dbcrashratio=8", "-dbcache=0.4"] + self.base_args
-        self.node1_args = ["-dbcrashratio=16", "-dbcache=0.8"] + self.base_args
-        self.node2_args = ["-dbcrashratio=24", "-dbcache=1.6"] + self.base_args
+        self.node0_args = ["-dbcrashratio=8", "-dbcache=4"] + self.base_args
+        self.node1_args = ["-dbcrashratio=16", "-dbcache=8"] + self.base_args
+        self.node2_args = ["-dbcrashratio=24", "-dbcache=16"] + self.base_args
 
         # Node3 is a normal node with default args, except will mine full blocks
         # and txs with "dust" outputs
@@ -234,9 +234,9 @@ class ChainstateWriteCrashTest(BGLTestFramework):
         # each time through the loop, generate a bunch of transactions,
         # and then either mine a single new block on the tip, or some-sized reorg.
         for i in range(40):
-            self.log.info(f"Iteration {i}, generating 250 transactions {self.restart_counts}")
+            self.log.info(f"Iteration {i}, generating 2500 transactions {self.restart_counts}")
             # Generate a bunch of small-ish transactions
-            self.generate_small_transactions(self.nodes[3], 250, utxo_list)
+            self.generate_small_transactions(self.nodes[3], 2500, utxo_list)
             # Pick a random block between current tip, and starting tip
             current_height = self.nodes[3].getblockcount()
             random_height = random.randint(starting_tip_height, current_height)

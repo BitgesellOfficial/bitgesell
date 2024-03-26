@@ -387,10 +387,6 @@ SECP_CFLAGS="$SECP_CFLAGS $WERROR_CFLAGS"
 ### Handle module options
 ###
 
-###
-### Handle module options
-###
-
 if test x"$enable_module_ecdh" = x"yes"; then
   SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DENABLE_MODULE_ECDH=1"
 fi
@@ -417,10 +413,6 @@ fi
 if test x"$enable_external_default_callbacks" = x"yes"; then
   SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DUSE_EXTERNAL_DEFAULT_CALLBACKS=1"
 fi
-
-###
-### Check for --enable-experimental if necessary
-###
 
 ###
 ### Check for --enable-experimental if necessary

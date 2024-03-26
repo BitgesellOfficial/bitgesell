@@ -7,7 +7,7 @@
 from copy import deepcopy
 from decimal import Decimal
 import math
-from test_framework.key import ECKey
+
 from test_framework.test_framework import BGLTestFramework
 from test_framework.messages import (
     MAX_BIP125_RBF_SEQUENCE,
@@ -50,7 +50,7 @@ class MempoolAcceptanceTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
         self.extra_args = [[
-            '-txindex', '-permitbaremultisig=0',
+            '-txindex',
         ]] * self.num_nodes
         self.supports_cli = False
 
@@ -286,7 +286,7 @@ class MempoolAcceptanceTest(BGLTestFramework):
         _, pubkey = generate_keypair()
         tx.vout[0].scriptPubKey = keys_to_multisig_script([pubkey] * 3, k=2)  # Some bare multisig script (2-of-3)
         self.check_mempool_result(
-            result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'bare-multisig'}],
+            result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'max-fee-exceeded'}],
             rawtxs=[tx.serialize().hex()],
         ) # bare-multisig to max-fee-exceeded. However, should try to find how to get the fee down
         tx = tx_from_hex(raw_tx_reference)

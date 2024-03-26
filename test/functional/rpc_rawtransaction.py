@@ -3,7 +3,8 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the rawtransaction RPCs.
-Test the following RPCs:rpc_createmultisig.py
+
+Test the following RPCs:
    - getrawtransaction
    - createrawtransaction
    - signrawtransactionwithwallet

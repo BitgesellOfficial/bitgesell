@@ -13,10 +13,7 @@
 #include <util/strencodings.h>
 #include <util/threadnames.h>
 
-#include <boost/thread/mutex.hpp>
-
 #include <map>
-#include <mutex>
 #include <set>
 #include <system_error>
 #include <thread>
@@ -164,7 +161,6 @@ static void push_lock(MutexType* c, const CLockLocation& locklocation)
         const LockPair p1 = std::make_pair(i.first, c);
         if (lockdata.lockorders.count(p1))
             continue;
-        lockdata.lockorders.emplace(p1, lock_stack);
 
         const LockPair p2 = std::make_pair(c, i.first);
         if (lockdata.lockorders.count(p2)) {
@@ -191,8 +187,7 @@ static void pop_lock()
     }
 }
 
-template <typename MutexType>
-void EnterCritical(const char* pszName, const char* pszFile, int nLine, MutexType* cs, bool fTry)
+void EnterCritical(const char* pszName, const char* pszFile, int nLine, void* cs, bool fTry)
 {
     push_lock(cs, CLockLocation(pszName, pszFile, nLine, fTry, util::ThreadGetInternalName()));
 }
@@ -200,7 +195,6 @@ template void EnterCritical(const char*, const char*, int, Mutex*, bool);
 template void EnterCritical(const char*, const char*, int, RecursiveMutex*, bool);
 template void EnterCritical(const char*, const char*, int, std::mutex*, bool);
 template void EnterCritical(const char*, const char*, int, std::recursive_mutex*, bool);
-template void EnterCritical(const char*, const char*, int, boost::mutex*, bool);
 
 void CheckLastCritical(void* cs, std::string& lockname, const char* guardname, const char* file, int line)
 {
@@ -261,7 +255,9 @@ static bool LockHeld(void* mutex)
 template <typename MutexType>
 void AssertLockHeldInternal(const char* pszName, const char* pszFile, int nLine, MutexType* cs)
 {
-    if (LockHeld(cs)) return;
+    for (const LockStackItem& i : g_lockstack)
+        if (i.first == cs)
+            return;
     tfm::format(std::cerr, "Assertion failed: lock %s not held in %s:%i; locks held:\n%s", pszName, pszFile, nLine, LocksHeld());
     abort();
 }
@@ -271,9 +267,12 @@ template void AssertLockHeldInternal(const char*, const char*, int, RecursiveMut
 template <typename MutexType>
 void AssertLockNotHeldInternal(const char* pszName, const char* pszFile, int nLine, MutexType* cs)
 {
-    if (!LockHeld(cs)) return;
+    for (const LockStackItem& i : g_lockstack) {
+        if (i.first == cs) {
     tfm::format(std::cerr, "Assertion failed: lock %s held in %s:%i; locks held:\n%s", pszName, pszFile, nLine, LocksHeld());
     abort();
+}
+    }
 }
 template void AssertLockNotHeldInternal(const char*, const char*, int, Mutex*);
 template void AssertLockNotHeldInternal(const char*, const char*, int, RecursiveMutex*);
