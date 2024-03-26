@@ -191,9 +191,6 @@ OSX_APP_BUILT=$(OSX_APP)/Contents/PkgInfo $(OSX_APP)/Contents/Resources/empty.lp
   $(OSX_APP)/Contents/Resources/BGL.icns $(OSX_APP)/Contents/Info.plist \
   $(OSX_APP)/Contents/MacOS/BGL-Qt $(OSX_APP)/Contents/Resources/Base.lproj/InfoPlist.strings
 
-osx_volname:
-	echo $(OSX_VOLNAME) >$@
-
 if BUILD_DARWIN
 $(OSX_ZIP): $(OSX_APP_BUILT) $(OSX_PACKAGING)
 	$(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) $(OSX_VOLNAME) -translations-dir=$(QT_TRANSLATION_DIR) -zip
@@ -411,7 +408,7 @@ clean-docs:
 clean-local: clean-docs
 	rm -rf coverage_percent.txt test_BGL.coverage/ total.coverage/ fuzz.coverage/ test/tmp/ cache/ $(OSX_APP)
 	rm -rf test/functional/__pycache__ test/functional/test_framework/__pycache__ test/cache share/rpcauth/__pycache__
-	rm -rf osx_volname dist/ test/lint/test_runner/target/ test/lint/__pycache__
+	rm -rf dist/ test/lint/test_runner/target/ test/lint/__pycache__
 
 test-security-check:
 if TARGET_DARWIN
