@@ -87,9 +87,6 @@ Install Guix using one of the installation methods detailed in
 Check out the source code in the following directory hierarchy.
 
     cd /path/to/your/toplevel/build
-    git clone https://github.com/BGL-core/gitian.sigs.git
-    git clone https://github.com/BGL-core/BGL-detached-sigs.git
-    git clone https://github.com/devrandom/gitian-builder.git
     git clone https://github.com/BitgesellOfficial/bitgesell.git
 
 ### Write the release notes

@@ -48,9 +48,6 @@ from test_framework.util import (
     assert_raises_rpc_error,
     try_rpc,
 )
-from test_framework.wallet_util import (
-    get_generate_key,
-)
 
 from test_framework.wallet_util import (
     get_generate_key,

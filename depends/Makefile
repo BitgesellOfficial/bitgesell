@@ -44,7 +44,12 @@ NO_UPNP ?=
 NO_USDT ?=
 NO_NATPMP ?=
 MULTIPROCESS ?=
+LTO ?=
+NO_HARDEN ?=
 FALLBACK_DOWNLOAD_PATH ?= https://bitgesell.ca/depends-sources
+
+C_STANDARD ?= c11
+CXX_STANDARD ?= c++17
 
 BUILD = $(shell ./config.guess)
 HOST ?= $(BUILD)

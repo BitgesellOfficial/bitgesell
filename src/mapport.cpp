@@ -14,10 +14,8 @@
 #include <net.h>
 #include <netaddress.h>
 #include <netbase.h>
-#include <threadinterrupt.h>
-#include <util/syscall_sandbox.h>
-#include <util/system.h>
 #include <util/thread.h>
+#include <util/threadinterrupt.h>
 
 #ifdef USE_NATPMP
 #include <compat/compat.h>

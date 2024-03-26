@@ -15,19 +15,19 @@
 #define CLIENT_VERSION_MAJOR 1
 
 /* Minor version */
-#define CLIENT_VERSION_MINOR 8
+#define CLIENT_VERSION_MINOR 11
 
 /* Copyright holder(s) before %s replacement */
 #define COPYRIGHT_HOLDERS "The %s developers"
 
 /* Copyright holder(s) */
-#define COPYRIGHT_HOLDERS_FINAL "The Bitcoin Core developers / Bitcoin Core developers"
+#define COPYRIGHT_HOLDERS_FINAL "The Bitgesell Core developers / Bitgesell Core developers"
 
 /* Replacement for %s in copyright holders string */
-#define COPYRIGHT_HOLDERS_SUBSTITUTION "Bitcoin Core"
+#define COPYRIGHT_HOLDERS_SUBSTITUTION "Bitgesell Core"
 
 /* Copyright year */
-#define COPYRIGHT_YEAR 2022
+#define COPYRIGHT_YEAR 2024
 
 /* Define to 1 to enable wallet functions */
 #define ENABLE_WALLET 1
@@ -174,19 +174,19 @@
 #define HAVE_SYS_TYPES_H 1
 
 /* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "https://github.com/bitcoin/bitcoin/issues"
+#define PACKAGE_BUGREPORT "https://github.com/BitgesellOfficial/bitgesell/issues"
 
 /* Define to the full name of this package. */
 #define PACKAGE_NAME "Bitgesell Core"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "Bitgesell Core 22.99.0"
+#define PACKAGE_STRING "Bitgesell Core 0.1.11"
 
 /* Define to the home page for this package. */
 #define PACKAGE_URL "https://bitgesell.ca/"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.1.8"
+#define PACKAGE_VERSION "0.1.11"
 
 /* Define this symbol if the minimal qt platform exists */
 #define QT_QPA_PLATFORM_MINIMAL 1

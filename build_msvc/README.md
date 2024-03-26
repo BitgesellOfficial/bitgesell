@@ -5,7 +5,7 @@ Introduction
 ---------------------
 Visual Studio 2022 is minimum required to build BGL Core.
 
-Building with Visual Studio is an alternative to the Linux based [cross-compiler build](https://github.com/BitgesellOfficial/bitgesell/blob/master/doc/build-windows.md).
+Solution and project files to build with `msbuild` or Visual Studio can be found in the `build_msvc` directory.
 
 To build BGL Core from the command-line, it is sufficient to only install the [Visual Studio Build Tools](https://visualstudio.microsoft.com/downloads/) component.
 

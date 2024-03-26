@@ -22,11 +22,11 @@ class BumpFeeWithTotalFeeArgumentDeprecationTest(BGLTestFramework):
 
     def run_test(self):
         peer_node, rbf_node = self.nodes
-        self.generate(peer_node,110)
+        peer_node.generate(110)
         self.sync_all()
         peer_node.sendtoaddress(rbf_node.getnewaddress(), 0.001)
         self.sync_all()
-        self.generate(peer_node,1)
+        peer_node.generate(1)
         self.sync_all()
         rbfid = spend_one_input(rbf_node, peer_node.getnewaddress())
 

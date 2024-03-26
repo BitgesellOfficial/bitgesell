@@ -53,8 +53,7 @@ LEAVE_CRITICAL_SECTION(mutex); // no RAII
 ///////////////////////////////
 
 #ifdef DEBUG_LOCKORDER
-template <typename MutexType>
-void EnterCritical(const char* pszName, const char* pszFile, int nLine, MutexType* cs, bool fTry = false);
+void EnterCritical(const char* pszName, const char* pszFile, int nLine, void* cs, bool fTry = false);
 void LeaveCritical();
 void CheckLastCritical(void* cs, std::string& lockname, const char* guardname, const char* file, int line);
 std::string LocksHeld();
@@ -72,8 +71,7 @@ bool LockStackEmpty();
  */
 extern bool g_debug_lockorder_abort;
 #else
-template <typename MutexType>
-inline void EnterCritical(const char* pszName, const char* pszFile, int nLine, MutexType* cs, bool fTry = false) {}
+inline void EnterCritical(const char* pszName, const char* pszFile, int nLine, void* cs, bool fTry = false) {}
 inline void LeaveCritical() {}
 inline void CheckLastCritical(void* cs, std::string& lockname, const char* guardname, const char* file, int line) {}
 template <typename MutexType>
@@ -224,7 +222,7 @@ public:
 
         ~reverse_lock() {
             templock.swap(lock);
-            EnterCritical(lockname.c_str(), file.c_str(), line, lock.mutex());
+            EnterCritical(lockname.c_str(), file.c_str(), line, (void*)lock.mutex());
             lock.lock();
         }
 
@@ -264,7 +262,7 @@ inline MutexType* MaybeCheckNotHeld(MutexType* m) LOCKS_EXCLUDED(m) LOCK_RETURNE
 
 #define ENTER_CRITICAL_SECTION(cs)                            \
     {                                                         \
-        EnterCritical(#cs, __FILE__, __LINE__, &cs); \
+        EnterCritical(#cs, __FILE__, __LINE__, (void*)(&cs)); \
         (cs).lock();                                          \
     }
 
