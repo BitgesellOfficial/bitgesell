@@ -106,14 +106,27 @@ QFont fixedPitchFont(bool use_embedded_font)
     return QFontDatabase::systemFont(QFontDatabase::FixedFont);
 }
 
-// Generate an example address
-static std::string ExampleAddress(const CChainParams &params)
+// Return a pre-generated dummy bech32m address (P2TR) with invalid checksum.
+static std::string DummyAddress(const CChainParams &params)
 {
-    std::vector<uint8_t> v = ParseHex("b6706320f9b107c75ad7cf7c4cd30f4767bbb7fe");
-    std::vector<unsigned char> tmp = {0};
-    tmp.reserve(1 + 32 * 8 / 5);
-    ConvertBits<8, 5, true>([&](unsigned char c) { tmp.push_back(c); }, v.begin(), v.end());
-    return bech32::Encode(bech32::Encoding::BECH32, params.Bech32HRP(), tmp);
+    std::string addr;
+    switch (params.GetChainType()) {
+    case ChainType::MAIN:
+        addr = "bgl1p35yvjel7srp783ztf8v6jdra7dhfzk5jaun8xz2qp6ws7z80n4tq2jku9f";
+        break;
+    case ChainType::SIGNET:
+    case ChainType::TESTNET:
+    case ChainType::TESTNET4:
+        addr = "tbgl1p35yvjel7srp783ztf8v6jdra7dhfzk5jaun8xz2qp6ws7z80n4tqa6qnlg";
+        break;
+    case ChainType::REGTEST:
+        addr = "rbgl1p35yvjel7srp783ztf8v6jdra7dhfzk5jaun8xz2qp6ws7z80n4tqsr2427";
+        break;
+    } // no default case, so the compiler can warn about missing cases
+    assert(!addr.empty());
+
+    if (Assume(!IsValidDestinationString(addr))) return addr;
+    return {};
 }
 
 void setupAddressWidget(QValidatedLineEdit *widget, QWidget *parent)

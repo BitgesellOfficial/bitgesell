@@ -5,10 +5,12 @@
 '''
 Script to generate list of seed nodes for kernel/chainparams.cpp.
 
-This script expects two text files in the directory that is passed as an
+This script expects three text files in the directory that is passed as an
 argument:
     nodes_main.txt
     nodes_test.txt
+    nodes_testnet4.txt
+
 These files must consist of lines in the format
     <ip>:<port>
     [<ipv6>]:<port>
@@ -166,6 +168,9 @@ def main():
     g.write('\n')
     with open(os.path.join(indir,'nodes_test.txt'), 'r', encoding="utf8") as f:
         process_nodes(g, f, 'chainparams_seed_test')
+    g.write('\n')
+    with open(os.path.join(indir,'nodes_testnet4.txt'), 'r', encoding="utf8") as f:
+        process_nodes(g, f, 'chainparams_seed_testnet4')
     g.write('#endif // BGL_CHAINPARAMSSEEDS_H\n')
 
 if __name__ == '__main__':
