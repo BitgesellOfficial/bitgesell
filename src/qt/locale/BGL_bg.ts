@@ -58,19 +58,7 @@
         <translation type="unfinished">Избери</translation>
     </message>
     <message>
-<<<<<<< HEAD:src/qt/locale/BGL_bg.ts
-        <source>Sending addresses</source>
-        <translation type="unfinished">Адреси за изпращане</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Адреси за получаване</translation>
-    </message>
-    <message>
         <source>These are your Bitgesell addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-=======
-        <source>These are your Bitcoin addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
->>>>>>> 42cbf561a7... qt: Translation updates from Transifex:src/qt/locale/bitcoin_bg.ts
         <translation type="unfinished">Тези са вашите Биткойн адреси за изпращане на плащания. Винаги проверявайте количеството и получаващите адреси преди изпращане на монети. </translation>
     </message>
     <message>
