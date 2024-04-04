@@ -1541,126 +1541,34 @@ fi
 
 dnl ZMQ check
 
-if test "$use_zmq" = "yes"; then
-  PKG_CHECK_MODULES([ZMQ], [libzmq >= 4],
-    AC_DEFINE([ENABLE_ZMQ], [1], [Define this symbol to enable ZMQ functions]),
-    [AC_MSG_WARN([libzmq version 4.x or greater not found, disabling])
-    use_zmq=no])
+# Processing must be done in a reverse topological sorting of the dependency graph
+# (dependent module first).
+if test x"$enable_module_ellswift" = x"yes"; then
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DENABLE_MODULE_ELLSWIFT=1"
 fi
 
-if test "$use_zmq" = "yes"; then
-  dnl Assume libzmq was built for static linking
-  case $host in
-    *mingw*)
-      ZMQ_CFLAGS="$ZMQ_CFLAGS -DZMQ_STATIC"
-    ;;
-  esac
-fi
-
-AM_CONDITIONAL([ENABLE_ZMQ], [test "$use_zmq" = "yes"])
-
-dnl libmultiprocess library check
-
-libmultiprocess_found=no
-if test "$with_libmultiprocess" = "yes" || test "$with_libmultiprocess" = "auto"; then
-  PKG_CHECK_MODULES([LIBMULTIPROCESS], [libmultiprocess], [
-     libmultiprocess_found=yes;
-     libmultiprocess_prefix=`$PKG_CONFIG --variable=prefix libmultiprocess`;
-  ], [true])
-elif test "$with_libmultiprocess" != "no"; then
-  AC_MSG_ERROR([--with-libmultiprocess=$with_libmultiprocess value is not yes, auto, or no])
-fi
-
-dnl Enable multiprocess check
-
-if test "$enable_multiprocess" = "yes"; then
-  if test "$libmultiprocess_found" != "yes"; then
-    AC_MSG_ERROR([--enable-multiprocess=yes option specified but libmultiprocess library was not found. May need to install libmultiprocess library, or specify install path with PKG_CONFIG_PATH environment variable. Running 'pkg-config --debug libmultiprocess' may be helpful for debugging.])
+if test x"$enable_module_schnorrsig" = x"yes"; then
+  if test x"$enable_module_extrakeys" = x"no"; then
+    AC_MSG_ERROR([Module dependency error: You have disabled the extrakeys module explicitly, but it is required by the schnorrsig module.])
   fi
-  build_multiprocess=yes
-elif test "$enable_multiprocess" = "auto"; then
-  build_multiprocess=$libmultiprocess_found
-else
-  build_multiprocess=no
+  enable_module_extrakeys=yes
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DENABLE_MODULE_SCHNORRSIG=1"
 fi
 
-AM_CONDITIONAL([BUILD_MULTIPROCESS], [test "$build_multiprocess" = "yes"])
-AM_CONDITIONAL([BUILD_BGL_NODE], [test "$build_multiprocess" = "yes"])
-AM_CONDITIONAL([BUILD_BGL_GUI], [test "$build_multiprocess" = "yes"])
-
-dnl codegen tools check
-
-if test "$build_multiprocess" != "no"; then
-  if test "$with_mpgen" = "yes" || test "$with_mpgen" = "auto"; then
-    MPGEN_PREFIX="$libmultiprocess_prefix"
-  elif test "$with_mpgen" != "no"; then
-    MPGEN_PREFIX="$with_mpgen";
-  fi
-  AC_SUBST(MPGEN_PREFIX)
+if test x"$enable_module_extrakeys" = x"yes"; then
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DENABLE_MODULE_EXTRAKEYS=1"
 fi
 
-AC_MSG_CHECKING([whether to build BGLd])
-AM_CONDITIONAL([BUILD_BGLD], [test $build_BGLd = "yes"])
-AC_MSG_RESULT($build_BGLd)
-
-AC_MSG_CHECKING([whether to build BGL-cli])
-AM_CONDITIONAL([BUILD_BGL_CLI], [test $build_BGL_cli = "yes"])
-AC_MSG_RESULT($build_BGL_cli)
-
-AC_MSG_CHECKING([whether to build BGL-tx])
-AM_CONDITIONAL([BUILD_BGL_TX], [test $build_BGL_tx = "yes"])
-AC_MSG_RESULT($build_BGL_tx)
-
-AC_MSG_CHECKING([whether to build BGL-wallet])
-AM_CONDITIONAL([BUILD_BGL_WALLET], [test $build_BGL_wallet = "yes"])
-AC_MSG_RESULT($build_BGL_wallet)
-
-AC_MSG_CHECKING([whether to build BGL-util])
-AM_CONDITIONAL([BUILD_BGL_UTIL], [test $build_BGL_util = "yes"])
-AC_MSG_RESULT($build_BGL_util)
-
-AC_MSG_CHECKING([whether to build experimental BGL-chainstate])
-if test "$build_BGL_chainstate" = "yes"; then
-  if test "$build_experimental_kernel_lib" = "no"; then
-    AC_MSG_ERROR([experimental BGL-chainstate cannot be built without the experimental BGLkernel library. Use --with-experimental-kernel-lib]);
-  fi
-fi
-AM_CONDITIONAL([BUILD_BGL_CHAINSTATE], [test $build_BGL_chainstate = "yes"])
-AC_MSG_RESULT($build_BGL_chainstate)
-
-AM_CONDITIONAL([BUILD_BGL_KERNEL_LIB], [test "$build_experimental_kernel_lib" != "no" && ( test "$build_experimental_kernel_lib" = "yes" || test "$build_BGL_chainstate" = "yes" )])
-
-AC_LANG_POP
-
-if test "$use_ccache" != "no"; then
-  AC_MSG_CHECKING([if ccache should be used])
-  if test "$CCACHE" = ""; then
-    if test "$use_ccache" = "yes"; then
-      AC_MSG_ERROR([ccache not found.]);
-    else
-      use_ccache=no
-    fi
-  else
-    use_ccache=yes
-    CC="$ac_cv_path_CCACHE $CC"
-    CXX="$ac_cv_path_CCACHE $CXX"
-  fi
-  AC_MSG_RESULT($use_ccache)
-  if test "$use_ccache" = "yes"; then
-    AX_CHECK_COMPILE_FLAG([-fdebug-prefix-map=A=B], [DEBUG_CXXFLAGS="$DEBUG_CXXFLAGS -fdebug-prefix-map=\$(abs_top_srcdir)=."], [], [$CXXFLAG_WERROR])
-    AX_CHECK_PREPROC_FLAG([-fmacro-prefix-map=A=B], [DEBUG_CPPFLAGS="$DEBUG_CPPFLAGS -fmacro-prefix-map=\$(abs_top_srcdir)=."], [], [$CXXFLAG_WERROR])
-  fi
+if test x"$enable_module_recovery" = x"yes"; then
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DENABLE_MODULE_RECOVERY=1"
 fi
 
-dnl enable wallet
-AC_MSG_CHECKING([if wallet should be enabled])
-if test "$enable_wallet" != "no"; then
-  AC_MSG_RESULT([yes])
-  AC_DEFINE_UNQUOTED([ENABLE_WALLET],[1],[Define to 1 to enable wallet functions])
-  enable_wallet=yes
+if test x"$enable_module_ecdh" = x"yes"; then
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DENABLE_MODULE_ECDH=1"
+fi
 
-else
-  AC_MSG_RESULT([no])
+if test x"$enable_external_default_callbacks" = x"yes"; then
+  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DUSE_EXTERNAL_DEFAULT_CALLBACKS=1"
 fi
 
 dnl enable upnp support
