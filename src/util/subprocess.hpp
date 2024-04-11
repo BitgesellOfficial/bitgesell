@@ -431,26 +431,6 @@ namespace util
   }
 
 
-  /*!
-   * Function: join
-   * Parameters:
-   * [in] vec : Vector of strings which needs to be joined to form
-   *            a single string with words separated by a separator char.
-   *  [in] sep : String used to separate 2 words in the joined string.
-   *             Default constructed to ' ' (space).
-   *  [out] string: Joined string.
-   */
-  static inline
-  std::string join(const std::vector<std::string>& vec,
-                   const std::string& sep = " ")
-  {
-    std::string res;
-    for (auto& elem : vec) res.append(elem + sep);
-    res.erase(--res.end());
-    return res;
-  }
-
-
 #ifndef __USING_WINDOWS__
   /*!
    * Function: set_clo_on_exec
@@ -673,6 +653,17 @@ struct bufsize {
 struct close_fds {
   explicit close_fds(bool c): close_all(c) {}
   bool close_all = false;
+};
+
+/*!
+ * Option to make the child process as the
+ * session leader and thus the process
+ * group leader.
+ * Default value is false.
+ */
+struct session_leader {
+  explicit session_leader(bool sl): leader_(sl) {}
+  bool leader_ = false;
 };
 
 /*!
@@ -971,7 +962,6 @@ struct ArgumentDeducer
   void set_option(executable&& exe);
   void set_option(environment&& env);
   void set_option(defer_spawn&& defer);
-  void set_option(shell&& sh);
   void set_option(input&& inp);
   void set_option(output&& out);
   void set_option(error&& err);
@@ -1304,6 +1294,8 @@ private:
 
   bool defer_process_start_ = false;
   bool close_fds_ = false;
+  bool has_preexec_fn_ = false;
+  bool session_leader_ = false;
 
   std::string exe_name_;
   env_map_t env_;
@@ -1442,10 +1434,6 @@ inline void Popen::kill(int sig_num)
 inline void Popen::execute_process() noexcept(false)
 {
 #ifdef __USING_WINDOWS__
-  if (this->shell_) {
-    throw OSError("shell not currently supported on windows", 0);
-  }
-
   void* environment_string_table_ptr = nullptr;
   env_vector_t environment_string_vector;
   if(this->env_.size()){
@@ -1538,14 +1526,6 @@ inline void Popen::execute_process() noexcept(false)
   int err_rd_pipe, err_wr_pipe;
   std::tie(err_rd_pipe, err_wr_pipe) = util::pipe_cloexec();
 
-  if (shell_) {
-    auto new_cmd = util::join(vargs_);
-    vargs_.clear();
-    vargs_.insert(vargs_.begin(), {"/bin/sh", "-c"});
-    vargs_.push_back(new_cmd);
-    populate_c_argv();
-  }
-
   if (exe_name_.length()) {
     vargs_.insert(vargs_.begin(), exe_name_);
     populate_c_argv();
@@ -1620,8 +1600,8 @@ namespace detail {
     popen_->defer_process_start_ = defer.defer;
   }
 
-  inline void ArgumentDeducer::set_option(shell&& sh) {
-    popen_->shell_ = sh.shell_;
+  inline void ArgumentDeducer::set_option(session_leader&& sleader) {
+    popen_->session_leader_ = sleader.leader_;
   }
 
   inline void ArgumentDeducer::set_option(input&& inp) {
