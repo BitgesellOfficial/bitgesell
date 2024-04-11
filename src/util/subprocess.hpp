@@ -823,44 +823,6 @@ struct error
   int wr_ch_ = -1;
 };
 
-// Impoverished, meager, needy, truly needy
-// version of type erasure to store function pointers
-// needed to provide the functionality of preexec_func
-// ATTN: Can be used only to execute functions with no
-// arguments and returning void.
-// Could have used more efficient methods, ofcourse, but
-// that won't yield me the consistent syntax which I am
-// aiming for. If you know, then please do let me know.
-
-class preexec_func
-{
-public:
-  preexec_func() {}
-
-  template <typename Func>
-  explicit preexec_func(Func f): holder_(new FuncHolder<Func>(std::move(f)))
-  {}
-
-  void operator()() {
-    (*holder_)();
-  }
-
-private:
-  struct HolderBase {
-    virtual void operator()() const = 0;
-    virtual ~HolderBase(){};
-  };
-  template <typename T>
-  struct FuncHolder: HolderBase {
-    FuncHolder(T func): func_(std::move(func)) {}
-    void operator()() const override { func_(); }
-    // The function pointer/reference
-    T func_;
-  };
-
-  std::unique_ptr<HolderBase> holder_ = nullptr;
-};
-
 // ~~~~ End Popen Args ~~~~
 
 
@@ -964,6 +926,8 @@ struct ArgumentDeducer
   void set_option(input&& inp);
   void set_option(output&& out);
   void set_option(error&& err);
+  void set_option(close_fds&& cfds);
+  void set_option(session_leader&& sleader);
 
 private:
   Popen* popen_ = nullptr;
@@ -1291,7 +1255,6 @@ private:
 
   std::string exe_name_;
   env_map_t env_;
-  preexec_func preexec_fn_;
 
   // Command in string format
   std::string args_;
@@ -1600,6 +1563,10 @@ namespace detail {
     if (err.rd_ch_ != -1) popen_->stream_.err_read_ = err.rd_ch_;
   }
 
+  inline void ArgumentDeducer::set_option(close_fds&& cfds) {
+    popen_->close_fds_ = cfds.close_all;
+  }
+
 
   inline void Child::execute_child() {
 #ifndef __USING_WINDOWS__
@@ -1650,6 +1617,11 @@ namespace detail {
       if (parent_->cwd_.length()) {
         sys_ret = chdir(parent_->cwd_.c_str());
         if (sys_ret == -1) throw OSError("chdir failed", errno);
+      }
+
+      if (parent_->session_leader_) {
+        sys_ret = setsid();
+        if (sys_ret == -1) throw OSError("setsid failed", errno);
       }
 
       // Replace the current image with the executable
