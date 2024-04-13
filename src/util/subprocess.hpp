@@ -642,6 +642,31 @@ struct bufsize {
 };
 
 /*!
+ * Option to close all file descriptors
+ * when the child process is spawned.
+ * The close fd list does not include
+ * input/output/error if they are explicitly
+ * set as part of the Popen arguments.
+ *
+ * Default value is false.
+ */
+struct close_fds {
+  explicit close_fds(bool c): close_all(c) {}
+  bool close_all = false;
+};
+
+/*!
+ * Option to make the child process as the
+ * session leader and thus the process
+ * group leader.
+ * Default value is false.
+ */
+struct session_leader {
+  explicit session_leader(bool sl): leader_(sl) {}
+  bool leader_ = false;
+};
+
+/*!
  * Base class for all arguments involving string value.
  */
 struct string_arg
@@ -936,7 +961,6 @@ struct ArgumentDeducer
 
   void set_option(executable&& exe);
   void set_option(environment&& env);
-  void set_option(defer_spawn&& defer);
   void set_option(input&& inp);
   void set_option(output&& out);
   void set_option(error&& err);
@@ -1137,8 +1161,6 @@ private:
                            in case of redirection. See piping examples.
  *12. error()            - Get the error channel/File pointer. Usually used
                            in case of redirection.
- *13. start_process()    - Start the child process. Only to be used when
- *                         `defer_spawn` option was provided in Popen constructor.
  */
 class Popen
 {
@@ -1156,7 +1178,7 @@ public:
     // Setup the communication channels of the Popen class
     stream_.setup_comm_channels();
 
-    if (!defer_process_start_) execute_process();
+    execute_process();
   }
 
   template <typename... Args>
@@ -1168,7 +1190,7 @@ public:
     // Setup the communication channels of the Popen class
     stream_.setup_comm_channels();
 
-    if (!defer_process_start_) execute_process();
+    execute_process();
   }
 
   template <typename... Args>
@@ -1179,7 +1201,7 @@ public:
     // Setup the communication channels of the Popen class
     stream_.setup_comm_channels();
 
-    if (!defer_process_start_) execute_process();
+    execute_process();
   }
 
 /*
@@ -1190,8 +1212,6 @@ public:
 #endif
   }
 */
-
-  void start_process() noexcept(false);
 
   int pid() const noexcept { return child_pid_; }
 
@@ -1266,6 +1286,9 @@ private:
   std::future<void> cleanup_future_;
 #endif
 
+  bool close_fds_ = false;
+  bool session_leader_ = false;
+
   std::string exe_name_;
   env_map_t env_;
   preexec_func preexec_fn_;
@@ -1301,20 +1324,6 @@ inline void Popen::populate_c_argv()
   cargv_.reserve(vargs_.size() + 1);
   for (auto& arg : vargs_) cargv_.push_back(&arg[0]);
   cargv_.push_back(nullptr);
-}
-
-inline void Popen::start_process() noexcept(false)
-{
-  // The process was started/tried to be started
-  // in the constructor itself.
-  // For explicitly calling this API to start the
-  // process, 'defer_spawn' argument must be set to
-  // true in the constructor.
-  if (!defer_process_start_) {
-    assert (0);
-    return;
-  }
-  execute_process();
 }
 
 inline int Popen::wait() noexcept(false)
@@ -1563,10 +1572,6 @@ namespace detail {
 
   inline void ArgumentDeducer::set_option(environment&& env) {
     popen_->env_ = std::move(env.env_);
-  }
-
-  inline void ArgumentDeducer::set_option(defer_spawn&& defer) {
-    popen_->defer_process_start_ = defer.defer;
   }
 
   inline void ArgumentDeducer::set_option(session_leader&& sleader) {
