@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
     int num_test_failures{0};
 
     {
-        BitcoinApplication app;
+        BGLApplication app;
         app.createNode(*init);
 
         AppTests app_tests(app);

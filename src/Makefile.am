@@ -21,6 +21,7 @@ noinst_LTLIBRARIES =
 
 bin_PROGRAMS =
 noinst_PROGRAMS =
+check_PROGRAMS =
 TESTS =
 BENCHMARKS =
 
@@ -37,9 +38,6 @@ LIBSECP256K1=secp256k1/libsecp256k1.la
 
 if ENABLE_ZMQ
 LIBBGL_ZMQ=libBGL_zmq.a
-endif
-if BUILD_BGL_LIBS
-LIBBGLCONSENSUS=libBGLconsensus.la
 endif
 if BUILD_BGL_KERNEL_LIB
 LIBBGLKERNEL=libBGLkernel.la
@@ -649,7 +647,6 @@ libBGL_consensus_a_SOURCES = \
   primitives/transaction.h \
   pubkey.cpp \
   pubkey.h \
-  script/BGLconsensus.cpp \
   script/interpreter.cpp \
   script/interpreter.h \
   script/script.cpp \
@@ -742,6 +739,7 @@ libBGL_util_a_SOURCES = \
   util/check.cpp \
   util/error.cpp \
   util/exception.cpp \
+  util/feefrac.cpp \
   util/fees.cpp \
   util/fs.cpp \
   util/fs_helpers.cpp \
@@ -1006,21 +1004,6 @@ libBGLkernel_la_SOURCES = \
 # More details: https://www.gnu.org/software/automake/manual/html_node/Built-Sources-Example.html
 libBGLkernel_la-clientversion.l$(OBJEXT): obj/build.h
 endif # BUILD_BGL_KERNEL_LIB
-#
-
-# bitcoinconsensus library #
-if BUILD_BGL_LIBS
-lib_LTLIBRARIES += $(LIBBGLCONSENSUS)
-
-include_HEADERS = script/BGLconsensus.h
-libBGLconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libBGL_crypto_base_la_SOURCES) $(libBGL_consensus_a_SOURCES)
-
-libBGLconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS)
-libBGLconsensus_la_LIBADD = $(LIBSECP256K1)
-libBGLconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BGL_INTERNAL -DDISABLE_OPTIMIZED_SHA256
-libBGLconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-
-endif
 #
 
 CTAES_DIST =  crypto/ctaes/bench.c

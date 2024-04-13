@@ -23,10 +23,28 @@ namespace {
 const BasicTestingSetup* g_setup;
 } // namespace
 
+const int NUM_ITERS = 10000;
+
+std::vector<COutPoint> g_outpoints;
+
 void initialize_rbf()
 {
     static const auto testing_setup = MakeNoLogFileContext<>();
     g_setup = testing_setup.get();
+}
+
+void initialize_package_rbf()
+{
+    static const auto testing_setup = MakeNoLogFileContext<>();
+    g_setup = testing_setup.get();
+
+    // Create a fixed set of unique "UTXOs" to source parents from
+    // to avoid fuzzer giving circular references
+    for (int i = 0; i < NUM_ITERS; ++i) {
+        g_outpoints.emplace_back();
+        g_outpoints.back().n = i;
+    }
+
 }
 
 FUZZ_TARGET(rbf, .init = initialize_rbf)
@@ -40,7 +58,7 @@ FUZZ_TARGET(rbf, .init = initialize_rbf)
 
     CTxMemPool pool{MemPoolOptionsForTest(g_setup->m_node)};
 
-    LIMITED_WHILE(fuzzed_data_provider.ConsumeBool(), 10000)
+    LIMITED_WHILE(fuzzed_data_provider.ConsumeBool(), NUM_ITERS)
     {
         const std::optional<CMutableTransaction> another_mtx = ConsumeDeserializable<CMutableTransaction>(fuzzed_data_provider, TX_WITH_WITNESS);
         if (!another_mtx) {

@@ -49,7 +49,7 @@ void initialize_addrman()
 FUZZ_TARGET(data_stream_addr_man, .init = initialize_addrman)
 {
     FuzzedDataProvider fuzzed_data_provider{buffer.data(), buffer.size()};
-    DataStream data_stream = ConsumeDataStream(fuzzed_data_provider);
+    CDataStream data_stream = ConsumeDataStream(fuzzed_data_provider);
     NetGroupManager netgroupman{ConsumeNetGroupManager(fuzzed_data_provider)};
     AddrMan addr_man(netgroupman, /*deterministic=*/false, GetCheckRatio());
     try {
@@ -228,7 +228,7 @@ FUZZ_TARGET(addrman, .init = initialize_addrman)
     auto addr_man_ptr = std::make_unique<AddrManDeterministic>(netgroupman, fuzzed_data_provider);
     if (fuzzed_data_provider.ConsumeBool()) {
         const std::vector<uint8_t> serialized_data{ConsumeRandomLengthByteVector(fuzzed_data_provider)};
-        DataStream ds{serialized_data};
+        CDataStream ds(serialized_data, SER_NETWORK, PROTOCOL_VERSION);
         try {
             ds >> *addr_man_ptr;
         } catch (const std::ios_base::failure&) {
@@ -281,7 +281,7 @@ FUZZ_TARGET(addrman, .init = initialize_addrman)
         in_new = fuzzed_data_provider.ConsumeBool();
     }
     (void)const_addr_man.Size(network, in_new);
-    DataStream data_stream{};
+    CDataStream data_stream(SER_NETWORK, PROTOCOL_VERSION);
     data_stream << const_addr_man;
 }
 
@@ -295,7 +295,7 @@ FUZZ_TARGET(addrman_serdeser, .init = initialize_addrman)
     AddrManDeterministic addr_man1{netgroupman, fuzzed_data_provider};
     AddrManDeterministic addr_man2{netgroupman, fuzzed_data_provider};
 
-    DataStream data_stream{};
+    CDataStream data_stream(SER_NETWORK, PROTOCOL_VERSION);
 
     FillAddrman(addr_man1, fuzzed_data_provider);
     data_stream << addr_man1;

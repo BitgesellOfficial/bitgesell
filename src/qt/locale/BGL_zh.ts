@@ -530,8 +530,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Load PSBT from &amp;clipboard…</source>
         <translation type="unfinished">從剪貼簿載入PSBT</translation>
     </message>
+    <message>
         <source>&amp;Sending addresses</source>
         <translation type="unfinished">&amp;发送地址</translation>
+        </message>
     <message>
         <source>&amp;Receiving addresses</source>
         <translation type="unfinished">&amp;接受地址</translation>

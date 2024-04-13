@@ -4,7 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include <config/bitcoin-config.h>
+#include <config/BGL-config.h>
 #endif
 
 #include <addrdb.h>
@@ -28,6 +28,7 @@
 #include <util/fs_helpers.h>
 #include <util/translation.h>
 
+static constexpr int ADDRV2_FORMAT = 0x20000000;
 namespace {
 
 class DbNotFoundError : public std::exception
@@ -53,7 +54,7 @@ bool SerializeDB(Stream& stream, const Data& data)
 }
 
 template <typename Data>
-bool SerializeFileDB(const std::string& prefix, const fs::path& path, const Data& data)
+bool SerializeFileDB(const std::string& prefix, const fs::path& path, const Data& data, int version)
 {
     // Generate random temporary filename
     const uint16_t randv{GetRand<uint16_t>()};
@@ -62,7 +63,7 @@ bool SerializeFileDB(const std::string& prefix, const fs::path& path, const Data
     // open temp output file
     fs::path pathTmp = gArgs.GetDataDirNet() / fs::u8path(tmpfn);
     FILE *file = fsbridge::fopen(pathTmp, "wb");
-    AutoFile fileout{file};
+    CAutoFile fileout(file, SER_DISK, version);
     if (fileout.IsNull()) {
         fileout.fclose();
         remove(pathTmp);
@@ -97,7 +98,7 @@ bool SerializeFileDB(const std::string& prefix, const fs::path& path, const Data
 template <typename Stream, typename Data>
 void DeserializeDB(Stream& stream, Data&& data, bool fCheckSum = true)
 {
-    HashVerifier verifier{stream};
+    CHashVerifier<Stream> verifier{&stream};
     // de-serialize file header (network specific magic number) and ..
     MessageStartChars pchMsgTmp;
     verifier >> pchMsgTmp;
@@ -120,10 +121,10 @@ void DeserializeDB(Stream& stream, Data&& data, bool fCheckSum = true)
 }
 
 template <typename Data>
-void DeserializeFileDB(const fs::path& path, Data&& data)
+void DeserializeFileDB(const fs::path& path, Data&& data, int version)
 {
     FILE* file = fsbridge::fopen(path, "rb");
-    AutoFile filein{file};
+    CAutoFile filein(file, SER_DISK, version);
     if (filein.IsNull()) {
         throw DbNotFoundError{};
     }
@@ -183,10 +184,10 @@ bool CBanDB::Read(banmap_t& banSet)
 bool DumpPeerAddresses(const ArgsManager& args, const AddrMan& addr)
 {
     const auto pathAddr = args.GetDataDirNet() / "peers.dat";
-    return SerializeFileDB("peers", pathAddr, addr);
+    return SerializeFileDB("peers", pathAddr, addr, CLIENT_VERSION);
 }
 
-void ReadFromStream(AddrMan& addr, DataStream& ssPeers)
+void ReadFromStream(AddrMan& addr, CDataStream& ssPeers)
 {
     DeserializeDB(ssPeers, addr, false);
 }
@@ -201,7 +202,7 @@ util::Result<std::unique_ptr<AddrMan>> LoadAddrman(const NetGroupManager& netgro
     const auto start{SteadyClock::now()};
     const auto path_addr{args.GetDataDirNet() / "peers.dat"};
     try {
-        DeserializeFileDB(path_addr, *addrman);
+        DeserializeFileDB(path_addr, *addrman, CLIENT_VERSION);
         LogPrintf("Loaded %i addresses from peers.dat  %dms\n", addrman->Size(), Ticks<std::chrono::milliseconds>(SteadyClock::now() - start));
     } catch (const DbNotFoundError&) {
         // Addrman can be in an inconsistent state after failure, reset it
@@ -226,14 +227,14 @@ util::Result<std::unique_ptr<AddrMan>> LoadAddrman(const NetGroupManager& netgro
 void DumpAnchors(const fs::path& anchors_db_path, const std::vector<CAddress>& anchors)
 {
     LOG_TIME_SECONDS(strprintf("Flush %d outbound block-relay-only peer addresses to anchors.dat", anchors.size()));
-    SerializeFileDB("anchors", anchors_db_path, CAddress::V2_DISK(anchors));
+    SerializeFileDB("anchors", anchors_db_path, CAddress::V2_DISK(anchors), CLIENT_VERSION | ADDRV2_FORMAT);
 }
 
 std::vector<CAddress> ReadAnchors(const fs::path& anchors_db_path)
 {
     std::vector<CAddress> anchors;
     try {
-        DeserializeFileDB(anchors_db_path, CAddress::V2_DISK(anchors));
+        DeserializeFileDB(anchors_db_path, CAddress::V2_DISK(anchors), CLIENT_VERSION | ADDRV2_FORMAT);
         LogPrintf("Loaded %i addresses from %s\n", anchors.size(), fs::quoted(fs::PathToString(anchors_db_path.filename())));
     } catch (const std::exception&) {
         anchors.clear();

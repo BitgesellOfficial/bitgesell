@@ -9,6 +9,7 @@
 #include <net_types.h>
 #include <util/fs.h>
 #include <util/result.h>
+#include <streams.h>
 
 #include <memory>
 #include <vector>
@@ -20,7 +21,7 @@ class DataStream;
 class NetGroupManager;
 
 /** Only used by tests. */
-void ReadFromStream(AddrMan& addr, DataStream& ssPeers);
+void ReadFromStream(AddrMan& addr, CDataStream& ssPeers);
 
 bool DumpPeerAddresses(const ArgsManager& args, const AddrMan& addr);
 

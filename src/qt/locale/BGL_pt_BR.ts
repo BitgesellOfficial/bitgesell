@@ -403,7 +403,7 @@ Só é possível assinar com endereços do tipo 'legado'.</translation>
         <source>E&amp;xit</source>
         <translation type="unfinished">&amp;Sair</translation>
     </message>
-    </message>
+    <message>
         <source>&amp;About %1</source>
         <translation type="unfinished">&amp;Sobre %1</translation>
     </message>
@@ -414,6 +414,7 @@ Só é possível assinar com endereços do tipo 'legado'.</translation>
     <message>
         <source>Show information about Qt</source>
         <translation type="unfinished">Mostrar informações sobre o Qt</translation>
+        </message>
     <message>
         <source>Modify configuration options for %1</source>
         <translation type="unfinished">Modificar opções de configuração para o %1</translation>
@@ -3940,7 +3941,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Error loading %s: External signer wallet being loaded without external signer support compiled</source>
         <translation type="unfinished">Erro ao abrir %s: Carteira com assinador externo. Não foi compilado suporte para assinadores externos</translation>
->>>>>>> 69821b27f5... qt: Translation updates from Transifex:src/qt/locale/bitgesell_pt_BR.ts
     </message>
     <message>
         <source>Error reading %s! All keys read correctly, but transaction data or address metadata may be missing or incorrect.</source>

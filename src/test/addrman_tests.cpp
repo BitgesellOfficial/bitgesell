@@ -715,7 +715,7 @@ BOOST_AUTO_TEST_CASE(addrman_serialization)
     auto addrman_asmap1_dup = std::make_unique<AddrMan>(netgroupman, DETERMINISTIC, ratio);
     auto addrman_noasmap = std::make_unique<AddrMan>(EMPTY_NETGROUPMAN, DETERMINISTIC, ratio);
 
-    DataStream stream{};
+    CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);
 
     CAddress addr = CAddress(ResolveService("250.1.1.1"), NODE_NONE);
     CNetAddr default_source;
@@ -775,7 +775,7 @@ BOOST_AUTO_TEST_CASE(remove_invalid)
     // Confirm that invalid addresses are ignored in unserialization.
 
     auto addrman = std::make_unique<AddrMan>(EMPTY_NETGROUPMAN, DETERMINISTIC, GetCheckRatio(m_node));
-    DataStream stream{};
+    CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);;
 
     const CAddress new1{ResolveService("5.5.5.5"), NODE_NONE};
     const CAddress new2{ResolveService("6.6.6.6"), NODE_NONE};
@@ -960,7 +960,7 @@ BOOST_AUTO_TEST_CASE(addrman_evictionworks)
 
 static auto AddrmanToStream(const AddrMan& addrman)
 {
-    DataStream ssPeersIn{};
+    CDataStream ssPeersIn(SER_NETWORK, PROTOCOL_VERSION);
     ssPeersIn << Params().MessageStart();
     ssPeersIn << addrman;
     return ssPeersIn;
@@ -1007,7 +1007,7 @@ BOOST_AUTO_TEST_CASE(load_addrman)
     BOOST_CHECK(exceptionThrown == false);
 
     // Test that ReadFromStream creates an addrman with the correct number of addrs.
-    DataStream ssPeers2 = AddrmanToStream(addrman);
+    CDataStream ssPeers2 = AddrmanToStream(addrman);
 
     AddrMan addrman2{EMPTY_NETGROUPMAN, !DETERMINISTIC, GetCheckRatio(m_node)};
     BOOST_CHECK(addrman2.Size() == 0);
@@ -1018,7 +1018,7 @@ BOOST_AUTO_TEST_CASE(load_addrman)
 // Produce a corrupt peers.dat that claims 20 addrs when it only has one addr.
 static auto MakeCorruptPeersDat()
 {
-    DataStream s{};
+    CDataStream s(SER_NETWORK, PROTOCOL_VERSION);
     s << ::Params().MessageStart();
 
     unsigned char nVersion = 1;
@@ -1059,7 +1059,7 @@ BOOST_AUTO_TEST_CASE(load_addrman_corrupted)
     BOOST_CHECK(exceptionThrown);
 
     // Test that ReadFromStream fails if peers.dat is corrupt
-    auto ssPeers2{MakeCorruptPeersDat()};
+    CDataStream ssPeers2{MakeCorruptPeersDat()};
 
     AddrMan addrman2{EMPTY_NETGROUPMAN, !DETERMINISTIC, GetCheckRatio(m_node)};
     BOOST_CHECK(addrman2.Size() == 0);

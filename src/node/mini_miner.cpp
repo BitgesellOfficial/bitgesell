@@ -256,6 +256,7 @@ void MiniMiner::SanityCheck() const
 void MiniMiner::BuildMockTemplate(std::optional<CFeeRate> target_feerate)
 {
     const auto num_txns{m_entries_by_txid.size()};
+    uint32_t sequence_num{0};
     while (!m_entries_by_txid.empty()) {
         // Sort again, since transaction removal may change some m_entries' ancestor feerates.
         std::sort(m_entries.begin(), m_entries.end(), AncestorFeerateComparator());
@@ -304,11 +305,8 @@ void MiniMiner::BuildMockTemplate(std::optional<CFeeRate> target_feerate)
     } else {
         Assume(m_in_block.empty() || m_total_fees >= target_feerate->GetFee(m_total_vsize));
     }
-    if (!target_feerate.has_value()) {
-        Assume(m_in_block.size() == num_txns);
-    } else {
-        Assume(m_in_block.empty() || m_total_fees >= target_feerate->GetFee(m_total_vsize));
-    }
+    Assume(m_in_block.empty() || sequence_num > 0);
+    Assume(m_in_block.size() == m_inclusion_order.size());
     // Do not try to continue building the block template with a different feerate.
     m_ready_to_calculate = false;
 }

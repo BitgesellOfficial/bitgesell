@@ -2725,6 +2725,7 @@ For more information on using this console, type %6.
     <message>
         <translation type="unfinished">未知</translation>
     </message>
+    </context>
 <context>
     <name>ReceiveCoinsDialog</name>
     <message>

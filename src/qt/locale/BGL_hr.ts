@@ -430,8 +430,10 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <source>E&amp;xit</source>
         <translation type="unfinished">&amp;Izlaz</translation>
     </message>
+    <message>
         <source>Show information about %1</source>
         <translation type="unfinished">Prikažite informacije o programu %1</translation>
+    </message>
     <message>
         <source>About &amp;Qt</source>
         <translation type="unfinished">Više o &amp;Qt</translation>

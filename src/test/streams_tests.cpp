@@ -556,12 +556,12 @@ BOOST_AUTO_TEST_CASE(streams_buffered_file_rand)
 
 BOOST_AUTO_TEST_CASE(streams_hashed)
 {
-    DataStream stream{};
+    CDataStream stream(SER_NETWORK, INIT_PROTO_VERSION);
     HashedSourceWriter hash_writer{stream};
     const std::string data{"BGL"};
     hash_writer << data;
 
-    HashVerifier hash_verifier{stream};
+    CHashVerifier hash_verifier{&stream};
     std::string result;
     hash_verifier >> result;
     BOOST_CHECK_EQUAL(data, result);

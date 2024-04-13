@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE(block_malleation)
         // hashes.
         block.vtx.push_back(MakeTransactionRef(CMutableTransaction{}));
         BOOST_CHECK(is_mutated(block, /*check_witness_root=*/false));
-        HashWriter hasher;
+        CHashWriterSHA256 hasher = CHashWriterSHA256(SER_DISK, 0);
         hasher.write(block.vtx[0]->GetHash());
         hasher.write(block.vtx[1]->GetHash());
         block.hashMerkleRoot = hasher.GetHash();
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE(block_malleation)
         // Block with two transactions is mutated if any node is duplicate.
         {
             block.vtx[1] = block.vtx[0];
-            HashWriter hasher;
+            CHashWriterSHA256 hasher = CHashWriterSHA256(SER_DISK, 0);
             hasher.write(block.vtx[0]->GetHash());
             hasher.write(block.vtx[1]->GetHash());
             block.hashMerkleRoot = hasher.GetHash();
@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE(block_malleation)
         BOOST_CHECK(DecodeHexTx(tx3, "cdaf22d00002c6a7f848f8ae4d30054e61dcf3303d6fe01d282163341f06feecc10032b3160fcab87bdfe3ecfb769206ef2d991b92f8a268e423a6ef4d485f06", /*try_no_witness=*/true, /*try_witness=*/false));
         {
             // Verify that double_sha256(txid1||txid2) == txid3
-            HashWriter hasher;
+            CHashWriterSHA256 hasher = CHashWriterSHA256(SER_DISK, 0);
             hasher.write(tx1.GetHash());
             hasher.write(tx2.GetHash());
             assert(hasher.GetHash() == tx3.GetHash());

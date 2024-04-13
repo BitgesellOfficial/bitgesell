@@ -1702,6 +1702,7 @@ El proceso de migración creará una copia de seguridad de la billetera antes de
     <message>
         <source>Accept connections from outside.</source>
         <translation type="unfinished">Aceptar conexiones externas.</translation>
+    </message>
     <message>
         <source>Allow incomin&amp;g connections</source>
         <translation type="unfinished">&amp;Permitir conexiones entrantes</translation>

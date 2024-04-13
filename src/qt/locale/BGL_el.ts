@@ -439,6 +439,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Create a new wallet</source>
         <translation type="unfinished">Δημιουργία νέου Πορτοφολιού</translation>
+    </message>
     <message>
         <source>&amp;Minimize</source>
         <translation type="unfinished">&amp;Σμίκρυνε </translation>

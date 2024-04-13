@@ -4,7 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include <config/bitcoin-config.h>
+#include <config/BGL-config.h>
 #endif
 
 #include <addrman.h>
@@ -1281,13 +1281,14 @@ void AddrMan::Unserialize(Stream& s_)
 }
 
 // explicit instantiation
-template void AddrMan::Serialize(HashedSourceWriter<AutoFile>&) const;
+template void AddrMan::Serialize(HashedSourceWriter<CAutoFile>&) const;
 template void AddrMan::Serialize(CHashWriterKeccak&) const;
 template void AddrMan::Serialize(CDataStream&) const;
+template void AddrMan::Serialize(CAutoFile&) const;
 template void AddrMan::Unserialize(CAutoFile&);
-template void AddrMan::Unserialize(CHashVerifier<AutoFile>&);
-template void AddrMan::Unserialize(DataStream&);
-template void AddrMan::Unserialize(CHashVerifier<DataStream>&);
+template void AddrMan::Unserialize(CHashVerifier<CAutoFile>&);
+template void AddrMan::Unserialize(CDataStream&);
+template void AddrMan::Unserialize(CHashVerifier<CDataStream>&);
 
 size_t AddrMan::Size(std::optional<Network> net, std::optional<bool> in_new) const
 {

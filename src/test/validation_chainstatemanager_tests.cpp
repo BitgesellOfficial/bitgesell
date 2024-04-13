@@ -459,7 +459,7 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_loadblockindex, TestChain100Setup)
 
         // Blocks with heights in range [91, 110] are marked as missing data.
         if (i < last_assumed_valid_idx && i >= assumed_valid_start_idx) {
-            index->nStatus = BlockStatus::BLOCK_VALID_TREE | BlockStatus::BLOCK_ASSUMED_VALID;
+            index->nStatus = BlockStatus::BLOCK_VALID_TREE;
             index->nTx = 0;
             index->nChainTx = 0;
         }
@@ -470,8 +470,8 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_loadblockindex, TestChain100Setup)
         if (i == (assumed_valid_start_idx - 1)) {
             validated_tip = index;
         }
-        // Note the block after the last assumed valid block as the snapshot base
-        if (i == last_assumed_valid_idx) {
+        // Note the last assumed valid block as the snapshot base
+        if (i == last_assumed_valid_idx - 1) {
             assumed_base = index;
         }
     }
@@ -541,7 +541,8 @@ BOOST_FIXTURE_TEST_CASE(chainstatemanager_loadblockindex, TestChain100Setup)
     BOOST_CHECK_EQUAL(cs2.setBlockIndexCandidates.count(assumed_base), 1);
     // Check that block 120 is present
     BOOST_CHECK_EQUAL(cs2.setBlockIndexCandidates.count(assumed_tip), 1);
-    BOOST_CHECK_EQUAL(cs2.setBlockIndexCandidates.size(), num_indexes - last_assumed_valid_idx); // Remove the extra 1. Seems like data corruption
+    // Check that 11 blocks total are present.
+    BOOST_CHECK_EQUAL(cs2.setBlockIndexCandidates.size(), num_indexes - last_assumed_valid_idx + 1);
 }
 
 //! Ensure that snapshot chainstates initialize properly when found on disk.
