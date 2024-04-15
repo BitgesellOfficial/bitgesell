@@ -385,12 +385,14 @@ class RPCPackagesTest(BGLTestFramework):
             "-maxmempool=5",
             "-persistmempool=0",
         ])
+        self.wallet.rescan_utxos()
 
         fill_mempool(self, node, self.wallet)
 
         minrelay = node.getmempoolinfo()["minrelaytxfee"]
         parent = self.wallet.create_self_transfer(
             fee_rate=minrelay,
+            confirmed_only=True,
         )
 
         child = self.wallet.create_self_transfer(
@@ -410,6 +412,7 @@ class RPCPackagesTest(BGLTestFramework):
 
         # Reset maxmempool, datacarriersize, reset dynamic mempool minimum feerate, and empty mempool.
         self.restart_node(0)
+        self.wallet.rescan_utxos()
 
         assert_equal(node.getrawmempool(), [])
 
@@ -419,7 +422,10 @@ class RPCPackagesTest(BGLTestFramework):
         assert_equal(node.getrawmempool(), [])
 
         self.log.info("Submitpackage maxburnamount arg testing")
-        chained_txns_burn = self.wallet.create_self_transfer_chain(chain_length=2)
+        chained_txns_burn = self.wallet.create_self_transfer_chain(
+            chain_length=2,
+            utxo_to_spend=self.wallet.get_utxo(confirmed_only=True),
+        )
         chained_burn_hex = [t["hex"] for t in chained_txns_burn]
 
         tx = tx_from_hex(chained_burn_hex[1])
