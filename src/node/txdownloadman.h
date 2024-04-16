@@ -148,9 +148,12 @@ public:
 
     /** Respond to successful transaction submission to mempool */
     void MempoolAcceptedTx(const CTransactionRef& tx);
+<<<<<<< HEAD
 
     /** Respond to transaction rejected from mempool */
     RejectedTxTodo MempoolRejectedTx(const CTransactionRef& ptx, const TxValidationState& state, NodeId nodeid, bool first_time_failure);
+=======
+>>>>>>> c6b21749ca... [refactor] move valid tx processing to TxDownload
 };
 } // namespace node
 #endif // BGL_NODE_TXDOWNLOADMAN_H
