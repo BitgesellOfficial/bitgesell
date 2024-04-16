@@ -11,9 +11,12 @@
 #include <txorphanage.h>
 #include <txrequest.h>
 
+class CTxMemPool;
 namespace node {
 class TxDownloadManagerImpl {
 public:
+    TxDownloadOptions m_opts;
+
     /** Manages unvalidated tx data (orphan transactions for which we are downloading ancestors). */
     TxOrphanage m_orphanage;
     /** Tracks candidates for requesting and downloading transaction data. */
@@ -122,20 +125,6 @@ public:
     }
 
     TxDownloadManagerImpl(const TxDownloadOptions& options) : m_opts{options} {}
-
-    struct PeerInfo {
-        /** Information relevant to scheduling tx requests. */
-        const TxDownloadConnectionInfo m_connection_info;
-
-        PeerInfo(const TxDownloadConnectionInfo& info) : m_connection_info{info} {}
-    };
-
-    /** Information for all of the peers we may download transactions from. This is not necessarily
-     * all peers we are connected to (no block-relay-only and temporary connections). */
-    std::map<NodeId, PeerInfo> m_peer_info;
-
-    /** Number of wtxid relay peers we have in m_peer_info. */
-    uint32_t m_num_wtxid_peers{0};
 
     void ActiveTipChange();
     void BlockConnected(const std::shared_ptr<const CBlock>& pblock);
