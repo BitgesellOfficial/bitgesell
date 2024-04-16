@@ -185,7 +185,7 @@
         }
     ],
     [
-        "tb1q3vya2h5435jkugq2few7dmktlrwq4ejmfaw7kr",
+        "tbgl1q3vya2h5435jkugq2few7dmktlrwq4ejmh8mpg7",
         "00148b09d55e958d256e200a4e5de6eecbf8dc0ae65b",
         {
             "chain": "signet",
@@ -194,7 +194,7 @@
         }
     ],
     [
-        "tb1qxkhrl2s6ttrclckldruea0e8anhrehffl8xv7t0pdyrzm08v2hyqy408nf",
+        "tbgl1qxkhrl2s6ttrclckldruea0e8anhrehffl8xv7t0pdyrzm08v2hyqwuvd9z",
         "002035ae3faa1a5ac78fe2df68f99ebf27ecee3cdd29f9cccf2de169062dbcec55c8",
         {
             "chain": "signet",
@@ -203,7 +203,7 @@
         }
     ],
     [
-        "tb1pae5um27ahn8n73pgexe3kcwlp8dhswpn684h2k2w6t9a7w3eq65qephd5y",
+        "tbgl1pae5um27ahn8n73pgexe3kcwlp8dhswpn684h2k2w6t9a7w3eq65qng58z0",
         "5120ee69cdabddbccf3f4428c9b31b61df09db783833d1eb75594ed2cbdf3a3906a8",
         {
             "chain": "signet",
@@ -212,7 +212,7 @@
         }
     ],
     [
-        "tb1rx9n9g37az8mu236e5jpxdt0m67y4fuq8rhs0ss3djnm0kscfrwvq0ntlyg",
+        "tbgl1rx9n9g37az8mu236e5jpxdt0m67y4fuq8rhs0ss3djnm0kscfrwvq96g4jr",
         "532031665447dd11f7c54759a48266adfbd78954f0071de0f8422d94f6fb43091b98",
         {
             "chain": "signet",
@@ -447,16 +447,7 @@
         }
     ],
     [
-        "tb1q6mwf89hnqhlu8txjgjfs4s7p93ugffn3k062ll",
-        "0014d6dc9396f305ffc3acd244930ac3c12c7884a671",
-        {
-            "chain": "signet",
-            "isPrivkey": false,
-            "tryCaseFlip": true
-        }
-    ],
-    [
-        "tb1qafrjalu4d73dql0czau9j6z422434kef235mzljf48ckd5xz3sys09jm97",
+        "tbgl1qafrjalu4d73dql0czau9j6z422434kef235mzljf48ckd5xz3sys9v33n4",
         "0020ea472eff956fa2d07df8177859685552ab1adb295469b17e49a9f166d0c28c09",
         {
             "chain": "signet",
@@ -465,7 +456,7 @@
         }
     ],
     [
-        "tb1pwst9qszjrhuv2e7as0flcq9gm698v6gdxzz9e87p07s8rssdx3zqklm3vf",
+        "tbgl1pwst9qszjrhuv2e7as0flcq9gm698v6gdxzz9e87p07s8rssdx3zqukcm6z",
         "512074165040521df8c567dd83d3fc00a8de8a76690d30845c9fc17fa071c20d3444",
         {
             "chain": "signet",
@@ -474,7 +465,7 @@
         }
     ],
     [
-        "tb1r3ss76jtsuxe8c8c8lxsehnpak55ylrgr345pww076l536ahjr6jsydamx3",
+        "tbgl1r3ss76jtsuxe8c8c8lxsehnpak55ylrgr345pww076l536ahjr6jswy73s6",
         "53208c21ed4970e1b27c1f07f9a19bcc3db5284f8d038d681739fed7e91d76f21ea5",
         {
             "chain": "signet",
