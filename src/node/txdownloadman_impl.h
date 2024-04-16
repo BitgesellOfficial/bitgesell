@@ -151,6 +151,17 @@ public:
 
     /** Get getdata requests to send. */
     std::vector<GenTxid> GetRequestsToSend(NodeId nodeid, std::chrono::microseconds current_time);
+
+    /** Marks a tx as ReceivedResponse in txrequest. */
+    void ReceivedNotFound(NodeId nodeid, const std::vector<uint256>& txhashes);
+
+    std::optional<PackageToValidate> Find1P1CPackage(const CTransactionRef& ptx, NodeId nodeid);
+
+    void MempoolAcceptedTx(const CTransactionRef& tx);
+    RejectedTxTodo MempoolRejectedTx(const CTransactionRef& ptx, const TxValidationState& state, NodeId nodeid, bool first_time_failure);
+    void MempoolRejectedPackage(const Package& package);
+
+    std::pair<bool, std::optional<PackageToValidate>> ReceivedTx(NodeId nodeid, const CTransactionRef& ptx);
 };
 } // namespace node
 #endif // BGL_NODE_TXDOWNLOADMAN_IMPL_H
