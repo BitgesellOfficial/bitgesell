@@ -65,6 +65,14 @@ void TxDownloadManager::DisconnectedPeer(NodeId nodeid)
 {
     m_impl->DisconnectedPeer(nodeid);
 }
+void TxDownloadManager::ConnectedPeer(NodeId nodeid, const TxDownloadConnectionInfo& info)
+{
+    m_impl->ConnectedPeer(nodeid, info);
+}
+void TxDownloadManager::DisconnectedPeer(NodeId nodeid)
+{
+    m_impl->DisconnectedPeer(nodeid);
+}
 
 // TxDownloadManagerImpl
 void TxDownloadManagerImpl::ActiveTipChange()
