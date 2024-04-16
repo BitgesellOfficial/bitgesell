@@ -8,6 +8,8 @@
 #include <net.h>
 #include <policy/packages.h>
 
+#include <net.h>
+
 #include <cstdint>
 #include <memory>
 
@@ -75,6 +77,14 @@ struct RejectedTxTodo
     std::vector<uint256> m_unique_parents;
     std::optional<PackageToValidate> m_package_to_validate;
 };
+struct TxDownloadConnectionInfo {
+    /** Whether this peer is preferred for transaction download. */
+    const bool m_preferred;
+    /** Whether this peer has Relay permissions. */
+    const bool m_relay_permissions;
+    /** Whether this peer supports wtxid relay. */
+    const bool m_wtxid_relay;
+};
 
 
 /**
@@ -115,31 +125,20 @@ public:
     void BlockConnected(const std::shared_ptr<const CBlock>& pblock);
     void BlockDisconnected();
 
+    /** Check whether we already have this gtxid in:
+     *  - mempool
+     *  - orphanage
+     *  - m_recent_rejects
+     *  - m_recent_rejects_reconsiderable (if include_reconsiderable = true)
+     *  - m_recent_confirmed_transactions
+     *  */
+    bool AlreadyHaveTx(const GenTxid& gtxid, bool include_reconsiderable);
+
     /** Creates a new PeerInfo. Saves the connection info to calculate tx announcement delays later. */
     void ConnectedPeer(NodeId nodeid, const TxDownloadConnectionInfo& info);
 
     /** Deletes all txrequest announcements and orphans for a given peer. */
     void DisconnectedPeer(NodeId nodeid);
-
-    /** New inv has been received. May be added as a candidate to txrequest.
-     * @param[in] p2p_inv     When true, only add this announcement if we don't already have the tx.
-     * Returns true if this was a dropped inv (p2p_inv=true and we already have the tx), false otherwise. */
-    bool AddTxAnnouncement(NodeId peer, const GenTxid& gtxid, std::chrono::microseconds now, bool p2p_inv);
-
-    /** Get getdata requests to send. */
-    std::vector<GenTxid> GetRequestsToSend(NodeId nodeid, std::chrono::microseconds current_time);
-
-    /** Should be called when a notfound for a tx has been received. */
-    void ReceivedNotFound(NodeId nodeid, const std::vector<uint256>& txhashes);
-
-    /** Respond to successful transaction submission to mempool */
-    void MempoolAcceptedTx(const CTransactionRef& tx);
-<<<<<<< HEAD
-
-    /** Respond to transaction rejected from mempool */
-    RejectedTxTodo MempoolRejectedTx(const CTransactionRef& ptx, const TxValidationState& state, NodeId nodeid, bool first_time_failure);
-=======
->>>>>>> c6b21749ca... [refactor] move valid tx processing to TxDownload
 };
 } // namespace node
 #endif // BGL_NODE_TXDOWNLOADMAN_H

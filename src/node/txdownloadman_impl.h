@@ -130,6 +130,20 @@ public:
 
     TxDownloadManagerImpl() = default;
 
+    struct PeerInfo {
+        /** Information relevant to scheduling tx requests. */
+        const TxDownloadConnectionInfo m_connection_info;
+
+        PeerInfo(const TxDownloadConnectionInfo& info) : m_connection_info{info} {}
+    };
+
+    /** Information for all of the peers we may download transactions from. This is not necessarily
+     * all peers we are connected to (no block-relay-only and temporary connections). */
+    std::map<NodeId, PeerInfo> m_peer_info;
+
+    /** Number of wtxid relay peers we have in m_peer_info. */
+    uint32_t m_num_wtxid_peers{0};
+
     void ActiveTipChange();
     void BlockConnected(const std::shared_ptr<const CBlock>& pblock);
     void BlockDisconnected();
@@ -145,27 +159,6 @@ public:
 
     void ConnectedPeer(NodeId nodeid, const TxDownloadConnectionInfo& info);
     void DisconnectedPeer(NodeId nodeid);
-
-    /** New inv has been received. May be added as a candidate to txrequest. */
-    bool AddTxAnnouncement(NodeId peer, const GenTxid& gtxid, std::chrono::microseconds now, bool p2p_inv);
-
-    /** Get getdata requests to send. */
-    std::vector<GenTxid> GetRequestsToSend(NodeId nodeid, std::chrono::microseconds current_time);
-
-    /** Marks a tx as ReceivedResponse in txrequest. */
-    void ReceivedNotFound(NodeId nodeid, const std::vector<uint256>& txhashes);
-
-    /** Look for a child of this transaction in the orphanage to form a 1-parent-1-child package,
-     * skipping any combinations that have already been tried. Return the resulting package along with
-     * the senders of its respective transactions, or std::nullopt if no package is found. */
-    std::optional<PackageToValidate> Find1P1CPackage(const CTransactionRef& ptx, NodeId nodeid);
-
-    void MempoolAcceptedTx(const CTransactionRef& tx);
-    RejectedTxTodo MempoolRejectedTx(const CTransactionRef& ptx, const TxValidationState& state, NodeId nodeid, bool first_time_failure);
-
-    std::optional<PackageToValidate> Find1P1CPackage(const CTransactionRef& ptx, NodeId nodeid);
-
-    void MempoolAcceptedTx(const CTransactionRef& tx);
 };
 } // namespace node
 #endif // BGL_NODE_TXDOWNLOADMAN_IMPL_H
