@@ -7,6 +7,7 @@
 #include <node/txdownloadman.h>
 
 #include <common/bloom.h>
+#include <consensus/validation.h>
 #include <kernel/chain.h>
 #include <net.h>
 #include <primitives/transaction.h>
@@ -146,9 +147,6 @@ public:
 
     /** Marks a tx as ReceivedResponse in txrequest. */
     void ReceivedNotFound(NodeId nodeid, const std::vector<uint256>& txhashes);
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 
     /** Look for a child of this transaction in the orphanage to form a 1-parent-1-child package,
      * skipping any combinations that have already been tried. Return the resulting package along with
@@ -157,19 +155,8 @@ public:
 
     void MempoolAcceptedTx(const CTransactionRef& tx);
     RejectedTxTodo MempoolRejectedTx(const CTransactionRef& ptx, const TxValidationState& state, NodeId nodeid, bool first_time_failure);
-    void MempoolRejectedPackage(const Package& package);
-
-    std::pair<bool, std::optional<PackageToValidate>> ReceivedTx(NodeId nodeid, const CTransactionRef& ptx);
-
-    bool HaveMoreWork(NodeId nodeid);
-    CTransactionRef GetTxToReconsider(NodeId nodeid);
->>>>>>> 969b07237b... [refactor] wrap {Have,Get}TxToReconsider in txdownload
-=======
 
     std::optional<PackageToValidate> Find1P1CPackage(const CTransactionRef& ptx, NodeId nodeid);
->>>>>>> a8cf3b6e84... [refactor] move Find1P1CPackage to txdownload
-=======
->>>>>>> af918349de... [refactor] move ValidationInterface functions to TxDownloadManager
 };
 } // namespace node
 #endif // BGL_NODE_TXDOWNLOADMAN_IMPL_H
