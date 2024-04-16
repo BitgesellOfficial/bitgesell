@@ -652,56 +652,6 @@ namespace util
  */
 
 /*!
- * The buffer size of the stdin/stdout/stderr
- * streams of the child process.
- * Default value is 0.
- */
-struct bufsize {
-  explicit bufsize(int sz): bufsiz(sz) {}
-  int  bufsiz = 0;
-};
-
-/*!
- * Option to defer spawning of the child process
- * till `Popen::start_process` API is called.
- * Default value is false.
- */
-struct defer_spawn {
-  explicit defer_spawn(bool d): defer(d) {}
-  bool defer  = false;
-};
-
-/*!
- * Option to close all file descriptors
- * when the child process is spawned.
- * The close fd list does not include
- * input/output/error if they are explicitly
- * set as part of the Popen arguments.
- *
- * Default value is false.
- */
-struct close_fds {
-  explicit close_fds(bool c): close_all(c) {}
-  bool close_all = false;
-};
-
-/*!
- * Option to make the child process as the
- * session leader and thus the process
- * group leader.
- * Default value is false.
- */
-struct session_leader {
-  explicit session_leader(bool sl): leader_(sl) {}
-  bool leader_ = false;
-};
-
-struct shell {
-  explicit shell(bool s): shell_(s) {}
-  bool shell_ = false;
-};
-
-/*!
  * Base class for all arguments involving string value.
  */
 struct string_arg
@@ -1008,7 +958,6 @@ struct ArgumentDeducer
 
   void set_option(executable&& exe);
   void set_option(cwd&& cwdir);
-  void set_option(bufsize&& bsiz);
   void set_option(environment&& env);
   void set_option(defer_spawn&& defer);
   void set_option(shell&& sh);
@@ -1167,9 +1116,6 @@ public:// Yes they are public
   HANDLE g_hChildStd_ERR_Rd = nullptr;
   HANDLE g_hChildStd_ERR_Wr = nullptr;
 #endif
-
-  // Buffer size for the IO streams
-  int bufsiz_ = 0;
 
   // Pipes for communicating with child
 
@@ -1666,10 +1612,6 @@ namespace detail {
     popen_->cwd_ = std::move(cwdir.arg_value);
   }
 
-  inline void ArgumentDeducer::set_option(bufsize&& bsiz) {
-    popen_->stream_.bufsiz_ = bsiz.bufsiz;
-  }
-
   inline void ArgumentDeducer::set_option(environment&& env) {
     popen_->env_ = std::move(env.env_);
   }
@@ -1840,16 +1782,7 @@ namespace detail {
 
     for (auto& h : handles) {
       if (h == nullptr) continue;
-      switch (bufsiz_) {
-      case 0:
-        setvbuf(h, nullptr, _IONBF, BUFSIZ);
-        break;
-      case 1:
-        setvbuf(h, nullptr, _IONBF, BUFSIZ);
-        break;
-      default:
-        setvbuf(h, nullptr, _IOFBF, bufsiz_);
-      };
+      setvbuf(h, nullptr, _IONBF, BUFSIZ);
     }
   #endif
   }
