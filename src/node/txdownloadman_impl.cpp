@@ -29,11 +29,7 @@ CRollingBloomFilter& TxDownloadManager::RecentRejectsReconsiderableFilter()
 {
     return m_impl->RecentRejectsReconsiderableFilter();
 }
-CRollingBloomFilter& TxDownloadManager::RecentConfirmedTransactionsFilter()
-{
-    m_impl->BlockDisconnected();
-}
-void TxDownloadManager::ConnectedPeer(NodeId nodeid, const TxDownloadConnectionInfo& info)
+void TxDownloadManager::ActiveTipChange()
 {
     m_impl->ConnectedPeer(nodeid, info);
 }
@@ -72,6 +68,10 @@ void TxDownloadManager::ConnectedPeer(NodeId nodeid, const TxDownloadConnectionI
 void TxDownloadManager::DisconnectedPeer(NodeId nodeid)
 {
     m_impl->DisconnectedPeer(nodeid);
+}
+bool TxDownloadManager::AlreadyHaveTx(const GenTxid& gtxid, bool include_reconsiderable)
+{
+    return m_impl->AlreadyHaveTx(gtxid, include_reconsiderable);
 }
 
 // TxDownloadManagerImpl
@@ -135,26 +135,5 @@ bool TxDownloadManagerImpl::AlreadyHaveTx(const GenTxid& gtxid, bool include_rec
     if (RecentConfirmedTransactionsFilter().contains(hash)) return true;
 
     return RecentRejectsFilter().contains(hash) || m_opts.m_mempool.exists(gtxid);
-}
-
-void TxDownloadManagerImpl::ConnectedPeer(NodeId nodeid, const TxDownloadConnectionInfo& info)
-{
-    // If already connected (shouldn't happen in practice), exit early.
-    if (m_peer_info.contains(nodeid)) return;
-
-    m_peer_info.try_emplace(nodeid, info);
-    if (info.m_wtxid_relay) m_num_wtxid_peers += 1;
-}
-
-void TxDownloadManagerImpl::DisconnectedPeer(NodeId nodeid)
-{
-    m_orphanage.EraseForPeer(nodeid);
-    m_txrequest.DisconnectedPeer(nodeid);
-
-    if (auto it = m_peer_info.find(nodeid); it != m_peer_info.end()) {
-        if (it->second.m_connection_info.m_wtxid_relay) m_num_wtxid_peers -= 1;
-        m_peer_info.erase(it);
-    }
-
 }
 } // namespace node

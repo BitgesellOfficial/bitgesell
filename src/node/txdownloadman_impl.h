@@ -11,7 +11,6 @@
 #include <kernel/chain.h>
 #include <net.h>
 #include <primitives/transaction.h>
-#include <policy/packages.h>
 #include <txorphanage.h>
 #include <txrequest.h>
 
@@ -162,17 +161,7 @@ public:
     void BlockConnected(const std::shared_ptr<const CBlock>& pblock);
     void BlockDisconnected();
 
-    /** Check whether we already have this gtxid in:
-     *  - mempool
-     *  - orphanage
-     *  - m_recent_rejects
-     *  - m_recent_rejects_reconsiderable (if include_reconsiderable = true)
-     *  - m_recent_confirmed_transactions
-     *  */
     bool AlreadyHaveTx(const GenTxid& gtxid, bool include_reconsiderable);
-
-    void ConnectedPeer(NodeId nodeid, const TxDownloadConnectionInfo& info);
-    void DisconnectedPeer(NodeId nodeid);
 };
 } // namespace node
 #endif // BGL_NODE_TXDOWNLOADMAN_IMPL_H

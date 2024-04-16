@@ -17,6 +17,8 @@
 
 class CBlock;
 class CRollingBloomFilter;
+class CTxMemPool;
+class GenTxid;
 class TxOrphanage;
 class TxRequestTracker;
 namespace node {
@@ -128,7 +130,6 @@ public:
     TxOrphanage& GetOrphanageRef();
     TxRequestTracker& GetTxRequestRef();
     CRollingBloomFilter& RecentRejectsReconsiderableFilter();
-    CRollingBloomFilter& RecentConfirmedTransactionsFilter();
 
     // Responses to chain events. TxDownloadManager is not an actual client of ValidationInterface, these are called through PeerManager.
     void ActiveTipChange();
@@ -143,12 +144,6 @@ public:
      *  - m_recent_confirmed_transactions
      *  */
     bool AlreadyHaveTx(const GenTxid& gtxid, bool include_reconsiderable);
-
-    /** Creates a new PeerInfo. Saves the connection info to calculate tx announcement delays later. */
-    void ConnectedPeer(NodeId nodeid, const TxDownloadConnectionInfo& info);
-
-    /** Deletes all txrequest announcements and orphans for a given peer. */
-    void DisconnectedPeer(NodeId nodeid);
 };
 } // namespace node
 #endif // BGL_NODE_TXDOWNLOADMAN_H

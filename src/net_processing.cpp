@@ -826,6 +826,12 @@ private:
     /** Stalling timeout for blocks in IBD */
     std::atomic<std::chrono::seconds> m_block_stalling_timeout{BLOCK_STALLING_TIMEOUT_DEFAULT};
 
+    CRollingBloomFilter& RecentRejectsFilter() EXCLUSIVE_LOCKS_REQUIRED(m_tx_download_mutex)
+    {
+        AssertLockHeld(m_tx_download_mutex);
+        return m_txdownloadman.RecentRejectsFilter();
+    }
+
     CRollingBloomFilter& RecentRejectsReconsiderableFilter() EXCLUSIVE_LOCKS_REQUIRED(m_tx_download_mutex)
     {
         AssertLockHeld(m_tx_download_mutex);
@@ -2129,40 +2135,6 @@ void PeerManagerImpl::BlockChecked(const CBlock& block, const BlockValidationSta
 //
 // Messages
 //
-
-
-bool PeerManagerImpl::AlreadyHaveTx(const GenTxid& gtxid, bool include_reconsiderable)
-{
-    AssertLockHeld(m_tx_download_mutex);
-
-    auto& m_orphanage = m_txdownloadman.GetOrphanageRef();
-
-    const uint256& hash = gtxid.GetHash();
-
-    if (gtxid.IsWtxid()) {
-        // Normal query by wtxid.
-        if (m_orphanage.HaveTx(Wtxid::FromUint256(hash))) return true;
-    } else {
-        // Never query by txid: it is possible that the transaction in the orphanage has the same
-        // txid but a different witness, which would give us a false positive result. If we decided
-        // not to request the transaction based on this result, an attacker could prevent us from
-        // downloading a transaction by intentionally creating a malleated version of it.  While
-        // only one (or none!) of these transactions can ultimately be confirmed, we have no way of
-        // discerning which one that is, so the orphanage can store multiple transactions with the
-        // same txid.
-        //
-        // While we won't query by txid, we can try to "guess" what the wtxid is based on the txid.
-        // A non-segwit transaction's txid == wtxid. Query this txid "casted" to a wtxid. This will
-        // help us find non-segwit transactions, saving bandwidth, and should have no false positives.
-        if (m_orphanage.HaveTx(Wtxid::FromUint256(hash))) return true;
-    }
-
-    if (include_reconsiderable && RecentRejectsReconsiderableFilter().contains(hash)) return true;
-
-    if (RecentConfirmedTransactionsFilter().contains(hash)) return true;
-
-    return RecentRejectsFilter().contains(hash) || m_mempool.exists(gtxid);
-}
 
 bool PeerManagerImpl::AlreadyHaveBlock(const uint256& block_hash)
 {
@@ -4129,6 +4101,9 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
                     return;
                 }
                 const GenTxid gtxid = ToGenTxid(inv);
+                const bool fAlreadyHave = m_txdownloadman.AlreadyHaveTx(gtxid, /*include_reconsiderable=*/true);
+                LogDebug(BCLog::NET, "got inv: %s  %s peer=%d\n", inv.ToString(), fAlreadyHave ? "have" : "new", pfrom.GetId());
+
                 AddKnownTx(*peer, inv.hash);
 
                 if (!m_chainman.IsInitialBlockDownload()) {
@@ -4485,6 +4460,81 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         if (result.m_result_type == MempoolAcceptResult::ResultType::VALID) {
             ProcessValidTx(pfrom.GetId(), ptx, result.m_replaced_transactions);
             pfrom.m_last_tx_time = GetTime<std::chrono::seconds>();
+        }
+        else if (state.GetResult() == TxValidationResult::TX_MISSING_INPUTS)
+        {
+            bool fRejectedParents = false; // It may be the case that the orphans parents have all been rejected
+
+            // Deduplicate parent txids, so that we don't have to loop over
+            // the same parent txid more than once down below.
+            std::vector<uint256> unique_parents;
+            unique_parents.reserve(tx.vin.size());
+            for (const CTxIn& txin : tx.vin) {
+                // We start with all parents, and then remove duplicates below.
+                unique_parents.push_back(txin.prevout.hash);
+            }
+            std::sort(unique_parents.begin(), unique_parents.end());
+            unique_parents.erase(std::unique(unique_parents.begin(), unique_parents.end()), unique_parents.end());
+
+            // Distinguish between parents in m_lazy_recent_rejects and m_lazy_recent_rejects_reconsiderable.
+            // We can tolerate having up to 1 parent in m_lazy_recent_rejects_reconsiderable since we
+            // submit 1p1c packages. However, fail immediately if any are in m_lazy_recent_rejects.
+            std::optional<uint256> rejected_parent_reconsiderable;
+            for (const uint256& parent_txid : unique_parents) {
+                if (RecentRejectsFilter().contains(parent_txid)) {
+                    fRejectedParents = true;
+                    break;
+                } else if (RecentRejectsReconsiderableFilter().contains(parent_txid) && !m_mempool.exists(GenTxid::Txid(parent_txid))) {
+                    // More than 1 parent in m_lazy_recent_rejects_reconsiderable: 1p1c will not be
+                    // sufficient to accept this package, so just give up here.
+                    if (rejected_parent_reconsiderable.has_value()) {
+                        fRejectedParents = true;
+                        break;
+                    }
+                    rejected_parent_reconsiderable = parent_txid;
+                }
+            }
+            if (!fRejectedParents) {
+                const auto current_time{GetTime<std::chrono::microseconds>()};
+
+                for (const uint256& parent_txid : unique_parents) {
+                    // Here, we only have the txid (and not wtxid) of the
+                    // inputs, so we only request in txid mode, even for
+                    // wtxidrelay peers.
+                    // Eventually we should replace this with an improved
+                    // protocol for getting all unconfirmed parents.
+                    const auto gtxid{GenTxid::Txid(parent_txid)};
+                    AddKnownTx(*peer, parent_txid);
+                    // Exclude m_lazy_recent_rejects_reconsiderable: the missing parent may have been
+                    // previously rejected for being too low feerate. This orphan might CPFP it.
+                    if (!m_txdownloadman.AlreadyHaveTx(gtxid, /*include_reconsiderable=*/false)) AddTxAnnouncement(pfrom, gtxid, current_time);
+                }
+
+                if (m_orphanage.AddTx(ptx, pfrom.GetId())) {
+                    AddToCompactExtraTransactions(ptx);
+                }
+
+                // Once added to the orphan pool, a tx is considered AlreadyHave, and we shouldn't request it anymore.
+                m_txrequest.ForgetTxHash(tx.GetHash());
+                m_txrequest.ForgetTxHash(tx.GetWitnessHash());
+
+                // DoS prevention: do not allow m_orphanage to grow unbounded (see CVE-2012-3789)
+                m_orphanage.LimitOrphans(m_opts.max_orphan_txs, m_rng);
+            } else {
+                LogDebug(BCLog::MEMPOOL, "not keeping orphan with rejected parents %s (wtxid=%s)\n",
+                         tx.GetHash().ToString(),
+                         tx.GetWitnessHash().ToString());
+                // We will continue to reject this tx since it has rejected
+                // parents so avoid re-requesting it from other peers.
+                // Here we add both the txid and the wtxid, as we know that
+                // regardless of what witness is provided, we will not accept
+                // this, so we don't need to allow for redownload of this txid
+                // from any of our non-wtxidrelay peers.
+                RecentRejectsFilter().insert(tx.GetHash().ToUint256());
+                RecentRejectsFilter().insert(tx.GetWitnessHash().ToUint256());
+                m_txrequest.ForgetTxHash(tx.GetHash());
+                m_txrequest.ForgetTxHash(tx.GetWitnessHash());
+            }
         }
         if (state.IsInvalid()) {
             if (auto package_to_validate{ProcessInvalidTx(pfrom.GetId(), ptx, state, /*first_time_failure=*/true)}) {
@@ -6111,11 +6161,28 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
         //
         {
             LOCK(m_tx_download_mutex);
-            for (const GenTxid& gtxid : m_txdownloadman.GetRequestsToSend(pto->GetId(), current_time)) {
-                vGetData.emplace_back(gtxid.IsWtxid() ? MSG_WTX : (MSG_TX | GetFetchFlags(*peer)), gtxid.GetHash());
-                if (vGetData.size() >= MAX_GETDATA_SZ) {
-                    MakeAndPushMessage(*pto, NetMsgType::GETDATA, vGetData);
-                    vGetData.clear();
+            std::vector<std::pair<NodeId, GenTxid>> expired;
+            auto requestable = m_txdownloadman.GetTxRequestRef().GetRequestable(pto->GetId(), current_time, &expired);
+            for (const auto& entry : expired) {
+                LogDebug(BCLog::NET, "timeout of inflight %s %s from peer=%d\n", entry.second.IsWtxid() ? "wtx" : "tx",
+                    entry.second.GetHash().ToString(), entry.first);
+            }
+            for (const GenTxid& gtxid : requestable) {
+                // Exclude m_lazy_recent_rejects_reconsiderable: we may be requesting a missing parent
+                // that was previously rejected for being too low feerate.
+                if (!m_txdownloadman.AlreadyHaveTx(gtxid, /*include_reconsiderable=*/false)) {
+                    LogDebug(BCLog::NET, "Requesting %s %s peer=%d\n", gtxid.IsWtxid() ? "wtx" : "tx",
+                        gtxid.GetHash().ToString(), pto->GetId());
+                    vGetData.emplace_back(gtxid.IsWtxid() ? MSG_WTX : (MSG_TX | GetFetchFlags(*peer)), gtxid.GetHash());
+                    if (vGetData.size() >= MAX_GETDATA_SZ) {
+                        MakeAndPushMessage(*pto, NetMsgType::GETDATA, vGetData);
+                        vGetData.clear();
+                    }
+                    m_txdownloadman.GetTxRequestRef().RequestedTx(pto->GetId(), gtxid.GetHash(), current_time + GETDATA_TX_INTERVAL);
+                } else {
+                    // We have already seen this transaction, no need to download. This is just a belt-and-suspenders, as
+                    // this should already be called whenever a transaction becomes AlreadyHaveTx().
+                    m_txdownloadman.GetTxRequestRef().ForgetTxHash(gtxid.GetHash());
                 }
             }
         }
