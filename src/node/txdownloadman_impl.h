@@ -7,6 +7,7 @@
 #include <node/txdownloadman.h>
 
 #include <common/bloom.h>
+#include <kernel/chain.h>
 #include <net.h>
 #include <primitives/transaction.h>
 #include <policy/packages.h>
@@ -126,7 +127,7 @@ public:
         return *m_lazy_recent_confirmed_transactions;
     }
 
-    TxDownloadManagerImpl(const TxDownloadOptions& options) : m_opts{options} {}
+    TxDownloadManagerImpl() = default;
 
     void ActiveTipChange();
     void BlockConnected(const std::shared_ptr<const CBlock>& pblock);
@@ -167,6 +168,8 @@ public:
 
     std::optional<PackageToValidate> Find1P1CPackage(const CTransactionRef& ptx, NodeId nodeid);
 >>>>>>> a8cf3b6e84... [refactor] move Find1P1CPackage to txdownload
+=======
+>>>>>>> af918349de... [refactor] move ValidationInterface functions to TxDownloadManager
 };
 } // namespace node
 #endif // BGL_NODE_TXDOWNLOADMAN_IMPL_H
