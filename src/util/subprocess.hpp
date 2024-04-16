@@ -677,18 +677,6 @@ struct executable: string_arg
 };
 
 /*!
- * Option to set the current working directory
- * of the spawned process.
- *
- * Eg: cwd{"/some/path/x"}
- */
-struct cwd: string_arg
-{
-  template <typename T>
-  cwd(T&& arg): string_arg(std::forward<T>(arg)) {}
-};
-
-/*!
  * Option to specify environment variables required by
  * the spawned process.
  *
@@ -957,7 +945,6 @@ struct ArgumentDeducer
   ArgumentDeducer(Popen* p): popen_(p) {}
 
   void set_option(executable&& exe);
-  void set_option(cwd&& cwdir);
   void set_option(environment&& env);
   void set_option(defer_spawn&& defer);
   void set_option(shell&& sh);
@@ -1146,9 +1133,9 @@ private:
  * interface to the client.
  *
  * API's provided by the class:
- * 1. Popen({"cmd"}, output{..}, error{..}, cwd{..}, ....)
+ * 1. Popen({"cmd"}, output{..}, error{..}, ....)
  *    Command provided as a sequence.
- * 2. Popen("cmd arg1"m output{..}, error{..}, cwd{..}, ....)
+ * 2. Popen("cmd arg1"m output{..}, error{..}, ....)
  *    Command provided in a single string.
  * 3. wait()             - Wait for the child to exit.
  * 4. retcode()          - The return code of the exited child.
@@ -1300,7 +1287,6 @@ private:
   bool session_leader_ = false;
 
   std::string exe_name_;
-  std::string cwd_;
   env_map_t env_;
   preexec_func preexec_fn_;
 
@@ -1608,10 +1594,6 @@ namespace detail {
     popen_->exe_name_ = std::move(exe.arg_value);
   }
 
-  inline void ArgumentDeducer::set_option(cwd&& cwdir) {
-    popen_->cwd_ = std::move(cwdir.arg_value);
-  }
-
   inline void ArgumentDeducer::set_option(environment&& env) {
     popen_->env_ = std::move(env.env_);
   }
@@ -1704,32 +1686,6 @@ namespace detail {
 
       if (stream.err_write_ != -1 && stream.err_write_ > 2)
         close(stream.err_write_);
-
-      // Close all the inherited fd's except the error write pipe
-      if (parent_->close_fds_) {
-        int max_fd = sysconf(_SC_OPEN_MAX);
-        if (max_fd == -1) throw OSError("sysconf failed", errno);
-
-        for (int i = 3; i < max_fd; i++) {
-          if (i == err_wr_pipe_) continue;
-          close(i);
-        }
-      }
-
-      // Change the working directory if provided
-      if (parent_->cwd_.length()) {
-        sys_ret = chdir(parent_->cwd_.c_str());
-        if (sys_ret == -1) throw OSError("chdir failed", errno);
-      }
-
-      if (parent_->has_preexec_fn_) {
-        parent_->preexec_fn_();
-      }
-
-      if (parent_->session_leader_) {
-        sys_ret = setsid();
-        if (sys_ret == -1) throw OSError("setsid failed", errno);
-      }
 
       // Replace the current image with the executable
       if (parent_->env_.size()) {
