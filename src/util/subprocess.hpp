@@ -652,6 +652,30 @@ namespace util
  */
 
 /*!
+ * The buffer size of the stdin/stdout/stderr
+ * streams of the child process.
+ * Default value is 0.
+ */
+struct bufsize {
+  explicit bufsize(int sz): bufsiz(sz) {}
+  int  bufsiz = 0;
+};
+
+/*!
+ * Option to close all file descriptors
+ * when the child process is spawned.
+ * The close fd list does not include
+ * input/output/error if they are explicitly
+ * set as part of the Popen arguments.
+ *
+ * Default value is false.
+ */
+struct close_fds {
+  explicit close_fds(bool c): close_all(c) {}
+  bool close_all = false;
+};
+
+/*!
  * Base class for all arguments involving string value.
  */
 struct string_arg
@@ -952,8 +976,6 @@ struct ArgumentDeducer
   void set_option(output&& out);
   void set_option(error&& err);
   void set_option(close_fds&& cfds);
-  void set_option(preexec_func&& prefunc);
-  void set_option(session_leader&& sleader);
 
 private:
   Popen* popen_ = nullptr;
@@ -1282,9 +1304,6 @@ private:
 
   bool defer_process_start_ = false;
   bool close_fds_ = false;
-  bool has_preexec_fn_ = false;
-  bool shell_ = false;
-  bool session_leader_ = false;
 
   std::string exe_name_;
   env_map_t env_;
@@ -1415,8 +1434,7 @@ inline void Popen::kill(int sig_num)
     throw OSError("TerminateProcess", 0);
   }
 #else
-  if (session_leader_) killpg(child_pid_, sig_num);
-  else ::kill(child_pid_, sig_num);
+  ::kill(child_pid_, sig_num);
 #endif
 }
 
@@ -1606,10 +1624,6 @@ namespace detail {
     popen_->shell_ = sh.shell_;
   }
 
-  inline void ArgumentDeducer::set_option(session_leader&& sleader) {
-    popen_->session_leader_ = sleader.leader_;
-  }
-
   inline void ArgumentDeducer::set_option(input&& inp) {
     if (inp.rd_ch_ != -1) popen_->stream_.read_from_parent_ = inp.rd_ch_;
     if (inp.wr_ch_ != -1) popen_->stream_.write_to_child_ = inp.wr_ch_;
@@ -1686,6 +1700,23 @@ namespace detail {
 
       if (stream.err_write_ != -1 && stream.err_write_ > 2)
         close(stream.err_write_);
+
+      // Close all the inherited fd's except the error write pipe
+      if (parent_->close_fds_) {
+        int max_fd = sysconf(_SC_OPEN_MAX);
+        if (max_fd == -1) throw OSError("sysconf failed", errno);
+
+        for (int i = 3; i < max_fd; i++) {
+          if (i == err_wr_pipe_) continue;
+          close(i);
+        }
+      }
+
+      // Change the working directory if provided
+      if (parent_->cwd_.length()) {
+        sys_ret = chdir(parent_->cwd_.c_str());
+        if (sys_ret == -1) throw OSError("chdir failed", errno);
+      }
 
       // Replace the current image with the executable
       if (parent_->env_.size()) {
