@@ -158,7 +158,7 @@ BOOST_FIXTURE_TEST_CASE(package_validation_tests, TestChain100Setup)
         BOOST_CHECK_EQUAL(result_single_large.m_state.GetResult(), PackageValidationResult::PCKG_TX);
         BOOST_CHECK_EQUAL(result_single_large.m_state.GetRejectReason(), "transaction failed");
         auto it_giant_tx = result_single_large.m_tx_results.find(giant_ptx->GetWitnessHash());
-        BOOST_CHECK_EQUAL(it_giant_tx->second.m_state.GetRejectReason(), "tx-size");
+        BOOST_CHECK_EQUAL(it_giant_tx->second.m_state.GetRejectReason(), "bad-txns-oversize"); // Bitgesell is 10% less the Bitcoin size, so this is what is expected.
     }
 
     // Check that mempool size hasn't changed.
