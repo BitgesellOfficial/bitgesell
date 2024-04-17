@@ -500,7 +500,7 @@ public:
         m_assumeutxo_data = {
             {
                 .height = 110,
-                .hash_serialized = AssumeutxoHash{uint256S("0x6657b736d4fe4db0cbc796789e812d5dba7f5c143764b1b6905612f1830609d1")},
+                .hash_serialized = AssumeutxoHash{uint256S("0x74bf433ff714135263937cf322ff11f4df2c47a21d20128874592c164fea7dc2")},
                 .nChainTx = 111,
                 .blockhash = uint256S("0x696e92821f65549c7ee134edceeeeaaa4105647a3c4fd9f298c0aec0ab50425c")
             },
