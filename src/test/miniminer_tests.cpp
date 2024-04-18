@@ -569,8 +569,8 @@ BOOST_FIXTURE_TEST_CASE(miniminer_overlap, TestChain100Setup)
     BOOST_CHECK(miniminer_pool.IsReadyToCalculate());
     for (const auto& sequences : {miniminer_manual.Linearize(), miniminer_pool.Linearize()}) {
         // tx2 and tx4 selected first: high feerate with nothing to bump
-        BOOST_CHECK_EQUAL(Find(sequences, tx4->GetHash()), 0);
-        BOOST_CHECK_EQUAL(Find(sequences, tx2->GetHash()), 1);
+        BOOST_CHECK_EQUAL(Find(sequences, tx4->GetHash()), 1); //The selected first is at index 1(BGL)
+        BOOST_CHECK_EQUAL(Find(sequences, tx2->GetHash()), 0); //The selected first is at index 0(BGL)
 
         // tx5 + tx7 CPFP
         BOOST_CHECK_EQUAL(Find(sequences, tx5->GetHash()), 2);
