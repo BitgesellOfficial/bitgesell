@@ -1962,27 +1962,9 @@ inline NodeRef<Key> Parse(Span<const char> in, const Ctx& ctx)
                 in = in.subspan(arg_size + 1);
                 script_size += 1 + (num > 16) + (num > 0x7f) + (num > 0x7fff) + (num > 0x7fffff);
             } else if (Const("multi(", in)) {
-                if (IsTapscript(ctx.MsContext())) return {};
-                // Get threshold
-                int next_comma = FindNextChar(in, ',');
-                if (next_comma < 1) return {};
-                if (!ParseInt64(std::string(in.begin(), in.begin() + next_comma), &k)) return {};
-                in = in.subspan(next_comma + 1);
-                // Get keys
-                std::vector<Key> keys;
-                while (next_comma != -1) {
-                    next_comma = FindNextChar(in, ',');
-                    int key_length = (next_comma == -1) ? FindNextChar(in, ')') : next_comma;
-                    if (key_length < 1) return {};
-                    auto key = ctx.FromString(in.begin(), in.begin() + key_length);
-                    if (!key) return {};
-                    keys.push_back(std::move(*key));
-                    in = in.subspan(key_length + 1);
-                }
-                if (keys.size() < 1 || keys.size() > 20) return {};
-                if (k < 1 || k > (int64_t)keys.size()) return {};
-                script_size += 2 + (keys.size() > 16) + (k > 16) + 34 * keys.size();
-                constructed.push_back(MakeNodeRef<Key>(internal::NoDupCheck{}, ctx.MsContext(), Fragment::MULTI, std::move(keys), k));
+                if (!parse_multi_exp(in, /* is_multi_a = */false)) return {};
+            } else if (Const("multi_a(", in)) {
+                if (!parse_multi_exp(in, /* is_multi_a = */true)) return {};
             } else if (Const("thresh(", in)) {
                 int next_comma = FindNextChar(in, ',');
                 if (next_comma < 1) return {};
