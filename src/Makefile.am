@@ -680,6 +680,7 @@ libBGL_common_a_SOURCES = \
   common/run_command.cpp \
   common/settings.cpp \
   common/system.cpp \
+  common/url.cpp \
   compressor.cpp \
   core_read.cpp \
   core_write.cpp \
@@ -712,11 +713,6 @@ libBGL_common_a_SOURCES = \
   script/solver.cpp \
   warnings.cpp \
   $(BGL_CORE_H)
-
-if USE_LIBEVENT
-libBGL_common_a_CPPFLAGS += $(EVENT_CFLAGS)
-libBGL_common_a_SOURCES += common/url.cpp
-endif
 #
 
 # util #
