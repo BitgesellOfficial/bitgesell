@@ -12,6 +12,6 @@
  *
  * Notably this implementation does not decode a '+' to a ' '.
  */
-std::string urlDecode(std::string_view url_encoded);
+std::string UrlDecode(std::string_view url_encoded);
 
 #endif // BGL_COMMON_URL_H
