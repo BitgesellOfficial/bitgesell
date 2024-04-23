@@ -17770,6 +17770,1068 @@ pr 2024-03-29 11:39:57 +0100 4373414d26ffd2cd004a59a095ce30b433059780 Merge bitc
 v  2024-03-29 15:19:08 +0100 fad23a06469607689c4f637bb407c96af4902a27 ci: Bump clang+llvm in i686_multiprocess task
 cr 2024-03-29 16:41:18 +0100 fa75220ac5e0ea401a26dd2f16a88627e51c240a ci: Use clang-18 in asan/fuzz/tsan task
 pr 2024-03-30 00:52:50 +0100 61de64df6790077857faba84796bb874b59c5d15 Merge bitcoin/bitcoin#29724: 29242 Diagram check followups
+v  2024-03-31 10:33:58 +0100 31a15f0aff79d2b34a9640909b9e6fb39a647b60 bench: Disable WalletCreate* benchmarks when building with MSVC
+v  2024-04-01 04:13:06 +0100 bbe82c116e72ca0638751e063bf564cd1fe5c4d5 Fix #29767, set m_synced = true after Commit()
+pr 2024-04-01 14:54:45 +0100 8d19d688f407ac0f41b1137d2d54887b6ac66e5d Merge bitcoin/bitcoin#29738: doc: fix typos
+pr 2024-04-01 14:56:27 +0100 b8420e4603094433deb9dd4e4fabd12dc3921c4a Merge bitcoin/bitcoin#29764: doc: Suggest installing dev packages for debian/ubuntu qt5 build
+pr 2024-04-01 15:10:42 +0100 3d37ed490a1a90141ead9e393d7739cf6f5afaca Merge bitcoin/bitcoin#29732: depends: qt 5.15.13
+pr 2024-04-01 15:27:18 +0100 c7247bd9e80bc5599df5c8e26bb3c937cccc8db0 Merge bitcoin/bitcoin#29765: ci: Use clang-18
+pr 2024-04-01 15:54:44 +0100 90224fbf614e0e4c537ea90c2107b2567826167c Merge bitcoin/bitcoin#29756: doc: Override `-g` properly to skip debugging information
+pr 2024-04-01 16:53:31 +0100 948ecf181e84010b38bfdc05135a44e3fd5816fd Merge bitcoin/bitcoin#29648: Remove libbitcoinconsensus
+pr 2024-04-01 17:59:42 +0100 23ba39470c3d155a65f0616f8848ada730658301 Merge bitcoin/bitcoin#29753: test: fix StopIteration exception in p2p_node_network_limited.py
+v  2024-04-01 19:37:24 +0100 ca18aea5c4975ace4e307be96c74641d203fa389 Add AutoFile::seek and tell
+v  2024-04-02 09:37:10 +0100 d32346c39e9ddb2a58a4bb77061044ac3008ca7e [doc] add historical release notes for 26.1
+v  2024-04-02 09:57:21 +0100 fac012c7262f036e9b6f5800e57dcd63870a871c ci: Temporarily disable bpfcc-tools
+pr 2024-04-02 11:06:35 +0100 1d8a5f0d9bd00d0f585d77b8e70a3e51fda79cb9 Merge bitcoin/bitcoin#29750: test: makes timeout a forced named argument in tests methods that use it
+pr 2024-04-02 11:20:38 +0100 c407caa2972191d6a795228fd4bcdcd4be41d4a7 Merge bitcoin/bitcoin#29687: cli: improve bitcoin-cli error when not connected
+v  2024-04-02 13:39:33 +0100 fd8527a20ebc490df030b3a91c1161f00c8a29b6 guix: remove errant leftover from #29648
+v  2024-04-02 14:29:24 +0100 03b87a3e64305ba651e22a730e35271dea8fea64 Drop Windows Socket dependency for `randomenv.cpp`
+pr 2024-04-02 14:57:22 +0100 82b47cb52b695dab02b3c6c50691ec9dd0a443b2 Merge bitcoin/bitcoin#29733: build, macos: Drop unused `osx_volname` target
+pr 2024-04-02 15:05:09 +0100 6dabb315c4fb2cdc4421ed34dee5e19042f899c3 Merge bitcoin/bitcoin#29784: [doc] add historical release notes for 26.1
+pr 2024-04-02 15:47:05 +0100 3b987d03a49964995dced76889634561fd363d28 Merge bitcoin/bitcoin#29419: log: deduplicate category names and improve logging.cpp
+cr 2024-04-02 16:49:48 +0100 49c0b8b2288e60ae22fcac5d03811cf36ecec058 test: Bump timeouts in feature_index_prune and wallet_importdescriptors
+pr 2024-04-02 17:05:14 +0100 3b12fc7bcd94cf214984911f68612feb468d5404 Merge bitcoin/bitcoin#29787: guix: remove errant leftover from #29648
+v  2024-04-02 17:12:24 +0100 eef51afc6a29c693a68400930ef8011be41b7401 depends: add -g to DEBUG=1 flags
+v  2024-04-02 17:12:25 +0100 84fbf9b2841a9ba1ebd1421b9ff9fe444bb1abd9 depends: remove -g from sqlite debug flags
+s  2024-04-02 19:38:40 +0100 0ead466a0c72bef0a8622749b84e9c7c5c37144f Update the developer mailing list address.
+v  2024-04-02 20:15:15 +0100 2de2ea2ff63b97eacb23234932c6e1f1f65e4494 build, depends: Fix `libmultiprocess` cross-compilation
+pr 2024-04-03 09:45:08 +0100 43735252c58217aaee19aa3e7d024525f457d64b Merge bitcoin/bitcoin#29782: doc: Update the developer mailing list address.
+pr 2024-04-03 10:26:33 +0100 5aff45a90aa4183211b423dfc6364dd6c1806fc9 Merge bitcoin/bitcoin#29665: build, depends: Fix `libmultiprocess` cross-compilation
+pr 2024-04-03 10:43:21 +0100 0d509bab45d292caeaf34600e57b5928757c6005 Merge bitcoin/bitcoin#29527: depends: add -g to DEBUG=1 flags
+v  2024-04-03 12:21:49 +0100 3cb80febb87696f3b1073469c0cc68a57ba81de9 guix: Remove another leftover from #29648
+pr 2024-04-04 10:08:42 +0100 3900854ba391780b7b05347ee2351887097409f1 Merge bitcoin/bitcoin#29797: guix: Remove another leftover from #29648
+pr 2024-04-04 11:14:46 +0100 5de68e45c280f98f70bd29f82495927ab773f68a Merge bitcoin/bitcoin#29788: ci: Temporarily disable bpfcc-tools
+pr 2024-04-04 12:02:13 +0100 71c51c161d476cc495afdb7864283fdb84d2dc0c Merge bitcoin/bitcoin#29673: guix: use GCC 11 in macOS build env
+ff 2024-04-04 12:05:16 +0100 4654cc32248d788ac1160ca320ea68d31357d0c9 Update secp256k1 subtree to latest master
+cr 2024-04-04 12:05:16 +0100 53eec53dca1cb677d11564b055d3b8581ddd6747 Squashed 'src/secp256k1/' changes from efe85c70a2..d8311688bd
+v  2024-04-04 12:36:45 +0100 c4f857cc301d856f3c60acbe6271d3fe19441c7a test: Extends wait_for_getheaders so a specific block hash can be checked
+v  2024-04-04 13:55:46 +0100 561a650e0f669159699224ddd4eb5b1c91cf9ac3 test: Fix debug recommendation in argsman_tests
+pr 2024-04-04 14:25:16 +0100 5a5ab1d5446693ee2655860c2f2920bcc3389c83 Merge bitcoin/bitcoin#29776: ThreadSanitizer: Fix #29767
+v  2024-04-04 21:08:38 +0100 10c5275ba4532fb1bf54057d2f61fc35b51f1e85 gui: don't permit port in proxy IP option
+v  2024-04-04 22:32:39 +0100 2179e2c3209a41c1419f1f5ed6270a0dad68b50d doc: i2p: improve `-i2pacceptincoming` mention
+cr 2024-04-05 00:06:14 +0100 f81fad5e0f3be1f7aed59f9da00396c75c2a6406 test: introduce and use `calculate_input_weight` helper
+v  2024-04-05 00:09:31 +0100 6d91cb781c30966963f28e7577c7aa3829fa9390 test: add unit tests for `calculate_input_weight`
+pr 2024-04-05 15:10:14 +0100 eb78ebc064b8d7fdd605e184efb6b45a53b2c6d5 Merge bitcoin/bitcoin#29725: depends: build libqrencode with CMake
+cr 2024-04-05 15:20:14 +0100 3c1ae3ee33d4d9dbea046d5ab8ee924a12982759 depends: switch libnatpmp to CMake
+cr 2024-04-05 15:20:14 +0100 72ba7b5d263b6d909ae59040536a499a596237c2 depends: libnatpmp f2433bec24ca3d3f22a8a7840728a3ac177f94ba
+cr 2024-04-05 15:38:16 +0100 a3485af67da4949c72c45acc608f8746ed0e0848 ci: Drop duplicated compiler flags
+cr 2024-04-05 16:44:21 +0100 2d1819455cb4c516f6cdf81c11e869a23dee3e6b crypto: chacha20: always use our fallback timingsafe_bcmp rather than libc's
+pr 2024-04-05 17:02:00 +0100 c3530254c926a5ab9b710512bbbd29e5cd5b10f7 Merge bitcoin/bitcoin#29081: refactor: Remove gmtime*
+pr 2024-04-05 17:09:10 +0100 3a8dc562f259af2716a231f225130e0fdbab9ab1 Merge bitcoin/bitcoin#29800: ci: Drop duplicated compiler flags
+pr 2024-04-05 17:25:38 +0100 8f1185feec3efdb8d0e3f6b7d0aee67bbdc3d653 Merge bitcoin/bitcoin#29805: test: Fix debug recommendation in argsman_tests
+pr 2024-04-06 09:39:20 +0100 b5d21182e5a66110ce2796c2c99da39c8ebf0d72 Merge bitcoin/bitcoin#29803: Update libsecp256k1 subtree to latest master
+v  2024-04-06 09:40:23 +0100 c7efee591a27720757504f3ebf7dbeaef0185931 ci: use LLVM 18.1.3 in MSAN jobs
+cr 2024-04-06 09:41:24 +0100 61641e2466768e128fef995e9fcb24cad90e527d ci: remove --with-asm usage (secp256k1)
+v  2024-04-06 15:46:53 +0100 56e1e5dd10cbe51d3abc3fbf532b6b41bf62a889 refactor, bench, fuzz: Drop unneeded `UCharCast` calls
+v  2024-04-06 16:03:39 +0100 1573e9a11e7a204a51f815a4c48c4b7054303ca9 fuzz, refactor: Deduplicate fuzz binary path creation
+v  2024-04-06 16:06:52 +0100 47cedee776c6253232beb6039ea708c578211327 fuzz: Introduce `BITCOINFUZZ` environment variable
+v  2024-04-06 17:30:09 +0100 93fae5ae7c31fa1b1095770f00adeac1cfeda4b9 test: remove immediate tx relay workaround in wallet_groups.py
+cr 2024-04-06 19:17:20 +0100 a8203e94123b6ea6e4f4a6320e3ad20457f44a28 refactor: Simplify `extra_txn` to be a vec of CTransactionRef instead of a vec of pair<Wtxid, CTransactionRef>
+pr 2024-04-06 20:45:19 +0100 0f0e36de5f53f82d31416dc05a24d2885781ce57 Merge bitcoin/bitcoin#29815: crypto: chacha20: always use our fallback timingsafe_bcmp rather than libc's
+pr 2024-04-07 10:38:59 +0100 03e94f8b90c2a7b7d3ee2b11899c046ec3a67394 Merge bitcoin/bitcoin#29791: test: Bump timeouts in feature_index_prune and wallet_importdescriptors
+pr 2024-04-07 10:47:51 +0100 bb1383eb52502229cc6112f82f432c29f27a4e45 Merge bitcoin/bitcoin#29742: ci: remove --with-asm=no (secp256k1) from MSAN jobs
+v  2024-04-07 10:49:21 +0100 5efebc0edbb479d2041b3fb2d43be3a77e817b3e depends: add the new LLVM debug macro
+pr 2024-04-07 10:50:17 +0100 f0794cbd405636a7f528a60f2873050b865cf7e8 Merge bitcoin/bitcoin#29822: test: remove immediate tx relay workaround in wallet_groups.py
+cr 2024-04-07 14:04:45 +0100 78407b99ed6dd17f687fcbfb0486ecc433302287 [clang-tidy] Enable the misc-no-recursion check
+cr 2024-04-07 14:06:27 +0100 05da2460db895374ea1fd89e4b8b4b73689f8faf guix: remove gcc-toolchain static from Windows build
+v  2024-04-08 10:12:28 +0100 93bd2e2f6c9672fbf1120d1e25349f6edd29cfef doc: 25.2 historical release notes
+v  2024-04-08 14:05:07 +0100 73b68bd8b4f9447e30091c7f8c3dc91a086bd93b fill_mempool: remove subtest-specific comment
+pr 2024-04-08 15:49:10 +0100 3206e45412ded0e70c1f15ba66c2ba3b4426f27f Merge bitcoin/bitcoin#29830: doc: 25.2 historical release notes
+pr 2024-04-08 16:35:15 +0100 eaf186d1ee3a0271ec8cad65fa294b4298d79b0a Merge bitcoin/bitcoin#29690: clang-tidy: Enable misc-no-recursion
+pr 2024-04-08 16:36:12 +0100 34a299f9ee04ca10414be2232f9022ee04f02486 Merge bitcoin/bitcoin#29691: Change Luke Dashjr seed to dashjr-list-of-p2p-nodes.us
+v  2024-04-09 08:17:34 +0100 c15170c27d96a66422cb86c6653c931aa204bbb0 Revert "ci: Temporarily disable bpfcc-tools"
+pr 2024-04-09 08:32:12 +0100 9dfe43572eae1666077cb49afd749a87580981f0 Merge bitcoin/bitcoin#29781: depends: add new LLVM debug macro
+pr 2024-04-09 08:43:28 +0100 a160a6a08103ed2dbb42ad92c03a6f3de33add1d Merge bitcoin/bitcoin#29498: test: Update --tmpdir doc string to say directory must not exist
+pr 2024-04-09 09:21:27 +0100 71f96c274f52786eb2d95f0f5e837113014c8360 Merge bitcoin/bitcoin#29786: Drop Windows Socket dependency for `randomenv.cpp`
+pr 2024-04-09 09:57:19 +0100 383457333a1824e5a1f62356a6b92f05e7280cda Merge bitcoin/bitcoin#29832: Revert "ci: Temporarily disable bpfcc-tools"
+pr 2024-04-09 09:58:16 +0100 f348ec7c2a9bec428a0b7a62592a5662c0087750 Merge bitcoin/bitcoin#29821: fuzz: Some `test/fuzz/test_runner.py` improvements
+v  2024-04-09 10:21:57 +0100 a71eadf66bed8d3ea4282c8499f533a8eeed9900 Change MAC_OSX macro to __APPLE__ in crypto package
+pr 2024-04-09 13:17:28 +0100 bf031a517c79cec5b43420bcd40291ab0e9f68a8 Merge bitcoin/bitcoin#29752: refactor: Use typesafe Wtxid in compact block encodings
+v  2024-04-09 13:47:39 +0100 a3da63e8febe475f2250f6432bca237d31fa9107 Move fill_mempool to util function
+v  2024-04-09 13:53:34 +0100 4ba1d0b55339c3ea90e2bcd64662a06f0f90dd46 fuzz: Add coverage for client_maxfeerate
+v  2024-04-09 13:53:34 +0100 91d7d8f22a1c528db14fa743c66cd861ea00e84b AcceptMultipleTransactions: Fix workspace client_maxfeerate
+v  2024-04-09 13:53:34 +0100 f3aa5bd5eb6d1088f98a4dc7daaab0e17a7d5529 fill_mempool: assertions and docsctring update
+cr 2024-04-09 14:58:05 +0100 08ff17d1420a3d1c14c6b1a5436678fbb1dd9cbc ci: disable _FORTIFY_SOURCE with MSAN
+pr 2024-04-09 16:09:02 +0100 0b4218e43cb1d3e149a0adfbf12aa9b4636f70c3 Merge bitcoin/bitcoin#29834: build: Change MAC_OSX macro to __APPLE__ in crypto
+pr 2024-04-09 21:16:28 +0100 e31956980e16ad3d619022e572bdf55a4eae8716 Merge bitcoin/bitcoin#29820: refactor, bench, fuzz: Drop unneeded `UCharCast` calls
+pr 2024-04-10 11:03:06 +0100 0a9cfd175259391ec29b0dfe87578d46b508611e Merge bitcoin/bitcoin#28981: Replace Boost.Process with cpp-subprocess
+v  2024-04-10 11:20:31 +0100 95c594f4e9ea3cb57aa03b75d4d70fe0e1742065 depends: remove no longer needed patch for Boost::Process
+pr 2024-04-10 11:31:02 +0100 3f6a6da3b08da15c10cbf2806f672da4a57254f6 Merge bitcoin/bitcoin#29844: depends: remove no longer needed patch for Boost::Process
+cr 2024-04-10 12:59:43 +0100 a0dc2ebcda9e33aa5320221cd4ea371f84d221fd guix: replace GCC unaligned VMOV patch with binutils patch
+v  2024-04-10 15:15:46 +0100 038fd979effb54ee76ce1b7cf078e920c652326a [net processing] Move nTimeOffset to net_processing
+v  2024-04-10 15:15:46 +0100 55361a15d1aa6984051441bce88112000688fb43 [net processing] Use std::chrono for type-safe time offsets
+v  2024-04-10 16:01:27 +0100 7d9c3ec622d73a98d07ab3cee78751718982a5bc [net processing] Introduce PeerManagerInfo
+v  2024-04-10 16:01:27 +0100 92e72b5d0d49aa395e626c238bc28aba8e4c3d44 [net processing] Move IgnoresIncomingTxs to PeerManagerInfo
+cr 2024-04-10 16:01:27 +0100 c6be144c4b774a03a8bcab5a165768cf81e9b06b Remove timedata
+cr 2024-04-10 16:01:27 +0100 ee178dfcc1175e0af8163216c9c024f4bfc97965 Add TimeOffsets helper class
+cr 2024-04-11 13:03:37 +0100 13f5391bbb45cd8aebc6ae70cad08aff632ebd55 Fix typos in `subprocess.hpp`
+v  2024-04-11 13:43:30 +0100 f2e3662e57eca1330962faf38ff428a564d50a11 net: Decrease nMaxIPs when learning from DNS seeds
+pr 2024-04-11 13:46:52 +0100 bdb33ec51986570ea17406c83bad2c955ae23186 Merge bitcoin/bitcoin#29735: AcceptMultipleTransactions: Fix workspace not being set as client_maxfeerate failure
+pr 2024-04-11 15:18:39 +0100 0de63b8b46eff5cda85b4950062703324ba65a80 Merge bitcoin/bitcoin#29849: Fix typos in `subprocess.hpp`
+v  2024-04-12 08:52:06 +0100 dd3e0fa12534c9e782dc9c24d2e30b70a0d73176 build: Fix false positive `CHECK_ATOMIC` test for clang-15
+cr 2024-04-12 13:27:45 +0100 1eea10a6d25fd8225560347cda2b1cfdc267910d Squashed 'src/minisketch/' changes from a571ba20f9..3472e2f5ec
+ff 2024-04-12 13:27:45 +0100 e58e1323a8c3cd4d04731414dc050531b901fa23 Update minisketch subtree to latest master
+cr 2024-04-12 13:28:34 +0100 4722b7c7154e6130d4de66f7aed0fffe3c7c19a4 build: remove minisketch clz check
+v  2024-04-12 15:30:45 +0100 fadf7e90dc10e212e59bb294209bab2e73c47800 ci: Bump s390x to ubuntu:24.04
+cr 2024-04-14 10:39:14 +0100 ad21f2294821d7c436e58a8f199fb555b11a56ad ci: use clang-16 for Valgrind
+cr 2024-04-15 09:01:15 +0100 fa6ab0d020d0b1492203f7eb2ccb8051812de086 rpc: Reword SighashFromStr error message
+v  2024-04-15 09:51:06 +0100 c2e0489b7125cceaeef355fc274dd8988822fff4 [rpc, bugfix] Enforce maximum value for setmocktime
+pr 2024-04-15 10:00:24 +0100 d29fc3a245c070494155dad4cf68b9c95d99c13e Merge bitcoin/bitcoin#29823: minisketch: update subtree to 3472e2f5ec75ace39ce9243af6b3fee233a67492
+pr 2024-04-15 10:04:42 +0100 3abee5eceb4158ccf455aff9d1d76461dfff5af0 Merge bitcoin/bitcoin#29856: ci: Bump s390x to ubuntu:24.04
+v  2024-04-15 12:34:27 +0100 fa382d3dd0592f3cbd6e1de791449f49e06dae86 test: Add missing Assert(mock_time_in >= 0s) to SetMockTime
+v  2024-04-15 12:34:31 +0100 fae0db555c12dca75fb09e5fa7bbabdf39b8c1df refactor: Use chrono type for g_mock_time
+pr 2024-04-15 13:10:18 +0100 58446e1d92c7da46da1fc48e1eb5eefe2e0748cb Merge bitcoin/bitcoin#28874: doc: fixup help output for -upnp and -natpmp
+v  2024-04-15 13:12:54 +0100 b1ee4a557beb1b4c65eca81c567a4afa2a7a23ca chore: fix some typos in comments
+pr 2024-04-15 14:26:59 +0100 22c86140f8fe4f13b7b5415ff62922e497fd4948 Merge bitcoin/bitcoin#29848: ci: use Clang 16 for Valgrind
+pr 2024-04-15 15:04:07 +0100 df609a344e534a8130d8afc12204d894ae32a2f9 Merge bitcoin/bitcoin#29699: test: check disconnection when sending sendaddrv2 after verack
+pr 2024-04-15 15:06:17 +0100 07720b1cdd77399f32124641dbe1dd267eb0cf8b Merge bitcoin/bitcoin#29869: rpc, bugfix: Enforce maximum value for setmocktime
+v  2024-04-15 17:22:32 +0100 e9dc511a7e9a562f953ff93f358102f555f583e6 fixup: get all utxos up front in fill_mempool, discourage wallet mixing
+v  2024-04-15 21:48:32 +0100 60ca5d55081275a011ccfc9546e0c4a8c4030493 test: p2p: add test for rejected tx request logic (`m_recent_rejects` filter)
+v  2024-04-16 09:10:33 +0100 c08754971d207bd2b60ba9c4faf34396a97bbc26 doc: archive 27.0 release notes
+v  2024-04-16 10:09:45 +0100 6f4da19cc3b1b7cd23cb4be95a6bb9acb79eb3bf guard against MempoolAcceptResult::m_replaced_transactions
+v  2024-04-16 10:11:01 +0100 c3c1e15831c463df7968b028a77e787da7e6256d [doc] restore comment about why we check if ptx HasWitness before caching rejected txid
+pr 2024-04-16 11:51:43 +0100 c7567d9223a927a88173ff04eeb4f54a5c02b43d Merge bitcoin/bitcoin#29886: doc: archive 27.0 release notes
+cr 2024-04-16 13:25:00 +0100 03ffb09c31aa04cc296c0ce10d07109e22a8dd75 remove unneeded bufsize option from cpp-subprocess
+cr 2024-04-16 13:25:00 +0100 2088777ba0f9ad3f6d4ab8b0b6ff8aad71117307 remove unneeded cwd option from cpp-subprocess
+cr 2024-04-16 13:25:00 +0100 62db8f8e5a6cfe19d905afc91731d6bc8a665f61 remove unneeded session_leader option from cpp-subprocess
+cr 2024-04-16 13:25:00 +0100 633e45b2e2728efcb0637afa94fcbd5756dfbe76 remove unneeded shell option from cpp-subprocess
+cr 2024-04-16 13:25:00 +0100 79c30363733503a1fb7d4c98aa0d56ced0be6e32 remove unneeded close_fds option from cpp-subprocess
+cr 2024-04-16 13:25:00 +0100 80d008c66d00d3496cd8549daee6775cf2c6b782 remove unneeded defer_spawn option from cpp-subprocess
+cr 2024-04-16 13:25:00 +0100 cececad7b29e2ca3de1216db1c541dba6dc81bfa remove unneeded preexec function option from cpp-subprocess
+v  2024-04-16 15:24:02 +0100 fb4cc5f423ce587c1e97377e8afdf92fb4850f59 netbase: clean up Proxy logging
+v  2024-04-16 15:35:12 +0100 fa4c69669e079c38844ecea1ad3394aae3702ae1 test: Fix failing univalue float test
+v  2024-04-16 16:27:59 +0100 016ed248ba0ae64e3f0c93bb47a2cd9b5e49cd85 fuzz: explicitly cap the vsize of RBFs for diagram checks
+cr 2024-04-16 16:47:43 +0100 4357158c4712d479522d5cd441ad4dd1693fdd05 wallet: return and display signer error
+cr 2024-04-16 16:47:43 +0100 6c1a2cc09a00baa6ff3ff34455c2243b43067fb5 test: use h marker for external signer mock
+cr 2024-04-16 16:47:43 +0100 dc55531087478d01fbde4f5fbb75375b672960c3 wallet: compare address returned by displayaddress
+v  2024-04-16 17:20:47 +0100 1ae5b208d339fa984d9caf4fab89b0b2ba9cc197 test: fix intermittent failure in p2p_compactblocks_hb.py
+pr 2024-04-16 18:03:23 +0100 312f54278fd972ba3557c6a5b805fd244a063959 Merge bitcoin/bitcoin#29726: assumeutxo: Fix -reindex before snapshot was validated
+cr 2024-04-16 19:14:37 +0100 c87b0a0ff4cb6d83bb59360ac4453f6daa871177 zmq: accept unix domain socket address for notifier
+v  2024-04-16 19:14:42 +0100 21d0e6c7b7c7af7f6e54a45829b4fbfba6923b86 doc: release notes for PR 27679
+v  2024-04-16 19:14:42 +0100 791dea204ecde9b500ec243b4e16fc601998ec84 test: cover unix sockets in zmq interface
+pr 2024-04-17 08:56:45 +0100 5c10d12e779992f2e6222571fe449d0638f514a8 Merge bitcoin/bitcoin#29828: guix: remove `gcc-toolchain static` from Windows build
+pr 2024-04-17 08:57:34 +0100 c8e3b947444cf4aa008002888e3ef4c4e3a11da4 Merge bitcoin/bitcoin#29892: test: Fix failing univalue float test
+pr 2024-04-17 11:28:42 +0100 8cd9475321737a69454f3b54a588b7bfe9f32847 Merge bitcoin/bitcoin#29893: test: fix intermittent failure in p2p_compactblocks_hb.py
+v  2024-04-17 11:40:25 +0100 1a9aa8d4eedff3788c792799328ad599132e0da1 build: better scope usage of -Wl,-headerpad_max_install_names
+cr 2024-04-17 11:40:25 +0100 3bee51427a05075150721f0a05ead8f92e1ba019 build: don't use install_name_tool for macOS deploy when cross-compiling
+cr 2024-04-17 11:40:25 +0100 78b6b5c485191b85ae201df9d5ef0bcdaaa9c190 build: don't pass strip to macOS deploy if cross-compiling
+pr 2024-04-17 12:22:11 +0100 3b70ce231e8d45b25a02f12ceb604498306aadf5 Merge bitcoin/bitcoin#29846: guix: replace GCC unaligned VMOV patch with binutils patch
+pr 2024-04-17 14:00:40 +0100 dd9007d5bd19ffeda7051525eb2b267be7146dd5 Merge bitcoin/bitcoin#29859: build: Fix false positive `CHECK_ATOMIC` test
+pr 2024-04-17 14:02:22 +0100 5562f698b7f4a2b5905b0aaa7c1e54cb78989739 Merge bitcoin/bitcoin#29875: chore: fix some typos in comments
+pr 2024-04-17 16:29:50 +0100 003785c961e1b25f7052ee48d6751c5e7d1d774b Merge bitcoin/bitcoin#28373: doc: Add example of mixing private and public keys in descriptors
+pr 2024-04-17 18:00:42 +0100 dbd2000b34903b87ae2e02eb2fc6c4a2f7d11451 Merge bitcoin/bitcoin#28340: security: restrict abis in bitcoind.service
+v  2024-04-17 21:24:05 +0100 65951e0418c53cbbf30b9ee85e24ccaf729088a1 index: race fix, lock cs_main while 'm_synced' is subject to change
+pr 2024-04-18 09:46:04 +0100 aaab5fb3c51c6a0fb96270fd6cfb0ba0bfbfe1c1 Merge bitcoin-core/gui#806: refactor: Misc int sign change fixes
+pr 2024-04-18 10:05:05 +0100 c05c214f2e9cfd6070a3c7680bfa09358fd9d97a Merge bitcoin-core/gui#808: Change example address from legacy (P2PKH) to bech32m (P2TR)
+v  2024-04-18 10:18:44 +0100 09f5a74198c328c80539c17d951a70558e6b361e fuzz: Re-implement `read_stdin` in portable way
+v  2024-04-18 10:27:12 +0100 4c078d7bd278fa8b4db6e1da7b9b747f49a8ac4c build, msvc: Enable preprocessor conformance mode
+v  2024-04-18 10:27:25 +0100 19dceddf4bcdb74e84cf27229039a239b873d41b build, msvc: Build `fuzz.exe` binary
+v  2024-04-18 10:27:34 +0100 23cb8207cdd6c674480840b76626039cdfe7cb13 ci, msvc: Add "Clone fuzz corpus" step
+v  2024-04-18 10:27:46 +0100 52933d7283736fe3ae15e7ac44c02ca3bd95fe6d fuzz: Pass `SystemRoot` environment variable to subprocess
+v  2024-04-18 10:27:55 +0100 18fd522ca9a74cf8690a6c9b9b729e78c6ed41fd ci, msvc: Add "Run fuzz binaries" step
+v  2024-04-18 10:53:32 +0100 976e5d8f7b2bc77cb1443b8bf0f38cb07db70e9b test: Fix `test/streams_tests.cpp` compilation on SunOS / illumos
+v  2024-04-18 15:05:57 +0100 fd81a37239541d0d508402cd4eeb28f38128c1f2 net: attempts to connect to all resolved addresses when connecting to a node
+cr 2024-04-18 17:07:57 +0100 1ea8674316f2dce0005f6094b6ee111b045dd770 [doc] update release-process.md and backports section of CONTRIBUTING
+v  2024-04-18 20:03:45 +0100 6b02c11d667adff24daf611f9b14815d27963674 test: Fix intermittent issue in p2p_handshake.py
+v  2024-04-19 13:01:09 +0100 58c423def3d71892d60b973f2d86c94de7134648 depends: switch boost to .tar.gz
+v  2024-04-19 13:01:09 +0100 5996c30384b0b2af1994751611cdeb81ee2a97d9 depends: switch libXau to .tar.gz
+v  2024-04-19 13:01:09 +0100 8e9190c6aae1e47f2a37d4f5f6ff4c28604e708b depends: switch libxcb_util to .tar.gz
+v  2024-04-19 13:01:09 +0100 b845029d4693a0c1ed21754e15a382cd522c95a5 depends: switch xproto to .tar.gz
+v  2024-04-19 13:01:09 +0100 e7a8dd5931c165b5aac34fcfce467bc14cd727e5 depends: switch fontconfig to .tar.gz
+v  2024-04-19 13:01:10 +0100 00a68963468cf77218bdd1158ccb9c83b5ded689 depends: switch libxcb_util_image to .tar.gz
+v  2024-04-19 13:01:10 +0100 4a9b71b9006fc1d7069295c394baa74149576f2f depends: switch libxcb_util_wm to .tar.gz
+v  2024-04-19 13:01:10 +0100 b8e084b9781eaa4d624a3c1d58b39c07005a0e13 guix: remove no-longer-used bzip2
+v  2024-04-19 13:01:10 +0100 bd6e1d6718c8de8aa7b5bb173a201678b88d3da4 depends: switch qrencode to .tar.gz
+v  2024-04-19 13:01:10 +0100 ce28cb31b4ed7da9065128eb4bc9f0640e025dad depends: switch libxcb_util_keysyms to .tar.gz
+v  2024-04-19 13:01:10 +0100 fad989852d4e3a0723f1f7030b21fb6ac3f8ac1d depends: switch libxcb_util_render to .tar.gz
+pr 2024-04-19 16:22:46 +0100 67c0d93982ad214f5e0c9509e9dc3d6d792ad97c Merge bitcoin/bitcoin#29827: test: p2p: add test for rejected tx request logic (`m_recent_rejects` filter)
+v  2024-04-21 14:30:38 +0100 6f5954acac2ced22dae7088e2b679bf663507d4c ci: Drop no longer needed `-I` flag in "tidy" task
+pr 2024-04-22 12:33:06 +0100 ba7c67f609a3d9a6da194d4abb7f8a60934907c3 Merge bitcoin/bitcoin#29879: fuzz: explicitly cap the vsize of RBFs for diagram checks
+v  2024-04-22 14:03:03 +0100 fa6c300a9926a1d35fdd0a80f59ea39769bd2596 test: Fix intermittent timeout in p2p_tx_download.py
+cr 2024-04-22 14:36:36 +0100 b22901dfa9cc3af94bf13163a28300eb1ab25b22 Avoid explicitly computing diagram; compare based on chunks
+v  2024-04-22 16:07:23 +0100 55b13ecd2e00ad2dbfd44c34d7de6f616590adf8 doc: explain what the wallet password does
+pr 2024-04-22 16:24:43 +0100 04c90f105949f63f19f47950bcfa7bfb249a8125 Merge bitcoin/bitcoin#27679: ZMQ: Support UNIX domain sockets
+pr 2024-04-22 17:06:20 +0100 b3106be84f0124f5a84e0a90499ba80e8cd6c60b Merge bitcoin/bitcoin#29898: test: Fix intermittent issue in p2p_handshake.py
+pr 2024-04-22 17:16:15 +0100 3310a965bd491755fa2c67879f12ebd0b4fb0bae Merge bitcoin/bitcoin#29850: net: Decrease nMaxIPs when learning from DNS seeds
+v  2024-04-22 17:24:35 +0100 4d8d21320eba54571ff63931509cd515c3e20339 sign: don't assume we are parsing a sane Miniscript
+v  2024-04-22 19:07:12 +0100 3120a4678ab2a71a381e847688f44068749cfa97 Gives seednode priority over dnsseed if both are provided
+v  2024-04-22 19:07:14 +0100 82f41d76f1c6ad38290917dad5499ffbe6b3974d Added seednode prioritization message to help output
+pr 2024-04-22 23:04:27 +0100 dec74c035b80afceae70d064467d25bef6cf5630 Merge bitcoin/bitcoin#29657: Bugfix: bitcoin-cli: Check length of peer.transport_protocol_type
+pr 2024-04-22 23:20:02 +0100 10bd32a1c96802728ef5c0e7504e09eff423eed6 Merge bitcoin/bitcoin#29933: test: Fix intermittent timeout in p2p_tx_download.py
+cr 2024-04-22 23:37:31 +0100 ec1f1abfefa281e62bb876aa1c4738d576ef9a47 test:Validate UTXO snapshot with coin_height > base_height & amount > money_supply
+pr 2024-04-22 23:51:59 +0100 256e1703197fdddd78bc6d659431cd0fc3b63cde Merge bitcoin/bitcoin#29777: test: refactor: introduce and use `calculate_input_weight` helper
+cr 2024-04-23 14:10:19 +0100 13adbf733f09c73c3cf0025d94c52f9cec5dba3b remove unneeded environment option from cpp-subprocess
+pr 2024-04-23 18:04:25 +0100 2cecbbb98683844a642899f4563aab8b856ffd3b Merge bitcoin/bitcoin#29865: util: remove unused cpp-subprocess options
+v  2024-04-23 18:22:58 +0100 08f756bd370c3e100b186c7e24bef6a033575b29 Replace locale-dependent `std::strerror` with `SysErrorString`
+cr 2024-04-23 18:22:58 +0100 d8e4ba4d0568769782b8c19c82e955c4aee73477 refactor: Rename `subprocess.hpp` to follow our header name conventions
+pr 2024-04-23 20:34:24 +0100 4aa18cea823be87608d7e389d20d738407602b8f Merge bitcoin/bitcoin#28974: doc: explain what the wallet password does
+pr 2024-04-23 21:07:43 +0100 7c17f203a5fdc697dd1cf78a9f6c6e7f49a0567d Merge bitcoin/bitcoin#29688: test: remove duplicated ban test
+pr 2024-04-23 22:20:54 +0100 a7129f827c9de1330dea1fec739ca210e6bda3cb Merge bitcoin/bitcoin#24313: Improve display address handling for external signer
+v  2024-04-24 01:26:42 +0100 f19f0a2e5af6c2a64900f1f229e21b6f1668bd3d test: Run framework unit tests in parallel
+v  2024-04-24 02:51:01 +0100 e912717ff63f111d8f1cd7ed1fcf054e28f36409 test: add missing comparison of node1's mempool in MempoolPackagesTest
+v  2024-04-24 09:17:48 +0100 970cbc3172b73e1faf6bdb429400d3497cbb9d33 doc: Suggest only necessary Qt packages for installation on OpenBSD
+pr 2024-04-24 11:07:09 +0100 19722e3e728933e629eb8e407075fb193b2908e2 Merge bitcoin/bitcoin#29929: ci: Drop no longer needed `-I` flag in "tidy" task
+pr 2024-04-24 12:14:48 +0100 19d59c9cc6078df7927eec3fe34a292121909041 Merge bitcoin/bitcoin#29882: netbase: clean up Proxy logging
+cr 2024-04-24 13:14:18 +0100 dace02f99d4a8785567732c0d687517175765bfd doc: suggest only necessary Qt packages for installation on FreeBSD
+pr 2024-04-24 13:55:27 +0100 9e0e51b1d9f9c9bf95bc2c56f29ae32fa479c3b3 Merge bitcoin/bitcoin#29870: rpc: Reword SighashFromStr error message
+pr 2024-04-24 14:00:29 +0100 631a2b5b3f2a9db6007c5c3e74e576d34e581d54 Merge bitcoin/bitcoin#29947: doc: Suggest only necessary Qt packages for installation on OpenBSD
+pr 2024-04-24 14:05:23 +0100 072b118407af08dd68a10f94190b600d63b99758 Merge bitcoin/bitcoin#29932: doc: suggest only necessary Qt packages for installation on FreeBSD
+pr 2024-04-24 14:14:26 +0100 c143244ce3fbfd9776496283489832ba4737e370 Merge bitcoin/bitcoin#29853: sign: don't assume we are parsing a sane TapMiniscript
+pr 2024-04-24 14:23:58 +0100 427044afa3614e3380c525140b50df48822d939f Merge bitcoin/bitcoin#29585: contrib: list other binaries in manpage output
+v  2024-04-24 15:40:14 +0100 9381052194a78024b3994cc6ad906858c477b88f doc: Bash is needed in gen_id and is not installed on FreeBSD by default
+pr 2024-04-24 15:46:25 +0100 d822d4e849646a455aa360efd4a48a546ecc5950 Merge bitcoin/bitcoin#29837: ci: disable `_FORTIFY_SOURCE` with MSAN
+pr 2024-04-24 15:57:50 +0100 50729c060907b69543755a8e1ed6b0d32d071a8a Merge bitcoin/bitcoin#29910: refactor: Rename `subprocess.hpp` to follow our header name conventions
+pr 2024-04-24 16:51:56 +0100 2a07c4662d7266158d47f79fa2433ab22e22c907 Merge bitcoin/bitcoin#29757: feefrac: avoid explicitly computing diagram; compare based on chunks
+v  2024-04-24 21:21:06 +0100 46bc6c2aaa613eef526b21a06bf21e8edde31a88 test: Add unit tests for urlDecode
+cr 2024-04-24 22:23:34 +0100 650d43ec15f7a3ae38126f65ef8fa0b1fd3ee936 refactor: Replace libevent use in urlDecode with our own code
+v  2024-04-24 22:23:38 +0100 8f39aaae417c33490e0e41fb97620eb23ced3d05 refactor: Remove hooking code for urlDecode
+v  2024-04-24 22:26:24 +0100 099fa571511f113e0056d4bc27b3153a42f9dc65 scripted-diff: Modernize name of urlDecode function and param
+v  2024-04-24 22:27:50 +0100 992c714451676cee33d3dff49f36329423270c1c common: Don't terminate on null character in UrlDecode
+v  2024-04-25 01:04:31 +0100 ff79adbe056220202f7a56d67f788c38fc49ef9f remove unused templates from cpp-subprocess
+v  2024-04-25 09:14:10 +0100 03e36b3da093e2c23cf51b46f6901cb84ddbf867 Fix typos in description.md and wallet_util.py
+v  2024-04-25 14:00:10 +0100 7c69baf227252511455bc06e315f6a3c7fc5a398 depends: pass verbose through to cmake based make
+pr 2024-04-25 14:07:52 +0100 10f50220724c02efe0ba38717cc64578ffb58ebc Merge bitcoin/bitcoin#29708: depends: build libnatpmp with CMake
+pr 2024-04-25 14:13:28 +0100 ee1c975f80a0accd991c3c9c82b7eb52a76c6d30 Merge bitcoin/bitcoin#29938: Fix typos in description.md and wallet_util.py
+pr 2024-04-25 14:21:42 +0100 d48d55e0d30057c60293a5f76e312e8eda452f78 Merge bitcoin/bitcoin#29890: deploy: remove some tools when cross-compiling for macOS
+pr 2024-04-25 14:22:45 +0100 0eb1459efa91c6a3bc2964007057cef2f7280a57 Merge bitcoin/bitcoin#29953: doc: Bash is needed in gen_id and is not installed on FreeBSD by default
+v  2024-04-25 14:22:58 +0100 e504b1fa1fa4d014b329dea81bfdf1aa55db238f test: Add test case for spending bare multisig
+cr 2024-04-25 14:32:28 +0100 9adf949d2aa6d199b85295b18c08967395b5570a contrib: rpcauth.py - Add new option (-j/--json) to output text in json format
+v  2024-04-25 16:27:08 +0100 6abe772a17e09fe96e68cd3311280d5a30f6378b contrib: Add asmap-tool
+v  2024-04-25 16:44:39 +0100 908c51fe4afeba0af500c6275027b1afa1b3bd19 remove commented out code in cpp-subprocess
+pr 2024-04-25 17:34:50 +0100 a9011781fc9c1a08988297bb67d1915678940fac Merge bitcoin/bitcoin#29689: lint: scripted-diff verification also requires GNU grep
+pr 2024-04-25 18:02:43 +0100 16a617461338876a03665cec7f39964602d298bb Merge bitcoin/bitcoin#29904: refactor: Use our own implementation of urlDecode
+pr 2024-04-25 18:26:21 +0100 3c88eac28e8984893746caebb313dc3b2fca90db Merge bitcoin/bitcoin#29736: test: Extends wait_for_getheaders so a specific block hash can be checked
+pr 2024-04-25 18:51:39 +0100 50b09e8173d018d63e7e3623424497953257a54a Merge bitcoin/bitcoin#29615: test: fix accurate multisig sigop count (BIP16), add unit test
+pr 2024-04-25 18:55:47 +0100 206629517270f6a51cd38a27552e71405b661c55 Merge bitcoin/bitcoin#29433: contrib: rpcauth.py - Add new option (-json) to output text in json format
+pr 2024-04-25 19:12:13 +0100 0e2e7d1a355ab6d4c483e192a2f881a5beef2381 Merge bitcoin/bitcoin#29867: index: race fix, lock cs_main while 'm_synced' is subject to change
+pr 2024-04-25 21:08:24 +0100 2eff198f4900c34442439ef2cbd9d82f4903f915 Merge bitcoin/bitcoin#28834: net: attempts to connect to all resolved addresses when connecting to a node
+cr 2024-04-25 21:08:24 +0100 6a8b2befeab25e4e92d8e947a23e78014695e06c refactor: Avoid copying util::Result values
+cr 2024-04-25 21:08:24 +0100 834f65e82405bbed336f98996bc8cef366bbed0f refactor: Drop util::Result operator=
+v  2024-04-26 07:33:56 +0100 fa55972a758865a6bd0114afe72e51877896d495 test: Add two more urlDecode tests
+pr 2024-04-26 09:40:04 +0100 7973a670915632b75a6aa16f24f98b936865c48f Merge bitcoin/bitcoin#29967: test: Add two more urlDecode tests
+cr 2024-04-26 10:28:27 +0100 092c978a42e8f4a02291b994713505ba8aac8b28 [txpackages] add canonical way to get hash of package
+cr 2024-04-26 10:28:27 +0100 2f51cd680fb4323f1c792dae37d4c4e0e0e35804 [txorphanage] add method to get all orphans spending a tx
+v  2024-04-26 10:28:27 +0100 410ebd6efaf20fe4715c9b825103b74db69f35ac [fuzz] break out parent functions and add GetChildrenFrom* coverage
+v  2024-04-26 10:28:27 +0100 6c51e1d7d021ed6523107a6db87a865aaa8fc4c9 [p2p] add separate rejections cache for reconsiderable txns
+v  2024-04-26 10:28:27 +0100 d095316c1c23e9460dfbd9fdbaf292063adcd080 [unit test] TxOrphanage::GetChildrenFrom*
+v  2024-04-26 11:27:37 +0100 87c5c524d63c833cf490c7f2f73d72695ad480df [p2p] opportunistically accept 1-parent-1-child packages
+v  2024-04-26 11:27:37 +0100 e518a8bf8abf3d7b83c9013f56d0dca18ae04d6f [functional test] opportunistic 1p1c package submission
+v  2024-04-26 14:50:00 +0100 b259b0e8d360726b062c4b0453d1cf5a68e1933f [Test] Assumeutxo: ensure failure when importing a snapshot twice
+v  2024-04-26 16:14:20 +0100 a8d9a0edc7cef2c31a557ef53eb45520976b0d65 test: adds outbound eviction functional tests, updates comment in ConsiderEviction
+v  2024-04-26 16:15:22 +0100 d53d84834747c37f4060a9ef379e0a6b50155246 test: adds outbound eviction tests for non outbound-full-relay peers
+pr 2024-04-26 21:06:37 +0100 1ffbd96349820cae7f076ae3253d8a9d28155fd2 Merge bitcoin/bitcoin#29771: test: Run framework unit tests in parallel
+v  2024-04-26 22:47:00 +0100 97a4ad5713853f51c729cced73f133fafa735ba2 build, msvc: Drop duplicated `common\url.cpp` source file
+pr 2024-04-27 07:48:54 +0100 7fee0ca014b1513e836d2550d1b7512739d5a79a Merge bitcoin/bitcoin#29976: build, msvc: Drop duplicated `common\url.cpp` source file
+v  2024-04-27 13:54:00 +0100 fa1964c5b80ee28b0e06abdbd9a26e8e8c6f5acd build: Bump clang minimum supported version to 15
+pr 2024-04-28 03:55:01 +0100 3aaf7328eb656b642e5f0f74f3e4d51645a1d0ab Merge bitcoin/bitcoin#29774: build: Enable fuzz binary in MSVC
+v  2024-04-28 07:11:24 +0100 85f50a46c50e7e56b5ee2d7258021939cd80c550 refactor: Fix "error C2248: cannot access private member" on MSVC
+v  2024-04-28 07:11:32 +0100 774359b4a96d2724dc70f900cb71e084a77164da build, msvc: Compile `test\fuzz\bitdeque.cpp`
+v  2024-04-28 10:37:54 +0100 7766dd280d9a4a7ffdfcec58224d0985cfd4169b net: Replace ifname check with IFF_LOOPBACK in Discover
+v  2024-04-28 10:40:19 +0100 a68fed111be393ddbbcd7451f78bc63601253ee0 net: Fix misleading comment for Discover
+v  2024-04-28 13:17:14 +0100 97f159776ec06f767df1d4990aa7d0859140f52f remove unused method `Popen::kill` from cpp-subprocess
+v  2024-04-28 13:18:06 +0100 8b52e7f628304e83b0e36fd97e617de0f71c5a62 update comments in cpp-subprocess (check_output references)
+v  2024-04-28 20:39:10 +0100 cc15c5bfd1eb3903de246c124702a7c66c687008 fuzz: don't allow adding duplicate transactions to the mempool
+pr 2024-04-29 03:00:23 +0100 a46065e36cf868265c909dc5edf29dc17be53c1f Merge bitcoin/bitcoin#29895: guix: remove bzip2 from deps
+v  2024-04-29 08:48:26 +0100 2e266f33b5d2be5c233c2c692481f75785714fa1 depends: Fix build of Qt for 32-bit platforms
+cr 2024-04-29 09:33:21 +0100 22574046c90c0662f3aa9b1baea074aff54f92a9 doc: add LLVM instruction for macOS < 13
+v  2024-04-29 11:46:02 +0100 357ad110548d726021547d85b5b2bfcf3191d7e3 test: Handle functional test disk-full error
+pr 2024-04-29 13:59:12 +0100 4d2d91a9e0f7a0647d5a45ed04bcbf6590ce8814 Merge bitcoin/bitcoin#29165: build: Bump clang minimum supported version to 15
+pr 2024-04-29 14:37:49 +0100 0c45d73f185d0f09c9b0b5a1749f405fb8125887 Merge bitcoin/bitcoin#29872: test: Add missing Assert(mock_time_in >= 0s) to SetMockTime
+pr 2024-04-29 15:38:50 +0100 19865a8350a8181ab658bef48976a728bae6a8bd Merge bitcoin/bitcoin#29277: RPC: access RPC arguments by name
+v  2024-04-29 17:15:15 +0100 95897ff181c0757e445f0e066a2a590a0a0120d2 doc: removed help text saying that peers may not connect automatically
+v  2024-04-29 17:15:30 +0100 f8a141c2dae2471a7ce7248e28a0bbeb8a291acd test: Don't rely on incentive incompatible replacement in mempool_accept_v3.py
+v  2024-04-30 03:07:19 +0100 6866b571ab96f03ca0775424e45458c5731f230f depends: miniupnpc 2.2.7
+v  2024-04-30 05:41:20 +0100 f5618c79d9e7af05c2987044dc2da03697f8bb89 depends: add upstream CMake patch to miniupnpc
+v  2024-04-30 05:53:44 +0100 3c2d440f1497f60bb444326f51383df244dcdfe9 depends: switch miniupnpc to CMake
+v  2024-04-30 06:29:33 +0100 5195baa60087ee366290887ad982fc491e14c111 depends: fix miniupnpc snprintf usage on Windows
+pr 2024-04-30 07:19:35 +0100 ad42d63519839b5751db0f294b5de7cfdc332e61 Merge bitcoin/bitcoin#29985: depends: Fix build of Qt for 32-bit platforms with recent glibc
+pr 2024-04-30 09:52:00 +0100 36e660fc234b8c327e56144bd331b1181dc94940 Merge bitcoin/bitcoin#29990: fuzz: don't allow adding duplicate transactions to the mempool
+pr 2024-04-30 10:01:00 +0100 15f696b454047f5dafc3c95e36fcd677c1901de9 Merge bitcoin/bitcoin#29986: test: Don't rely on incentive incompatible replacement in mempool_accept_v3.py
+cr 2024-04-30 16:03:04 +0100 855dd8d592c951a2b3239867ffbf66bb8677d470 system: use %LOCALAPPDATA% as default datadir on windows
+v  2024-04-30 16:03:46 +0100 84900ac34f6888b7a851d0a6a5885192155f865c doc: add release-notes-27064.md
+pr 2024-04-30 17:19:03 +0100 2d3056751bb7d742a802a30503f07dbeb07310ee Merge bitcoin/bitcoin#29906: Disable util::Result copying and assignment
+v  2024-04-30 19:14:50 +0100 fd6a7d3a13d89d74e161095b0e9bd3570210a40c test: use sleepy wait-for-log in reindex readonly
+pr 2024-04-30 23:40:53 +0100 d813ba1bc4b4da3ad1f3812b61ff125d1d664625 Merge bitcoin/bitcoin#28970: p2p: opportunistically accept 1-parent-1-child packages
+pr 2024-04-30 23:49:34 +0100 0c3a3c9394e608c4beb92722ad034648af81dee7 Merge bitcoin/bitcoin#29623: Simplify network-adjusted time warning logic
+pr 2024-04-30 23:59:56 +0100 326e563360671c568534ff72f45dec6b607e4b36 Merge bitcoin/bitcoin#28016: p2p: gives seednode priority over dnsseed if both are provided
+pr 2024-05-01 00:00:54 +0100 063072b86abcb2dff4db6861b63b5b1d19e93c62 Merge bitcoin/bitcoin#29813: doc: i2p: improve `-i2pacceptincoming` mention
+pr 2024-05-01 01:14:02 +0100 4df2d0c4ce7697648ec724d2057a60bd8d7d032f Merge bitcoin/bitcoin#29983: msvc: Compile `test\fuzz\bitdeque.cpp`
+pr 2024-05-01 01:17:04 +0100 842f7fdf786fcbbdf3df40522945813404f8a397 Merge bitcoin/bitcoin#29645: doc: update release-process.md
+v  2024-05-01 07:12:40 +0100 fa9be2f79520fff9cfe2ed35ace05cb322680af3 lint: [doc] Clarify Windows line endings (CR LF) not to be used
+cr 2024-05-01 07:33:04 +0100 dddd40ba8267dea11a3eb03d5cf8b51dbb99be5d scripted-diff: Add IWYU pragma keep to bitcoin-config.h includes
+v  2024-05-01 07:33:43 +0100 fa09451f8e6799682d7e7c863f25334fd1c7dce3 Add lint check for bitcoin-config.h include IWYU pragma
+v  2024-05-01 13:34:37 +0100 8496f69e1c2d1961db2604829cb6a289eb8dd3d6 [refactor] make MempoolAcceptResult::m_replaced_transactions non-optional
+v  2024-05-01 13:34:37 +0100 9a762efc7a118c44556fa9ad404f6b54103bad41 [txpackages] use std::lexicographical_compare instead of sorting hex strings
+v  2024-05-01 13:35:12 +0100 c2ada0530719e044bb498e0d78907a208214a71e [doc] remove redundant PackageToValidate comment
+v  2024-05-01 13:38:19 +0100 2b482dc1f3fb248ccbe7eeb8c9c07d4bf1295a70 [refactor] have ProcessPackageResult take a PackageToValidate
+v  2024-05-01 13:48:03 +0100 6119f76ef72c1adc55c1a384c20f8ba9e1a01206 Process every MempoolAcceptResult regardless of PackageValidationResult
+cr 2024-05-01 14:44:57 +0100 42fb5311b19582361409d65c6fddeadbee14bb97 rpc: return warnings as an array instead of just a single one
+v  2024-05-01 16:06:48 +0100 58594c7040241f2312b0b8735a8baf0412674613 fuzz: txorphan tests fixups
+pr 2024-05-01 19:43:58 +0100 d73245abc70346a0e8805d50a1f395706084294c Merge bitcoin/bitcoin#29120: test: Add test case for spending bare multisig
+v  2024-05-02 00:16:33 +0100 b50d127a7710d790c2ba4a08f01b832c2a0b1203 refactor: Make 64-bit shift explicit
+pr 2024-05-02 04:21:24 +0100 1cc3aa4d21e3e4ff7a651bc71fec062ec5a9eb09 Merge bitcoin/bitcoin#29707: depends: build miniupnpc with CMake
+pr 2024-05-02 04:45:23 +0100 59b773f42a6730104e13904fb521e52023a997b5 Merge bitcoin/bitcoin#30010: lint: [doc] Clarify Windows line endings (CR LF) not to be used
+pr 2024-05-02 08:27:25 +0100 9d1a286f20b8a602ffe72928bcd79be09fdbf9d0 Merge bitcoin/bitcoin#29934: doc: add LLVM instruction for macOS < 13
+v  2024-05-02 11:24:36 +0100 7f6fb73c82fdff2afe5edefcc335ba6707d5627d [refactor] use reference in for loop through iters
+v  2024-05-02 11:37:24 +0100 fa9abf968840745e428a86a9545aaa6c923415e2 refactor: Avoid unused-variable warning in init.cpp
+pr 2024-05-02 14:09:14 +0100 3d28725134df09768780249dc1d974b9cdcc83f1 Merge bitcoin/bitcoin#29968: refactor: Avoid unused-variable warning in init.cpp
+v  2024-05-02 20:16:40 +0100 ffc674595cb19b2fdc5705b355bdd3e7f724b860 Replace remaining "520" magic numbers with MAX_SCRIPT_ELEMENT_SIZE
+pr 2024-05-02 21:33:18 +0100 81174d8a9b8060b35341d88d3b54c08d9f2bb079 Merge bitcoin/bitcoin#29961: refactor: remove remaining unused code from cpp-subprocess
+pr 2024-05-02 21:45:42 +0100 62ef33a718c9891d37d7c757968876033c4f794d Merge bitcoin/bitcoin#29617: test: Validate UTXO snapshot with coin height > base height & amount > MAX_MONEY supply
+v  2024-05-02 23:10:05 +0100 bd2de7ac591d7704b79304089ad1fb57e085da8b refactor, test: Always initialize pointer
+pr 2024-05-03 03:47:37 +0100 5127844cabbe50236abc8d55015692515c49315e Merge bitcoin/bitcoin#30017: refactor, fuzz: Make 64-bit shift explicit
+pr 2024-05-03 08:31:06 +0100 99d7538cdb2a0ab7a7a2116cd5f33b95fc52b00e Merge bitcoin/bitcoin#30012: opportunistic 1p1c followups
+cr 2024-05-03 08:31:54 +0100 7469ac7032e26fe805c5d15ecded2d44253bc9c1 ci: disable -Werror=maybe-uninitialized for Windows builds
+cr 2024-05-03 08:31:54 +0100 b088062e687d95deff28b0715fd4859449b56584 ci: remove -Wdocumentation from -Werror in multiprocess CI
+cr 2024-05-03 08:31:54 +0100 bec6a88fbcff0bd974e820cefd2be2d00b6f6c56 ci: remove -Warray-bounds from -Werror for win64
+v  2024-05-03 08:31:54 +0100 f0e22be69a15248c42964d57f44ce8c37a36081d build: no-longer disable WARN_CXXFLAGS when CXXFLAGS is set
+cr 2024-05-03 08:36:57 +0100 fb9f150759b22772dd48983a2be1ea397245e289 gui: fix misleading signmessage error with segwit
+v  2024-05-03 10:30:50 +0100 af3c18169a075222fe0795ab24b8b20ad5e30ae4 [test]: remove duplicate WITNESS_SCALE_FACTOR
+pr 2024-05-03 14:54:52 +0100 70e4d6ff1d269abbda9dafae659e3da3ea17867a Merge bitcoin/bitcoin#30026: refactor, test: Always initialize pointer
+cr 2024-05-03 16:07:12 +0100 4b9f49da2b120e81516ddc3dc577d7a2e58e02d3 doc: fix broken relative md links
+v  2024-05-03 16:38:14 +0100 63317103c9f2b0635558da814567bb79c17ae851 miniscript: make operator_mst consteval
+pr 2024-05-03 17:36:00 +0100 f9486de6a96b624982a2d45b895bfe4e865063d1 Merge bitcoin/bitcoin#30029: test: remove duplicate `WITNESS_SCALE_FACTOR` constant definition
+pr 2024-05-03 17:36:56 +0100 f5b6f621fff7540ca97974b26a66ca1cc6db018c Merge bitcoin/bitcoin#30024: doc: replace remaining "520" magic nums with MAX_SCRIPT_ELEMENT_SIZE
+pr 2024-05-04 01:47:18 +0100 bd597c33e3e58cd3c6b22ed42f8f1fd7ff886bb2 Merge bitcoin/bitcoin#25972: build: no-longer disable WARN_CXXFLAGS when CXXFLAGS is set
+pr 2024-05-04 02:07:44 +0100 61d3280c3a36084a6fef17fcedb3de3555294424 Merge bitcoin/bitcoin#29907: test: Fix `test/streams_tests.cpp` compilation on SunOS / illumos
+pr 2024-05-04 02:13:11 +0100 eb0bdbdd753bca97120247b921fd29d606fea6e9 Merge bitcoin/bitcoin#28657: miniscript: make operator""_mst consteval
+v  2024-05-04 09:04:09 +0100 9155b733e153e799f09cc7f7e9199ad776b2cbb1 build, msvc: Compile test\fuzz\miniscript.cpp
+v  2024-05-04 20:33:36 +0100 613a45cd4b5482aedbdc7c61c839ea05996935c6 net: reduce LOCK(cs_main) scope in GETBLOCKTXN
+v  2024-05-04 20:38:39 +0100 75d27fefc7a04ebdda7be5724a014b6a896e7325 net: reduce LOCK(cs_main) scope in ProcessGetBlockData
+v  2024-05-05 11:33:30 +0100 4f347140b1a31237597dd1821adcde8bd5761edc test: refactor: move fill_mempool to new module mempool_util
+cr 2024-05-05 11:33:34 +0100 b2037ad4aeb4e16c7eb1e5756d0d1ee20172344b test: add MiniWallet tagging support to avoid UTXO mixing
+v  2024-05-05 11:33:34 +0100 c8e6d08236ff225db445009bf513d6d25def8eb2 test: refactor: eliminate COINBASE_MATURITY magic number in fill_mempool
+v  2024-05-05 11:36:51 +0100 dd8fa861939d5b8bdd844ad7cab015d08533a91a test: use tagged ephemeral MiniWallet instance in fill_mempool
+pr 2024-05-06 02:33:56 +0100 f7b81c7e1edb1d2d972b8d1e81e40f381d9beb59 Merge bitcoin/bitcoin#30031: msvc: Compile `test\fuzz\miniscript.cpp`
+pr 2024-05-06 02:47:29 +0100 00ac1b963d08f2779d2197edcdb1e76392993378 Merge bitcoin/bitcoin#29960: depends: pass verbose through to cmake based makefiles
+cr 2024-05-06 11:29:14 +0100 5deb0b024e14c7c63d405c651d1ca323560a1c21 build, test, doc: Temporarily remove Android-related stuff
+pr 2024-05-06 14:02:30 +0100 fdb41e08c4a4fb2743f8ca7c4b8dac52a460e864 Merge bitcoin/bitcoin#29773: build, bench, msvc: Add missing benchmarks
+pr 2024-05-06 17:24:09 +0100 63d0b930f821132badd804822a46232a5f98bbef Merge bitcoin/bitcoin#29845: rpc: return warnings as an array instead of just a single one
+v  2024-05-06 21:34:10 +0100 cc67d33fdac45357b593b1faff3d1735e5fe91ba refactor: Simply include CTxMemPool::Options in CTxMemPool directly rather than duplicating definition
+v  2024-05-06 23:11:22 +0100 ee67bba76cca2355541f99bb731f58479981b29e test: added test coverage to loadtxoutset
+cr 2024-05-07 00:21:43 +0100 17f74512f0d19cb452ed79a4bff5a222fcdb53c4 test: add bounds checking for submitpackage RPC
+v  2024-05-07 00:21:44 +0100 f9ece258aa868d0776caa86b94e71ba05a9b287e doc: rpc: submitpackage takes sorted array
+v  2024-05-07 00:22:28 +0100 1a875d4049574730d4a53a1b68bd29b80ad96d38 rpc: update min package size error message in submitpackage
+v  2024-05-07 00:22:30 +0100 78e52f663f3e3ac86260b913dad777fd7218f210 doc: rpc: fix submitpackage examples
+pr 2024-05-07 03:28:58 +0100 ef09f535b7b540d997f8c2bfa67b3386711bc8b4 Merge bitcoin/bitcoin#29984: net: Replace ifname check with IFF_LOOPBACK in Discover
+v  2024-05-07 07:53:18 +0100 fab179d10243e85cdb172a9f08bcb7ec19ddf74d ci: Exclude feature_init for now in valgrind task
+pr 2024-05-07 19:14:03 +0100 8efd03ad04726aa34219ad83115a3d45030412c3 Merge bitcoin/bitcoin#29494: build: Assume HAVE_CONFIG_H, Add IWYU pragma keep to bitcoin-config.h includes
+pr 2024-05-07 21:31:14 +0100 4e56df8f915bf6e769920ef12e7c52848786a56d Merge bitcoin-core/gui#819: Fix misleading signmessage error with segwit
+pr 2024-05-08 04:54:46 +0100 09d3ad2861a0127d2cdcf81a8d82f6da6b0f16c1 Merge bitcoin/bitcoin#30025: doc: fix broken relative md links
+pr 2024-05-08 04:56:32 +0100 74f517b4411d80afa7733c088da961e9c736a97d Merge bitcoin/bitcoin#30054: ci: Exclude feature_init for now in valgrind task
+pr 2024-05-08 09:15:00 +0100 43a66c55ec8770cf7c21112aac9b997f3f2fb704 Merge bitcoin/bitcoin#30053: test: added test coverage to loadtxoutset could not open file
+cr 2024-05-08 09:36:41 +0100 7f5ac4520d1553170b1053a9ffcd58179386a6d2 build: swap otool for (llvm-)objdump
+cr 2024-05-08 14:31:16 +0100 189d0da3f6f561c808fdd9fbd4dfd34ccfa23fe1 build, test: Remove unused `TIMEOUT` environment variable
+pr 2024-05-08 22:52:58 +0100 4ff42762fdbef983a886e5eb63cf21f7108fe78b Merge bitcoin/bitcoin#28336: rpc: parse legacy pubkeys consistently with specific error messages
+pr 2024-05-08 23:04:19 +0100 573f6311658a7ef5b84a08c6aedeab35d2ac7956 Merge bitcoin/bitcoin#26326: net: don't lock cs_main while reading blocks in net processing
+pr 2024-05-08 23:11:35 +0100 8a45f572b9e0d4681a7e636df338d978841c27a3 Merge bitcoin/bitcoin#29335: test: Handle functional test disk-full error
+v  2024-05-08 23:19:47 +0100 0d114e3cb20cb9e03fc9ba8daf3d03436b491742 blockstorage: Add Assume for fKnown / snapshot chainstate
+pr 2024-05-08 23:39:56 +0100 43003255c00f72a85188d29a313904f46513f1eb Merge bitcoin/bitcoin#29292: rpc: improve submitpackage documentation and other improvements
+pr 2024-05-09 04:11:57 +0100 6f1d9064381d834b0f8daa9011f18ba40834d85a Merge bitcoin/bitcoin#30063: build, test: Remove unused `TIMEOUT` environment variable
+cr 2024-05-09 14:55:55 +0100 538fedde1d9c96a2bbe06cacc0cd6903135fbc83 common: Add ECC_Context RAII wrapper for ECC_Start/ECC_Stop
+v  2024-05-09 14:56:04 +0100 28905c1a64a87a56f16aea8a4d23dea7eec9ca59 test: Use ECC_Context helper in bench and fuzz tests
+v  2024-05-09 14:56:06 +0100 a08d2b3cb971c68e9a50b991b2953fa4541cf48a tools: Use ECC_Context helper in bitcoin-tx and bitcoin-wallet tools
+cr 2024-05-09 14:56:08 +0100 41eba5bd716bea47c8731d156d053afee92a7f12 kernel: Remove key module from kernel library
+v  2024-05-09 14:56:10 +0100 96378fe734e5fb6167eb20036d7170572a647edb Refactor: Remove ECC_Start and ECC_Stop from key header
+pr 2024-05-09 16:55:15 +0100 921c61e9a5c8592cc9e07986612d3f4f31d663fc Merge bitcoin/bitcoin#29973: test: Assumeutxo: ensure failure when importing a snapshot twice
+pr 2024-05-09 16:57:30 +0100 ceb1e078f8c0ae58ff72748b039184a205efe337 Merge bitcoin/bitcoin#28793: contrib: Add asmap-tool
+v  2024-05-09 17:13:31 +0100 e6aba463adeb88fc707342a12fef658f68b0a0ea contrib: use env_flags in get_arch
+v  2024-05-09 17:13:50 +0100 b59a027d957a4cffd225a681e6c85f9ae7fd77f3 contrib: drop dead get_machine from test sym check
+pr 2024-05-09 21:20:43 +0100 012e540acee4c06dbade5451e76c606f987e5957 Merge bitcoin/bitcoin#29122: test: adds outbound eviction functional tests, updates comment in ConsiderEviction
+pr 2024-05-09 21:54:18 +0100 24572cf768167c0e82a688e7eaef865a5cbc4ffd Merge bitcoin/bitcoin#29939: test: add MiniWallet tagging support to avoid UTXO mixing, use in `fill_mempool`
+pr 2024-05-09 23:31:03 +0100 98dd4e712efaa2b77cb168426756879c6405c3f4 Merge bitcoin/bitcoin#30006: test: use sleepy wait-for-log in reindex readonly
+v  2024-05-10 14:42:31 +0100 24b53fc84af301fff592e06723b980e29aa68289 refactor, subprocess: Remove `Popen::pid()`
+v  2024-05-10 14:47:07 +0100 9e1ccf55e178144804e30cfe94757b6da2a6ca28 refactor, subprocess: Remove unused `Popen::poll()`
+v  2024-05-10 14:47:15 +0100 05b6f8793c6d5f17d1cb413e2884f1fb0f367ad8 refactor, subprocess: Remove unused `Popen::child_created_` data member
+v  2024-05-10 14:58:27 +0100 5a11d3023f7d0cde777f3496c0f3aa381823d749 refactor, subprocess: Remove unused stream API calls
+pr 2024-05-10 17:44:42 +0100 7066980273aa5f405ae34b71ead7f0bf0132e1b7 Merge bitcoin/bitcoin#29948: test: add missing comparison of node1's mempool in MempoolPackagesTest
+pr 2024-05-10 18:18:00 +0100 2cedb42a928fbf3a1e0e8715e918497cbe64af0d Merge bitcoin/bitcoin#29252: kernel: Remove key module from kernel library
+v  2024-05-11 05:29:51 +0100 684da9707040ce25d95b2954eda50b811136d92c p2p, bugfix: detect addnode cjdns peers in GetAddedNodeInfo()
+v  2024-05-11 05:29:51 +0100 d0b047494c28381942c09d0cca45baa323bfcffc test: add GetAddedNodeInfo() CJDNS regression unit test
+pr 2024-05-11 11:34:42 +0100 4d3f1d08db4198b13056c5bb44530dae9507dcf3 Merge bitcoin/bitcoin#29739: build: swap cctools otool for llvm-objdump
+pr 2024-05-11 11:37:49 +0100 b47c393d8a39b48a8f17f2d8abae9ba2f2bf5a61 Merge bitcoin/bitcoin#30081: refactor: Remove unused code from `subprocess.h` header
+pr 2024-05-11 19:13:34 +0100 182983c6ab2e037d65303fa13148f39236f2734a Merge bitcoin-core/gui#788: debugwindow: update session ID tooltip
+pr 2024-05-11 19:34:12 +0100 32072866809ade129a3219105f0851606dc9fd38 Merge bitcoin-core/gui#813: Don't permit port in proxy IP option
+pr 2024-05-12 14:21:21 +0100 ee9491369faaa755ae1d248b8f32456fd656a5f4 Merge bitcoin/bitcoin#29658: Bugfix: GUI: Help messages already have a trailing newline, so don't add an extra one
+pr 2024-05-12 15:30:34 +0100 b94061902e52132489fe296c12396798700f1f35 Merge bitcoin-core/gui#812: Fix create unsigned transaction fee bump
+v  2024-05-13 13:01:06 +0100 1e4412b317f74dd64069309544fe73c95e2c10e7 depends: set AR for CMake
+v  2024-05-13 13:01:37 +0100 43cfb428cba04b8db98d4d0d56ffe28ad686e58c depends: set NM for CMake
+v  2024-05-13 13:01:45 +0100 019ad7327c397094d7648b55503bf5373b108a57 depends: set RANLIB for CMake
+v  2024-05-13 14:30:44 +0100 b77bad309e92f176f340598eec056eb7bff86f5f rpc: move UniValue in blockToJSON
+pr 2024-05-13 15:58:36 +0100 c7deb761187e052ec25f94d855befdd1ff2e73fd Merge bitcoin/bitcoin#29994: doc: removed help text saying that peers may not connect automatically
+pr 2024-05-13 16:00:49 +0100 ff8c606cf1eaefd0eab9f144561120ae6c5a498f Merge bitcoin/bitcoin#29974: fuzz: txorphan tests fixups
+pr 2024-05-13 21:15:53 +0100 0503cbea9aab47ec0a87d34611e5453158727169 Merge bitcoin/bitcoin#30094: rpc: move UniValue in blockToJSON
+pr 2024-05-13 21:31:19 +0100 d6069cb8d6bad2da111e9db0f6ba587855349bc8 Merge bitcoin/bitcoin#28233: validation: don't clear cache on periodic flush: >2x block connection speed
+v  2024-05-13 22:31:46 +0100 12d82817bf32396b58c8c65645012def606680b6 refactor: simplify `FormatSubVersion` using strprintf/Join
+v  2024-05-14 04:01:06 +0100 756ff9b478484b17c4a6e65c171c2e4fecb21ad4 wallet: add dummy BerkeleyRODatabase and BerkeleyROBatch classes
+v  2024-05-14 04:01:37 +0100 0c8e72847603540bb29b8b8aeb80fa3f2e3a2c9a wallet: implement BerkeleyROBatch
+v  2024-05-14 04:01:38 +0100 ecba23097955dad7208baa687fc405c846aee794 wallet: implement BerkeleyRODatabase::Backup
+pr 2024-05-14 04:47:09 +0100 7fcf4e99791ca5be0b068ac03a81a50ece11dba3 Merge bitcoin/bitcoin#30078: depends: set AR & RANLIB for CMake
+v  2024-05-14 09:24:31 +0100 b946f8a4c51be42e52d63a6d578158c0b2a6b7ed crypto: add NUMS_H const
+v  2024-05-14 09:26:28 +0100 d4b17c7d46ad8e2833ade99d5b4c9741c913e84d kernel: Remove batchpriority from kernel library
+v  2024-05-14 10:31:56 +0100 7e475b9648bbee04f5825b922ba0399373eaa5a9 [p2p] don't query orphanage by txid
+v  2024-05-14 10:32:27 +0100 efcc5930175f31b685adb4627a038d9f0848eb1f [refactor] TxOrphanage::HaveTx only by wtxid
+v  2024-05-14 10:32:28 +0100 6675f6428d653bf7a53537bd773114f4fb5ba53f [unit test] TxOrphanage handling of same-txid-different-witness txns
+cr 2024-05-14 10:32:28 +0100 8923edfc1f12ebc6a074651c084ba7d249074799 [p2p] allow entries with the same txid in TxOrphanage
+cr 2024-05-14 10:32:28 +0100 c31f148166f01a9167d82501a77823785d28a841 [refactor] TxOrphanage::EraseTx by wtxid
+cr 2024-05-14 10:38:57 +0100 0fb17bf61a40b73a2b81a18e70b3de180c917f22 [log] updates in TxOrphanage
+v  2024-05-14 10:38:57 +0100 b16da7eda76944719713be68b61f03d4acdd3e16 [functional test] attackers sending mutated orphans
+v  2024-05-14 10:44:33 +0100 9408a04e424cee0d226bde79171bd4954f9caeb0 tests, fuzz: use new NUMS_H const
+v  2024-05-14 13:36:31 +0100 9365baa489e123d9bcaf986e4311d3fa3f1e3f88 test: add conflicting topology test case
+cr 2024-05-14 15:32:43 +0100 2ca1460ae3a7217eaa8c5972515bf622bedadfce rpc: identify JSON-RPC 2.0 requests
+cr 2024-05-14 15:39:43 +0100 466b90562f4785de74b548f7c4a256069e2aaf43 rpc: Add "jsonrpc" field and drop null "result"/"error" fields
+cr 2024-05-14 16:15:54 +0100 bf1a1f1662427fbf1a43bb951364eface469bdb7 rpc: Avoid returning HTTP errors for JSON-RPC 2.0 requests
+pr 2024-05-14 16:20:33 +0100 dbb3113082a75035b14d20021036d2166171976e Merge bitcoin/bitcoin#30083: kernel: Remove batchpriority from kernel library
+v  2024-05-14 16:28:43 +0100 e7ee80dcf2b68684eae96070875ea13a60e3e7b0 rpc: JSON-RPC 2.0 should not respond to "notifications"
+cr 2024-05-14 16:28:48 +0100 cbc6c440e3811d342fa570713702900b3e3e75b9 doc: add comments and release-notes for JSON-RPC 2.0
+v  2024-05-14 18:49:34 +0100 fdae638e83522c28a1222e65c43d1cbca3e34cba doc: Improve doc for functions involved in saving blocks to disk
+v  2024-05-14 19:54:26 +0100 064859bbad6984a6ec85c744064abdf757807c58 blockstorage: split up FindBlockPos function
+cr 2024-05-14 19:54:27 +0100 17103637c6fa2dfcf5374ebb0cd715e540dd4ce1 blockstorage: Rename FindBlockPos and have it return a FlatFilePos
+cr 2024-05-14 19:54:27 +0100 d9e477c4dc39d9623ed66c35c06e28f94ae62ad5 validation, blockstorage: Separate code paths for reindex and saving new blocks
+v  2024-05-14 19:54:27 +0100 e41667b720372dae8438ea86e9819027e62b54e0 blockstorage: Don't move cursor backwards in UpdateBlockInfo
+pr 2024-05-15 01:00:34 +0100 f5fc3190fbe3a42670ef96b2ad8b4914b9eac813 Merge bitcoin/bitcoin#29086: refactor: Simply include CTxMemPool::Options in CTxMemPool directly rather than duplicating definition
+pr 2024-05-15 02:02:32 +0100 695d80126f75a99c80d5d6c18ebaaabf7410b989 Merge bitcoin/bitcoin#30074: contrib: use ENV flags in get_arch
+pr 2024-05-15 05:48:37 +0100 3d24189664e696a2ca1aee2b5ea57b245344e2d4 Merge bitcoin/bitcoin#30098: refactor: simplify `FormatSubVersion` using strprintf/Join
+v  2024-05-15 08:53:00 +0100 fa6c82dd9b0ef9687c28ddd6b57065d0ba7de85b ci: Remove clang version pin in test-each-commit
+v  2024-05-15 08:53:04 +0100 fa90ad23c0cb99bde305af156c978c066f7bacb8 ci: Roll test-each-commit Ubuntu
+pr 2024-05-15 09:31:27 +0100 42d5a1ff25a8045b6f4c09fa1fb71736dbccc034 Merge bitcoin/bitcoin#30060: ci: Roll clang in test-each-commit task
+v  2024-05-15 14:50:25 +0100 141df0a28810470e53fdbc6d32d3cb4020fe3ca1 crypto: disable asan for sha256_sse4 with clang and -O0
+pr 2024-05-15 14:56:17 +0100 33303b2b296cdb21b6ade3e95663e9ed58c08753 Merge bitcoin/bitcoin#30000: p2p: index TxOrphanage by wtxid, allow entries with same txid
+v  2024-05-15 17:46:02 +0100 fa6d4891c7815025ab1cd58d0906466af31bb648 refactor: Use type-safe time in txorphanage
+pr 2024-05-15 18:41:15 +0100 7a40f2a3f1cf744d136ecf534979114e79c5e71d Merge bitcoin-core/gui#722: wallet: Allow user to navigate options while encrypting at creation
+pr 2024-05-15 20:09:56 +0100 71f0f2273f6258e466c7b299c11982b4a04ae0d7 Merge bitcoin/bitcoin#28929: serialization: Support for multiple parameters
+pr 2024-05-16 01:40:34 +0100 ae2658caacc1f3d8ab48d6b8ece481b1e9707fbb Merge bitcoin/bitcoin#30097: crypto: disable asan for sha256_sse4 with clang and -O0
+cr 2024-05-16 03:35:52 +0100 ca3d945dc66e177e8fa3e83c77236de89cc0072a Squashed 'src/secp256k1/' changes from d8311688bd..06bff6dec8
+ff 2024-05-16 03:35:52 +0100 f82a940bbfda2622d01e581187b7ba10b4a66a55 Update libsecp256k1 subtree to latest master
+pr 2024-05-16 04:18:26 +0100 dd42a5ddea6a72e1e9cad54f8352c76b0b701973 Merge bitcoin/bitcoin#30085: p2p: detect addnode cjdns peers in GetAddedNodeInfo()
+v  2024-05-16 10:28:46 +0100 b47bd959207e82555f07e028cc2246943d32d4c3 kernel: De-globalize fReindex
+pr 2024-05-16 15:18:04 +0100 75118a608fc22a57567743000d636bc1f969f748 Merge bitcoin/bitcoin#27101: Support JSON-RPC 2.0 when requested by client
+pr 2024-05-16 16:16:08 +0100 2f53f2273da020d7fabd7c65a1bc7e69a31249b2 Merge bitcoin/bitcoin#29975: blockstorage: Separate reindexing from saving new blocks
+v  2024-05-16 17:16:46 +0100 d35ba1b3f16071b8fe9b36398ba15352dbf2a54d util: avoid using thread_local variable that has a destructor
+v  2024-05-16 17:58:07 +0100 e3249f21111f1dd4beb66f10af933c34a36c30ac fuzz: add more coverage for `ScriptPubKeyMan`
+cr 2024-05-16 20:03:13 +0100 0b753156ce60c29efb2386954ba7555ad8f642f5 test: Test bdb_ro dump of wallet without reset LSNs
+v  2024-05-16 20:03:13 +0100 3568dce9e93295674cdf5458c5bdf93ff01fd0a2 tests: Add BerkeleyRO to db prefix tests
+v  2024-05-16 20:03:13 +0100 4d7a3ae78e55f25868979f1bd920857a4aecb825 Berkeley RO Database fuzz test
+cr 2024-05-16 20:03:13 +0100 6ace3e953f0864bd7818f040c59a1bc70aa47512 bdb: Be able to make byteswapped databases
+cr 2024-05-16 20:03:13 +0100 6e50bee67d1d58aecd8a0ce8b7c3f5a7979365f5 Implement handling of other endianness in BerkeleyRODatabase
+v  2024-05-16 20:03:13 +0100 70cfbfdadf16d3b115309c6938f07ef5b96c7cc1 wallettool: Optionally use BERKELEY_RO as format when dumping BDB wallets
+cr 2024-05-16 20:03:13 +0100 c1984f128284589423b7e0cc06c9a3b23a242d95 test: Test dumping dbs with overflow pages
+cr 2024-05-16 20:03:13 +0100 cdd61c9cc108df8e13f4e3891ff2c96355b3ee38 wallet: implement independent BDB deserializer in BerkeleyRODatabase
+v  2024-05-16 20:03:13 +0100 d51fbab4b32d56765e8faab6ad01245fb259b0ca wallet, test: Be able to always swap BDB endianness
+v  2024-05-16 20:03:13 +0100 d9878903fb34939dee8e1462f079acc68110253d Error if LSNs are not reset
+cr 2024-05-16 20:03:13 +0100 dd57713f6ede3d46e97ee7df87c10001b0bf4c3d Add MakeBerkeleyRODatabase
+cr 2024-05-16 20:03:13 +0100 fd7b16e391ed320e35255157a28be14c947ef30a test: Test dumps of other endian BDB files
+v  2024-05-17 16:49:59 +0100 7c8abf3c2001152423da06d25f9f4906611685ea bench: bugfix, properly release wallet before erasing directory
+pr 2024-05-17 19:10:51 +0100 4877fcdb4263fc3582184fdab3e5d1533c64a7d5 Merge bitcoin/bitcoin#30048: crypto: add `NUMS_H` const
+pr 2024-05-17 20:50:56 +0100 058af75874ffa2b4064e3d6d30cc50f0ec754ba8 Merge bitcoin/bitcoin#29817: kernel: De-globalize fReindex
+v  2024-05-17 21:38:59 +0100 8950053636cb38ed85fe2d58b53e5d0acb35c390 test: remove unneeded `-maxorphantx=1000` settings
+v  2024-05-18 04:12:25 +0100 a057869aa3c42457570765966cb66accb2375b13 build: pass --with-ecmult-gen-kb=86 to secp256k1
+pr 2024-05-20 09:27:37 +0100 063bb2fbb571b9ee4940dacbf56f36b15f6aa501 Merge bitcoin/bitcoin#30066: test: add conflicting topology test case
+pr 2024-05-20 09:47:31 +0100 ecd23656db174adef61d3bd753d02698c3528192 Merge bitcoin/bitcoin#30133: test: remove unneeded `-maxorphantx=1000` settings
+v  2024-05-20 12:59:15 +0100 85e480a41ad0901a8b46759e921c187ebbbcccdf doc: Update NetBSD Build Guide
+v  2024-05-20 17:48:19 +0100 d7707d9843b03f20d2a8c5a45d7b3db58e169e6f rpc: avoid copying into UniValue
+v  2024-05-21 05:48:40 +0100 fa73431dd4709754c34a4d5ad1c940ff9e628cf3 ci: Add mising -Wno-error=maybe-uninitialized to armhf task
+pr 2024-05-21 10:05:09 +0100 5acdc2b97dcd756a15d28d75bce9a9d3e3953f9f Merge bitcoin/bitcoin#26606: wallet: Implement independent BDB parser
+pr 2024-05-21 10:25:56 +0100 8804ec736adaacf5392392add003e679069ad527 Merge bitcoin/bitcoin#30095: util: avoid using thread_local variable that has a destructor
+pr 2024-05-21 10:26:49 +0100 a786fd2041913d82ca90b561de309421bd24e41b Merge bitcoin/bitcoin#30143: doc: Update NetBSD Build Guide
+v  2024-05-21 10:27:42 +0100 5bba43312c0ceccfe18bd4d086e12ec0497ed926 build: Enable `thread_local` for MinGW-w64 builds
+cr 2024-05-21 10:29:51 +0100 17fe948cce2eb75f0f3f4b0db9d0d90648c7d4af build: remove --enable-threadlocal
+v  2024-05-21 10:29:51 +0100 1e7c20bc19a216269c646177ab90cfa084c096a5 doc: remove comment about using thread_local
+cr 2024-05-21 12:38:07 +0100 de95953d870c41436de67d56c93259bc66fe1434 rpc: Optimize serialization disk space of dumptxoutset
+v  2024-05-21 12:38:09 +0100 4d8e5edbaa94805be41ae4c8aa2f4bf7aaa276fe assumeutxo: Add documentation on dumptxoutset serialization format
+v  2024-05-21 12:38:09 +0100 c14ed7f384075330361df636f40121cf25a066d6 assumeutxo: Add test for changed coin size value
+cr 2024-05-21 12:57:09 +0100 542e13b2937356810bda2c41be83c3b1675e2f2f rpc: Enhance metadata of the dumptxoutset output
+v  2024-05-21 14:58:44 +0100 6629d1d0f8285d1bf2d87341a856abe903f26c13 test: improve robustness of connect_nodes()
+v  2024-05-21 15:06:02 +0100 d578e2e3540e085942001350ff3aeb047bdac973 [policy] explicitly require non-v3 for CPFP carve out
+v  2024-05-21 15:06:55 +0100 a29f1df289cf27c6cbd565448548b3dc1392a9b0 [policy] restrict all v3 transactions to 10kvB
+v  2024-05-21 15:06:58 +0100 154b2b2296edccb5ed24e829798dacb6195edc11 [fuzz] V3_MAX_VSIZE and effective ancestor/descendant size limits
+v  2024-05-21 17:59:47 +0100 2289d4524053ab71c0d9133987cb36412797c1a2 wallet, tests: Avoid stringop-overflow warning in PollutePubKey
+pr 2024-05-21 18:59:33 +0100 6c13b1375f8fd810f46f5650e01a464ee63cfa46 Merge bitcoin/bitcoin#29421: net: make the list of known message types a compile time constant
+pr 2024-05-21 21:14:30 +0100 2ec0a28a37dbb50d463899f53c28fb96905d97b7 Merge bitcoin/bitcoin#30137: build: Remove `--enable-threadlocal`
+v  2024-05-22 04:19:51 +0100 9f4ff1e9659597307f62510f1885ad8da3a1d9a3 windeploy: Renew certificate
+pr 2024-05-22 08:50:42 +0100 0388dd702b8d76c83bd17fc339d8c63904234fb0 Merge bitcoin/bitcoin#30120: Update libsecp256k1 subtree to current master
+v  2024-05-22 08:51:33 +0100 437e908ebd1bf9473ef924de5aec57bdc26de6dd depends: swap cctools-x for llvm-x
+v  2024-05-22 08:51:33 +0100 4a0536c5d96688729f8c885060c83cb12d72a8c5 build: switch to using lld for macOS builds
+v  2024-05-22 08:51:33 +0100 555fddf646265f7e57a416dc64b171f2c9460e20 guix: use GUIX_LD_WRAPPER_DISABLE_RPATH for all HOSTS
+cr 2024-05-22 08:51:33 +0100 9ec238d0f3c7b97aec83dbeb4c7a6950c8f5125e guix: remove ZERO_AR_DATE export
+v  2024-05-22 08:51:33 +0100 bab287d1bab2c02b5fab3285f2678c15316d31c2 depends: don't use -no_warning_for_no_symbols in macOS qt build
+v  2024-05-22 08:51:33 +0100 c6a6b2d6fd4e3a01b095dc98645f819ebabf1931 build: add lld into macOS build environment(s)
+cr 2024-05-22 08:51:33 +0100 f836f7e9b3e091eb27cdefb624e2a6f2a921fa55 depends: remove cctools & libtapi
+cr 2024-05-22 08:51:34 +0100 e8c25e8a35e333e90514945c592557615641553f guix: drop binutils from macOS env
+v  2024-05-22 08:59:58 +0100 fa3e1151a28345edff8f371283745bdd647f9a74 doc: Correct pull request prefix for scripts and tools
+pr 2024-05-22 09:20:45 +0100 fa8cb0516d4198c56d3dc1252a5a899959e279aa Merge bitcoin/bitcoin#30144: ci: Add mising -Wno-error=maybe-uninitialized to armhf task
+v  2024-05-22 11:57:04 +0100 8c2714907d1e1ffc58487b3b43e018c1ec10065b net: rpc: return peer's mapped AS in getrawaddrman
+cr 2024-05-22 11:58:08 +0100 1e54d61c4698debf3329d1960e06078ccbf8063c test: add coverage for `mapped_as` from `getrawaddrman`
+v  2024-05-22 12:05:26 +0100 21b8a14d37c19ce292d5529597e0d52338db48a9 depends: Fetch miniupnpc sources from an alternative website
+pr 2024-05-22 13:43:33 +0100 93bec6e953172c14fc65aa1e9e363a5a9188ba37 Merge bitcoin/bitcoin#30131: wallet, tests: Avoid stringop-overflow warning in PollutePubKey
+pr 2024-05-22 14:43:32 +0100 6f36624147dfb59603698db647b4ad612b771810 Merge bitcoin/bitcoin#30150: doc: Correct pull request prefix for scripts and tools
+pr 2024-05-23 09:39:47 +0100 ef44726918c05e158246cb695ae358db603653e9 Merge bitcoin/bitcoin#30151: depends: Fetch miniupnpc sources from an alternative website
+pr 2024-05-23 12:08:36 +0100 83ae1bac9d3e01de994734b4bc7002deaf19bc67 Merge bitcoin/bitcoin#30062: net: add ASMap info in `getrawaddrman` RPC
+pr 2024-05-23 13:25:14 +0100 f15778536ad421f9805f0c005f0eb7b84dda1b4e Merge bitcoin/bitcoin#30149: contrib: Renew Windows code signing certificate
+pr 2024-05-23 15:00:00 +0100 e163d864d380956a4c0f89a4d80a76f5aefc9a08 Merge bitcoin/bitcoin#30118: test: improve robustness of connect_nodes()
+pr 2024-05-23 15:53:37 +0100 6300438a2e0b6ee21fe210072b7b8be2f4845c17 Merge bitcoin/bitcoin#30115: rpc: avoid copying into UniValue
+pr 2024-05-23 16:54:18 +0100 867f6af803dcc9f0f754bf5cc683c853bb09051b Merge bitcoin/bitcoin#29873: policy: restrict all TRUC (v3) transactions to 10kvB
+v  2024-05-23 17:08:39 +0100 57ee3029ddadaee5cb48224e0a87f704b7971bd8 Add description for m_test_accept
+v  2024-05-23 17:08:39 +0100 69f7ab05bafec1cf06fd7a58351f78e32bbfa2cf Add m_allow_sibling_eviction as separate ATMPArgs flag
+cr 2024-05-23 17:08:46 +0100 20d8936d8bb6137a5a3722d34e0d7ae756031009 [refactor] make some members MemPoolAccept-wide
+v  2024-05-23 17:08:46 +0100 2fd34ba504957331f5a08614b6e1f8317260f04d Add sanity checks for various ATMPArgs booleans
+cr 2024-05-23 17:08:46 +0100 cbbfe719b223b9e05398227cef68c99eb97670bd cpfp carveout is excluded in packages
+pr 2024-05-23 17:11:55 +0100 915d7276e4060999bac2a42c533b6fb8bdbe5b3d Merge bitcoin/bitcoin#27064: system: use %LOCALAPPDATA% as default datadir on windows
+v  2024-05-23 17:26:26 +0100 949abebea0059edd929b653b4b475a5880fc0a3e [fuzz] Avoid collecting initialization coverage
+pr 2024-05-23 17:31:23 +0100 413844f1c2a3d8f7cfef822f348f26df488b03c7 Merge bitcoin/bitcoin#29612: rpc: Optimize serialization and enhance metadata of dumptxoutset output
+pr 2024-05-24 10:24:50 +0100 4c387cb64ff4c74f911b1559fb0ef143ee6c268b Merge bitcoin/bitcoin#30072: refactor prep for package rbf
+v  2024-05-24 11:42:06 +0100 359967e310794e0bbdbe2bca38ee440a88bc4f43 doc: Add release notes for #29612
+v  2024-05-24 11:42:09 +0100 1f1f9984555d49f07ae20cb3a8153a177c546beb assumeutxo: Deserialize trailing byte instead of Txid
+cr 2024-05-24 12:11:50 +0100 4b7d9842691046b01f0c08d69f924ddb62ccc4c6 lint: add markdown hyperlink checker
+v  2024-05-24 13:21:30 +0100 fac72985292b516919a216d9a78cf84418cd7f96 fuzz: Fix wallet_bdb_parser stdlib error matching
+v  2024-05-24 17:44:02 +0100 6b6084850b8c2ebcdbeecdb406e8732adaa6d23c assumeutxo: Add network magic ctor param to SnapshotMetadata
+v  2024-05-24 17:44:05 +0100 efc1b5be8a4696c0db19ba18316b2d4ed09e10f2 test: Add coverage for txid coins count check when loading snapshot
+pr 2024-05-24 18:15:47 +0100 327f08bb0cd91a22249395adeb34549e3c86ca76 Merge bitcoin/bitcoin#30169: fuzz: Fix wallet_bdb_parser stdlib error matching
+pr 2024-05-29 09:22:24 +0100 58956028e4398a33a3bd7ba00aebe03bb589910f Merge bitcoin/bitcoin#30170: refactor: Use type-safe time in txorphanage
+pr 2024-05-29 09:34:48 +0100 417b6ceceee94b9f291f7f84c4664e5a6bcd3707 Merge bitcoin/bitcoin#30156: fuzz: More accurate coverage reports
+pr 2024-05-29 09:42:05 +0100 be100cf4c77a3e45750773689e0a396fda39d8a7 Merge bitcoin/bitcoin#21778: build: LLD based macOS toolchain
+v  2024-05-29 10:01:21 +0100 9ddf39dd87a3729ceedaa05a207621a02c532536 fuzz: Handle missing BDBRO errors
+pr 2024-05-29 10:27:12 +0100 46d3477b5b18384ab022b5e122f6fba64cf4593f Merge bitcoin/bitcoin#30172: fuzz: Handle missing BDBRO errors
+pr 2024-05-29 10:32:02 +0100 10164916f712bd3c92f0b3ac329ba2e1209746fe Merge bitcoin/bitcoin#30122: bench: enable wallet creation benchmarks on all platforms
+v  2024-05-29 16:22:11 +0100 0048680467e15037023ceae44bc2dc8309f82f39 increase txorphan harness stability
+v  2024-05-29 17:02:07 +0100 8defc182a31d828ad0f53ebf7e3be9e9cfc42d09 scripted-diff: Replace nNextSweep with m_next_sweep
+pr 2024-05-30 09:25:42 +0100 f61ede574c12f1f8ae67f38f15387586719c856f Merge bitcoin/bitcoin#30049: build, test, doc: Temporarily remove Android-related stuff
+v  2024-05-30 09:29:11 +0100 b018bd779dd9b2d46c10254a1cf5b819ae8e027c depends: qt 5.15.14
+v  2024-05-30 10:36:55 +0100 cbd4640ede92a1a5d7b7c1367eb7c00a9f476c62 build: remove --enable-lcov-branch-coverage
+v  2024-05-30 11:33:59 +0100 88cdb5967f093cf96e9184a48c0d9e34cea9d341 clang-tidy: Add `bugprone-move-forwarding-reference` check
+v  2024-05-30 12:00:05 +0100 0a3631fc352eda849290db940844e5ef723436df depends: fix Qt macOS build with Clang 18
+pr 2024-05-30 12:36:09 +0100 0a7c650fcd322a46dac7239b421046a61a6a5a20 Merge bitcoin/bitcoin#30034: ci: add markdown link check job
+pr 2024-05-30 15:32:08 +0100 62f7f59ff495fbcbfc10c25e97bb0dc032647abf Merge bitcoin/bitcoin#30199: clang-tidy: Add `bugprone-move-forwarding-reference` check
+v  2024-05-31 09:30:24 +0100 a27e1ceb9f9c9239af9b0a151c84a57573ea646a depends: consolidate dependency docs
+pr 2024-05-31 15:28:32 +0100 3ac1465cd9da8d328972a67d4c623a012a276e81 Merge bitcoin/bitcoin#30198: depends: qt 5.15.14 and fix macOS build with Clang 18
+pr 2024-05-31 15:30:29 +0100 457e1846d2bf6ef9d54b9ba1a330ba8bbff13091 Merge bitcoin/bitcoin#30204: depends: consolidate dependency docs
+cr 2024-05-31 16:44:47 +0100 3c08e11c3ea4499e8d20609e2417cac859b3e98e doc: JSON-RPC request Content-Type is application/json
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
