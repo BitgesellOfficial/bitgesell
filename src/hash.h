@@ -231,6 +231,7 @@ public:
 
     CHashWriterSHA256(int nTypeIn, int nVersionIn) : nType(nTypeIn), nVersion(nVersionIn) {}
 
+    int GetType() const { return nType; }
     int GetVersion() const { return nVersion; }
 
     void write(Span<const std::byte> src)

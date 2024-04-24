@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE(set)
         txTo[i].vin[0].prevout.n = i;
         txTo[i].vin[0].prevout.hash = txFrom.GetHash();
         txTo[i].vout[0].nValue = 1*CENT;
-        txTo[i].vout[0].scriptPubKey = GetScriptForDestination(WitnessV0ScriptHash(inner[i]));
+        txTo[i].vout[0].scriptPubKey = inner[i];
     }
     for (int i = 0; i < 4; i++)
     {
