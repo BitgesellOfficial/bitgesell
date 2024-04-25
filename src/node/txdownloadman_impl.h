@@ -8,6 +8,8 @@
 
 #include <common/bloom.h>
 #include <net.h>
+#include <primitives/transaction.h>
+#include <policy/packages.h>
 #include <txorphanage.h>
 #include <txrequest.h>
 
@@ -144,6 +146,7 @@ public:
     /** Marks a tx as ReceivedResponse in txrequest. */
     void ReceivedNotFound(NodeId nodeid, const std::vector<uint256>& txhashes);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
     /** Look for a child of this transaction in the orphanage to form a 1-parent-1-child package,
@@ -160,6 +163,10 @@ public:
     bool HaveMoreWork(NodeId nodeid);
     CTransactionRef GetTxToReconsider(NodeId nodeid);
 >>>>>>> 969b07237b... [refactor] wrap {Have,Get}TxToReconsider in txdownload
+=======
+
+    std::optional<PackageToValidate> Find1P1CPackage(const CTransactionRef& ptx, NodeId nodeid);
+>>>>>>> a8cf3b6e84... [refactor] move Find1P1CPackage to txdownload
 };
 } // namespace node
 #endif // BGL_NODE_TXDOWNLOADMAN_IMPL_H
