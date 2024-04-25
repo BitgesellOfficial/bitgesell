@@ -105,20 +105,6 @@ public:
 
     /** Should be called when a notfound for a tx has been received. */
     void ReceivedNotFound(NodeId nodeid, const std::vector<uint256>& txhashes);
-
-    /** Look for a child of this transaction in the orphanage to form a 1-parent-1-child package,
-     * skipping any combinations that have already been tried. Return the resulting package along with
-     * the senders of its respective transactions, or std::nullopt if no package is found. */
-    std::optional<PackageToValidate> Find1P1CPackage(const CTransactionRef& ptx, NodeId nodeid);
-
-    /** Respond to successful transaction submission to mempool */
-    void MempoolAcceptedTx(const CTransactionRef& tx);
-
-    /** Respond to transaction rejected from mempool */
-    RejectedTxTodo MempoolRejectedTx(const CTransactionRef& ptx, const TxValidationState& state, NodeId nodeid, bool first_time_failure);
-
-    /** Respond to package rejected from mempool */
-    void MempoolRejectedPackage(const Package& package);
 };
 } // namespace node
 #endif // BGL_NODE_TXDOWNLOADMAN_H
