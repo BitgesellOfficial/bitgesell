@@ -1,8 +1,8 @@
 // Copyright (c) 2024
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#ifndef BITCOIN_NODE_TXDOWNLOADMAN_IMPL_H
-#define BITCOIN_NODE_TXDOWNLOADMAN_IMPL_H
+#ifndef BGL_NODE_TXDOWNLOADMAN_IMPL_H
+#define BGL_NODE_TXDOWNLOADMAN_IMPL_H
 
 #include <node/txdownloadman.h>
 
@@ -121,7 +121,36 @@ public:
         return *m_lazy_recent_confirmed_transactions;
     }
 
-    TxDownloadManagerImpl() = default;
+    TxDownloadManagerImpl(const TxDownloadOptions& options) : m_opts{options} {}
+
+    struct PeerInfo {
+        /** Information relevant to scheduling tx requests. */
+        const TxDownloadConnectionInfo m_connection_info;
+
+        PeerInfo(const TxDownloadConnectionInfo& info) : m_connection_info{info} {}
+    };
+
+    /** Information for all of the peers we may download transactions from. This is not necessarily
+     * all peers we are connected to (no block-relay-only and temporary connections). */
+    std::map<NodeId, PeerInfo> m_peer_info;
+
+    /** Number of wtxid relay peers we have in m_peer_info. */
+    uint32_t m_num_wtxid_peers{0};
+
+    void ActiveTipChange();
+    void BlockConnected(const std::shared_ptr<const CBlock>& pblock);
+    void BlockDisconnected();
+
+    bool AlreadyHaveTx(const GenTxid& gtxid, bool include_reconsiderable);
+
+    void ConnectedPeer(NodeId nodeid, const TxDownloadConnectionInfo& info);
+    void DisconnectedPeer(NodeId nodeid);
+
+    /** New inv has been received. May be added as a candidate to txrequest. */
+    bool AddTxAnnouncement(NodeId peer, const GenTxid& gtxid, std::chrono::microseconds now, bool p2p_inv);
+
+    /** Get getdata requests to send. */
+    std::vector<GenTxid> GetRequestsToSend(NodeId nodeid, std::chrono::microseconds current_time);
 };
 } // namespace node
-#endif // BITCOIN_NODE_TXDOWNLOADMAN_IMPL_H
+#endif // BGL_NODE_TXDOWNLOADMAN_IMPL_H
