@@ -62,6 +62,30 @@ void TxDownloadManager::ReceivedNotFound(NodeId nodeid, const std::vector<uint25
 {
     m_impl->ReceivedNotFound(nodeid, txhashes);
 }
+void TxDownloadManager::MempoolAcceptedTx(const CTransactionRef& tx)
+{
+    m_impl->MempoolAcceptedTx(tx);
+}
+RejectedTxTodo TxDownloadManager::MempoolRejectedTx(const CTransactionRef& ptx, const TxValidationState& state, NodeId nodeid, bool first_time_failure)
+{
+    return m_impl->MempoolRejectedTx(ptx, state, nodeid, first_time_failure);
+}
+void TxDownloadManager::MempoolRejectedPackage(const Package& package)
+{
+    m_impl->MempoolRejectedPackage(package);
+}
+std::pair<bool, std::optional<PackageToValidate>> TxDownloadManager::ReceivedTx(NodeId nodeid, const CTransactionRef& ptx)
+{
+    return m_impl->ReceivedTx(nodeid, ptx);
+}
+bool TxDownloadManager::HaveMoreWork(NodeId nodeid) const
+{
+    return m_impl->HaveMoreWork(nodeid);
+}
+CTransactionRef TxDownloadManager::GetTxToReconsider(NodeId nodeid)
+{
+    return m_impl->GetTxToReconsider(nodeid);
+}
 
 // TxDownloadManagerImpl
 void TxDownloadManagerImpl::ActiveTipChange()
@@ -490,18 +514,4 @@ CTransactionRef TxDownloadManagerImpl::GetTxToReconsider(NodeId nodeid)
     return m_orphanage.GetTxToReconsider(nodeid);
 }
 
-void TxDownloadManagerImpl::CheckIsEmpty(NodeId nodeid)
-{
-    assert(m_txrequest.Count(nodeid) == 0);
-}
-void TxDownloadManagerImpl::CheckIsEmpty()
-{
-    assert(m_orphanage.Size() == 0);
-    assert(m_txrequest.Size() == 0);
-    assert(m_num_wtxid_peers == 0);
-}
-std::vector<TxOrphanage::OrphanTxBase> TxDownloadManagerImpl::GetOrphanTransactions() const
-{
-    return m_orphanage.GetOrphanTransactions();
-}
 } // namespace node

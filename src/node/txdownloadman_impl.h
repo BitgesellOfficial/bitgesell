@@ -143,6 +143,23 @@ public:
 
     /** Marks a tx as ReceivedResponse in txrequest. */
     void ReceivedNotFound(NodeId nodeid, const std::vector<uint256>& txhashes);
+<<<<<<< HEAD
+=======
+
+    /** Look for a child of this transaction in the orphanage to form a 1-parent-1-child package,
+     * skipping any combinations that have already been tried. Return the resulting package along with
+     * the senders of its respective transactions, or std::nullopt if no package is found. */
+    std::optional<PackageToValidate> Find1P1CPackage(const CTransactionRef& ptx, NodeId nodeid);
+
+    void MempoolAcceptedTx(const CTransactionRef& tx);
+    RejectedTxTodo MempoolRejectedTx(const CTransactionRef& ptx, const TxValidationState& state, NodeId nodeid, bool first_time_failure);
+    void MempoolRejectedPackage(const Package& package);
+
+    std::pair<bool, std::optional<PackageToValidate>> ReceivedTx(NodeId nodeid, const CTransactionRef& ptx);
+
+    bool HaveMoreWork(NodeId nodeid);
+    CTransactionRef GetTxToReconsider(NodeId nodeid);
+>>>>>>> 969b07237b... [refactor] wrap {Have,Get}TxToReconsider in txdownload
 };
 } // namespace node
 #endif // BGL_NODE_TXDOWNLOADMAN_IMPL_H

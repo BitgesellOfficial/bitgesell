@@ -84,6 +84,26 @@ public:
 
     /** Should be called when a notfound for a tx has been received. */
     void ReceivedNotFound(NodeId nodeid, const std::vector<uint256>& txhashes);
+
+    /** Respond to successful transaction submission to mempool */
+    void MempoolAcceptedTx(const CTransactionRef& tx);
+
+    /** Respond to transaction rejected from mempool */
+    RejectedTxTodo MempoolRejectedTx(const CTransactionRef& ptx, const TxValidationState& state, NodeId nodeid, bool first_time_failure);
+
+    /** Respond to package rejected from mempool */
+    void MempoolRejectedPackage(const Package& package);
+
+    /** Marks a tx as ReceivedResponse in txrequest and checks whether AlreadyHaveTx.
+     * Return a bool indicating whether this tx should be validated. If false, optionally, a
+     * PackageToValidate. */
+    std::pair<bool, std::optional<PackageToValidate>> ReceivedTx(NodeId nodeid, const CTransactionRef& ptx);
+
+    /** Whether there are any orphans to reconsider for this peer. */
+    bool HaveMoreWork(NodeId nodeid) const;
+
+    /** Returns next orphan tx to consider, or nullptr if none exist. */
+    CTransactionRef GetTxToReconsider(NodeId nodeid);
 };
 } // namespace node
 #endif // BGL_NODE_TXDOWNLOADMAN_H
