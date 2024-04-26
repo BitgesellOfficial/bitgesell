@@ -17,15 +17,11 @@ TxDownloadManager::TxDownloadManager() :
 {}
 TxDownloadManager::~TxDownloadManager() = default;
 
-TxOrphanage& TxDownloadManager::GetOrphanageRef()
+void TxDownloadManager::ActiveTipChange()
 {
-    return m_impl->m_orphanage;
+    m_impl->ActiveTipChange();
 }
-TxRequestTracker& TxDownloadManager::GetTxRequestRef()
-{
-    return m_impl->m_txrequest;
-}
-CRollingBloomFilter& TxDownloadManager::RecentRejectsReconsiderableFilter()
+void TxDownloadManager::BlockConnected(const std::shared_ptr<const CBlock>& pblock)
 {
     return m_impl->RecentRejectsReconsiderableFilter();
 }
@@ -72,6 +68,18 @@ void TxDownloadManager::DisconnectedPeer(NodeId nodeid)
 bool TxDownloadManager::AlreadyHaveTx(const GenTxid& gtxid, bool include_reconsiderable)
 {
     return m_impl->AlreadyHaveTx(gtxid, include_reconsiderable);
+}
+void TxDownloadManager::CheckIsEmpty() const
+{
+    m_impl->CheckIsEmpty();
+}
+void TxDownloadManager::CheckIsEmpty(NodeId nodeid) const
+{
+    m_impl->CheckIsEmpty(nodeid);
+}
+std::vector<TxOrphanage::OrphanTxBase> TxDownloadManager::GetOrphanTransactions() const
+{
+    return m_impl->GetOrphanTransactions();
 }
 
 // TxDownloadManagerImpl

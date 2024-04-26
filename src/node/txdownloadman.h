@@ -7,6 +7,7 @@
 
 #include <net.h>
 #include <policy/packages.h>
+#include <txorphanage.h>
 
 #include <net.h>
 
@@ -19,7 +20,6 @@ class CBlock;
 class CRollingBloomFilter;
 class CTxMemPool;
 class GenTxid;
-class TxOrphanage;
 class TxRequestTracker;
 namespace node {
 class TxDownloadManagerImpl;
@@ -127,25 +127,56 @@ public:
     explicit TxDownloadManager(const TxDownloadOptions& options);
     ~TxDownloadManager();
 
-    // Get references to internal data structures. Outside access to these data structures should be
-    // temporary and removed later once logic has been moved internally.
-    TxOrphanage& GetOrphanageRef();
-    TxRequestTracker& GetTxRequestRef();
-    CRollingBloomFilter& RecentRejectsReconsiderableFilter();
-
     // Responses to chain events. TxDownloadManager is not an actual client of ValidationInterface, these are called through PeerManager.
     void ActiveTipChange();
     void BlockConnected(const std::shared_ptr<const CBlock>& pblock);
     void BlockDisconnected();
 
-    /** Check whether we already have this gtxid in:
-     *  - mempool
-     *  - orphanage
-     *  - m_recent_rejects
-     *  - m_recent_rejects_reconsiderable (if include_reconsiderable = true)
-     *  - m_recent_confirmed_transactions
-     *  */
-    bool AlreadyHaveTx(const GenTxid& gtxid, bool include_reconsiderable);
+    /** Creates a new PeerInfo. Saves the connection info to calculate tx announcement delays later. */
+    void ConnectedPeer(NodeId nodeid, const TxDownloadConnectionInfo& info);
+
+    /** Deletes all txrequest announcements and orphans for a given peer. */
+    void DisconnectedPeer(NodeId nodeid);
+
+    /** New inv has been received. May be added as a candidate to txrequest.
+     * @param[in] p2p_inv     When true, only add this announcement if we don't already have the tx.
+     * Returns true if this was a dropped inv (p2p_inv=true and we already have the tx), false otherwise. */
+    bool AddTxAnnouncement(NodeId peer, const GenTxid& gtxid, std::chrono::microseconds now, bool p2p_inv);
+
+    /** Get getdata requests to send. */
+    std::vector<GenTxid> GetRequestsToSend(NodeId nodeid, std::chrono::microseconds current_time);
+
+    /** Should be called when a notfound for a tx has been received. */
+    void ReceivedNotFound(NodeId nodeid, const std::vector<uint256>& txhashes);
+
+    /** Respond to successful transaction submission to mempool */
+    void MempoolAcceptedTx(const CTransactionRef& tx);
+
+    /** Respond to transaction rejected from mempool */
+    RejectedTxTodo MempoolRejectedTx(const CTransactionRef& ptx, const TxValidationState& state, NodeId nodeid, bool first_time_failure);
+
+    /** Respond to package rejected from mempool */
+    void MempoolRejectedPackage(const Package& package);
+
+    /** Marks a tx as ReceivedResponse in txrequest and checks whether AlreadyHaveTx.
+     * Return a bool indicating whether this tx should be validated. If false, optionally, a
+     * PackageToValidate. */
+    std::pair<bool, std::optional<PackageToValidate>> ReceivedTx(NodeId nodeid, const CTransactionRef& ptx);
+
+    /** Whether there are any orphans to reconsider for this peer. */
+    bool HaveMoreWork(NodeId nodeid) const;
+
+    /** Returns next orphan tx to consider, or nullptr if none exist. */
+    CTransactionRef GetTxToReconsider(NodeId nodeid);
+
+    /** Check that all data structures are empty. */
+    void CheckIsEmpty() const;
+
+    /** Check that all data structures that track per-peer information have nothing for this peer. */
+    void CheckIsEmpty(NodeId nodeid) const;
+
+    /** Wrapper for TxOrphanage::GetOrphanTransactions */
+    std::vector<TxOrphanage::OrphanTxBase> GetOrphanTransactions() const;
 };
 } // namespace node
 #endif // BGL_NODE_TXDOWNLOADMAN_H
