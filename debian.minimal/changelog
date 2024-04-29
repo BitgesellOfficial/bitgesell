@@ -1,3 +1,9 @@
+bitgesell (0.1.12) UNRELEASED; urgency=low
+
+  * Bitcoin code synced
+
+ -- Mathias van Orton <it@bitgesell.ca>  Mon, 29 Apr 2024 08:50:00 +0000
+
 bitgesell (0.1.11) UNRELEASED; urgency=low
 
   * Bitcoin code synced
