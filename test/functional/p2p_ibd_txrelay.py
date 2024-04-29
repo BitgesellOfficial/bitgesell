@@ -5,8 +5,23 @@
 """Test fee filters during and after IBD."""
 
 from decimal import Decimal
+import time
 
-from test_framework.messages import COIN
+from test_framework.messages import (
+        CInv,
+        COIN,
+        CTransaction,
+        from_hex,
+        msg_inv,
+        msg_tx,
+        MSG_WTX,
+)
+from test_framework.p2p import (
+        NONPREF_PEER_TX_DELAY,
+        P2PDataStore,
+        P2PInterface,
+        p2p_lock
+)
 from test_framework.test_framework import BGLTestFramework
 
 MAX_FEE_FILTER = Decimal(9170997) / COIN

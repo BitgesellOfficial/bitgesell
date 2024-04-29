@@ -7,7 +7,7 @@ from decimal import Decimal
 from test_framework.messages import (
     MAX_BIP125_RBF_SEQUENCE,
 )
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
     assert_greater_than,
@@ -37,7 +37,7 @@ def cleanup(extra_args=None):
         return wrapper
     return decorator
 
-class MempoolAcceptV3(BitcoinTestFramework):
+class MempoolAcceptV3(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
         self.extra_args = [["-acceptnonstdtxn=1"]]

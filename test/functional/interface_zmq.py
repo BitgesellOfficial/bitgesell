@@ -213,7 +213,7 @@ class ZMQTest (BGLTestFramework):
             assert block.is_valid()
             assert_equal(block.vtx[0].hash, tx.hash)
             assert_equal(len(block.vtx), 1)
-            assert_equal(genhashes[x], hash256_reversed(hex[:80]).hex())
+            assert_equal(genhashes[x], keccak256_reversed(hex[:80]).hex())
 
             # Should receive the generated block hash.
             hash = hashblock.receive().hex()

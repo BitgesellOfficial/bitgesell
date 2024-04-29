@@ -109,7 +109,7 @@ class MaxUploadTest(BGLTestFramework):
         getdata_request.inv.append(CInv(MSG_BLOCK, big_old_block))
 
         max_bytes_per_day = UPLOAD_TARGET_MB * 1024 *1024
-        daily_buffer = 144 * 4000000
+        daily_buffer = 144 * 400000
         max_bytes_available = max_bytes_per_day - daily_buffer
         success_count = max_bytes_available // old_block_size
         # 576MB will be reserved for relaying new blocks, so expect this to

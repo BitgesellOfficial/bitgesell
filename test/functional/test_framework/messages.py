@@ -29,6 +29,8 @@ import socket
 import time
 import unittest
 
+import sha3
+
 from test_framework.crypto.siphash import siphash256
 from test_framework.util import assert_equal
 
@@ -86,14 +88,12 @@ def keccak256(s):
     return h.digest()
 
 MAGIC_BYTES = {
-    "mainnet": b"\xf9\xbe\xb4\xd9",   # mainnet
+    "mainnet": b"\x8a\xb4\x91\xe8",  # mainnet
     "testnet3": b"\x0b\x11\x09\x07",  # testnet3
-    "regtest": b"\xfa\xbf\xb5\xda",   # regtest
-    "signet": b"\x0a\x03\xcf\x40",    # signet
+    "regtest": b"\xd9\x8c\xbf\xba",  # regtest
+    "signet": b"\x0a\x03\xcf\x40",  # signet
 }
 
-def sha256(s):
-    return hashlib.sha256(s).digest()
 
 def sha256(s):
     return hashlib.new('sha256', s).digest()
@@ -748,8 +748,8 @@ class CBlockHeader:
             r += self.nTime.to_bytes(4, "little")
             r += self.nBits.to_bytes(4, "little")
             r += self.nNonce.to_bytes(4, "little")
-            self.sha256 = uint256_from_str(hash256(r))
-            self.hash = hash256(r)[::-1].hex()
+            self.sha256 = uint256_from_str(keccak256(r))
+            self.hash = keccak256(r)[::-1].hex()
 
     def rehash(self):
         self.sha256 = None
