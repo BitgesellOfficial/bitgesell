@@ -667,8 +667,8 @@ class RawTransactionsTest(BGLTestFramework):
         # Make sure funds are received at node1.
         assert_equal(oldBalance+Decimal('201.10000000'), self.nodes[0].getbalance())
 
-            # Restore pre-test wallet state
-            wallet.sendall(recipients=[df_wallet.getnewaddress(), df_wallet.getnewaddress(), df_wallet.getnewaddress()])
+        # Restore pre-test wallet state
+        wallet.sendall(recipients=[df_wallet.getnewaddress(), df_wallet.getnewaddress(), df_wallet.getnewaddress()])
         wallet.unloadwallet()
         self.generate(self.nodes[1], 1)
 
