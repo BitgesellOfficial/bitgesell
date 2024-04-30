@@ -1,5 +1,5 @@
-#ifndef BITCOIN_UTIL_TRANSACTION_IDENTIFIER_H
-#define BITCOIN_UTIL_TRANSACTION_IDENTIFIER_H
+#ifndef BGL_UTIL_TRANSACTION_IDENTIFIER_H
+#define BGL_UTIL_TRANSACTION_IDENTIFIER_H
 
 #include <attributes.h>
 #include <uint256.h>
@@ -71,4 +71,4 @@ inline Txid TxidFromString(std::string_view str)
     return Txid::FromUint256(uint256S(str.data()));
 }
 
-#endif // BITCOIN_UTIL_TRANSACTION_IDENTIFIER_H
+#endif // BGL_UTIL_TRANSACTION_IDENTIFIER_H
