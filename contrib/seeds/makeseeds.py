@@ -10,6 +10,7 @@ import argparse
 import collections
 import ipaddress
 from pathlib import Path
+import random
 import re
 import sys
 from typing import Union
@@ -206,6 +207,7 @@ def main():
     print('Loading and parsing DNS seeds…', end='', file=sys.stderr, flush=True)
     lines = sys.stdin.readlines()
     ips = [parseline(line) for line in lines]
+    random.shuffle(ips)
     print('Done.', file=sys.stderr)
 
     print('\x1b[7m  IPv4   IPv6  Onion  I2P    CJDNS Pass                                               \x1b[0m', file=sys.stderr)
