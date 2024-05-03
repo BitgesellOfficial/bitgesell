@@ -167,7 +167,7 @@ class WalletSendTest(BGLTestFramework):
             assert tx
             if amount:
                 if subtract_fee_from_outputs:
-                    assert_equal(from_balance_before - from_balance, amount)
+                    assert_equal(int(from_balance_before - from_balance), amount)
                 else:
                     assert_greater_than(from_balance_before - from_balance, amount)
             else:
