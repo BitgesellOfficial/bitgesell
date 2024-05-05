@@ -1,4 +1,3 @@
-
 #!/usr/bin/env bash
 
 # Usage: env [ CC=... ] [ C_STANDARD=...] [ CXX=... ] [CXX_STANDARD=...] \
