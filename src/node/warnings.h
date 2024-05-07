@@ -6,26 +6,32 @@
 #ifndef BGL_NODE_WARNINGS_H
 #define BGL_NODE_WARNINGS_H
 
-#include <optional>
-#include <string>
+#include <sync.h>
+
+#include <map>
+#include <variant>
 #include <vector>
 
 class UniValue;
 struct bilingual_str;
 
+namespace kernel {
+enum class Warning;
+} // namespace kernel
+
 namespace node {
-void SetMiscWarning(const bilingual_str& warning);
-void SetfLargeWorkInvalidChainFound(bool flag);
-/** Pass std::nullopt to disable the warning */
-void SetMedianTimeOffsetWarning(std::optional<bilingual_str> warning);
-/** Return potential problems detected by the node. */
-std::vector<bilingual_str> GetWarnings();
+enum class Warning {
+    CLOCK_OUT_OF_SYNC,
+    PRE_RELEASE_TEST_BUILD,
+    FATAL_INTERNAL_ERROR,
+};
+
 /**
  * @class Warnings
  * @brief Manages warning messages within a node.
  *
  * The Warnings class provides mechanisms to set, unset, and retrieve
- * warning messages. It updates the GUI when warnings are changed.
+ * warning messages.
  *
  * This class is designed to be non-copyable to ensure warnings
  * are managed centrally.
@@ -46,7 +52,7 @@ public:
      * @brief Set a warning message. If a warning with the specified
      *        `id` is already active, false is returned and the new
      *        warning is ignored. If `id` does not yet exist, the
-     *        warning is set, the UI is updated, and true is returned.
+     *        warning is set, and true is returned.
      *
      * @param[in]   id  Unique identifier of the warning.
      * @param[in]   message Warning message to be shown.
@@ -57,9 +63,8 @@ public:
     bool Set(warning_type id, bilingual_str message) EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
     /**
      * @brief Unset a warning message. If a warning with the specified
-     *        `id` is active, it is unset, the UI is updated, and true
-     *        is returned. Otherwise, no warning is unset and false is
-     *        returned.
+     *        `id` is active, it is unset, and true is returned.
+     *        Otherwise, no warning is unset and false is returned.
      *
      * @param[in]   id  Unique identifier of the warning.
      *
@@ -79,6 +84,8 @@ public:
  * set to true, or a UniValue::VARR with all warnings otherwise.
  */
 UniValue GetWarningsForRpc(bool use_deprecated);
+
+extern Warnings g_warnings;
 } // namespace node
 
 #endif // BGL_NODE_WARNINGS_H
