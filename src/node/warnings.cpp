@@ -8,6 +8,7 @@
 #include <node/warnings.h>
 
 #include <common/system.h>
+#include <node/interface_ui.h>
 #include <sync.h>
 #include <univalue.h>
 #include <util/translation.h>
@@ -29,14 +30,17 @@ void SetMiscWarning(const bilingual_str& warning)
 
 void SetfLargeWorkInvalidChainFound(bool flag)
 {
-    LOCK(g_warnings_mutex);
-    fLargeWorkInvalidChainFound = flag;
+    LOCK(m_mutex);
+    const auto& [_, inserted]{m_warnings.insert({id, std::move(message)})};
+    if (inserted) uiInterface.NotifyAlertChanged();
+    return inserted;
 }
 
 void SetMedianTimeOffsetWarning(std::optional<bilingual_str> warning)
 {
-    LOCK(g_warnings_mutex);
-    g_timeoffset_warning = warning;
+    auto success{WITH_LOCK(m_mutex, return m_warnings.erase(id))};
+    if (success) uiInterface.NotifyAlertChanged();
+    return success;
 }
 
 std::vector<bilingual_str> GetWarnings()
