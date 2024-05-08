@@ -74,6 +74,16 @@ std::set<int> InterpretSubtractFeeFromOutputInstructions(const UniValue& sffo_in
                 }
             }
         }
+        if (sffo.isNum()) {
+            int pos = sffo.getInt<int>();
+            if (sffo_set.contains(pos))
+                throw JSONRPCError(RPC_INVALID_PARAMETER, strprintf("Invalid parameter, duplicated position: %d", pos));
+            if (pos < 0)
+                throw JSONRPCError(RPC_INVALID_PARAMETER, strprintf("Invalid parameter, negative position: %d", pos));
+            if (pos >= int(destinations.size()))
+                throw JSONRPCError(RPC_INVALID_PARAMETER, strprintf("Invalid parameter, position too large: %d", pos));
+            sffo_set.insert(pos);
+        }
     }
     return sffo_set;
 }
