@@ -372,7 +372,7 @@ class NetTest(BGLTestFramework):
         assert_equal(len(node.getnodeaddresses(count=0)), 2)
 
         self.log.debug("Test that adding an address, which collides with the address in tried table, fails")
-        colliding_address = "1.2.5.45"  # grinded address that produces a tried-table collision
+        colliding_address = "1.2.116.45"  # grinded address that produces a tried-table collision
         assert_equal(node.addpeeraddress(address=colliding_address, tried=True, port=8333), {"success": False, "error": "failed-adding-to-tried"})
         # When adding an address to the tried table, it's first added to the new table.
         # As we fail to move it to the tried table, it remains in the new table.
@@ -484,7 +484,7 @@ class NetTest(BGLTestFramework):
         expected = {
             "new": [
                     {
-                        "bucket_position": "82/8",
+                        "bucket_position": "558/39",
                         "address": "2.0.0.0",
                         "port": 8333,
                         "services": 9,
@@ -493,7 +493,7 @@ class NetTest(BGLTestFramework):
                         "source_network": "ipv4",
                     },
                     {
-                        "bucket_position": "336/24",
+                        "bucket_position": "629/34",
                         "address": "fc00:1:2:3:4:5:6:7",
                         "port": 8333,
                         "services": 9,
@@ -502,7 +502,7 @@ class NetTest(BGLTestFramework):
                         "source_network": "cjdns",
                     },
                     {
-                        "bucket_position": "963/46",
+                        "bucket_position": "100/29",
                         "address": "c4gfnttsuwqomiygupdqqqyy5y5emnk5c73hrfvatri67prd7vyq.b32.i2p",
                         "port": 8333,
                         "services": 9,
@@ -511,7 +511,7 @@ class NetTest(BGLTestFramework):
                         "source_network": "i2p",
                     },
                     {
-                        "bucket_position": "613/6",
+                        "bucket_position": "198/37",
                         "address": "2803:0:1234:abcd::1",
                         "services": 9,
                         "network": "ipv6",
@@ -522,7 +522,7 @@ class NetTest(BGLTestFramework):
             ],
             "tried": [
                     {
-                        "bucket_position": "6/33",
+                        "bucket_position": "22/48",
                         "address": "1.2.3.4",
                         "port": 8333,
                         "services": 9,
@@ -531,7 +531,7 @@ class NetTest(BGLTestFramework):
                         "source_network": "ipv4",
                     },
                     {
-                        "bucket_position": "197/34",
+                        "bucket_position": "39/30",
                         "address": "1233:3432:2434:2343:3234:2345:6546:4534",
                         "port": 8333,
                         "services": 9,
@@ -540,7 +540,7 @@ class NetTest(BGLTestFramework):
                         "source_network": "ipv6",
                     },
                     {
-                        "bucket_position": "72/61",
+                        "bucket_position": "150/63",
                         "address": "pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion",
                         "port": 8333,
                         "services": 9,
@@ -549,7 +549,7 @@ class NetTest(BGLTestFramework):
                         "source_network": "onion"
                     },
                     {
-                        "bucket_position": "139/46",
+                        "bucket_position": "131/11",
                         "address": "nrfj6inpyf73gpkyool35hcmne5zwfmse3jl3aw23vk7chdemalyaqad.onion",
                         "services": 9,
                         "network": "onion",

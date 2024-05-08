@@ -178,7 +178,7 @@ class ProxyTest(BGLTestFramework):
             self.network_test(node, addr, network=NET_IPV6)
 
         if test_onion:
-            addr = "pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion:8333"
+            addr = "35k2va6vyw4oo5ly2quvcszgdqr56kcnfgcqpnpcffut4jn3mhhwgbid.onion:18333"
             self.log.debug(f"Test: outgoing onion connection through node {node.index} for address {addr}")
             node.addnode(addr, "onetry")
             cmd = proxies[2].queue.get()

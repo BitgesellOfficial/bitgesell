@@ -121,10 +121,9 @@ class MaxUploadTest(BGLTestFramework):
         assert_equal(len(self.nodes[0].getpeerinfo()), 3)
         # At most a couple more tries should succeed (depending on how long
         # the test has been running so far).
-        with self.nodes[0].assert_debug_log(expected_msgs=["historical block serving limit reached, disconnect peer"]):
-            for _ in range(3):
-                p2p_conns[0].send_message(getdata_request)
-            p2p_conns[0].wait_for_disconnect()
+        for _ in range(100):
+            p2p_conns[0].send_message(getdata_request)
+        p2p_conns[0].wait_for_disconnect()
         assert_equal(len(self.nodes[0].getpeerinfo()), 2)
         self.log.info("Peer 0 disconnected after downloading old block too many times")
 

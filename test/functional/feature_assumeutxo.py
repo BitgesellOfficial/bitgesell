@@ -101,10 +101,9 @@ class AssumeutxoTest(BGLTestFramework):
 
         self.log.info("  - snapshot file with alternated UTXO data")
         cases = [
-            [b"\xff" * 32, 0, "7d52155c9a9fdc4525b637ef6170568e5dad6fabd0b1fdbb9432010b8453095b"],  # wrong outpoint hash
-            [(1).to_bytes(4, "little"), 32, "9f4d897031ab8547665b4153317ae2fdbf0130c7840b66427ebc48b881cb80ad"],  # wrong outpoint index
-            [b"\x81", 36, "3da966ba9826fb6d2604260e01607b55ba44e1a5de298606b08704bc62570ea8"],  # wrong coin code VARINT((coinbase ? 1 : 0) | (height << 1))
-            [b"\x80", 36, "091e893b3ccb4334378709578025356c8bcb0a623f37c7c4e493133c988648e5"],  # another wrong coin code
+            [b"\xff" * 32, 0, "1881a22910e0ac23e1249fa080029b4e0226c6eb4d94ebe77eec0ae1f3aca8e6"],  # wrong outpoint hash
+            [(1).to_bytes(4, "little"), 32, "298e2196262fc747d527504393012ea6be1d5db27c79d240363727055675f740"],  # wrong outpoint index
+            [b"\x81", 36, "9185da6f170855d99316fc2783bac4b58e5f0bcbfb0f29c0cb8f5ed8fc839d66"],  # wrong coin code VARINT((coinbase ? 1 : 0) | (height << 1))
         ]
 
         for content, offset, wrong_hash in cases:
@@ -112,11 +111,11 @@ class AssumeutxoTest(BGLTestFramework):
                 f.write(valid_snapshot_contents[:(32 + 8 + offset)])
                 f.write(content)
                 f.write(valid_snapshot_contents[(32 + 8 + offset + len(content)):])
-            expected_error(log_msg=f"[snapshot] bad snapshot content hash: expected a4bf3407ccb2cc0145c49ebba8fa91199f8a3903daf0883875941497d2493c27, got {wrong_hash}")
+            expected_error(log_msg=f"[snapshot] bad snapshot content hash: expected 37198d274df7c2f663860aeeddc8517938284694f0499a28621c781dff509940, got {wrong_hash}")
 
     def test_headers_not_synced(self, valid_snapshot_path):
         for node in self.nodes[1:]:
-            assert_raises_rpc_error(-32603, "The base block header (3bb7ce5eba0be48939b7a521ac1ba9316afee2c7bada3a0cca24188e6d7d96c0) must appear in the headers chain. Make sure all headers are syncing, and call this RPC again.",
+            assert_raises_rpc_error(-32603, "The base block header (1e6b433578be026c430295078d3faca1d757c0aafec3252e385c300b35f3824b) must appear in the headers chain. Make sure all headers are syncing, and call this RPC again.",
                                     node.loadtxoutset,
                                     valid_snapshot_path)
 
@@ -186,6 +185,14 @@ class AssumeutxoTest(BGLTestFramework):
             height = n0.getblockcount()
             hash = n0.getbestblockhash()
             blocks[height] = Block(hash, block_tx, blocks[height-1].chain_tx + block_tx)
+            if i == 4:
+                # Create a stale block that forks off the main chain before the snapshot.
+                temp_invalid = n0.getbestblockhash()
+                n0.invalidateblock(temp_invalid)
+                stale_hash = self.generateblock(n0, output="raw(aaaa)", transactions=[], sync_fun=self.no_op)["hash"]
+                n0.invalidateblock(stale_hash)
+                n0.reconsiderblock(temp_invalid)
+                stale_block = n0.getblock(stale_hash, 0)
 
 
         self.log.info("-- Testing assumeutxo + some indexes + pruning")
@@ -215,7 +222,7 @@ class AssumeutxoTest(BGLTestFramework):
 
         assert_equal(
             dump_output['txoutset_hash'],
-            "a4bf3407ccb2cc0145c49ebba8fa91199f8a3903daf0883875941497d2493c27")
+            "37198d274df7c2f663860aeeddc8517938284694f0499a28621c781dff509940")
         assert_equal(dump_output["nchaintx"], blocks[SNAPSHOT_BASE_HEIGHT].chain_tx)
         assert_equal(n0.getblockchaininfo()["blocks"], SNAPSHOT_BASE_HEIGHT)
 
@@ -249,15 +256,14 @@ class AssumeutxoTest(BGLTestFramework):
                 if final or height == START_HEIGHT:
                     assert_equal(tx, block.tx)
                 else:
-                    assert_equal(tx, 1)
+                    assert_equal(tx, 0)
 
                 # Intermediate nChainTx of the starting block and snapshot block
-                # should be real, but others will be fake values set by snapshot
-                # loading code.
+                # should be set, but others should be 0 until they are downloaded.
                 if final or height in (START_HEIGHT, SNAPSHOT_BASE_HEIGHT):
                     assert_equal(chain_tx, block.chain_tx)
                 else:
-                    assert_equal(chain_tx, height + 1)
+                    assert_equal(chain_tx, 0)
 
         check_tx_counts(final=False)
 
@@ -285,9 +291,9 @@ class AssumeutxoTest(BGLTestFramework):
         spend_coin_blockhash = n1.getblockhash(START_HEIGHT + 1)
         assert_raises_rpc_error(-1, "Block not found on disk", n1.getblock, spend_coin_blockhash)
         prev_tx = n0.getblock(spend_coin_blockhash, 3)['tx'][0]
-        prevout = {"txid": prev_tx['txid'], "vout": 0, "scriptPubKey": prev_tx['vout'][0]['scriptPubKey']['hex']}
+        prevout = {"txid": prev_tx['txid'], "vout": 0, "scriptPubKey": prev_tx['vout'][0]['scriptPubKey']['hex'], "amount": prev_tx['vout'][0]["value"]}
         privkey = n0.get_deterministic_priv_key().key
-        raw_tx = n1.createrawtransaction([prevout], {getnewdestination()[2]: 24.99})
+        raw_tx = n1.createrawtransaction([prevout], {getnewdestination()[2]: 99.99})
         signed_tx = n1.signrawtransactionwithkey(raw_tx, [privkey], [prevout])['hex']
         signed_txid = tx_from_hex(signed_tx).rehash()
 

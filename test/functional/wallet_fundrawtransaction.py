@@ -659,10 +659,10 @@ class RawTransactionsTest(BGLTestFramework):
         assert fundedTx["changepos"] != -1
 
         # Now we need to unlock.
-        with WalletUnlock(wallet, "test"):
-            signedTx = wallet.signrawtransactionwithwallet(fundedTx['hex'])
-            wallet.sendrawtransaction(signedTx['hex'])
-            self.generate(self.nodes[1], 1)
+        wallet.walletpassphrase("test", 600)
+        signedTx = wallet.signrawtransactionwithwallet(fundedTx['hex'])
+        wallet.sendrawtransaction(signedTx['hex'])
+        self.generate(self.nodes[1], 1)
 
         # Make sure funds are received at node1.
         assert_equal(oldBalance+Decimal('201.10000000'), self.nodes[0].getbalance())

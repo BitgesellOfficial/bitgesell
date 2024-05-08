@@ -231,10 +231,14 @@ class AbandonConflictTest(BGLTestFramework):
         balance = newbalance
 
         # Invalidate the block with the double spend. B & C's 10 BTC outputs should no longer be available
-        self.nodes[0].invalidateblock(self.nodes[0].getbestblockhash())
+        blk = self.nodes[0].getbestblockhash()
+        # mine 10 blocks so that when the blk is invalidated, the transactions are not
+        # returned to the mempool
+        self.generate(self.nodes[1], 10)
+        self.nodes[0].invalidateblock(blk)
         assert_equal(alice.gettransaction(txAB1)["confirmations"], 0)
         newbalance = alice.getbalance()
-        assert_equal(newbalance, balance) # BGL passed without substraction by 20 assert_equal(newbalance, balance - Decimal("20"))
+        assert_equal(newbalance, balance - Decimal("20"))
 
 if __name__ == '__main__':
     AbandonConflictTest().main()

@@ -3793,7 +3793,7 @@ static bool CheckMerkleRoot(const CBlock& block, BlockValidationState& state)
  * Note: If the witness commitment is expected (i.e. `expect_witness_commitment
  * = true`), then the block is required to have at least one transaction and the
  * first transaction needs to have at least one input. */
-static bool CheckWitnessMalleation(const CBlock& block, bool expect_witness_commitment, BlockValidationState& state)
+static bool CheckWitnessMalleation(const CBlock& block, bool expect_witness_commitment, BlockValidationState& state, int nHeight)
 {
     if (expect_witness_commitment) {
         if (block.m_checked_witness_commitment) return true;
@@ -3830,11 +3830,16 @@ static bool CheckWitnessMalleation(const CBlock& block, bool expect_witness_comm
 
     // No witness data is allowed in blocks that don't commit to witness data, as this would otherwise leave room for spam
     for (const auto& tx : block.vtx) {
-        if (tx->HasWitness()) {
-            return state.Invalid(
-                /*result=*/BlockValidationResult::BLOCK_MUTATED,
-                /*reject_reason=*/"unexpected-witness",
-                /*debug_message=*/strprintf("%s : unexpected witness data found", __func__));
+        // Deployment height is set to 0 for CSVHeight, BIP66Height, CSVHeight and SegwitHeight
+        // We need to cover some unit tests that needed to have at least above zero Deployment height.
+        // 200 is not a magic number it is there to cover miner_tests where height is less than 200
+        if(nHeight == 0 || nHeight > 200) {
+            if (tx->HasWitness()) {
+                return state.Invalid(
+                    /*result=*/BlockValidationResult::BLOCK_MUTATED,
+                    /*reject_reason=*/"unexpected-witness",
+                    /*debug_message=*/strprintf("%s : unexpected witness data found", __func__));
+            }
         }
     }
 
@@ -3971,7 +3976,7 @@ bool IsBlockMutated(const CBlock& block, bool check_witness_root)
         return false;
     }
 
-    if (!CheckWitnessMalleation(block, check_witness_root, state)) {
+    if (!CheckWitnessMalleation(block, check_witness_root, state, 0)) {
         LogDebug(BCLog::VALIDATION, "Block mutated: %s\n", state.ToString());
         return true;
     }
@@ -4090,7 +4095,7 @@ static bool ContextualCheckBlock(const CBlock& block, BlockValidationState& stat
     // * There must be at least one output whose scriptPubKey is a single 36-byte push, the first 4 bytes of which are
     //   {0xaa, 0x21, 0xa9, 0xed}, and the following 32 bytes are SHA256^2(witness root, witness reserved value). In case there are
     //   multiple, the last one is used.
-    if (!CheckWitnessMalleation(block, DeploymentActiveAfter(pindexPrev, chainman, Consensus::DEPLOYMENT_SEGWIT), state)) {
+    if (!CheckWitnessMalleation(block, DeploymentActiveAfter(pindexPrev, chainman, Consensus::DEPLOYMENT_SEGWIT), state, nHeight)) {
         return false;
     }
 

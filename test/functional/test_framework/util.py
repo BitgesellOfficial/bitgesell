@@ -44,11 +44,11 @@ def assert_fee_amount(fee, tx_size, feerate_BGL_kvB):
     """Assert the fee is in range."""
     assert isinstance(tx_size, int)
     target_fee = get_fee(tx_size, feerate_BGL_kvB)
+    feerate_BGL_vB = feerate_BGL_kvB / 1000
     if fee < target_fee:
         raise AssertionError("Fee of %s BGL too low! (Should be %s BGL)" % (str(fee), str(target_fee)))
     # allow the wallet's estimation to be at most 2 bytes off
-    high_fee = get_fee(tx_size + 2, feerate_BGL_kvB)
-    if fee > high_fee:
+    if fee > (tx_size + 2) * feerate_BGL_vB:
         raise AssertionError("Fee of %s BGL too high! (Should be %s BGL)" % (str(fee), str(target_fee)))
 
 
@@ -221,7 +221,7 @@ def assert_array_result(object_array, to_match, expected, should_not_find=False)
 
 
 def check_json_precision():
-    """Make sure json library being used does not lose precision converting BTC values"""
+    """Make sure json library being used does not lose precision converting BGL values"""
     n = Decimal("20000000.00000003")
     satoshis = int(json.loads(json.dumps(float(n))) * 1.0e8)
     if satoshis != 2000000000000003:
@@ -263,7 +263,7 @@ def wait_until_helper_internal(predicate, *, attempts=float('inf'), timeout=floa
 
     Warning: Note that this method is not recommended to be used in tests as it is
     not aware of the context of the test framework. Using the `wait_until()` members
-    from `BitcoinTestFramework` or `P2PInterface` class ensures the timeout is
+    from `BGLTestFramework` or `P2PInterface` class ensures the timeout is
     properly scaled. Furthermore, `wait_until()` from `P2PInterface` class in
     `p2p.py` has a preset lock.
     """
@@ -317,7 +317,8 @@ PORT_RANGE = 5000
 
 class PortSeed:
     # Must be initialized with a unique integer for each process
-    n = None
+    n = 0  # TypeError: unsupported operand type(s) for *: 'int' and 'NoneType'
+           # Change from None to 0
 
 
 def get_rpc_proxy(url: str, node_number: int, *, timeout: Optional[int]=None, coveragedir: Optional[str]=None) -> coverage.AuthServiceProxyWrapper:
@@ -503,12 +504,12 @@ def check_node_connections(*, node, num_in, num_out):
 
 # Create large OP_RETURN txouts that can be appended to a transaction
 # to make it large (helper for constructing large transactions). The
-# total serialized size of the txouts is about 66k vbytes.
+# total serialized size of the txouts is about 6k vbytes.
 def gen_return_txouts():
     from .messages import CTxOut
     from .script import CScript, OP_RETURN
-    txouts = [CTxOut(nValue=0, scriptPubKey=CScript([OP_RETURN, b'\x01'*67437]))]
-    assert_equal(sum([len(txout.serialize()) for txout in txouts]), 67456)
+    txouts = [CTxOut(nValue=0, scriptPubKey=CScript([OP_RETURN, b'\x01'*6743]))]
+    assert_equal(sum([len(txout.serialize()) for txout in txouts]), 6758)
     return txouts
 
 
@@ -530,11 +531,10 @@ def create_lots_of_big_transactions(mini_wallet, node, fee, tx_batch_size, txout
 
 
 def mine_large_block(test_framework, mini_wallet, node):
-    # generate a 66k transaction,
-    # and 14 of them is close to the 1MB block limit
+    # generate a large block with 16 transactions close to the 400kB block limit
     txouts = gen_return_txouts()
     fee = 100 * node.getnetworkinfo()["relayfee"]
-    create_lots_of_big_transactions(mini_wallet, node, fee, 14, txouts)
+    create_lots_of_big_transactions(mini_wallet, node, fee, 16, txouts)
     test_framework.generate(node, 1)
 
 
