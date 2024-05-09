@@ -305,6 +305,283 @@ public:
 
 };
 
+/** Class encapsulating the state needed to perform search for good candidate sets.
+ *
+ * It is initialized for an entire DepGraph, and parts of the graph can be dropped by calling
+ * MarkDone().
+ *
+ * As long as any part of the graph remains, FindCandidateSet() can be called to perform a search
+ * over the set of topologically-valid subsets of that remainder, with a limit on how many
+ * combinations are tried.
+ */
+template<typename SetType>
+class SearchCandidateFinder
+{
+    /** Internal RNG. */
+    InsecureRandomContext m_rng;
+    /** Internal dependency graph for the cluster. */
+    const DepGraph<SetType>& m_depgraph;
+    /** Which transactions are left to do (sorted indices). */
+    SetType m_todo;
+
+public:
+    /** Construct a candidate finder for a graph.
+     *
+     * @param[in] depgraph   Dependency graph for the to-be-linearized cluster.
+     * @param[in] rng_seed   A random seed to control the search order.
+     *
+     * Complexity: O(1).
+     */
+    SearchCandidateFinder(const DepGraph<SetType>& depgraph LIFETIMEBOUND, uint64_t rng_seed) noexcept :
+        m_rng(rng_seed),
+        m_depgraph(depgraph),
+        m_todo(SetType::Fill(depgraph.TxCount())) {}
+
+    /** Check whether any unlinearized transactions remain. */
+    bool AllDone() const noexcept
+    {
+        return m_todo.None();
+    }
+
+    /** Find a high-feerate topologically-valid subset of what remains of the cluster.
+     *  Requires !AllDone().
+     *
+     * @param[in] max_iterations  The maximum number of optimization steps that will be performed.
+     * @param[in] best            A set/feerate pair with an already-known good candidate. This may
+     *                            be empty.
+     * @return                    A pair of:
+     *                            - The best (highest feerate, smallest size as tiebreaker)
+     *                              topologically valid subset (and its feerate) that was
+     *                              encountered during search. It will be at least as good as the
+     *                              best passed in (if not empty).
+     *                            - The number of optimization steps that were performed. This will
+     *                              be <= max_iterations. If strictly < max_iterations, the
+     *                              returned subset is optimal.
+     *
+     * Complexity: O(N * min(max_iterations, 2^N)) where N=depgraph.TxCount().
+     */
+    std::pair<SetInfo<SetType>, uint64_t> FindCandidateSet(uint64_t max_iterations, SetInfo<SetType> best) noexcept
+    {
+        Assume(!AllDone());
+
+        /** Type for work queue items. */
+        struct WorkItem
+        {
+            /** Set of transactions definitely included (and its feerate). This must be a subset
+             *  of m_todo, and be topologically valid (includes all in-m_todo ancestors of
+             *  itself). */
+            SetInfo<SetType> inc;
+            /** Set of undecided transactions. This must be a subset of m_todo, and have no overlap
+             *  with inc. The set (inc | und) must be topologically valid. */
+            SetType und;
+
+            /** Construct a new work item. */
+            WorkItem(SetInfo<SetType>&& i, SetType&& u) noexcept :
+                inc(std::move(i)), und(std::move(u)) {}
+
+            /** Swap two WorkItems. */
+            void Swap(WorkItem& other) noexcept
+            {
+                swap(inc, other.inc);
+                swap(und, other.und);
+            }
+        };
+
+        /** The queue of work items. */
+        VecDeque<WorkItem> queue;
+        queue.reserve(std::max<size_t>(256, 2 * m_todo.Count()));
+
+        // Create an initial entry with m_todo as undecided. Also use it as best if not provided,
+        // so that during the work processing loop below, and during the add_fn/split_fn calls, we
+        // do not need to deal with the best=empty case.
+        if (best.feerate.IsEmpty()) best = SetInfo(m_depgraph, m_todo);
+        queue.emplace_back(SetInfo<SetType>{}, SetType{m_todo});
+
+        /** Local copy of the iteration limit. */
+        uint64_t iterations_left = max_iterations;
+
+        /** Internal function to add an item to the queue of elements to explore if there are any
+         *  transactions left to split on, and to update best.
+         *
+         * - inc: the "inc" value for the new work item (must be topological).
+         * - und: the "und" value for the new work item ((inc | und) must be topological).
+         */
+        auto add_fn = [&](SetInfo<SetType> inc, SetType und) noexcept {
+            if (!inc.feerate.IsEmpty()) {
+                // If inc's feerate is better than best's, remember it as our new best.
+                if (inc.feerate > best.feerate) {
+                    best = inc;
+                }
+            } else {
+                Assume(inc.transactions.None());
+            }
+
+            // Make sure there are undecided transactions left to split on.
+            if (und.None()) return;
+
+            // Actually construct a new work item on the queue. Due to the switch to DFS when queue
+            // space runs out (see below), we know that no reallocation of the queue should ever
+            // occur.
+            Assume(queue.size() < queue.capacity());
+            queue.emplace_back(std::move(inc), std::move(und));
+        };
+
+        /** Internal process function. It takes an existing work item, and splits it in two: one
+         *  with a particular transaction (and its ancestors) included, and one with that
+         *  transaction (and its descendants) excluded. */
+        auto split_fn = [&](WorkItem&& elem) noexcept {
+            // Any queue element must have undecided transactions left, otherwise there is nothing
+            // to explore anymore.
+            Assume(elem.und.Any());
+            // The included and undecided set are all subsets of m_todo.
+            Assume(elem.inc.transactions.IsSubsetOf(m_todo) && elem.und.IsSubsetOf(m_todo));
+            // Included transactions cannot be undecided.
+            Assume(!elem.inc.transactions.Overlaps(elem.und));
+
+            // Pick the first undecided transaction as the one to split on.
+            const ClusterIndex split = elem.und.First();
+
+            // Add a work item corresponding to exclusion of the split transaction.
+            const auto& desc = m_depgraph.Descendants(split);
+            add_fn(/*inc=*/elem.inc,
+                   /*und=*/elem.und - desc);
+
+            // Add a work item corresponding to inclusion of the split transaction.
+            const auto anc = m_depgraph.Ancestors(split) & m_todo;
+            add_fn(/*inc=*/elem.inc.Add(m_depgraph, anc),
+                   /*und=*/elem.und - anc);
+
+            // Account for the performed split.
+            --iterations_left;
+        };
+
+        // Work processing loop.
+        //
+        // New work items are always added at the back of the queue, but items to process use a
+        // hybrid approach where they can be taken from the front or the back.
+        //
+        // Depth-first search (DFS) corresponds to always taking from the back of the queue. This
+        // is very memory-efficient (linear in the number of transactions). Breadth-first search
+        // (BFS) corresponds to always taking from the front, which potentially uses more memory
+        // (up to exponential in the transaction count), but seems to work better in practice.
+        //
+        // The approach here combines the two: use BFS (plus random swapping) until the queue grows
+        // too large, at which point we temporarily switch to DFS until the size shrinks again.
+        while (!queue.empty()) {
+            // Randomly swap the first two items to randomize the search order.
+            if (queue.size() > 1 && m_rng.randbool()) {
+                queue[0].Swap(queue[1]);
+            }
+
+            // Processing the first queue item, and then using DFS for everything it gives rise to,
+            // may increase the queue size by the number of undecided elements in there, minus 1
+            // for the first queue item being removed. Thus, only when that pushes the queue over
+            // its capacity can we not process from the front (BFS), and should we use DFS.
+            while (queue.size() - 1 + queue.front().und.Count() > queue.capacity()) {
+                if (!iterations_left) break;
+                auto elem = queue.back();
+                queue.pop_back();
+                split_fn(std::move(elem));
+            }
+
+            // Process one entry from the front of the queue (BFS exploration)
+            if (!iterations_left) break;
+            auto elem = queue.front();
+            queue.pop_front();
+            split_fn(std::move(elem));
+        }
+
+        // Return the found best set and the number of iterations performed.
+        return {std::move(best), max_iterations - iterations_left};
+    }
+
+    /** Remove a subset of transactions from the cluster being linearized.
+     *
+     * Complexity: O(N) where N=done.Count().
+     */
+    void MarkDone(const SetType& done) noexcept
+    {
+        Assume(done.Any());
+        Assume(done.IsSubsetOf(m_todo));
+        m_todo -= done;
+    }
+};
+
+/** Find or improve a linearization for a cluster.
+ *
+ * @param[in] depgraph            Dependency graph of the cluster to be linearized.
+ * @param[in] max_iterations      Upper bound on the number of optimization steps that will be done.
+ * @param[in] rng_seed            A random number seed to control search order. This prevents peers
+ *                                from predicting exactly which clusters would be hard for us to
+ *                                linearize.
+ * @param[in] old_linearization   An existing linearization for the cluster (which must be
+ *                                topologically valid), or empty.
+ * @return                        A pair of:
+ *                                - The resulting linearization. It is guaranteed to be at least as
+ *                                  good (in the feerate diagram sense) as old_linearization.
+ *                                - A boolean indicating whether the result is guaranteed to be
+ *                                  optimal.
+ *
+ * Complexity: O(N * min(max_iterations + N, 2^N)) where N=depgraph.TxCount().
+ */
+template<typename SetType>
+std::pair<std::vector<ClusterIndex>, bool> Linearize(const DepGraph<SetType>& depgraph, uint64_t max_iterations, uint64_t rng_seed, Span<const ClusterIndex> old_linearization = {}) noexcept
+{
+    Assume(old_linearization.empty() || old_linearization.size() == depgraph.TxCount());
+    if (depgraph.TxCount() == 0) return {{}, true};
+
+    uint64_t iterations_left = max_iterations;
+    std::vector<ClusterIndex> linearization;
+
+    AncestorCandidateFinder anc_finder(depgraph);
+    SearchCandidateFinder src_finder(depgraph, rng_seed);
+    linearization.reserve(depgraph.TxCount());
+    bool optimal = true;
+
+    /** Chunking of what remains of the old linearization. */
+    LinearizationChunking old_chunking(depgraph, old_linearization);
+
+    while (true) {
+        // Find the highest-feerate prefix of the remainder of old_linearization.
+        SetInfo<SetType> best_prefix;
+        if (old_chunking.NumChunksLeft()) best_prefix = old_chunking.GetChunk(0);
+
+        // Then initialize best to be either the best remaining ancestor set, or the first chunk.
+        auto best = anc_finder.FindCandidateSet();
+        if (!best_prefix.feerate.IsEmpty() && best_prefix.feerate >= best.feerate) best = best_prefix;
+
+        // Invoke bounded search to update best, with up to half of our remaining iterations as
+        // limit.
+        uint64_t max_iterations_now = (iterations_left + 1) / 2;
+        uint64_t iterations_done_now = 0;
+        std::tie(best, iterations_done_now) = src_finder.FindCandidateSet(max_iterations_now, best);
+        iterations_left -= iterations_done_now;
+
+        if (iterations_done_now == max_iterations_now) {
+            optimal = false;
+            // If the search result is not (guaranteed to be) optimal, run intersections to make
+            // sure we don't pick something that makes us unable to reach further diagram points
+            // of the old linearization.
+            if (old_chunking.NumChunksLeft() > 0) {
+                best = old_chunking.Intersect(best);
+            }
+        }
+
+        // Add to output in topological order.
+        depgraph.AppendTopo(linearization, best.transactions);
+
+        // Update state to reflect best is no longer to be linearized.
+        anc_finder.MarkDone(best.transactions);
+        if (anc_finder.AllDone()) break;
+        src_finder.MarkDone(best.transactions);
+        if (old_chunking.NumChunksLeft() > 0) {
+            old_chunking.MarkDone(best.transactions);
+        }
+    }
+
+    return {std::move(linearization), optimal};
+}
+
 } // namespace cluster_linearize
 
 #endif // BGL_CLUSTER_LINEARIZE_H
