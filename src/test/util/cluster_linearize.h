@@ -2,12 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_TEST_UTIL_CLUSTER_LINEARIZE_H
-#define BITCOIN_TEST_UTIL_CLUSTER_LINEARIZE_H
+#ifndef BGL_TEST_UTIL_CLUSTER_LINEARIZE_H
+#define BGL_TEST_UTIL_CLUSTER_LINEARIZE_H
 
 #include <cluster_linearize.h>
 #include <serialize.h>
-#include <span.h>
 #include <streams.h>
 #include <util/bitset.h>
 #include <util/feefrac.h>
@@ -332,22 +331,6 @@ void VerifyDepGraphFromCluster(const Cluster<SetType>& cluster, const DepGraph<S
     }
 }
 
-/** Perform a sanity check on a linearization. */
-template<typename SetType>
-void SanityCheck(const DepGraph<SetType>& depgraph, Span<const ClusterIndex> linearization)
-{
-    // Check completeness.
-    assert(linearization.size() == depgraph.TxCount());
-    TestBitSet done;
-    for (auto i : linearization) {
-        // Check transaction position is in range.
-        assert(i < depgraph.TxCount());
-        // Check topology and lack of duplicates.
-        assert((depgraph.Ancestors(i) - done) == TestBitSet::Singleton(i));
-        done.Set(i);
-    }
-}
-
 } // namespace
 
-#endif // BITCOIN_TEST_UTIL_CLUSTER_LINEARIZE_H
+#endif // BGL_TEST_UTIL_CLUSTER_LINEARIZE_H
