@@ -512,9 +512,17 @@ FUZZ_TARGET(clusterlin_search_finder)
             assert(found.transactions.IsSupersetOf(depgraph.Ancestors(i) & todo));
         }
 
-        // At most 2^N-1 iterations can be required: the number of non-empty subsets a graph with N
-        // transactions has.
-        assert(iterations_done <= ((uint64_t{1} << todo.Count()) - 1));
+        // At most 2^(N-1) iterations can be required: the maximum number of non-empty topological
+        // subsets a (connected) cluster with N transactions can have. Even when the cluster is no
+        // longer connected after removing certain transactions, this holds, because the connected
+        // components are searched separately.
+        assert(iterations_done <= (uint64_t{1} << (todo.Count() - 1)));
+        // Additionally, test that no more than sqrt(2^N)+1 iterations are required. This is just
+        // an empirical bound that seems to hold, without proof. Still, add a test for it so we
+        // can learn about counterexamples if they exist.
+        if (iterations_done >= 1 && todo.Count() <= 63) {
+            Assume((iterations_done - 1) * (iterations_done - 1) <= uint64_t{1} << todo.Count());
+        }
 
         // Perform quality checks only if SearchCandidateFinder claims an optimal result.
         if (iterations_done < max_iterations) {
@@ -725,6 +733,13 @@ FUZZ_TARGET(clusterlin_linearize)
     const uint64_t n = depgraph.TxCount();
     if (n <= 18 && iter_count > 2U * ((uint64_t{1} << n) - 1U)) {
         assert(optimal);
+    }
+    // Additionally, if the assumption of sqrt(2^k)+1 iterations per step holds, the maximum number
+    // of iterations is also bounded by (2 + sqrt(2)) * (sqrt(2^n) - 1) + n, which is less than
+    // (2 + sqrt(2)) * sqrt(2^n) + n. Subtracting n and squaring gives
+    // (6 + 4 * sqrt(2)) * 2^n < 12 * 2^n.
+    if (n <= 35 && iter_count > n && (iter_count - n) * (iter_count - n) >= uint64_t{12} << n) {
+        Assume(optimal);
     }
 
     // If Linearize claims optimal result, run quality tests.
