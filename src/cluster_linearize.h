@@ -12,6 +12,7 @@
 #include <random.h>
 #include <span.h>
 #include <util/feefrac.h>
+#include <util/vecdeque.h>
 
 namespace cluster_linearize {
 
@@ -575,14 +576,9 @@ public:
         // (BFS) corresponds to always taking from the front, which potentially uses more memory
         // (up to exponential in the transaction count), but seems to work better in practice.
         //
-        // The approach here combines the two: use BFS (plus random swapping) until the queue grows
-        // too large, at which point we temporarily switch to DFS until the size shrinks again.
+        // The approach here combines the two: use BFS until the queue grows too large, at which
+        // point we temporarily switch to DFS until the size shrinks again.
         while (!queue.empty()) {
-            // Randomly swap the first two items to randomize the search order.
-            if (queue.size() > 1 && m_rng.randbool()) {
-                queue[0].Swap(queue[1]);
-            }
-
             // Processing the first queue item, and then using DFS for everything it gives rise to,
             // may increase the queue size by the number of undecided elements in there, minus 1
             // for the first queue item being removed. Thus, only when that pushes the queue over
