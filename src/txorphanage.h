@@ -33,8 +33,8 @@ public:
      */
     CTransactionRef GetTxToReconsider(NodeId peer) EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 
-    /** Erase an orphan by txid */
-    int EraseTx(const Txid& txid) EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
+    /** Erase an orphan by wtxid */
+    int EraseTx(const Wtxid& wtxid) EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 
     /** Erase all orphans announced by a peer (eg, after that peer disconnects) */
     void EraseForPeer(NodeId peer) EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
@@ -101,6 +101,10 @@ protected:
 
     /** Orphan transactions in vector for quick random eviction */
     std::vector<OrphanMap::iterator> m_orphan_list GUARDED_BY(m_mutex);
+
+    /** Index from wtxid into the m_orphans to lookup orphan
+     *  transactions using their witness ids. */
+    std::map<Wtxid, OrphanMap::iterator> m_wtxid_to_orphan_it GUARDED_BY(m_mutex);
 
     /** Erase an orphan by wtxid */
     int EraseTxNoLock(const Wtxid& wtxid) EXCLUSIVE_LOCKS_REQUIRED(m_mutex);
