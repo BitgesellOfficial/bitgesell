@@ -849,7 +849,7 @@ fs::path BlockManager::GetBlockPosFilename(const FlatFilePos& pos) const
     return BlockFileSeq().FileName(pos);
 }
 
-bool BlockManager::FindBlockPos(FlatFilePos& pos, unsigned int nAddSize, unsigned int nHeight, uint64_t nTime)
+FlatFilePos BlockManager::FindNextBlockPos(unsigned int nAddSize, unsigned int nHeight, uint64_t nTime)
 {
     LOCK(cs_LastBlockFile);
 
@@ -898,6 +898,7 @@ bool BlockManager::FindBlockPos(FlatFilePos& pos, unsigned int nAddSize, unsigne
             m_blockfile_info.resize(nFile + 1);
         }
     }
+    FlatFilePos pos;
     pos.nFile = nFile;
     pos.nPos = m_blockfile_info[nFile].nSize;
 
@@ -928,14 +929,14 @@ bool BlockManager::FindBlockPos(FlatFilePos& pos, unsigned int nAddSize, unsigne
     size_t bytes_allocated = BlockFileSeq().Allocate(pos, nAddSize, out_of_space);
     if (out_of_space) {
         m_opts.notifications.fatalError(_("Disk space is too low!"));
-        return false;
+        return {};
     }
     if (bytes_allocated != 0 && IsPruneMode()) {
         m_check_for_pruning = true;
     }
 
     m_dirty_fileinfo.insert(nFile);
-    return true;
+    return pos;
 }
 
 void BlockManager::UpdateBlockInfo(const CBlock& block, unsigned int nHeight, const FlatFilePos& pos)
@@ -1032,7 +1033,7 @@ bool BlockManager::WriteUndoDataForBlock(const CBlockUndo& blockundo, BlockValid
         // we want to flush the rev (undo) file once we've written the last block, which is indicated by the last height
         // in the block file info as below; note that this does not catch the case where the undo writes are keeping up
         // with the block writes (usually when a synced up node is getting newly mined blocks) -- this case is caught in
-        // the FindBlockPos function
+        // the FindNextBlockPos function
         if (_pos.nFile < cursor.file_num && static_cast<uint32_t>(block.nHeight) == m_blockfile_info[_pos.nFile].nHeightLast) {
             // Do not propagate the return code, a failed flush here should not
             // be an indication for a failed write. If it were propagated here,
@@ -1151,25 +1152,17 @@ bool BlockManager::ReadRawBlockFromDisk(std::vector<uint8_t>& block, const FlatF
 FlatFilePos BlockManager::SaveBlockToDisk(const CBlock& block, int nHeight, const FlatFilePos* dbp)
 {
     unsigned int nBlockSize = ::GetSerializeSize(TX_WITH_WITNESS(block));
-    FlatFilePos blockPos;
-    const auto position_known {dbp != nullptr};
-    if (position_known) {
-        blockPos = *dbp;
-        // position_known is set iff performing a reindex. In this case, no blocks need to be written, only the blockfile info database needs to be rebuilt.
-        UpdateBlockInfo(block, nHeight, *dbp);
-    } else {
-        // when known, blockPos.nPos points at the offset of the block data in the blk file. that already accounts for
-        // the serialization header present in the file (the 4 magic message start bytes + the 4 length bytes = 8 bytes = BLOCK_SERIALIZATION_HEADER_SIZE).
-        // we add BLOCK_SERIALIZATION_HEADER_SIZE only for new blocks since they will have the serialization header added when written to disk.
-        nBlockSize += static_cast<unsigned int>(BLOCK_SERIALIZATION_HEADER_SIZE);
-        if (!FindBlockPos(blockPos, nBlockSize, nHeight, block.GetBlockTime())) {
-            LogError("%s: FindBlockPos failed\n", __func__);
-            return FlatFilePos();
-        }
-        if (!WriteBlockToDisk(block, blockPos)) {
-            m_opts.notifications.fatalError(_("Failed to write block."));
-            return FlatFilePos();
-        }
+    // Account for the 4 magic message start bytes + the 4 length bytes (8 bytes total,
+    // defined as BLOCK_SERIALIZATION_HEADER_SIZE)
+    nBlockSize += static_cast<unsigned int>(BLOCK_SERIALIZATION_HEADER_SIZE);
+    FlatFilePos blockPos{FindNextBlockPos(nBlockSize, nHeight, block.GetBlockTime())};
+    if (blockPos.IsNull()) {
+        LogError("%s: FindNextBlockPos failed\n", __func__);
+        return FlatFilePos();
+    }
+    if (!WriteBlockToDisk(block, blockPos)) {
+        m_opts.notifications.fatalError(_("Failed to write block."));
+        return FlatFilePos();
     }
     return blockPos;
 }
