@@ -10,7 +10,6 @@
 #include <utility>
 
 #include <random.h>
-#include <span.h>
 #include <util/feefrac.h>
 #include <util/vecdeque.h>
 
@@ -206,6 +205,13 @@ struct SetInfo
     [[nodiscard]] SetInfo Add(const DepGraph<SetType>& depgraph, const SetType& txn) const noexcept
     {
         return {transactions | txn, feerate + depgraph.FeeRate(txn - transactions)};
+    }
+
+    /** Swap two SetInfo objects. */
+    friend void swap(SetInfo& a, SetInfo& b) noexcept
+    {
+        swap(a.transactions, b.transactions);
+        swap(a.feerate, b.feerate);
     }
 
     /** Permit equality testing. */
@@ -576,9 +582,14 @@ public:
         // (BFS) corresponds to always taking from the front, which potentially uses more memory
         // (up to exponential in the transaction count), but seems to work better in practice.
         //
-        // The approach here combines the two: use BFS until the queue grows too large, at which
-        // point we temporarily switch to DFS until the size shrinks again.
+        // The approach here combines the two: use BFS (plus random swapping) until the queue grows
+        // too large, at which point we temporarily switch to DFS until the size shrinks again.
         while (!queue.empty()) {
+            // Randomly swap the first two items to randomize the search order.
+            if (queue.size() > 1 && m_rng.randbool()) {
+                queue[0].Swap(queue[1]);
+            }
+
             // Processing the first queue item, and then using DFS for everything it gives rise to,
             // may increase the queue size by the number of undecided elements in there, minus 1
             // for the first queue item being removed. Thus, only when that pushes the queue over
@@ -620,8 +631,6 @@ public:
  * @param[in] rng_seed            A random number seed to control search order. This prevents peers
  *                                from predicting exactly which clusters would be hard for us to
  *                                linearize.
- * @param[in] old_linearization   An existing linearization for the cluster (which must be
- *                                topologically valid), or empty.
  * @return                        A pair of:
  *                                - The resulting linearization. It is guaranteed to be at least as
  *                                  good (in the feerate diagram sense) as old_linearization.
@@ -631,7 +640,7 @@ public:
  * Complexity: O(N * min(max_iterations + N, 2^N)) where N=depgraph.TxCount().
  */
 template<typename SetType>
-std::pair<std::vector<ClusterIndex>, bool> Linearize(const DepGraph<SetType>& depgraph, uint64_t max_iterations, uint64_t rng_seed, Span<const ClusterIndex> old_linearization = {}) noexcept
+std::pair<std::vector<ClusterIndex>, bool> Linearize(const DepGraph<SetType>& depgraph, uint64_t max_iterations, uint64_t rng_seed) noexcept
 {
     Assume(old_linearization.empty() || old_linearization.size() == depgraph.TxCount());
     if (depgraph.TxCount() == 0) return {{}, true};

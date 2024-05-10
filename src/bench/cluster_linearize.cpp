@@ -142,30 +142,8 @@ void BenchLinearizeNoItersWorstCaseAnc(ClusterIndex ntx, benchmark::Bench& bench
 {
     const auto depgraph = MakeLinearGraph<SetType>(ntx);
     uint64_t rng_seed = 0;
-    std::vector<ClusterIndex> old_lin(ntx);
-    for (ClusterIndex i = 0; i < ntx; ++i) old_lin[i] = i;
     bench.run([&] {
-        Linearize(depgraph, /*max_iterations=*/0, rng_seed++, old_lin);
-    });
-}
-
-/** Benchmark for linearization improvement of a trivial wide graph using just ancestor sort.
- *
- * Its goal is measuring how much time improving a linearization may take without any search
- * iterations, similar to the previous function.
- *
- * This benchmark exercises a worst case for improving an existing linearization, but for which
- * AncestorCandidateFinder is cheap.
- */
-template<typename SetType>
-void BenchLinearizeNoItersWorstCaseLIMO(ClusterIndex ntx, benchmark::Bench& bench)
-{
-    const auto depgraph = MakeWideGraph<SetType>(ntx);
-    uint64_t rng_seed = 0;
-    std::vector<ClusterIndex> old_lin(ntx);
-    for (ClusterIndex i = 0; i < ntx; ++i) old_lin[i] = i;
-    bench.run([&] {
-        Linearize(depgraph, /*max_iterations=*/0, rng_seed++, old_lin);
+        Linearize(depgraph, /*max_iterations=*/0, rng_seed++);
     });
 }
 
