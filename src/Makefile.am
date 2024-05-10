@@ -977,7 +977,6 @@ libBGLkernel_la_SOURCES = \
   txdb.cpp \
   txmempool.cpp \
   uint256.cpp \
-  util/batchpriority.cpp \
   util/chaintype.cpp \
   util/check.cpp \
   util/fs.cpp \
