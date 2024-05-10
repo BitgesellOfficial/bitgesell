@@ -529,10 +529,8 @@ inspecting signatures in Mach-O binaries.")
                  (list gcc-toolchain-12 "static")
                  (make-BGL-cross-toolchain target)))
           ((string-contains target "darwin")
-           (list ;; Native GCC 10 toolchain
-                 gcc-toolchain-10
-                 (list gcc-toolchain-10 "static")
-                 binutils
+           (list ;; Native GCC 11 toolchain
+                 gcc-toolchain-11
                  clang-toolchain-17
                  lld-17
                  (make-lld-wrapper lld-17 #:lld-as-ld? #t)
