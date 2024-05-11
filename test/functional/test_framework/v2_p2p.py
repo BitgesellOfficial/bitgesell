@@ -283,3 +283,4 @@ class EncryptedP2PState:
         length = LENGTH_FIELD_LEN + HEADER_LEN + self.contents_len + CHACHA20POLY1305_EXPANSION
         self.contents_len = -1
         return length, None if (header[0] & (1 << IGNORE_BIT_POS)) else plaintext[HEADER_LEN:]
+    

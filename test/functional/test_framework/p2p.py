@@ -4,10 +4,9 @@
 # Copyright (c) 2010-2022 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
+"""Test objects for interacting with a bitcoind node over the p2p protocol.
 
-"""Test objects for interacting with a BGLd node over the p2p protocol.
-
-The P2PInterface objects interact with the BGLd nodes under test using the
+The P2PInterface objects interact with the bitcoind nodes under test using the
 node's p2p interface. They can be used to send messages to the node, and
 callbacks can be registered that execute when messages are received from the
 node. Messages are sent to/received from the node on an asyncio event loop.
@@ -17,7 +16,10 @@ races between the main testing thread and the event loop.
 P2PConnection: A low-level connection object to a node's P2P interface
 P2PInterface: A high-level interface object for communicating to a node over P2P
 P2PDataStore: A p2p interface class that keeps a store of transactions and blocks
-              and can respond correctly to getdata and getheaders messages"""
+              and can respond correctly to getdata and getheaders messages
+P2PTxInvStore: A p2p interface class that inherits from P2PDataStore, and keeps
+              a count of how many times each txid has been announced."""
+
 import asyncio
 from collections import defaultdict
 from io import BytesIO
@@ -429,7 +431,7 @@ class P2PConnection(asyncio.Protocol):
 
 
 class P2PInterface(P2PConnection):
-    """A high-level P2P interface class for communicating with a BGL node.
+    """A high-level P2P interface class for communicating with a Bitcoin node.
 
     This class provides high-level callbacks for processing P2P message
     payloads, as well as convenience methods for interacting with the
@@ -926,8 +928,6 @@ class P2PTxInvStore(P2PInterface):
             if (i.type == MSG_TX) or (i.type == MSG_WTX):
                 # save txid
                 self.tx_invs_received[i.hash] += 1
-
-        super().on_inv(message)
 
     def get_invs(self):
         with p2p_lock:

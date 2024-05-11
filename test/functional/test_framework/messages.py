@@ -29,7 +29,7 @@ import socket
 import time
 import unittest
 
-import sha3
+#import sha3  It causes `hashlib.sha3_256(s)` to fail. It injects sha3 module which mangle with that from hashlib
 
 from test_framework.crypto.siphash import siphash256
 from test_framework.util import assert_equal
@@ -82,6 +82,7 @@ DEFAULT_MEMPOOL_EXPIRY_HOURS = 336  # hours
 # Serialization/deserialization tools
 def keccak256(s):
     from sha3 import keccak_256
+    #From pysha3:  pip install pysha3 and not pip install sha3
     #print(dir(sha3))
     h = keccak_256()
     h.update(s)
