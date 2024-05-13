@@ -612,15 +612,13 @@ public:
         // span multiple components.
         auto to_cover = m_todo;
         do {
-            auto component = m_sorted_depgraph.FindConnectedComponent(to_cover);
+            auto component = m_depgraph.FindConnectedComponent(to_cover);
             to_cover -= component;
             // If best is not provided, set it to the first component, so that during the work
             // processing loop below, and during the add_fn/split_fn calls, we do not need to deal
             // with the best=empty case.
-            if (best.feerate.IsEmpty()) best = SetInfo(m_sorted_depgraph, component);
-            queue.emplace_back(/*inc=*/SetInfo<SetType>{},
-                               /*und=*/std::move(component),
-                               /*pot_feerate=*/FeeFrac{});
+            if (best.feerate.IsEmpty()) best = SetInfo(m_depgraph, component);
+            queue.emplace_back(/*inc=*/SetInfo<SetType>{}, /*und=*/std::move(component));
         } while (to_cover.Any());
 
         /** Local copy of the iteration limit. */
@@ -691,9 +689,7 @@ public:
             // space runs out (see below), we know that no reallocation of the queue should ever
             // occur.
             Assume(queue.size() < queue.capacity());
-            queue.emplace_back(/*inc=*/std::move(inc),
-                               /*und=*/std::move(und),
-                               /*pot_feerate=*/std::move(pot.feerate));
+            queue.emplace_back(/*inc=*/std::move(inc), /*und=*/std::move(und));
         };
 
         /** Internal process function. It takes an existing work item, and splits it in two: one
