@@ -164,6 +164,64 @@ class InvalidTxRequestTest(BGLTestFramework):
         with node.assert_debug_log(['not keeping orphan with rejected parents {}'.format(rejected_parent.hash)]):
             node.p2ps[0].send_txs_and_test([rejected_parent], node, success=False)
 
+        self.log.info('Test that a peer disconnection causes erase its transactions from the orphan pool')
+        with node.assert_debug_log(['Erased 100 orphan transaction(s) from peer=25']):
+            self.reconnect_p2p(num_connections=1)
+
+        self.log.info('Test that a transaction in the orphan pool is included in a new tip block causes erase this transaction from the orphan pool')
+        tx_withhold_until_block_A = CTransaction()
+        tx_withhold_until_block_A.vin.append(CTxIn(outpoint=COutPoint(tx_withhold.sha256, 1)))
+        tx_withhold_until_block_A.vout = [CTxOut(nValue=12 * COIN, scriptPubKey=SCRIPT_PUB_KEY_OP_TRUE)] * 2
+        tx_withhold_until_block_A.calc_sha256()
+
+        tx_orphan_include_by_block_A = CTransaction()
+        tx_orphan_include_by_block_A.vin.append(CTxIn(outpoint=COutPoint(tx_withhold_until_block_A.sha256, 0)))
+        tx_orphan_include_by_block_A.vout.append(CTxOut(nValue=12 * COIN - 12000, scriptPubKey=SCRIPT_PUB_KEY_OP_TRUE))
+        tx_orphan_include_by_block_A.calc_sha256()
+
+        self.log.info('Send the orphan ... ')
+        node.p2ps[0].send_txs_and_test([tx_orphan_include_by_block_A], node, success=False)
+
+        tip = int(node.getbestblockhash(), 16)
+        height = node.getblockcount() + 1
+        block_A = create_block(tip, create_coinbase(height))
+        block_A.vtx.extend([tx_withhold, tx_withhold_until_block_A, tx_orphan_include_by_block_A])
+        block_A.hashMerkleRoot = block_A.calc_merkle_root()
+        block_A.solve()
+
+        self.log.info('Send the block that includes the previous orphan ... ')
+        with node.assert_debug_log(["Erased 1 orphan transaction(s) included or conflicted by block"]):
+            node.p2ps[0].send_blocks_and_test([block_A], node, success=True)
+
+        self.log.info('Test that a transaction in the orphan pool conflicts with a new tip block causes erase this transaction from the orphan pool')
+        tx_withhold_until_block_B = CTransaction()
+        tx_withhold_until_block_B.vin.append(CTxIn(outpoint=COutPoint(tx_withhold_until_block_A.sha256, 1)))
+        tx_withhold_until_block_B.vout.append(CTxOut(nValue=11 * COIN, scriptPubKey=SCRIPT_PUB_KEY_OP_TRUE))
+        tx_withhold_until_block_B.calc_sha256()
+
+        tx_orphan_include_by_block_B = CTransaction()
+        tx_orphan_include_by_block_B.vin.append(CTxIn(outpoint=COutPoint(tx_withhold_until_block_B.sha256, 0)))
+        tx_orphan_include_by_block_B.vout.append(CTxOut(nValue=10 * COIN, scriptPubKey=SCRIPT_PUB_KEY_OP_TRUE))
+        tx_orphan_include_by_block_B.calc_sha256()
+
+        tx_orphan_conflict_by_block_B = CTransaction()
+        tx_orphan_conflict_by_block_B.vin.append(CTxIn(outpoint=COutPoint(tx_withhold_until_block_B.sha256, 0)))
+        tx_orphan_conflict_by_block_B.vout.append(CTxOut(nValue=9 * COIN, scriptPubKey=SCRIPT_PUB_KEY_OP_TRUE))
+        tx_orphan_conflict_by_block_B.calc_sha256()
+        self.log.info('Send the orphan ... ')
+        node.p2ps[0].send_txs_and_test([tx_orphan_conflict_by_block_B], node, success=False)
+
+        tip = int(node.getbestblockhash(), 16)
+        height = node.getblockcount() + 1
+        block_B = create_block(tip, create_coinbase(height))
+        block_B.vtx.extend([tx_withhold_until_block_B, tx_orphan_include_by_block_B])
+        block_B.hashMerkleRoot = block_B.calc_merkle_root()
+        block_B.solve()
+
+        self.log.info('Send the block that includes a transaction which conflicts with the previous orphan ... ')
+        with node.assert_debug_log(["Erased 1 orphan transaction(s) included or conflicted by block"]):
+            node.p2ps[0].send_blocks_and_test([block_B], node, success=True)
+
 
 if __name__ == '__main__':
     InvalidTxRequestTest().main()
