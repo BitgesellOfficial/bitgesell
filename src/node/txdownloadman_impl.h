@@ -159,6 +159,26 @@ public:
 
     void ConnectedPeer(NodeId nodeid, const TxDownloadConnectionInfo& info);
     void DisconnectedPeer(NodeId nodeid);
+
+    /** New inv has been received. May be added as a candidate to txrequest. */
+    bool AddTxAnnouncement(NodeId peer, const GenTxid& gtxid, std::chrono::microseconds now, bool p2p_inv);
+
+    /** Get getdata requests to send. */
+    std::vector<GenTxid> GetRequestsToSend(NodeId nodeid, std::chrono::microseconds current_time);
+
+    /** Marks a tx as ReceivedResponse in txrequest. */
+    void ReceivedNotFound(NodeId nodeid, const std::vector<uint256>& txhashes);
+
+    /** Look for a child of this transaction in the orphanage to form a 1-parent-1-child package,
+     * skipping any combinations that have already been tried. Return the resulting package along with
+     * the senders of its respective transactions, or std::nullopt if no package is found. */
+    std::optional<PackageToValidate> Find1P1CPackage(const CTransactionRef& ptx, NodeId nodeid);
+
+    void MempoolAcceptedTx(const CTransactionRef& tx);
+    RejectedTxTodo MempoolRejectedTx(const CTransactionRef& ptx, const TxValidationState& state, NodeId nodeid, bool first_time_failure);
+    void MempoolRejectedPackage(const Package& package);
+
+    std::pair<bool, std::optional<PackageToValidate>> ReceivedTx(NodeId nodeid, const CTransactionRef& ptx);
 };
 } // namespace node
 #endif // BGL_NODE_TXDOWNLOADMAN_IMPL_H
