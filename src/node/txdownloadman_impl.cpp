@@ -33,10 +33,6 @@ CRollingBloomFilter& TxDownloadManager::RecentConfirmedTransactionsFilter()
 {
     m_impl->BlockDisconnected();
 }
-bool TxDownloadManager::AlreadyHaveTx(const GenTxid& gtxid, bool include_reconsiderable)
-{
-    return m_impl->AlreadyHaveTx(gtxid, include_reconsiderable);
-}
 void TxDownloadManager::ConnectedPeer(NodeId nodeid, const TxDownloadConnectionInfo& info)
 {
     m_impl->ConnectedPeer(nodeid, info);
@@ -56,10 +52,6 @@ std::vector<GenTxid> TxDownloadManager::GetRequestsToSend(NodeId nodeid, std::ch
 void TxDownloadManager::ReceivedNotFound(NodeId nodeid, const std::vector<uint256>& txhashes)
 {
     m_impl->ReceivedNotFound(nodeid, txhashes);
-}
-std::optional<PackageToValidate> TxDownloadManager::Find1P1CPackage(const CTransactionRef& ptx, NodeId nodeid)
-{
-    return m_impl->Find1P1CPackage(ptx, nodeid);
 }
 void TxDownloadManager::MempoolAcceptedTx(const CTransactionRef& tx)
 {

@@ -134,6 +134,13 @@ public:
     void BlockConnected(const std::shared_ptr<const CBlock>& pblock);
     void BlockDisconnected();
 
+    /** Check whether we already have this gtxid in:
+     *  - mempool
+     *  - orphanage
+     *  - m_recent_rejects
+     *  - m_recent_rejects_reconsiderable (if include_reconsiderable = true)
+     *  - m_recent_confirmed_transactions
+     *  */
     bool AlreadyHaveTx(const GenTxid& gtxid, bool include_reconsiderable);
 
     void ConnectedPeer(NodeId nodeid, const TxDownloadConnectionInfo& info);
