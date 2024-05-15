@@ -166,6 +166,66 @@ public:
         for (auto pos : elems) ret += entries[pos].feerate;
         return ret;
     }
+
+    /** Find some connected component within the subset "todo" of this graph.
+     *
+     * Specifically, this finds the connected component which contains the first transaction of
+     * todo (if any).
+     *
+     * Two transactions are considered connected if they are both in `todo`, and one is an ancestor
+     * of the other in the entire graph (so not just within `todo`), or transitively there is a
+     * path of transactions connecting them. This does mean that if `todo` contains a transaction
+     * and a grandparent, but misses the parent, they will still be part of the same component.
+     *
+     * Complexity: O(ret.Count()).
+     */
+    SetType FindConnectedComponent(const SetType& todo) const noexcept
+    {
+        if (todo.None()) return todo;
+        auto to_add = SetType::Singleton(todo.First());
+        SetType ret;
+        do {
+            SetType old = ret;
+            for (auto add : to_add) {
+                ret |= Descendants(add);
+                ret |= Ancestors(add);
+            }
+            ret &= todo;
+            to_add = ret - old;
+        } while (to_add.Any());
+        return ret;
+    }
+
+    /** Determine if a subset is connected.
+     *
+     * Complexity: O(subset.Count()).
+     */
+    bool IsConnected(const SetType& subset) const noexcept
+    {
+        return FindConnectedComponent(subset) == subset;
+    }
+
+    /** Determine if this entire graph is connected.
+     *
+     * Complexity: O(TxCount()).
+     */
+    bool IsConnected() const noexcept { return IsConnected(SetType::Fill(TxCount())); }
+
+    /** Append the entries of select to list in a topologically valid order.
+     *
+     * Complexity: O(select.Count() * log(select.Count())).
+     */
+    void AppendTopo(std::vector<ClusterIndex>& list, const SetType& select) const noexcept
+    {
+        ClusterIndex old_len = list.size();
+        for (auto i : select) list.push_back(i);
+        std::sort(list.begin() + old_len, list.end(), [&](ClusterIndex a, ClusterIndex b) noexcept {
+            const auto a_anc_count = entries[a].ancestors.Count();
+            const auto b_anc_count = entries[b].ancestors.Count();
+            if (a_anc_count != b_anc_count) return a_anc_count < b_anc_count;
+            return a < b;
+        });
+    }
 };
 
 /** A set of transactions together with their aggregate feerate. */
