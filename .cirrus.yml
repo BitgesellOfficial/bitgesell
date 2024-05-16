@@ -1,13 +1,34 @@
 env:
   ### cirrus config
   CIRRUS_CLONE_DEPTH: 1
-  PACKAGE_MANAGER_INSTALL: "apt-get update && apt-get install -y"
-  MAKEJOBS: "-j10"
-  TEST_RUNNER_PORT_MIN: "14000"  # Must be larger than 12321, which is used for the http cache. See https://cirrus-ci.org/guide/writing-tasks/#http-cache
-  CI_FAILFAST_TEST_LEAVE_DANGLING: "1"  # Cirrus CI does not care about dangling processes and setting this variable avoids killing the CI script itself on error
-  CCACHE_MAXSIZE: "200M"
-  CCACHE_DIR: "/tmp/ccache_dir"
-  CCACHE_NOHASHDIR: "1"  # Debug info might contain a stale path if the build dir changes, but this is fine
+  ### compiler options
+  HOST:
+  WRAPPER_CMD:
+  # Specific warnings can be disabled with -Wno-error=foo.
+  # -pedantic-errors is not equivalent to -Werror=pedantic and thus not implied by -Werror according to the GCC manual.
+  WERROR_CFLAGS: -Werror -pedantic-errors
+  MAKEFLAGS: -j4
+  BUILD: check
+  ### secp256k1 config
+  ECMULTWINDOW: auto
+  ECMULTGENKB: auto
+  ASM: no
+  WIDEMUL: auto
+  WITH_VALGRIND: yes
+  EXTRAFLAGS:
+  ### secp256k1 modules
+  EXPERIMENTAL: no
+  ECDH: no
+  RECOVERY: no
+  SCHNORRSIG: no
+  ELLSWIFT: no
+  ### test options
+  SECP256K1_TEST_ITERS:
+  BENCH: yes
+  SECP256K1_BENCH_ITERS: 2
+  CTIMETESTS: yes
+  # Compile and run the tests
+  EXAMPLES: yes
 
 # https://cirrus-ci.org/guide/persistent-workers/
 #

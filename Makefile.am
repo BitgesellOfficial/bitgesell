@@ -2,14 +2,89 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-# Pattern rule to print variables, e.g. make print-top_srcdir
-print-%: FORCE
-	@echo '$*'='$($*)'
+# AM_CFLAGS will be automatically prepended to CFLAGS by Automake when compiling some foo
+# which does not have an explicit foo_CFLAGS variable set.
+AM_CFLAGS = $(SECP_CFLAGS)
 
-ACLOCAL_AMFLAGS = -I build-aux/m4
-SUBDIRS = src
-if ENABLE_MAN
-SUBDIRS += doc/man
+lib_LTLIBRARIES = libsecp256k1.la
+include_HEADERS = include/secp256k1.h
+include_HEADERS += include/secp256k1_preallocated.h
+noinst_HEADERS =
+noinst_HEADERS += src/scalar.h
+noinst_HEADERS += src/scalar_4x64.h
+noinst_HEADERS += src/scalar_8x32.h
+noinst_HEADERS += src/scalar_low.h
+noinst_HEADERS += src/scalar_impl.h
+noinst_HEADERS += src/scalar_4x64_impl.h
+noinst_HEADERS += src/scalar_8x32_impl.h
+noinst_HEADERS += src/scalar_low_impl.h
+noinst_HEADERS += src/group.h
+noinst_HEADERS += src/group_impl.h
+noinst_HEADERS += src/ecdsa.h
+noinst_HEADERS += src/ecdsa_impl.h
+noinst_HEADERS += src/eckey.h
+noinst_HEADERS += src/eckey_impl.h
+noinst_HEADERS += src/ecmult.h
+noinst_HEADERS += src/ecmult_impl.h
+noinst_HEADERS += src/ecmult_compute_table.h
+noinst_HEADERS += src/ecmult_compute_table_impl.h
+noinst_HEADERS += src/ecmult_const.h
+noinst_HEADERS += src/ecmult_const_impl.h
+noinst_HEADERS += src/ecmult_gen.h
+noinst_HEADERS += src/ecmult_gen_impl.h
+noinst_HEADERS += src/ecmult_gen_compute_table.h
+noinst_HEADERS += src/ecmult_gen_compute_table_impl.h
+noinst_HEADERS += src/field_10x26.h
+noinst_HEADERS += src/field_10x26_impl.h
+noinst_HEADERS += src/field_5x52.h
+noinst_HEADERS += src/field_5x52_impl.h
+noinst_HEADERS += src/field_5x52_int128_impl.h
+noinst_HEADERS += src/modinv32.h
+noinst_HEADERS += src/modinv32_impl.h
+noinst_HEADERS += src/modinv64.h
+noinst_HEADERS += src/modinv64_impl.h
+noinst_HEADERS += src/precomputed_ecmult.h
+noinst_HEADERS += src/precomputed_ecmult_gen.h
+noinst_HEADERS += src/assumptions.h
+noinst_HEADERS += src/checkmem.h
+noinst_HEADERS += src/testutil.h
+noinst_HEADERS += src/util.h
+noinst_HEADERS += src/int128.h
+noinst_HEADERS += src/int128_impl.h
+noinst_HEADERS += src/int128_native.h
+noinst_HEADERS += src/int128_native_impl.h
+noinst_HEADERS += src/int128_struct.h
+noinst_HEADERS += src/int128_struct_impl.h
+noinst_HEADERS += src/scratch.h
+noinst_HEADERS += src/scratch_impl.h
+noinst_HEADERS += src/selftest.h
+noinst_HEADERS += src/testrand.h
+noinst_HEADERS += src/testrand_impl.h
+noinst_HEADERS += src/hash.h
+noinst_HEADERS += src/hash_impl.h
+noinst_HEADERS += src/field.h
+noinst_HEADERS += src/field_impl.h
+noinst_HEADERS += src/bench.h
+noinst_HEADERS += src/wycheproof/ecdsa_secp256k1_sha256_bitcoin_test.h
+noinst_HEADERS += src/hsort.h
+noinst_HEADERS += src/hsort_impl.h
+noinst_HEADERS += contrib/lax_der_parsing.h
+noinst_HEADERS += contrib/lax_der_parsing.c
+noinst_HEADERS += contrib/lax_der_privatekey_parsing.h
+noinst_HEADERS += contrib/lax_der_privatekey_parsing.c
+noinst_HEADERS += examples/examples_util.h
+
+PRECOMPUTED_LIB = libsecp256k1_precomputed.la
+noinst_LTLIBRARIES = $(PRECOMPUTED_LIB)
+libsecp256k1_precomputed_la_SOURCES =  src/precomputed_ecmult.c src/precomputed_ecmult_gen.c
+# We need `-I$(top_srcdir)/src` in VPATH builds if libsecp256k1_precomputed_la_SOURCES have been recreated in the build tree.
+# This helps users and packagers who insist on recreating the precomputed files (e.g., Gentoo).
+libsecp256k1_precomputed_la_CPPFLAGS = -I$(top_srcdir)/src $(SECP_CONFIG_DEFINES)
+
+if USE_EXTERNAL_ASM
+COMMON_LIB = libsecp256k1_common.la
+else
+COMMON_LIB =
 endif
 .PHONY: deploy FORCE
 .INTERMEDIATE: $(COVERAGE_INFO)
