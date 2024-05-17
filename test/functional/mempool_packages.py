@@ -34,10 +34,8 @@ class MempoolPackagesTest(BGLTestFramework):
         self.noban_tx_relay = True
         self.extra_args = [
             [
-                "-maxorphantx=1000",
             ],
             [
-                "-maxorphantx=1000",
                 "-limitancestorcount={}".format(CUSTOM_ANCESTOR_LIMIT),
                 "-limitdescendantcount={}".format(CUSTOM_DESCENDANT_LIMIT),
             ],
