@@ -24,6 +24,8 @@
 #include <util/string.h>
 #include <util/translation.h>
 
+#include <algorithm>
+#include <iterator>
 #include <string_view>
 #include <tuple>
 
@@ -728,6 +730,16 @@ std::vector<std::pair<std::string, bool>> RPCHelpMan::GetArgNames() const
     return ret;
 }
 
+size_t RPCHelpMan::GetParamIndex(std::string_view key) const
+{
+    auto it{std::find_if(
+        m_args.begin(), m_args.end(), [&key](const auto& arg) { return arg.GetName() == key;}
+    )};
+
+    CHECK_NONFATAL(it != m_args.end());  // TODO: ideally this is checked at compile time
+    return std::distance(m_args.begin(), it);
+}
+
 std::string RPCHelpMan::ToString() const
 {
     std::string ret;
@@ -1207,10 +1219,9 @@ std::string RPCArg::ToString(const bool oneline) const
     if (oneline && !m_opts.oneline_description.empty()) {
         if (m_opts.oneline_description[0] == '\"' && m_type != Type::STR_HEX && m_type != Type::STR && gArgs.GetBoolArg("-rpcdoccheck", DEFAULT_RPC_DOC_CHECK)) {
             throw std::runtime_error{
-                strprintf("Internal bug detected: non-string RPC arg \"%s\" quotes oneline_description:\n%s\n%s %s\nPlease report this issue here: %s\n",
-                          m_names, m_opts.oneline_description,
-                          PACKAGE_NAME, FormatFullVersion(),
-                          PACKAGE_BUGREPORT)};
+                STR_INTERNAL_BUG(strprintf("non-string RPC arg \"%s\" quotes oneline_description:\n%s",
+                    m_names, m_opts.oneline_description)
+                )};
         }
         return m_opts.oneline_description;
     }
