@@ -74,6 +74,9 @@ public:
         ::Unserialize(s, Using<TxOutCompression>(out));
     }
 
+    /** Either this coin never existed (see e.g. coinEmpty in coins.cpp), or it
+      * did exist and has been spent.
+      */
     bool IsSpent() const {
         return out.IsNull();
     }
@@ -379,6 +382,7 @@ public:
     }
 
     bool GetCoin(const COutPoint &outpoint, Coin &coin) const override;
+    bool HaveCoin(const COutPoint &outpoint) const override;
 
 private:
     /** A list of callbacks to execute upon leveldb read error. */
