@@ -9,7 +9,7 @@ Homepage: https://github.com/wu-emma/bitgesell
 Package: bitgesell-qt
 Architecture: any
 Depends: libc6 (>= 2.27), libstdc++6 (>= 8.4.0), libbz2-1.0 (>= 1.0.6), liblzma5 (>= 5.2.2), zlib1g (>= 1:1.1.4),
- libqt5core5a (>= 5.9.5), libqt5dbus5 (>= 5.9.5), libqt5network5 (>= 5.9.5), libqt5gui5 (>= 5.9.5), libqrencode-dev,
+ libqt5core5a (>= 5.9.5), libqt5dbus5 (>= 5.9.5), libqt5network5 (>= 5.9.5), libqt5gui5 (>= 5.9.5), libqrencode-dev, libsqlite3-dev,
  openssl, perl-modules-5.26 | perl-modules-5.28 | perl-modules-5.30, ${misc:Depends}
 Description: BGL is an experimental digital currency that enables instant payments to anyone, anywhere in the world
  BGL is an experimental digital currency that enables instant payments to anyone,
@@ -20,7 +20,7 @@ Description: BGL is an experimental digital currency that enables instant paymen
 Package: bitgesell-qt-dbg
 Architecture: any
 Depends: libc6 (>= 2.27), libstdc++6 (>= 8.4.0), libbz2-1.0 (>= 1.0.6), liblzma5 (>= 5.2.2), zlib1g (>= 1:1.1.4),
- libqt5core5a (>= 5.9.5), libqt5dbus5 (>= 5.9.5), libqt5network5 (>= 5.9.5), libqt5gui5 (>= 5.9.5), libqrencode-dev,
+ libqt5core5a (>= 5.9.5), libqt5dbus5 (>= 5.9.5), libqt5network5 (>= 5.9.5), libqt5gui5 (>= 5.9.5), libqrencode-dev, libsqlite3-dev,
  openssl, ${misc:Depends}
 Description: BGL is an experimental digital currency that enables instant payments to anyone, anywhere in the world
  BGL is an experimental digital currency that enables instant payments to anyone,

@@ -15,6 +15,7 @@ trap finish EXIT
 
 docker exec $container apt-get -y update
 docker exec $container apt-get -y install apt-utils devscripts sudo #dpkg-dev
+docker exec $container apt-get -y install libsqlite3-dev
 docker exec $container mkdir -p /root/repo
 docker exec $container useradd user
 docker exec $container mkdir /home/user

@@ -17,7 +17,7 @@ trap finish EXIT
 #docker exec $container /root/updateunattended.sh
 docker exec $container apt-get update
 docker exec $container apt-get -y install apt-utils devscripts sudo #dpkg-dev
-docker exec $container apt-get -y install libqrencode-dev qttools5-dev qttools5-dev-tools
+docker exec $container apt-get -y install libqrencode-dev qttools5-dev qttools5-dev-tools libsqlite3-dev
 docker exec $container mkdir -p /root/repo
 docker exec $container useradd user
 docker exec $container mkdir /home/user
