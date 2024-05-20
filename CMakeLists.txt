@@ -67,6 +67,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 #=============================
 # When adding a new option, end the <help_text> with a full stop for consistency.
 option(BUILD_DAEMON "Build BGLd executable." ON)
+option(BUILD_CLI "Build BGL-cli executable." ON)
 
 option(WITH_CCACHE "Attempt to use ccache for compiling." ON)
 
@@ -194,7 +195,7 @@ target_link_libraries(core_interface INTERFACE
 include(AddBoostIfNeeded)
 add_boost_if_needed()
 
-if(BUILD_DAEMON)
+if(BUILD_DAEMON OR BUILD_CLI)
   find_package(Libevent 2.1.8 MODULE REQUIRED)
 endif()
 
@@ -232,6 +233,7 @@ message("Configure summary")
 message("=================")
 message("Executables:")
 message("  BGLd ............................ ${BUILD_DAEMON}")
+message("  BGL-cli ......................... ${BUILD_CLI}")
 message("")
 message("C++ compiler .......................... ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, ${CMAKE_CXX_COMPILER}")
 include(FlagsSummary)
