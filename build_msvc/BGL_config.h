@@ -15,7 +15,7 @@
 #define CLIENT_VERSION_MAJOR 1
 
 /* Minor version */
-#define CLIENT_VERSION_MINOR 11
+#define CLIENT_VERSION_MINOR 12
 
 /* Copyright holder(s) before %s replacement */
 #define COPYRIGHT_HOLDERS "The %s developers"
@@ -180,13 +180,13 @@
 #define PACKAGE_NAME "Bitgesell Core"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "Bitgesell Core 0.1.11"
+#define PACKAGE_STRING "Bitgesell Core 0.1.12"
 
 /* Define to the home page for this package. */
 #define PACKAGE_URL "https://bitgesell.ca/"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.1.11"
+#define PACKAGE_VERSION "0.1.12"
 
 /* Define this symbol if the minimal qt platform exists */
 #define QT_QPA_PLATFORM_MINIMAL 1
