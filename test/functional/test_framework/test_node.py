@@ -253,8 +253,8 @@ class TestNode():
         if self.start_perf:
             self._start_perf()
 
-    def wait_for_rpc_connection(self):
-        """Sets up an RPC connection to the BGLd process. Returns False if unable to connect."""
+    def wait_for_rpc_connection(self, *, wait_for_import=True):
+        """Sets up an RPC connection to the bitcoind process. Returns False if unable to connect."""
         # Poll at a rate of four times per second
         poll_per_s = 4
         for _ in range(poll_per_s * self.rpc_timeout):
@@ -275,7 +275,7 @@ class TestNode():
                 )
                 rpc.getblockcount()
                 # If the call to getblockcount() succeeds then the RPC connection is up
-                if self.version_is_at_least(190000):
+                if self.version_is_at_least(190000) and wait_for_import:
                     # getmempoolinfo.loaded is available since commit
                     # bb8ae2c (version 0.19.0)
                     self.wait_until(lambda: rpc.getmempoolinfo()['loaded'])
