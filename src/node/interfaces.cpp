@@ -847,6 +847,24 @@ public:
         return chainman().GetParams().IsTestChain();
     }
 
+    uint256 getTipHash() override
+    {
+        LOCK(::cs_main);
+        CBlockIndex* tip{chainman().ActiveChain().Tip()};
+        if (!tip) return uint256{0};
+        return tip->GetBlockHash();
+    }
+
+    bool processNewBlock(const std::shared_ptr<const CBlock>& block, bool* new_block) override
+    {
+        return chainman().ProcessNewBlock(block, /*force_processing=*/true, /*min_pow_checked=*/true, /*new_block=*/new_block);
+    }
+
+    unsigned int getTransactionsUpdated() override
+    {
+        return context()->mempool->GetTransactionsUpdated();
+    }
+
     bool testBlockValidity(BlockValidationState& state, const CBlock& block, bool check_merkle_root) override
     {
         LOCK(::cs_main);
