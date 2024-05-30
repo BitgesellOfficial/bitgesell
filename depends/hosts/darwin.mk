@@ -63,11 +63,6 @@ endif
 #         Ensures that modern linker features are enabled. See here for more
 #         details: https://github.com/bitcoin/bitcoin/pull/19407.
 #
-#     -B$(build_prefix)/bin
-#
-#         Explicitly point to our binaries so that they are
-#         ensured to be found and preferred over other possibilities.
-#
 #     -isysroot$(OSX_SDK) -nostdlibinc
 #
 #         Disable default include paths built into the compiler as well as
@@ -92,7 +87,6 @@ darwin_CC=env -u C_INCLUDE_PATH -u CPLUS_INCLUDE_PATH \
               -u OBJC_INCLUDE_PATH -u OBJCPLUS_INCLUDE_PATH -u CPATH \
               -u LIBRARY_PATH \
               $(clang_prog) --target=$(host) \
-              -B$(build_prefix)/bin \
               -isysroot$(OSX_SDK) -nostdlibinc \
               -iwithsysroot/usr/include -iframeworkwithsysroot/System/Library/Frameworks
 
@@ -100,7 +94,6 @@ darwin_CXX=env -u C_INCLUDE_PATH -u CPLUS_INCLUDE_PATH \
                -u OBJC_INCLUDE_PATH -u OBJCPLUS_INCLUDE_PATH -u CPATH \
                -u LIBRARY_PATH \
                $(clangxx_prog) --target=$(host) \
-               -B$(build_prefix)/bin \
                -isysroot$(OSX_SDK) -nostdlibinc \
                -iwithsysroot/usr/include/c++/v1 \
                -iwithsysroot/usr/include -iframeworkwithsysroot/System/Library/Frameworks
