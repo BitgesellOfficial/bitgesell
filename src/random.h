@@ -183,31 +183,21 @@ private:
      */
     RandomNumberGenerator auto& Impl() noexcept { return static_cast<T&>(*this); }
 
-    void FillBitBuffer() noexcept
+protected:
+    constexpr void FlushCache() noexcept
     {
-        bitbuf = Impl().rand64();
-        bitbuf_size = 64;
+        bitbuf = 0;
+        bitbuf_size = 0;
     }
 
 public:
-    RandomMixin() noexcept = default;
+    constexpr RandomMixin() noexcept = default;
 
-    // Do not permit copying an RNG.
+    // Do not permit copying or moving an RNG.
     RandomMixin(const RandomMixin&) = delete;
     RandomMixin& operator=(const RandomMixin&) = delete;
-
-    RandomMixin(RandomMixin&& other) noexcept : bitbuf(other.bitbuf), bitbuf_size(other.bitbuf_size)
-    {
-        other.bitbuf_size = 0;
-    }
-
-    RandomMixin& operator=(RandomMixin&& other) noexcept
-    {
-        bitbuf = other.bitbuf;
-        bitbuf_size = other.bitbuf_size;
-        other.bitbuf_size = 0;
-        return *this;
-    }
+    RandomMixin(RandomMixin&&) = delete;
+    RandomMixin& operator=(RandomMixin&&) = delete;
 
     /** Generate a random (bits)-bit integer. */
     uint64_t randbits(int bits) noexcept
@@ -368,13 +358,8 @@ public:
     /** Initialize with explicit seed (only for testing) */
     explicit FastRandomContext(const uint256& seed) noexcept;
 
-    // Do not permit copying a FastRandomContext (move it, or create a new one to get reseeded).
-    FastRandomContext(const FastRandomContext&) = delete;
-    FastRandomContext(FastRandomContext&&) = delete;
-    FastRandomContext& operator=(const FastRandomContext&) = delete;
-
-    /** Move a FastRandomContext. If the original one is used again, it will be reseeded. */
-    FastRandomContext& operator=(FastRandomContext&& from) noexcept;
+    /** Reseed with explicit seed (only for testing). */
+    void Reseed(const uint256& seed) noexcept;
 
     /** Generate a random 64-bit integer. */
     uint64_t rand64() noexcept
@@ -414,14 +399,12 @@ public:
     constexpr explicit InsecureRandomContext(uint64_t seedval) noexcept
         : m_s0(SplitMix64(seedval)), m_s1(SplitMix64(seedval)) {}
 
-    // no copy - that is dangerous, we don't want accidentally copy the RNG and then have two streams
-    // with exactly the same results.
-    InsecureRandomContext(const InsecureRandomContext&) = delete;
-    InsecureRandomContext& operator=(const InsecureRandomContext&) = delete;
-
-    // allow moves
-    InsecureRandomContext(InsecureRandomContext&&) = default;
-    InsecureRandomContext& operator=(InsecureRandomContext&&) = default;
+    constexpr void Reseed(uint64_t seedval) noexcept
+    {
+        FlushCache();
+        m_s0 = SplitMix64(seedval);
+        m_s1 = SplitMix64(seedval);
+    }
 
     constexpr uint64_t rand64() noexcept
     {
