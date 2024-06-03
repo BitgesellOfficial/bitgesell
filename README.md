@@ -8,7 +8,7 @@
   <h3 align="center">Bitgesell (BGL)</h3>
 
   <p align="center">
-    Bitgesell (BGL) is an experimental digital currency
+    Bitgesell (BGL) is a digital currency
     <br />
     <a href="https://bitgesell.ca/"><strong>Explore more about project »</strong></a>
     <br />
