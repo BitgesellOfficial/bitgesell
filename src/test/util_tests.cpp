@@ -1494,8 +1494,10 @@ struct Tracker
     Tracker(Tracker&& t) noexcept : origin(t.origin), copies(t.copies) {}
     Tracker& operator=(const Tracker& t) noexcept
     {
-        origin = t.origin;
-        copies = t.copies + 1;
+        if (this != &t) {
+            origin = t.origin;
+            copies = t.copies + 1;
+        }
         return *this;
     }
     Tracker& operator=(Tracker&& t) noexcept
