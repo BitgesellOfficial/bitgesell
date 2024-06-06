@@ -12,7 +12,7 @@
     <ClCompile Include="..\..\src\secp256k1\src\precomputed_ecmult_gen.c" />
     <ClCompile Include="..\..\src\secp256k1\src\secp256k1.c" />
   </ItemGroup>
-    <ItemDefinitionGroup>
+  <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>ENABLE_MODULE_RECOVERY;ENABLE_MODULE_EXTRAKEYS;ENABLE_MODULE_SCHNORRSIG;ENABLE_MODULE_ELLSWIFT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UndefinePreprocessorDefinitions>USE_ASM_X86_64;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>

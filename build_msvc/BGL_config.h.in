@@ -21,10 +21,10 @@
 #define COPYRIGHT_HOLDERS "The %s developers"
 
 /* Copyright holder(s) */
-#define COPYRIGHT_HOLDERS_FINAL "The Bitcoin Core developers"
+#define COPYRIGHT_HOLDERS_FINAL "The Bitgesell Core developers"
 
 /* Replacement for %s in copyright holders string */
-#define COPYRIGHT_HOLDERS_SUBSTITUTION "Bitcoin Core"
+#define COPYRIGHT_HOLDERS_SUBSTITUTION "Bitgesell Core"
 
 /* Copyright year */
 #define COPYRIGHT_YEAR $
@@ -53,7 +53,7 @@
 #define HAVE_DLLEXPORT_ATTRIBUTE 1
 
 /* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "https://github.com/bitcoin/bitcoin/issues"
+#define PACKAGE_BUGREPORT "https://github.com/bitgesellofficial/bitgesell/issues"
 
 /* Define to the full name of this package. */
 #define PACKAGE_NAME "Bitgesell Core"
