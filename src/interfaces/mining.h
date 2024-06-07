@@ -5,6 +5,9 @@
 #ifndef BGL_INTERFACES_MINING_H
 #define BGL_INTERFACES_MINING_H
 
+#include <optional>
+#include <uint256.h>
+
 namespace node {
 struct NodeContext;
 } // namespace node
@@ -25,8 +28,8 @@ public:
     //! If this chain is exclusively used for testing
     virtual bool isTestChain() = 0;
 
-    //! Returns the hash for the tip of this chain, 0 if none
-    virtual uint256 getTipHash() = 0;
+    //! Returns the hash for the tip of this chain
+    virtual std::optional<uint256> getTipHash() = 0;
 
    /**
      * Construct a new block template
