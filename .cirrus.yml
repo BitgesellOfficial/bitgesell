@@ -65,7 +65,6 @@ env:
 # The following specific types should exist, with the following requirements:
 # - small: For an x86_64 machine, recommended to have 2 CPUs and 8 GB of memory.
 # - medium: For an x86_64 machine, recommended to have 4 CPUs and 16 GB of memory.
-# - noble: For a machine running the Linux kernel shipped with exaclty Ubuntu Noble 24.04. The machine is recommended to have 4 CPUs and 16 GB of memory.
 # - arm64: For an aarch64 machine, recommended to have 2 CPUs and 8 GB of memory.
 
 # https://cirrus-ci.org/guide/tips-and-tricks/#sharing-configuration-between-tasks
@@ -215,14 +214,53 @@ task:
     labels:
       type: small
   env:
-    EXEC_CMD: wine
-    EXEC_EXT: .exe
-    HOST: x86_64-w64-mingw32
-    BUILD:
-  << : *MERGE_BASE
-  test_script:
-    - ./ci/cirrus.sh
-  << : *CAT_LOGS
+    FILE_ENV: "./ci/test/00_setup_env_native_previous_releases.sh"
+
+task:
+  name: 'TSan, depends, gui'
+  << : *GLOBAL_TASK_TEMPLATE
+  persistent_worker:
+    labels:
+      type: medium
+  env:
+    FILE_ENV: "./ci/test/00_setup_env_native_tsan.sh"
+
+task:
+  name: 'MSan, depends'
+  << : *GLOBAL_TASK_TEMPLATE
+  persistent_worker:
+    labels:
+      type: small
+  timeout_in: 300m  # Use longer timeout for the *rare* case where a full build (llvm + msan + depends + ...) needs to be done.
+  env:
+    FILE_ENV: "./ci/test/00_setup_env_native_msan.sh"
+
+task:
+  name: 'fuzzer,address,undefined,integer, no depends'
+  << : *GLOBAL_TASK_TEMPLATE
+  persistent_worker:
+    labels:
+      type: medium
+  env:
+    FILE_ENV: "./ci/test/00_setup_env_native_fuzz.sh"
+
+task:
+  name: 'multiprocess, i686, DEBUG'
+  << : *GLOBAL_TASK_TEMPLATE
+  persistent_worker:
+    labels:
+      type: medium
+  env:
+    FILE_ENV: "./ci/test/00_setup_env_i686_multiprocess.sh"
+
+task:
+  name: 'no wallet, libbitcoinkernel'
+  << : *GLOBAL_TASK_TEMPLATE
+  persistent_worker:
+    labels:
+      type: small
+  env:
+    FILE_ENV: "./ci/test/00_setup_env_native_nowallet_libbitcoinkernel.sh"
 
 task:
   name: 'macOS-cross, gui, no tests'

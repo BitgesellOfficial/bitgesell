@@ -12,34 +12,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  ### compiler options
-  HOST:
-  WRAPPER_CMD:
-  # Specific warnings can be disabled with -Wno-error=foo.
-  # -pedantic-errors is not equivalent to -Werror=pedantic and thus not implied by -Werror according to the GCC manual.
-  WERROR_CFLAGS: '-Werror -pedantic-errors'
-  MAKEFLAGS: '-j4'
-  BUILD: 'check'
-  ### secp256k1 config
-  ECMULTWINDOW: 'auto'
-  ECMULTGENKB: 'auto'
-  ASM: 'no'
-  WIDEMUL: 'auto'
-  WITH_VALGRIND: 'yes'
-  EXTRAFLAGS:
-  ### secp256k1 modules
-  EXPERIMENTAL: 'no'
-  ECDH: 'no'
-  RECOVERY: 'no'
-  SCHNORRSIG: 'no'
-  ELLSWIFT: 'no'
-  ### test options
-  SECP256K1_TEST_ITERS:
-  BENCH: 'yes'
-  SECP256K1_BENCH_ITERS: 2
-  CTIMETESTS: 'yes'
-  # Compile and run the examples.
-  EXAMPLES: 'yes'
+  CI_FAILFAST_TEST_LEAVE_DANGLING: 1  # GHA does not care about dangling processes and setting this variable avoids killing the CI script itself on error
+  MAKEJOBS: '-j10'
 
 jobs:
   test-each-commit:
@@ -132,7 +106,9 @@ jobs:
           - 'clang-snapshot'
 
     env:
-      CC: ${{ matrix.cc }}
+      DANGER_RUN_CI_ON_HOST: 1
+      FILE_ENV: './ci/test/00_setup_env_mac_native.sh'
+      BASE_ROOT_DIR: ${{ github.workspace }}
 
     steps:
       - name: Checkout
@@ -795,3 +771,43 @@ jobs:
           BITCOINFUZZ: "${{ github.workspace}}\\src\\fuzz.exe"
         shell: cmd
         run: py -3 test\fuzz\test_runner.py --par %NUMBER_OF_PROCESSORS% --loglevel DEBUG %RUNNER_TEMP%\qa-assets\fuzz_seed_corpus
+
+  asan-lsan-ubsan-integer-no-depends-usdt:
+    name: 'ASan + LSan + UBSan + integer, no depends, USDT'
+    runs-on: ubuntu-24.04 # has to match container in ci/test/00_setup_env_native_asan.sh for tracing tools
+    # No need to run on the read-only mirror, unless it is a PR.
+    if: github.repository != 'bitcoin-core/gui' || github.event_name == 'pull_request'
+    timeout-minutes: 120
+    env:
+      FILE_ENV: "./ci/test/00_setup_env_native_asan.sh"
+      INSTALL_BCC_TRACING_TOOLS: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set Ccache directory
+        run: echo "CCACHE_DIR=${RUNNER_TEMP}/ccache_dir" >> "$GITHUB_ENV"
+
+      - name: Restore Ccache cache
+        id: ccache-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ github.job }}-ccache-${{ github.run_id }}
+          restore-keys: ${{ github.job }}-ccache-
+
+      - name: Enable bpfcc script
+        # In the image build step, no external environment variables are available,
+        # so any settings will need to be written to the settings env file:
+        run: sed -i "s|\${INSTALL_BCC_TRACING_TOOLS}|true|g" ./ci/test/00_setup_env_native_asan.sh
+
+      - name: CI script
+        run: ./ci/test_run_all.sh
+
+      - name: Save Ccache cache
+        uses: actions/cache/save@v4
+        if: github.event_name != 'pull_request' && steps.ccache-cache.outputs.cache-hit != 'true'
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          # https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
+          key: ${{ github.job }}-ccache-${{ github.run_id }}
