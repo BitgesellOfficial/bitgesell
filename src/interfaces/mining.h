@@ -5,16 +5,9 @@
 #ifndef BGL_INTERFACES_MINING_H
 #define BGL_INTERFACES_MINING_H
 
-#include <uint256.h>
-
 namespace node {
-struct CBlockTemplate;
 struct NodeContext;
 } // namespace node
-
-class BlockValidationState;
-class CBlock;
-class CScript;
 
 namespace interfaces {
 
@@ -28,30 +21,6 @@ public:
 
     //! If this chain is exclusively used for testing
     virtual bool isTestChain() = 0;
-
-    //! Returns the hash for the tip of this chain, 0 if none
-    virtual uint256 getTipHash() = 0;
-
-   /**
-     * Construct a new block template
-     *
-     * @param[in] script_pub_key the coinbase output
-     * @param[in] use_mempool set false to omit mempool transactions
-     * @returns a block template
-     */
-    virtual std::unique_ptr<node::CBlockTemplate> createNewBlock(const CScript& script_pub_key, bool use_mempool = true) = 0;
-
-    /**
-     * Check a block is completely valid from start to finish.
-     * Only works on top of our current best block.
-     * Does not check proof-of-work.
-     *
-     * @param[out] state details of why a block failed to validate
-     * @param[in] block the block to validate
-     * @param[in] check_merkle_root call CheckMerkleRoot()
-     * @returns false if any of the checks fail
-     */
-    virtual bool testBlockValidity(BlockValidationState& state, const CBlock& block, bool check_merkle_root = true) = 0;
 
     //! Get internal node context. Useful for RPC and testing,
     //! but not accessible across processes.

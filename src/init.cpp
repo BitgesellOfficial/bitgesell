@@ -31,6 +31,7 @@
 #include <init/common.h>
 #include <interfaces/chain.h>
 #include <interfaces/init.h>
+#include <interfaces/mining.h>
 #include <interfaces/node.h>
 #include <kernel/context.h>
 #include <key.h>
@@ -1115,6 +1116,7 @@ bool AppInitLockDataDirectory()
 bool AppInitInterfaces(NodeContext& node)
 {
     node.chain = node.init->makeChain();
+    node.mining = node.init->makeMining();
     return true;
 }
 

@@ -174,6 +174,7 @@ BGL_CORE_H = \
   interfaces/handler.h \
   interfaces/init.h \
   interfaces/ipc.h \
+  interfaces/mining.h \
   interfaces/node.h \
   interfaces/wallet.h \
   kernel/blockmanager_opts.h \

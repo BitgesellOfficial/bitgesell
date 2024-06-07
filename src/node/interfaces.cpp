@@ -14,6 +14,7 @@
 #include <init.h>
 #include <interfaces/chain.h>
 #include <interfaces/handler.h>
+#include <interfaces/mining.h>
 #include <interfaces/node.h>
 #include <interfaces/wallet.h>
 #include <kernel/chain.h>
@@ -70,6 +71,7 @@ using interfaces::Chain;
 using interfaces::FoundBlock;
 using interfaces::Handler;
 using interfaces::MakeSignalHandler;
+using interfaces::Mining;
 using interfaces::Node;
 using interfaces::WalletLoader;
 using node::BlockAssembler;
@@ -844,29 +846,6 @@ public:
         return chainman().GetParams().IsTestChain();
     }
 
-    uint256 getTipHash() override
-    {
-        LOCK(::cs_main);
-        CBlockIndex* tip{chainman().ActiveChain().Tip()};
-        if (!tip) return uint256{0};
-        return tip->GetBlockHash();
-    }
-
-    bool testBlockValidity(BlockValidationState& state, const CBlock& block, bool check_merkle_root) override
-    {
-        LOCK(::cs_main);
-        return TestBlockValidity(state, chainman().GetParams(), chainman().ActiveChainstate(), block, chainman().ActiveChain().Tip(), /*fCheckPOW=*/false, check_merkle_root);
-    }
-
-    std::unique_ptr<CBlockTemplate> createNewBlock(const CScript& script_pub_key, bool use_mempool) override
-    {
-        BlockAssembler::Options options;
-        ApplyArgsManOptions(gArgs, options);
-
-        LOCK(::cs_main);
-        return BlockAssembler{chainman().ActiveChainstate(), use_mempool ? context()->mempool.get() : nullptr, options}.CreateNewBlock(script_pub_key);
-    }
-
     NodeContext* context() override { return &m_node; }
     ChainstateManager& chainman() { return *Assert(m_node.chainman); }
     NodeContext& m_node;
@@ -877,4 +856,5 @@ public:
 namespace interfaces {
 std::unique_ptr<Node> MakeNode(node::NodeContext& context) { return std::make_unique<node::NodeImpl>(context); }
 std::unique_ptr<Chain> MakeChain(node::NodeContext& context) { return std::make_unique<node::ChainImpl>(context); }
+std::unique_ptr<Mining> MakeMining(node::NodeContext& context) { return std::make_unique<node::MinerImpl>(context); }
 } // namespace interfaces
