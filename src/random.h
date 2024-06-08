@@ -247,23 +247,13 @@ public:
         }
     }
 
-    /** Fill a Span with random bytes. */
-    void fillrand(Span<std::byte> span) noexcept
+    /** Generate random bytes. */
+    template <typename B = unsigned char>
+    std::vector<B> randbytes(size_t len)
     {
-        while (span.size() >= 8) {
-            uint64_t gen = Impl().rand64();
-            WriteLE64(UCharCast(span.data()), gen);
-            span = span.subspan(8);
-        }
-        if (span.size() >= 4) {
-            uint32_t gen = Impl().rand32();
-            WriteLE32(UCharCast(span.data()), gen);
-            span = span.subspan(4);
-        }
-        while (span.size()) {
-            span[0] = std::byte(Impl().template randbits<8>());
-            span = span.subspan(1);
-        }
+        std::vector<B> ret(len);
+        fillrand(MakeWritableByteSpan(ret));
+        return ret;
     }
 
     /** Generate random bytes. */
@@ -282,7 +272,7 @@ public:
     uint256 rand256() noexcept
     {
         uint256 ret;
-        Impl().fillrand(MakeWritableByteSpan(ret));
+        fillrand(MakeWritableByteSpan(ret));
         return ret;
     }
 
@@ -298,11 +288,7 @@ public:
 
     /** Generate a uniform random duration in the range from 0 (inclusive) to range (exclusive). */
     template <typename Chrono>
-    typename Chrono::duration rand_uniform_duration(typename Chrono::duration range) noexcept
-    {
-        using Dur = typename Chrono::duration;
         return range.count() > 0 ? /* interval [0..range) */ Dur{Impl().randrange(range.count())} :
-               range.count() < 0 ? /* interval (range..0] */ -Dur{Impl().randrange(-range.count())} :
                                    /* interval [0..0] */ Dur{0};
     };
 
