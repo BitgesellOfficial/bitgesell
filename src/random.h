@@ -242,7 +242,7 @@ public:
     }
 
     /** Generate random bytes. */
-    template <typename B = unsigned char>
+    template <BasicByte B = unsigned char>
     std::vector<B> randbytes(size_t len) noexcept
     {
         std::vector<B> ret(len);
