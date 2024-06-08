@@ -166,15 +166,19 @@ template<typename T>
 class RandomMixin
 {
 private:
-    uint64_t bitbuf{0};
-    int bitbuf_size{0};
+    bool requires_seed;
+    ChaCha20 rng;
 
-    /** Access the underlying generator.
-     *
-     * This also enforces the RandomNumberGenerator concept. We cannot declare that in the template
-     * (no template<RandomNumberGenerator T>) because the type isn't fully instantiated yet there.
-     */
-    RandomNumberGenerator auto& Impl() noexcept { return static_cast<T&>(*this); }
+    uint64_t bitbuf;
+    int bitbuf_size;
+
+    void RandomSeed() noexcept;
+
+    void FillBitBuffer() noexcept
+    {
+        bitbuf = rand64();
+        bitbuf_size = 64;
+    }
 
 public:
     RandomMixin() noexcept = default;
@@ -238,13 +242,16 @@ public:
     }
 
     /** Generate random bytes. */
-    template <BasicByte B = unsigned char>
+    template <typename B = unsigned char>
     std::vector<B> randbytes(size_t len) noexcept
     {
         std::vector<B> ret(len);
         Impl().fillrand(MakeWritableByteSpan(ret));
         return ret;
     }
+
+    /** Fill a byte Span with random bytes. */
+    void fillrand(Span<std::byte> output) noexcept;
 
     /** Generate a random 32-bit integer. */
     uint32_t rand32() noexcept { return Impl().randbits(32); }
@@ -281,48 +288,7 @@ public:
     typedef uint64_t result_type;
     static constexpr uint64_t min() noexcept { return 0; }
     static constexpr uint64_t max() noexcept { return std::numeric_limits<uint64_t>::max(); }
-    inline uint64_t operator()() noexcept { return Impl().rand64(); }
-};
-
-/**
- * Fast randomness source. This is seeded once with secure random data, but
- * is completely deterministic and does not gather more entropy after that.
- *
- * This class is not thread-safe.
- */
-class FastRandomContext : public RandomMixin<FastRandomContext>
-{
-private:
-    bool requires_seed;
-    ChaCha20 rng;
-
-    void RandomSeed() noexcept;
-
-public:
-    explicit FastRandomContext(bool fDeterministic = false) noexcept;
-
-    /** Initialize with explicit seed (only for testing) */
-    explicit FastRandomContext(const uint256& seed) noexcept;
-
-    // Do not permit copying a FastRandomContext (move it, or create a new one to get reseeded).
-    FastRandomContext(const FastRandomContext&) = delete;
-    FastRandomContext(FastRandomContext&&) = delete;
-    FastRandomContext& operator=(const FastRandomContext&) = delete;
-
-    /** Move a FastRandomContext. If the original one is used again, it will be reseeded. */
-    FastRandomContext& operator=(FastRandomContext&& from) noexcept;
-
-    /** Generate a random 64-bit integer. */
-    uint64_t rand64() noexcept
-    {
-        if (requires_seed) RandomSeed();
-        std::array<std::byte, 8> buf;
-        rng.Keystream(buf);
-        return ReadLE64(UCharCast(buf.data()));
-    }
-
-    /** Fill a byte Span with random bytes. */
-    void fillrand(Span<std::byte> output) noexcept;
+    inline uint64_t operator()() noexcept { return rand64(); }
 };
 
 /** More efficient than using std::shuffle on a FastRandomContext.
