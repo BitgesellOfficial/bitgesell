@@ -30,8 +30,8 @@ from test_framework.test_framework import BGLTestFramework
 from test_framework.util import assert_equal
 
 DEFAULT_ASMAP_FILENAME = 'ip_asn.map' # defined in src/init.cpp
-ASMAP = '../../src/test/data/asmap.raw' # path to unit test skeleton asmap
-VERSION = 'c88edc2215daef7b5ae0b71bd0bc100e1c4928cd59634e66938860a6b73a6b0e'
+ASMAP = 'src/test/data/asmap.raw' # path to unit test skeleton asmap
+VERSION = 'fec61fa21a9f46f3b17bdcd660d7f4cd90b966aad3aec593c99b35f0aca15853'
 
 def expected_messages(filename):
     return [f'Opened asmap file "{filename}" (59 bytes) from disk',
@@ -133,7 +133,8 @@ class AsmapTest(BGLTestFramework):
         self.node = self.nodes[0]
         self.datadir = self.node.chain_path
         self.default_asmap = os.path.join(self.datadir, DEFAULT_ASMAP_FILENAME)
-        self.asmap_raw = os.path.join(os.path.dirname(os.path.realpath(__file__)), ASMAP)
+        base_dir = self.config["environment"]["SRCDIR"]
+        self.asmap_raw = os.path.join(base_dir, ASMAP)
 
         self.test_without_asmap_arg()
         self.test_asmap_with_absolute_path()
