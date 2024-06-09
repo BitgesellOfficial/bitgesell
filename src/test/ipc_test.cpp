@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <mp/proxy-types.h>
 #include <logging.h>
+#include <mp/proxy-types.h>
 #include <test/ipc_test.capnp.h>
 #include <test/ipc_test.capnp.proxy.h>
 #include <test/ipc_test.h>
