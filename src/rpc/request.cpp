@@ -67,12 +67,6 @@ UniValue JSONRPCReplyObj(UniValue result, UniValue error, std::optional<UniValue
     return reply;
 }
 
-std::string JSONRPCReply(const UniValue& result, const UniValue& error, const UniValue& id)
-{
-    UniValue reply = JSONRPCReplyObj(result, error, id);
-    return reply.write() + "\n";
-}
-
 UniValue JSONRPCError(int code, const std::string& message)
 {
     UniValue error(UniValue::VOBJ);
@@ -108,7 +102,7 @@ bool GenerateAuthCookie(std::string *cookie_out)
     std::string cookie = COOKIEAUTH_USER + ":" + HexStr(rand_pwd);
 
     /** the umask determines what permissions are used to create this file -
-     * these are set to 0077 in util/system.cpp.
+     * these are set to 0077 in common/system.cpp.
      */
     std::ofstream file;
     fs::path filepath_tmp = GetAuthCookieFile(true);

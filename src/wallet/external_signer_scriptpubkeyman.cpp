@@ -44,7 +44,7 @@ bool ExternalSignerScriptPubKeyMan::SetupDescriptor(WalletBatch& batch, std::uni
 
 ExternalSigner ExternalSignerScriptPubKeyMan::GetExternalSigner() {
     const std::string command = gArgs.GetArg("-signer", "");
-    if (command == "") throw std::runtime_error(std::string(__func__) + ": restart BGLd with -signer=<cmd>");
+    if (command == "") throw std::runtime_error(std::string(__func__) + ": restart bitcoind with -signer=<cmd>");
     std::vector<ExternalSigner> signers;
     ExternalSigner::Enumerate(command, signers, Params().GetChainTypeString());
     if (signers.empty()) throw std::runtime_error(std::string(__func__) + ": No external signers found");
@@ -53,7 +53,7 @@ ExternalSigner ExternalSignerScriptPubKeyMan::GetExternalSigner() {
     return signers[0];
 }
 
-bool ExternalSignerScriptPubKeyMan::DisplayAddress(const CTxDestination& dest, const ExternalSigner &signer) const
+util::Result<void> ExternalSignerScriptPubKeyMan::DisplayAddress(const CTxDestination& dest, const ExternalSigner &signer) const
 {
     // TODO: avoid the need to infer a descriptor from inside a descriptor wallet
     const CScript& scriptPubKey = GetScriptForDestination(dest);
@@ -62,10 +62,17 @@ bool ExternalSignerScriptPubKeyMan::DisplayAddress(const CTxDestination& dest, c
 
     const UniValue& result = signer.DisplayAddress(descriptor->ToString());
 
-    const UniValue& ret_address = result.find_value("address");
-    if (!ret_address.isStr()) return false;
+    const UniValue& error = result.find_value("error");
+    if (error.isStr()) return util::Error{strprintf(_("Signer returned error: %s"), error.getValStr())};
 
-    return ret_address.getValStr() == EncodeDestination(dest);
+    const UniValue& ret_address = result.find_value("address");
+    if (!ret_address.isStr()) return util::Error{_("Signer did not echo address")};
+
+    if (ret_address.getValStr() != EncodeDestination(dest)) {
+        return util::Error{strprintf(_("Signer echoed unexpected address %s"), ret_address.getValStr())};
+    }
+
+    return util::Result<void>();
 }
 
 // If sign is true, transaction must previously have been filled

@@ -62,10 +62,7 @@ int TxOrphanage::EraseTx(const Wtxid& wtxid)
 int TxOrphanage::EraseTxNoLock(const Wtxid& wtxid)
 {
     AssertLockHeld(m_mutex);
-    auto it_by_wtxid = m_wtxid_to_orphan_it.find(wtxid);
-    if (it_by_wtxid == m_wtxid_to_orphan_it.end()) return 0;
-
-    std::map<Txid, OrphanTx>::iterator it = it_by_wtxid->second;
+    std::map<Wtxid, OrphanTx>::iterator it = m_orphans.find(wtxid);
     if (it == m_orphans.end())
         return 0;
     for (const CTxIn& txin : it->second.tx->vin)
@@ -93,7 +90,6 @@ int TxOrphanage::EraseTxNoLock(const Wtxid& wtxid)
     LogPrint(BCLog::TXPACKAGES, "   removed orphan tx %s (wtxid=%s) after %ds\n", txid.ToString(), wtxid.ToString(),
              Ticks<std::chrono::seconds>(NodeClock::now() + ORPHAN_TX_EXPIRE_TIME - it->second.nTimeExpire));
     m_orphan_list.pop_back();
-    m_wtxid_to_orphan_it.erase(wtxid);
 
     m_orphans.erase(it);
     return 1;
@@ -109,10 +105,10 @@ void TxOrphanage::EraseForPeer(NodeId peer)
     std::map<Wtxid, OrphanTx>::iterator iter = m_orphans.begin();
     while (iter != m_orphans.end())
     {
-        std::map<Txid, OrphanTx>::iterator maybeErase = iter++; // increment to avoid iterator becoming invalid
-        if (maybeErase->second.fromPeer == peer)
-        {
-            nErased += EraseTxNoLock(maybeErase->second.tx->GetWitnessHash());
+        // increment to avoid iterator becoming invalid after erasure
+        const auto& [wtxid, orphan] = *iter++;
+        if (orphan.fromPeer == peer) {
+            nErased += EraseTxNoLock(wtxid);
         }
     }
     if (nErased > 0) LogPrint(BCLog::TXPACKAGES, "Erased %d orphan transaction(s) from peer=%d\n", nErased, peer);
@@ -314,4 +310,3 @@ std::vector<std::pair<CTransactionRef, NodeId>> TxOrphanage::GetChildrenFromDiff
     }
     return children_found;
 }
-

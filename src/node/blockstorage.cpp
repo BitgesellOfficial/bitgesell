@@ -1146,12 +1146,12 @@ bool BlockManager::ReadRawBlockFromDisk(std::vector<uint8_t>& block, const FlatF
 FlatFilePos BlockManager::SaveBlockToDisk(const CBlock& block, int nHeight)
 {
     unsigned int nBlockSize = ::GetSerializeSize(TX_WITH_WITNESS(block));
-    FlatFilePos blockPos;
     // Account for the 4 magic message start bytes + the 4 length bytes (8 bytes total,
     // defined as BLOCK_SERIALIZATION_HEADER_SIZE)
     nBlockSize += static_cast<unsigned int>(BLOCK_SERIALIZATION_HEADER_SIZE);
-    if (!FindBlockPos(blockPos, nBlockSize, nHeight, block.GetBlockTime())) {
-        LogError("%s: FindBlockPos failed\n", __func__);
+    FlatFilePos blockPos{FindNextBlockPos(nBlockSize, nHeight, block.GetBlockTime())};
+    if (blockPos.IsNull()) {
+        LogError("%s: FindNextBlockPos failed\n", __func__);
         return FlatFilePos();
     }
     if (!WriteBlockToDisk(block, blockPos)) {

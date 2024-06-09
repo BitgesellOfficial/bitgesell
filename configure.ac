@@ -1,24 +1,15 @@
-AC_PREREQ([2.60])
-
-# The package (a.k.a. release) version is based on semantic versioning 2.0.0 of
-# the API. All changes in experimental modules are treated as
-# backwards-compatible and therefore at most increase the minor version.
-define(_PKG_VERSION_MAJOR, 0)
-define(_PKG_VERSION_MINOR, 5)
-define(_PKG_VERSION_PATCH, 1)
-define(_PKG_VERSION_IS_RELEASE, false)
-
-# The library version is based on libtool versioning of the ABI. The set of
-# rules for updating the version can be found here:
-# https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-# All changes in experimental modules are treated as if they don't affect the
-# interface and therefore only increase the revision.
-define(_LIB_VERSION_CURRENT, 4)
-define(_LIB_VERSION_REVISION, 1)
-define(_LIB_VERSION_AGE, 2)
-
-AC_INIT([libsecp256k1],m4_join([.], _PKG_VERSION_MAJOR, _PKG_VERSION_MINOR, _PKG_VERSION_PATCH)m4_if(_PKG_VERSION_IS_RELEASE, [true], [], [-dev]),[https://github.com/bitcoin-core/secp256k1/issues],[libsecp256k1],[https://github.com/bitcoin-core/secp256k1])
-
+AC_PREREQ([2.69])
+define(_CLIENT_VERSION_MAJOR, 0)
+define(_CLIENT_VERSION_MINOR, 1)
+define(_CLIENT_VERSION_BUILD, 11)
+define(_CLIENT_VERSION_RC, 0)
+define(_CLIENT_VERSION_IS_RELEASE, false)
+define(_COPYRIGHT_YEAR, 2024)
+define(_COPYRIGHT_HOLDERS,[The %s developers])
+define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[Bitgesell Core]])
+AC_INIT([Bitgesell Core],m4_join([.], _CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MINOR, _CLIENT_VERSION_BUILD)m4_if(_CLIENT_VERSION_RC, [0], [], [rc]_CLIENT_VERSION_RC),[https://github.com/BitgesellOfficial/bitgesell/issues],[BGL],[https://bitgesell.ca/])
+AC_CONFIG_SRCDIR([src/validation.cpp])
+AC_CONFIG_HEADERS([src/config/BGL-config.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 
@@ -305,9 +296,9 @@ AC_ARG_ENABLE([werror],
     [enable_werror=no])
 
 AC_ARG_ENABLE([external-signer],
-    [AS_HELP_STRING([--enable-external-signer],[compile external signer support (default is auto, requires Boost::Process)])],
+    [AS_HELP_STRING([--enable-external-signer],[compile external signer support (default is yes)])],
     [use_external_signer=$enableval],
-    [use_external_signer=auto])
+    [use_external_signer=yes])
 
 AC_LANG_PUSH([C++])
 
@@ -837,7 +828,7 @@ AX_PTHREAD
 dnl Check if -latomic is required for <std::atomic>
 CHECK_ATOMIC
 
-dnl The following macro will add the necessary defines to bitcoin-config.h, but
+dnl The following macro will add the necessary defines to BGL-config.h, but
 dnl they also need to be passed down to any subprojects. Pull the results out of
 dnl the cache and add them to CPPFLAGS.
 AC_SYS_LARGEFILE
@@ -940,7 +931,7 @@ AC_CHECK_DECLS([getifaddrs, freeifaddrs],[CHECK_SOCKET],,
     #include <ifaddrs.h>]
 )
 
-dnl These are used for daemonization in bitcoind
+dnl These are used for daemonization in BGLd
 AC_CHECK_DECLS([fork])
 AC_CHECK_DECLS([setsid])
 
@@ -1035,94 +1026,149 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
  [ AC_MSG_RESULT([no])]
 )
 
-AC_ARG_ENABLE(tests,
-    AS_HELP_STRING([--enable-tests],[compile tests [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_tests], [yes], [yes])])
+AC_MSG_CHECKING([for sysctl KERN_ARND])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
+  #include <sys/sysctl.h>]],
+ [[ #ifdef __linux__
+    #error "Don't use sysctl on Linux, it's deprecated even when it works"
+    #endif
+    static int name[2] = {CTL_KERN, KERN_ARND};
+    sysctl(name, 2, nullptr, nullptr, nullptr, 0); ]])],
+ [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_SYSCTL_ARND], [1], [Define this symbol if the BSD sysctl(KERN_ARND) is available]) ],
+ [ AC_MSG_RESULT([no])]
+)
 
-AC_ARG_ENABLE(ctime_tests,
-    AS_HELP_STRING([--enable-ctime-tests],[compile constant-time tests [default=yes if valgrind enabled]]), [],
-    [SECP_SET_DEFAULT([enable_ctime_tests], [auto], [auto])])
+AC_MSG_CHECKING([for fdatasync])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <unistd.h>]],
+ [[ fdatasync(0); ]])],
+ [ AC_MSG_RESULT([yes]); HAVE_FDATASYNC=1 ],
+ [ AC_MSG_RESULT([no]); HAVE_FDATASYNC=0 ]
+)
+AC_DEFINE_UNQUOTED([HAVE_FDATASYNC], [$HAVE_FDATASYNC], [Define to 1 if fdatasync is available.])
 
-AC_ARG_ENABLE(experimental,
-    AS_HELP_STRING([--enable-experimental],[allow experimental configure options [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_experimental], [no], [yes])])
+AC_MSG_CHECKING([for F_FULLFSYNC])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <fcntl.h>]],
+ [[ fcntl(0, F_FULLFSYNC, 0); ]])],
+ [ AC_MSG_RESULT([yes]); HAVE_FULLFSYNC=1 ],
+ [ AC_MSG_RESULT([no]); HAVE_FULLFSYNC=0 ]
+)
 
-AC_ARG_ENABLE(exhaustive_tests,
-    AS_HELP_STRING([--enable-exhaustive-tests],[compile exhaustive tests [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_exhaustive_tests], [yes], [yes])])
+AC_MSG_CHECKING([for O_CLOEXEC])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <fcntl.h>]],
+ [[ open("", O_CLOEXEC); ]])],
+ [ AC_MSG_RESULT([yes]); HAVE_O_CLOEXEC=1 ],
+ [ AC_MSG_RESULT([no]); HAVE_O_CLOEXEC=0 ]
+)
+AC_DEFINE_UNQUOTED([HAVE_O_CLOEXEC], [$HAVE_O_CLOEXEC], [Define to 1 if O_CLOEXEC flag is available.])
 
-AC_ARG_ENABLE(examples,
-    AS_HELP_STRING([--enable-examples],[compile the examples [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_examples], [no], [yes])])
+dnl crc32c platform checks
+AC_MSG_CHECKING([for __builtin_prefetch])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[ ]], [[
+  char data = 0;
+  const char* address = &data;
+  __builtin_prefetch(address, 0, 0);
+  ]])],
+ [ AC_MSG_RESULT([yes]); HAVE_BUILTIN_PREFETCH=1 ],
+ [ AC_MSG_RESULT([no]); HAVE_BUILTIN_PREFETCH=0 ]
+)
 
-AC_ARG_ENABLE(module_ecdh,
-    AS_HELP_STRING([--enable-module-ecdh],[enable ECDH module [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_module_ecdh], [yes], [yes])])
+AC_MSG_CHECKING([for _mm_prefetch])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <xmmintrin.h>]], [[
+  char data = 0;
+  const char* address = &data;
+  _mm_prefetch(address, _MM_HINT_NTA);
+  ]])],
+ [ AC_MSG_RESULT([yes]); HAVE_MM_PREFETCH=1 ],
+ [ AC_MSG_RESULT([no]); HAVE_MM_PREFETCH=0 ]
+)
 
-AC_ARG_ENABLE(module_recovery,
-    AS_HELP_STRING([--enable-module-recovery],[enable ECDSA pubkey recovery module [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_module_recovery], [no], [yes])])
+AC_MSG_CHECKING([for strong getauxval support in the system headers])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <sys/auxv.h>
+  ]], [[
+    getauxval(AT_HWCAP);
+  ]])],
+ [ AC_MSG_RESULT([yes]); HAVE_STRONG_GETAUXVAL=1; AC_DEFINE([HAVE_STRONG_GETAUXVAL], [1], [Define this symbol to build code that uses getauxval]) ],
+ [ AC_MSG_RESULT([no]); HAVE_STRONG_GETAUXVAL=0 ]
+)
 
-AC_ARG_ENABLE(module_extrakeys,
-    AS_HELP_STRING([--enable-module-extrakeys],[enable extrakeys module [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_module_extrakeys], [yes], [yes])])
+# Check for UNIX sockets
+AC_MSG_CHECKING(for sockaddr_un)
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <sys/socket.h>
+    #include <sys/un.h>
+  ]], [[
+    struct sockaddr_un addr;
+    addr.sun_family = AF_UNIX;
+  ]])],
+ [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_SOCKADDR_UN], [1], [Define this symbol if platform supports unix domain sockets]) ],
+ [ AC_MSG_RESULT([no]); ]
+)
 
-AC_ARG_ENABLE(module_schnorrsig,
-    AS_HELP_STRING([--enable-module-schnorrsig],[enable schnorrsig module [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_module_schnorrsig], [yes], [yes])])
+have_any_system=no
+AC_MSG_CHECKING([for std::system])
+AC_LINK_IFELSE(
+    [ AC_LANG_PROGRAM(
+        [[ #include <cstdlib> ]],
+        [[ int nErr = std::system(""); ]]
+    )],
+    [ AC_MSG_RESULT([yes]); have_any_system=yes],
+    [ AC_MSG_RESULT([no]) ]
+)
 
-AC_ARG_ENABLE(module_ellswift,
-    AS_HELP_STRING([--enable-module-ellswift],[enable ElligatorSwift module [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_module_ellswift], [yes], [yes])])
+AC_MSG_CHECKING([for ::_wsystem])
+AC_LINK_IFELSE(
+    [ AC_LANG_PROGRAM(
+        [[ #include <stdlib.h> ]],
+        [[ int nErr = ::_wsystem(NULL); ]]
+    )],
+    [ AC_MSG_RESULT([yes]); have_any_system=yes],
+    [ AC_MSG_RESULT([no]) ]
+)
 
-AC_ARG_ENABLE(external_default_callbacks,
-    AS_HELP_STRING([--enable-external-default-callbacks],[enable external default callback functions [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_external_default_callbacks], [no], [no])])
+if test "$have_any_system" != "no"; then
+  AC_DEFINE([HAVE_SYSTEM], [1], [Define to 1 if std::system or ::wsystem is available.])
+fi
 
-# Test-only override of the (autodetected by the C code) "widemul" setting.
-# Legal values are:
-#  * int64 (for [u]int64_t),
-#  * int128 (for [unsigned] __int128),
-#  * int128_struct (for int128 implemented as a structure),
-#  *  and auto (the default).
-AC_ARG_WITH([test-override-wide-multiply], [] ,[set_widemul=$withval], [set_widemul=auto])
+dnl SUPPRESSED_CPPFLAGS=SUPPRESS_WARNINGS([$SOME_CPPFLAGS])
+dnl Replace -I with -isystem in $SOME_CPPFLAGS to suppress warnings from
+dnl headers from its include directories and return the result.
+dnl See -isystem documentation:
+dnl https://gcc.gnu.org/onlinedocs/gcc/Directory-Options.html
+dnl https://clang.llvm.org/docs/ClangCommandLineReference.html#cmdoption-clang-isystem-directory
+dnl Do not change "-I/usr/include" to "-isystem /usr/include" because that
+dnl is not necessary (/usr/include is already a system directory) and because
+dnl it would break GCC's #include_next.
+AC_DEFUN([SUPPRESS_WARNINGS],
+         [[$(echo $1 |${SED} -E -e 's/(^| )-I/\1-isystem /g' -e 's;-isystem /usr/include/*( |$);-I/usr/include\1;g')]])
 
-AC_ARG_WITH([asm], [AS_HELP_STRING([--with-asm=x86_64|arm32|no|auto],
-[assembly to use (experimental: arm32) [default=auto]])],[req_asm=$withval], [req_asm=auto])
+dnl enable-fuzz should disable all other targets
+if test "$enable_fuzz" = "yes"; then
+  AC_MSG_WARN([enable-fuzz will disable all other targets and force --enable-fuzz-binary=yes])
+  build_BGL_utils=no
+  build_BGL_cli=no
+  build_BGL_tx=no
+  build_BGL_util=no
+  build_BGL_chainstate=no
+  build_BGL_wallet=no
+  build_BGLd=no
+  BGL_enable_qt=no
+  BGL_enable_qt_test=no
+  BGL_enable_qt_dbus=no
+  use_bench=no
+  use_tests=no
+  use_external_signer=no
+  use_upnp=no
+  use_natpmp=no
+  use_zmq=no
+  enable_fuzz_binary=yes
 
-AC_ARG_WITH([ecmult-window], [AS_HELP_STRING([--with-ecmult-window=SIZE|auto],
-[window size for ecmult precomputation for verification, specified as integer in range [2..24].]
-[Larger values result in possibly better performance at the cost of an exponentially larger precomputed table.]
-[The table will store 2^(SIZE-1) * 64 bytes of data but can be larger in memory due to platform-specific padding and alignment.]
-[A window size larger than 15 will require you delete the prebuilt precomputed_ecmult.c file so that it can be rebuilt.]
-[For very large window sizes, use "make -j 1" to reduce memory use during compilation.]
-["auto" is a reasonable setting for desktop machines (currently 15). [default=auto]]
-)],
-[req_ecmult_window=$withval], [req_ecmult_window=auto])
-
-AC_ARG_WITH([ecmult-gen-kb], [AS_HELP_STRING([--with-ecmult-gen-kb=2|22|86|auto],
-[The size of the precomputed table for signing in multiples of 1024 bytes (on typical platforms).]
-[Larger values result in possibly better signing/keygeneration performance at the cost of a larger table.]
-["auto" is a reasonable setting for desktop machines (currently 22). [default=auto]]
-)],
-[req_ecmult_gen_kb=$withval], [req_ecmult_gen_kb=auto])
-
-AC_ARG_WITH([valgrind], [AS_HELP_STRING([--with-valgrind=yes|no|auto],
-[Build with extra checks for running inside Valgrind [default=auto]]
-)],
-[req_valgrind=$withval], [req_valgrind=auto])
-
-###
-### Handle config options (except for modules)
-###
-
-if test x"$req_valgrind" = x"no"; then
-  enable_valgrind=no
+  AX_CHECK_PREPROC_FLAG([-DABORT_ON_FAILED_ASSUME], [DEBUG_CPPFLAGS="$DEBUG_CPPFLAGS -DABORT_ON_FAILED_ASSUME"], [], [$CXXFLAG_WERROR])
 else
-  BITCOIN_QT_INIT
+  BGL_QT_INIT
 
-  dnl sets $bitcoin_enable_qt, $bitcoin_enable_qt_test, $bitcoin_enable_qt_dbus
-  BITCOIN_QT_CONFIGURE([5.11.3])
+  dnl sets $BGL_enable_qt, $BGL_enable_qt_test, $BGL_enable_qt_dbus
+  BGL_QT_CONFIGURE([5.11.3])
 
   dnl Keep a copy of the original $QT_INCLUDES and use it when invoking qt's moc
   QT_INCLUDES_UNSUPPRESSED=$QT_INCLUDES
@@ -1153,7 +1199,7 @@ fi
 if test "$enable_wallet" != "no"; then
     dnl Check for libdb_cxx only if wallet enabled
     if test "$use_bdb" != "no"; then
-      BITCOIN_FIND_BDB48
+      BGL_FIND_BDB48
       if test "$suppress_external_warnings" != "no" ; then
         BDB_CPPFLAGS=SUPPRESS_WARNINGS($BDB_CPPFLAGS)
       fi
@@ -1282,56 +1328,14 @@ if test "$use_boost" = "yes"; then
   fi
 fi
 
-if test "$use_external_signer" != "no"; then
-  AC_MSG_CHECKING([whether Boost.Process can be used])
-  TEMP_CXXFLAGS="$CXXFLAGS"
-  dnl Boost 1.78 requires the following workaround.
-  dnl See: https://github.com/boostorg/process/issues/235
-  CXXFLAGS="$CXXFLAGS -Wno-error=narrowing"
-  TEMP_CPPFLAGS="$CPPFLAGS"
-  CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
-  TEMP_LDFLAGS="$LDFLAGS"
-  dnl Boost 1.73 and older require the following workaround.
-  LDFLAGS="$LDFLAGS $PTHREAD_CFLAGS"
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-    #define BOOST_PROCESS_USE_STD_FS
-    #include <boost/process.hpp>
-  ]],[[
-    namespace bp = boost::process;
-    bp::opstream stdin_stream;
-    bp::ipstream stdout_stream;
-    bp::child c("dummy", bp::std_out > stdout_stream, bp::std_err > stdout_stream, bp::std_in < stdin_stream);
-    stdin_stream << std::string{"test"} << std::endl;
-    if (c.running()) c.terminate();
-    c.wait();
-    c.exit_code();
-  ]])],
-    [have_boost_process="yes"],
-    [have_boost_process="no"])
-  LDFLAGS="$TEMP_LDFLAGS"
-  CPPFLAGS="$TEMP_CPPFLAGS"
-  CXXFLAGS="$TEMP_CXXFLAGS"
-  AC_MSG_RESULT([$have_boost_process])
-  if test "$have_boost_process" = "yes"; then
-    case $host in
-      dnl Boost Process for Windows uses Boost ASIO. Boost ASIO performs
-      dnl pre-main init of Windows networking libraries, which we do not
-      dnl want.
-      *mingw*)
-        use_external_signer="no"
-      ;;
-      *)
-        use_external_signer="yes"
-        AC_DEFINE([ENABLE_EXTERNAL_SIGNER], [1], [Define if external signer support is enabled])
-        AC_DEFINE([BOOST_PROCESS_USE_STD_FS], [1], [Defined to avoid Boost::Process trying to use Boost Filesystem])
-      ;;
-    esac
-  else
-    if test "$use_external_signer" = "yes"; then
-      AC_MSG_ERROR([External signing is not supported for this Boost version])
-    fi
-    use_external_signer="no";
-  fi
+case $host in
+  dnl Re-enable it after enabling Windows support in cpp-subprocess.
+  *mingw*)
+    use_external_signer="no"
+  ;;
+esac
+if test "$use_external_signer" = "yes"; then
+  AC_DEFINE([ENABLE_EXTERNAL_SIGNER], [1], [Define if external signer support is enabled])
 fi
 AM_CONDITIONAL([ENABLE_EXTERNAL_SIGNER], [test "$use_external_signer" = "yes"])
 
@@ -1358,27 +1362,22 @@ if test "$build_BGL_cli$build_BGLd$BGL_enable_qt$enable_fuzz_binary$use_tests$us
     PKG_CHECK_MODULES([EVENT_PTHREADS], [libevent_pthreads >= 2.1.8], [], [AC_MSG_ERROR([libevent_pthreads version 2.1.8 or greater not found.])])
   fi
 
-# Set ecmult gen kb
-if test x"$req_ecmult_gen_kb" = x"auto"; then
-  set_ecmult_gen_kb=22
-else
-  set_ecmult_gen_kb=$req_ecmult_gen_kb
+  if test "$suppress_external_warnings" != "no"; then
+    EVENT_CFLAGS=SUPPRESS_WARNINGS($EVENT_CFLAGS)
+  fi
 fi
 
-case $set_ecmult_gen_kb in
-2)
-  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DCOMB_BLOCKS=2 -DCOMB_TEETH=5"
-  ;;
-22)
-  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DCOMB_BLOCKS=11 -DCOMB_TEETH=6"
-  ;;
-86)
-  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DCOMB_BLOCKS=43 -DCOMB_TEETH=6"
-  ;;
-*)
-  AC_MSG_ERROR(['ecmult gen table size not 2, 22, 86 or "auto"'])
-  ;;
-esac
+if test x$use_libevent = xyes; then
+  TEMP_CXXFLAGS="$CXXFLAGS"
+  CXXFLAGS="$CXXFLAGS $EVENT_CFLAGS"
+  AC_MSG_CHECKING([if evhttp_connection_get_peer expects const char**])
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+      #include <cstdint>
+      #include <event2/http.h>
+    ]], [[
+      evhttp_connection *conn = (evhttp_connection *)1;
+      const char *host;
+      uint16_t port;
 
       evhttp_connection_get_peer(conn, &host, &port);
     ]])],
@@ -1396,34 +1395,126 @@ fi
 
 dnl ZMQ check
 
-# Processing must be done in a reverse topological sorting of the dependency graph
-# (dependent module first).
-if test x"$enable_module_ellswift" = x"yes"; then
-  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DENABLE_MODULE_ELLSWIFT=1"
+if test "$use_zmq" = "yes"; then
+  PKG_CHECK_MODULES([ZMQ], [libzmq >= 4],
+    AC_DEFINE([ENABLE_ZMQ], [1], [Define this symbol to enable ZMQ functions]),
+    [AC_MSG_WARN([libzmq version 4.x or greater not found, disabling])
+    use_zmq=no])
 fi
 
-if test x"$enable_module_schnorrsig" = x"yes"; then
-  if test x"$enable_module_extrakeys" = x"no"; then
-    AC_MSG_ERROR([Module dependency error: You have disabled the extrakeys module explicitly, but it is required by the schnorrsig module.])
+if test "$use_zmq" = "yes"; then
+  dnl Assume libzmq was built for static linking
+  case $host in
+    *mingw*)
+      ZMQ_CFLAGS="$ZMQ_CFLAGS -DZMQ_STATIC"
+    ;;
+  esac
+fi
+
+AM_CONDITIONAL([ENABLE_ZMQ], [test "$use_zmq" = "yes"])
+
+dnl libmultiprocess library check
+
+libmultiprocess_found=no
+if test "$with_libmultiprocess" = "yes" || test "$with_libmultiprocess" = "auto"; then
+  PKG_CHECK_MODULES([LIBMULTIPROCESS], [libmultiprocess], [
+     libmultiprocess_found=yes;
+     libmultiprocess_prefix=`$PKG_CONFIG --variable=prefix libmultiprocess`;
+  ], [true])
+elif test "$with_libmultiprocess" != "no"; then
+  AC_MSG_ERROR([--with-libmultiprocess=$with_libmultiprocess value is not yes, auto, or no])
+fi
+
+dnl Enable multiprocess check
+
+if test "$enable_multiprocess" = "yes"; then
+  if test "$libmultiprocess_found" != "yes"; then
+    AC_MSG_ERROR([--enable-multiprocess=yes option specified but libmultiprocess library was not found. May need to install libmultiprocess library, or specify install path with PKG_CONFIG_PATH environment variable. Running 'pkg-config --debug libmultiprocess' may be helpful for debugging.])
   fi
-  enable_module_extrakeys=yes
-  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DENABLE_MODULE_SCHNORRSIG=1"
+  build_multiprocess=yes
+elif test "$enable_multiprocess" = "auto"; then
+  build_multiprocess=$libmultiprocess_found
+else
+  build_multiprocess=no
 fi
 
-if test x"$enable_module_extrakeys" = x"yes"; then
-  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DENABLE_MODULE_EXTRAKEYS=1"
+AM_CONDITIONAL([BUILD_MULTIPROCESS], [test "$build_multiprocess" = "yes"])
+AM_CONDITIONAL([BUILD_BGL_NODE], [test "$build_multiprocess" = "yes"])
+AM_CONDITIONAL([BUILD_BGL_GUI], [test "$build_multiprocess" = "yes"])
+
+dnl codegen tools check
+
+if test "$build_multiprocess" != "no"; then
+  if test "$with_mpgen" = "yes" || test "$with_mpgen" = "auto"; then
+    MPGEN_PREFIX="$libmultiprocess_prefix"
+  elif test "$with_mpgen" != "no"; then
+    MPGEN_PREFIX="$with_mpgen";
+  fi
+  AC_SUBST(MPGEN_PREFIX)
 fi
 
-if test x"$enable_module_recovery" = x"yes"; then
-  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DENABLE_MODULE_RECOVERY=1"
+AC_MSG_CHECKING([whether to build BGLd])
+AM_CONDITIONAL([BUILD_BGLD], [test $build_BGLd = "yes"])
+AC_MSG_RESULT($build_BGLd)
+
+AC_MSG_CHECKING([whether to build BGL-cli])
+AM_CONDITIONAL([BUILD_BGL_CLI], [test $build_BGL_cli = "yes"])
+AC_MSG_RESULT($build_BGL_cli)
+
+AC_MSG_CHECKING([whether to build BGL-tx])
+AM_CONDITIONAL([BUILD_BGL_TX], [test $build_BGL_tx = "yes"])
+AC_MSG_RESULT($build_BGL_tx)
+
+AC_MSG_CHECKING([whether to build BGL-wallet])
+AM_CONDITIONAL([BUILD_BGL_WALLET], [test $build_BGL_wallet = "yes"])
+AC_MSG_RESULT($build_BGL_wallet)
+
+AC_MSG_CHECKING([whether to build BGL-util])
+AM_CONDITIONAL([BUILD_BGL_UTIL], [test $build_BGL_util = "yes"])
+AC_MSG_RESULT($build_BGL_util)
+
+AC_MSG_CHECKING([whether to build experimental BGL-chainstate])
+if test "$build_BGL_chainstate" = "yes"; then
+  if test "$build_experimental_kernel_lib" = "no"; then
+    AC_MSG_ERROR([experimental BGL-chainstate cannot be built without the experimental BGLkernel library. Use --with-experimental-kernel-lib]);
+  fi
+fi
+AM_CONDITIONAL([BUILD_BGL_CHAINSTATE], [test $build_BGL_chainstate = "yes"])
+AC_MSG_RESULT($build_BGL_chainstate)
+
+AM_CONDITIONAL([BUILD_BGL_KERNEL_LIB], [test "$build_experimental_kernel_lib" != "no" && ( test "$build_experimental_kernel_lib" = "yes" || test "$build_BGL_chainstate" = "yes" )])
+
+AC_LANG_POP
+
+if test "$use_ccache" != "no"; then
+  AC_MSG_CHECKING([if ccache should be used])
+  if test "$CCACHE" = ""; then
+    if test "$use_ccache" = "yes"; then
+      AC_MSG_ERROR([ccache not found.]);
+    else
+      use_ccache=no
+    fi
+  else
+    use_ccache=yes
+    CC="$ac_cv_path_CCACHE $CC"
+    CXX="$ac_cv_path_CCACHE $CXX"
+  fi
+  AC_MSG_RESULT($use_ccache)
+  if test "$use_ccache" = "yes"; then
+    AX_CHECK_COMPILE_FLAG([-fdebug-prefix-map=A=B], [DEBUG_CXXFLAGS="$DEBUG_CXXFLAGS -fdebug-prefix-map=\$(abs_top_srcdir)=."], [], [$CXXFLAG_WERROR])
+    AX_CHECK_PREPROC_FLAG([-fmacro-prefix-map=A=B], [DEBUG_CPPFLAGS="$DEBUG_CPPFLAGS -fmacro-prefix-map=\$(abs_top_srcdir)=."], [], [$CXXFLAG_WERROR])
+  fi
 fi
 
-if test x"$enable_module_ecdh" = x"yes"; then
-  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DENABLE_MODULE_ECDH=1"
-fi
+dnl enable wallet
+AC_MSG_CHECKING([if wallet should be enabled])
+if test "$enable_wallet" != "no"; then
+  AC_MSG_RESULT([yes])
+  AC_DEFINE_UNQUOTED([ENABLE_WALLET],[1],[Define to 1 to enable wallet functions])
+  enable_wallet=yes
 
-if test x"$enable_external_default_callbacks" = x"yes"; then
-  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DUSE_EXTERNAL_DEFAULT_CALLBACKS=1"
+else
+  AC_MSG_RESULT([no])
 fi
 
 dnl enable upnp support
@@ -1443,8 +1534,7 @@ else
       MINIUPNPC_CPPFLAGS="$MINIUPNPC_CPPFLAGS -DMINIUPNP_STATICLIB"
     fi
   else
-    use_ccache=yes
-    CXX="$ac_cv_path_CCACHE $CXX"
+    AC_MSG_RESULT([no])
   fi
 fi
 
@@ -1624,7 +1714,6 @@ AC_SUBST(MINIUPNPC_CPPFLAGS)
 AC_SUBST(MINIUPNPC_LIBS)
 AC_SUBST(NATPMP_CPPFLAGS)
 AC_SUBST(NATPMP_LIBS)
-AC_SUBST(HAVE_GMTIME_R)
 AC_SUBST(HAVE_FDATASYNC)
 AC_SUBST(HAVE_FULLFSYNC)
 AC_SUBST(HAVE_O_CLOEXEC)
@@ -1682,25 +1771,17 @@ case $host in
 esac
 
 echo
-echo "Build Options:"
-echo "  with external callbacks = $enable_external_default_callbacks"
-echo "  with benchmarks         = $enable_benchmark"
-echo "  with tests              = $enable_tests"
-echo "  with ctime tests        = $enable_ctime_tests"
-echo "  with coverage           = $enable_coverage"
-echo "  with examples           = $enable_examples"
-echo "  module ecdh             = $enable_module_ecdh"
-echo "  module recovery         = $enable_module_recovery"
-echo "  module extrakeys        = $enable_module_extrakeys"
-echo "  module schnorrsig       = $enable_module_schnorrsig"
-echo "  module ellswift         = $enable_module_ellswift"
-echo
-echo "  asm                     = $set_asm"
-echo "  ecmult window size      = $set_ecmult_window"
-echo "  ecmult gen table size   = $set_ecmult_gen_kb KiB"
-# Hide test-only options unless they're used.
-if test x"$set_widemul" != xauto; then
-echo "  wide multiplication     = $set_widemul"
+echo "Options used to compile and link:"
+echo "  external signer = $use_external_signer"
+echo "  multiprocess    = $build_multiprocess"
+echo "  with wallet     = $enable_wallet"
+if test "$enable_wallet" != "no"; then
+    echo "    with sqlite   = $use_sqlite"
+    echo "    with bdb      = $use_bdb"
+fi
+echo "  with gui / qt   = $BGL_enable_qt"
+if test $BGL_enable_qt != "no"; then
+    echo "    with qr       = $use_qr"
 fi
 echo "  with zmq        = $use_zmq"
 if test $enable_fuzz = "no"; then

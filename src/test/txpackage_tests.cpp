@@ -111,15 +111,15 @@ BOOST_FIXTURE_TEST_CASE(package_hash_tests, TestChain100Setup)
     std::vector<CTransactionRef> package_312{ptx_3, ptx_1, ptx_2};
     std::vector<CTransactionRef> package_321{ptx_3, ptx_2, ptx_1};
 
-    uint256 calculated_hash_123 = (HashWriter() << wtxid_1 << wtxid_2 << wtxid_3).GetSHA256();
+    uint256 calculated_hash_123 = (CHashWriterSHA256(SER_GETHASH, 0) << wtxid_1 << wtxid_2 << wtxid_3).GetSHA256();
 
-    uint256 hash_if_by_txid = (HashWriter() << wtxid_2 << wtxid_1 << wtxid_3).GetSHA256();
+    uint256 hash_if_by_txid = (CHashWriterSHA256(SER_GETHASH, 0) << wtxid_2 << wtxid_1 << wtxid_3).GetSHA256();
     BOOST_CHECK(hash_if_by_txid != calculated_hash_123);
 
-    uint256 hash_if_use_txid = (HashWriter() << txid_2 << txid_1 << txid_3).GetSHA256();
+    uint256 hash_if_use_txid = (CHashWriterSHA256(SER_GETHASH, 0) << txid_2 << txid_1 << txid_3).GetSHA256();
     BOOST_CHECK(hash_if_use_txid != calculated_hash_123);
 
-    uint256 hash_if_use_int_order = (HashWriter() << wtxid_2 << wtxid_1 << wtxid_3).GetSHA256();
+    uint256 hash_if_use_int_order = (CHashWriterSHA256(SER_GETHASH, 0) << wtxid_2 << wtxid_1 << wtxid_3).GetSHA256();
     BOOST_CHECK(hash_if_use_int_order != calculated_hash_123);
 
     BOOST_CHECK_EQUAL(calculated_hash_123, GetPackageHash(package_123));
@@ -139,7 +139,7 @@ BOOST_FIXTURE_TEST_CASE(package_sanitization_tests, TestChain100Setup)
         package_too_many.emplace_back(create_placeholder_tx(1, 1));
     }
     PackageValidationState state_too_many;
-    BOOST_CHECK(!CheckPackage(package_too_many, state_too_many, /*require_sorted=*/true));
+    BOOST_CHECK(!IsWellFormedPackage(package_too_many, state_too_many, /*require_sorted=*/true));
     BOOST_CHECK_EQUAL(state_too_many.GetResult(), PackageValidationResult::PCKG_POLICY);
     BOOST_CHECK_EQUAL(state_too_many.GetRejectReason(), "package-too-many-transactions");
 
@@ -154,7 +154,7 @@ BOOST_FIXTURE_TEST_CASE(package_sanitization_tests, TestChain100Setup)
     }
     BOOST_CHECK(package_too_large.size() <= MAX_PACKAGE_COUNT);
     PackageValidationState state_too_large;
-    BOOST_CHECK(!CheckPackage(package_too_large, state_too_large, /*require_sorted=*/true));
+    BOOST_CHECK(!IsWellFormedPackage(package_too_large, state_too_large, /*require_sorted=*/true));
     BOOST_CHECK_EQUAL(state_too_large.GetResult(), PackageValidationResult::PCKG_POLICY);
     BOOST_CHECK_EQUAL(state_too_large.GetRejectReason(), "package-too-large");
 
@@ -165,7 +165,7 @@ BOOST_FIXTURE_TEST_CASE(package_sanitization_tests, TestChain100Setup)
         package_duplicate_txids_empty.emplace_back(MakeTransactionRef(empty_tx));
     }
     PackageValidationState state_duplicates;
-    BOOST_CHECK(!CheckPackage(package_duplicate_txids_empty, state_duplicates, /*require_sorted=*/true));
+    BOOST_CHECK(!IsWellFormedPackage(package_duplicate_txids_empty, state_duplicates, /*require_sorted=*/true));
     BOOST_CHECK_EQUAL(state_duplicates.GetResult(), PackageValidationResult::PCKG_POLICY);
     BOOST_CHECK_EQUAL(state_duplicates.GetRejectReason(), "package-contains-duplicates");
     BOOST_CHECK(!IsConsistentPackage(package_duplicate_txids_empty));
@@ -184,7 +184,7 @@ BOOST_FIXTURE_TEST_CASE(package_sanitization_tests, TestChain100Setup)
     // Transactions are considered sorted when they have no dependencies.
     BOOST_CHECK(IsTopoSortedPackage(package_conflicts));
     PackageValidationState state_conflicts;
-    BOOST_CHECK(!CheckPackage(package_conflicts, state_conflicts, /*require_sorted=*/true));
+    BOOST_CHECK(!IsWellFormedPackage(package_conflicts, state_conflicts, /*require_sorted=*/true));
     BOOST_CHECK_EQUAL(state_conflicts.GetResult(), PackageValidationResult::PCKG_POLICY);
     BOOST_CHECK_EQUAL(state_conflicts.GetRejectReason(), "conflict-in-package");
 
@@ -274,8 +274,8 @@ BOOST_FIXTURE_TEST_CASE(noncontextual_package_tests, TestChain100Setup)
         CTransactionRef tx_child = MakeTransactionRef(mtx_child);
 
         PackageValidationState state;
-        BOOST_CHECK(CheckPackage({tx_parent, tx_child}, state, /*require_sorted=*/true));
-        BOOST_CHECK(!CheckPackage({tx_child, tx_parent}, state, /*require_sorted=*/true));
+        BOOST_CHECK(IsWellFormedPackage({tx_parent, tx_child}, state, /*require_sorted=*/true));
+        BOOST_CHECK(!IsWellFormedPackage({tx_child, tx_parent}, state, /*require_sorted=*/true));
         BOOST_CHECK_EQUAL(state.GetResult(), PackageValidationResult::PCKG_POLICY);
         BOOST_CHECK_EQUAL(state.GetRejectReason(), "package-not-sorted");
         BOOST_CHECK(IsChildWithParents({tx_parent, tx_child}));
@@ -306,7 +306,7 @@ BOOST_FIXTURE_TEST_CASE(noncontextual_package_tests, TestChain100Setup)
         package.push_back(MakeTransactionRef(child));
 
         PackageValidationState state;
-        BOOST_CHECK(CheckPackage(package, state, /*require_sorted=*/true));
+        BOOST_CHECK(IsWellFormedPackage(package, state, /*require_sorted=*/true));
         BOOST_CHECK(IsChildWithParents(package));
         BOOST_CHECK(IsChildWithParentsTree(package));
 
@@ -344,8 +344,8 @@ BOOST_FIXTURE_TEST_CASE(noncontextual_package_tests, TestChain100Setup)
         BOOST_CHECK(!IsChildWithParentsTree({tx_parent, tx_parent_also_child, tx_child}));
         // IsChildWithParents does not detect unsorted parents.
         BOOST_CHECK(IsChildWithParents({tx_parent_also_child, tx_parent, tx_child}));
-        BOOST_CHECK(CheckPackage({tx_parent, tx_parent_also_child, tx_child}, state, /*require_sorted=*/true));
-        BOOST_CHECK(!CheckPackage({tx_parent_also_child, tx_parent, tx_child}, state, /*require_sorted=*/true));
+        BOOST_CHECK(IsWellFormedPackage({tx_parent, tx_parent_also_child, tx_child}, state, /*require_sorted=*/true));
+        BOOST_CHECK(!IsWellFormedPackage({tx_parent_also_child, tx_parent, tx_child}, state, /*require_sorted=*/true));
         BOOST_CHECK_EQUAL(state.GetResult(), PackageValidationResult::PCKG_POLICY);
         BOOST_CHECK_EQUAL(state.GetRejectReason(), "package-not-sorted");
     }

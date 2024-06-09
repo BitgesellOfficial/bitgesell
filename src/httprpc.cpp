@@ -188,7 +188,7 @@ static bool HTTPReq_JSONRPC(const std::any& context, HTTPRequest* req)
         // Set the URI
         jreq.URI = req->GetURI();
 
-        std::string strReply;
+        UniValue reply;
         bool user_has_whitelist = g_rpc_whitelist.count(jreq.authUser);
         if (!user_has_whitelist && g_rpc_whitelist_default) {
             LogPrintf("RPC User %s not allowed to call any methods\n", jreq.authUser);
@@ -203,7 +203,6 @@ static bool HTTPReq_JSONRPC(const std::any& context, HTTPRequest* req)
                 req->WriteReply(HTTP_FORBIDDEN);
                 return false;
             }
-            UniValue result = tableRPC.execute(jreq);
 
             // Legacy 1.0/1.1 behavior is for failed requests to throw
             // exceptions which return HTTP errors and RPC errors to the client.
@@ -220,6 +219,7 @@ static bool HTTPReq_JSONRPC(const std::any& context, HTTPRequest* req)
 
         // array of requests
         } else if (valRequest.isArray()) {
+            // Check authorization for each request's method
             if (user_has_whitelist) {
                 for (unsigned int reqIdx = 0; reqIdx < valRequest.size(); reqIdx++) {
                     if (!valRequest[reqIdx].isObject()) {

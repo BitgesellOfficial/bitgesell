@@ -307,11 +307,9 @@ static void secp256k1_ecmult_gen_blind(secp256k1_ecmult_gen_context *ctx, const 
      *   and guards against weak or adversarial seeds.  This is a simpler and safer interface than
      *   asking the caller for blinding values directly and expecting them to retry on failure.
      */
-    memcpy(keydata, nonce32, 32);
-    if (seed32 != NULL) {
-        memcpy(keydata + 32, seed32, 32);
-    }
-    secp256k1_rfc6979_hmac_sha256_initialize(&rng, keydata, seed32 ? 64 : 32);
+    VERIFY_CHECK(seed32 != NULL);
+    memcpy(keydata + 32, seed32, 32);
+    secp256k1_rfc6979_hmac_sha256_initialize(&rng, keydata, 64);
     memset(keydata, 0, sizeof(keydata));
 
     /* Compute projective blinding factor (cannot be 0). */

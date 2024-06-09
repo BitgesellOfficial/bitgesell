@@ -10,7 +10,7 @@
 #include <qt/platformstyle.h>
 #include <qt/walletmodel.h>
 
-#include <config/bitcoin-config.h> // IWYU pragma: keep
+#include <config/BGL-config.h> // IWYU pragma: keep
 #include <key_io.h>
 #include <util/message.h> // For MessageSign(), MessageVerify()
 #include <wallet/wallet.h>

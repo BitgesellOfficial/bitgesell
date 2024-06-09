@@ -79,7 +79,7 @@ SECP256K1_INLINE static int secp256k1_scalar_check_overflow(const secp256k1_scal
 }
 
 SECP256K1_INLINE static int secp256k1_scalar_reduce(secp256k1_scalar *r, unsigned int overflow) {
-    uint128_t t;
+    secp256k1_uint128 t;
     VERIFY_CHECK(overflow <= 1);
 
     secp256k1_u128_from_u64(&t, r->d[0]);
@@ -291,9 +291,10 @@ static int secp256k1_scalar_cond_negate(secp256k1_scalar *r, int flag) {
 #define muladd(a,b) { \
     uint64_t tl, th; \
     { \
-        uint128_t t = (uint128_t)a * b; \
-        th = t >> 64;         /* at most 0xFFFFFFFFFFFFFFFE */ \
-        tl = t; \
+        secp256k1_uint128 t; \
+        secp256k1_u128_mul(&t, a, b); \
+        th = secp256k1_u128_hi_u64(&t);  /* at most 0xFFFFFFFFFFFFFFFE */ \
+        tl = secp256k1_u128_to_u64(&t); \
     } \
     c0 += tl;                 /* overflow is handled on the next line */ \
     th += (c0 < tl);          /* at most 0xFFFFFFFFFFFFFFFF */ \
@@ -306,9 +307,10 @@ static int secp256k1_scalar_cond_negate(secp256k1_scalar *r, int flag) {
 #define muladd_fast(a,b) { \
     uint64_t tl, th; \
     { \
-        uint128_t t = (uint128_t)a * b; \
-        th = t >> 64;         /* at most 0xFFFFFFFFFFFFFFFE */ \
-        tl = t; \
+        secp256k1_uint128 t; \
+        secp256k1_u128_mul(&t, a, b); \
+        th = secp256k1_u128_hi_u64(&t);  /* at most 0xFFFFFFFFFFFFFFFE */ \
+        tl = secp256k1_u128_to_u64(&t); \
     } \
     c0 += tl;                 /* overflow is handled on the next line */ \
     th += (c0 < tl);          /* at most 0xFFFFFFFFFFFFFFFF */ \
@@ -604,8 +606,8 @@ static void secp256k1_scalar_reduce_512(secp256k1_scalar *r, const uint64_t *l) 
     SECP256K1_CHECKMEM_MSAN_DEFINE(&c, sizeof(c));
 
 #else
-    uint128_t c;
-    uint64_t c0, c1, c2;
+    secp256k1_uint128 c128;
+    uint64_t c, c0, c1, c2;
     uint64_t n0 = l[4], n1 = l[5], n2 = l[6], n3 = l[7];
     uint64_t m0, m1, m2, m3, m4, m5;
     uint32_t m6;
@@ -662,14 +664,18 @@ static void secp256k1_scalar_reduce_512(secp256k1_scalar *r, const uint64_t *l) 
 
     /* Reduce 258 bits into 256. */
     /* r[0..3] = p[0..3] + p[4] * SECP256K1_N_C. */
-    c = p0 + (uint128_t)SECP256K1_N_C_0 * p4;
-    r->d[0] = c & 0xFFFFFFFFFFFFFFFFULL; c >>= 64;
-    c += p1 + (uint128_t)SECP256K1_N_C_1 * p4;
-    r->d[1] = c & 0xFFFFFFFFFFFFFFFFULL; c >>= 64;
-    c += p2 + (uint128_t)p4;
-    r->d[2] = c & 0xFFFFFFFFFFFFFFFFULL; c >>= 64;
-    c += p3;
-    r->d[3] = c & 0xFFFFFFFFFFFFFFFFULL; c >>= 64;
+    secp256k1_u128_from_u64(&c128, p0);
+    secp256k1_u128_accum_mul(&c128, SECP256K1_N_C_0, p4);
+    r->d[0] = secp256k1_u128_to_u64(&c128); secp256k1_u128_rshift(&c128, 64);
+    secp256k1_u128_accum_u64(&c128, p1);
+    secp256k1_u128_accum_mul(&c128, SECP256K1_N_C_1, p4);
+    r->d[1] = secp256k1_u128_to_u64(&c128); secp256k1_u128_rshift(&c128, 64);
+    secp256k1_u128_accum_u64(&c128, p2);
+    secp256k1_u128_accum_u64(&c128, p4);
+    r->d[2] = secp256k1_u128_to_u64(&c128); secp256k1_u128_rshift(&c128, 64);
+    secp256k1_u128_accum_u64(&c128, p3);
+    r->d[3] = secp256k1_u128_to_u64(&c128);
+    c = secp256k1_u128_hi_u64(&c128);
 #endif
 
     /* Final reduction of r. */

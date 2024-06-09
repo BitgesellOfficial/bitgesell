@@ -18,10 +18,6 @@ util::Result<void> SanityChecks(const Context&)
         return util::Error{Untranslated("OS cryptographic RNG sanity check failure. Aborting.")};
     }
 
-    if (!ChronoSanityCheck()) {
-        return util::Error{Untranslated("Clock epoch mismatch. Aborting.")};
-    }
-
     return {};
 }
 

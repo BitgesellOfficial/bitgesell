@@ -92,3 +92,4 @@ static SECP256K1_INLINE int secp256k1_i128_check_pow2(const secp256k1_int128 *r,
 }
 
 #endif
+
