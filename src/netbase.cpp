@@ -23,7 +23,7 @@
 #include <limits>
 #include <memory>
 
-#if HAVE_SOCKADDR_UN
+#ifdef HAVE_SOCKADDR_UN
 #include <sys/un.h>
 #endif
 
@@ -216,7 +216,7 @@ CService LookupNumeric(const std::string& name, uint16_t portDefault, DNSLookupF
 
 bool IsUnixSocketPath(const std::string& name)
 {
-#if HAVE_SOCKADDR_UN
+#ifdef HAVE_SOCKADDR_UN
     if (name.find(ADDR_PREFIX_UNIX) != 0) return false;
 
     // Split off "unix:" prefix
@@ -525,7 +525,7 @@ std::unique_ptr<Sock> CreateSockOS(int domain, int type, int protocol)
         return nullptr;
     }
 
-#if HAVE_SOCKADDR_UN
+#ifdef HAVE_SOCKADDR_UN
     if (domain == AF_UNIX) return sock;
 #endif
 
@@ -636,7 +636,7 @@ std::unique_ptr<Sock> Proxy::Connect() const
 
     if (!m_is_unix_socket) return ConnectDirectly(proxy, /*manual_connection=*/true);
 
-#if HAVE_SOCKADDR_UN
+#ifdef HAVE_SOCKADDR_UN
     auto sock = CreateSock(AF_UNIX, SOCK_STREAM, 0);
     if (!sock) {
         LogPrintLevel(BCLog::NET, BCLog::Level::Error, "Cannot create a socket for connecting to %s\n", m_unix_socket_path);
