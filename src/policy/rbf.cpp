@@ -12,11 +12,14 @@
 #include <tinyformat.h>
 #include <txmempool.h>
 #include <uint256.h>
+#include <util/check.h>
 #include <util/moneystr.h>
 #include <util/rbf.h>
 
 #include <limits>
 #include <vector>
+
+#include <compare>
 
 RBFTransactionState IsRBFOptIn(const CTransaction& tx, const CTxMemPool& pool)
 {
@@ -35,7 +38,7 @@ RBFTransactionState IsRBFOptIn(const CTransaction& tx, const CTxMemPool& pool)
 
     // If all the inputs have nSequence >= maxint-1, it still might be
     // signaled for RBF if any unconfirmed parents have signaled.
-    const CTxMemPoolEntry entry{*pool.mapTx.find(tx.GetHash())};
+    const auto& entry{*Assert(pool.GetEntry(tx.GetHash()))};
     auto ancestors{pool.AssumeCalculateMemPoolAncestors(__func__, entry, CTxMemPool::Limits::NoLimits(),
                                                         /*fSearchForParents=*/false)};
 
@@ -114,11 +117,11 @@ std::optional<std::string> HasNoNewUnconfirmed(const CTransaction& tx,
 }
 
 std::optional<std::string> EntriesAndTxidsDisjoint(const CTxMemPool::setEntries& ancestors,
-                                                   const std::set<uint256>& direct_conflicts,
+                                                   const std::set<Txid>& direct_conflicts,
                                                    const uint256& txid)
 {
     for (CTxMemPool::txiter ancestorIt : ancestors) {
-        const uint256& hashAncestor = ancestorIt->GetTx().GetHash();
+        const Txid& hashAncestor = ancestorIt->GetTx().GetHash();
         if (direct_conflicts.count(hashAncestor)) {
             return strprintf("%s spends conflicting transaction %s",
                              txid.ToString(),
@@ -133,23 +136,18 @@ std::optional<std::string> PaysMoreThanConflicts(const CTxMemPool::setEntries& i
                                                  const uint256& txid)
 {
     for (const auto& mi : iters_conflicting) {
-        // Don't allow the replacement to reduce the feerate of the
-        // mempool.
+        // Don't allow the replacement to reduce the feerate of the mempool.
         //
-        // We usually don't want to accept replacements with lower
-        // feerates than what they replaced as that would lower the
-        // feerate of the next block. Requiring that the feerate always
-        // be increased is also an easy-to-reason about way to prevent
-        // DoS attacks via replacements.
+        // We usually don't want to accept replacements with lower feerates than what they replaced
+        // as that would lower the feerate of the next block. Requiring that the feerate always be
+        // increased is also an easy-to-reason about way to prevent DoS attacks via replacements.
         //
-        // We only consider the feerates of transactions being directly
-        // replaced, not their indirect descendants. While that does
-        // mean high feerate children are ignored when deciding whether
-        // or not to replace, we do require the replacement to pay more
-        // overall fees too, mitigating most cases.
+        // We only consider the feerates of transactions being directly replaced, not their indirect
+        // descendants. While that does mean high feerate children are ignored when deciding whether
+        // or not to replace, we do require the replacement to pay more overall fees too, mitigating
+        // most cases.
         CFeeRate original_feerate(mi->GetModifiedFee(), mi->GetTxSize());
-        if (replacement_feerate <= original_feerate)
-        {
+        if (replacement_feerate <= original_feerate) {
             return strprintf("rejecting replacement %s; new feerate %s <= old feerate %s",
                              txid.ToString(),
                              replacement_feerate.ToString(),
@@ -182,6 +180,25 @@ std::optional<std::string> PaysForRBF(CAmount original_fees,
                          txid.ToString(),
                          FormatMoney(additional_fees),
                          FormatMoney(relay_fee.GetFee(replacement_vsize)));
+    }
+    return std::nullopt;
+}
+
+std::optional<std::pair<DiagramCheckError, std::string>> ImprovesFeerateDiagram(CTxMemPool& pool,
+                                                const CTxMemPool::setEntries& direct_conflicts,
+                                                const CTxMemPool::setEntries& all_conflicts,
+                                                CAmount replacement_fees,
+                                                int64_t replacement_vsize)
+{
+    // Require that the replacement strictly improves the mempool's feerate diagram.
+    const auto diagram_results{pool.CalculateFeerateDiagramsForRBF(replacement_fees, replacement_vsize, direct_conflicts, all_conflicts)};
+
+    if (!diagram_results.has_value()) {
+        return std::make_pair(DiagramCheckError::UNCALCULABLE, util::ErrorString(diagram_results).original);
+    }
+
+    if (!std::is_gt(CompareFeerateDiagram(diagram_results.value().second, diagram_results.value().first))) {
+        return std::make_pair(DiagramCheckError::FAILURE, "insufficient feerate: does not improve feerate diagram");
     }
     return std::nullopt;
 }

@@ -19,7 +19,6 @@ import sys
 import tempfile
 import time
 
-from typing import List
 from .address import create_deterministic_address_bcrt1_p2tr_op_true
 from .authproxy import JSONRPCException
 from . import coverage
@@ -30,10 +29,11 @@ from .util import (
     PortSeed,
     assert_equal,
     check_json_precision,
+    find_vout_for_address,
     get_datadir_path,
     initialize_datadir,
     p2p_port,
-    wait_until_helper,
+    wait_until_helper_internal,
 )
 
 
@@ -96,7 +96,8 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         """Sets test framework defaults. Do not override this method. Instead, override the set_test_params() method"""
         self.chain: str = 'regtest'
         self.setup_clean_chain: bool = False
-        self.nodes: List[TestNode] = []
+        self.noban_tx_relay: bool = False
+        self.nodes: list[TestNode] = []
         self.extra_args = None
         self.network_thread = None
         self.rpc_timeout = 60  # Wait for up to 60 seconds for the RPC server to respond
@@ -185,10 +186,14 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         parser.add_argument("--perf", dest="perf", default=False, action="store_true",
                             help="profile running nodes with perf for the duration of the test")
         parser.add_argument("--valgrind", dest="valgrind", default=False, action="store_true",
-                            help="run nodes under the valgrind memory error detector: expect at least a ~10x slowdown. valgrind 3.14 or later required.")
+                            help="run nodes under the valgrind memory error detector: expect at least a ~10x slowdown. valgrind 3.14 or later required. Does not apply to previous release binaries.")
         parser.add_argument("--randomseed", type=int,
                             help="set a random seed for deterministically reproducing a previous test run")
         parser.add_argument("--timeout-factor", dest="timeout_factor", type=float, help="adjust test timeouts by a factor. Setting it to 0 disables all timeouts")
+        parser.add_argument("--v2transport", dest="v2transport", default=False, action="store_true",
+                            help="use BIP324 v2 connections between all nodes by default")
+        parser.add_argument("--v1transport", dest="v1transport", default=False, action="store_true",
+                            help="Explicitly use v1 transport (can be used to overwrite global --v2transport option)")
 
         self.add_options(parser)
         # Running TestShell in a Jupyter notebook causes an additional -f argument
@@ -204,6 +209,8 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         config = configparser.ConfigParser()
         config.read_file(open(self.options.configfile))
         self.config = config
+        if self.options.v1transport:
+            self.options.v2transport=False
 
         if "descriptors" not in self.options:
             # Wallet is not required by the test at all and the value of self.options.descriptors won't matter.
@@ -492,6 +499,10 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             extra_confs = [[]] * num_nodes
         if extra_args is None:
             extra_args = [[]] * num_nodes
+        # Whitelist peers to speed up tx relay / mempool sync. Don't use it if testing tx relay or timing.
+        if self.noban_tx_relay:
+            for i in range(len(extra_args)):
+                extra_args[i] = extra_args[i] + ["-whitelist=noban,in,out@127.0.0.1"]
         if versions is None:
             versions = [None] * num_nodes
         if binary is None:
@@ -504,6 +515,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         assert_equal(len(binary), num_nodes)
         assert_equal(len(binary_cli), num_nodes)
         for i in range(num_nodes):
+            args = list(extra_args[i])
             test_node_i = TestNode(
                 i,
                 get_datadir_path(self.options.tmpdir, i),
@@ -517,11 +529,12 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
                 coverage_dir=self.options.coveragedir,
                 cwd=self.options.tmpdir,
                 extra_conf=extra_confs[i],
-                extra_args=extra_args[i],
+                extra_args=args,
                 use_cli=self.options.usecli,
                 start_perf=self.options.perf,
                 use_valgrind=self.options.valgrind,
                 descriptors=self.options.descriptors,
+                v2transport=self.options.v2transport,
             )
             self.nodes.append(test_node_i)
             if not test_node_i.version_is_at_least(170000):
@@ -573,21 +586,47 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             # Wait for nodes to stop
             node.wait_until_stopped()
 
-    def restart_node(self, i, extra_args=None):
+    def restart_node(self, i, extra_args=None, clear_addrman=False):
         """Stop and start a test node"""
         self.stop_node(i)
-        self.start_node(i, extra_args)
+        if clear_addrman:
+            peers_dat = self.nodes[i].chain_path / "peers.dat"
+            os.remove(peers_dat)
+            with self.nodes[i].assert_debug_log(expected_msgs=[f'Creating peers.dat because the file was not found ("{peers_dat}")']):
+                self.start_node(i, extra_args)
+        else:
+            self.start_node(i, extra_args)
 
     def wait_for_node_exit(self, i, timeout):
         self.nodes[i].process.wait(timeout)
 
-    def connect_nodes(self, a, b):
+    def connect_nodes(self, a, b, *, peer_advertises_v2=None, wait_for_connect: bool = True):
+        """
+        Kwargs:
+            wait_for_connect: if True, block until the nodes are verified as connected. You might
+                want to disable this when using -stopatheight with one of the connected nodes,
+                since there will be a race between the actual connection and performing
+                the assertions before one node shuts down.
+        """
         from_connection = self.nodes[a]
         to_connection = self.nodes[b]
         from_num_peers = 1 + len(from_connection.getpeerinfo())
         to_num_peers = 1 + len(to_connection.getpeerinfo())
         ip_port = "127.0.0.1:" + str(p2p_port(b))
-        from_connection.addnode(ip_port, "onetry")
+
+        if peer_advertises_v2 is None:
+            peer_advertises_v2 = from_connection.use_v2transport
+
+        if peer_advertises_v2 != from_connection.use_v2transport:
+            from_connection.addnode(node=ip_port, command="onetry", v2transport=peer_advertises_v2)
+        else:
+            # skip the optional third argument if it matches the default, for
+            # compatibility with older clients
+            from_connection.addnode(ip_port, "onetry")
+
+        if not wait_for_connect:
+            return
+
         # poll until version handshake complete to avoid race conditions
         # with transaction relaying
         # See comments in net_processing:
@@ -595,12 +634,12 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         # * Must have a verack message before anything else
         self.wait_until(lambda: sum(peer['version'] != 0 for peer in from_connection.getpeerinfo()) == from_num_peers)
         self.wait_until(lambda: sum(peer['version'] != 0 for peer in to_connection.getpeerinfo()) == to_num_peers)
-        self.wait_until(lambda: sum(peer['bytesrecv_per_msg'].pop('verack', 0) == 24 for peer in from_connection.getpeerinfo()) == from_num_peers)
-        self.wait_until(lambda: sum(peer['bytesrecv_per_msg'].pop('verack', 0) == 24 for peer in to_connection.getpeerinfo()) == to_num_peers)
+        self.wait_until(lambda: sum(peer['bytesrecv_per_msg'].pop('verack', 0) >= 21 for peer in from_connection.getpeerinfo()) == from_num_peers)
+        self.wait_until(lambda: sum(peer['bytesrecv_per_msg'].pop('verack', 0) >= 21 for peer in to_connection.getpeerinfo()) == to_num_peers)
         # The message bytes are counted before processing the message, so make
         # sure it was fully processed by waiting for a ping.
-        self.wait_until(lambda: sum(peer["bytesrecv_per_msg"].pop("pong", 0) >= 32 for peer in from_connection.getpeerinfo()) == from_num_peers)
-        self.wait_until(lambda: sum(peer["bytesrecv_per_msg"].pop("pong", 0) >= 32 for peer in to_connection.getpeerinfo()) == to_num_peers)
+        self.wait_until(lambda: sum(peer["bytesrecv_per_msg"].pop("pong", 0) >= 29 for peer in from_connection.getpeerinfo()) == from_num_peers)
+        self.wait_until(lambda: sum(peer["bytesrecv_per_msg"].pop("pong", 0) >= 29 for peer in to_connection.getpeerinfo()) == to_num_peers)
 
     def disconnect_nodes(self, a, b):
         def disconnect_nodes_helper(node_a, node_b):
@@ -672,6 +711,22 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         sync_fun() if sync_fun else self.sync_all()
         return blocks
 
+    def create_outpoints(self, node, *, outputs):
+        """Send funds to a given list of `{address: amount}` targets using the bitcoind
+        wallet and return the corresponding outpoints as a list of dictionaries
+        `[{"txid": txid, "vout": vout1}, {"txid": txid, "vout": vout2}, ...]`.
+        The result can be used to specify inputs for RPCs like `createrawtransaction`,
+        `createpsbt`, `lockunspent` etc."""
+        assert all(len(output.keys()) == 1 for output in outputs)
+        send_res = node.send(outputs)
+        assert send_res["complete"]
+        utxos = []
+        for output in outputs:
+            address = list(output.keys())[0]
+            vout = find_vout_for_address(node, send_res["txid"], address)
+            utxos.append({"txid": send_res["txid"], "vout": vout})
+        return utxos
+
     def sync_blocks(self, nodes=None, wait=1, timeout=60):
         """
         Wait until everybody has the same tip.
@@ -722,7 +777,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         self.sync_mempools(nodes)
 
     def wait_until(self, test_function, timeout=60):
-        return wait_until_helper(test_function, timeout=timeout, timeout_factor=self.options.timeout_factor)
+        return wait_until_helper_internal(test_function, timeout=timeout, timeout_factor=self.options.timeout_factor)
 
     # Private helper methods. These should not be accessed by the subclass test scripts.
 
@@ -979,3 +1034,6 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
     def is_bdb_compiled(self):
         """Checks whether the wallet module was compiled with BDB support."""
         return self.config["components"].getboolean("USE_BDB")
+
+    def has_blockfile(self, node, filenum: str):
+        return (node.blocks_path/ f"blk{filenum}.dat").is_file()

@@ -8,8 +8,9 @@ print-%: FORCE
 
 DIST_SUBDIRS = secp256k1
 
-AM_LDFLAGS = $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS) $(GPROF_LDFLAGS) $(SANITIZER_LDFLAGS) $(LTO_LDFLAGS) $(CORE_LDFLAGS)
-AM_CXXFLAGS = $(DEBUG_CXXFLAGS) $(HARDENED_CXXFLAGS) $(WARN_CXXFLAGS) $(NOWARN_CXXFLAGS) $(ERROR_CXXFLAGS) $(GPROF_CXXFLAGS) $(SANITIZER_CXXFLAGS) $(LTO_CXXFLAGS) $(CORE_CXXFLAGS)
+AM_LDFLAGS = $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS) $(GPROF_LDFLAGS) $(SANITIZER_LDFLAGS) $(CORE_LDFLAGS)
+AM_CXXFLAGS = $(CORE_CXXFLAGS) $(DEBUG_CXXFLAGS) $(HARDENED_CXXFLAGS) $(WARN_CXXFLAGS) $(NOWARN_CXXFLAGS) $(ERROR_CXXFLAGS) $(GPROF_CXXFLAGS) $(SANITIZER_CXXFLAGS)
+AM_OBJCXXFLAGS = $(AM_CXXFLAGS)
 AM_CPPFLAGS = $(DEBUG_CPPFLAGS) $(HARDENED_CPPFLAGS) $(CORE_CPPFLAGS)
 AM_LIBTOOLFLAGS = --preserve-dup-deps
 PTHREAD_FLAGS = $(PTHREAD_CFLAGS) $(PTHREAD_LIBS)
@@ -20,6 +21,7 @@ noinst_LTLIBRARIES =
 
 bin_PROGRAMS =
 noinst_PROGRAMS =
+check_PROGRAMS =
 TESTS =
 BENCHMARKS =
 
@@ -36,9 +38,6 @@ LIBSECP256K1=secp256k1/libsecp256k1.la
 
 if ENABLE_ZMQ
 LIBBGL_ZMQ=libBGL_zmq.a
-endif
-if BUILD_BGL_LIBS
-LIBBGLCONSENSUS=libBGLconsensus.la
 endif
 if BUILD_BGL_KERNEL_LIB
 LIBBGLKERNEL=libBGLkernel.la
@@ -185,11 +184,13 @@ BGL_CORE_H = \
   kernel/coinstats.h \
   kernel/context.h \
   kernel/cs_main.h \
+  kernel/disconnected_transactions.h \
   kernel/mempool_entry.h \
   kernel/mempool_limits.h \
   kernel/mempool_options.h \
   kernel/mempool_persist.h \
   kernel/mempool_removal_reason.h \
+  kernel/messagestartchars.h \
   kernel/notifications_interface.h \
   kernel/validation_cache_sizes.h \
   key.h \
@@ -227,6 +228,7 @@ BGL_CORE_H = \
   node/mini_miner.h \
   node/minisketchwrapper.h \
   node/peerman_args.h \
+  node/protocol_version.h \
   node/psbt.h \
   node/transaction.h \
   node/txreconciliation.h \
@@ -234,6 +236,7 @@ BGL_CORE_H = \
   node/validation_cache_args.h \
   noui.h \
   outputtype.h \
+  policy/v3_policy.h \
   policy/feerate.h \
   policy/fees.h \
   policy/fees_args.h \
@@ -267,7 +270,6 @@ BGL_CORE_H = \
   script/sign.h \
   script/signingprovider.h \
   script/solver.h \
-  shutdown.h \
   signet.h \
   streams.h \
   support/allocators/pool.h \
@@ -300,7 +302,6 @@ BGL_CORE_H = \
   util/fees.h \
   util/fs.h \
   util/fs_helpers.h \
-  util/getuniquepath.h \
   util/golombrice.h \
   util/hash_type.h \
   util/hasher.h \
@@ -319,12 +320,14 @@ BGL_CORE_H = \
   util/spanparsing.h \
   util/string.h \
   util/syserror.h \
+  util/task_runner.h \
   util/thread.h \
   util/threadinterrupt.h \
   util/threadnames.h \
   util/time.h \
   util/tokenpipe.h \
   util/trace.h \
+  util/transaction_identifier.h \
   util/translation.h \
   util/types.h \
   util/ui_change_type.h \
@@ -400,6 +403,7 @@ libBGL_node_a_SOURCES = \
   kernel/coinstats.cpp \
   kernel/context.cpp \
   kernel/cs_main.cpp \
+  kernel/disconnected_transactions.cpp \
   kernel/mempool_persist.cpp \
   kernel/mempool_removal_reason.cpp \
   mapport.cpp \
@@ -433,6 +437,7 @@ libBGL_node_a_SOURCES = \
   node/utxo_snapshot.cpp \
   node/validation_cache_args.cpp \
   noui.cpp \
+  policy/v3_policy.cpp \
   policy/fees.cpp \
   policy/fees_args.cpp \
   policy/packages.cpp \
@@ -453,7 +458,6 @@ libBGL_node_a_SOURCES = \
   rpc/signmessage.cpp \
   rpc/txoutproof.cpp \
   script/sigcache.cpp \
-  shutdown.cpp \
   signet.cpp \
   timedata.cpp \
   torcontrol.cpp \
@@ -538,6 +542,10 @@ libBGL_wallet_tool_a_SOURCES = \
 #
 
 # crypto #
+
+# crypto_base contains the unspecialized (unoptimized) versions of our
+# crypto functions. Functions that require custom compiler flags and/or
+# runtime opt-in are omitted.
 crypto_libBGL_crypto_base_la_CPPFLAGS = $(AM_CPPFLAGS)
 
 # Specify -static in both CXXFLAGS and LDFLAGS so libtool will only build a
@@ -571,6 +579,7 @@ crypto_libBGL_crypto_base_la_SOURCES = \
   crypto/sha1.h \
   crypto/sha256.cpp \
   crypto/sha256.h \
+  crypto/sha256_sse4.cpp \
   crypto/sha3.cpp \
   crypto/sha3.h \
   crypto/sha512.cpp \
@@ -579,10 +588,6 @@ crypto_libBGL_crypto_base_la_SOURCES = \
   crypto/siphash.h \
   crypto/sha3/sha3.c \
   crypto/sha3/sha3.h
-
-if USE_ASM
-crypto_libBGL_crypto_base_la_SOURCES += crypto/sha256_sse4.cpp
-endif
 
 # See explanation for -static in crypto_libbitcoin_crypto_base_la's LDFLAGS and
 # CXXFLAGS above
@@ -642,7 +647,6 @@ libBGL_consensus_a_SOURCES = \
   primitives/transaction.h \
   pubkey.cpp \
   pubkey.h \
-  script/BGLconsensus.cpp \
   script/interpreter.cpp \
   script/interpreter.h \
   script/script.cpp \
@@ -655,8 +659,7 @@ libBGL_consensus_a_SOURCES = \
   uint256.cpp \
   uint256.h \
   util/strencodings.cpp \
-  util/strencodings.h \
-  version.h
+  util/strencodings.h
 #
 
 # common #
@@ -691,6 +694,7 @@ libBGL_common_a_SOURCES = \
   netbase.cpp \
   net_permissions.cpp \
   outputtype.cpp \
+  policy/v3_policy.cpp \
   policy/feerate.cpp \
   policy/policy.cpp \
   protocol.cpp \
@@ -735,10 +739,10 @@ libBGL_util_a_SOURCES = \
   util/check.cpp \
   util/error.cpp \
   util/exception.cpp \
+  util/feefrac.cpp \
   util/fees.cpp \
   util/fs.cpp \
   util/fs_helpers.cpp \
-  util/getuniquepath.cpp \
   util/hasher.cpp \
   util/sock.cpp \
   util/syserror.cpp \
@@ -907,7 +911,7 @@ lib_LTLIBRARIES += $(LIBBGLKERNEL)
 
 libBGLkernel_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(PTHREAD_FLAGS)
 libBGLkernel_la_LIBADD = $(LIBBGL_CRYPTO) $(LIBLEVELDB) $(LIBMEMENV) $(LIBSECP256K1)
-libBGLkernel_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BGL_INTERNAL $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
+libBGLkernel_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
 
 # libbitcoinkernel requires default symbol visibility, explicitly specify that
 # here so that things still work even when user configures with
@@ -942,6 +946,7 @@ libBGLkernel_la_SOURCES = \
   kernel/coinstats.cpp \
   kernel/context.cpp \
   kernel/cs_main.cpp \
+  kernel/disconnected_transactions.cpp \
   kernel/mempool_persist.cpp \
   kernel/mempool_removal_reason.cpp \
   key.cpp \
@@ -949,8 +954,8 @@ libBGLkernel_la_SOURCES = \
   node/blockstorage.cpp \
   node/chainstate.cpp \
   node/utxo_snapshot.cpp \
+  policy/v3_policy.cpp \
   policy/feerate.cpp \
-  policy/fees.cpp \
   policy/packages.cpp \
   policy/policy.cpp \
   policy/rbf.cpp \
@@ -961,7 +966,6 @@ libBGLkernel_la_SOURCES = \
   pubkey.cpp \
   random.cpp \
   randomenv.cpp \
-  scheduler.cpp \
   script/interpreter.cpp \
   script/script.cpp \
   script/script_error.cpp \
@@ -978,10 +982,8 @@ libBGLkernel_la_SOURCES = \
   util/batchpriority.cpp \
   util/chaintype.cpp \
   util/check.cpp \
-  util/exception.cpp \
   util/fs.cpp \
   util/fs_helpers.cpp \
-  util/getuniquepath.cpp \
   util/hasher.cpp \
   util/moneystr.cpp \
   util/rbf.cpp \
@@ -990,7 +992,6 @@ libBGLkernel_la_SOURCES = \
   util/strencodings.cpp \
   util/string.cpp \
   util/syserror.cpp \
-  util/thread.cpp \
   util/threadnames.cpp \
   util/time.cpp \
   util/tokenpipe.cpp \
@@ -1002,22 +1003,7 @@ libBGLkernel_la_SOURCES = \
 # Required for obj/build.h to be generated first.
 # More details: https://www.gnu.org/software/automake/manual/html_node/Built-Sources-Example.html
 libBGLkernel_la-clientversion.l$(OBJEXT): obj/build.h
-endif # BUILD_BITCOIN_KERNEL_LIB
-#
-
-# bitcoinconsensus library #
-if BUILD_BGL_LIBS
-lib_LTLIBRARIES += $(LIBBGLCONSENSUS)
-
-include_HEADERS = script/BGLconsensus.h
-libBGLconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libBGL_crypto_base_la_SOURCES) $(libBGL_consensus_a_SOURCES)
-
-libBGLconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS)
-libBGLconsensus_la_LIBADD = $(LIBSECP256K1)
-libBGLconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BGL_INTERNAL
-libBGLconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-
-endif
+endif # BUILD_BGL_KERNEL_LIB
 #
 
 CTAES_DIST =  crypto/ctaes/bench.c
@@ -1092,6 +1078,7 @@ ipc/capnp/libBGL_ipc_a-protocol.$(OBJEXT): $(libBGL_ipc_mpgen_input:=.h)
 if BUILD_MULTIPROCESS
 LIBBGL_IPC=libBGL_ipc.a
 libBGL_ipc_a_SOURCES = \
+  ipc/capnp/common-types.h \
   ipc/capnp/context.h \
   ipc/capnp/init-types.h \
   ipc/capnp/protocol.cpp \

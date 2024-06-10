@@ -29,7 +29,7 @@ Perform these checks before creating a release:
 
 #### Before branch-off
 
-* Update hardcoded [seeds](/contrib/seeds/README.md), see [this pull request](https://github.com/bitcoin/bitcoin/pull/7415) for an example.
+* Update hardcoded [seeds](/contrib/seeds/README.md), see [this pull request](https://github.com/bitcoin/bitcoin/pull/27488) for an example.
 * Update the following variables in [`src/kernel/chainparams.cpp`](/src/kernel/chainparams.cpp) for mainnet, testnet, and signet:
   - `m_assumed_blockchain_size` and `m_assumed_chain_state_size` with the current size plus some overhead (see
     [this](#how-to-calculate-assumed-blockchain-and-chain-state-size) for information on how to calculate them).
@@ -37,13 +37,21 @@ Perform these checks before creating a release:
     that causes rejection of blocks in the past history.
   - `chainTxData` with statistics about the transaction count and rate. Use the output of the `getchaintxstats` RPC with an
     `nBlocks` of 4096 (28 days) and a `bestblockhash` of RPC `getbestblockhash`; see
-    [this pull request](https://github.com/bitcoin/bitcoin/pull/20263) for an example. Reviewers can verify the results by running
+    [this pull request](https://github.com/bitcoin/bitcoin/pull/28591) for an example. Reviewers can verify the results by running
     `getchaintxstats <window_block_count> <window_final_block_hash>` with the `window_block_count` and `window_final_block_hash` from your output.
   - `defaultAssumeValid` with the output of RPC `getblockhash` using the `height` of `window_final_block_height` above
     (and update the block height comment with that height), taking into account the following:
     - On mainnet, the selected value must not be orphaned, so it may be useful to set the height two blocks back from the tip.
     - Testnet should be set with a height some tens of thousands back from the tip, due to reorgs there.
   - `nMinimumChainWork` with the "chainwork" value of RPC `getblockheader` using the same height as that selected for the previous step.
+* Consider updating the headers synchronization tuning parameters to account for the chainparams updates.
+  The optimal values change very slowly, so this isn't strictly necessary every release, but doing so doesn't hurt.
+  - Update configuration variables in [`contrib/devtools/headerssync-params.py`](/contrib/devtools/headerssync-params.py):
+    - Set `TIME` to the software's expected supported lifetime -- after this time, its ability to defend against a high bandwidth timewarp attacker will begin to degrade.
+    - Set `MINCHAINWORK_HEADERS` to the height used for the `nMinimumChainWork` calculation above.
+    - Check that the other variables still look reasonable.
+  - Run the script. It works fine in CPython, but PyPy is much faster (seconds instead of minutes): `pypy3 contrib/devtools/headerssync-params.py`.
+  - Paste the output defining `HEADER_COMMITMENT_PERIOD` and `REDOWNLOAD_BUFFER_SIZE` into the top of [`src/headerssync.cpp`](/src/headerssync.cpp).
 - Clear the release notes and move them to the wiki (see "Write the release notes" below).
 - Translations on Transifex:
     - Pull translations from Transifex into the master branch.
@@ -67,7 +75,9 @@ Perform these checks before creating a release:
 #### Before final release
 
 - Merge the release notes from [the wiki](https://github.com/bitcoin-core/bitcoin-devwiki/wiki/) into the branch.
-- Ensure the "Needs release note" label is removed from all relevant pull requests and issues.
+- Ensure the "Needs release note" label is removed from all relevant pull
+  requests and issues:
+  https://github.com/bitcoin/bitcoin/issues?q=label%3A%22Needs+release+note%22
 
 #### Tagging a release (candidate)
 
@@ -111,6 +121,7 @@ git fetch origin "v${VERSION}"
 git checkout "v${VERSION}"
 popd
 ```
+<<<<<<< HEAD
 
 Ensure your guix.sigs are up-to-date if you wish to `guix-verify` your builds
 against other `guix-attest` signatures.
@@ -122,7 +133,7 @@ git -C ./guix.sigs pull
 ### Create the macOS SDK tarball (first time, or when SDK version changes)
 
 Create the macOS SDK tarball, see the [macdeploy
-instructions](/contrib/macdeploy/README.md#deterministic-macos-dmg-notes) for
+instructions](/contrib/macdeploy/README.md#deterministic-macos-app-notes) for
 details.
 
 ### Build and attest to build outputs
@@ -142,8 +153,28 @@ pushd ./guix.sigs
 git add "${VERSION}/${SIGNER}"/noncodesigned.SHA256SUMS{,.asc}
 git commit -m "Add attestations by ${SIGNER} for ${VERSION} non-codesigned"
 popd
+=======
+2. Check installation with autotools:
+```shell
+dir=$(mktemp -d)
+./autogen.sh && ./configure --prefix=$dir && make clean && make install && ls -RlAh $dir
+gcc -o ecdsa examples/ecdsa.c $(PKG_CONFIG_PATH=$dir/lib/pkgconfig pkg-config --cflags --libs libsecp256k1) -Wl,-rpath,"$dir/lib" && ./ecdsa
+```
+3. Check installation with CMake:
+```shell
+dir=$(mktemp -d)
+build=$(mktemp -d)
+cmake -B $build -DCMAKE_INSTALL_PREFIX=$dir && cmake --build $build --target install && ls -RlAh $dir
+gcc -o ecdsa examples/ecdsa.c -I $dir/include -L $dir/lib*/ -l secp256k1 -Wl,-rpath,"$dir/lib",-rpath,"$dir/lib64" && ./ecdsa
+>>>>>>> 29fde0223a... Squashed 'src/secp256k1/' changes from 199d27cea3..efe85c70a2
+```
+4. Use the [`check-abi.sh`](/tools/check-abi.sh) tool to ensure there are no unexpected ABI incompatibilities and that the version number and release notes accurately reflect all potential ABI changes. To run this tool, the `abi-dumper` and `abi-compliance-checker` packages are required.
+
+```shell
+tools/check-abi.sh
 ```
 
+<<<<<<< HEAD
 Then open a Pull Request to the [guix.sigs repository](https://github.com/bitcoin-core/guix.sigs).
 
 ## Codesigning
@@ -311,3 +342,56 @@ To calculate `m_assumed_chain_state_size`, take the size in GiB of these directo
 Notes:
 - When taking the size for `m_assumed_blockchain_size`, there's no need to exclude the `/chainstate` directory since it's a guideline value and an overhead will be added anyway.
 - The expected overhead for growth may change over time. Consider whether the percentage needs to be changed in response; if so, update it here in this section.
+=======
+## Regular release
+
+1. Open a PR to the master branch with a commit (using message `"release: prepare for $MAJOR.$MINOR.$PATCH"`, for example) that
+   * finalizes the release notes in [CHANGELOG.md](../CHANGELOG.md) by
+       * adding a section for the release (make sure that the version number is a link to a diff between the previous and new version),
+       * removing the `[Unreleased]` section header, and
+       * including an entry for `### ABI Compatibility` if it doesn't exist,
+   * sets `_PKG_VERSION_IS_RELEASE` to `true` in `configure.ac`, and
+   * if this is not a patch release
+       * updates `_PKG_VERSION_*` and `_LIB_VERSION_*`  in `configure.ac` and
+       * updates `project(libsecp256k1 VERSION ...)` and `${PROJECT_NAME}_LIB_VERSION_*` in `CMakeLists.txt`.
+2. After the PR is merged, tag the commit and push it:
+   ```
+   RELEASE_COMMIT=<merge commit of step 1>
+   git tag -s v$MAJOR.$MINOR.$PATCH -m "libsecp256k1 $MAJOR.$MINOR.$PATCH" $RELEASE_COMMIT
+   git push git@github.com:bitcoin-core/secp256k1.git v$MAJOR.$MINOR.$PATCH
+   ```
+3. Open a PR to the master branch with a commit (using message `"release cleanup: bump version after $MAJOR.$MINOR.$PATCH"`, for example) that
+   * sets `_PKG_VERSION_IS_RELEASE` to `false` and increments `_PKG_VERSION_PATCH` and `_LIB_VERSION_REVISION` in `configure.ac`,
+   * increments the `$PATCH` component of `project(libsecp256k1 VERSION ...)` and `${PROJECT_NAME}_LIB_VERSION_REVISION` in `CMakeLists.txt`, and
+   * adds an `[Unreleased]` section header to the [CHANGELOG.md](../CHANGELOG.md).
+
+   If other maintainers are not present to approve the PR, it can be merged without ACKs.
+4. Create a new GitHub release with a link to the corresponding entry in [CHANGELOG.md](../CHANGELOG.md).
+
+## Maintenance release
+
+Note that bugfixes only need to be backported to releases for which no compatible release without the bug exists.
+
+1. If there's no maintenance branch `$MAJOR.$MINOR`, create one:
+   ```
+   git checkout -b $MAJOR.$MINOR v$MAJOR.$MINOR.$((PATCH - 1))
+   git push git@github.com:bitcoin-core/secp256k1.git $MAJOR.$MINOR
+   ```
+2. Open a pull request to the `$MAJOR.$MINOR` branch that
+   * includes the bugfixes,
+   * finalizes the release notes similar to a regular release,
+   * increments `_PKG_VERSION_PATCH` and `_LIB_VERSION_REVISION` in `configure.ac`
+     and the `$PATCH` component of `project(libsecp256k1 VERSION ...)` and `${PROJECT_NAME}_LIB_VERSION_REVISION` in `CMakeLists.txt`
+     (with commit message `"release: bump versions for $MAJOR.$MINOR.$PATCH"`, for example).
+3. After the PRs are merged, update the release branch and tag the commit:
+   ```
+   git checkout $MAJOR.$MINOR && git pull
+   git tag -s v$MAJOR.$MINOR.$PATCH -m "libsecp256k1 $MAJOR.$MINOR.$PATCH"
+   ```
+4. Push tag:
+   ```
+   git push git@github.com:bitcoin-core/secp256k1.git v$MAJOR.$MINOR.$PATCH
+   ```
+5. Create a new GitHub release with a link to the corresponding entry in [CHANGELOG.md](../CHANGELOG.md).
+6. Open PR to the master branch that includes a commit (with commit message `"release notes: add $MAJOR.$MINOR.$PATCH"`, for example) that adds release notes to [CHANGELOG.md](../CHANGELOG.md).
+>>>>>>> 29fde0223a... Squashed 'src/secp256k1/' changes from 199d27cea3..efe85c70a2

@@ -10,6 +10,7 @@
 #include <consensus/merkle.h>
 #include <consensus/params.h>
 #include <hash.h>
+#include <kernel/messagestartchars.h>
 #include <logging.h>
 #include <primitives/block.h>
 #include <primitives/transaction.h>
@@ -113,9 +114,7 @@ public:
 
         // The best chain should have at least this much work.
         consensus.nMinimumChainWork = uint256S("0x00000000000000000000000000000000000000000000000a7856edabbf8749a8");
-
-        // By default assume that the signatures in ancestors of this block are valid.
-        consensus.defaultAssumeValid = uint256S("0x000000000000055e5a25481d6b90bc943f36d5f2b3ca0ecf4f4b4ea3241a3168");
+        consensus.defaultAssumeValid = uint256S("0x000000000000055e5a25481d6b90bc943f36d5f2b3ca0ecf4f4b4ea3241a3168"); // 824000
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -128,8 +127,8 @@ public:
         pchMessageStart[3] = 0xe8;
         nDefaultPort = 8454;
         nPruneAfterHeight = 100000;
-        m_assumed_blockchain_size = 4;
-        m_assumed_chain_state_size = 1;
+        m_assumed_blockchain_size = 600;
+        m_assumed_chain_state_size = 10;
 
         genesis = CreateGenesisBlock(1585958400, 0x0278eefd, 0x1d22ffff, 1, 200 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
@@ -157,8 +156,6 @@ public:
         vFixedSeeds = std::vector<uint8_t>(std::begin(chainparams_seed_main), std::end(chainparams_seed_main));
 
         fDefaultConsistencyChecks = false;
-        //fRequireStandard = true;
-        m_is_test_chain = false;
         m_is_mockable_chain = false;
 
         checkpointData = {
@@ -179,15 +176,15 @@ public:
             }
         };
 
-        m_assumeutxo_data = MapAssumeutxo{
-         // TODO to be specified in a future patch.
+        m_assumeutxo_data = {
+            // TODO to be specified in a future patch.
         };
 
         chainTxData = ChainTxData{
-            // Data from RPC: getchaintxstats 4096 00000000000000000008a89e854d57e5667df88f1cdef6fde2fbca1de5b639ad
-            /* nTime    */ .nTime    = 1626697539,
-            /* nTxCount */ .nTxCount = 656509474,
-            /* dTxRate  */ .dTxRate  = 2.424920418708139,
+            // Data from RPC: getchaintxstats 4096 000000000000000000026811d149d4d261995ec5b3f64f439a0a10e1a464af9a
+            .nTime    = 1704194835,
+            .nTxCount = 946728933,
+            .dTxRate  = 6.569290261471664,
         };
     }
 };
@@ -229,8 +226,8 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].nTimeout = 1230767999; // December 31, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].min_activation_height = 0; // No activation delay
 
-        consensus.nMinimumChainWork = uint256S("0x000000000000000000000000000000000000000000000000000005ede0aa26f0"); // block 103846
-        consensus.defaultAssumeValid = uint256S("0x0000000000004ae2f3896ca8ecd41c460a35bf6184e145d91558cece1c688a76"); // 2010000
+        consensus.nMinimumChainWork = uint256S("0x000000000000000000000000000000000000000000000c59b14e264ba6c15db9");
+        consensus.defaultAssumeValid = uint256S("0x000000000001323071f38f21ea5aae529ece491eadaccce506a59bcc2d968917"); // 2550000
 
         pchMessageStart[0] = 0x0b;
         pchMessageStart[1] = 0x11;
@@ -264,21 +261,28 @@ public:
         vFixedSeeds = std::vector<uint8_t>(std::begin(chainparams_seed_test), std::end(chainparams_seed_test));
 
         fDefaultConsistencyChecks = false;
-        //fRequireStandard = false;
-        m_is_test_chain = true;
         m_is_mockable_chain = false;
 
         checkpointData = {
             {
                 {546, uint256S("000000033f0ecd6bc1c46eb98a2856cf2fe48bc3e90ef11ac24ea5272c1adbf8")},
             }
-            };
+        };
+
+        m_assumeutxo_data = {
+            {
+                .height = 2'500'000,
+                .hash_serialized = AssumeutxoHash{uint256S("0xf841584909f68e47897952345234e37fcd9128cd818f41ee6c3ca68db8071be7")},
+                .nChainTx = 66484552,
+                .blockhash = uint256S("0x0000000000000093bcb68c03a9a168ae252572d348a2eaeba2cdf9231d73206f")
+            }
+        };
 
         chainTxData = ChainTxData{
-            // Data from RPC: getchaintxstats 4096 0000000000004ae2f3896ca8ecd41c460a35bf6184e145d91558cece1c688a76
-            /* nTime    */ .nTime    = 1625727096,
-            /* nTxCount */ .nTxCount = 60408943,
-            /* dTxRate  */ .dTxRate  = 0.08379062270367649,
+            // Data from RPC: getchaintxstats 4096 000000000001323071f38f21ea5aae529ece491eadaccce506a59bcc2d968917
+            .nTime    = 1703579240,
+            .nTxCount = 67845391,
+            .dTxRate  = 1.464436832560951,
         };
     }
 };
@@ -299,15 +303,15 @@ public:
             //vSeeds.emplace_back("2a01:7c8:d005:390::5");
             //vSeeds.emplace_back("ntv3mtqw5wt63red.onion:38333");
 
-            consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000000000008546553c03");
-            consensus.defaultAssumeValid = uint256S("0x000000187d4440e5bff91488b700a140441e089a8aaea707414982460edbfe54"); // 47200
+            consensus.nMinimumChainWork = uint256S("0x00000000000000000000000000000000000000000000000000000206e86f08e8");
+            consensus.defaultAssumeValid = uint256S("0x0000000870f15246ba23c16e370a7ffb1fc8a3dcf8cb4492882ed4b0e3d4cd26"); // 180000
             m_assumed_blockchain_size = 1;
             m_assumed_chain_state_size = 0;
             chainTxData = ChainTxData{
-                // Data from RPC: getchaintxstats 4096 000000187d4440e5bff91488b700a140441e089a8aaea707414982460edbfe54
-                /* nTime    */ .nTime    = 1626696658,
-                /* nTxCount */ .nTxCount = 387761,
-                /* dTxRate  */ .dTxRate  = 0.04035946932424404,
+                // Data from RPC: getchaintxstats 4096 0000000870f15246ba23c16e370a7ffb1fc8a3dcf8cb4492882ed4b0e3d4cd26
+                .nTime    = 1706331472,
+                .nTxCount = 2425380,
+                .dTxRate  = 0.008277759863833788,
             };
         } else {
             bin = *options.challenge;
@@ -362,7 +366,7 @@ public:
         CHashWriterKeccak h(SER_GETHASH, PROTOCOL_VERSION);
         h << consensus.signet_challenge;
         uint256 hash = h.GetHash();
-        memcpy(pchMessageStart, hash.begin(), 4);
+        std::copy_n(hash.begin(), 4, pchMessageStart.begin());
 
         nDefaultPort = 38333;
         nPruneAfterHeight = 1000;
@@ -373,8 +377,17 @@ public:
 
         vFixedSeeds.clear();
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 34);
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 50);
+        m_assumeutxo_data = {
+            {
+                .height = 160'000,
+                .hash_serialized = AssumeutxoHash{uint256S("0xfe0a44309b74d6b5883d246cb419c6221bcccf0b308c9b59b7d70783dbdf928a")},
+                .nChainTx = 2289496,
+                .blockhash = uint256S("0x0000003ca3c99aff040f2563c2ad8f8ec88bd0fd6b8f0895cfaf1ef90353a62c")
+            }
+        };
+
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,34);
+        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,50);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x35, 0x87, 0xCF};
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x35, 0x83, 0x94};
@@ -382,8 +395,6 @@ public:
         bech32_hrp = "tbgl";
 
         fDefaultConsistencyChecks = false;
-        //fRequireStandard = true;
-        m_is_test_chain = true;
         m_is_mockable_chain = false;
     }
 };
@@ -478,8 +489,6 @@ public:
         vSeeds.emplace_back("dummySeed.invalid.");
 
         fDefaultConsistencyChecks = true;
-        //fRequireStandard = true;
-        m_is_test_chain = true;
         m_is_mockable_chain = true;
 
        checkpointData = {
@@ -488,14 +497,19 @@ public:
             }
         };
 
-        m_assumeutxo_data = MapAssumeutxo{
+        m_assumeutxo_data = {
             {
-                110,
-                {AssumeutxoHash{uint256S("0xd9c6cd17c8cdcc2b076a02b304dd85cf22182d2ece4c7c7428e4ca89b724ae85")}, 110},
+                .height = 110,
+                .hash_serialized = AssumeutxoHash{uint256S("0x74bf433ff714135263937cf322ff11f4df2c47a21d20128874592c164fea7dc2")},
+                .nChainTx = 111,
+                .blockhash = uint256S("0x127d9654e3672ac08a484c00fe42749f696472d9bd86e32057376ad0566b2987")
             },
             {
-                200,
-                {AssumeutxoHash{uint256S("0x51c8d11d8b5c1de51543c579736e786aa2736206d1e11e627568029ce092cf62")}, 200},
+                // For use by test/functional/feature_assumeutxo.py
+                .height = 299,
+                .hash_serialized = AssumeutxoHash{uint256S("0x37198d274df7c2f663860aeeddc8517938284694f0499a28621c781dff509940")},
+                .nChainTx = 334,
+                .blockhash = uint256S("0x1e6b433578be026c430295078d3faca1d757c0aafec3252e385c300b35f3824b")
             },
         };
 

@@ -2,6 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#if defined(HAVE_CONFIG_H)
+#include <config/BGL-config.h>
+#endif
+
 #include <chain.h>
 #include <clientversion.h>
 #include <core_io.h>
@@ -228,7 +232,7 @@ RPCHelpMan importaddress()
             "Note: Use \"getwalletinfo\" to query the scanning progress.\n"
             "Note: This command is only compatible with legacy wallets. Use \"importdescriptors\" for descriptor wallets.\n",
                 {
-                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The BGL address (or hex-encoded script)"},
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The Bitgesell address (or hex-encoded script)"},
                     {"label", RPCArg::Type::STR, RPCArg::Default{""}, "An optional label"},
                     {"rescan", RPCArg::Type::BOOL, RPCArg::Default{true}, "Scan the chain and mempool for wallet transactions."},
                     {"p2sh", RPCArg::Type::BOOL, RPCArg::Default{false}, "Add the P2SH version of the script as well"},
@@ -301,7 +305,7 @@ RPCHelpMan importaddress()
 
             pwallet->ImportScriptPubKeys(strLabel, scripts, /*have_solving_data=*/false, /*apply_label=*/true, /*timestamp=*/1);
         } else {
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid BGL address or script");
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitgesell address or script");
         }
     }
     if (fRescan)
@@ -394,14 +398,8 @@ RPCHelpMan removeprunedfunds()
     uint256 hash(ParseHashV(request.params[0], "txid"));
     std::vector<uint256> vHash;
     vHash.push_back(hash);
-    std::vector<uint256> vHashOut;
-
-    if (pwallet->ZapSelectTx(vHash, vHashOut) != DBErrors::LOAD_OK) {
-        throw JSONRPCError(RPC_WALLET_ERROR, "Could not properly delete the transaction.");
-    }
-
-    if(vHashOut.empty()) {
-        throw JSONRPCError(RPC_INVALID_PARAMETER, "Transaction does not exist in wallet.");
+    if (auto res = pwallet->RemoveTxs(vHash); !res) {
+        throw JSONRPCError(RPC_WALLET_ERROR, util::ErrorString(res).original);
     }
 
     return UniValue::VNULL;
@@ -573,13 +571,13 @@ RPCHelpMan importwallet()
                     }
                 }
                 nTimeBegin = std::min(nTimeBegin, nTime);
-                keys.push_back(std::make_tuple(key, nTime, fLabel, strLabel));
+                keys.emplace_back(key, nTime, fLabel, strLabel);
             } else if(IsHex(vstr[0])) {
                 std::vector<unsigned char> vData(ParseHex(vstr[0]));
                 CScript script = CScript(vData.begin(), vData.end());
                 int64_t birth_time = ParseISO8601DateTime(vstr[1]);
                 if (birth_time > 0) nTimeBegin = std::min(nTimeBegin, birth_time);
-                scripts.push_back(std::pair<CScript, int64_t>(script, birth_time));
+                scripts.emplace_back(script, birth_time);
             }
         }
         file.close();
@@ -648,7 +646,7 @@ RPCHelpMan dumpprivkey()
                 "Then the importprivkey can be used with this output\n"
                 "Note: This command is only compatible with legacy wallets.\n",
                 {
-                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The BGL address for the private key"},
+                    {"address", RPCArg::Type::STR, RPCArg::Optional::NO, "The bitgesell address for the private key"},
                 },
                 RPCResult{
                     RPCResult::Type::STR, "key", "The private key"
@@ -672,7 +670,7 @@ RPCHelpMan dumpprivkey()
     std::string strAddress = request.params[0].get_str();
     CTxDestination dest = DecodeDestination(strAddress);
     if (!IsValidDestination(dest)) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid BGL address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitgesell address");
     }
     auto keyid = GetKeyForDestination(spk_man, dest);
     if (keyid.IsNull()) {
@@ -734,7 +732,7 @@ RPCHelpMan dumpwallet()
      * It may also avoid other security issues.
      */
     if (fs::exists(filepath)) {
-        throw JSONRPCError(RPC_INVALID_PARAMETER, filepath.u8string() + " already exists. If you are sure this is what you want, move it out of the way first");
+        throw JSONRPCError(RPC_INVALID_PARAMETER, filepath.utf8string() + " already exists. If you are sure this is what you want, move it out of the way first");
     }
 
     std::ofstream file;
@@ -759,7 +757,7 @@ RPCHelpMan dumpwallet()
     std::vector<std::pair<int64_t, CKeyID> > vKeyBirth;
     vKeyBirth.reserve(mapKeyBirth.size());
     for (const auto& entry : mapKeyBirth) {
-        vKeyBirth.push_back(std::make_pair(entry.second, entry.first));
+        vKeyBirth.emplace_back(entry.second, entry.first);
     }
     mapKeyBirth.clear();
     std::sort(vKeyBirth.begin(), vKeyBirth.end());
@@ -828,7 +826,7 @@ RPCHelpMan dumpwallet()
     file.close();
 
     UniValue reply(UniValue::VOBJ);
-    reply.pushKV("filename", filepath.u8string());
+    reply.pushKV("filename", filepath.utf8string());
 
     return reply;
 },

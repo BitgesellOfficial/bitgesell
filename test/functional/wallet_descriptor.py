@@ -3,19 +3,22 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test descriptor wallet function."""
-import os
 
 try:
     import sqlite3
 except ImportError:
     pass
 
+import concurrent.futures
+
 from test_framework.blocktools import COINBASE_MATURITY
+from test_framework.descriptors import descsum_create
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error
 )
+from test_framework.wallet_util import WalletUnlock
 
 
 class WalletDescriptorTest(BGLTestFramework):
@@ -32,6 +35,41 @@ class WalletDescriptorTest(BGLTestFramework):
         self.skip_if_no_wallet()
         self.skip_if_no_sqlite()
         self.skip_if_no_py_sqlite3()
+
+    def test_concurrent_writes(self):
+        self.log.info("Test sqlite concurrent writes are in the correct order")
+        self.restart_node(0, extra_args=["-unsafesqlitesync=0"])
+        self.nodes[0].createwallet(wallet_name="concurrency", blank=True)
+        wallet = self.nodes[0].get_wallet_rpc("concurrency")
+        # First import a descriptor that uses hardened dervation so that topping up
+        # Will require writing a ton to db
+        wallet.importdescriptors([{"desc":descsum_create("wpkh(tprv8ZgxMBicQKsPeuVhWwi6wuMQGfPKi9Li5GtX35jVNknACgqe3CY4g5xgkfDDJcmtF7o1QnxWDRYw4H5P26PXq7sbcUkEqeR4fg3Kxp2tigg/0h/0h/*h)"), "timestamp": "now", "active": True}])
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as thread:
+            topup = thread.submit(wallet.keypoolrefill, newsize=1000)
+
+            # Then while the topup is running, we need to do something that will call
+            # ChainStateFlushed which will trigger a write to the db, hopefully at the
+            # same time that the topup still has an open db transaction.
+            self.nodes[0].cli.gettxoutsetinfo()
+            assert_equal(topup.result(), None)
+
+        wallet.unloadwallet()
+
+        # Check that everything was written
+        wallet_db = self.nodes[0].wallets_path / "concurrency" / self.wallet_data_filename
+        conn = sqlite3.connect(wallet_db)
+        with conn:
+            # Retrieve the bestblock_nomerkle record
+            bestblock_rec = conn.execute("SELECT value FROM main WHERE hex(key) = '1262657374626C6F636B5F6E6F6D65726B6C65'").fetchone()[0]
+            # Retrieve the number of descriptor cache records
+            # Since we store binary data, sqlite's comparison operators don't work everywhere
+            # so just retrieve all records and process them ourselves.
+            db_keys = conn.execute("SELECT key FROM main").fetchall()
+            cache_records = len([k[0] for k in db_keys if b"walletdescriptorcache" in k[0]])
+        conn.close()
+
+        assert_equal(bestblock_rec[5:37][::-1].hex(), self.nodes[0].getbestblockhash())
+        assert_equal(cache_records, 1000)
 
     def run_test(self):
         if self.is_bdb_compiled():
@@ -129,11 +167,10 @@ class WalletDescriptorTest(BGLTestFramework):
 
         # Encrypt wallet 0
         send_wrpc.encryptwallet('pass')
-        send_wrpc.walletpassphrase('pass', 10)
-        addr = send_wrpc.getnewaddress()
-        info2 = send_wrpc.getaddressinfo(addr)
-        assert info1['hdmasterfingerprint'] != info2['hdmasterfingerprint']
-        send_wrpc.walletlock()
+        with WalletUnlock(send_wrpc, "pass"):
+            addr = send_wrpc.getnewaddress()
+            info2 = send_wrpc.getaddressinfo(addr)
+            assert info1['hdmasterfingerprint'] != info2['hdmasterfingerprint']
         assert 'hdmasterfingerprint' in send_wrpc.getaddressinfo(send_wrpc.getnewaddress())
         info3 = send_wrpc.getaddressinfo(addr)
         assert_equal(info2['desc'], info3['desc'])
@@ -143,14 +180,13 @@ class WalletDescriptorTest(BGLTestFramework):
             send_wrpc.getnewaddress()
 
         self.log.info("Test that unlock is needed when deriving only hardened keys in an encrypted wallet")
-        send_wrpc.walletpassphrase('pass', 10)
-        send_wrpc.importdescriptors([{
-            "desc": "wpkh(tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK/0h/*h)#y4dfsj7n",
-            "timestamp": "now",
-            "range": [0,10],
-            "active": True
-        }])
-        send_wrpc.walletlock()
+        with WalletUnlock(send_wrpc, "pass"):
+            send_wrpc.importdescriptors([{
+                "desc": "wpkh(tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK/0h/*h)#y4dfsj7n",
+                "timestamp": "now",
+                "range": [0,10],
+                "active": True
+            }])
         # Exhaust keypool of 100
         for _ in range(100):
             send_wrpc.getnewaddress(address_type='bech32')
@@ -234,13 +270,15 @@ class WalletDescriptorTest(BGLTestFramework):
         self.log.info("Test that loading descriptor wallet containing legacy key types throws error")
         self.nodes[0].createwallet(wallet_name="crashme", descriptors=True)
         self.nodes[0].unloadwallet("crashme")
-        wallet_db = os.path.join(self.nodes[0].wallets_path, "crashme", self.wallet_data_filename)
+        wallet_db = self.nodes[0].wallets_path / "crashme" / self.wallet_data_filename
         conn = sqlite3.connect(wallet_db)
         with conn:
             # add "cscript" entry: key type is uint160 (20 bytes), value type is CScript (zero-length here)
             conn.execute('INSERT INTO main VALUES(?, ?)', (b'\x07cscript' + b'\x00'*20, b'\x00'))
         conn.close()
         assert_raises_rpc_error(-4, "Unexpected legacy entry in descriptor wallet found.", self.nodes[0].loadwallet, "crashme")
+
+        self.test_concurrent_writes()
 
 
 if __name__ == '__main__':

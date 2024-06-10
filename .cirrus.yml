@@ -23,7 +23,7 @@ env:
 # - The ./ci/ depedencies (with cirrus-cli) should be installed:
 #
 #   ```
-#   apt update && apt install screen python3 bash podman-docker curl -y && curl -L -o cirrus "https://github.com/cirruslabs/cirrus-cli/releases/latest/download/cirrus-linux-$(dpkg --print-architecture)" && mv cirrus /usr/local/bin/cirrus && chmod +x /usr/local/bin/cirrus
+#   apt update && apt install git screen python3 bash podman-docker curl -y && curl -L -o cirrus "https://github.com/cirruslabs/cirrus-cli/releases/latest/download/cirrus-linux-$(dpkg --print-architecture)" && mv cirrus /usr/local/bin/cirrus && chmod +x /usr/local/bin/cirrus
 #   ```
 #
 # - There are no strict requirements on the hardware, because having less CPUs
@@ -44,7 +44,7 @@ env:
 # The following specific types should exist, with the following requirements:
 # - small: For an x86_64 machine, recommended to have 2 CPUs and 8 GB of memory.
 # - medium: For an x86_64 machine, recommended to have 4 CPUs and 16 GB of memory.
-# - lunar: For a machine running the Linux kernel shipped with Ubuntu Lunar 23.04. The machine is recommended to have 4 CPUs and 16 GB of memory.
+# - noble: For a machine running the Linux kernel shipped with exaclty Ubuntu Noble 24.04. The machine is recommended to have 4 CPUs and 16 GB of memory.
 # - arm64: For an aarch64 machine, recommended to have 2 CPUs and 8 GB of memory.
 
 # https://cirrus-ci.org/guide/tips-and-tricks/#sharing-configuration-between-tasks
@@ -56,7 +56,7 @@ base_template: &BASE_TEMPLATE
   << : *FILTER_TEMPLATE
   merge_base_script:
     # Unconditionally install git (used in fingerprint_script).
-    - bash -c "$PACKAGE_MANAGER_INSTALL git"
+    - git --version || bash -c "$PACKAGE_MANAGER_INSTALL git"
     - if [ "$CIRRUS_PR" = "" ]; then exit 0; fi
     - git fetch --depth=1 $CIRRUS_REPO_CLONE_URL "pull/${CIRRUS_PR}/merge"
     - git checkout FETCH_HEAD  # Use merged changes to detect silent merge conflicts
@@ -71,37 +71,10 @@ global_task_template: &GLOBAL_TASK_TEMPLATE
   << : *BASE_TEMPLATE
   << : *MAIN_TEMPLATE
 
-task:
-  name: "x86_64: Linux (Debian stable)"
-  << : *LINUX_CONTAINER
-  matrix:
-    - env: {WIDEMUL:  int64,  RECOVERY: yes}
-    - env: {WIDEMUL:  int64,                 ECDH: yes, SCHNORRSIG: yes, ELLSWIFT: yes}
-    - env: {WIDEMUL: int128}
-    - env: {WIDEMUL: int128_struct,                                      ELLSWIFT: yes}
-    - env: {WIDEMUL: int128,  RECOVERY: yes,            SCHNORRSIG: yes, ELLSWIFT: yes}
-    - env: {WIDEMUL: int128,                 ECDH: yes, SCHNORRSIG: yes}
-    - env: {WIDEMUL: int128,  ASM: x86_64                              , ELLSWIFT: yes}
-    - env: {                  RECOVERY: yes,            SCHNORRSIG: yes}
-    - env: {CTIMETESTS: no,    RECOVERY: yes, ECDH: yes, SCHNORRSIG: yes, CPPFLAGS: -DVERIFY}
-    - env: {BUILD: distcheck, WITH_VALGRIND: no, CTIMETESTS: no, BENCH: no}
-    - env: {CPPFLAGS: -DDETERMINISTIC}
-    - env: {CFLAGS: -O0, CTIMETESTS: no}
-    - env: {CFLAGS: -O1, RECOVERY: yes, ECDH: yes, SCHNORRSIG: yes, ELLSWIFT: yes}
-    - env: { ECMULTGENPRECISION: 2, ECMULTWINDOW: 2 }
-    - env: { ECMULTGENPRECISION: 8, ECMULTWINDOW: 4 }
-  matrix:
-    - env:
-        CC: gcc
-    - env:
-        CC: clang
-    - env:
-        CC: gcc-snapshot
-    - env:
-        CC: clang-snapshot
-  test_script:
-    - ./ci/cirrus.sh
-  << : *CAT_LOGS
+compute_credits_template: &CREDITS_TEMPLATE
+  # https://cirrus-ci.org/pricing/#compute-credits
+  # Only use credits for pull requests to the main repo
+  use_compute_credits: $CIRRUS_REPO_FULL_NAME == 'BGL/BGL' && $CIRRUS_PR != ""
 
 task:
   name: 'lint'
@@ -112,6 +85,9 @@ task:
     memory: 1G
   # For faster CI feedback, immediately schedule the linters
   << : *CREDITS_TEMPLATE
+  test_runner_cache:
+    folder: "/lint_test_runner"
+    fingerprint_script: echo $CIRRUS_TASK_NAME $(git rev-parse HEAD:test/lint/test_runner)
   python_cache:
     folder: "/python_build"
     fingerprint_script: cat .python-version /etc/os-release
@@ -139,7 +115,7 @@ task:
     FILE_ENV: "./ci/test/00_setup_env_arm.sh"
 
 task:
-  name: 'Win64, unit tests, no gui tests, no boost::process, no functional tests'
+  name: 'Win64, unit tests, no gui tests, no functional tests'
   << : *GLOBAL_TASK_TEMPLATE
   persistent_worker:
     labels:
@@ -157,13 +133,13 @@ task:
     FILE_ENV: "./ci/test/00_setup_env_i686_centos.sh"
 
 task:
-  name: 'previous releases, qt5 dev package and depends packages, DEBUG'
+  name: 'previous releases, depends DEBUG'
   << : *GLOBAL_TASK_TEMPLATE
   persistent_worker:
     labels:
       type: small
   env:
-    FILE_ENV: "./ci/test/00_setup_env_native_qt5.sh"
+    FILE_ENV: "./ci/test/00_setup_env_native_previous_releases.sh"
 
 task:
   name: 'TSan, depends, gui'
@@ -193,7 +169,7 @@ task:
   << : *GLOBAL_TASK_TEMPLATE
   persistent_worker:
     labels:
-      type: lunar  # Must use the lunar-specific worker (needed for USDT functional tests)
+      type: noble  # Must use this specific worker (needed for USDT functional tests)
   env:
     FILE_ENV: "./ci/test/00_setup_env_native_asan.sh"
 
@@ -216,19 +192,26 @@ task:
     FILE_ENV: "./ci/test/00_setup_env_i686_multiprocess.sh"
 
 task:
-  name: 'no wallet, libBGLkernel'
-  << : *GLOBAL_TASK_TEMPLATE
+  name: "ARM64: Linux (Debian stable)"
   persistent_worker:
     labels:
-      type: small
+      type: arm64
   env:
-    FILE_ENV: "./ci/test/00_setup_env_native_nowallet_libBGLkernel.sh"
+    ECDH: yes
+    RECOVERY: yes
+    SCHNORRSIG: yes
+    ELLSWIFT: yes
+  matrix:
+     # Currently only gcc-snapshot, the other compilers are tested on GHA with QEMU
+     - env: { CC: 'gcc-snapshot' }
+  << : *LINUX_ARM64_CONTAINER
+  << : *CAT_LOGS
 
 task:
-  name: 'macOS-cross 11.0, gui, no tests'
+  name: 'macOS-cross, gui, no tests'
   << : *GLOBAL_TASK_TEMPLATE
   persistent_worker:
     labels:
-      type: small
+      type: arm64
   env:
-    FILE_ENV: "./ci/test/00_setup_env_mac.sh"
+    FILE_ENV: "./ci/test/00_setup_env_mac_cross.sh"

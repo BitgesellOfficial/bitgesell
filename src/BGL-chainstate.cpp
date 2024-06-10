@@ -22,16 +22,16 @@
 #include <node/blockstorage.h>
 #include <node/caches.h>
 #include <node/chainstate.h>
-#include <scheduler.h>
+#include <random.h>
 #include <script/sigcache.h>
 #include <util/chaintype.h>
-#include <util/thread.h>
+#include <util/fs.h>
+#include <util/task_runner.h>
 #include <validation.h>
 #include <validationinterface.h>
 
 #include <cassert>
 #include <cstdint>
-#include <filesystem>
 #include <functional>
 #include <iosfwd>
 #include <memory>
@@ -49,8 +49,8 @@ int main(int argc, char* argv[])
             << "           BREAK IN FUTURE VERSIONS. DO NOT USE ON YOUR ACTUAL DATADIR." << std::endl;
         return 1;
     }
-    std::filesystem::path abs_datadir = std::filesystem::absolute(argv[1]);
-    std::filesystem::create_directories(abs_datadir);
+    fs::path abs_datadir{fs::absolute(argv[1])};
+    fs::create_directories(abs_datadir);
 
 
     // SETUP: Context
@@ -67,16 +67,7 @@ int main(int argc, char* argv[])
     Assert(InitSignatureCache(validation_cache_sizes.signature_cache_bytes));
     Assert(InitScriptExecutionCache(validation_cache_sizes.script_execution_cache_bytes));
 
-
-    // SETUP: Scheduling and Background Signals
-    CScheduler scheduler{};
-    // Start the lightweight task scheduler thread
-    scheduler.m_service_thread = std::thread(util::TraceThread, "scheduler", [&] { scheduler.serviceQueue(); });
-
-    // Gather some entropy once per minute.
-    scheduler.scheduleEvery(RandAddPeriodic, std::chrono::minutes{1});
-
-    GetMainSignals().RegisterBackgroundSignalScheduler(scheduler);
+    ValidationSignals validation_signals{std::make_unique<util::ImmediateTaskRunner>()};
 
     class KernelNotifications : public kernel::Notifications
     {
@@ -98,14 +89,13 @@ int main(int argc, char* argv[])
         {
             std::cout << "Warning: " << warning.original << std::endl;
         }
-        void flushError(const std::string& debug_message) override
+        void flushError(const bilingual_str& message) override
         {
-            std::cerr << "Error flushing block data to disk: " << debug_message << std::endl;
+            std::cerr << "Error flushing block data to disk: " << message.original << std::endl;
         }
-        void fatalError(const std::string& debug_message, const bilingual_str& user_message) override
+        void fatalError(const bilingual_str& message) override
         {
-            std::cerr << "Error: " << debug_message << std::endl;
-            std::cerr << (user_message.empty() ? "A fatal internal error occurred." : user_message.original) << std::endl;
+            std::cerr << "Error: " << message.original << std::endl;
         }
     };
     auto notifications = std::make_unique<KernelNotifications>();
@@ -116,22 +106,22 @@ int main(int argc, char* argv[])
     const ChainstateManager::Options chainman_opts{
         .chainparams = *chainparams,
         .datadir = abs_datadir,
-        .adjusted_time_callback = NodeClock::now,
         .notifications = *notifications,
+        .signals = &validation_signals,
     };
     const node::BlockManager::Options blockman_opts{
         .chainparams = chainman_opts.chainparams,
         .blocks_dir = abs_datadir / "blocks",
         .notifications = chainman_opts.notifications,
     };
-    ChainstateManager chainman{kernel_context.interrupt, chainman_opts, blockman_opts};
+    util::SignalInterrupt interrupt;
+    ChainstateManager chainman{interrupt, chainman_opts, blockman_opts};
 
     node::CacheSizes cache_sizes;
     cache_sizes.block_tree_db = 2 << 20;
     cache_sizes.coins_db = 2 << 22;
     cache_sizes.coins = (450 << 20) - (2 << 20) - (2 << 22);
     node::ChainstateLoadOptions options;
-    options.check_interrupt = [] { return false; };
     auto [status, error] = node::LoadChainstate(chainman, cache_sizes, options);
     if (status != node::ChainstateLoadStatus::SUCCESS) {
         std::cerr << "Failed to load Chain state from your datadir." << std::endl;
@@ -235,9 +225,9 @@ int main(int argc, char* argv[])
 
         bool new_block;
         auto sc = std::make_shared<submitblock_StateCatcher>(block.GetHash());
-        RegisterSharedValidationInterface(sc);
+        validation_signals.RegisterSharedValidationInterface(sc);
         bool accepted = chainman.ProcessNewBlock(blockptr, /*force_processing=*/true, /*min_pow_checked=*/true, /*new_block=*/&new_block);
-        UnregisterSharedValidationInterface(sc);
+        validation_signals.UnregisterSharedValidationInterface(sc);
         if (!new_block && accepted) {
             std::cerr << "duplicate" << std::endl;
             break;
@@ -287,11 +277,9 @@ int main(int argc, char* argv[])
 epilogue:
     // Without this precise shutdown sequence, there will be a lot of nullptr
     // dereferencing and UB.
-    scheduler.stop();
     if (chainman.m_thread_load.joinable()) chainman.m_thread_load.join();
-    StopScriptCheckWorkerThreads();
 
-    GetMainSignals().FlushBackgroundCallbacks();
+    validation_signals.FlushBackgroundCallbacks();
     {
         LOCK(cs_main);
         for (Chainstate* chainstate : chainman.GetAll()) {
@@ -301,5 +289,4 @@ epilogue:
             }
         }
     }
-    GetMainSignals().UnregisterBackgroundSignalScheduler();
 }

@@ -92,6 +92,7 @@ BGL_TESTS =\
   test/dbwrapper_tests.cpp \
   test/denialofservice_tests.cpp \
   test/descriptor_tests.cpp \
+  test/disconnected_transactions.cpp \
   test/flatfile_tests.cpp \
   test/fs_tests.cpp \
   test/getarg_tests.cpp \
@@ -111,10 +112,12 @@ BGL_TESTS =\
   test/miniscript_tests.cpp \
   test/minisketch_tests.cpp \
   test/multisig_tests.cpp \
+  test/net_peer_connection_tests.cpp \
   test/net_peer_eviction_tests.cpp \
   test/net_tests.cpp \
   test/netbase_tests.cpp \
   test/orphanage_tests.cpp \
+  test/peerman_tests.cpp \
   test/pmt_tests.cpp \
   test/policy_fee_tests.cpp \
   test/policyestimator_tests.cpp \
@@ -144,6 +147,7 @@ BGL_TESTS =\
   test/sigopcount_tests.cpp \
   test/skiplist_tests.cpp \
   test/sock_tests.cpp \
+  test/span_tests.cpp \
   test/streams_tests.cpp \
   test/sync_tests.cpp \
   test/system_tests.cpp \
@@ -202,7 +206,8 @@ FUZZ_WALLET_SRC = \
 
 if USE_SQLITE
 FUZZ_WALLET_SRC += \
- wallet/test/fuzz/notifications.cpp
+ wallet/test/fuzz/notifications.cpp \
+ wallet/test/fuzz/scriptpubkeyman.cpp
 endif # USE_SQLITE
 
 BGL_TEST_SUITE += \
@@ -212,12 +217,48 @@ BGL_TEST_SUITE += \
   wallet/test/init_test_fixture.h
 endif # ENABLE_WALLET
 
+if BUILD_MULTIPROCESS
+# Add boost ipc_tests definition to BITCOIN_TESTS
+BGL_TESTS += test/ipc_tests.cpp
+
+# Build ipc_test code in a separate library so it can be compiled with custom
+# LIBMULTIPROCESS_CFLAGS without those flags affecting other tests
+LIBBGL_IPC_TEST=libBGL_ipc_test.a
+EXTRA_LIBRARIES += $(LIBBGL_IPC_TEST)
+libBGL_ipc_test_a_SOURCES = \
+  test/ipc_test.cpp \
+  test/ipc_test.h
+libBGL_ipc_test_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
+libBGL_ipc_test_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(LIBMULTIPROCESS_CFLAGS)
+
+# Generate various .c++/.h files from the ipc_test.capnp file
+include $(MPGEN_PREFIX)/include/mpgen.mk
+EXTRA_DIST += test/ipc_test.capnp
+libBGL_ipc_test_mpgen_output = \
+  test/ipc_test.capnp.c++ \
+  test/ipc_test.capnp.h \
+  test/ipc_test.capnp.proxy-client.c++ \
+  test/ipc_test.capnp.proxy-server.c++ \
+  test/ipc_test.capnp.proxy-types.c++ \
+  test/ipc_test.capnp.proxy-types.h \
+  test/ipc_test.capnp.proxy.h
+nodist_libBGL_ipc_test_a_SOURCES = $(libBGL_ipc_test_mpgen_output)
+CLEANFILES += $(libBGL_ipc_test_mpgen_output)
+endif
+
+# Explicitly list dependencies on generated headers as described in
+# https://www.gnu.org/software/automake/manual/html_node/Built-Sources-Example.html#Recording-Dependencies-manually
+test/libBGL_ipc_test_a-ipc_test.$(OBJEXT): test/ipc_test.capnp.h
+
 test_test_BGL_SOURCES = $(BGL_TEST_SUITE) $(BGL_TESTS) $(JSON_TEST_FILES) $(RAW_TEST_FILES)
 test_test_BGL_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(TESTDEFS) $(BOOST_CPPFLAGS) $(EVENT_CFLAGS)
 test_test_BGL_LDADD = $(LIBTEST_UTIL)
 if ENABLE_WALLET
 test_test_BGL_LDADD += $(LIBBGL_WALLET)
 test_test_BGL_CPPFLAGS += $(BDB_CPPFLAGS)
+endif
+if BUILD_MULTIPROCESS
+test_test_BGL_LDADD += $(LIBBGL_IPC_TEST) $(LIBMULTIPROCESS_LIBS)
 endif
 
 test_test_BGL_LDADD += $(LIBBGL_NODE) $(LIBBGL_CLI) $(LIBBGL_COMMON) $(LIBBGL_UTIL) $(LIBBGL_CONSENSUS) $(LIBBGL_CRYPTO) $(LIBUNIVALUE) \
@@ -236,7 +277,7 @@ if ENABLE_FUZZ_BINARY
 test_fuzz_fuzz_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS)
 test_fuzz_fuzz_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 test_fuzz_fuzz_LDADD = $(FUZZ_SUITE_LD_COMMON)
-test_fuzz_fuzz_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS) $(RUNTIME_LDFLAGS)
+test_fuzz_fuzz_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
 test_fuzz_fuzz_SOURCES = \
  $(FUZZ_WALLET_SRC) \
  test/fuzz/addition_overflow.cpp \
@@ -277,9 +318,9 @@ test_fuzz_fuzz_SOURCES = \
  test/fuzz/flatfile.cpp \
  test/fuzz/float.cpp \
  test/fuzz/golomb_rice.cpp \
+ test/fuzz/headerssync.cpp \
  test/fuzz/hex.cpp \
  test/fuzz/http_request.cpp \
- test/fuzz/i2p.cpp \
  test/fuzz/integer.cpp \
  test/fuzz/key.cpp \
  test/fuzz/key_io.cpp \
@@ -299,6 +340,7 @@ test_fuzz_fuzz_SOURCES = \
  test/fuzz/netbase_dns_lookup.cpp \
  test/fuzz/node_eviction.cpp \
  test/fuzz/p2p_transport_serialization.cpp \
+ test/fuzz/package_eval.cpp \
  test/fuzz/parse_hd_keypath.cpp \
  test/fuzz/parse_numbers.cpp \
  test/fuzz/parse_script.cpp \
@@ -320,7 +362,6 @@ test_fuzz_fuzz_SOURCES = \
  test/fuzz/rpc.cpp \
  test/fuzz/script.cpp \
  test/fuzz/script_assets_test_minimizer.cpp \
- test/fuzz/script_BGL_consensus.cpp \
  test/fuzz/script_descriptor_cache.cpp \
  test/fuzz/script_flags.cpp \
  test/fuzz/script_format.cpp \
@@ -377,7 +418,9 @@ BGL_test_check: $(TEST_BINARY) FORCE
 BGL_test_clean : FORCE
 	rm -f $(CLEAN_BGL_TEST) $(test_test_BGL_OBJECTS) $(TEST_BINARY)
 
-check-local: $(BGL_TESTS:.cpp=.cpp.test)
+check-unit: $(BGL_TESTS:.cpp=.cpp.test)
+
+check-local: check-unit
 if BUILD_BGL_TX
 	@echo "Running test/util/test_runner.py..."
 	$(PYTHON) $(top_builddir)/test/util/test_runner.py

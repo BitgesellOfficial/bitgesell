@@ -3,8 +3,8 @@
 builddir = $(shell pwd)
 destdir = $(builddir)/debian/bitgesell-qt
 
-CC  = gcc-9
-CXX = g++-9
+CC  = gcc-11
+CXX = g++-11
 
 .PHONY: distrib download-distrib unpack-distrib berkeleydb libevent miniupnpc
 
@@ -41,7 +41,7 @@ boost:
 		./bootstrap.sh CC=$(CC) CXX=$(CXX) --prefix=$(builddir)/distrib/tmp/libboost && \
 		./b2 install
 
-# --disable-atomicsupport slows things down, but that's necessary to compile (at least on on Ubuntu 20.04.1)
+# --disable-atomicsupport slows things down, but that's necessary to compile (at least on on Ubuntu 22.04.1)
 # TODO: Modify libdb to make it faster.
 berkeleydb:
 	cd distrib/db-4.8.30/build_unix && \

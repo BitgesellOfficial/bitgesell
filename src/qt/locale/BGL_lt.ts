@@ -58,25 +58,17 @@
         <translation type="unfinished">P&amp;asirinkti</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Išsiuntimo adresai</translation>
+        <source>These are your Bitgesell addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Tai yra jūsų Bitgesell adresai išeinantiems mokėjimams. Visada pasitikrinkite sumą ir gavėjo adresą prieš siunčiant lėšas.</translation>
     </message>
     <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Gavimo adresai</translation>
-    </message>
-    <message>
-        <source>These are your BGL addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Tai yra jūsų BGL adresai išeinantiems mokėjimams. Visada pasitikrinkite sumą ir gavėjo adresą prieš siunčiant lėšas.</translation>
-    </message>
-    <message>
-        <source>These are your BGL addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Bitgesell addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Tai jūsų BGL mokėjimų gavimo adresai. Naudokite 'Sukurti naują gavimo adresą' mygtuką gavimų skirtuke kad sukurtumėte naujus adresus.
 Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     </message>
     <message>
-        <source>These are your BGL addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Bitgesell addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Tai jūsų BGL mokėjimų gavimo adresai. Naudokite 'Sukurti naują gavimo adresą' mygtuką gavimų skirtuke kad sukurtumėte naujus adresus.
 Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
@@ -259,14 +251,6 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
 <context>
     <name>QObject</name>
     <message>
-        <source>Error: Specified data directory "%1" does not exist.</source>
-        <translation type="unfinished">Klaida: nurodytas duomenų katalogas „%1“ neegzistuoja.</translation>
-    </message>
-    <message>
-        <source>Error: Cannot parse configuration file: %1.</source>
-        <translation type="unfinished">Klaida: Negalima analizuoti konfigūracijos failo: %1.</translation>
-    </message>
-    <message>
         <source>Error: %1</source>
         <translation type="unfinished">Klaida: %1</translation>
     </message>
@@ -285,10 +269,6 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>Enter a BGL address (e.g. %1)</source>
         <translation type="unfinished">Įveskite BGL adresą (pvz., %1)</translation>
-    </message>
-    <message>
-        <source>Internal</source>
-        <translation type="unfinished">Vidinis</translation>
     </message>
     <message>
         <source>Inbound</source>
@@ -367,170 +347,7 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     </message>
     </context>
 <context>
-    <name>BGL-core</name>
-    <message>
-        <source>Settings file could not be read</source>
-        <translation type="unfinished">Nustatymų failas negalėjo būti perskaitytas</translation>
-    </message>
-    <message>
-        <source>Settings file could not be written</source>
-        <translation type="unfinished">Nustatymų failas negalėjo būti parašytas</translation>
-    </message>
-    <message>
-        <source>Settings file could not be read</source>
-        <translation type="unfinished">Nustatymų failas negalėjo būti perskaitytas</translation>
-    </message>
-    <message>
-        <source>Settings file could not be written</source>
-        <translation type="unfinished">Nustatymų failas negalėjo būti parašytas</translation>
-    </message>
-    <message>
-        <source>The %s developers</source>
-        <translation type="unfinished">%s kūrėjai</translation>
-    </message>
-    <message>
-        <source>%s is set very high!</source>
-        <translation type="unfinished">%s labai aukštas!</translation>
-    </message>
-    <message>
-        <source>-maxmempool must be at least %d MB</source>
-        <translation type="unfinished">-maxmempool turi būti bent %d MB</translation>
-    </message>
-    <message>
-        <source>Cannot resolve -%s address: '%s'</source>
-        <translation type="unfinished">Negalima išspręsti -%s adreso: „%s“</translation>
-    </message>
-    <message>
-        <source>Config setting for %s only applied on %s network when in [%s] section.</source>
-        <translation type="unfinished">%s konfigūravimo nustatymas taikomas tik %s tinkle, kai yra [%s] skiltyje.</translation>
-    </message>
-    <message>
-        <source>Copyright (C) %i-%i</source>
-        <translation type="unfinished">Autorių teisės (C) %i-%i</translation>
-    </message>
-    <message>
-        <source>Corrupted block database detected</source>
-        <translation type="unfinished">Nustatyta sugadinta blokų duomenų bazė</translation>
-    </message>
-    <message>
-        <source>Do you want to rebuild the block database now?</source>
-        <translation type="unfinished">Ar norite dabar atstatyti blokų duomenų bazę?</translation>
-    </message>
-    <message>
-        <source>Done loading</source>
-        <translation type="unfinished">Įkėlimas baigtas</translation>
-    </message>
-    <message>
-        <source>Error initializing block database</source>
-        <translation type="unfinished">Klaida inicijuojant blokų duomenų bazę</translation>
-    </message>
-    <message>
-        <source>Error initializing wallet database environment %s!</source>
-        <translation type="unfinished">Klaida inicijuojant piniginės duomenų bazės aplinką %s!</translation>
-    </message>
-    <message>
-        <source>Error loading %s</source>
-        <translation type="unfinished">Klaida įkeliant %s</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Private keys can only be disabled during creation</source>
-        <translation type="unfinished">Klaida įkeliant %s: Privatūs raktai gali būti išjungti tik kūrimo metu</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Wallet corrupted</source>
-        <translation type="unfinished">Klaida įkeliant %s: Piniginės failas pažeistas</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Wallet requires newer version of %s</source>
-        <translation type="unfinished">Klaida įkeliant %s: Piniginei reikia naujesnės%s versijos</translation>
-    </message>
-    <message>
-        <source>Error loading block database</source>
-        <translation type="unfinished">Klaida įkeliant blokų duombazę</translation>
-    </message>
-    <message>
-        <source>Error opening block database</source>
-        <translation type="unfinished">Klaida atveriant blokų duombazę</translation>
-    </message>
-    <message>
-        <source>Insufficient funds</source>
-        <translation type="unfinished">Nepakanka lėšų</translation>
-    </message>
-    <message>
-        <source>Not enough file descriptors available.</source>
-        <translation type="unfinished">Nėra pakankamai failų aprašų.</translation>
-    </message>
-    <message>
-        <source>Signing transaction failed</source>
-        <translation type="unfinished">Transakcijos pasirašymas nepavyko</translation>
-    </message>
-    <message>
-        <source>The source code is available from %s.</source>
-        <translation type="unfinished">Šaltinio kodas pasiekiamas iš %s.</translation>
-    </message>
-    <message>
-        <source>The wallet will avoid paying less than the minimum relay fee.</source>
-        <translation type="unfinished">Piniginė vengs mokėti mažiau nei minimalus perdavimo mokestį.</translation>
-    </message>
-    <message>
-        <source>This is experimental software.</source>
-        <translation type="unfinished">Tai eksperimentinė programinė įranga.</translation>
-    </message>
-    <message>
-        <source>This is the minimum transaction fee you pay on every transaction.</source>
-        <translation type="unfinished">Tai yra minimalus transakcijos mokestis, kurį jūs mokate kiekvieną transakciją.</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you will pay if you send a transaction.</source>
-        <translation type="unfinished">Tai yra sandorio mokestis, kurį mokėsite, jei siunčiate sandorį.</translation>
-    </message>
-    <message>
-        <source>Transaction amount too small</source>
-        <translation type="unfinished">Transakcijos suma per maža</translation>
-    </message>
-    <message>
-        <source>Transaction amounts must not be negative</source>
-        <translation type="unfinished">Transakcijos suma negali buti neigiama</translation>
-    </message>
-    <message>
-        <source>Transaction has too long of a mempool chain</source>
-        <translation type="unfinished">Sandoris turi per ilgą mempool grandinę</translation>
-    </message>
-    <message>
-        <source>Transaction must have at least one recipient</source>
-        <translation type="unfinished">Transakcija privalo turėti bent vieną gavėją</translation>
-    </message>
-    <message>
-        <source>Transaction too large</source>
-        <translation type="unfinished">Sandoris yra per didelis</translation>
-    </message>
-    <message>
-        <source>Unable to generate initial keys</source>
-        <translation type="unfinished">Nepavyko generuoti pradinių raktų</translation>
-    </message>
-    <message>
-        <source>Unable to generate keys</source>
-        <translation type="unfinished">Nepavyko generuoti raktų</translation>
-    </message>
-    <message>
-        <source>Unable to open %s for writing</source>
-        <translation type="unfinished">Nepavyko atidaryti %s rašymui</translation>
-    </message>
-    <message>
-        <source>Unknown address type '%s'</source>
-        <translation type="unfinished">Nežinomas adreso tipas '%s'</translation>
-    </message>
-    <message>
-        <source>Verifying blocks…</source>
-        <translation type="unfinished">Tikrinami blokai...</translation>
-    </message>
-    <message>
-        <source>Verifying wallet(s)…</source>
-        <translation type="unfinished">Tikrinama piniginė(s)...</translation>
-    </message>
-    </context>
-<context>
-    <name>BGLGUI</name>
+    <name>BitgesellGUI</name>
     <message>
         <source>&amp;Overview</source>
         <translation type="unfinished">&amp;Apžvalga</translation>
@@ -899,10 +716,6 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
         <translation type="unfinished">Mokestis:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Dulkės:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Po mokesčio:</translation>
     </message>
@@ -967,28 +780,12 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
         <translation type="unfinished">Kopijuoti baitus</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopijuoti dulkę</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Kopijuoti keisti</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 užrakinta)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">taip</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">ne</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">Ši etiketė tampa raudona, jei bet kuris gavėjas gauna mažesnę sumą nei dabartinė dulkių slenkstis.</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -1668,16 +1465,16 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
 <context>
     <name>PSBTOperationsDialog</name>
     <message>
-        <source>Dialog</source>
-        <translation type="unfinished">Dialogas</translation>
-    </message>
-    <message>
         <source>Save…</source>
         <translation type="unfinished">Išsaugoti...</translation>
     </message>
     <message>
         <source>Close</source>
         <translation type="unfinished">Uždaryti</translation>
+    </message>
+    <message>
+        <source>own address</source>
+        <translation type="unfinished">savo adresas</translation>
     </message>
     <message>
         <source>Total Amount</source>
@@ -2274,12 +2071,8 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
         <translation type="unfinished">Išvalykite visus formos laukus.</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Dulkės:</translation>
-    </message>
-    <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for BGL transactions than the network can process.</source>
-        <translation type="unfinished">Kai sandorių apimtis yra mažesnė nei erdvės blokuose, kasėjai ir perduodantys mazgai gali užtikrinti minimalų mokestį. Mokėti tik šį minimalų mokestį yra galima, tačiau atkreipkite dėmesį, kad dėl to gali atsirasti niekada nepatvirtinamas sandoris, kai bus daugiau paklausos BGL operacijoms, nei tinklas gali apdoroti.</translation>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitgesell transactions than the network can process.</source>
+        <translation type="unfinished">Kai sandorių apimtis yra mažesnė nei erdvės blokuose, kasėjai ir perduodantys mazgai gali užtikrinti minimalų mokestį. Mokėti tik šį minimalų mokestį yra galima, tačiau atkreipkite dėmesį, kad dėl to gali atsirasti niekada nepatvirtinamas sandoris, kai bus daugiau paklausos bitgesell operacijoms, nei tinklas gali apdoroti.</translation>
     </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
@@ -2334,20 +2127,12 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
         <translation type="unfinished">Kopijuoti baitus</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopijuoti dulkę</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Kopijuoti keisti</translation>
     </message>
     <message>
         <source>%1 (%2 blocks)</source>
         <translation type="unfinished">%1 (%2 blokai)</translation>
-    </message>
-    <message>
-        <source> from wallet '%1'</source>
-        <translation type="unfinished">iš piniginės '%1'</translation>
     </message>
     <message>
         <source>%1 to '%2'</source>
@@ -2837,10 +2622,6 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
         <translation type="unfinished">Išsiųsta</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">Mokėjimas sau</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">Išgauta</translation>
     </message>
@@ -2910,10 +2691,6 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>Sent to</source>
         <translation type="unfinished">Išsiųsta</translation>
-    </message>
-    <message>
-        <source>To yourself</source>
-        <translation type="unfinished">Skirta sau</translation>
     </message>
     <message>
         <source>Mined</source>
@@ -3081,6 +2858,157 @@ Pasirašymas galimas tik su 'legacy' tipo adresais.</translation>
     <message>
         <source>Cancel</source>
         <translation type="unfinished">Atšaukti</translation>
+    </message>
+</context>
+<context>
+    <name>bitgesell-core</name>
+    <message>
+        <source>The %s developers</source>
+        <translation type="unfinished">%s kūrėjai</translation>
+    </message>
+    <message>
+        <source>%s is set very high!</source>
+        <translation type="unfinished">%s labai aukštas!</translation>
+    </message>
+    <message>
+        <source>-maxmempool must be at least %d MB</source>
+        <translation type="unfinished">-maxmempool turi būti bent %d MB</translation>
+    </message>
+    <message>
+        <source>Cannot resolve -%s address: '%s'</source>
+        <translation type="unfinished">Negalima išspręsti -%s adreso: „%s“</translation>
+    </message>
+    <message>
+        <source>Config setting for %s only applied on %s network when in [%s] section.</source>
+        <translation type="unfinished">%s konfigūravimo nustatymas taikomas tik %s tinkle, kai yra [%s] skiltyje.</translation>
+    </message>
+    <message>
+        <source>Copyright (C) %i-%i</source>
+        <translation type="unfinished">Autorių teisės (C) %i-%i</translation>
+    </message>
+    <message>
+        <source>Corrupted block database detected</source>
+        <translation type="unfinished">Nustatyta sugadinta blokų duomenų bazė</translation>
+    </message>
+    <message>
+        <source>Do you want to rebuild the block database now?</source>
+        <translation type="unfinished">Ar norite dabar atstatyti blokų duomenų bazę?</translation>
+    </message>
+    <message>
+        <source>Done loading</source>
+        <translation type="unfinished">Įkėlimas baigtas</translation>
+    </message>
+    <message>
+        <source>Error initializing block database</source>
+        <translation type="unfinished">Klaida inicijuojant blokų duomenų bazę</translation>
+    </message>
+    <message>
+        <source>Error initializing wallet database environment %s!</source>
+        <translation type="unfinished">Klaida inicijuojant piniginės duomenų bazės aplinką %s!</translation>
+    </message>
+    <message>
+        <source>Error loading %s</source>
+        <translation type="unfinished">Klaida įkeliant %s</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Private keys can only be disabled during creation</source>
+        <translation type="unfinished">Klaida įkeliant %s: Privatūs raktai gali būti išjungti tik kūrimo metu</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet corrupted</source>
+        <translation type="unfinished">Klaida įkeliant %s: Piniginės failas pažeistas</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet requires newer version of %s</source>
+        <translation type="unfinished">Klaida įkeliant %s: Piniginei reikia naujesnės%s versijos</translation>
+    </message>
+    <message>
+        <source>Error loading block database</source>
+        <translation type="unfinished">Klaida įkeliant blokų duombazę</translation>
+    </message>
+    <message>
+        <source>Error opening block database</source>
+        <translation type="unfinished">Klaida atveriant blokų duombazę</translation>
+    </message>
+    <message>
+        <source>Insufficient funds</source>
+        <translation type="unfinished">Nepakanka lėšų</translation>
+    </message>
+    <message>
+        <source>Not enough file descriptors available.</source>
+        <translation type="unfinished">Nėra pakankamai failų aprašų.</translation>
+    </message>
+    <message>
+        <source>Signing transaction failed</source>
+        <translation type="unfinished">Transakcijos pasirašymas nepavyko</translation>
+    </message>
+    <message>
+        <source>The source code is available from %s.</source>
+        <translation type="unfinished">Šaltinio kodas pasiekiamas iš %s.</translation>
+    </message>
+    <message>
+        <source>The wallet will avoid paying less than the minimum relay fee.</source>
+        <translation type="unfinished">Piniginė vengs mokėti mažiau nei minimalus perdavimo mokestį.</translation>
+    </message>
+    <message>
+        <source>This is experimental software.</source>
+        <translation type="unfinished">Tai eksperimentinė programinė įranga.</translation>
+    </message>
+    <message>
+        <source>This is the minimum transaction fee you pay on every transaction.</source>
+        <translation type="unfinished">Tai yra minimalus transakcijos mokestis, kurį jūs mokate kiekvieną transakciją.</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you will pay if you send a transaction.</source>
+        <translation type="unfinished">Tai yra sandorio mokestis, kurį mokėsite, jei siunčiate sandorį.</translation>
+    </message>
+    <message>
+        <source>Transaction amount too small</source>
+        <translation type="unfinished">Transakcijos suma per maža</translation>
+    </message>
+    <message>
+        <source>Transaction amounts must not be negative</source>
+        <translation type="unfinished">Transakcijos suma negali buti neigiama</translation>
+    </message>
+    <message>
+        <source>Transaction must have at least one recipient</source>
+        <translation type="unfinished">Transakcija privalo turėti bent vieną gavėją</translation>
+    </message>
+    <message>
+        <source>Transaction too large</source>
+        <translation type="unfinished">Sandoris yra per didelis</translation>
+    </message>
+    <message>
+        <source>Unable to generate initial keys</source>
+        <translation type="unfinished">Nepavyko generuoti pradinių raktų</translation>
+    </message>
+    <message>
+        <source>Unable to generate keys</source>
+        <translation type="unfinished">Nepavyko generuoti raktų</translation>
+    </message>
+    <message>
+        <source>Unable to open %s for writing</source>
+        <translation type="unfinished">Nepavyko atidaryti %s rašymui</translation>
+    </message>
+    <message>
+        <source>Unknown address type '%s'</source>
+        <translation type="unfinished">Nežinomas adreso tipas '%s'</translation>
+    </message>
+    <message>
+        <source>Verifying blocks…</source>
+        <translation type="unfinished">Tikrinami blokai...</translation>
+    </message>
+    <message>
+        <source>Verifying wallet(s)…</source>
+        <translation type="unfinished">Tikrinama piniginė(s)...</translation>
+    </message>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">Nustatymų failas negalėjo būti perskaitytas</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">Nustatymų failas negalėjo būti parašytas</translation>
     </message>
 </context>
 </TS>

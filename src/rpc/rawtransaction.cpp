@@ -62,7 +62,7 @@ static void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& 
     // Blockchain contextual information (confirmations and blocktime) is not
     // available to code in bitcoin-common, so we query them here and push the
     // data into the returned UniValue.
-    TxToUniv(tx, /*block_hash=*/uint256(), entry, /*include_hex=*/true, RPCSerializationFlags(), txundo, verbosity);
+    TxToUniv(tx, /*block_hash=*/uint256(), entry, /*include_hex=*/true, txundo, verbosity);
 
     if (!hashBlock.IsNull()) {
         LOCK(cs_main);
@@ -383,7 +383,7 @@ static RPCHelpMan getrawtransaction()
     }
 
     if (verbosity <= 0) {
-        return EncodeHexTx(*tx, RPCSerializationFlags());
+        return EncodeHexTx(*tx);
     }
 
     UniValue result(UniValue::VOBJ);
@@ -394,7 +394,7 @@ static RPCHelpMan getrawtransaction()
     // If request is verbosity >= 1 but no blockhash was given, then look up the blockindex
     if (request.params[2].isNull()) {
         LOCK(cs_main);
-        blockindex = chainman.m_blockman.LookupBlockIndex(hash_block);
+        blockindex = chainman.m_blockman.LookupBlockIndex(hash_block); // May be nullptr for mempool transactions
     }
     if (verbosity == 1) {
         TxToJSON(*tx, hash_block, result, chainman.ActiveChainstate());
@@ -403,10 +403,8 @@ static RPCHelpMan getrawtransaction()
 
     CBlockUndo blockUndo;
     CBlock block;
-    const bool is_block_pruned{WITH_LOCK(cs_main, return chainman.m_blockman.IsBlockPruned(blockindex))};
 
-    if (tx->IsCoinBase() ||
-        !blockindex || is_block_pruned ||
+    if (tx->IsCoinBase() || !blockindex || WITH_LOCK(::cs_main, return chainman.m_blockman.IsBlockPruned(*blockindex)) ||
         !(chainman.m_blockman.UndoReadFromDisk(blockUndo, *blockindex) && chainman.m_blockman.ReadBlockFromDisk(block, *blockindex))) {
         TxToJSON(*tx, hash_block, result, chainman.ActiveChainstate());
         return result;
@@ -1492,7 +1490,7 @@ static RPCHelpMan combinepsbt()
         throw JSONRPCTransactionError(error);
     }
 
-    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+    DataStream ssTx{};
     ssTx << merged_psbt;
     return EncodeBase64(ssTx);
 },
@@ -1537,11 +1535,11 @@ static RPCHelpMan finalizepsbt()
     bool complete = FinalizeAndExtractPSBT(psbtx, mtx);
 
     UniValue result(UniValue::VOBJ);
-    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+    DataStream ssTx{};
     std::string result_str;
 
     if (complete && extract) {
-        ssTx << mtx;
+        ssTx << TX_WITH_WITNESS(mtx);
         result_str = HexStr(ssTx);
         result.pushKV("hex", result_str);
     } else {
@@ -1581,14 +1579,14 @@ static RPCHelpMan createpsbt()
     PartiallySignedTransaction psbtx;
     psbtx.tx = rawTx;
     for (unsigned int i = 0; i < rawTx.vin.size(); ++i) {
-        psbtx.inputs.push_back(PSBTInput());
+        psbtx.inputs.emplace_back();
     }
     for (unsigned int i = 0; i < rawTx.vout.size(); ++i) {
-        psbtx.outputs.push_back(PSBTOutput());
+        psbtx.outputs.emplace_back();
     }
 
     // Serialize the PSBT
-    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+    DataStream ssTx{};
     ssTx << psbtx;
 
     return EncodeBase64(ssTx);
@@ -1648,14 +1646,14 @@ static RPCHelpMan converttopsbt()
     PartiallySignedTransaction psbtx;
     psbtx.tx = tx;
     for (unsigned int i = 0; i < tx.vin.size(); ++i) {
-        psbtx.inputs.push_back(PSBTInput());
+        psbtx.inputs.emplace_back();
     }
     for (unsigned int i = 0; i < tx.vout.size(); ++i) {
-        psbtx.outputs.push_back(PSBTOutput());
+        psbtx.outputs.emplace_back();
     }
 
     // Serialize the PSBT
-    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+    DataStream ssTx{};
     ssTx << psbtx;
 
     return EncodeBase64(ssTx);
@@ -1702,7 +1700,7 @@ static RPCHelpMan utxoupdatepsbt()
         /*sighash_type=*/SIGHASH_ALL,
         /*finalize=*/false);
 
-    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+    DataStream ssTx{};
     ssTx << psbtx;
     return EncodeBase64(ssTx);
 },
@@ -1803,7 +1801,7 @@ static RPCHelpMan joinpsbts()
     }
     shuffled_psbt.unknown.insert(merged_psbt.unknown.begin(), merged_psbt.unknown.end());
 
-    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+    DataStream ssTx{};
     ssTx << shuffled_psbt;
     return EncodeBase64(ssTx);
 },
@@ -1949,6 +1947,7 @@ RPCHelpMan descriptorprocesspsbt()
                     {
                         {RPCResult::Type::STR, "psbt", "The base64-encoded partially signed transaction"},
                         {RPCResult::Type::BOOL, "complete", "If the transaction has a complete set of signatures"},
+                        {RPCResult::Type::STR_HEX, "hex", /*optional=*/true, "The hex-encoded network transaction if complete"},
                     }
                 },
                 RPCExamples{
@@ -1982,14 +1981,21 @@ RPCHelpMan descriptorprocesspsbt()
         complete &= PSBTInputSigned(input);
     }
 
-    CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+    DataStream ssTx{};
     ssTx << psbtx;
 
     UniValue result(UniValue::VOBJ);
 
     result.pushKV("psbt", EncodeBase64(ssTx));
     result.pushKV("complete", complete);
-
+    if (complete) {
+        CMutableTransaction mtx;
+        PartiallySignedTransaction psbtx_copy = psbtx;
+        CHECK_NONFATAL(FinalizeAndExtractPSBT(psbtx_copy, mtx));
+        DataStream ssTx_final;
+        ssTx_final << TX_WITH_WITNESS(mtx);
+        result.pushKV("hex", HexStr(ssTx_final));
+    }
     return result;
 },
     };

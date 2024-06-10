@@ -2,16 +2,12 @@
 <context>
     <name>AddressBookPage</name>
     <message>
-        <source>Right-click to edit address or label</source>
-        <translation type="unfinished">پتہ یا لیبل کی تصیح کیلیئے داہنا کلک</translation>
-    </message>
-    <message>
         <source>Create a new address</source>
         <translation type="unfinished">نیا پتہ تخلیق کریں</translation>
     </message>
     <message>
         <source>&amp;New</source>
-        <translation type="unfinished">&amp;نیا</translation>
+        <translation type="unfinished">اور نیا</translation>
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
@@ -58,19 +54,11 @@
         <translation type="unfinished">چننا</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">پتے ارسال کیے جارہے ہیں</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">پتے موصول ہورہے ہیں</translation>
-    </message>
-    <message>
-        <source>These are your BGL addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Bitgesell addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">یہ آپ کے ادائیگی بھیجنے کے لئے بٹ کوائن ایڈریس ہیں.سکے بھیجنے سے پہلے ہمیشہ رقم اور وصول کنندہ پتہ چیک کریں۔</translation>
     </message>
     <message>
-        <source>These are your BGL addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Bitgesell addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ادائیگیوں کے لئے آپ کے بٹ کوائن ایڈریس ہیں۔ نئے پتے بنانے کے لئے وصول کنندہ ٹیب میں 'نیا وصول کنندہ پتہ بنائیں' بٹن کا استعمال کریں۔دستخط صرف 'میراثی' قسم کے پتے کے ساتھ ہی ممکن ہے۔</translation>
     </message>
@@ -227,6 +215,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">والیٹ کا پاسفریز کامیابی کے ساتھ تبدیل کردیا گیا تھا۔</translation>
     </message>
     <message>
+        <source>Passphrase change failed</source>
+        <translation type="unfinished">پاس فریز کی تبدیلی ناکام ہوگئی</translation>
+    </message>
+    <message>
+        <source>The old passphrase entered for the wallet decryption is incorrect. It contains a null character (ie - a zero byte). If the passphrase was set with a version of this software prior to 25.0, please try again with only the characters up to — but not including — the first null character.</source>
+        <translation type="unfinished">بٹوے کے ڈکرپشن کے لیے درج کیا گیا پرانا پاس فریز غلط ہے۔ اس میں ایک خالی کریکٹر ہے (یعنی - ایک صفر بائٹ)۔ اگر پاس فریز 25.0 سے پہلے اس سافٹ ویئر کے ورژن کے ساتھ سیٹ کیا گیا تھا، تو براہ کرم صرف حروف کے ساتھ دوبارہ کوشش کریں — لیکن شامل نہیں — پہلے خالی کریکٹر۔</translation>
+    </message>
+    <message>
         <source>Warning: The Caps Lock key is on!</source>
         <translation type="unfinished">انتباہ: کیپس لاک کی آن ہے!</translation>
     </message>
@@ -269,14 +265,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">کیا آپ ترتیبات کو ڈیفالٹ اقدار پر دوبارہ ترتیب دینا چاہتے ہیں، یا تبدیلیاں کیے بغیر اسقاط کرنا چاہتے ہیں؟</translation>
     </message>
     <message>
-        <source>Error: Specified data directory "%1" does not exist.</source>
-        <translation type="unfinished">خرابی: مخصوص ڈیٹا ڈائریکٹری ""  %1 موجود نہیں ہے۔</translation>
-    </message>
-    <message>
-        <source>Error: Cannot parse configuration file: %1.</source>
-        <translation type="unfinished">خرابی: کنفگریشن فائل کا تجزیہ نہیں کیا جاسکتا۔%1.</translation>
-    </message>
-    <message>
         <source>Error: %1</source>
         <translation type="unfinished">خرابی:%1</translation>
     </message>
@@ -295,10 +283,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Unroutable</source>
         <translation type="unfinished">ناقابل استعمال</translation>
-    </message>
-    <message>
-        <source>Internal</source>
-        <translation type="unfinished">اندرونی</translation>
     </message>
     <message>
         <source>Address Fetch</source>
@@ -353,14 +337,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     </context>
 <context>
-    <name>BGL-core</name>
-    <message>
-        <source>Insufficient funds</source>
-        <translation type="unfinished">ناکافی فنڈز</translation>
-    </message>
-    </context>
-<context>
-    <name>BGLGUI</name>
+    <name>BitgesellGUI</name>
     <message>
         <source>&amp;Overview</source>
         <translation type="unfinished">اور جائزہ</translation>
@@ -516,22 +493,18 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Indexing blocks on disk…</source>
-        <translation type="unfinished">ڈسک پر بلاکس کو ترتیب دینا</translation>
+        <translation type="unfinished">ڈسک پر بلاکس کو انڈیکس کرنا</translation>
     </message>
     <message>
         <source>Processing blocks on disk…</source>
         <translation type="unfinished">ڈسک پر بلاکس کو پراسیس کرنا</translation>
     </message>
     <message>
-        <source>Reindexing blocks on disk…</source>
-        <translation type="unfinished">ڈسک پر بلاکس کو دوبارہ ترتیب دینا</translation>
-    </message>
-    <message>
         <source>Connecting to peers…</source>
         <translation type="unfinished">ساتھیوں سے منسلک کرنے</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
+        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
         <translation type="unfinished">ادائیگی کی درخواست کریں: ( کوئیک رسپانس ( کیو۔آر ) کوڈ اور بٹ کوائن ( یونیورسل ادائیگیوں کا نظام) کے ذریعے سے</translation>
     </message>
     <message>
@@ -586,11 +559,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">سب سے نیا</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction</source>
+        <source>Load Partially Signed Bitgesell Transaction</source>
         <translation type="unfinished">جزوی طور پر دستخط شدہ بٹ کوائن ٹرانزیکشن لوڈ کریں۔</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
+        <source>Load Partially Signed Bitgesell Transaction from clipboard</source>
         <translation type="unfinished">کلپ بورڈ سے جزوی طور پر دستخط شدہ بٹ کوائن ٹرانزیکشن لوڈ کریں۔</translation>
     </message>
     <message>
@@ -610,7 +583,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">اور پتے وصول کرنا</translation>
     </message>
     <message>
-        <source>Open a bitcoin: URI</source>
+        <source>Open a bitgesell: URI</source>
         <translation type="unfinished">بٹ کوائن کا یو۔آر۔آئی۔ کھولیں</translation>
     </message>
     <message>
@@ -630,7 +603,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">تمام والیٹس بند کریں</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
+        <source>Show the %1 help message to get a list with possible Bitgesell command-line options</source>
         <translation type="unfinished">ممکنہ بٹ کوائن کمانڈ لائن اختیارات کے ساتھ فہرست حاصل کرنے کے لیے %1 مدد کا پیغام دکھائیں۔</translation>
     </message>
     <message>
@@ -797,10 +770,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">فیس:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">نہ ہونے کے برابر</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">فیس کے بعد:</translation>
     </message>
@@ -885,28 +854,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">بائٹس کاپی کریں</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">باقی شدہ کاپی کریں</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">تبدیلی کاپی کریں</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">مقفل'%1</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">جی ہاں</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">نہیں</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">یہ لیبل سرخ ہو جاتا ہے اگر کوئی وصول کنندہ موجودہ کم سے کم مقرر کردہ حد سے کم رقم وصول کرتا ہے۔</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -1032,14 +985,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">خالی والیٹ بنائیں</translation>
     </message>
     <message>
-        <source>Use descriptors for scriptPubKey management</source>
-        <translation type="unfinished">ScriptPubKeys کے انتظام کے لیے وضاحت کنندگان کا استعمال کریں۔</translation>
-    </message>
-    <message>
-        <source>Descriptor Wallet</source>
-        <translation type="unfinished">وضاحتی والیٹ</translation>
-    </message>
-    <message>
         <source>Use an external signing device such as a hardware wallet. Configure the external signer script in wallet preferences first.</source>
         <translation type="unfinished">بیرونی دستخط کرنے والا آلہ استعمال کریں جیسے ہارڈ ویئر والیٹ۔ پہلے والیٹ کی ترجیحات میں بیرونی دستخط کنندہ اسکرپٹ کو ترتیب دیں۔</translation>
     </message>
@@ -1050,10 +995,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Create</source>
         <translation type="unfinished">بنائیں</translation>
-    </message>
-    <message>
-        <source>Compiled without sqlite support (required for descriptor wallets)</source>
-        <translation type="unfinished"> SQliteسپورٹ کے بغیر مرتب کیا گیا (ڈسکرپٹر والیٹس کے لیے درکار)</translation>
     </message>
     <message>
         <source>Compiled without external signing support (required for external signing)</source>
@@ -1126,7 +1067,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>Intro</name>
     <message>
-        <source>Bitcoin</source>
+        <source>Bitgesell</source>
         <translation type="unfinished">بٹ کوائن</translation>
     </message>
     <message numerus="yes">
@@ -1224,11 +1165,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">فارم</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitcoin network, as detailed below.</source>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitgesell network, as detailed below.</source>
         <translation type="unfinished">ہو سکتا ہے حالیہ لین دین ابھی تک نظر نہ آئے، اور اس وجہ سے آپ کے والیٹ کا بیلنس غلط ہو سکتا ہے۔ یہ معلومات درست ہوں گی جب آپ کے والیٹ نے بٹ کوائن نیٹ ورک کے ساتھ مطابقت پذیری مکمل کر لی ہو، جیسا کہ ذیل میں تفصیل ہے۔</translation>
     </message>
     <message>
-        <source>Attempting to spend bitcoins that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <source>Attempting to spend bitgesells that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
         <translation type="unfinished">ایسے بٹ کوائنز خرچ کرنے کی کوشش کرنا جو ابھی تک ظاہر نہ ہونے والے لین دین سے متاثر ہوں نیٹ ورک کے ذریعے قبول نہیں کیا جائے گا۔</translation>
     </message>
     <message>
@@ -1267,7 +1208,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open bitcoin URI</source>
+        <source>Open bitgesell URI</source>
         <translation type="unfinished">بٹ کوائن URI کھولیں۔</translation>
     </message>
     <message>
@@ -1411,7 +1352,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">فارم</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitcoin network after a connection is established, but this process has not completed yet.</source>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitgesell network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished">ظاہر کی گئی معلومات پرانی ہو سکتی ہے۔ کنکشن قائم ہونے کے بعد آپ کا والیٹ خود بخود بٹ کوائن نیٹ ورک کے ساتھ ہم آہنگ ہوجاتا ہے، لیکن یہ عمل ابھی مکمل نہیں ہوا ہے۔</translation>
     </message>
     <message>
@@ -1796,7 +1737,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">اور پیغام</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitcoin network.</source>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitgesell network.</source>
         <translation type="unfinished">ادائیگی کی درخواست کے ساتھ منسلک کرنے کے لیے ایک اختیاری پیغام، جو درخواست کے کھلنے پر ظاہر ہوگا۔ نوٹ: پیغام بٹ کوائن نیٹ ورک پر ادائیگی کے ساتھ نہیں بھیجا جائے گا۔</translation>
     </message>
     <message>
@@ -1973,10 +1914,6 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">ایک ساتھ متعدد وصول کنندگان کو بھیجیں۔</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">نہ ہونے کے برابر</translation>
-    </message>
-    <message>
         <source>Choose…</source>
         <translation type="unfinished">منتخب کریں…</translation>
     </message>
@@ -2019,10 +1956,6 @@ If you are receiving this error you should request the merchant provide a BIP21 
     <message>
         <source>Copy bytes</source>
         <translation type="unfinished">بائٹس کاپی کریں</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">باقی شدہ کاپی کریں</translation>
     </message>
     <message>
         <source>Copy change</source>
@@ -2107,7 +2040,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid Bitcoin address</source>
+        <source>Warning: Invalid Bitgesell address</source>
         <translation type="unfinished">انتباہ: غلط بٹ کوائن ایڈریس</translation>
     </message>
     <message>
@@ -2138,7 +2071,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">پہلے استعمال شدہ پتہ کا انتخاب کریں۔</translation>
     </message>
     <message>
-        <source>The Bitcoin address to send the payment to</source>
+        <source>The Bitgesell address to send the payment to</source>
         <translation type="unfinished">ادائیگی بھیجنے کے لیے بٹ کوائن کا پتہ</translation>
     </message>
     <message>
@@ -2154,7 +2087,7 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">منتخب یونٹ میں بھیجی جانے والی رقم</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitcoins than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitgesells than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation type="unfinished">بھیجی جانے والی رقم سے فیس کاٹی جائے گی۔ وصول کنندہ کو اس سے کم بٹ کوائنز موصول ہوں گے جو آپ رقم کے خانے میں داخل کریں گے۔ اگر متعدد وصول کنندگان کو منتخب کیا جاتا ہے، تو فیس کو برابر تقسیم کیا جاتا ہے۔</translation>
     </message>
     <message>
@@ -2177,11 +2110,11 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">دستخط - ایک پیغام پر دستخط / تصدیق کریں۔</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitcoins sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <source>You can sign messages/agreements with your addresses to prove you can receive bitgesells sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation type="unfinished">آپ یہ ثابت کرنے کے لیے اپنے پتوں کے ساتھ پیغامات/معاہدوں پر دستخط کر سکتے ہیں کہ آپ ان پر بھیجے گئے بٹ کوائنز وصول کر سکتے ہیں۔ ہوشیار رہیں کہ کسی بھی مبہم یا بے ترتیب پر دستخط نہ کریں، کیونکہ فریب دہی کے حملے آپ کو اپنی شناخت پر دستخط کرنے کے لیے دھوکہ دینے کی کوشش کر سکتے ہیں۔ صرف مکمل تفصیلی بیانات پر دستخط کریں جن سے آپ اتفاق کرتے ہیں۔</translation>
     </message>
     <message>
-        <source>The Bitcoin address to sign the message with</source>
+        <source>The Bitgesell address to sign the message with</source>
         <translation type="unfinished">پیغام پر دستخط کرنے کے لیے بٹ کوائن کا پتہ</translation>
     </message>
     <message>
@@ -2369,6 +2302,13 @@ If you are receiving this error you should request the merchant provide a BIP21 
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation type="unfinished">موجودہ ڈیٹا کو فائیل میں محفوظ کریں</translation>
+    </message>
+    </context>
+<context>
+    <name>bitgesell-core</name>
+    <message>
+        <source>Insufficient funds</source>
+        <translation type="unfinished">ناکافی فنڈز</translation>
     </message>
     </context>
 </TS>

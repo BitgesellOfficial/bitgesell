@@ -58,15 +58,7 @@
         <translation type="unfinished">&amp;निवडा</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">प्रेषक पत्ते</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">स्वीकृती पत्ते</translation>
-    </message>
-    <message>
-        <source>These are your BGL addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Bitgesell addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">पैसे पाठविण्यासाठीचे हे तुमचे बिटकॉईन पत्त्ते आहेत. नाणी पाठविण्यापूर्वी नेहमी रक्कम आणि प्राप्त होणारा पत्ता तपासून पहा.</translation>
     </message>
     <message>
@@ -91,6 +83,11 @@
         <translation type="unfinished">कॉमा सेपरेटेड फ़ाइल</translation>
     </message>
     <message>
+        <source>There was an error trying to save the address list to %1. Please try again.</source>
+        <extracomment>An error message. %1 is a stand-in argument for the name of the file we attempted to save to.</extracomment>
+        <translation type="unfinished">पत्ता सूची  वर जतन करण्याचा प्रयत्न करताना त्रुटी आली. कृपया पुन्हा प्रयत्न करा.%1</translation>
+    </message>
+    <message>
         <source>Exporting Failed</source>
         <translation type="unfinished">निर्यात अयशस्वी</translation>
     </message>
@@ -111,7 +108,51 @@
     </message>
 </context>
 <context>
-    <name>BGLApplication</name>
+    <name>AskPassphraseDialog</name>
+    <message>
+        <source>Passphrase Dialog</source>
+        <translation type="unfinished">पासफ़्रेज़ डाएलोग</translation>
+    </message>
+    <message>
+        <source>Enter passphrase</source>
+        <translation type="unfinished">पासफ़्रेज़  प्रविष्ट करा</translation>
+    </message>
+    <message>
+        <source>New passphrase</source>
+        <translation type="unfinished">नवीन पासफ़्रेज़ </translation>
+    </message>
+    <message>
+        <source>Repeat new passphrase</source>
+        <translation type="unfinished">नवीन पासफ़्रेज़  पुनरावृत्ती करा</translation>
+    </message>
+    <message>
+        <source>Show passphrase</source>
+        <translation type="unfinished">पासफ़्रेज़ दाखवा</translation>
+    </message>
+    <message>
+        <source>Encrypt wallet</source>
+        <translation type="unfinished">वॉलेट एनक्रिप्ट करा</translation>
+    </message>
+    <message>
+        <source>This operation needs your wallet passphrase to unlock the wallet.</source>
+        <translation type="unfinished">वॉलेट अनलॉक करण्यासाठी या ऑपरेशनला तुमच्या वॉलेट पासफ़्रेज़ची आवश्यकता आहे.</translation>
+    </message>
+    <message>
+        <source>Unlock wallet</source>
+        <translation type="unfinished">वॉलेट अनलॉक करा</translation>
+    </message>
+    <message>
+        <source>Change passphrase</source>
+        <translation type="unfinished">पासफ़्रेज़ बदला</translation>
+    </message>
+    <message>
+        <source>Confirm wallet encryption</source>
+        <translation type="unfinished">वॉलेट एन्क्रिप्शनची पुष्टी करा
+ </translation>
+    </message>
+    </context>
+<context>
+    <name>BitgesellApplication</name>
     <message>
         <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
         <translation type="unfinished">एक गंभीर त्रुटी आली. %1यापुढे सुरक्षितपणे सुरू ठेवू शकत नाही आणि संपेल.</translation>
@@ -171,18 +212,7 @@
     </message>
     </context>
 <context>
-    <name>BGL-core</name>
-    <message>
-        <source>Settings file could not be read</source>
-        <translation type="unfinished">सेटिंग्ज फाइल वाचता आली नाही</translation>
-    </message>
-    <message>
-        <source>Settings file could not be written</source>
-        <translation type="unfinished">सेटिंग्ज फाइल लिहिता आली नाही</translation>
-    </message>
-    </context>
-<context>
-    <name>BGLGUI</name>
+    <name>BitgesellGUI</name>
     <message>
         <source>&amp;Minimize</source>
         <translation type="unfinished">&amp;मिनीमाइज़</translation>
@@ -197,8 +227,7 @@
     </message>
     <message>
         <source>&amp;Backup Wallet…</source>
-        <translation type="unfinished">&amp;बॅकअप वॉलेट…
- </translation>
+        <translation type="unfinished">&amp;बॅकअप वॉलेट...</translation>
     </message>
     <message>
         <source>&amp;Change Passphrase…</source>
@@ -384,4 +413,15 @@
         <translation type="unfinished">सध्याच्या टॅबमधील डेटा एका फाईलमध्ये एक्स्पोर्ट करा</translation>
     </message>
     </context>
+<context>
+    <name>bitgesell-core</name>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">सेटिंग्ज फाइल वाचता आली नाही</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">सेटिंग्ज फाइल लिहिता आली नाही</translation>
+    </message>
+</context>
 </TS>

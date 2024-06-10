@@ -12,6 +12,7 @@ import http.client
 import json
 import logging
 import os
+import platform
 import re
 import subprocess
 import tempfile
@@ -19,7 +20,6 @@ import time
 import urllib.parse
 import collections
 import shlex
-import sys
 from pathlib import Path
 
 from .authproxy import (
@@ -27,7 +27,8 @@ from .authproxy import (
     serialization_fallback,
 )
 from .descriptors import descsum_create
-from .p2p import P2P_SUBVERSION
+from .messages import NODE_P2P_V2
+from .p2p import P2P_SERVICES, P2P_SUBVERSION
 from .util import (
     MAX_NODES,
     assert_equal,
@@ -36,7 +37,7 @@ from .util import (
     get_auth_cookie,
     get_rpc_proxy,
     rpc_url,
-    wait_until_helper,
+    wait_until_helper_internal,
     p2p_port,
 )
 
@@ -67,7 +68,7 @@ class TestNode():
     To make things easier for the test writer, any unrecognised messages will
     be dispatched to the RPC connection."""
 
-    def __init__(self, i, datadir, *, chain, rpchost, timewait, timeout_factor, BGLd, BGL_cli, coverage_dir, cwd, extra_conf=None, extra_args=None, use_cli=False, start_perf=False, use_valgrind=False, version=None, descriptors=False):
+    def __init__(self, i, datadir_path, *, chain, rpchost, timewait, timeout_factor, BGLd, BGL_cli, coverage_dir, cwd, extra_conf=None, extra_args=None, use_cli=False, start_perf=False, use_valgrind=False, version=None, descriptors=False, v2transport=False):
         """
         Kwargs:
             start_perf (bool): If True, begin profiling the node with `perf` as soon as
@@ -76,10 +77,10 @@ class TestNode():
 
         self.index = i
         self.p2p_conn_index = 1
-        self.datadir = datadir
-        self.BGLconf = os.path.join(self.datadir, "BGL.conf")
-        self.stdout_dir = os.path.join(self.datadir, "stdout")
-        self.stderr_dir = os.path.join(self.datadir, "stderr")
+        self.datadir_path = datadir_path
+        self.BGLconf = self.datadir_path / "BGL.conf"
+        self.stdout_dir = self.datadir_path / "stdout"
+        self.stderr_dir = self.datadir_path / "stderr"
         self.chain = chain
         self.rpchost = rpchost
         self.rpc_timeout = timewait
@@ -88,7 +89,7 @@ class TestNode():
         self.cwd = cwd
         self.descriptors = descriptors
         if extra_conf is not None:
-            append_config(datadir, extra_conf)
+            append_config(self.datadir_path, extra_conf)
         # Most callers will just need to add extra args to the standard list below.
         # For those callers that need more flexibility, they can just set the args property directly.
         # Note that common args are set in the config file (see initialize_datadir)
@@ -99,7 +100,7 @@ class TestNode():
         # spam debug.log.
         self.args = [
             self.binary,
-            "-datadir=" + self.datadir,
+            f"-datadir={self.datadir_path}",
             "-logtimemicros",
             "-debug",
             "-debugexclude=libevent",
@@ -110,10 +111,9 @@ class TestNode():
         if self.descriptors is None:
             self.args.append("-disablewallet")
 
-        if use_valgrind:
-            default_suppressions_file = os.path.join(
-                os.path.dirname(os.path.realpath(__file__)),
-                "..", "..", "..", "contrib", "valgrind.supp")
+        # Use valgrind, expect for previous release binaries
+        if use_valgrind and version is None:
+            default_suppressions_file = Path(__file__).parents[3] / "contrib" / "valgrind.supp"
             suppressions_file = os.getenv("VALGRIND_SUPPRESSIONS_FILE",
                                           default_suppressions_file)
             self.args = ["valgrind", "--suppressions={}".format(suppressions_file),
@@ -127,7 +127,18 @@ class TestNode():
         if self.version_is_at_least(239000):
             self.args.append("-loglevel=trace")
 
-        self.cli = TestNodeCLI(BGL_cli, self.datadir)
+        # Default behavior from global -v2transport flag is added to args to persist it over restarts.
+        # May be overwritten in individual tests, using extra_args.
+        self.default_to_v2 = v2transport
+        if self.version_is_at_least(260000):
+            # 26.0 and later support v2transport
+            if v2transport:
+                self.args.append("-v2transport=1")
+            else:
+                self.args.append("-v2transport=0")
+        # if v2transport is requested via global flag but not supported for node version, ignore it
+
+        self.cli = TestNodeCLI(BGL_cli, self.datadir_path)
         self.use_cli = use_cli
         self.start_perf = start_perf
 
@@ -211,7 +222,9 @@ class TestNode():
         if extra_args is None:
             extra_args = self.extra_args
 
-        # Add a new stdout and stderr file each time BGLd is started
+        self.use_v2transport = "-v2transport=1" in extra_args or (self.default_to_v2 and "-v2transport=0" not in extra_args)
+
+        # Add a new stdout and stderr file each time bitcoind is started
         if stderr is None:
             stderr = tempfile.NamedTemporaryFile(dir=self.stderr_dir, delete=False)
         if stdout is None:
@@ -225,7 +238,7 @@ class TestNode():
         # Delete any existing cookie file -- if such a file exists (eg due to
         # unclean shutdown), it will get overwritten anyway by BGLd, and
         # potentially interfere with our attempt to authenticate
-        delete_cookie_file(self.datadir, self.chain)
+        delete_cookie_file(self.datadir_path, self.chain)
 
         # add environment variable LIBC_FATAL_STDERR_=1 so that libc errors are written to stderr and not the terminal
         subp_env = dict(os.environ, LIBC_FATAL_STDERR_="1")
@@ -246,11 +259,16 @@ class TestNode():
         poll_per_s = 4
         for _ in range(poll_per_s * self.rpc_timeout):
             if self.process.poll() is not None:
+                # Attach abrupt shutdown error/s to the exception message
+                self.stderr.seek(0)
+                str_error = ''.join(line.decode('utf-8') for line in self.stderr)
+                str_error += "************************\n" if str_error else ''
+
                 raise FailedToStartError(self._node_msg(
-                    'BGLd exited with status {} during initialization'.format(self.process.returncode)))
+                    f'BGLd exited with status {self.process.returncode} during initialization. {str_error}'))
             try:
                 rpc = get_rpc_proxy(
-                    rpc_url(self.datadir, self.index, self.chain, self.rpchost),
+                    rpc_url(self.datadir_path, self.index, self.chain, self.rpchost),
                     self.index,
                     timeout=self.rpc_timeout // 2,  # Shorter timeout to allow for one retry in case of ETIMEDOUT
                     coveragedir=self.coverage_dir,
@@ -260,7 +278,7 @@ class TestNode():
                 if self.version_is_at_least(190000):
                     # getmempoolinfo.loaded is available since commit
                     # bb8ae2c (version 0.19.0)
-                    wait_until_helper(lambda: rpc.getmempoolinfo()['loaded'], timeout_factor=self.timeout_factor)
+                    self.wait_until(lambda: rpc.getmempoolinfo()['loaded'])
                     # Wait for the node to finish reindex, block import, and
                     # loading the mempool. Usually importing happens fast or
                     # even "immediate" when the node is started. However, there
@@ -305,7 +323,7 @@ class TestNode():
                 if "No RPC credentials" not in str(e):
                     raise
             time.sleep(1.0 / poll_per_s)
-        self._raise_assertion_error("Unable to connect to BGLd")
+        self._raise_assertion_error("Unable to connect to BGLd after {}s".format(self.rpc_timeout))
 
     def wait_for_cookie_credentials(self):
         """Ensures auth cookie credentials can be read, e.g. for testing CLI with -rpcwait before RPC connection is up."""
@@ -314,7 +332,7 @@ class TestNode():
         poll_per_s = 4
         for _ in range(poll_per_s * self.rpc_timeout):
             try:
-                get_auth_cookie(self.datadir, self.chain)
+                get_auth_cookie(self.datadir_path, self.chain)
                 self.log.debug("Cookie credentials successfully retrieved")
                 return
             except ValueError:  # cookie file not found and no rpcuser or rpcpassword; BGLd is still starting
@@ -414,7 +432,7 @@ class TestNode():
 
     def wait_until_stopped(self, *, timeout=BGLD_PROC_WAIT_TIMEOUT, expect_error=False, **kwargs):
         expected_ret_code = 1 if expect_error else 0  # Whether node shutdown return EXIT_FAILURE or EXIT_SUCCESS
-        wait_until_helper(lambda: self.is_node_stopped(expected_ret_code=expected_ret_code, **kwargs), timeout=timeout, timeout_factor=self.timeout_factor)
+        self.wait_until(lambda: self.is_node_stopped(expected_ret_code=expected_ret_code, **kwargs), timeout=timeout)
 
     def replace_in_config(self, replacements):
         """
@@ -430,10 +448,6 @@ class TestNode():
             conf_data = conf_data.replace(old, new)
         with open(self.BGLconf, 'w', encoding='utf8') as conf:
             conf.write(conf_data)
-
-    @property
-    def datadir_path(self) -> Path:
-        return Path(self.datadir)
 
     @property
     def chain_path(self) -> Path:
@@ -460,6 +474,9 @@ class TestNode():
     def assert_debug_log(self, expected_msgs, unexpected_msgs=None, timeout=2):
         if unexpected_msgs is None:
             unexpected_msgs = []
+        assert_equal(type(expected_msgs), list)
+        assert_equal(type(unexpected_msgs), list)
+
         time_end = time.time() + timeout * self.timeout_factor
         prev_size = self.debug_log_size(encoding="utf-8")  # Must use same encoding that is used to read() below
 
@@ -521,6 +538,23 @@ class TestNode():
                 str(expected_msgs), print_log))
 
     @contextlib.contextmanager
+    def wait_for_new_peer(self, timeout=5):
+        """
+        Wait until the node is connected to at least one new peer. We detect this
+        by watching for an increased highest peer id, using the `getpeerinfo` RPC call.
+        Note that the simpler approach of only accounting for the number of peers
+        suffers from race conditions, as disconnects from unrelated previous peers
+        could happen anytime in-between.
+        """
+        def get_highest_peer_id():
+            peer_info = self.getpeerinfo()
+            return peer_info[-1]["id"] if peer_info else -1
+
+        initial_peer_id = get_highest_peer_id()
+        yield
+        self.wait_until(lambda: get_highest_peer_id() > initial_peer_id, timeout=timeout)
+
+    @contextlib.contextmanager
     def profile_with_perf(self, profile_name: str):
         """
         Context manager that allows easy profiling of node activity using `perf`.
@@ -550,7 +584,7 @@ class TestNode():
                 cmd, shell=True,
                 stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL) == 0
 
-        if not sys.platform.startswith('linux'):
+        if platform.system() != 'Linux':
             self.log.warning("Can't profile with perf; only available on Linux platforms")
             return None
 
@@ -563,7 +597,7 @@ class TestNode():
                 "perf output won't be very useful without debug symbols compiled into BGLd")
 
         output_path = tempfile.NamedTemporaryFile(
-            dir=self.datadir,
+            dir=self.datadir_path,
             prefix="{}.perf.data.".format(profile_name or 'test'),
             delete=False,
         ).name
@@ -638,24 +672,44 @@ class TestNode():
                 self.process = None
                 assert_msg = f'BGLd should have exited within {self.rpc_timeout}s '
                 if expected_msg is None:
-                    assert_msg = "BGLd should have exited with an error"
+                    assert_msg += "with an error"
                 else:
-                    assert_msg = "BGLd should have exited with expected error " + expected_msg
+                    assert_msg += "with expected error " + expected_msg
                 self._raise_assertion_error(assert_msg)
 
-    def add_p2p_connection(self, p2p_conn, *, wait_for_verack=True, **kwargs):
+    def add_p2p_connection(self, p2p_conn, *, wait_for_verack=True, send_version=True, supports_v2_p2p=None, wait_for_v2_handshake=True, **kwargs):
         """Add an inbound p2p connection to the node.
 
         This method adds the p2p connection to the self.p2ps list and also
-        returns the connection to the caller."""
+        returns the connection to the caller.
+
+        When self.use_v2transport is True, TestNode advertises NODE_P2P_V2 service flag
+
+        An inbound connection is made from TestNode <------ P2PConnection
+        - if TestNode doesn't advertise NODE_P2P_V2 service, P2PConnection sends version message and v1 P2P is followed
+        - if TestNode advertises NODE_P2P_V2 service, (and if P2PConnections supports v2 P2P)
+                P2PConnection sends ellswift bytes and v2 P2P is followed
+        """
         if 'dstport' not in kwargs:
             kwargs['dstport'] = p2p_port(self.index)
         if 'dstaddr' not in kwargs:
             kwargs['dstaddr'] = '127.0.0.1'
+        if supports_v2_p2p is None:
+            supports_v2_p2p = self.use_v2transport
 
-        p2p_conn.peer_connect(**kwargs, net=self.chain, timeout_factor=self.timeout_factor)()
+
+        p2p_conn.p2p_connected_to_node = True
+        if self.use_v2transport:
+            kwargs['services'] = kwargs.get('services', P2P_SERVICES) | NODE_P2P_V2
+        supports_v2_p2p = self.use_v2transport and supports_v2_p2p
+        p2p_conn.peer_connect(**kwargs, send_version=send_version, net=self.chain, timeout_factor=self.timeout_factor, supports_v2_p2p=supports_v2_p2p)()
+
         self.p2ps.append(p2p_conn)
         p2p_conn.wait_until(lambda: p2p_conn.is_connected, check_connected=False)
+        if supports_v2_p2p and wait_for_v2_handshake:
+            p2p_conn.wait_until(lambda: p2p_conn.v2_state.tried_v2_handshake)
+        if send_version:
+            p2p_conn.wait_until(lambda: not p2p_conn.on_connection_send_msg)
         if wait_for_verack:
             # Wait for the node to send us the version and verack
             p2p_conn.wait_for_verack()
@@ -682,9 +736,9 @@ class TestNode():
 
         return p2p_conn
 
-    def add_outbound_p2p_connection(self, p2p_conn, *, wait_for_verack=True, p2p_idx, connection_type="outbound-full-relay", **kwargs):
+    def add_outbound_p2p_connection(self, p2p_conn, *, wait_for_verack=True, wait_for_disconnect=False, p2p_idx, connection_type="outbound-full-relay", supports_v2_p2p=None, advertise_v2_p2p=None, **kwargs):
         """Add an outbound p2p connection from node. Must be an
-        "outbound-full-relay", "block-relay-only" or "addr-fetch" connection.
+        "outbound-full-relay", "block-relay-only", "addr-fetch" or "feeler" connection.
 
         This method adds the p2p connection to the self.p2ps list and returns
         the connection to the caller.
@@ -692,21 +746,57 @@ class TestNode():
         p2p_idx must be different for simultaneously connected peers. When reusing it for the next peer
         after disconnecting the previous one, it is necessary to wait for the disconnect to finish to avoid
         a race condition.
+
+        Parameters:
+            supports_v2_p2p: whether p2p_conn supports v2 P2P or not
+            advertise_v2_p2p: whether p2p_conn is advertised to support v2 P2P or not
+
+        An outbound connection is made from TestNode -------> P2PConnection
+            - if P2PConnection doesn't advertise_v2_p2p, TestNode sends version message and v1 P2P is followed
+            - if P2PConnection both supports_v2_p2p and advertise_v2_p2p, TestNode sends ellswift bytes and v2 P2P is followed
+            - if P2PConnection doesn't supports_v2_p2p but advertise_v2_p2p,
+                TestNode sends ellswift bytes and P2PConnection disconnects,
+                TestNode reconnects by sending version message and v1 P2P is followed
         """
 
         def addconnection_callback(address, port):
             self.log.debug("Connecting to %s:%d %s" % (address, port, connection_type))
-            self.addconnection('%s:%d' % (address, port), connection_type)
+            self.addconnection('%s:%d' % (address, port), connection_type, advertise_v2_p2p)
 
-        p2p_conn.peer_accept_connection(connect_cb=addconnection_callback, connect_id=p2p_idx + 1, net=self.chain, timeout_factor=self.timeout_factor, **kwargs)()
+        p2p_conn.p2p_connected_to_node = False
+        if supports_v2_p2p is None:
+            supports_v2_p2p = self.use_v2transport
+        if advertise_v2_p2p is None:
+            advertise_v2_p2p = self.use_v2transport
 
-        p2p_conn.wait_for_connect()
-        self.p2ps.append(p2p_conn)
+        if advertise_v2_p2p:
+            kwargs['services'] = kwargs.get('services', P2P_SERVICES) | NODE_P2P_V2
+            assert self.use_v2transport  # only a v2 TestNode could make a v2 outbound connection
 
-        if wait_for_verack:
-            p2p_conn.wait_for_verack()
-            p2p_conn.sync_with_ping()
+        # if P2PConnection is advertised to support v2 P2P when it doesn't actually support v2 P2P,
+        # reconnection needs to be attempted using v1 P2P by sending version message
+        reconnect = advertise_v2_p2p and not supports_v2_p2p
+        # P2PConnection needs to be advertised to support v2 P2P so that ellswift bytes are sent instead of msg_version
+        supports_v2_p2p = supports_v2_p2p and advertise_v2_p2p
+        p2p_conn.peer_accept_connection(connect_cb=addconnection_callback, connect_id=p2p_idx + 1, net=self.chain, timeout_factor=self.timeout_factor, supports_v2_p2p=supports_v2_p2p, reconnect=reconnect, **kwargs)()
 
+        if reconnect:
+            p2p_conn.wait_for_reconnect()
+
+        if connection_type == "feeler" or wait_for_disconnect:
+            # feeler connections are closed as soon as the node receives a `version` message
+            p2p_conn.wait_until(lambda: p2p_conn.message_count["version"] == 1, check_connected=False)
+            p2p_conn.wait_until(lambda: not p2p_conn.is_connected, check_connected=False)
+        else:
+            p2p_conn.wait_for_connect()
+            self.p2ps.append(p2p_conn)
+
+            if supports_v2_p2p:
+                p2p_conn.wait_until(lambda: p2p_conn.v2_state.tried_v2_handshake)
+            p2p_conn.wait_until(lambda: not p2p_conn.on_connection_send_msg)
+            if wait_for_verack:
+                p2p_conn.wait_for_verack()
+                p2p_conn.sync_with_ping()
         return p2p_conn
 
     def num_test_p2p_connections(self):
@@ -720,7 +810,7 @@ class TestNode():
             p.peer_disconnect()
         del self.p2ps[:]
 
-        wait_until_helper(lambda: self.num_test_p2p_connections() == 0, timeout_factor=self.timeout_factor)
+        self.wait_until(lambda: self.num_test_p2p_connections() == 0)
 
     def bumpmocktime(self, seconds):
         """Fast forward using setmocktime to self.mocktime + seconds. Requires setmocktime to have
@@ -728,6 +818,9 @@ class TestNode():
         assert self.mocktime
         self.mocktime += seconds
         self.setmocktime(self.mocktime)
+
+    def wait_until(self, test_function, timeout=60):
+        return wait_until_helper_internal(test_function, timeout=timeout, timeout_factor=self.timeout_factor)
 
 
 class TestNodeCLIAttr:
@@ -755,7 +848,6 @@ def arg_to_cli(arg):
 
 class TestNodeCLI():
     """Interface to BGL-cli for an individual node"""
-
     def __init__(self, binary, datadir):
         self.options = []
         self.binary = binary
@@ -782,15 +874,15 @@ class TestNodeCLI():
                 results.append(dict(error=e))
         return results
 
-    def send_cli(self, command=None, *args, **kwargs):
+    def send_cli(self, clicommand=None, *args, **kwargs):
         """Run BGL-cli command. Deserializes returned string as python object."""
         pos_args = [arg_to_cli(arg) for arg in args]
         named_args = [str(key) + "=" + arg_to_cli(value) for (key, value) in kwargs.items()]
-        p_args = [self.binary, "-datadir=" + self.datadir] + self.options
+        p_args = [self.binary, f"-datadir={self.datadir}"] + self.options
         if named_args:
             p_args += ["-named"]
-        if command is not None:
-            p_args += [command]
+        if clicommand is not None:
+            p_args += [clicommand]
         p_args += pos_args + named_args
         self.log.debug("Running BGL-cli {}".format(p_args[2:]))
         process = subprocess.Popen(p_args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

@@ -13,14 +13,14 @@ import json
 import logging
 import os
 import pathlib
-import random
+import platform
 import re
-import sys
 import time
 
 from . import coverage
 from .authproxy import AuthServiceProxy, JSONRPCException
-from typing import Callable, Optional, Tuple
+from collections.abc import Callable
+from typing import Optional
 
 logger = logging.getLogger("TestFramework.utils")
 
@@ -52,7 +52,24 @@ def assert_fee_amount(fee, tx_size, feerate_BGL_kvB):
         raise AssertionError("Fee of %s BGL too high! (Should be %s BGL)" % (str(fee), str(target_fee)))
 
 
+def summarise_dict_differences(thing1, thing2):
+    if not isinstance(thing1, dict) or not isinstance(thing2, dict):
+        return thing1, thing2
+    d1, d2 = {}, {}
+    for k in sorted(thing1.keys()):
+        if k not in thing2:
+            d1[k] = thing1[k]
+        elif thing1[k] != thing2[k]:
+            d1[k], d2[k] = summarise_dict_differences(thing1[k], thing2[k])
+    for k in sorted(thing2.keys()):
+        if k not in thing1:
+            d2[k] = thing2[k]
+    return d1, d2
+
 def assert_equal(thing1, thing2, *args):
+    if thing1 != thing2 and not args and isinstance(thing1, dict) and isinstance(thing2, dict):
+        d1,d2 = summarise_dict_differences(thing1, thing2)
+        raise AssertionError("not(%s == %s)\n  in particular not(%s == %s)" % (thing1, thing2, d1, d2))
     if thing1 != thing2 or any(thing1 != arg for arg in args):
         raise AssertionError("not(%s)" % " == ".join(str(arg) for arg in (thing1, thing2) + args))
 
@@ -241,7 +258,7 @@ def satoshi_round(amount):
     return Decimal(amount).quantize(Decimal('0.00000001'), rounding=ROUND_DOWN)
 
 
-def wait_until_helper(predicate, *, attempts=float('inf'), timeout=float('inf'), lock=None, timeout_factor=1.0):
+def wait_until_helper_internal(predicate, *, attempts=float('inf'), timeout=float('inf'), lock=None, timeout_factor=1.0):
     """Sleep until the predicate resolves to be True.
 
     Warning: Note that this method is not recommended to be used in tests as it is
@@ -285,12 +302,6 @@ def sha256sum_file(filename):
             h.update(d)
             d = f.read(4096)
     return h.digest()
-
-
-# TODO: Remove and use random.randbytes(n) instead, available in Python 3.9
-def random_bytes(n):
-    """Return a random bytes object of length n."""
-    return bytes(random.getrandbits(8) for i in range(n))
 
 
 # RPC/P2P connection constants and functions
@@ -405,6 +416,7 @@ def write_config(config_path, *, n, chain, extra_config="", disable_autoconnect=
         f.write("upnp=0\n")
         f.write("natpmp=0\n")
         f.write("shrinkdebugfile=0\n")
+        f.write("deprecatedrpc=create_bdb\n")  # Required to run the tests
         # To improve SQLite wallet performance so that the tests don't timeout, use -unsafesqlitesync
         f.write("unsafesqlitesync=1\n")
         if disable_autoconnect:
@@ -413,19 +425,19 @@ def write_config(config_path, *, n, chain, extra_config="", disable_autoconnect=
 
 
 def get_datadir_path(dirname, n):
-    return os.path.join(dirname, "node" + str(n))
+    return pathlib.Path(dirname) / f"node{n}"
 
 
-def get_temp_default_datadir(temp_dir: pathlib.Path) -> Tuple[dict, pathlib.Path]:
+def get_temp_default_datadir(temp_dir: pathlib.Path) -> tuple[dict, pathlib.Path]:
     """Return os-specific environment variables that can be set to make the
     GetDefaultDataDir() function return a datadir path under the provided
     temp_dir, as well as the complete path it would return."""
-    if sys.platform == "win32":
+    if platform.system() == "Windows":
         env = dict(APPDATA=str(temp_dir))
         datadir = temp_dir / "BGL"
     else:
         env = dict(HOME=str(temp_dir))
-        if sys.platform == "darwin":
+        if platform.system() == "Darwin":
             datadir = temp_dir / "Library/Application Support/BGL"
         else:
             datadir = temp_dir / ".BGL"
@@ -488,18 +500,6 @@ def check_node_connections(*, node, num_in, num_out):
 
 # Transaction/Block functions
 #############################
-
-
-def find_output(node, txid, amount, *, blockhash=None):
-    """
-    Return index to output of txid with value amount
-    Raises exception if there is none.
-    """
-    txdata = node.getrawtransaction(txid, 1, blockhash)
-    for i in range(len(txdata["vout"])):
-        if txdata["vout"][i]["value"] == amount:
-            return i
-    raise RuntimeError("find_output txid %s : %s not found" % (txid, str(amount)))
 
 
 # Create large OP_RETURN txouts that can be appended to a transaction

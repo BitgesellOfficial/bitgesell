@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2022 The Bitcoin Core developers
+// Copyright (c) 2009-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,18 +8,19 @@
 
 #include <attributes.h>
 #include <crypto/common.h>
-#include <prevector.h>
+#include <prevector.h> // IWYU pragma: export
 #include <serialize.h>
 #include <uint256.h>
 #include <util/hash_type.h>
 
-#include <assert.h>
-#include <climits>
+#include <cassert>
+#include <cstdint>
+#include <cstring>
 #include <limits>
 #include <stdexcept>
-#include <stdint.h>
-#include <string.h>
 #include <string>
+#include <type_traits>
+#include <utility>
 #include <vector>
 
 // Maximum number of bytes pushable to the stack
@@ -518,7 +519,7 @@ public:
     }
 
     /**
-     * Pre-version-0.6, BGL always counted CHECKMULTISIGs
+     * Pre-version-0.6, Bitcoin always counted CHECKMULTISIGs
      * as 20 sigops. With pay-to-script-hash, that changed:
      * CHECKMULTISIGs serialized in scriptSigs are
      * counted more accurately, assuming they are of the form
@@ -616,4 +617,5 @@ CScript BuildScript(Ts&&... inputs)
     return ret;
 }
 
-#endif // BITCOIN_SCRIPT_SCRIPT_H
+#endif // BGL_SCRIPT_SCRIPT_H
+

@@ -12,11 +12,8 @@
 #include "int128.h"
 #include "util.h"
 
-#ifdef VERIFY
 #define VERIFY_BITS(x, n) VERIFY_CHECK(((x) >> (n)) == 0)
-#else
-#define VERIFY_BITS(x, n) do { } while(0)
-#endif
+#define VERIFY_BITS_128(x, n) VERIFY_CHECK(secp256k1_u128_check_bits((x), (n)))
 
 SECP256K1_INLINE static void secp256k1_fe_mul_inner(uint64_t *r, const uint64_t *a, const uint64_t * SECP256K1_RESTRICT b) {
     uint128_t c, d;
@@ -83,22 +80,22 @@ SECP256K1_INLINE static void secp256k1_fe_mul_inner(uint64_t *r, const uint64_t 
     c  = (uint128_t)a0 * b[0];
     VERIFY_BITS(c, 112);
     /* [d t4+(tx<<48) t3 0 0 c] = [p8 0 0 0 p4 p3 0 0 p0] */
-    d += (uint128_t)a1 * b[4]
-       + (uint128_t)a2 * b[3]
-       + (uint128_t)a3 * b[2]
-       + (uint128_t)a4 * b[1];
-    VERIFY_BITS(d, 115);
+    secp256k1_u128_accum_mul(&d, a1, b[4]);
+    secp256k1_u128_accum_mul(&d, a2, b[3]);
+    secp256k1_u128_accum_mul(&d, a3, b[2]);
+    secp256k1_u128_accum_mul(&d, a4, b[1]);
+    VERIFY_BITS_128(&d, 114);
     /* [d t4+(tx<<48) t3 0 0 c] = [p8 0 0 p5 p4 p3 0 0 p0] */
     u0 = d & M; d >>= 52;
     VERIFY_BITS(u0, 52);
-    VERIFY_BITS(d, 63);
+    VERIFY_BITS_128(&d, 62);
     /* [d u0 t4+(tx<<48) t3 0 0 c] = [p8 0 0 p5 p4 p3 0 0 p0] */
     /* [d 0 t4+(tx<<48)+(u0<<52) t3 0 0 c] = [p8 0 0 p5 p4 p3 0 0 p0] */
     u0 = (u0 << 4) | tx;
     VERIFY_BITS(u0, 56);
     /* [d 0 t4+(u0<<48) t3 0 0 c] = [p8 0 0 p5 p4 p3 0 0 p0] */
-    c += (uint128_t)u0 * (R >> 4);
-    VERIFY_BITS(c, 115);
+    secp256k1_u128_accum_mul(&c, u0, R >> 4);
+    VERIFY_BITS_128(&c, 113);
     /* [d 0 t4 t3 0 0 c] = [p8 0 0 p5 p4 p3 0 0 p0] */
     r[0] = c & M; c >>= 52;
     VERIFY_BITS(r[0], 52);
@@ -159,7 +156,7 @@ SECP256K1_INLINE static void secp256k1_fe_mul_inner(uint64_t *r, const uint64_t 
 SECP256K1_INLINE static void secp256k1_fe_sqr_inner(uint64_t *r, const uint64_t *a) {
     uint128_t c, d;
     uint64_t a0 = a[0], a1 = a[1], a2 = a[2], a3 = a[3], a4 = a[4];
-    int64_t t3, t4, tx, u0;
+    uint64_t t3, t4, tx, u0;
     const uint64_t M = 0xFFFFFFFFFFFFFULL, R = 0x1000003D10ULL;
 
     VERIFY_BITS(a[0], 56);

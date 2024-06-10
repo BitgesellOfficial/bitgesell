@@ -4,6 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <core_io.h>
+#include <node/context.h>
 #include <policy/feerate.h>
 #include <policy/fees.h>
 #include <rpc/protocol.h>
@@ -14,15 +15,12 @@
 #include <txmempool.h>
 #include <univalue.h>
 #include <util/fees.h>
+#include <validationinterface.h>
 
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <string>
-
-namespace node {
-struct NodeContext;
-}
 
 using node::NodeContext;
 
@@ -67,6 +65,7 @@ static RPCHelpMan estimatesmartfee()
             const NodeContext& node = EnsureAnyNodeContext(request.context);
             const CTxMemPool& mempool = EnsureMemPool(node);
 
+            CHECK_NONFATAL(mempool.m_signals)->SyncWithValidationInterfaceQueue();
             unsigned int max_target = fee_estimator.HighestTargetTracked(FeeEstimateHorizon::LONG_HALFLIFE);
             unsigned int conf_target = ParseConfirmTarget(request.params[0], max_target);
             bool conservative = true;
@@ -154,7 +153,9 @@ static RPCHelpMan estimaterawfee()
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
         {
             CBlockPolicyEstimator& fee_estimator = EnsureAnyFeeEstimator(request.context);
+            const NodeContext& node = EnsureAnyNodeContext(request.context);
 
+            CHECK_NONFATAL(node.validation_signals)->SyncWithValidationInterfaceQueue();
             unsigned int max_target = fee_estimator.HighestTargetTracked(FeeEstimateHorizon::LONG_HALFLIFE);
             unsigned int conf_target = ParseConfirmTarget(request.params[0], max_target);
             double threshold = 0.95;

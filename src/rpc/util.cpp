@@ -2,6 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#if defined(HAVE_CONFIG_H)
+#include <config/BGL-config.h>
+#endif
+
 #include <clientversion.h>
 #include <core_io.h>
 #include <common/args.h>
@@ -20,6 +24,8 @@
 #include <util/string.h>
 #include <util/translation.h>
 
+#include <algorithm>
+#include <iterator>
 #include <string_view>
 #include <tuple>
 
@@ -73,6 +79,13 @@ CAmount AmountFromValue(const UniValue& value, int decimals)
     if (!MoneyRange(amount))
         throw JSONRPCError(RPC_TYPE_ERROR, "Amount out of range");
     return amount;
+}
+
+CFeeRate ParseFeeRate(const UniValue& json)
+{
+    CAmount val{AmountFromValue(json)};
+    if (val >= COIN) throw JSONRPCError(RPC_INVALID_PARAMETER, "Fee rates larger than or equal to 1BTC/kvB are not accepted");
+    return CFeeRate{val};
 }
 
 uint256 ParseHashV(const UniValue& v, std::string_view name)
@@ -254,6 +267,11 @@ public:
         return UniValue(UniValue::VOBJ);
     }
 
+    UniValue operator()(const PubKeyDestination& dest) const
+    {
+        return UniValue(UniValue::VOBJ);
+    }
+
     UniValue operator()(const PKHash& keyID) const
     {
         UniValue obj(UniValue::VOBJ);
@@ -304,8 +322,8 @@ public:
     {
         UniValue obj(UniValue::VOBJ);
         obj.pushKV("iswitness", true);
-        obj.pushKV("witness_version", (int)id.version);
-        obj.pushKV("witness_program", HexStr({id.program, id.length}));
+        obj.pushKV("witness_version", id.GetWitnessVersion());
+        obj.pushKV("witness_program", HexStr(id.GetWitnessProgram()));
         return obj;
     }
 };
@@ -673,11 +691,14 @@ static void CheckRequiredOrDefault(const RPCArg& param)
     void force_semicolon(ret_type)
 
 // Optional arg (without default). Can also be called on required args, if needed.
+TMPL_INST(nullptr, const UniValue*, maybe_arg;);
 TMPL_INST(nullptr, std::optional<double>, maybe_arg ? std::optional{maybe_arg->get_real()} : std::nullopt;);
 TMPL_INST(nullptr, std::optional<bool>, maybe_arg ? std::optional{maybe_arg->get_bool()} : std::nullopt;);
 TMPL_INST(nullptr, const std::string*, maybe_arg ? &maybe_arg->get_str() : nullptr;);
 
 // Required arg or optional arg with default value.
+TMPL_INST(CheckRequiredOrDefault, const UniValue&, *CHECK_NONFATAL(maybe_arg););
+TMPL_INST(CheckRequiredOrDefault, bool, CHECK_NONFATAL(maybe_arg)->get_bool(););
 TMPL_INST(CheckRequiredOrDefault, int, CHECK_NONFATAL(maybe_arg)->getInt<int>(););
 TMPL_INST(CheckRequiredOrDefault, uint64_t, CHECK_NONFATAL(maybe_arg)->getInt<uint64_t>(););
 TMPL_INST(CheckRequiredOrDefault, const std::string&, CHECK_NONFATAL(maybe_arg)->get_str(););
@@ -707,6 +728,16 @@ std::vector<std::pair<std::string, bool>> RPCHelpMan::GetArgNames() const
         ret.emplace_back(arg.m_names, /*named_only=*/false);
     }
     return ret;
+}
+
+size_t RPCHelpMan::GetParamIndex(std::string_view key) const
+{
+    auto it{std::find_if(
+        m_args.begin(), m_args.end(), [&key](const auto& arg) { return arg.GetName() == key;}
+    )};
+
+    CHECK_NONFATAL(it != m_args.end());  // TODO: ideally this is checked at compile time
+    return std::distance(m_args.begin(), it);
 }
 
 std::string RPCHelpMan::ToString() const
@@ -1083,7 +1114,7 @@ UniValue RPCResult::MatchesType(const UniValue& result) const
     if (UniValue::VARR == result.getType()) {
         UniValue errors(UniValue::VOBJ);
         for (size_t i{0}; i < result.get_array().size(); ++i) {
-            // If there are more results than documented, re-use the last doc_inner.
+            // If there are more results than documented, reuse the last doc_inner.
             const RPCResult& doc_inner{m_inner.at(std::min(m_inner.size() - 1, i))};
             UniValue match{doc_inner.MatchesType(result.get_array()[i])};
             if (!match.isTrue()) errors.pushKV(strprintf("%d", i), match);
@@ -1188,10 +1219,9 @@ std::string RPCArg::ToString(const bool oneline) const
     if (oneline && !m_opts.oneline_description.empty()) {
         if (m_opts.oneline_description[0] == '\"' && m_type != Type::STR_HEX && m_type != Type::STR && gArgs.GetBoolArg("-rpcdoccheck", DEFAULT_RPC_DOC_CHECK)) {
             throw std::runtime_error{
-                strprintf("Internal bug detected: non-string RPC arg \"%s\" quotes oneline_description:\n%s\n%s %s\nPlease report this issue here: %s\n",
-                          m_names, m_opts.oneline_description,
-                          PACKAGE_NAME, FormatFullVersion(),
-                          PACKAGE_BUGREPORT)};
+                STR_INTERNAL_BUG(strprintf("non-string RPC arg \"%s\" quotes oneline_description:\n%s",
+                    m_names, m_opts.oneline_description)
+                )};
         }
         return m_opts.oneline_description;
     }
@@ -1297,17 +1327,6 @@ std::vector<CScript> EvalDescriptorStringOrObject(const UniValue& scanobject, Fl
         std::move(scripts.begin(), scripts.end(), std::back_inserter(ret));
     }
     return ret;
-}
-
-UniValue GetServicesNames(ServiceFlags services)
-{
-    UniValue servicesNames(UniValue::VARR);
-
-    for (const auto& flag : serviceFlagsToStr(services)) {
-        servicesNames.push_back(flag);
-    }
-
-    return servicesNames;
 }
 
 /** Convert a vector of bilingual strings to a UniValue::VARR containing their original untranslated values. */

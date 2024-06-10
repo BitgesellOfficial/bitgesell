@@ -91,13 +91,16 @@ CreateAndActivateUTXOSnapshot(
             // these blocks instead
             CBlockIndex *pindex = orig_tip;
             while (pindex && pindex != chain.m_chain.Tip()) {
-                pindex->nStatus &= ~BLOCK_HAVE_DATA;
-                pindex->nStatus &= ~BLOCK_HAVE_UNDO;
-                // We have to set the ASSUMED_VALID flag, because otherwise it
-                // would not be possible to have a block index entry without HAVE_DATA
-                // and with nTx > 0 (since we aren't setting the pruned flag);
-                // see CheckBlockIndex().
-                pindex->nStatus |= BLOCK_ASSUMED_VALID;
+                // Remove all data and validity flags by just setting
+                // BLOCK_VALID_TREE. Also reset transaction counts and sequence
+                // ids that are set when blocks are received, to make test setup
+                // more realistic and satisfy consistency checks in
+                // CheckBlockIndex().
+                assert(pindex->IsValid(BlockStatus::BLOCK_VALID_TREE));
+                pindex->nStatus = BlockStatus::BLOCK_VALID_TREE;
+                pindex->nTx = 0;
+                pindex->nChainTx = 0;
+                pindex->nSequenceId = 0;
                 pindex = pindex->pprev;
             }
         }
@@ -109,7 +112,23 @@ CreateAndActivateUTXOSnapshot(
             0 == WITH_LOCK(node.chainman->GetMutex(), return node.chainman->ActiveHeight()));
     }
 
-    return node.chainman->ActivateSnapshot(auto_infile, metadata, in_memory_chainstate);
+    auto& new_active = node.chainman->ActiveChainstate();
+    auto* tip = new_active.m_chain.Tip();
+
+    // Disconnect a block so that the snapshot chainstate will be ahead, otherwise
+    // it will refuse to activate.
+    //
+    // TODO this is a unittest-specific hack, and we should probably rethink how to
+    // better generate/activate snapshots in unittests.
+    if (tip->pprev) {
+        new_active.m_chain.SetTip(*(tip->pprev));
+    }
+
+    bool res = node.chainman->ActivateSnapshot(auto_infile, metadata, in_memory_chainstate);
+
+    // Restore the old tip.
+    new_active.m_chain.SetTip(*tip);
+    return res;
 }
 
 

@@ -1,5 +1,5 @@
 To create the Debian package installable on multiple systems including
-Ubuntu 20.04 (with Qt wallet), run:
+Ubuntu 22.04 (with Qt wallet), run:
 
 ./debian/build-in-docker.sh
 

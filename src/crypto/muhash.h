@@ -5,10 +5,6 @@
 #ifndef BGL_CRYPTO_MUHASH_H
 #define BGL_CRYPTO_MUHASH_H
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
-
 #include <serialize.h>
 #include <uint256.h>
 

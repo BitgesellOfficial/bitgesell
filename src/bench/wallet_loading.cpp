@@ -2,6 +2,10 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#if defined(HAVE_CONFIG_H)
+#include <config/BGL-config.h>
+#endif
+
 #include <bench/bench.h>
 #include <interfaces/chain.h>
 #include <node/context.h>
@@ -20,8 +24,8 @@ namespace wallet{
 static void AddTx(CWallet& wallet)
 {
     CMutableTransaction mtx;
-    mtx.vout.push_back({COIN, GetScriptForDestination(*Assert(wallet.GetNewDestination(OutputType::BECH32, "")))});
-    mtx.vin.push_back(CTxIn());
+    mtx.vout.emplace_back(COIN, GetScriptForDestination(*Assert(wallet.GetNewDestination(OutputType::BECH32, ""))));
+    mtx.vin.emplace_back();
 
     wallet.AddToWallet(MakeTransactionRef(mtx), TxStateInactive{});
 }

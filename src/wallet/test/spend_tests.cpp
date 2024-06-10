@@ -27,14 +27,13 @@ BOOST_FIXTURE_TEST_CASE(SubtractFee, TestChain100Setup)
     // leftover input amount which would have been change to the recipient
     // instead of the miner.
     auto check_tx = [&wallet](CAmount leftover_input_amount) {
-        CRecipient recipient{GetScriptForRawPubKey({}), 50 * COIN - leftover_input_amount, /*subtract_fee=*/true};
-        constexpr int RANDOM_CHANGE_POSITION = -1;
+        CRecipient recipient{PubKeyDestination({}), 50 * COIN - leftover_input_amount, /*subtract_fee=*/true};
         CCoinControl coin_control;
         coin_control.m_feerate.emplace(10000);
         coin_control.fOverrideFeeRate = true;
         // We need to use a change type with high cost of change so that the leftover amount will be dropped to fee instead of added as a change output
         coin_control.m_change_type = OutputType::LEGACY;
-        auto res = CreateTransaction(*wallet, {recipient}, RANDOM_CHANGE_POSITION, coin_control);
+        auto res = CreateTransaction(*wallet, {recipient}, /*change_pos=*/std::nullopt, coin_control);
         BOOST_CHECK(res);
         const auto& txr = *res;
         BOOST_CHECK_EQUAL(txr.tx->vout.size(), 1);
@@ -78,7 +77,7 @@ BOOST_FIXTURE_TEST_CASE(wallet_duplicated_preset_inputs_test, TestChain100Setup)
 
     // Try to create a tx that spends more than what preset inputs + wallet selected inputs are covering for.
     // The wallet can cover up to 200 BTC, and the tx target is 299 BTC.
-    std::vector<CRecipient> recipients = {{GetScriptForDestination(*Assert(wallet->GetNewDestination(OutputType::BECH32, "dummy"))),
+    std::vector<CRecipient> recipients{{*Assert(wallet->GetNewDestination(OutputType::BECH32, "dummy")),
                                            /*nAmount=*/299 * COIN, /*fSubtractFeeFromAmount=*/true}};
     CCoinControl coin_control;
     coin_control.m_allow_other_inputs = true;
@@ -98,12 +97,12 @@ BOOST_FIXTURE_TEST_CASE(wallet_duplicated_preset_inputs_test, TestChain100Setup)
     // so that the recipient's amount is no longer equal to the user's selected target of 299 BTC.
 
     // First case, use 'subtract_fee_from_outputs=true'
-    util::Result<CreatedTransactionResult> res_tx = CreateTransaction(*wallet, recipients, /*change_pos*/-1, coin_control);
+    util::Result<CreatedTransactionResult> res_tx = CreateTransaction(*wallet, recipients, /*change_pos=*/std::nullopt, coin_control);
     BOOST_CHECK(!res_tx.has_value());
 
     // Second case, don't use 'subtract_fee_from_outputs'.
     recipients[0].fSubtractFeeFromAmount = false;
-    res_tx = CreateTransaction(*wallet, recipients, /*change_pos*/-1, coin_control);
+    res_tx = CreateTransaction(*wallet, recipients, /*change_pos=*/std::nullopt, coin_control);
     BOOST_CHECK(!res_tx.has_value());
 }
 

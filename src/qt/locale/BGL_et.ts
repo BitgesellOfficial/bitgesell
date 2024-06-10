@@ -58,16 +58,8 @@
         <translation type="unfinished">V&amp;ali</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Saatvad aadressid</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Vastuvõtvad aadressid</translation>
-    </message>
-    <message>
-        <source>These are your BGL addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Need on sinu BGL aadressid maksete saatmiseks. Ennem müntide saatmist kontrolli alati summat ja makse saaja aadressi.</translation>
+        <source>These are your Bitgesell addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Need on sinu Bitgesell aadressid maksete saatmiseks. Ennem müntide saatmist kontrolli alati summat ja makse saaja aadressi.</translation>
     </message>
     <message>
         <source>These are your BGL addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
@@ -326,70 +318,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     </context>
 <context>
-    <name>BGL-core</name>
-    <message>
-        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
-        <translation type="unfinished">See on test-versioon - kasutamine omal riisikol - ära kasuta mining'uks ega kaupmeeste programmides</translation>
-    </message>
-    <message>
-        <source>Corrupted block database detected</source>
-        <translation type="unfinished">Tuvastati vigane bloki andmebaas</translation>
-    </message>
-    <message>
-        <source>Do you want to rebuild the block database now?</source>
-        <translation type="unfinished">Kas soovid bloki andmebaasi taastada?</translation>
-    </message>
-    <message>
-        <source>Done loading</source>
-        <translation type="unfinished">Laetud</translation>
-    </message>
-    <message>
-        <source>Error initializing block database</source>
-        <translation type="unfinished">Tõrge bloki andmebaasi käivitamisel</translation>
-    </message>
-    <message>
-        <source>Error initializing wallet database environment %s!</source>
-        <translation type="unfinished">Tõrge rahakoti keskkonna %s käivitamisel!</translation>
-    </message>
-    <message>
-        <source>Error loading block database</source>
-        <translation type="unfinished">Tõrge bloki baasi lugemisel</translation>
-    </message>
-    <message>
-        <source>Error opening block database</source>
-        <translation type="unfinished">Tõrge bloki andmebaasi avamisel</translation>
-    </message>
-    <message>
-        <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
-        <translation type="unfinished">Pordi kuulamine nurjus. Soovikorral kasuta -listen=0.</translation>
-    </message>
-    <message>
-        <source>Insufficient funds</source>
-        <translation type="unfinished">Liiga suur summa</translation>
-    </message>
-    <message>
-        <source>Signing transaction failed</source>
-        <translation type="unfinished">Tehingu allkirjastamine ebaõnnestus</translation>
-    </message>
-    <message>
-        <source>The transaction amount is too small to pay the fee</source>
-        <translation type="unfinished">Tehingu summa on tasu maksmiseks liiga väikene</translation>
-    </message>
-    <message>
-        <source>Transaction amount too small</source>
-        <translation type="unfinished">Tehingu summa liiga väikene</translation>
-    </message>
-    <message>
-        <source>Transaction too large</source>
-        <translation type="unfinished">Tehing liiga suur</translation>
-    </message>
-    <message>
-        <source>Unknown network specified in -onlynet: '%s'</source>
-        <translation type="unfinished">Kirjeldatud tundmatu võrgustik -onlynet'is: '%s'</translation>
-    </message>
-    </context>
-<context>
-    <name>BGLGUI</name>
+    <name>BitgesellGUI</name>
     <message>
         <source>&amp;Overview</source>
         <translation type="unfinished">&amp;Ülevaade</translation>
@@ -655,10 +584,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Tasu:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Puru:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Peale tehingutasu:</translation>
     </message>
@@ -715,24 +640,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Kopeeri baidid</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopeeri puru</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Kopeeri vahetusraha</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 lukustatud)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">jah</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">ei</translation>
     </message>
     <message>
         <source>(no label)</source>
@@ -1023,8 +936,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
 <context>
     <name>PSBTOperationsDialog</name>
     <message>
-        <source>Dialog</source>
-        <translation type="unfinished">Dialoog</translation>
+        <source>own address</source>
+        <translation type="unfinished">oma aadress</translation>
     </message>
     <message>
         <source>or</source>
@@ -1371,10 +1284,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Puhasta kõik vormi väljad.</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Puru:</translation>
-    </message>
-    <message>
         <source>Clear &amp;All</source>
         <translation type="unfinished">Puhasta &amp;Kõik</translation>
     </message>
@@ -1405,10 +1314,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Copy bytes</source>
         <translation type="unfinished">Kopeeri baidid</translation>
-    </message>
-    <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopeeri puru</translation>
     </message>
     <message>
         <source>Copy change</source>
@@ -1774,10 +1679,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Saadetud</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">Makse iseendale</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">Mine'itud</translation>
     </message>
@@ -1835,10 +1736,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Sent to</source>
         <translation type="unfinished">Saadetud</translation>
-    </message>
-    <message>
-        <source>To yourself</source>
-        <translation type="unfinished">Iseendale</translation>
     </message>
     <message>
         <source>Mined</source>
@@ -1929,6 +1826,69 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Backup Successful</source>
         <translation type="unfinished">Varundamine õnnestus</translation>
+    </message>
+    </context>
+<context>
+    <name>bitgesell-core</name>
+    <message>
+        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
+        <translation type="unfinished">See on test-versioon - kasutamine omal riisikol - ära kasuta mining'uks ega kaupmeeste programmides</translation>
+    </message>
+    <message>
+        <source>Corrupted block database detected</source>
+        <translation type="unfinished">Tuvastati vigane bloki andmebaas</translation>
+    </message>
+    <message>
+        <source>Do you want to rebuild the block database now?</source>
+        <translation type="unfinished">Kas soovid bloki andmebaasi taastada?</translation>
+    </message>
+    <message>
+        <source>Done loading</source>
+        <translation type="unfinished">Laetud</translation>
+    </message>
+    <message>
+        <source>Error initializing block database</source>
+        <translation type="unfinished">Tõrge bloki andmebaasi käivitamisel</translation>
+    </message>
+    <message>
+        <source>Error initializing wallet database environment %s!</source>
+        <translation type="unfinished">Tõrge rahakoti keskkonna %s käivitamisel!</translation>
+    </message>
+    <message>
+        <source>Error loading block database</source>
+        <translation type="unfinished">Tõrge bloki baasi lugemisel</translation>
+    </message>
+    <message>
+        <source>Error opening block database</source>
+        <translation type="unfinished">Tõrge bloki andmebaasi avamisel</translation>
+    </message>
+    <message>
+        <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
+        <translation type="unfinished">Pordi kuulamine nurjus. Soovikorral kasuta -listen=0.</translation>
+    </message>
+    <message>
+        <source>Insufficient funds</source>
+        <translation type="unfinished">Liiga suur summa</translation>
+    </message>
+    <message>
+        <source>Signing transaction failed</source>
+        <translation type="unfinished">Tehingu allkirjastamine ebaõnnestus</translation>
+    </message>
+    <message>
+        <source>The transaction amount is too small to pay the fee</source>
+        <translation type="unfinished">Tehingu summa on tasu maksmiseks liiga väikene</translation>
+    </message>
+    <message>
+        <source>Transaction amount too small</source>
+        <translation type="unfinished">Tehingu summa liiga väikene</translation>
+    </message>
+    <message>
+        <source>Transaction too large</source>
+        <translation type="unfinished">Tehing liiga suur</translation>
+    </message>
+    <message>
+        <source>Unknown network specified in -onlynet: '%s'</source>
+        <translation type="unfinished">Kirjeldatud tundmatu võrgustik -onlynet'is: '%s'</translation>
     </message>
     </context>
 </TS>

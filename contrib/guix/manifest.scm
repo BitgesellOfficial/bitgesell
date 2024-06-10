@@ -3,7 +3,6 @@
              ((gnu packages bash) #:select (bash-minimal))
              (gnu packages bison)
              ((gnu packages certs) #:select (nss-certs))
-             ((gnu packages cdrom) #:select (xorriso))
              ((gnu packages cmake) #:select (cmake-minimal))
              (gnu packages commencement)
              (gnu packages compression)
@@ -12,7 +11,7 @@
              (gnu packages gawk)
              (gnu packages gcc)
              ((gnu packages installers) #:select (nsis-x86_64))
-             ((gnu packages linux) #:select (linux-libre-headers-5.15 util-linux))
+             ((gnu packages linux) #:select (linux-libre-headers-6.1 util-linux))
              (gnu packages llvm)
              (gnu packages mingw)
              (gnu packages moreutils)
@@ -20,7 +19,6 @@
              ((gnu packages python) #:select (python-minimal))
              ((gnu packages python-build) #:select (python-tomli))
              ((gnu packages python-crypto) #:select (python-asn1crypto))
-             ((gnu packages python-web) #:select (python-requests))
              ((gnu packages tls) #:select (openssl))
              ((gnu packages version-control) #:select (git-minimal))
              (guix build-system cmake)
@@ -82,19 +80,19 @@ FILE-NAME found in ./patches relative to the current file."
       (build-system trivial-build-system)
       (arguments '(#:builder (begin (mkdir %output) #t)))
       (propagated-inputs
-       `(("binutils" ,xbinutils)
-         ("libc" ,xlibc)
-         ("libc:static" ,xlibc "static")
-         ("gcc" ,xgcc)
-         ("gcc-lib" ,xgcc "lib")))
+        (list xbinutils
+              xlibc
+              xgcc
+              `(,xlibc "static")
+              `(,xgcc "lib")))
       (synopsis (string-append "Complete GCC tool chain for " target))
       (description (string-append "This package provides a complete GCC tool
 chain for " target " development."))
       (home-page (package-home-page xgcc))
       (license (package-license xgcc)))))
 
-(define base-gcc gcc-10)
-(define base-linux-kernel-headers linux-libre-headers-5.15)
+(define base-gcc gcc-12)
+(define base-linux-kernel-headers linux-libre-headers-6.1)
 
 (define* (make-BGL-cross-toolchain target
                                        #:key
@@ -133,10 +131,10 @@ desirable for building BGL Core release binaries."
       (build-system trivial-build-system)
       (arguments '(#:builder (begin (mkdir %output) #t)))
       (propagated-inputs
-       `(("binutils" ,xbinutils)
-         ("libc" ,pthreads-xlibc)
-         ("gcc" ,pthreads-xgcc)
-         ("gcc-lib" ,pthreads-xgcc "lib")))
+        (list xbinutils
+              pthreads-xlibc
+              pthreads-xgcc
+              `(,pthreads-xgcc "lib")))
       (synopsis (string-append "Complete GCC tool chain for " target))
       (description (string-append "This package provides a complete GCC tool
 chain for " target " development."))
@@ -201,8 +199,7 @@ and abstract ELF, PE and MachO formats.")
                (base32
                 "1j47vwq4caxfv0xw68kw5yh00qcpbd56d7rq6c483ma3y7s96yyz"))))
     (build-system cmake-build-system)
-    (inputs
-     `(("openssl", openssl)))
+    (inputs (list openssl))
     (home-page "https://github.com/mtrojnar/osslsigncode")
     (synopsis "Authenticode signing and timestamping tool")
     (description "osslsigncode is a small tool that implements part of the
@@ -260,8 +257,7 @@ thus should be able to compile on most platforms where these exist.")
             (files '("etc/ssl/certs/ca-certificates.crt")))))
 
     (propagated-inputs
-     `(("python-asn1crypto" ,python-asn1crypto)
-       ("openssl" ,openssl)))
+      (list python-asn1crypto openssl))
     (arguments
      `(#:phases
        (modify-phases %standard-phases
@@ -299,7 +295,7 @@ thus should be able to compile on most platforms where these exist.")
   (package (inherit python-oscrypto)
     (name "python-oscryptotests")
     (propagated-inputs
-      `(("python-oscrypto" ,python-oscrypto)))
+      (list python-oscrypto))
     (arguments
      `(#:tests? #f
        #:phases
@@ -326,9 +322,9 @@ thus should be able to compile on most platforms where these exist.")
            "1qw2k7xis53179lpqdqyylbcmp76lj7sagp883wmxg5i7chhc96k"))))
       (build-system python-build-system)
       (propagated-inputs
-       `(("python-asn1crypto" ,python-asn1crypto)
-         ("python-oscrypto" ,python-oscrypto)
-         ("python-oscryptotests", python-oscryptotests))) ;; certvalidator tests import oscryptotests
+        (list python-asn1crypto
+              python-oscrypto
+              python-oscryptotests)) ;; certvalidator tests import oscryptotests
       (arguments
        `(#:phases
          (modify-phases %standard-phases
@@ -376,79 +372,8 @@ certificates or paths. Supports various options, including: validation at a
 specific moment in time, whitelisting and revocation checks.")
       (license license:expat))))
 
-(define-public python-altgraph
-  (package
-    (name "python-altgraph")
-    (version "0.17")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/ronaldoussoren/altgraph")
-             (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32
-         "09sm4srvvkw458pn48ga9q7ykr4xlz7q8gh1h9w7nxpf001qgpwb"))))
-    (build-system python-build-system)
-    (home-page "https://github.com/ronaldoussoren/altgraph")
-    (synopsis "Python graph (network) package")
-    (description "altgraph is a fork of graphlib: a graph (network) package for
-constructing graphs, BFS and DFS traversals, topological sort, shortest paths,
-etc. with graphviz output.")
-    (license license:expat)))
-
-
-(define-public python-macholib
-  (package
-    (name "python-macholib")
-    (version "1.14")
-    (source
-     (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://github.com/ronaldoussoren/macholib")
-             (commit (string-append "v" version))))
-       (file-name (git-file-name name version))
-       (sha256
-        (base32
-         "0aislnnfsza9wl4f0vp45ivzlc0pzhp9d4r08700slrypn5flg42"))))
-    (build-system python-build-system)
-    (propagated-inputs
-     `(("python-altgraph" ,python-altgraph)))
-    (arguments
-     '(#:phases
-       (modify-phases %standard-phases
-         (add-after 'unpack 'disable-broken-tests
-           (lambda _
-             ;; This test is broken as there is no keyboard interrupt.
-             (substitute* "macholib_tests/test_command_line.py"
-               (("^(.*)class TestCmdLine" line indent)
-                (string-append indent
-                               "@unittest.skip(\"Disabled by Guix\")\n"
-                               line)))
-             (substitute* "macholib_tests/test_dyld.py"
-               (("^(.*)def test_\\S+_find" line indent)
-                (string-append indent
-                               "@unittest.skip(\"Disabled by Guix\")\n"
-                               line))
-               (("^(.*)def testBasic" line indent)
-                (string-append indent
-                               "@unittest.skip(\"Disabled by Guix\")\n"
-                               line))
-               )
-             #t)))))
-    (home-page "https://github.com/ronaldoussoren/macholib")
-    (synopsis "Python library for analyzing and editing Mach-O headers")
-    (description "macholib is a Macho-O header analyzer and editor. It's
-typically used as a dependency analysis tool, and also to rewrite dylib
-references in Mach-O headers to be @executable_path relative. Though this tool
-targets a platform specific file format, it is pure python code that is platform
-and endian independent.")
-    (license license:expat)))
-
 (define-public python-signapple
-  (let ((commit "8a945a2e7583be2665cf3a6a89d665b70ecd1ab6"))
+  (let ((commit "62155712e7417aba07565c9780a80e452823ae6a"))
     (package
       (name "python-signapple")
       (version (git-version "0.1" "1" commit))
@@ -461,15 +386,13 @@ and endian independent.")
          (file-name (git-file-name name commit))
          (sha256
           (base32
-           "0fr1hangvfyiwflca6jg5g8zvg3jc9qr7vd2c12ff89pznf38dlg"))))
+           "1nm6rm4h4m7kbq729si4cm8rzild62mk4ni8xr5zja7l33fhv3gb"))))
       (build-system python-build-system)
       (propagated-inputs
-       `(("python-asn1crypto" ,python-asn1crypto)
-         ("python-oscrypto" ,python-oscrypto)
-         ("python-certvalidator" ,python-certvalidator)
-         ("python-elfesteem" ,python-elfesteem)
-         ("python-requests" ,python-requests)
-         ("python-macholib" ,python-macholib)))
+        (list python-asn1crypto
+              python-oscrypto
+              python-certvalidator
+              python-elfesteem))
       ;; There are no tests, but attempting to run python setup.py test leads to
       ;; problems, just disable the test
       (arguments '(#:tests? #f))
@@ -488,12 +411,8 @@ inspecting signatures in Mach-O binaries.")
           `(append ,flags
             ;; https://gcc.gnu.org/install/configure.html
             (list "--enable-threads=posix",
-                  building-on)))
-        ((#:make-flags flags)
-          ;; Uses the SSP functions from glibc instead of from libssp.so.
-          ;; Our 'symbol-check' script will complain if we link against libssp.so,
-          ;; and thus will ensure that this works properly.
-          `(cons "gcc_cv_libc_provides_ssp=yes" ,flags))))))
+                  "--enable-default-ssp=yes",
+                  building-on)))))))
 
 (define-public linux-base-gcc
   (package
@@ -581,15 +500,13 @@ inspecting signatures in Mach-O binaries.")
         gzip
         xz
         ;; Build tools
+        cmake-minimal
         gnu-make
         libtool-2.4.7
         autoconf-2.71
         automake
         pkg-config
         bison
-        ;; Native GCC 10 toolchain
-        gcc-toolchain-10
-        (list gcc-toolchain-10 "static")
         ;; Scripting
         python-minimal ;; (3.9)
         ;; Git
@@ -598,14 +515,25 @@ inspecting signatures in Mach-O binaries.")
         python-lief)
   (let ((target (getenv "HOST")))
     (cond ((string-suffix? "-mingw32" target)
-           ;; Windows
-           (list zip
+           (list ;; Native GCC 12 toolchain
+                 gcc-toolchain-12
+                 (list gcc-toolchain-12 "static")
+                 zip
                  (make-mingw-pthreads-cross-toolchain "x86_64-w64-mingw32")
                  nsis-x86_64
                  nss-certs
                  osslsigncode))
           ((string-contains target "-linux-")
-           (list (make-BGL-cross-toolchain target)))
+           (list ;; Native GCC 12 toolchain
+                 gcc-toolchain-12
+                 (list gcc-toolchain-12 "static")
+                 (make-BGL-cross-toolchain target)))
           ((string-contains target "darwin")
-           (list clang-toolchain-15 binutils cmake-minimal xorriso python-signapple))
+           (list ;; Native GCC 10 toolchain
+                 gcc-toolchain-10
+                 (list gcc-toolchain-10 "static")
+                 binutils
+                 clang-toolchain-17
+                 python-signapple
+                 zip))
           (else '())))))

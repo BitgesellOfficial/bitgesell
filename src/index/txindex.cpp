@@ -4,6 +4,7 @@
 
 #include <index/txindex.h>
 
+#include <clientversion.h>
 #include <common/args.h>
 #include <index/disktxpos.h>
 #include <logging.h>
@@ -26,7 +27,7 @@ public:
     bool ReadTxPos(const uint256& txid, CDiskTxPos& pos) const;
 
     /// Write a batch of transaction positions to the DB.
-    bool WriteTxs(const std::vector<std::pair<uint256, CDiskTxPos>>& v_pos);
+    [[nodiscard]] bool WriteTxs(const std::vector<std::pair<uint256, CDiskTxPos>>& v_pos);
 };
 
 TxIndex::DB::DB(size_t n_cache_size, bool f_memory, bool f_wipe) :
@@ -64,7 +65,7 @@ bool TxIndex::CustomAppend(const interfaces::BlockInfo& block)
     vPos.reserve(block.data->vtx.size());
     for (const auto& tx : block.data->vtx) {
         vPos.emplace_back(tx->GetHash(), pos);
-        pos.nTxOffset += ::GetSerializeSize(*tx, CLIENT_VERSION);
+        pos.nTxOffset += ::GetSerializeSize(TX_WITH_WITNESS(*tx));
     }
     return m_db->WriteTxs(vPos);
 }
@@ -78,22 +79,26 @@ bool TxIndex::FindTx(const uint256& tx_hash, uint256& block_hash, CTransactionRe
         return false;
     }
 
-    CAutoFile file(m_chainstate->m_blockman.OpenBlockFile(postx, true), SER_DISK, CLIENT_VERSION);
+    AutoFile file{m_chainstate->m_blockman.OpenBlockFile(postx, true)};
     if (file.IsNull()) {
-        return error("%s: OpenBlockFile failed", __func__);
+        LogError("%s: OpenBlockFile failed\n", __func__);
+        return false;
     }
     CBlockHeader header;
     try {
         file >> header;
         if (fseek(file.Get(), postx.nTxOffset, SEEK_CUR)) {
-            return error("%s: fseek(...) failed", __func__);
+            LogError("%s: fseek(...) failed\n", __func__);
+            return false;
         }
-        file >> tx;
+        file >> TX_WITH_WITNESS(tx);
     } catch (const std::exception& e) {
-        return error("%s: Deserialize or I/O error - %s", __func__, e.what());
+        LogError("%s: Deserialize or I/O error - %s\n", __func__, e.what());
+        return false;
     }
     if (tx->GetHash() != tx_hash) {
-        return error("%s: txid mismatch", __func__);
+        LogError("%s: txid mismatch\n", __func__);
+        return false;
     }
     block_hash = header.GetHash();
     return true;

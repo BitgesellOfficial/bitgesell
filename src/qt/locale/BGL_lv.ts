@@ -58,16 +58,8 @@
         <translation type="unfinished">Izvēlēties</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Adrešu nosūtīšana</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Adrešu saņemšana</translation>
-    </message>
-    <message>
-        <source>These are your BGL addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Šīs ir jūsu BGL adreses, kuras izmantojamas maksājumu veikšanai. Vienmēr pārbaudiet summu un saņēmēja adresi pirms monētu nosūtīšanas.</translation>
+        <source>These are your Bitgesell addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Šīs ir jūsu Bitgesell adreses, kuras izmantojamas maksājumu veikšanai. Vienmēr pārbaudiet summu un saņēmēja adresi pirms monētu nosūtīšanas.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -265,38 +257,7 @@
     </message>
     </context>
 <context>
-    <name>BGL-core</name>
-    <message>
-        <source>Done loading</source>
-        <translation type="unfinished">Ielāde pabeigta</translation>
-    </message>
-    <message>
-        <source>Error loading block database</source>
-        <translation type="unfinished">Kļūda ielādējot bloku datubāzi</translation>
-    </message>
-    <message>
-        <source>Insufficient funds</source>
-        <translation type="unfinished">Nepietiek bitkoinu</translation>
-    </message>
-    <message>
-        <source>Signing transaction failed</source>
-        <translation type="unfinished">Transakcijas parakstīšana neizdevās</translation>
-    </message>
-    <message>
-        <source>Transaction amount too small</source>
-        <translation type="unfinished">Transakcijas summa ir pārāk maza</translation>
-    </message>
-    <message>
-        <source>Transaction too large</source>
-        <translation type="unfinished">Transakcija ir pārāk liela</translation>
-    </message>
-    <message>
-        <source>Unknown network specified in -onlynet: '%s'</source>
-        <translation type="unfinished">-onlynet komandā norādīts nepazīstams tīkls: '%s'</translation>
-    </message>
-    </context>
-<context>
-    <name>BGLGUI</name>
+    <name>BitgesellGUI</name>
     <message>
         <source>&amp;Overview</source>
         <translation type="unfinished">&amp;Pārskats</translation>
@@ -324,10 +285,6 @@
     <message>
         <source>&amp;About %1</source>
         <translation type="unfinished">&amp;Par %1</translation>
-    </message>
-    <message>
-        <source>Show information about %1</source>
-        <translation type="unfinished">Rādīt informāciju par %1</translation>
     </message>
     <message>
         <source>About &amp;Qt</source>
@@ -855,10 +812,6 @@
 <context>
     <name>PSBTOperationsDialog</name>
     <message>
-        <source>Dialog</source>
-        <translation type="unfinished">Dialogs</translation>
-    </message>
-    <message>
         <source>Copy to Clipboard</source>
         <translation type="unfinished">Nokopēt</translation>
     </message>
@@ -1324,6 +1277,37 @@
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation type="unfinished">Datus no tekošā ieliktņa eksportēt uz failu</translation>
+    </message>
+    </context>
+<context>
+    <name>bitgesell-core</name>
+    <message>
+        <source>Done loading</source>
+        <translation type="unfinished">Ielāde pabeigta</translation>
+    </message>
+    <message>
+        <source>Error loading block database</source>
+        <translation type="unfinished">Kļūda ielādējot bloku datubāzi</translation>
+    </message>
+    <message>
+        <source>Insufficient funds</source>
+        <translation type="unfinished">Nepietiek bitkoinu</translation>
+    </message>
+    <message>
+        <source>Signing transaction failed</source>
+        <translation type="unfinished">Transakcijas parakstīšana neizdevās</translation>
+    </message>
+    <message>
+        <source>Transaction amount too small</source>
+        <translation type="unfinished">Transakcijas summa ir pārāk maza</translation>
+    </message>
+    <message>
+        <source>Transaction too large</source>
+        <translation type="unfinished">Transakcija ir pārāk liela</translation>
+    </message>
+    <message>
+        <source>Unknown network specified in -onlynet: '%s'</source>
+        <translation type="unfinished">-onlynet komandā norādīts nepazīstams tīkls: '%s'</translation>
     </message>
     </context>
 </TS>

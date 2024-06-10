@@ -9,7 +9,6 @@ Otherwise the exit status will be 1 and it will log which executables failed whi
 Needs `objdump` (for PE).
 '''
 import sys
-from typing import List
 
 import lief
 
@@ -201,6 +200,16 @@ def check_MACHO_control_flow(binary) -> bool:
         return True
     return False
 
+def check_MACHO_branch_protection(binary) -> bool:
+    '''
+    Check for branch protection instrumentation
+    '''
+    content = binary.get_content_from_virtual_address(binary.entrypoint, 4, lief.Binary.VA_TYPES.AUTO)
+
+    if content.tolist() == [95, 36, 3, 213]: # bti
+        return True
+    return False
+
 BASE_ELF = [
     ('PIE', check_PIE),
     ('NX', check_NX),
@@ -240,7 +249,7 @@ CHECKS = {
         lief.ARCHITECTURES.X86: BASE_MACHO + [('PIE', check_PIE),
                                               ('NX', check_NX),
                                               ('CONTROL_FLOW', check_MACHO_control_flow)],
-        lief.ARCHITECTURES.ARM64: BASE_MACHO,
+        lief.ARCHITECTURES.ARM64: BASE_MACHO + [('BRANCH_PROTECTION', check_MACHO_branch_protection)],
     }
 }
 
@@ -263,7 +272,7 @@ if __name__ == '__main__':
                 retval = 1
                 continue
 
-            failed: List[str] = []
+            failed: list[str] = []
             for (name, func) in CHECKS[etype][arch]:
                 if not func(binary):
                     failed.append(name)

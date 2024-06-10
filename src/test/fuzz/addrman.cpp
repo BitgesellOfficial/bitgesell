@@ -64,26 +64,13 @@ FUZZ_TARGET(data_stream_addr_man, .init = initialize_addrman)
 CNetAddr RandAddr(FuzzedDataProvider& fuzzed_data_provider, FastRandomContext& fast_random_context)
 {
     CNetAddr addr;
-    if (fuzzed_data_provider.remaining_bytes() > 1 && fuzzed_data_provider.ConsumeBool()) {
-        addr = ConsumeNetAddr(fuzzed_data_provider);
-    } else {
-        // The networks [1..6] correspond to CNetAddr::BIP155Network (private).
-        static const std::map<uint8_t, uint8_t> net_len_map = {{1, ADDR_IPV4_SIZE},
-                                                               {2, ADDR_IPV6_SIZE},
-                                                               {4, ADDR_TORV3_SIZE},
-                                                               {5, ADDR_I2P_SIZE},
-                                                               {6, ADDR_CJDNS_SIZE}};
-        uint8_t net = fast_random_context.randrange(5) + 1; // [1..5]
-        if (net == 3) {
-            net = 6;
+    assert(!addr.IsValid());
+    for (size_t i = 0; i < 8 && !addr.IsValid(); ++i) {
+        if (fuzzed_data_provider.remaining_bytes() > 1 && fuzzed_data_provider.ConsumeBool()) {
+            addr = ConsumeNetAddr(fuzzed_data_provider);
+        } else {
+            addr = ConsumeNetAddr(fuzzed_data_provider, &fast_random_context);
         }
-
-        CDataStream s(SER_NETWORK, PROTOCOL_VERSION | ADDRV2_FORMAT);
-
-        s << net;
-        s << fast_random_context.randbytes(net_len_map.at(net));
-
-        s >> addr;
     }
 
     // Return a dummy IPv4 5.5.5.5 if we generated an invalid address.
@@ -241,9 +228,7 @@ FUZZ_TARGET(addrman, .init = initialize_addrman)
     auto addr_man_ptr = std::make_unique<AddrManDeterministic>(netgroupman, fuzzed_data_provider);
     if (fuzzed_data_provider.ConsumeBool()) {
         const std::vector<uint8_t> serialized_data{ConsumeRandomLengthByteVector(fuzzed_data_provider)};
-        CDataStream ds(serialized_data, SER_DISK, INIT_PROTO_VERSION);
-        const auto ser_version{fuzzed_data_provider.ConsumeIntegral<int32_t>()};
-        ds.SetVersion(ser_version);
+        CDataStream ds(serialized_data, SER_NETWORK, PROTOCOL_VERSION);
         try {
             ds >> *addr_man_ptr;
         } catch (const std::ios_base::failure&) {
@@ -288,7 +273,8 @@ FUZZ_TARGET(addrman, .init = initialize_addrman)
     (void)const_addr_man.GetAddr(
         /*max_addresses=*/fuzzed_data_provider.ConsumeIntegralInRange<size_t>(0, 4096),
         /*max_pct=*/fuzzed_data_provider.ConsumeIntegralInRange<size_t>(0, 4096),
-        network);
+        network,
+        /*filtered=*/fuzzed_data_provider.ConsumeBool());
     (void)const_addr_man.Select(fuzzed_data_provider.ConsumeBool(), network);
     std::optional<bool> in_new;
     if (fuzzed_data_provider.ConsumeBool()) {

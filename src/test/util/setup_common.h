@@ -5,14 +5,14 @@
 #ifndef BGL_TEST_UTIL_SETUP_COMMON_H
 #define BGL_TEST_UTIL_SETUP_COMMON_H
 
-#include <common/args.h>
+#include <common/args.h> // IWYU pragma: export
 #include <key.h>
 #include <node/caches.h>
 #include <node/context.h> // IWYU pragma: export
 #include <primitives/transaction.h>
 #include <pubkey.h>
 #include <stdexcept>
-#include <util/chaintype.h>
+#include <util/chaintype.h> // IWYU pragma: export
 #include <util/check.h>
 #include <util/fs.h>
 #include <util/string.h>
@@ -32,6 +32,9 @@ extern const std::function<void(const std::string&)> G_TEST_LOG_FUN;
 /** Retrieve the command line arguments. */
 extern const std::function<std::vector<const char*>()> G_TEST_COMMAND_LINE_ARGUMENTS;
 
+/** Retrieve the unit test name. */
+extern const std::function<std::string()> G_TEST_GET_FULL_NAME;
+
 // Enable BOOST_CHECK_EQUAL for enum class types
 namespace std {
 template <typename T>
@@ -47,12 +50,15 @@ static constexpr CAmount CENT{1000000};
  * This just configures logging, data dir and chain parameters.
  */
 struct BasicTestingSetup {
+    util::SignalInterrupt m_interrupt;
     node::NodeContext m_node; // keep as first member to be destructed last
 
     explicit BasicTestingSetup(const ChainType chainType = ChainType::MAIN, const std::vector<const char*>& extra_args = {});
     ~BasicTestingSetup();
 
-    const fs::path m_path_root;
+    fs::path m_path_root;
+    fs::path m_path_lock;
+    bool m_has_custom_datadir{false};
     ArgsManager m_args;
 };
 
@@ -124,7 +130,44 @@ struct TestChain100Setup : public TestingSetup {
     void mineBlocks(int num_blocks);
 
     /**
-     * Create a transaction and submit to the mempool.
+    * Create a transaction, optionally setting the fee based on the feerate.
+    * Note: The feerate may not be met exactly depending on whether the signatures can have different sizes.
+    *
+    * @param input_transactions   The transactions to spend
+    * @param inputs               Outpoints with which to construct transaction vin.
+    * @param input_height         The height of the block that included the input transactions.
+    * @param input_signing_keys   The keys to spend the input transactions.
+    * @param outputs              Transaction vout.
+    * @param feerate              The feerate the transaction should pay.
+    * @param fee_output           The index of the output to take the fee from.
+    * @return The transaction and the fee it pays
+    */
+    std::pair<CMutableTransaction, CAmount> CreateValidTransaction(const std::vector<CTransactionRef>& input_transactions,
+                                                                   const std::vector<COutPoint>& inputs,
+                                                                   int input_height,
+                                                                   const std::vector<CKey>& input_signing_keys,
+                                                                   const std::vector<CTxOut>& outputs,
+                                                                   const std::optional<CFeeRate>& feerate,
+                                                                   const std::optional<uint32_t>& fee_output);
+    /**
+     * Create a transaction and, optionally, submit to the mempool.
+     *
+     * @param input_transactions   The transactions to spend
+     * @param inputs               Outpoints with which to construct transaction vin.
+     * @param input_height         The height of the block that included the input transaction(s).
+     * @param input_signing_keys   The keys to spend inputs.
+     * @param outputs              Transaction vout.
+     * @param submit               Whether or not to submit to mempool
+     */
+    CMutableTransaction CreateValidMempoolTransaction(const std::vector<CTransactionRef>& input_transactions,
+                                                      const std::vector<COutPoint>& inputs,
+                                                      int input_height,
+                                                      const std::vector<CKey>& input_signing_keys,
+                                                      const std::vector<CTxOut>& outputs,
+                                                      bool submit = true);
+
+    /**
+     * Create a 1-in-1-out transaction and, optionally, submit to the mempool.
      *
      * @param input_transaction  The transaction to spend
      * @param input_vout         The vout to spend from the input_transaction
@@ -135,7 +178,7 @@ struct TestChain100Setup : public TestingSetup {
      * @param submit             Whether or not to submit to mempool
      */
     CMutableTransaction CreateValidMempoolTransaction(CTransactionRef input_transaction,
-                                                      int input_vout,
+                                                      uint32_t input_vout,
                                                       int input_height,
                                                       CKey input_signing_key,
                                                       CScript output_destination,

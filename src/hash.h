@@ -13,7 +13,7 @@
 #include <prevector.h>
 #include <serialize.h>
 #include <uint256.h>
-#include <version.h>
+#include <node/protocol_version.h>
 
 #include <string>
 #include <vector>

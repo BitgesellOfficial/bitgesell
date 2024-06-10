@@ -11,7 +11,7 @@
     </message>
     <message>
         <source>&amp;New</source>
-        <translation type="unfinished">Sabontawa</translation>
+        <translation type="unfinished">&amp;Sabonta</translation>
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
@@ -23,7 +23,7 @@
     </message>
     <message>
         <source>C&amp;lose</source>
-        <translation type="unfinished">C&amp;Rasa</translation>
+        <translation type="unfinished">C&amp;ɓatar</translation>
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
@@ -54,16 +54,12 @@
         <translation type="unfinished">Zaɓi adireshin don karɓar kuɗi internet da shi</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">adireshin aikawa</translation>
+        <source>C&amp;hoose</source>
+        <translation type="unfinished">c&amp;zaɓi</translation>
     </message>
     <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Adireshi da za a karba dashi</translation>
-    </message>
-    <message>
-        <source>These are your BGL addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Waɗannan adiresoshin BGL ne don tura kuɗi BGL . ka tabbatar da cewa adreshin daidai ne kamin ka tura abua a ciki</translation>
+        <source>These are your Bitgesell addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Waɗannan adiresoshin Bitgesell ne don tura kuɗi bitgesell . ka tabbatar da cewa adreshin daidai ne kamin ka tura abua a ciki</translation>
     </message>
     <message>
         <source>These are your BGL addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.

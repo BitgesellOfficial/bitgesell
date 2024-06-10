@@ -14,13 +14,6 @@ endif
 .PHONY: deploy FORCE
 .INTERMEDIATE: $(COVERAGE_INFO)
 
-export PYTHONPATH
-
-if BUILD_BGL_LIBS
-pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = libBGLconsensus.pc
-endif
-
 BGLD_BIN=$(top_builddir)/src/$(BGL_DAEMON_NAME)$(EXEEXT)
 BGL_QT_BIN=$(top_builddir)/src/qt/$(BGL_GUI_NAME)$(EXEEXT)
 BGL_TEST_BIN=$(top_builddir)/src/test/$(BGL_TEST_NAME)$(EXEEXT)
@@ -37,7 +30,7 @@ space := $(empty) $(empty)
 
 OSX_APP=BGL-Qt.app
 OSX_VOLNAME = $(subst $(space),-,$(PACKAGE_NAME))
-OSX_DMG = $(OSX_VOLNAME).dmg
+OSX_ZIP = $(OSX_VOLNAME).zip
 OSX_DEPLOY_SCRIPT=$(top_srcdir)/contrib/macdeploy/macdeployqtplus
 OSX_INSTALLER_ICONS=$(top_srcdir)/src/qt/res/icons/BGL.icns
 OSX_PLIST=$(top_builddir)/share/qt/Info.plist #not installed
@@ -124,15 +117,16 @@ osx_volname:
 	echo $(OSX_VOLNAME) >$@
 
 if BUILD_DARWIN
-$(OSX_DMG): $(OSX_APP_BUILT) $(OSX_PACKAGING)
-	$(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) $(OSX_VOLNAME) -translations-dir=$(QT_TRANSLATION_DIR) -dmg
+$(OSX_ZIP): $(OSX_APP_BUILT) $(OSX_PACKAGING)
+	$(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) $(OSX_VOLNAME) -translations-dir=$(QT_TRANSLATION_DIR) -zip
 
-deploydir: $(OSX_DMG)
+deploydir: $(OSX_ZIP)
 else !BUILD_DARWIN
 APP_DIST_DIR=$(top_builddir)/dist
 
-$(OSX_DMG): deploydir
-	$(XORRISOFS) -D -l -V "$(OSX_VOLNAME)" -no-pad -r -dir-mode 0755 -o $@ $(APP_DIST_DIR) -- $(if $(SOURCE_DATE_EPOCH),-volume_date all_file_dates =$(SOURCE_DATE_EPOCH))
+$(OSX_ZIP): deploydir
+	if [ -n "$(SOURCE_DATE_EPOCH)" ]; then find $(APP_DIST_DIR) -exec touch -d @$(SOURCE_DATE_EPOCH) {} +; fi
+	cd $(APP_DIST_DIR) && find . | sort | $(ZIP) -X@ $@
 
 $(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/BGL-Qt: $(OSX_APP_BUILT) $(OSX_PACKAGING)
 	INSTALL_NAME_TOOL=$(INSTALL_NAME_TOOL) OTOOL=$(OTOOL) STRIP=$(STRIP) $(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) $(OSX_VOLNAME) -translations-dir=$(QT_TRANSLATION_DIR)
@@ -140,7 +134,7 @@ $(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/BGL-Qt: $(OSX_APP_BUILT) $(OSX_PACKAGI
 deploydir: $(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/BGL-Qt
 endif !BUILD_DARWIN
 
-deploy: $(OSX_DMG)
+deploy: $(OSX_ZIP)
 endif
 
 $(BGL_QT_BIN): FORCE
@@ -188,7 +182,7 @@ $(COV_TOOL_WRAPPER):
 	@chmod +x $(COV_TOOL_WRAPPER)
 
 baseline.info: $(COV_TOOL_WRAPPER)
-	$(LCOV) -c -i -d $(abs_builddir)/src -o $@
+	$(LCOV) $(LCOV_OPTS) -c -i -d $(abs_builddir)/src -o $@
 
 baseline_filtered.info: baseline.info
 	$(abs_builddir)/contrib/filter-lcov.py $(LCOV_FILTER_PATTERN) $< $@
@@ -222,13 +216,13 @@ functional_test_filtered.info: functional_test.info
 	$(LCOV) -a $@ $(LCOV_OPTS) -o $@
 
 fuzz_coverage.info: fuzz_filtered.info
-	$(LCOV) -a $(LCOV_OPTS) baseline_filtered.info -a fuzz_filtered.info -o $@ | $(GREP) "\%" | $(AWK) '{ print substr($$3,2,50) "/" $$5 }' > coverage_percent.txt
+	$(LCOV) $(LCOV_OPTS) -a baseline_filtered.info -a fuzz_filtered.info -o $@ | $(GREP) "\%" | $(AWK) '{ print substr($$3,2,50) "/" $$5 }' > coverage_percent.txt
 
 test_BGL_coverage.info: baseline_filtered.info test_BGL_filtered.info
-	$(LCOV) -a $(LCOV_OPTS) baseline_filtered.info -a test_BGL_filtered.info -o $@
+	$(LCOV) $(LCOV_OPTS) -a baseline_filtered.info -a test_BGL_filtered.info -o $@
 
 total_coverage.info: test_BGL_filtered.info functional_test_filtered.info
-	$(LCOV) -a $(LCOV_OPTS) baseline_filtered.info -a test_BGL_filtered.info -a functional_test_filtered.info -o $@ | $(GREP) "\%" | $(AWK) '{ print substr($$3,2,50) "/" $$5 }' > coverage_percent.txt
+	$(LCOV) $(LCOV_OPTS) -a baseline_filtered.info -a test_BGL_filtered.info -a functional_test_filtered.info -o $@ | $(GREP) "\%" | $(AWK) '{ print substr($$3,2,50) "/" $$5 }' > coverage_percent.txt
 
 fuzz.coverage/.dirstamp: fuzz_coverage.info
 	$(GENHTML) -s $(LCOV_OPTS) $< -o $(@D)
@@ -311,9 +305,13 @@ EXTRA_DIST += \
     test/util/data/txcreatesignv1.hex \
     test/util/data/txcreatesignv1.json \
     test/util/data/txcreatesignv2.hex \
+    test/util/data/txreplace1.hex \
+    test/util/data/txreplacenoinputs.hex \
+    test/util/data/txreplaceomittedn.hex \
+    test/util/data/txreplacesingleinput.hex \
     test/util/rpcauth-test.py
 
-CLEANFILES = $(OSX_DMG) $(BGL_WIN_INSTALLER)
+CLEANFILES = $(OSX_ZIP) $(BGL_WIN_INSTALLER)
 
 DISTCHECK_CONFIGURE_FLAGS = --enable-man
 
@@ -335,7 +333,7 @@ clean-docs:
 clean-local: clean-docs
 	rm -rf coverage_percent.txt test_BGL.coverage/ total.coverage/ fuzz.coverage/ test/tmp/ cache/ $(OSX_APP)
 	rm -rf test/functional/__pycache__ test/functional/test_framework/__pycache__ test/cache share/rpcauth/__pycache__
-	rm -rf osx_volname dist/
+	rm -rf osx_volname dist/ test/lint/test_runner/target/ test/lint/__pycache__
 
 test-security-check:
 if TARGET_DARWIN

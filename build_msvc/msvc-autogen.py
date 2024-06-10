@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# Copyright (c) 2016-2022 The Bitcoin Core developers
+# Copyright (c) 2016-2024 The Bitcoin Core developers
+# Copyright (c) 2019-2024 The Bitgesell Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -111,7 +112,7 @@ def main():
             content += '    </ClCompile>\n'
         set_properties(vcxproj_filename, '@SOURCE_FILES@\n', content)
     parse_config_into_BGL_config()
-    copyfile(os.path.join(SOURCE_DIR,'../build_msvc/BGL_config.h'), os.path.join(SOURCE_DIR, 'config/bitcoin-config.h'))
+    copyfile(os.path.join(SOURCE_DIR,'../build_msvc/BGL_config.h'), os.path.join(SOURCE_DIR, 'config/BGL-config.h'))
 
 if __name__ == '__main__':
     main()

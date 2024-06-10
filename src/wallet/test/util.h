@@ -5,6 +5,10 @@
 #ifndef BGL_WALLET_TEST_UTIL_H
 #define BGL_WALLET_TEST_UTIL_H
 
+#if defined(HAVE_CONFIG_H)
+#include <config/BGL-config.h>
+#endif
+
 #include <addresstype.h>
 #include <wallet/db.h>
 

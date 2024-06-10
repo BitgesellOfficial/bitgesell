@@ -4,7 +4,6 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the generation of UTXO snapshots using `dumptxoutset`.
 """
-from pathlib import Path
 
 from test_framework.blocktools import COINBASE_MATURITY
 from test_framework.test_framework import BGLTestFramework
@@ -29,7 +28,7 @@ class DumptxoutsetTest(BGLTestFramework):
 
         FILENAME = 'txoutset.dat'
         out = node.dumptxoutset(FILENAME)
-        expected_path = Path(node.datadir) / self.chain / FILENAME
+        expected_path = node.datadir_path / self.chain / FILENAME
 
         assert expected_path.is_file()
 
@@ -47,7 +46,7 @@ class DumptxoutsetTest(BGLTestFramework):
             'bb5a2be762988a5d08c787c82e1e782efb6cf1a0544e95dbcb1cab338e510c8b')
 
         assert_equal(
-            out['txoutset_hash'], '1f1493bf052e2c0fdd637c2fa3067bc2b36df0a6a9deffda60cf5d9698f990e6')
+            out['txoutset_hash'], 'accd33eb0199de6727cb6e5f5c3d14e9a543163818ed75fcc3b65626c13c4df7')
         assert_equal(out['nchaintx'], 101)
 
         # Specifying a path to an existing or invalid file will fail.

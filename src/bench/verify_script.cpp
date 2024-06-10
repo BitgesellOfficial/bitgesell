@@ -2,11 +2,9 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+
 #include <bench/bench.h>
 #include <key.h>
-#if defined(HAVE_CONSENSUS_LIB)
-#include <script/BGLconsensus.h>
-#endif
 #include <script/script.h>
 #include <script/interpreter.h>
 #include <streams.h>
@@ -60,16 +58,6 @@ static void VerifyScriptBench(benchmark::Bench& bench)
         assert(err == SCRIPT_ERR_OK);
         assert(success);
 
-#if defined(HAVE_CONSENSUS_LIB)
-        CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);
-        stream << txSpend;
-        int csuccess = BGLconsensus_verify_script_with_amount(
-            txCredit.vout[0].scriptPubKey.data(),
-            txCredit.vout[0].scriptPubKey.size(),
-            txCredit.vout[0].nValue,
-            (const unsigned char*)stream.data(), stream.size(), 0, flags, nullptr);
-        assert(csuccess == 1);
-#endif
     });
     ECC_Stop();
 }

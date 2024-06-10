@@ -39,11 +39,11 @@
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Izvozi</translation>
+        <translation type="unfinished">&amp;Izvezite</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
-        <translation type="unfinished">Iz&amp;brišite</translation>
+        <translation type="unfinished">&amp;Izbrišite</translation>
     </message>
     <message>
         <source>Choose the address to send coins to</source>
@@ -58,16 +58,8 @@
         <translation type="unfinished">&amp;Odaberite</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Adrese pošiljatelja</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Adrese primatelja</translation>
-    </message>
-    <message>
-        <source>These are your BGL addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Ovo su vaše BGL adrese za slanje novca. Uvijek provjerite iznos i adresu primatelja prije slanja novca.</translation>
+        <source>These are your Bitgesell addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation type="unfinished">Ovo su vaše Bitgesell adrese za slanje novca. Uvijek provjerite iznos i adresu primatelja prije slanja novca.</translation>
     </message>
     <message>
         <source>These are your BGL addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
@@ -281,14 +273,6 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Dogodila se kobna greška. Provjerite je li datoteka za postavke otvorena za promjene ili pokušajte pokrenuti s -nosettings.</translation>
     </message>
     <message>
-        <source>Error: Specified data directory "%1" does not exist.</source>
-        <translation type="unfinished">Greška: Zadana podatkovna mapa "%1" ne postoji.</translation>
-    </message>
-    <message>
-        <source>Error: Cannot parse configuration file: %1.</source>
-        <translation type="unfinished">Greška: Ne može se parsirati konfiguracijska datoteka: %1.</translation>
-    </message>
-    <message>
         <source>Error: %1</source>
         <translation type="unfinished">Greška: %1</translation>
     </message>
@@ -321,8 +305,16 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Neusmjeriv</translation>
     </message>
     <message>
-        <source>Internal</source>
-        <translation type="unfinished">Interni</translation>
+        <source>IPv4</source>
+        <comment>network name</comment>
+        <extracomment>Name of IPv4 network in peer info</extracomment>
+        <translation type="unfinished">IPv4-a</translation>
+    </message>
+    <message>
+        <source>IPv6</source>
+        <comment>network name</comment>
+        <extracomment>Name of IPv6 network in peer info</extracomment>
+        <translation type="unfinished">IPv6-a</translation>
     </message>
     <message>
         <source>Inbound</source>
@@ -417,666 +409,7 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     </message>
     </context>
 <context>
-    <name>BGL-core</name>
-    <message>
-        <source>Settings file could not be read</source>
-        <translation type="unfinished">Datoteka postavke se ne može pročitati</translation>
-    </message>
-    <message>
-        <source>Settings file could not be written</source>
-        <translation type="unfinished">Datoteka postavke se ne može mijenjati</translation>
-    </message>
-    <message>
-        <source>Settings file could not be read</source>
-        <translation type="unfinished">Datoteka postavke se ne može pročitati</translation>
-    </message>
-    <message>
-        <source>Settings file could not be written</source>
-        <translation type="unfinished">Datoteka postavke se ne može mijenjati</translation>
-    </message>
-    <message>
-        <source>The %s developers</source>
-        <translation type="unfinished">Ekipa %s</translation>
-    </message>
-    <message>
-        <source>%s corrupt. Try using the wallet tool BGL-wallet to salvage or restoring a backup.</source>
-        <translation type="unfinished">%s korumpirano. Pokušajte koristiti BGL-wallet alat za novčanike kako biste ga spasili ili pokrenuti sigurnosnu kopiju.</translation>
-    </message>
-    <message>
-        <source>-maxtxfee is set very high! Fees this large could be paid on a single transaction.</source>
-        <translation type="unfinished">-maxtxfee je postavljen preveliko. Naknade ove veličine će biti plaćene na individualnoj transakciji.</translation>
-    </message>
-    <message>
-        <source>Cannot downgrade wallet from version %i to version %i. Wallet version unchanged.</source>
-        <translation type="unfinished">Nije moguće unazaditi novčanik s verzije %i na verziju %i. Verzija novčanika nepromijenjena.</translation>
-    </message>
-    <message>
-        <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
-        <translation type="unfinished">Program ne može pristupiti podatkovnoj mapi %s. %s je vjerojatno već pokrenut.</translation>
-    </message>
-    <message>
-        <source>Cannot upgrade a non HD split wallet from version %i to version %i without upgrading to support pre-split keypool. Please use version %i or no version specified.</source>
-        <translation type="unfinished">Nije moguće unaprijediti podijeljeni novčanik bez HD-a s verzije %i na verziju %i bez unaprijeđenja na potporu pred-podjelnog bazena ključeva. Molimo koristite verziju %i ili neku drugu.</translation>
-    </message>
-    <message>
-        <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
-        <translation type="unfinished">Distribuirano pod MIT licencom softvera. Vidite pripadajuću datoteku %s ili %s.</translation>
-    </message>
-    <message>
-        <source>Error reading %s! All keys read correctly, but transaction data or address book entries might be missing or incorrect.</source>
-        <translation type="unfinished">Greška kod iščitanja %s! Svi ključevi su ispravno učitani, ali transakcijski podaci ili zapisi u adresaru mogu biti nepotpuni ili netočni.</translation>
-    </message>
-    <message>
-        <source>Error reading %s! Transaction data may be missing or incorrect. Rescanning wallet.</source>
-        <translation type="unfinished">Greška u čitanju %s! Transakcijski podaci nedostaju ili su netočni. Ponovno skeniranje novčanika.</translation>
-    </message>
-    <message>
-        <source>Error: Dumpfile format record is incorrect. Got "%s", expected "format".</source>
-        <translation type="unfinished">Greška: Format dumpfile zapisa je netočan. Dobiven "%s" očekivani "format".</translation>
-    </message>
-    <message>
-        <source>Error: Dumpfile identifier record is incorrect. Got "%s", expected "%s".</source>
-        <translation type="unfinished">Greška: Identifikator dumpfile zapisa je netočan. Dobiven "%s", očekivan "%s".</translation>
-    </message>
-    <message>
-        <source>Error: Dumpfile version is not supported. This version of BGL-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation type="unfinished">Greška: Dumpfile verzija nije podržana. Ova BGL-wallet  verzija podržava  samo dumpfile verziju 1. Dobiven dumpfile s verzijom %s</translation>
-    </message>
-    <message>
-        <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>
-        <translation type="unfinished">Greška: Legacy novčanici podržavaju samo "legacy", "p2sh-segwit", i "bech32" tipove adresa</translation>
-    </message>
-    <message>
-        <source>Fee estimation failed. Fallbackfee is disabled. Wait a few blocks or enable -fallbackfee.</source>
-        <translation type="unfinished">Neuspješno procjenjivanje naknada. Fallbackfee je isključena. Pričekajte nekoliko blokova ili uključite -fallbackfee.</translation>
-    </message>
-    <message>
-        <source>File %s already exists. If you are sure this is what you want, move it out of the way first.</source>
-        <translation type="unfinished">Datoteka %s već postoji. Ako ste sigurni da ovo želite, prvo ju maknite, </translation>
-    </message>
-    <message>
-        <source>Invalid amount for -maxtxfee=&lt;amount&gt;: '%s' (must be at least the minrelay fee of %s to prevent stuck transactions)</source>
-        <translation type="unfinished">Neispravan iznos za -maxtxfee=&lt;amount&gt;: '%s' (mora biti barem minimalnu naknadu za proslijeđivanje od %s kako se ne bi zapela transakcija)</translation>
-    </message>
-    <message>
-        <source>Invalid or corrupt peers.dat (%s). If you believe this is a bug, please report it to %s. As a workaround, you can move the file (%s) out of the way (rename, move, or delete) to have a new one created on the next start.</source>
-        <translation type="unfinished">Nevažeći ili korumpirani peers.dat (%s). Ako mislite da je ovo bug, molimo prijavite %s. Kao alternativno rješenje, možete maknuti datoteku (%s) (preimenuj, makni ili obriši) kako bi se kreirala nova na idućem pokretanju.</translation>
-    </message>
-    <message>
-        <source>More than one onion bind address is provided. Using %s for the automatically created Tor onion service.</source>
-        <translation type="unfinished">Pruženo je više od jedne onion bind adrese. Koristim %s za automatski stvorenu Tor onion uslugu.</translation>
-    </message>
-    <message>
-        <source>No dump file provided. To use createfromdump, -dumpfile=&lt;filename&gt; must be provided.</source>
-        <translation type="unfinished">Dump datoteka nije automatski dostupna. Kako biste koristili createfromdump, -dumpfile=&lt;filename&gt; mora biti osiguran. </translation>
-    </message>
-    <message>
-        <source>No dump file provided. To use dump, -dumpfile=&lt;filename&gt; must be provided.</source>
-        <translation type="unfinished">Dump datoteka nije automatski dostupna. Kako biste koristili dump, -dumpfile=&lt;filename&gt; mora biti osiguran. </translation>
-    </message>
-    <message>
-        <source>No wallet file format provided. To use createfromdump, -format=&lt;format&gt; must be provided.</source>
-        <translation type="unfinished">Format datoteke novčanika nije dostupan. Kako biste koristili reatefromdump, -format=&lt;format&gt; mora biti osiguran.</translation>
-    </message>
-    <message>
-        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
-        <translation type="unfinished">Molimo provjerite jesu li datum i vrijeme na vašem računalu točni. Ako je vaš sat krivo namješten, %s neće raditi ispravno.</translation>
-    </message>
-    <message>
-        <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
-        <translation type="unfinished">Molimo vas da doprinijete programu %s ako ga smatrate korisnim. Posjetite %s za više informacija.</translation>
-    </message>
-    <message>
-        <source>Prune configured below the minimum of %d MiB.  Please use a higher number.</source>
-        <translation type="unfinished">Obrezivanje postavljeno ispod minimuma od %d MiB. Molim koristite veći broj.</translation>
-    </message>
-    <message>
-        <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
-        <translation type="unfinished">Obrezivanje: zadnja sinkronizacija novčanika ide dalje od obrezivanih podataka. Morate koristiti -reindex (ponovo preuzeti cijeli lanac blokova u slučaju obrezivanog čvora)</translation>
-    </message>
-    <message>
-        <source>SQLiteDatabase: Unknown sqlite wallet schema version %d. Only version %d is supported</source>
-        <translation type="unfinished">SQLiteDatabase: Nepoznata sqlite shema novčanika verzija %d. Podržana je samo verzija %d.</translation>
-    </message>
-    <message>
-        <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
-        <translation type="unfinished">Baza blokova sadrži blok koji je naizgled iz budućnosti. Može to biti posljedica krivo namještenog datuma i vremena na vašem računalu. Obnovite bazu blokova samo ako ste sigurni da su točni datum i vrijeme na vašem računalu.</translation>
-    </message>
-    <message>
-        <source>The block index db contains a legacy 'txindex'. To clear the occupied disk space, run a full -reindex, otherwise ignore this error. This error message will not be displayed again.</source>
-        <translation type="unfinished">Index bloka db sadrži legacy 'txindex'. Kako biste očistili zauzeti prostor na disku, pokrenite puni -reindex ili ignorirajte ovu grešku. Ova greška neće biti ponovno prikazana.</translation>
-    </message>
-    <message>
-        <source>The transaction amount is too small to send after the fee has been deducted</source>
-        <translation type="unfinished">Iznos transakcije je premalen za poslati nakon naknade</translation>
-    </message>
-    <message>
-        <source>This error could occur if this wallet was not shutdown cleanly and was last loaded using a build with a newer version of Berkeley DB. If so, please use the software that last loaded this wallet</source>
-        <translation type="unfinished">Ova greška bi se mogla dogoditi kada se ovaj novčanik ne ugasi pravilno i ako je posljednji put bio podignut koristeći noviju verziju Berkeley DB. Ako je tako, molimo koristite softver kojim je novčanik podignut zadnji put.</translation>
-    </message>
-    <message>
-        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
-        <translation type="unfinished">Ovo je eksperimentalna verzija za testiranje - koristite je na vlastitu odgovornost - ne koristite je za rudarenje ili trgovačke primjene</translation>
-    </message>
-    <message>
-        <source>This is the maximum transaction fee you pay (in addition to the normal fee) to prioritize partial spend avoidance over regular coin selection.</source>
-        <translation type="unfinished">Ovo je najveća transakcijska naknada koju plaćate (uz normalnu naknadu) kako biste prioritizirali izbjegavanje djelomične potrošnje nad uobičajenom selekcijom sredstava.</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you may discard if change is smaller than dust at this level</source>
-        <translation type="unfinished">Ovo je transakcijska naknada koju možete odbaciti ako je ostatak manji od "prašine" (sićušnih iznosa) po ovoj stopi</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you may pay when fee estimates are not available.</source>
-        <translation type="unfinished">Ovo je transakcijska naknada koju ćete možda platiti kada su nedostupne procjene naknada.</translation>
-    </message>
-    <message>
-        <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
-        <translation type="unfinished">Ukupna duljina stringa verzije mreže (%i) prelazi maksimalnu duljinu (%i). Smanjite broj ili veličinu komentara o korisničkom agentu (uacomments).</translation>
-    </message>
-    <message>
-        <source>Unable to replay blocks. You will need to rebuild the database using -reindex-chainstate.</source>
-        <translation type="unfinished">Ne mogu se ponovo odigrati blokovi. Morat ćete ponovo složiti bazu koristeći -reindex-chainstate.</translation>
-    </message>
-    <message>
-        <source>Unknown wallet file format "%s" provided. Please provide one of "bdb" or "sqlite".</source>
-        <translation type="unfinished">Nepoznati formant novčanika "%s" pružen. Molimo dostavite "bdb" ili "sqlite".</translation>
-    </message>
-    <message>
-        <source>Warning: Dumpfile wallet format "%s" does not match command line specified format "%s".</source>
-        <translation type="unfinished">Upozorenje: Dumpfile format novčanika "%s" se ne poklapa sa formatom komandne linije "%s".</translation>
-    </message>
-    <message>
-        <source>Warning: Private keys detected in wallet {%s} with disabled private keys</source>
-        <translation type="unfinished">Upozorenje: Privatni ključevi pronađeni u novčaniku {%s} s isključenim privatnim ključevima</translation>
-    </message>
-    <message>
-        <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
-        <translation type="unfinished">Upozorenje: Izgleda da se ne slažemo u potpunosti s našim klijentima! Možda ćete se vi ili ostali čvorovi morati ažurirati.</translation>
-    </message>
-    <message>
-        <source>Witness data for blocks after height %d requires validation. Please restart with -reindex.</source>
-        <translation type="unfinished">Podaci svjedoka za blokove poslije visine %d zahtijevaju validaciju. Molimo restartirajte sa -reindex.</translation>
-    </message>
-    <message>
-        <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
-        <translation type="unfinished">Morat ćete ponovno složiti bazu koristeći -reindex kako biste se vratili na neobrezivan način (unpruned mode). Ovo će ponovno preuzeti cijeli lanac blokova.</translation>
-    </message>
-    <message>
-        <source>%s is set very high!</source>
-        <translation type="unfinished">%s je postavljen preveliko!</translation>
-    </message>
-    <message>
-        <source>-maxmempool must be at least %d MB</source>
-        <translation type="unfinished">-maxmempool mora biti barem %d MB</translation>
-    </message>
-    <message>
-        <source>A fatal internal error occurred, see debug.log for details</source>
-        <translation type="unfinished">Dogodila se kobna greška, vidi detalje u debug.log.</translation>
-    </message>
-    <message>
-        <source>Cannot resolve -%s address: '%s'</source>
-        <translation type="unfinished">Ne može se razriješiti adresa -%s: '%s'</translation>
-    </message>
-    <message>
-        <source>Cannot set -forcednsseed to true when setting -dnsseed to false.</source>
-        <translation type="unfinished">Nije moguće postaviti -forcednsseed na true kada je postavka za  -dnsseed false.</translation>
-    </message>
-    <message>
-        <source>Cannot set -peerblockfilters without -blockfilterindex.</source>
-        <translation type="unfinished">Nije moguće postaviti -peerblockfilters bez -blockfilterindex.</translation>
-    </message>
-    <message>
-        <source>Cannot write to data directory '%s'; check permissions.</source>
-        <translation type="unfinished">Nije moguće pisati u podatkovnu mapu '%s'; provjerite dozvole.</translation>
-    </message>
-    <message>
-        <source>The -txindex upgrade started by a previous version cannot be completed. Restart with the previous version or run a full -reindex.</source>
-        <translation type="unfinished">Unaprijeđenje  -txindex koje za započela prijašnja verzija nije moguće završiti. Ponovno pokrenite s prethodnom verzijom ili pokrenite potpuni -reindex.</translation>
-    </message>
-    <message>
-        <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any BGL Core peers connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
-        <translation type="unfinished">%s zahtjev za slušanje na portu %u. Ovaj port se smatra "lošim" i time nije vjerojatno da će se drugi BGL Core peerovi spojiti na njega. Pogledajte doc/p2p-bad-ports.md za detalje i cijeli popis.</translation>
-    </message>
-    <message>
-        <source>Cannot provide specific connections and have addrman find outgoing connections at the same time.</source>
-        <translation type="unfinished">Nije moguće ponuditi specifične veze i istovremeno dati addrman da traži izlazne veze.</translation>
-    </message>
-    <message>
-        <source>Error loading %s: External signer wallet being loaded without external signer support compiled</source>
-        <translation type="unfinished">Pogreška pri učitavanju %s: Vanjski potpisni novčanik se učitava bez kompajlirane potpore vanjskog potpisnika</translation>
-    </message>
-    <message>
-        <source>Failed to rename invalid peers.dat file. Please move or delete it and try again.</source>
-        <translation type="unfinished">Preimenovanje nevažeće peers.dat datoteke neuspješno. Molimo premjestite ili obrišite datoteku i pokušajte ponovno.</translation>
-    </message>
-    <message>
-        <source>Config setting for %s only applied on %s network when in [%s] section.</source>
-        <translation type="unfinished">Konfiguriranje postavki za %s primijenjeno je samo na %s mreži u odjeljku [%s].</translation>
-    </message>
-    <message>
-        <source>Corrupted block database detected</source>
-        <translation type="unfinished">Pokvarena baza blokova otkrivena</translation>
-    </message>
-    <message>
-        <source>Could not find asmap file %s</source>
-        <translation type="unfinished">Nije pronađena asmap datoteka %s</translation>
-    </message>
-    <message>
-        <source>Could not parse asmap file %s</source>
-        <translation type="unfinished">Nije moguće pročitati asmap datoteku %s</translation>
-    </message>
-    <message>
-        <source>Disk space is too low!</source>
-        <translation type="unfinished">Nema dovoljno prostora na disku!</translation>
-    </message>
-    <message>
-        <source>Do you want to rebuild the block database now?</source>
-        <translation type="unfinished">Želite li sada obnoviti bazu blokova?</translation>
-    </message>
-    <message>
-        <source>Done loading</source>
-        <translation type="unfinished">Učitavanje gotovo</translation>
-    </message>
-    <message>
-        <source>Dump file %s does not exist.</source>
-        <translation type="unfinished">Dump datoteka %s ne postoji.</translation>
-    </message>
-    <message>
-        <source>Error creating %s</source>
-        <translation type="unfinished">Greška pri stvaranju %s</translation>
-    </message>
-    <message>
-        <source>Error initializing block database</source>
-        <translation type="unfinished">Greška kod inicijaliziranja baze blokova</translation>
-    </message>
-    <message>
-        <source>Error initializing wallet database environment %s!</source>
-        <translation type="unfinished">Greška kod inicijaliziranja okoline baze novčanika %s!</translation>
-    </message>
-    <message>
-        <source>Error loading %s</source>
-        <translation type="unfinished">Greška kod pokretanja programa %s!</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Private keys can only be disabled during creation</source>
-        <translation type="unfinished">Greška kod učitavanja %s: Privatni ključevi mogu biti isključeni samo tijekom stvaranja</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Wallet corrupted</source>
-        <translation type="unfinished">Greška kod učitavanja %s: Novčanik pokvaren</translation>
-    </message>
-    <message>
-        <source>Error loading %s: Wallet requires newer version of %s</source>
-        <translation type="unfinished">Greška kod učitavanja %s: Novčanik zahtijeva noviju verziju softvera %s.</translation>
-    </message>
-    <message>
-        <source>Error loading block database</source>
-        <translation type="unfinished">Greška kod pokretanja baze blokova</translation>
-    </message>
-    <message>
-        <source>Error opening block database</source>
-        <translation type="unfinished">Greška kod otvaranja baze blokova</translation>
-    </message>
-    <message>
-        <source>Error reading from database, shutting down.</source>
-        <translation type="unfinished">Greška kod iščitanja baze. Zatvara se klijent.</translation>
-    </message>
-    <message>
-        <source>Error reading next record from wallet database</source>
-        <translation type="unfinished">Greška pri očitavanju idućeg zapisa iz baza podataka novčanika</translation>
-    </message>
-    <message>
-        <source>Error: Couldn't create cursor into database</source>
-        <translation type="unfinished">Greška: Nije moguće kreirati cursor u batu podataka</translation>
-    </message>
-    <message>
-        <source>Error: Disk space is low for %s</source>
-        <translation type="unfinished">Pogreška: Malo diskovnog prostora za %s</translation>
-    </message>
-    <message>
-        <source>Error: Dumpfile checksum does not match. Computed %s, expected %s</source>
-        <translation type="unfinished">Greška: Dumpfile checksum se ne poklapa. Izračunao %s, očekivano %s</translation>
-    </message>
-    <message>
-        <source>Error: Got key that was not hex: %s</source>
-        <translation type="unfinished">Greška: Dobiven ključ koji nije hex: %s</translation>
-    </message>
-    <message>
-        <source>Error: Got value that was not hex: %s</source>
-        <translation type="unfinished">Greška: Dobivena vrijednost koja nije hex: %s</translation>
-    </message>
-    <message>
-        <source>Error: Keypool ran out, please call keypoolrefill first</source>
-        <translation type="unfinished">Greška: Ispraznio se bazen ključeva, molimo prvo pozovite keypoolrefill</translation>
-    </message>
-    <message>
-        <source>Error: Missing checksum</source>
-        <translation type="unfinished">Greška: Nedostaje checksum</translation>
-    </message>
-    <message>
-        <source>Error: No %s addresses available.</source>
-        <translation type="unfinished">Greška: Nema %s adresa raspoloživo.</translation>
-    </message>
-    <message>
-        <source>Error: Unable to parse version %u as a uint32_t</source>
-        <translation type="unfinished">Greška: Nije moguće parsirati verziju %u kao uint32_t</translation>
-    </message>
-    <message>
-        <source>Error: Unable to write record to new wallet</source>
-        <translation type="unfinished">Greška: Nije moguće unijeti zapis u novi novčanik</translation>
-    </message>
-    <message>
-        <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
-        <translation type="unfinished">Neuspješno slušanje na svim portovima. Koristite -listen=0 ako to želite.</translation>
-    </message>
-    <message>
-        <source>Failed to rescan the wallet during initialization</source>
-        <translation type="unfinished">Neuspješno ponovo skeniranje novčanika tijekom inicijalizacije</translation>
-    </message>
-    <message>
-        <source>Failed to verify database</source>
-        <translation type="unfinished">Verifikacija baze podataka neuspješna</translation>
-    </message>
-    <message>
-        <source>Fee rate (%s) is lower than the minimum fee rate setting (%s)</source>
-        <translation type="unfinished">Naknada (%s) je niža od postavke minimalne visine naknade (%s)</translation>
-    </message>
-    <message>
-        <source>Ignoring duplicate -wallet %s.</source>
-        <translation type="unfinished">Zanemarujem duplicirani -wallet %s.</translation>
-    </message>
-    <message>
-        <source>Importing…</source>
-        <translation type="unfinished">Uvozim...</translation>
-    </message>
-    <message>
-        <source>Incorrect or no genesis block found. Wrong datadir for network?</source>
-        <translation type="unfinished">Neispravan ili nepostojeći blok geneze. Možda je kriva podatkovna mapa za mrežu?</translation>
-    </message>
-    <message>
-        <source>Initialization sanity check failed. %s is shutting down.</source>
-        <translation type="unfinished">Brzinska provjera inicijalizacije neuspješna. %s se zatvara.</translation>
-    </message>
-    <message>
-        <source>Input not found or already spent</source>
-        <translation type="unfinished">Input nije pronađen ili je već potrošen</translation>
-    </message>
-    <message>
-        <source>Insufficient funds</source>
-        <translation type="unfinished">Nedovoljna sredstva</translation>
-    </message>
-    <message>
-        <source>Invalid -i2psam address or hostname: '%s'</source>
-        <translation type="unfinished">Neispravna -i2psam adresa ili ime računala: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid -onion address or hostname: '%s'</source>
-        <translation type="unfinished">Neispravna -onion adresa ili ime računala: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid -proxy address or hostname: '%s'</source>
-        <translation type="unfinished">Neispravna -proxy adresa ili ime računala: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid P2P permission: '%s'</source>
-        <translation type="unfinished">Nevaljana dozvola za P2P: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
-        <translation type="unfinished">Neispravan iznos za  -%s=&lt;amount&gt;: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -discardfee=&lt;amount&gt;: '%s'</source>
-        <translation type="unfinished">Neispravan iznos za -discardfee=&lt;amount&gt;: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -fallbackfee=&lt;amount&gt;: '%s'</source>
-        <translation type="unfinished">Neispravan iznos za -fallbackfee=&lt;amount&gt;: '%s'</translation>
-    </message>
-    <message>
-        <source>Invalid amount for -paytxfee=&lt;amount&gt;: '%s' (must be at least %s)</source>
-        <translation type="unfinished">Neispravan iznos za -paytxfee=&lt;amount&gt;: '%s' (mora biti barem %s)</translation>
-    </message>
-    <message>
-        <source>Invalid netmask specified in -whitelist: '%s'</source>
-        <translation type="unfinished">Neispravna mrežna maska zadana u -whitelist: '%s'</translation>
-    </message>
-    <message>
-        <source>Loading P2P addresses…</source>
-        <translation type="unfinished">Pokreće se popis P2P adresa...</translation>
-    </message>
-    <message>
-        <source>Loading banlist…</source>
-        <translation type="unfinished">Pokreće se popis zabrana...</translation>
-    </message>
-    <message>
-        <source>Loading block index…</source>
-        <translation type="unfinished">Učitavanje indeksa blokova...</translation>
-    </message>
-    <message>
-        <source>Loading wallet…</source>
-        <translation type="unfinished">Učitavanje novčanika...</translation>
-    </message>
-    <message>
-        <source>Missing amount</source>
-        <translation type="unfinished">Iznos nedostaje</translation>
-    </message>
-    <message>
-        <source>Missing solving data for estimating transaction size</source>
-        <translation type="unfinished">Nedostaju podaci za procjenu veličine transakcije</translation>
-    </message>
-    <message>
-        <source>Need to specify a port with -whitebind: '%s'</source>
-        <translation type="unfinished">Treba zadati port pomoću -whitebind: '%s'</translation>
-    </message>
-    <message>
-        <source>No addresses available</source>
-        <translation type="unfinished">Nema dostupnih adresa</translation>
-    </message>
-    <message>
-        <source>Not enough file descriptors available.</source>
-        <translation type="unfinished">Nema dovoljno dostupnih datotečnih opisivača.</translation>
-    </message>
-    <message>
-        <source>Prune cannot be configured with a negative value.</source>
-        <translation type="unfinished">Obrezivanje (prune) ne može biti postavljeno na negativnu vrijednost.</translation>
-    </message>
-    <message>
-        <source>Prune mode is incompatible with -txindex.</source>
-        <translation type="unfinished">Način obreživanja (pruning) nekompatibilan je s parametrom -txindex.</translation>
-    </message>
-    <message>
-        <source>Pruning blockstore…</source>
-        <translation type="unfinished">Pruning blockstore-a...</translation>
-    </message>
-    <message>
-        <source>Reducing -maxconnections from %d to %d, because of system limitations.</source>
-        <translation type="unfinished">Smanjuje se -maxconnections sa %d na %d zbog sustavnih ograničenja.</translation>
-    </message>
-    <message>
-        <source>Replaying blocks…</source>
-        <translation type="unfinished">Premotavam blokove...</translation>
-    </message>
-    <message>
-        <source>Rescanning…</source>
-        <translation type="unfinished">Ponovno pretraživanje...</translation>
-    </message>
-    <message>
-        <source>SQLiteDatabase: Failed to execute statement to verify database: %s</source>
-        <translation type="unfinished">SQLiteDatabase: Neuspješno izvršenje izjave za verifikaciju baze podataka: %s</translation>
-    </message>
-    <message>
-        <source>SQLiteDatabase: Failed to prepare statement to verify database: %s</source>
-        <translation type="unfinished">SQLiteDatabase: Neuspješno pripremanje izjave za verifikaciju baze: %s</translation>
-    </message>
-    <message>
-        <source>SQLiteDatabase: Failed to read database verification error: %s</source>
-        <translation type="unfinished">SQLiteDatabase: Neuspješno čitanje greške verifikacije baze podataka %s</translation>
-    </message>
-    <message>
-        <source>SQLiteDatabase: Unexpected application id. Expected %u, got %u</source>
-        <translation type="unfinished">SQLiteDatabase: Neočekivani id aplikacije. Očekvano %u, pronađeno %u</translation>
-    </message>
-    <message>
-        <source>Section [%s] is not recognized.</source>
-        <translation type="unfinished">Odjeljak [%s] nije prepoznat.</translation>
-    </message>
-    <message>
-        <source>Signing transaction failed</source>
-        <translation type="unfinished">Potpisivanje transakcije neuspješno</translation>
-    </message>
-    <message>
-        <source>Specified -walletdir "%s" does not exist</source>
-        <translation type="unfinished">Zadan -walletdir "%s" ne postoji</translation>
-    </message>
-    <message>
-        <source>Specified -walletdir "%s" is a relative path</source>
-        <translation type="unfinished">Zadan -walletdir "%s" je relativan put</translation>
-    </message>
-    <message>
-        <source>Specified -walletdir "%s" is not a directory</source>
-        <translation type="unfinished">Zadan -walletdir "%s" nije mapa</translation>
-    </message>
-    <message>
-        <source>Specified blocks directory "%s" does not exist.</source>
-        <translation type="unfinished">Zadana mapa blokova "%s" ne postoji.</translation>
-    </message>
-    <message>
-        <source>Starting network threads…</source>
-        <translation type="unfinished">Pokreću se mrežne niti...</translation>
-    </message>
-    <message>
-        <source>The source code is available from %s.</source>
-        <translation type="unfinished">Izvorni kod je dostupan na %s.</translation>
-    </message>
-    <message>
-        <source>The specified config file %s does not exist</source>
-        <translation type="unfinished">Navedena konfiguracijska datoteka %s ne postoji</translation>
-    </message>
-    <message>
-        <source>The transaction amount is too small to pay the fee</source>
-        <translation type="unfinished">Transakcijiski iznos je premalen da plati naknadu</translation>
-    </message>
-    <message>
-        <source>The wallet will avoid paying less than the minimum relay fee.</source>
-        <translation type="unfinished">Ovaj novčanik će izbjegavati plaćanje manje od minimalne naknade prijenosa.</translation>
-    </message>
-    <message>
-        <source>This is experimental software.</source>
-        <translation type="unfinished">Ovo je eksperimentalni softver.</translation>
-    </message>
-    <message>
-        <source>This is the minimum transaction fee you pay on every transaction.</source>
-        <translation type="unfinished">Ovo je minimalna transakcijska naknada koju plaćate za svaku transakciju.</translation>
-    </message>
-    <message>
-        <source>This is the transaction fee you will pay if you send a transaction.</source>
-        <translation type="unfinished">Ovo je transakcijska naknada koju ćete platiti ako pošaljete transakciju.</translation>
-    </message>
-    <message>
-        <source>Transaction amount too small</source>
-        <translation type="unfinished">Transakcijski iznos premalen</translation>
-    </message>
-    <message>
-        <source>Transaction amounts must not be negative</source>
-        <translation type="unfinished">Iznosi transakcije ne smiju biti negativni</translation>
-    </message>
-    <message>
-        <source>Transaction change output index out of range</source>
-        <translation type="unfinished">Indeks change outputa transakcije je izvan dometa</translation>
-    </message>
-    <message>
-        <source>Transaction has too long of a mempool chain</source>
-        <translation type="unfinished">Transakcija ima prevelik lanac memorijskog bazena</translation>
-    </message>
-    <message>
-        <source>Transaction must have at least one recipient</source>
-        <translation type="unfinished">Transakcija mora imati barem jednog primatelja</translation>
-    </message>
-    <message>
-        <source>Transaction needs a change address, but we can't generate it.</source>
-        <translation type="unfinished">Transakciji je potrebna change adresa, ali ju ne možemo generirati.</translation>
-    </message>
-    <message>
-        <source>Transaction too large</source>
-        <translation type="unfinished">Transakcija prevelika</translation>
-    </message>
-    <message>
-        <source>Unable to bind to %s on this computer (bind returned error %s)</source>
-        <translation type="unfinished">Ne može se povezati na %s na ovom računalu. (povezivanje je vratilo grešku %s)</translation>
-    </message>
-    <message>
-        <source>Unable to bind to %s on this computer. %s is probably already running.</source>
-        <translation type="unfinished">Ne može se povezati na %s na ovom računalu.  %s je vjerojatno već pokrenut.</translation>
-    </message>
-    <message>
-        <source>Unable to create the PID file '%s': %s</source>
-        <translation type="unfinished">Nije moguće stvoriti PID datoteku '%s': %s</translation>
-    </message>
-    <message>
-        <source>Unable to generate initial keys</source>
-        <translation type="unfinished">Ne mogu se generirati početni ključevi</translation>
-    </message>
-    <message>
-        <source>Unable to generate keys</source>
-        <translation type="unfinished">Ne mogu se generirati ključevi</translation>
-    </message>
-    <message>
-        <source>Unable to open %s for writing</source>
-        <translation type="unfinished">Ne mogu otvoriti %s za upisivanje</translation>
-    </message>
-    <message>
-        <source>Unable to parse -maxuploadtarget: '%s'</source>
-        <translation type="unfinished">Nije moguće parsirati -maxuploadtarget: '%s'</translation>
-    </message>
-    <message>
-        <source>Unable to start HTTP server. See debug log for details.</source>
-        <translation type="unfinished">Ne može se pokrenuti HTTP server. Vidite debug.log za više detalja.</translation>
-    </message>
-    <message>
-        <source>Unknown -blockfilterindex value %s.</source>
-        <translation type="unfinished">Nepoznata vrijednost parametra -blockfilterindex %s.</translation>
-    </message>
-    <message>
-        <source>Unknown address type '%s'</source>
-        <translation type="unfinished">Nepoznat tip adrese '%s'</translation>
-    </message>
-    <message>
-        <source>Unknown change type '%s'</source>
-        <translation type="unfinished">Nepoznat tip adrese za vraćanje ostatka '%s'</translation>
-    </message>
-    <message>
-        <source>Unknown network specified in -onlynet: '%s'</source>
-        <translation type="unfinished">Nepoznata mreža zadana kod -onlynet: '%s'</translation>
-    </message>
-    <message>
-        <source>Unknown new rules activated (versionbit %i)</source>
-        <translation type="unfinished"> Nepoznata nova pravila aktivirana (versionbit %i)</translation>
-    </message>
-    <message>
-        <source>Unsupported logging category %s=%s.</source>
-        <translation type="unfinished">Nepodržana kategorija zapisa %s=%s.</translation>
-    </message>
-    <message>
-        <source>User Agent comment (%s) contains unsafe characters.</source>
-        <translation type="unfinished">Komentar pod "Korisnički agent" (%s) sadrži nesigurne znakove.</translation>
-    </message>
-    <message>
-        <source>Verifying blocks…</source>
-        <translation type="unfinished">Provjervanje blokova...</translation>
-    </message>
-    <message>
-        <source>Verifying wallet(s)…</source>
-        <translation type="unfinished">Provjeravanje novčanika...</translation>
-    </message>
-    <message>
-        <source>Wallet needed to be rewritten: restart %s to complete</source>
-        <translation type="unfinished">Novčanik je trebao prepravak: ponovo pokrenite %s</translation>
-    </message>
-</context>
-<context>
-    <name>BGLGUI</name>
+    <name>BitgesellGUI</name>
     <message>
         <source>&amp;Overview</source>
         <translation type="unfinished">&amp;Pregled</translation>
@@ -1098,14 +431,6 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">&amp;Izlaz</translation>
     </message>
     <message>
-        <source>Quit application</source>
-        <translation type="unfinished">Zatvorite aplikaciju</translation>
-    </message>
-    <message>
-        <source>&amp;About %1</source>
-        <translation type="unfinished">&amp;Više o %1</translation>
-    </message>
-    <message>
         <source>Show information about %1</source>
         <translation type="unfinished">Prikažite informacije o programu %1</translation>
     </message>
@@ -1119,7 +444,7 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     </message>
     <message>
         <source>Modify configuration options for %1</source>
-        <translation type="unfinished">Promijeni konfiguraciju opcija za %1</translation>
+        <translation type="unfinished">Promijenite postavke za %1</translation>
     </message>
     <message>
         <source>Create a new wallet</source>
@@ -1143,8 +468,8 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Proxy je &lt;b&gt;uključen&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <source>Send coins to a BGL address</source>
-        <translation type="unfinished">Pošaljite sredstva na BGL adresu</translation>
+        <source>Send coins to a Bitgesell address</source>
+        <translation type="unfinished">Pošaljite novac na Bitgesell adresu</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -1160,11 +485,11 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     </message>
     <message>
         <source>&amp;Receive</source>
-        <translation type="unfinished">&amp;Primite</translation>
+        <translation type="unfinished">Pri&amp;mite</translation>
     </message>
     <message>
         <source>&amp;Options…</source>
-        <translation type="unfinished">&amp;Opcije</translation>
+        <translation type="unfinished">&amp;Postavke</translation>
     </message>
     <message>
         <source>&amp;Encrypt Wallet…</source>
@@ -1187,20 +512,20 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Potpiši &amp;poruku</translation>
     </message>
     <message>
-        <source>Sign messages with your BGL addresses to prove you own them</source>
-        <translation type="unfinished">Poruku potpišemo s BGL adresom, kako bi dokazali vlasništvo nad tom adresom</translation>
+        <source>Sign messages with your Bitgesell addresses to prove you own them</source>
+        <translation type="unfinished">Poruku potpišemo s Bitgesell adresom, kako bi dokazali vlasništvo nad tom adresom</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
         <translation type="unfinished">&amp;Potvrdi poruku</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified BGL addresses</source>
-        <translation type="unfinished">Provjerite poruku da je potpisana s navedenom BGL adresom</translation>
+        <source>Verify messages to ensure they were signed with specified Bitgesell addresses</source>
+        <translation type="unfinished">Provjerite poruku da je potpisana s navedenom Bitgesell adresom</translation>
     </message>
     <message>
         <source>&amp;Load PSBT from file…</source>
-        <translation type="unfinished">&amp;Učitaj PSBT iz datoteke...</translation>
+        <translation type="unfinished">&amp;Učitaj PSBT iz datoteke</translation>
     </message>
     <message>
         <source>Open &amp;URI…</source>
@@ -1248,19 +573,15 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     </message>
     <message>
         <source>Processing blocks on disk…</source>
-        <translation type="unfinished">Obrađivanje blokova na disku...</translation>
-    </message>
-    <message>
-        <source>Reindexing blocks on disk…</source>
-        <translation type="unfinished">Reindeksiranje blokova na disku...</translation>
+        <translation type="unfinished">Procesuiranje blokova na disku...</translation>
     </message>
     <message>
         <source>Connecting to peers…</source>
         <translation type="unfinished">Povezivanje sa peer-ovima...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and BGL: URIs)</source>
-        <translation type="unfinished">Zatražite uplatu (stvara QR kod i BGL: URI adresu)</translation>
+        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
+        <translation type="unfinished">Zatražite uplatu (stvara QR kod i bitgesell: URI adresu)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -1315,20 +636,16 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Ažurno</translation>
     </message>
     <message>
-        <source>Load Partially Signed BGL Transaction</source>
-        <translation type="unfinished">Učitaj djelomično potpisanu BGL transakciju</translation>
+        <source>Load Partially Signed Bitgesell Transaction</source>
+        <translation type="unfinished">Učitaj djelomično potpisanu bitgesell transakciju</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
         <translation type="unfinished">Učitaj PSBT iz &amp;međuspremnika...</translation>
     </message>
     <message>
-        <source>Load PSBT from &amp;clipboard…</source>
-        <translation type="unfinished">Učitaj PSBT iz &amp;međuspremnika...</translation>
-    </message>
-    <message>
-        <source>Load Partially Signed BGL Transaction from clipboard</source>
-        <translation type="unfinished">Učitaj djelomično potpisanu BGL transakciju iz međuspremnika</translation>
+        <source>Load Partially Signed Bitgesell Transaction from clipboard</source>
+        <translation type="unfinished">Učitaj djelomično potpisanu bitgesell transakciju iz međuspremnika</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -1347,8 +664,8 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Adrese za &amp;primanje</translation>
     </message>
     <message>
-        <source>Open a BGL: URI</source>
-        <translation type="unfinished">Otvori BGL: URI</translation>
+        <source>Open a bitgesell: URI</source>
+        <translation type="unfinished">Otvori bitgesell: URI</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -1367,7 +684,7 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Zatvori sve novčanike</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible BGL command-line options</source>
+        <source>Show the %1 help message to get a list with possible Bitgesell command-line options</source>
         <translation type="unfinished">Prikažite pomoć programa %1 kako biste ispisali moguće opcije preko terminala</translation>
     </message>
     <message>
@@ -1421,12 +738,12 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">&amp;Pokaži</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to BGL network.</source>
+        <source>%n active connection(s) to Bitgesell network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n active connection(s) to BGL network.</numerusform>
-            <numerusform>%n active connection(s) to BGL network.</numerusform>
-            <numerusform>%n aktivnih veza s BGL mrežom.</numerusform>
+            <numerusform>%n active connection(s) to Bitgesell network.</numerusform>
+            <numerusform>%n active connection(s) to Bitgesell network.</numerusform>
+            <numerusform>%n aktivnih veza s Bitgesell mrežom.</numerusform>
         </translation>
     </message>
     <message>
@@ -1556,10 +873,6 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Naknada:</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Prah:</translation>
-    </message>
-    <message>
         <source>After Fee:</source>
         <translation type="unfinished">Nakon naknade:</translation>
     </message>
@@ -1648,28 +961,12 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Kopirajte količinu bajtova</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopirajte sićušne iznose ("prašinu")</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Kopirajte ostatak</translation>
     </message>
     <message>
         <source>(%1 locked)</source>
         <translation type="unfinished">(%1 zaključen)</translation>
-    </message>
-    <message>
-        <source>yes</source>
-        <translation type="unfinished">da</translation>
-    </message>
-    <message>
-        <source>no</source>
-        <translation type="unfinished">ne</translation>
-    </message>
-    <message>
-        <source>This label turns red if any recipient receives an amount smaller than the current dust threshold.</source>
-        <translation type="unfinished">Oznaka postane crvene boje ako bilo koji primatelj dobije iznos manji od trenutnog praga "prašine" (sićušnog iznosa).</translation>
     </message>
     <message>
         <source>Can vary +/- %1 satoshi(s) per input.</source>
@@ -1817,14 +1114,6 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Stvorite prazni novčanik</translation>
     </message>
     <message>
-        <source>Use descriptors for scriptPubKey management</source>
-        <translation type="unfinished">Koristi deskriptore za upravljanje scriptPubKey-a</translation>
-    </message>
-    <message>
-        <source>Descriptor Wallet</source>
-        <translation type="unfinished">Deskriptor novčanik</translation>
-    </message>
-    <message>
         <source>Use an external signing device such as a hardware wallet. Configure the external signer script in wallet preferences first.</source>
         <translation type="unfinished">Koristi vanjski potpisni uređaj kao što je hardverski novčanik.  Prije korištenja konfiguriraj vanjski potpisni skript u postavkama novčanika.</translation>
     </message>
@@ -1835,10 +1124,6 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     <message>
         <source>Create</source>
         <translation type="unfinished">Stvorite</translation>
-    </message>
-    <message>
-        <source>Compiled without sqlite support (required for descriptor wallets)</source>
-        <translation type="unfinished">Kompajlirano bez sqlite mogućnosti (potrebno za deskriptor novčanike)</translation>
     </message>
     <message>
         <source>Compiled without external signing support (required for external signing)</source>
@@ -1881,8 +1166,8 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Uredi adresu za slanje</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid BGL address.</source>
-        <translation type="unfinished">Upisana adresa "%1" nije valjana BGL adresa.</translation>
+        <source>The entered address "%1" is not a valid Bitgesell address.</source>
+        <translation type="unfinished">Upisana adresa "%1" nije valjana Bitgesell adresa.</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -1968,8 +1253,8 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         </translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the BGL block chain.</source>
-        <translation type="unfinished">%1 preuzet će i pohraniti kopiju BGLovog lanca blokova.</translation>
+        <source>%1 will download and store a copy of the Bitgesell block chain.</source>
+        <translation type="unfinished">%1 preuzet će i pohraniti kopiju Bitgesellovog lanca blokova.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -2053,12 +1338,12 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Oblik</translation>
     </message>
     <message>
-        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the BGL network, as detailed below.</source>
-        <translation type="unfinished">Nedavne transakcije možda još nisu vidljive pa vam stanje novčanika može biti netočno. Ove informacije bit će točne nakon što vaš novčanik dovrši sinkronizaciju s BGLovom mrežom, kako je opisano dolje.</translation>
+        <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the bitgesell network, as detailed below.</source>
+        <translation type="unfinished">Nedavne transakcije možda još nisu vidljive pa vam stanje novčanika može biti netočno. Ove informacije bit će točne nakon što vaš novčanik dovrši sinkronizaciju s Bitgesellovom mrežom, kako je opisano dolje.</translation>
     </message>
     <message>
-        <source>Attempting to spend BGLs that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
-        <translation type="unfinished">Mreža neće prihvatiti pokušaje trošenja BGLa koji su utjecani sa strane transakcija koje još nisu vidljive.</translation>
+        <source>Attempting to spend bitgesells that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
+        <translation type="unfinished">Mreža neće prihvatiti pokušaje trošenja bitgesella koji su utjecani sa strane transakcija koje još nisu vidljive.</translation>
     </message>
     <message>
         <source>Number of blocks left</source>
@@ -2100,8 +1385,8 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
 <context>
     <name>OpenURIDialog</name>
     <message>
-        <source>Open BGL URI</source>
-        <translation type="unfinished">Otvori BGL: URI</translation>
+        <source>Open bitgesell URI</source>
+        <translation type="unfinished">Otvori bitgesell: URI</translation>
     </message>
     <message>
         <source>Paste address from clipboard</source>
@@ -2252,20 +1537,16 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">&amp;Put za vanjsku skriptu potpisnika</translation>
     </message>
     <message>
-        <source>Full path to a BGL Core compatible script (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Beware: malware can steal your coins!</source>
-        <translation type="unfinished">Cijeli put do BGL Core kompatibilnog skripta (npr. C:\Downloads\hwi.exe ili /Users/you/Downloads/hwi.py). Upozerenje: malware može ukrasti vaša sredstva!</translation>
-    </message>
-    <message>
-        <source>Automatically open the BGL client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation type="unfinished">Automatski otvori port BGL klijenta na ruteru. To radi samo ako ruter podržava UPnP i ako je omogućen.</translation>
+        <source>Automatically open the Bitgesell client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation type="unfinished">Automatski otvori port Bitgesell klijenta na ruteru. To radi samo ako ruter podržava UPnP i ako je omogućen.</translation>
     </message>
     <message>
         <source>Map port using &amp;UPnP</source>
         <translation type="unfinished">Mapiraj port koristeći &amp;UPnP</translation>
     </message>
     <message>
-        <source>Automatically open the BGL client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
-        <translation type="unfinished">Automatski otvori port BGL klijenta na ruteru. Ovo radi samo ako ruter podržava UPnP i ako je omogućen. Vanjski port može biti nasumičan.</translation>
+        <source>Automatically open the Bitgesell client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
+        <translation type="unfinished">Automatski otvori port Bitgesell klijenta na ruteru. Ovo radi samo ako ruter podržava UPnP i ako je omogućen. Vanjski port može biti nasumičan.</translation>
     </message>
     <message>
         <source>Map port using NA&amp;T-PMP</source>
@@ -2280,8 +1561,8 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Dozvolite dolazeće veze</translation>
     </message>
     <message>
-        <source>Connect to the BGL network through a SOCKS5 proxy.</source>
-        <translation type="unfinished">Spojite se na BGL mrežu kroz SOCKS5 proxy.</translation>
+        <source>Connect to the Bitgesell network through a SOCKS5 proxy.</source>
+        <translation type="unfinished">Spojite se na Bitgesell mrežu kroz SOCKS5 proxy.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -2353,15 +1634,7 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
     </message>
     <message>
         <source>Choose the default subdivision unit to show in the interface and when sending coins.</source>
-        <translation type="unfinished">Izaberite željeni najmanji dio BGLa koji će biti prikazan u sučelju i koji će se koristiti za plaćanje.</translation>
-    </message>
-    <message>
-        <source>Third-party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</source>
-        <translation type="unfinished">Vanjski URL-ovi transakcije (npr. preglednik blokova) koji se javljaju u kartici transakcija kao elementi kontekstnog izbornika. %s u URL-u zamijenjen je hashom transakcije. Višestruki URL-ovi su odvojeni vertikalnom crtom |.</translation>
-    </message>
-    <message>
-        <source>&amp;Third-party transaction URLs</source>
-        <translation type="unfinished">&amp;Vanjski URL-ovi transakcije</translation>
+        <translation type="unfinished">Izaberite željeni najmanji dio bitgesella koji će biti prikazan u sučelju i koji će se koristiti za plaćanje.</translation>
     </message>
     <message>
         <source>Third-party URLs (e.g. a block explorer) that appear in the transactions tab as context menu items. %s in the URL is replaced by transaction hash. Multiple URLs are separated by vertical bar |.</source>
@@ -2376,24 +1649,12 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Ovisi želite li prikazati mogućnosti kontroliranja inputa ili ne.</translation>
     </message>
     <message>
-        <source>Connect to the BGL network through a separate SOCKS5 proxy for Tor onion services.</source>
-        <translation type="unfinished">Spojite se na BGL mrežu kroz zaseban SOCKS5 proxy za povezivanje na Tor onion usluge.</translation>
+        <source>Connect to the Bitgesell network through a separate SOCKS5 proxy for Tor onion services.</source>
+        <translation type="unfinished">Spojite se na Bitgesell mrežu kroz zaseban SOCKS5 proxy za povezivanje na Tor onion usluge.</translation>
     </message>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
         <translation type="unfinished">Koristite zaseban SOCKS&amp;5 proxy kako biste dohvatili klijente preko Tora:</translation>
-    </message>
-    <message>
-        <source>Monospaced font in the Overview tab:</source>
-        <translation type="unfinished">Font fiksne širine u tabu Pregled:</translation>
-    </message>
-    <message>
-        <source>embedded "%1"</source>
-        <translation type="unfinished">ugrađen "%1"</translation>
-    </message>
-    <message>
-        <source>closest matching "%1"</source>
-        <translation type="unfinished">najbliže poklapanje "%1"</translation>
     </message>
     <message>
         <source>&amp;OK</source>
@@ -2473,8 +1734,8 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Oblik</translation>
     </message>
     <message>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the BGL network after a connection is established, but this process has not completed yet.</source>
-        <translation type="unfinished">Prikazani podatci mogu biti zastarjeli. Vaš novčanik se automatski sinkronizira s BGL mrežom kada je veza uspostavljena, ali taj proces još nije završen.</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Bitgesell network after a connection is established, but this process has not completed yet.</source>
+        <translation type="unfinished">Prikazani podatci mogu biti zastarjeli. Vaš novčanik se automatski sinkronizira s Bitgesell mrežom kada je veza uspostavljena, ali taj proces još nije završen.</translation>
     </message>
     <message>
         <source>Watch-only:</source>
@@ -2547,10 +1808,6 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
 </context>
 <context>
     <name>PSBTOperationsDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation type="unfinished">Dijalog</translation>
-    </message>
     <message>
         <source>Sign Tx</source>
         <translation type="unfinished">Potpiši Tx</translation>
@@ -2625,8 +1882,8 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">PBST spremljen na disk.</translation>
     </message>
     <message>
-        <source> * Sends %1 to %2</source>
-        <translation type="unfinished">* Šalje %1 %2</translation>
+        <source>own address</source>
+        <translation type="unfinished">vlastita adresa</translation>
     </message>
     <message>
         <source>Unable to calculate transaction fee or total transaction amount.</source>
@@ -2684,7 +1941,7 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Greška kod zahtjeva za plaćanje</translation>
     </message>
     <message>
-        <source>Cannot start BGL: click-to-pay handler</source>
+        <source>Cannot start bitgesell: click-to-pay handler</source>
         <translation type="unfinished">Ne može se pokrenuti klijent: rukovatelj "kliknite da platite"</translation>
     </message>
     <message>
@@ -2692,8 +1949,8 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">URI upravljanje</translation>
     </message>
     <message>
-        <source>'BGL://' is not a valid URI. Use 'BGL:' instead.</source>
-        <translation type="unfinished">'BGL://' nije ispravan URI. Koristite 'BGL:' umjesto toga.</translation>
+        <source>'bitgesell://' is not a valid URI. Use 'bitgesell:' instead.</source>
+        <translation type="unfinished">'bitgesell://' nije ispravan URI. Koristite 'bitgesell:' umjesto toga.</translation>
     </message>
     <message>
         <source>Cannot process payment request because BIP70 is not supported.
@@ -2704,16 +1961,8 @@ S obzirom na široko rasprostranjene sigurnosne nedostatke u BIP70, preporučlji
 Ako imate ovu grešku, od trgovca zatražite URI koji je kompatibilan sa BIP21.</translation>
     </message>
     <message>
-        <source>Cannot process payment request because BIP70 is not supported.
-Due to widespread security flaws in BIP70 it's strongly recommended that any merchant instructions to switch wallets be ignored.
-If you are receiving this error you should request the merchant provide a BIP21 compatible URI.</source>
-        <translation type="unfinished">Nemoguće obraditi zahtjev za plaćanje zato što BIP70 nije podržan.
-S obzirom na široko rasprostranjene sigurnosne nedostatke u BIP70, preporučljivo je da zanemarite preporuke trgovca u  vezi promjene novčanika.
-Ako imate ovu grešku, od trgovca zatražite URI koji je kompatibilan sa BIP21.</translation>
-    </message>
-    <message>
-        <source>URI cannot be parsed! This can be caused by an invalid BGL address or malformed URI parameters.</source>
-        <translation type="unfinished">Ne može se parsirati URI! Uzrok tomu može biti nevažeća BGL adresa ili neispravni parametri kod URI-a.</translation>
+        <source>URI cannot be parsed! This can be caused by an invalid Bitgesell address or malformed URI parameters.</source>
+        <translation type="unfinished">Ne može se parsirati URI! Uzrok tomu može biti nevažeća Bitgesell adresa ili neispravni parametri kod URI-a.</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -2983,14 +2232,6 @@ Ako imate ovu grešku, od trgovca zatražite URI koji je kompatibilan sa BIP21.<
         <translation type="unfinished">Usluge</translation>
     </message>
     <message>
-        <source>Whether the peer requested us to relay transactions.</source>
-        <translation type="unfinished">Je li peer od nas zatražio prijenos transakcija.</translation>
-    </message>
-    <message>
-        <source>Wants Tx Relay</source>
-        <translation type="unfinished">Želi Tx prijenos</translation>
-    </message>
-    <message>
         <source>High bandwidth BIP152 compact block relay: %1</source>
         <translation type="unfinished">Visoka razina BIP152 kompaktnog blok prijenosa: %1</translation>
     </message>
@@ -3237,8 +2478,8 @@ Za više informacija o korištenju ove konzile, utipkajte %6.
         <translation type="unfinished">&amp;Poruka:</translation>
     </message>
     <message>
-        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the BGL network.</source>
-        <translation type="unfinished">Opcionalna poruka koja se može dodati kao privitak zahtjevu za plaćanje. Bit će prikazana kad je zahtjev otvoren. Napomena: Ova poruka neće biti poslana zajedno s uplatom preko BGL mreže.</translation>
+        <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Bitgesell network.</source>
+        <translation type="unfinished">Opcionalna poruka koja se može dodati kao privitak zahtjevu za plaćanje. Bit će prikazana kad je zahtjev otvoren. Napomena: Ova poruka neće biti poslana zajedno s uplatom preko Bitgesell mreže.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address.</source>
@@ -3502,10 +2743,6 @@ Za više informacija o korištenju ove konzile, utipkajte %6.
         <translation type="unfinished">Inputi...</translation>
     </message>
     <message>
-        <source>Dust:</source>
-        <translation type="unfinished">Prah:</translation>
-    </message>
-    <message>
         <source>Choose…</source>
         <translation type="unfinished">Odaberi...</translation>
     </message>
@@ -3523,8 +2760,8 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
 Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po kB" za transakciju veličine 500 bajtova (polovica od 1 kB) rezultirala bi ultimativno naknadom od samo 50 satošija.</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for BGL transactions than the network can process.</source>
-        <translation type="unfinished">Kada je kapacitet transakcija manja od prostora u blokovima, rudari i čvorovi prenositelji mogu zatražiti minimalnu naknadu. Prihvatljivo je platiti samo ovu minimalnu naknadu, ali budite svjesni da ovime može nastati transakcija koja se nikad ne potvrđuje čim je potražnja za korištenjem BGLa veća nego što mreža može obraditi.</translation>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for bitgesell transactions than the network can process.</source>
+        <translation type="unfinished">Kada je kapacitet transakcija manja od prostora u blokovima, rudari i čvorovi prenositelji mogu zatražiti minimalnu naknadu. Prihvatljivo je platiti samo ovu minimalnu naknadu, ali budite svjesni da ovime može nastati transakcija koja se nikad ne potvrđuje čim je potražnja za korištenjem Bitgesella veća nego što mreža može obraditi.</translation>
     </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
@@ -3583,10 +2820,6 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
         <translation type="unfinished">Kopirajte količinu bajtova</translation>
     </message>
     <message>
-        <source>Copy dust</source>
-        <translation type="unfinished">Kopirajte sićušne iznose ("prašinu")</translation>
-    </message>
-    <message>
         <source>Copy change</source>
         <translation type="unfinished">Kopirajte ostatak</translation>
     </message>
@@ -3613,12 +2846,8 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
         <translation type="unfinished">Cr&amp;eate nije potpisan</translation>
     </message>
     <message>
-        <source>Creates a Partially Signed BGL Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation type="unfinished">Stvara djelomično potpisanu BGL transakciju (Partially Signed BGL Transaction - PSBT) za upotrebu sa npr. novčanikom %1 koji nije povezan s mrežom ili sa PSBT kompatibilnim hardverskim novčanikom.</translation>
-    </message>
-    <message>
-        <source> from wallet '%1'</source>
-        <translation type="unfinished">iz novčanika '%1'</translation>
+        <source>Creates a Partially Signed Bitgesell Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation type="unfinished">Stvara djelomično potpisanu Bitgesell transakciju (Partially Signed Bitgesell Transaction - PSBT) za upotrebu sa npr. novčanikom %1 koji nije povezan s mrežom ili sa PSBT kompatibilnim hardverskim novčanikom.</translation>
     </message>
     <message>
         <source>%1 to '%2'</source>
@@ -3657,6 +2886,7 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
     </message>
     <message>
         <source>PSBT saved</source>
+        <extracomment>Popup message when a PSBT has been saved to a file</extracomment>
         <translation type="unfinished">PSBT spremljen</translation>
     </message>
     <message>
@@ -3672,9 +2902,9 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
         <translation type="unfinished">Možete kasnije povećati naknadu (javlja Replace-By-Fee, BIP-125).</translation>
     </message>
     <message>
-        <source>Please, review your transaction proposal. This will produce a Partially Signed BGL Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction proposal. This will produce a Partially Signed Bitgesell Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
-        <translation type="unfinished">Molimo pregledajte svoj prijedlog transakcije. Ovo će stvoriti djelomično potpisanu BGL transakciju (PBST) koju možete spremiti ili kopirati i zatim potpisati sa npr. novčanikom %1 koji nije povezan s mrežom ili sa PSBT kompatibilnim hardverskim novčanikom.</translation>
+        <translation type="unfinished">Molimo pregledajte svoj prijedlog transakcije. Ovo će stvoriti djelomično potpisanu Bitgesell transakciju (PBST) koju možete spremiti ili kopirati i zatim potpisati sa npr. novčanikom %1 koji nije povezan s mrežom ili sa PSBT kompatibilnim hardverskim novčanikom.</translation>
     </message>
     <message>
         <source>Do you want to create this transaction?</source>
@@ -3682,9 +2912,9 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
         <translation type="unfinished">Želite li kreirati ovu transakciju?</translation>
     </message>
     <message>
-        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed BGL Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Bitgesell Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
-        <translation type="unfinished">Molimo pregledajte svoju transakciju. Možete kreirarti i poslati ovu transakciju ili kreirati djelomično potpisanu BGL transakciju (PBST) koju možete spremiti ili kopirati i zatim potpisati sa npr. novčanikom %1 koji nije povezan s mrežom ili sa PSBT kompatibilnim hardverskim novčanikom.</translation>
+        <translation type="unfinished">Molimo pregledajte svoju transakciju. Možete kreirarti i poslati ovu transakciju ili kreirati djelomično potpisanu Bitgesell transakciju (PBST) koju možete spremiti ili kopirati i zatim potpisati sa npr. novčanikom %1 koji nije povezan s mrežom ili sa PSBT kompatibilnim hardverskim novčanikom.</translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -3748,8 +2978,8 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
         </translation>
     </message>
     <message>
-        <source>Warning: Invalid BGL address</source>
-        <translation type="unfinished">Upozorenje: Nevažeća BGL adresa</translation>
+        <source>Warning: Invalid Bitgesell address</source>
+        <translation type="unfinished">Upozorenje: Nevažeća Bitgesell adresa</translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -3787,8 +3017,8 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
         <translation type="unfinished">Odaberite prethodno korištenu adresu</translation>
     </message>
     <message>
-        <source>The BGL address to send the payment to</source>
-        <translation type="unfinished">BGL adresa na koju ćete poslati uplatu</translation>
+        <source>The Bitgesell address to send the payment to</source>
+        <translation type="unfinished">Bitgesell adresa na koju ćete poslati uplatu</translation>
     </message>
     <message>
         <source>Paste address from clipboard</source>
@@ -3803,7 +3033,7 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
         <translation type="unfinished">Iznos za slanje u odabranoj valuti </translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive less BGLs than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive less bitgesells than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation type="unfinished">Naknada će biti oduzeta od poslanog iznosa. Primatelj će primiti manji iznos od onoga koji unesete u polje iznosa. Ako je odabrano više primatelja, onda će naknada biti podjednako raspodijeljena.</translation>
     </message>
     <message>
@@ -3823,8 +3053,8 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
         <translation type="unfinished">Unesite oznaku za ovu adresu kako bi ju dodali u vaš adresar</translation>
     </message>
     <message>
-        <source>A message that was attached to the BGL: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the BGL network.</source>
-        <translation type="unfinished">Poruka koja je dodana uplati: URI koji će biti spremljen s transakcijom za referencu. Napomena: Ova poruka neće biti poslana preko BGL mreže.</translation>
+        <source>A message that was attached to the bitgesell: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Bitgesell network.</source>
+        <translation type="unfinished">Poruka koja je dodana uplati: URI koji će biti spremljen s transakcijom za referencu. Napomena: Ova poruka neće biti poslana preko Bitgesell mreže.</translation>
     </message>
 </context>
 <context>
@@ -3849,12 +3079,12 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
         <translation type="unfinished">&amp;Potpišite poruku</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive BGLs sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">Možete potpisati poruke/dogovore svojim adresama kako biste dokazali da možete pristupiti BGLima poslanim na te adrese. Budite oprezni da ne potpisujte ništa nejasno ili nasumično, jer napadi phishingom vas mogu prevariti da prepišite svoj identitet njima. Potpisujte samo detaljno objašnjene izjave s kojima se slažete.</translation>
+        <source>You can sign messages/agreements with your addresses to prove you can receive bitgesells sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <translation type="unfinished">Možete potpisati poruke/dogovore svojim adresama kako biste dokazali da možete pristupiti bitgesellima poslanim na te adrese. Budite oprezni da ne potpisujte ništa nejasno ili nasumično, jer napadi phishingom vas mogu prevariti da prepišite svoj identitet njima. Potpisujte samo detaljno objašnjene izjave s kojima se slažete.</translation>
     </message>
     <message>
-        <source>The BGL address to sign the message with</source>
-        <translation type="unfinished">BGL adresa pomoću koje ćete potpisati poruku</translation>
+        <source>The Bitgesell address to sign the message with</source>
+        <translation type="unfinished">Bitgesell adresa pomoću koje ćete potpisati poruku</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -3877,8 +3107,8 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
         <translation type="unfinished">Kopirajte trenutni potpis u međuspremnik</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this BGL address</source>
-        <translation type="unfinished">Potpišite poruku kako biste dokazali da posjedujete ovu BGL adresu</translation>
+        <source>Sign the message to prove you own this Bitgesell address</source>
+        <translation type="unfinished">Potpišite poruku kako biste dokazali da posjedujete ovu Bitgesell adresu</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -3901,8 +3131,8 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
         <translation type="unfinished">Unesite primateljevu adresu, poruku (provjerite da kopirate prekide crta, razmake, tabove, itd. točno) i potpis ispod da provjerite poruku. Pazite da ne pridodate veće značenje potpisu nego što je sadržano u samoj poruci kako biste izbjegli napad posrednika (MITM attack). Primijetite da ovo samo dokazuje da stranka koja potpisuje prima na adresu. Ne može dokažati da je neka stranka poslala transakciju!</translation>
     </message>
     <message>
-        <source>The BGL address the message was signed with</source>
-        <translation type="unfinished">BGL adresa kojom je poruka potpisana</translation>
+        <source>The Bitgesell address the message was signed with</source>
+        <translation type="unfinished">Bitgesell adresa kojom je poruka potpisana</translation>
     </message>
     <message>
         <source>The signed message to verify</source>
@@ -3913,8 +3143,8 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
         <translation type="unfinished">Potpis predan kad je poruka bila potpisana</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified BGL address</source>
-        <translation type="unfinished">Provjerite poruku da budete sigurni da je potpisana zadanom BGL adresom</translation>
+        <source>Verify the message to ensure it was signed with the specified Bitgesell address</source>
+        <translation type="unfinished">Provjerite poruku da budete sigurni da je potpisana zadanom Bitgesell adresom</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -4111,10 +3341,6 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
         <translation type="unfinished">Indeks outputa</translation>
     </message>
     <message>
-        <source> (Certificate was not verified)</source>
-        <translation type="unfinished">(Certifikat nije bio ovjeren)</translation>
-    </message>
-    <message>
         <source>Merchant</source>
         <translation type="unfinished">Trgovac</translation>
     </message>
@@ -4213,10 +3439,6 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
         <translation type="unfinished">Poslano za</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">Plaćanje samom sebi</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">Rudareno</translation>
     </message>
@@ -4290,10 +3512,6 @@ Napomena: Budući da se naknada računa po bajtu, naknada od "100 satošija po k
     <message>
         <source>Sent to</source>
         <translation type="unfinished">Poslano za</translation>
-    </message>
-    <message>
-        <source>To yourself</source>
-        <translation type="unfinished">Samom sebi</translation>
     </message>
     <message>
         <source>Mined</source>
@@ -4525,7 +3743,7 @@ Idi na Datoteka &gt;  Otvori novčanik za učitanje novčanika.
     <name>WalletView</name>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Izvozi</translation>
+        <translation type="unfinished">&amp;Izvezite</translation>
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
@@ -4559,6 +3777,613 @@ Idi na Datoteka &gt;  Otvori novčanik za učitanje novčanika.
     <message>
         <source>Cancel</source>
         <translation type="unfinished">Odustanite</translation>
+    </message>
+</context>
+<context>
+    <name>bitgesell-core</name>
+    <message>
+        <source>The %s developers</source>
+        <translation type="unfinished">Ekipa %s</translation>
+    </message>
+    <message>
+        <source>%s corrupt. Try using the wallet tool bitgesell-wallet to salvage or restoring a backup.</source>
+        <translation type="unfinished">%s korumpirano. Pokušajte koristiti bitgesell-wallet alat za novčanike kako biste ga spasili ili pokrenuti sigurnosnu kopiju.</translation>
+    </message>
+    <message>
+        <source>Cannot downgrade wallet from version %i to version %i. Wallet version unchanged.</source>
+        <translation type="unfinished">Nije moguće unazaditi novčanik s verzije %i na verziju %i. Verzija novčanika nepromijenjena.</translation>
+    </message>
+    <message>
+        <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
+        <translation type="unfinished">Program ne može pristupiti podatkovnoj mapi %s. %s je vjerojatno već pokrenut.</translation>
+    </message>
+    <message>
+        <source>Cannot upgrade a non HD split wallet from version %i to version %i without upgrading to support pre-split keypool. Please use version %i or no version specified.</source>
+        <translation type="unfinished">Nije moguće unaprijediti podijeljeni novčanik bez HD-a s verzije %i na verziju %i bez unaprijeđenja na potporu pred-podjelnog bazena ključeva. Molimo koristite verziju %i ili neku drugu.</translation>
+    </message>
+    <message>
+        <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
+        <translation type="unfinished">Distribuirano pod MIT licencom softvera. Vidite pripadajuću datoteku %s ili %s.</translation>
+    </message>
+    <message>
+        <source>Error reading %s! Transaction data may be missing or incorrect. Rescanning wallet.</source>
+        <translation type="unfinished">Greška u čitanju %s! Transakcijski podaci nedostaju ili su netočni. Ponovno skeniranje novčanika.</translation>
+    </message>
+    <message>
+        <source>Error: Dumpfile format record is incorrect. Got "%s", expected "format".</source>
+        <translation type="unfinished">Greška: Format dumpfile zapisa je netočan. Dobiven "%s" očekivani "format".</translation>
+    </message>
+    <message>
+        <source>Error: Dumpfile identifier record is incorrect. Got "%s", expected "%s".</source>
+        <translation type="unfinished">Greška: Identifikator dumpfile zapisa je netočan. Dobiven "%s", očekivan "%s".</translation>
+    </message>
+    <message>
+        <source>Error: Dumpfile version is not supported. This version of bitgesell-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation type="unfinished">Greška: Dumpfile verzija nije podržana. Ova bitgesell-wallet  verzija podržava  samo dumpfile verziju 1. Dobiven dumpfile s verzijom %s</translation>
+    </message>
+    <message>
+        <source>Error: Legacy wallets only support the "legacy", "p2sh-segwit", and "bech32" address types</source>
+        <translation type="unfinished">Greška: Legacy novčanici podržavaju samo "legacy", "p2sh-segwit", i "bech32" tipove adresa</translation>
+    </message>
+    <message>
+        <source>File %s already exists. If you are sure this is what you want, move it out of the way first.</source>
+        <translation type="unfinished">Datoteka %s već postoji. Ako ste sigurni da ovo želite, prvo ju maknite, </translation>
+    </message>
+    <message>
+        <source>Invalid or corrupt peers.dat (%s). If you believe this is a bug, please report it to %s. As a workaround, you can move the file (%s) out of the way (rename, move, or delete) to have a new one created on the next start.</source>
+        <translation type="unfinished">Nevažeći ili korumpirani peers.dat (%s). Ako mislite da je ovo bug, molimo prijavite %s. Kao alternativno rješenje, možete maknuti datoteku (%s) (preimenuj, makni ili obriši) kako bi se kreirala nova na idućem pokretanju.</translation>
+    </message>
+    <message>
+        <source>More than one onion bind address is provided. Using %s for the automatically created Tor onion service.</source>
+        <translation type="unfinished">Pruženo je više od jedne onion bind adrese. Koristim %s za automatski stvorenu Tor onion uslugu.</translation>
+    </message>
+    <message>
+        <source>No dump file provided. To use createfromdump, -dumpfile=&lt;filename&gt; must be provided.</source>
+        <translation type="unfinished">Dump datoteka nije automatski dostupna. Kako biste koristili createfromdump, -dumpfile=&lt;filename&gt; mora biti osiguran. </translation>
+    </message>
+    <message>
+        <source>No dump file provided. To use dump, -dumpfile=&lt;filename&gt; must be provided.</source>
+        <translation type="unfinished">Dump datoteka nije automatski dostupna. Kako biste koristili dump, -dumpfile=&lt;filename&gt; mora biti osiguran. </translation>
+    </message>
+    <message>
+        <source>No wallet file format provided. To use createfromdump, -format=&lt;format&gt; must be provided.</source>
+        <translation type="unfinished">Format datoteke novčanika nije dostupan. Kako biste koristili reatefromdump, -format=&lt;format&gt; mora biti osiguran.</translation>
+    </message>
+    <message>
+        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
+        <translation type="unfinished">Molimo provjerite jesu li datum i vrijeme na vašem računalu točni. Ako je vaš sat krivo namješten, %s neće raditi ispravno.</translation>
+    </message>
+    <message>
+        <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
+        <translation type="unfinished">Molimo vas da doprinijete programu %s ako ga smatrate korisnim. Posjetite %s za više informacija.</translation>
+    </message>
+    <message>
+        <source>Prune configured below the minimum of %d MiB.  Please use a higher number.</source>
+        <translation type="unfinished">Obrezivanje postavljeno ispod minimuma od %d MiB. Molim koristite veći broj.</translation>
+    </message>
+    <message>
+        <source>Prune: last wallet synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)</source>
+        <translation type="unfinished">Obrezivanje: zadnja sinkronizacija novčanika ide dalje od obrezivanih podataka. Morate koristiti -reindex (ponovo preuzeti cijeli lanac blokova u slučaju obrezivanog čvora)</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Unknown sqlite wallet schema version %d. Only version %d is supported</source>
+        <translation type="unfinished">SQLiteDatabase: Nepoznata sqlite shema novčanika verzija %d. Podržana je samo verzija %d.</translation>
+    </message>
+    <message>
+        <source>The block database contains a block which appears to be from the future. This may be due to your computer's date and time being set incorrectly. Only rebuild the block database if you are sure that your computer's date and time are correct</source>
+        <translation type="unfinished">Baza blokova sadrži blok koji je naizgled iz budućnosti. Može to biti posljedica krivo namještenog datuma i vremena na vašem računalu. Obnovite bazu blokova samo ako ste sigurni da su točni datum i vrijeme na vašem računalu.</translation>
+    </message>
+    <message>
+        <source>The transaction amount is too small to send after the fee has been deducted</source>
+        <translation type="unfinished">Iznos transakcije je premalen za poslati nakon naknade</translation>
+    </message>
+    <message>
+        <source>This error could occur if this wallet was not shutdown cleanly and was last loaded using a build with a newer version of Berkeley DB. If so, please use the software that last loaded this wallet</source>
+        <translation type="unfinished">Ova greška bi se mogla dogoditi kada se ovaj novčanik ne ugasi pravilno i ako je posljednji put bio podignut koristeći noviju verziju Berkeley DB. Ako je tako, molimo koristite softver kojim je novčanik podignut zadnji put.</translation>
+    </message>
+    <message>
+        <source>This is a pre-release test build - use at your own risk - do not use for mining or merchant applications</source>
+        <translation type="unfinished">Ovo je eksperimentalna verzija za testiranje - koristite je na vlastitu odgovornost - ne koristite je za rudarenje ili trgovačke primjene</translation>
+    </message>
+    <message>
+        <source>This is the maximum transaction fee you pay (in addition to the normal fee) to prioritize partial spend avoidance over regular coin selection.</source>
+        <translation type="unfinished">Ovo je najveća transakcijska naknada koju plaćate (uz normalnu naknadu) kako biste prioritizirali izbjegavanje djelomične potrošnje nad uobičajenom selekcijom sredstava.</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you may discard if change is smaller than dust at this level</source>
+        <translation type="unfinished">Ovo je transakcijska naknada koju možete odbaciti ako je ostatak manji od "prašine" (sićušnih iznosa) po ovoj stopi</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you may pay when fee estimates are not available.</source>
+        <translation type="unfinished">Ovo je transakcijska naknada koju ćete možda platiti kada su nedostupne procjene naknada.</translation>
+    </message>
+    <message>
+        <source>Total length of network version string (%i) exceeds maximum length (%i). Reduce the number or size of uacomments.</source>
+        <translation type="unfinished">Ukupna duljina stringa verzije mreže (%i) prelazi maksimalnu duljinu (%i). Smanjite broj ili veličinu komentara o korisničkom agentu (uacomments).</translation>
+    </message>
+    <message>
+        <source>Unable to replay blocks. You will need to rebuild the database using -reindex-chainstate.</source>
+        <translation type="unfinished">Ne mogu se ponovo odigrati blokovi. Morat ćete ponovo složiti bazu koristeći -reindex-chainstate.</translation>
+    </message>
+    <message>
+        <source>Unknown wallet file format "%s" provided. Please provide one of "bdb" or "sqlite".</source>
+        <translation type="unfinished">Nepoznati formant novčanika "%s" pružen. Molimo dostavite "bdb" ili "sqlite".</translation>
+    </message>
+    <message>
+        <source>Warning: Dumpfile wallet format "%s" does not match command line specified format "%s".</source>
+        <translation type="unfinished">Upozorenje: Dumpfile format novčanika "%s" se ne poklapa sa formatom komandne linije "%s".</translation>
+    </message>
+    <message>
+        <source>Warning: Private keys detected in wallet {%s} with disabled private keys</source>
+        <translation type="unfinished">Upozorenje: Privatni ključevi pronađeni u novčaniku {%s} s isključenim privatnim ključevima</translation>
+    </message>
+    <message>
+        <source>Warning: We do not appear to fully agree with our peers! You may need to upgrade, or other nodes may need to upgrade.</source>
+        <translation type="unfinished">Upozorenje: Izgleda da se ne slažemo u potpunosti s našim klijentima! Možda ćete se vi ili ostali čvorovi morati ažurirati.</translation>
+    </message>
+    <message>
+        <source>Witness data for blocks after height %d requires validation. Please restart with -reindex.</source>
+        <translation type="unfinished">Podaci svjedoka za blokove poslije visine %d zahtijevaju validaciju. Molimo restartirajte sa -reindex.</translation>
+    </message>
+    <message>
+        <source>You need to rebuild the database using -reindex to go back to unpruned mode.  This will redownload the entire blockchain</source>
+        <translation type="unfinished">Morat ćete ponovno složiti bazu koristeći -reindex kako biste se vratili na neobrezivan način (unpruned mode). Ovo će ponovno preuzeti cijeli lanac blokova.</translation>
+    </message>
+    <message>
+        <source>%s is set very high!</source>
+        <translation type="unfinished">%s je postavljen preveliko!</translation>
+    </message>
+    <message>
+        <source>-maxmempool must be at least %d MB</source>
+        <translation type="unfinished">-maxmempool mora biti barem %d MB</translation>
+    </message>
+    <message>
+        <source>A fatal internal error occurred, see debug.log for details</source>
+        <translation type="unfinished">Dogodila se kobna greška, vidi detalje u debug.log.</translation>
+    </message>
+    <message>
+        <source>Cannot resolve -%s address: '%s'</source>
+        <translation type="unfinished">Ne može se razriješiti adresa -%s: '%s'</translation>
+    </message>
+    <message>
+        <source>Cannot set -forcednsseed to true when setting -dnsseed to false.</source>
+        <translation type="unfinished">Nije moguće postaviti -forcednsseed na true kada je postavka za  -dnsseed false.</translation>
+    </message>
+    <message>
+        <source>Cannot set -peerblockfilters without -blockfilterindex.</source>
+        <translation type="unfinished">Nije moguće postaviti -peerblockfilters bez -blockfilterindex.</translation>
+    </message>
+    <message>
+        <source>Cannot write to data directory '%s'; check permissions.</source>
+        <translation type="unfinished">Nije moguće pisati u podatkovnu mapu '%s'; provjerite dozvole.</translation>
+    </message>
+    <message>
+        <source>Cannot provide specific connections and have addrman find outgoing connections at the same time.</source>
+        <translation type="unfinished">Nije moguće ponuditi specifične veze i istovremeno dati addrman da traži izlazne veze.</translation>
+    </message>
+    <message>
+        <source>Error loading %s: External signer wallet being loaded without external signer support compiled</source>
+        <translation type="unfinished">Pogreška pri učitavanju %s: Vanjski potpisni novčanik se učitava bez kompajlirane potpore vanjskog potpisnika</translation>
+    </message>
+    <message>
+        <source>Failed to rename invalid peers.dat file. Please move or delete it and try again.</source>
+        <translation type="unfinished">Preimenovanje nevažeće peers.dat datoteke neuspješno. Molimo premjestite ili obrišite datoteku i pokušajte ponovno.</translation>
+    </message>
+    <message>
+        <source>Config setting for %s only applied on %s network when in [%s] section.</source>
+        <translation type="unfinished">Konfiguriranje postavki za %s primijenjeno je samo na %s mreži u odjeljku [%s].</translation>
+    </message>
+    <message>
+        <source>Corrupted block database detected</source>
+        <translation type="unfinished">Pokvarena baza blokova otkrivena</translation>
+    </message>
+    <message>
+        <source>Could not find asmap file %s</source>
+        <translation type="unfinished">Nije pronađena asmap datoteka %s</translation>
+    </message>
+    <message>
+        <source>Could not parse asmap file %s</source>
+        <translation type="unfinished">Nije moguće pročitati asmap datoteku %s</translation>
+    </message>
+    <message>
+        <source>Disk space is too low!</source>
+        <translation type="unfinished">Nema dovoljno prostora na disku!</translation>
+    </message>
+    <message>
+        <source>Do you want to rebuild the block database now?</source>
+        <translation type="unfinished">Želite li sada obnoviti bazu blokova?</translation>
+    </message>
+    <message>
+        <source>Done loading</source>
+        <translation type="unfinished">Učitavanje gotovo</translation>
+    </message>
+    <message>
+        <source>Dump file %s does not exist.</source>
+        <translation type="unfinished">Dump datoteka %s ne postoji.</translation>
+    </message>
+    <message>
+        <source>Error creating %s</source>
+        <translation type="unfinished">Greška pri stvaranju %s</translation>
+    </message>
+    <message>
+        <source>Error initializing block database</source>
+        <translation type="unfinished">Greška kod inicijaliziranja baze blokova</translation>
+    </message>
+    <message>
+        <source>Error initializing wallet database environment %s!</source>
+        <translation type="unfinished">Greška kod inicijaliziranja okoline baze novčanika %s!</translation>
+    </message>
+    <message>
+        <source>Error loading %s</source>
+        <translation type="unfinished">Greška kod pokretanja programa %s!</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Private keys can only be disabled during creation</source>
+        <translation type="unfinished">Greška kod učitavanja %s: Privatni ključevi mogu biti isključeni samo tijekom stvaranja</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet corrupted</source>
+        <translation type="unfinished">Greška kod učitavanja %s: Novčanik pokvaren</translation>
+    </message>
+    <message>
+        <source>Error loading %s: Wallet requires newer version of %s</source>
+        <translation type="unfinished">Greška kod učitavanja %s: Novčanik zahtijeva noviju verziju softvera %s.</translation>
+    </message>
+    <message>
+        <source>Error loading block database</source>
+        <translation type="unfinished">Greška kod pokretanja baze blokova</translation>
+    </message>
+    <message>
+        <source>Error opening block database</source>
+        <translation type="unfinished">Greška kod otvaranja baze blokova</translation>
+    </message>
+    <message>
+        <source>Error reading from database, shutting down.</source>
+        <translation type="unfinished">Greška kod iščitanja baze. Zatvara se klijent.</translation>
+    </message>
+    <message>
+        <source>Error reading next record from wallet database</source>
+        <translation type="unfinished">Greška pri očitavanju idućeg zapisa iz baza podataka novčanika</translation>
+    </message>
+    <message>
+        <source>Error: Couldn't create cursor into database</source>
+        <translation type="unfinished">Greška: Nije moguće kreirati cursor u batu podataka</translation>
+    </message>
+    <message>
+        <source>Error: Disk space is low for %s</source>
+        <translation type="unfinished">Pogreška: Malo diskovnog prostora za %s</translation>
+    </message>
+    <message>
+        <source>Error: Dumpfile checksum does not match. Computed %s, expected %s</source>
+        <translation type="unfinished">Greška: Dumpfile checksum se ne poklapa. Izračunao %s, očekivano %s</translation>
+    </message>
+    <message>
+        <source>Error: Got key that was not hex: %s</source>
+        <translation type="unfinished">Greška: Dobiven ključ koji nije hex: %s</translation>
+    </message>
+    <message>
+        <source>Error: Got value that was not hex: %s</source>
+        <translation type="unfinished">Greška: Dobivena vrijednost koja nije hex: %s</translation>
+    </message>
+    <message>
+        <source>Error: Keypool ran out, please call keypoolrefill first</source>
+        <translation type="unfinished">Greška: Ispraznio se bazen ključeva, molimo prvo pozovite keypoolrefill</translation>
+    </message>
+    <message>
+        <source>Error: Missing checksum</source>
+        <translation type="unfinished">Greška: Nedostaje checksum</translation>
+    </message>
+    <message>
+        <source>Error: No %s addresses available.</source>
+        <translation type="unfinished">Greška: Nema %s adresa raspoloživo.</translation>
+    </message>
+    <message>
+        <source>Error: Unable to parse version %u as a uint32_t</source>
+        <translation type="unfinished">Greška: Nije moguće parsirati verziju %u kao uint32_t</translation>
+    </message>
+    <message>
+        <source>Error: Unable to write record to new wallet</source>
+        <translation type="unfinished">Greška: Nije moguće unijeti zapis u novi novčanik</translation>
+    </message>
+    <message>
+        <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
+        <translation type="unfinished">Neuspješno slušanje na svim portovima. Koristite -listen=0 ako to želite.</translation>
+    </message>
+    <message>
+        <source>Failed to rescan the wallet during initialization</source>
+        <translation type="unfinished">Neuspješno ponovo skeniranje novčanika tijekom inicijalizacije</translation>
+    </message>
+    <message>
+        <source>Failed to verify database</source>
+        <translation type="unfinished">Verifikacija baze podataka neuspješna</translation>
+    </message>
+    <message>
+        <source>Fee rate (%s) is lower than the minimum fee rate setting (%s)</source>
+        <translation type="unfinished">Naknada (%s) je niža od postavke minimalne visine naknade (%s)</translation>
+    </message>
+    <message>
+        <source>Ignoring duplicate -wallet %s.</source>
+        <translation type="unfinished">Zanemarujem duplicirani -wallet %s.</translation>
+    </message>
+    <message>
+        <source>Importing…</source>
+        <translation type="unfinished">Uvozim...</translation>
+    </message>
+    <message>
+        <source>Incorrect or no genesis block found. Wrong datadir for network?</source>
+        <translation type="unfinished">Neispravan ili nepostojeći blok geneze. Možda je kriva podatkovna mapa za mrežu?</translation>
+    </message>
+    <message>
+        <source>Initialization sanity check failed. %s is shutting down.</source>
+        <translation type="unfinished">Brzinska provjera inicijalizacije neuspješna. %s se zatvara.</translation>
+    </message>
+    <message>
+        <source>Input not found or already spent</source>
+        <translation type="unfinished">Input nije pronađen ili je već potrošen</translation>
+    </message>
+    <message>
+        <source>Insufficient funds</source>
+        <translation type="unfinished">Nedovoljna sredstva</translation>
+    </message>
+    <message>
+        <source>Invalid -i2psam address or hostname: '%s'</source>
+        <translation type="unfinished">Neispravna -i2psam adresa ili ime računala: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid -onion address or hostname: '%s'</source>
+        <translation type="unfinished">Neispravna -onion adresa ili ime računala: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid -proxy address or hostname: '%s'</source>
+        <translation type="unfinished">Neispravna -proxy adresa ili ime računala: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid P2P permission: '%s'</source>
+        <translation type="unfinished">Nevaljana dozvola za P2P: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid amount for -%s=&lt;amount&gt;: '%s'</source>
+        <translation type="unfinished">Neispravan iznos za  -%s=&lt;amount&gt;: '%s'</translation>
+    </message>
+    <message>
+        <source>Invalid netmask specified in -whitelist: '%s'</source>
+        <translation type="unfinished">Neispravna mrežna maska zadana u -whitelist: '%s'</translation>
+    </message>
+    <message>
+        <source>Loading P2P addresses…</source>
+        <translation type="unfinished">Pokreće se popis P2P adresa...</translation>
+    </message>
+    <message>
+        <source>Loading banlist…</source>
+        <translation type="unfinished">Pokreće se popis zabrana...</translation>
+    </message>
+    <message>
+        <source>Loading block index…</source>
+        <translation type="unfinished">Učitavanje indeksa blokova...</translation>
+    </message>
+    <message>
+        <source>Loading wallet…</source>
+        <translation type="unfinished">Učitavanje novčanika...</translation>
+    </message>
+    <message>
+        <source>Missing amount</source>
+        <translation type="unfinished">Iznos nedostaje</translation>
+    </message>
+    <message>
+        <source>Missing solving data for estimating transaction size</source>
+        <translation type="unfinished">Nedostaju podaci za procjenu veličine transakcije</translation>
+    </message>
+    <message>
+        <source>Need to specify a port with -whitebind: '%s'</source>
+        <translation type="unfinished">Treba zadati port pomoću -whitebind: '%s'</translation>
+    </message>
+    <message>
+        <source>No addresses available</source>
+        <translation type="unfinished">Nema dostupnih adresa</translation>
+    </message>
+    <message>
+        <source>Not enough file descriptors available.</source>
+        <translation type="unfinished">Nema dovoljno dostupnih datotečnih opisivača.</translation>
+    </message>
+    <message>
+        <source>Prune cannot be configured with a negative value.</source>
+        <translation type="unfinished">Obrezivanje (prune) ne može biti postavljeno na negativnu vrijednost.</translation>
+    </message>
+    <message>
+        <source>Prune mode is incompatible with -txindex.</source>
+        <translation type="unfinished">Način obreživanja (pruning) nekompatibilan je s parametrom -txindex.</translation>
+    </message>
+    <message>
+        <source>Pruning blockstore…</source>
+        <translation type="unfinished">Pruning blockstore-a...</translation>
+    </message>
+    <message>
+        <source>Reducing -maxconnections from %d to %d, because of system limitations.</source>
+        <translation type="unfinished">Smanjuje se -maxconnections sa %d na %d zbog sustavnih ograničenja.</translation>
+    </message>
+    <message>
+        <source>Replaying blocks…</source>
+        <translation type="unfinished">Premotavam blokove...</translation>
+    </message>
+    <message>
+        <source>Rescanning…</source>
+        <translation type="unfinished">Ponovno pretraživanje...</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to execute statement to verify database: %s</source>
+        <translation type="unfinished">SQLiteDatabase: Neuspješno izvršenje izjave za verifikaciju baze podataka: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to prepare statement to verify database: %s</source>
+        <translation type="unfinished">SQLiteDatabase: Neuspješno pripremanje izjave za verifikaciju baze: %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to read database verification error: %s</source>
+        <translation type="unfinished">SQLiteDatabase: Neuspješno čitanje greške verifikacije baze podataka %s</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Unexpected application id. Expected %u, got %u</source>
+        <translation type="unfinished">SQLiteDatabase: Neočekivani id aplikacije. Očekvano %u, pronađeno %u</translation>
+    </message>
+    <message>
+        <source>Section [%s] is not recognized.</source>
+        <translation type="unfinished">Odjeljak [%s] nije prepoznat.</translation>
+    </message>
+    <message>
+        <source>Signing transaction failed</source>
+        <translation type="unfinished">Potpisivanje transakcije neuspješno</translation>
+    </message>
+    <message>
+        <source>Specified -walletdir "%s" does not exist</source>
+        <translation type="unfinished">Zadan -walletdir "%s" ne postoji</translation>
+    </message>
+    <message>
+        <source>Specified -walletdir "%s" is a relative path</source>
+        <translation type="unfinished">Zadan -walletdir "%s" je relativan put</translation>
+    </message>
+    <message>
+        <source>Specified -walletdir "%s" is not a directory</source>
+        <translation type="unfinished">Zadan -walletdir "%s" nije mapa</translation>
+    </message>
+    <message>
+        <source>Specified blocks directory "%s" does not exist.</source>
+        <translation type="unfinished">Zadana mapa blokova "%s" ne postoji.</translation>
+    </message>
+    <message>
+        <source>Starting network threads…</source>
+        <translation type="unfinished">Pokreću se mrežne niti...</translation>
+    </message>
+    <message>
+        <source>The source code is available from %s.</source>
+        <translation type="unfinished">Izvorni kod je dostupan na %s.</translation>
+    </message>
+    <message>
+        <source>The specified config file %s does not exist</source>
+        <translation type="unfinished">Navedena konfiguracijska datoteka %s ne postoji</translation>
+    </message>
+    <message>
+        <source>The transaction amount is too small to pay the fee</source>
+        <translation type="unfinished">Transakcijiski iznos je premalen da plati naknadu</translation>
+    </message>
+    <message>
+        <source>The wallet will avoid paying less than the minimum relay fee.</source>
+        <translation type="unfinished">Ovaj novčanik će izbjegavati plaćanje manje od minimalne naknade prijenosa.</translation>
+    </message>
+    <message>
+        <source>This is experimental software.</source>
+        <translation type="unfinished">Ovo je eksperimentalni softver.</translation>
+    </message>
+    <message>
+        <source>This is the minimum transaction fee you pay on every transaction.</source>
+        <translation type="unfinished">Ovo je minimalna transakcijska naknada koju plaćate za svaku transakciju.</translation>
+    </message>
+    <message>
+        <source>This is the transaction fee you will pay if you send a transaction.</source>
+        <translation type="unfinished">Ovo je transakcijska naknada koju ćete platiti ako pošaljete transakciju.</translation>
+    </message>
+    <message>
+        <source>Transaction amount too small</source>
+        <translation type="unfinished">Transakcijski iznos premalen</translation>
+    </message>
+    <message>
+        <source>Transaction amounts must not be negative</source>
+        <translation type="unfinished">Iznosi transakcije ne smiju biti negativni</translation>
+    </message>
+    <message>
+        <source>Transaction change output index out of range</source>
+        <translation type="unfinished">Indeks change outputa transakcije je izvan dometa</translation>
+    </message>
+    <message>
+        <source>Transaction must have at least one recipient</source>
+        <translation type="unfinished">Transakcija mora imati barem jednog primatelja</translation>
+    </message>
+    <message>
+        <source>Transaction needs a change address, but we can't generate it.</source>
+        <translation type="unfinished">Transakciji je potrebna change adresa, ali ju ne možemo generirati.</translation>
+    </message>
+    <message>
+        <source>Transaction too large</source>
+        <translation type="unfinished">Transakcija prevelika</translation>
+    </message>
+    <message>
+        <source>Unable to bind to %s on this computer (bind returned error %s)</source>
+        <translation type="unfinished">Ne može se povezati na %s na ovom računalu. (povezivanje je vratilo grešku %s)</translation>
+    </message>
+    <message>
+        <source>Unable to bind to %s on this computer. %s is probably already running.</source>
+        <translation type="unfinished">Ne može se povezati na %s na ovom računalu.  %s je vjerojatno već pokrenut.</translation>
+    </message>
+    <message>
+        <source>Unable to create the PID file '%s': %s</source>
+        <translation type="unfinished">Nije moguće stvoriti PID datoteku '%s': %s</translation>
+    </message>
+    <message>
+        <source>Unable to generate initial keys</source>
+        <translation type="unfinished">Ne mogu se generirati početni ključevi</translation>
+    </message>
+    <message>
+        <source>Unable to generate keys</source>
+        <translation type="unfinished">Ne mogu se generirati ključevi</translation>
+    </message>
+    <message>
+        <source>Unable to open %s for writing</source>
+        <translation type="unfinished">Ne mogu otvoriti %s za upisivanje</translation>
+    </message>
+    <message>
+        <source>Unable to parse -maxuploadtarget: '%s'</source>
+        <translation type="unfinished">Nije moguće parsirati -maxuploadtarget: '%s'</translation>
+    </message>
+    <message>
+        <source>Unable to start HTTP server. See debug log for details.</source>
+        <translation type="unfinished">Ne može se pokrenuti HTTP server. Vidite debug.log za više detalja.</translation>
+    </message>
+    <message>
+        <source>Unknown -blockfilterindex value %s.</source>
+        <translation type="unfinished">Nepoznata vrijednost parametra -blockfilterindex %s.</translation>
+    </message>
+    <message>
+        <source>Unknown address type '%s'</source>
+        <translation type="unfinished">Nepoznat tip adrese '%s'</translation>
+    </message>
+    <message>
+        <source>Unknown change type '%s'</source>
+        <translation type="unfinished">Nepoznat tip adrese za vraćanje ostatka '%s'</translation>
+    </message>
+    <message>
+        <source>Unknown network specified in -onlynet: '%s'</source>
+        <translation type="unfinished">Nepoznata mreža zadana kod -onlynet: '%s'</translation>
+    </message>
+    <message>
+        <source>Unknown new rules activated (versionbit %i)</source>
+        <translation type="unfinished"> Nepoznata nova pravila aktivirana (versionbit %i)</translation>
+    </message>
+    <message>
+        <source>Unsupported logging category %s=%s.</source>
+        <translation type="unfinished">Nepodržana kategorija zapisa %s=%s.</translation>
+    </message>
+    <message>
+        <source>User Agent comment (%s) contains unsafe characters.</source>
+        <translation type="unfinished">Komentar pod "Korisnički agent" (%s) sadrži nesigurne znakove.</translation>
+    </message>
+    <message>
+        <source>Verifying blocks…</source>
+        <translation type="unfinished">Provjervanje blokova...</translation>
+    </message>
+    <message>
+        <source>Verifying wallet(s)…</source>
+        <translation type="unfinished">Provjeravanje novčanika...</translation>
+    </message>
+    <message>
+        <source>Wallet needed to be rewritten: restart %s to complete</source>
+        <translation type="unfinished">Novčanik je trebao prepravak: ponovo pokrenite %s</translation>
+    </message>
+    <message>
+        <source>Settings file could not be read</source>
+        <translation type="unfinished">Datoteka postavke se ne može pročitati</translation>
+    </message>
+    <message>
+        <source>Settings file could not be written</source>
+        <translation type="unfinished">Datoteka postavke se ne može mijenjati</translation>
     </message>
 </context>
 </TS>

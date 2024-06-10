@@ -32,7 +32,8 @@ class InvalidBlockRequestTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
         self.setup_clean_chain = True
-        self.extra_args = [["-whitelist=noban@127.0.0.1"]]
+        # whitelist peers to speed up tx relay / mempool sync
+        self.noban_tx_relay = True
 
     def run_test(self):
         # Add p2p connection to node0
@@ -46,12 +47,10 @@ class InvalidBlockRequestTest(BGLTestFramework):
 
         self.log.info("Create a new block with an anyone-can-spend coinbase")
 
-        height = 1
         block = create_block(tip, create_coinbase(height), block_time)
         block.solve()
         # Save the coinbase for later
         block1 = block
-        tip = block.sha256
         peer.send_blocks_and_test([block1], node, success=True)
 
         self.log.info("Mature the block.")

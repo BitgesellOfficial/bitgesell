@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-# Copyright (c) 2021-2022 The Bitcoin Core developers
+# Copyright (c) 2021-present The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Stress tests related to node initialization."""
-import os
 from pathlib import Path
+import platform
+import shutil
 
 from test_framework.test_framework import BGLTestFramework, SkipTest
 from test_framework.test_node import ErrorMatch
@@ -35,7 +36,7 @@ class InitStressTest(BGLTestFramework):
         # and other approaches (like below) don't work:
         #
         #   os.kill(node.process.pid, signal.CTRL_C_EVENT)
-        if os.name == 'nt':
+        if platform.system() == 'Windows':
             raise SkipTest("can't SIGTERM on Windows")
 
         self.stop_node(0)
@@ -125,6 +126,28 @@ class InitStressTest(BGLTestFramework):
 
             check_clean_start()
             self.stop_node(0)
+
+        self.log.info("Test startup errors after perturbing certain essential files")
+        for file_patt, err_fragment in files_to_perturb.items():
+            shutil.copytree(node.chain_path / "blocks", node.chain_path / "blocks_bak")
+            shutil.copytree(node.chain_path / "chainstate", node.chain_path / "chainstate_bak")
+            target_files = list(node.chain_path.glob(file_patt))
+
+            for target_file in target_files:
+                self.log.info(f"Perturbing file to ensure failure {target_file}")
+                with open(target_file, "r+b") as tf:
+                    # Since the genesis block is not checked by -checkblocks, the
+                    # perturbation window must be chosen such that a higher block
+                    # in blk*.dat is affected.
+                    tf.seek(150)
+                    tf.write(b"1" * 200)
+
+            start_expecting_error(err_fragment)
+
+            shutil.rmtree(node.chain_path / "blocks")
+            shutil.rmtree(node.chain_path / "chainstate")
+            shutil.move(node.chain_path / "blocks_bak", node.chain_path / "blocks")
+            shutil.move(node.chain_path / "chainstate_bak", node.chain_path / "chainstate")
 
 
 if __name__ == '__main__':

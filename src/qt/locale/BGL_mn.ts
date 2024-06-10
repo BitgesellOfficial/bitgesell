@@ -54,15 +54,7 @@
         <translation type="unfinished">С&amp;онго</translation>
     </message>
     <message>
-        <source>Sending addresses</source>
-        <translation type="unfinished">Илгээх хаягууд</translation>
-    </message>
-    <message>
-        <source>Receiving addresses</source>
-        <translation type="unfinished">Хүлээн авах хаяг</translation>
-    </message>
-    <message>
-        <source>These are your BGL addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Bitgesell addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation type="unfinished">Эдгээр Биткойн хаягууд нь илгээх хаягууд. Хүлээн авах хаяг болон тоо хэмжээг илгээхээсээ өмнө сайн нягталж үзэж байна уу</translation>
     </message>
     <message>
@@ -165,7 +157,7 @@
     </message>
     </context>
 <context>
-    <name>BitcoinApplication</name>
+    <name>BitgesellApplication</name>
     <message>
         <source>Internal error</source>
         <translation type="unfinished">Дотоод алдаа</translation>
@@ -233,18 +225,7 @@
     </message>
     </context>
 <context>
-    <name>BGL-core</name>
-    <message>
-        <source>Done loading</source>
-        <translation type="unfinished">Ачааллаж дууслаа</translation>
-    </message>
-    <message>
-        <source>Insufficient funds</source>
-        <translation type="unfinished">Таны дансны үлдэгдэл хүрэлцэхгүй байна</translation>
-    </message>
-    </context>
-<context>
-    <name>BGLGUI</name>
+    <name>BitgesellGUI</name>
     <message>
         <source>&amp;Transactions</source>
         <translation type="unfinished">Гүйлгээнүүд</translation>
@@ -361,7 +342,7 @@
     <message>
         <source>Date: %1
 </source>
-        <translation type="unfinished">Огноо%1
+        <translation type="unfinished">Огноо:%1
 </translation>
     </message>
     <message>
@@ -967,10 +948,6 @@
         <translation type="unfinished">Явуулсан хаяг</translation>
     </message>
     <message>
-        <source>Payment to yourself</source>
-        <translation type="unfinished">Ѳѳрлүүгээ хийсэн тѳлбѳр</translation>
-    </message>
-    <message>
         <source>Mined</source>
         <translation type="unfinished">Олборлогдсон</translation>
     </message>
@@ -1032,10 +1009,6 @@
     <message>
         <source>Sent to</source>
         <translation type="unfinished">Явуулсан хаяг</translation>
-    </message>
-    <message>
-        <source>To yourself</source>
-        <translation type="unfinished">Ѳѳрлүүгээ</translation>
     </message>
     <message>
         <source>Mined</source>
@@ -1113,6 +1086,17 @@
     <message>
         <source>Export the data in the current tab to a file</source>
         <translation type="unfinished">Сонгогдсон таб дээрхи дата-г экспортлох</translation>
+    </message>
+    </context>
+<context>
+    <name>bitgesell-core</name>
+    <message>
+        <source>Done loading</source>
+        <translation type="unfinished">Ачааллаж дууслаа</translation>
+    </message>
+    <message>
+        <source>Insufficient funds</source>
+        <translation type="unfinished">Таны дансны үлдэгдэл хүрэлцэхгүй байна</translation>
     </message>
     </context>
 </TS>

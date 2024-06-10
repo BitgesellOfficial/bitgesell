@@ -74,6 +74,9 @@ public:
         ::Unserialize(s, Using<TxOutCompression>(out));
     }
 
+    /** Either this coin never existed (see e.g. coinEmpty in coins.cpp), or it
+      * did exist and has been spent.
+      */
     bool IsSpent() const {
         return out.IsNull();
     }
@@ -142,8 +145,7 @@ using CCoinsMap = std::unordered_map<COutPoint,
                                      SaltedOutpointHasher,
                                      std::equal_to<COutPoint>,
                                      PoolAllocator<std::pair<const COutPoint, CCoinsCacheEntry>,
-                                                   sizeof(std::pair<const COutPoint, CCoinsCacheEntry>) + sizeof(void*) * 4,
-                                                   alignof(void*)>>;
+                                                   sizeof(std::pair<const COutPoint, CCoinsCacheEntry>) + sizeof(void*) * 4>>;
 
 using CCoinsMapMemoryResource = CCoinsMap::allocator_type::ResourceType;
 
@@ -361,7 +363,7 @@ void AddCoins(CCoinsViewCache& cache, const CTransaction& tx, int nHeight, bool 
 //! This function can be quite expensive because in the event of a transaction
 //! which is not found in the cache, it can cause up to MAX_OUTPUTS_PER_BLOCK
 //! lookups to database, so it should be used with care.
-const Coin& AccessByTxid(const CCoinsViewCache& cache, const uint256& txid);
+const Coin& AccessByTxid(const CCoinsViewCache& cache, const Txid& txid);
 
 /**
  * This is a minimally invasive approach to shutdown on LevelDB read errors from the
@@ -380,6 +382,7 @@ public:
     }
 
     bool GetCoin(const COutPoint &outpoint, Coin &coin) const override;
+    bool HaveCoin(const COutPoint &outpoint) const override;
 
 private:
     /** A list of callbacks to execute upon leveldb read error. */
