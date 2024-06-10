@@ -458,7 +458,7 @@ void BGLGUI::createActions()
         connect(m_migrate_wallet_action, &QAction::triggered, [this] {
             auto activity = new MigrateWalletActivity(m_wallet_controller, this);
             connect(activity, &MigrateWalletActivity::migrated, this, &BGLGUI::setCurrentWallet);
-            activity->migrate(walletFrame->currentWalletModel());
+            activity->migrate(walletFrame->currentWalletModel()->wallet().getWalletName());
         });
         connect(m_mask_values_action, &QAction::toggled, this, &BGLGUI::setPrivacy);
         connect(m_mask_values_action, &QAction::toggled, this, &BGLGUI::enableHistoryAction);
