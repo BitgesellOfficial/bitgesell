@@ -1,12 +1,57 @@
-libsecp256k1
-============
+<!-- PROJECT LOGO -->
+<br />
+<p align="center">
+  <a href="https://github.com/BitgesellOfficial/bitgesell">
+    <img src="https://github.com/BitgesellOfficial/bitgesell/blob/master/share/pixmaps/BGL64.png" alt="Logo" width="80" height="80">
+  </a>
 
-![Dependencies: None](https://img.shields.io/badge/dependencies-none-success)
-[![irc.libera.chat #secp256k1](https://img.shields.io/badge/irc.libera.chat-%23secp256k1-success)](https://web.libera.chat/#secp256k1)
+  <h3 align="center">Bitgesell (BGL)</h3>
 
-High-performance high-assurance C library for digital signatures and other cryptographic primitives on the secp256k1 elliptic curve.
+  <p align="center">
+    Bitgesell (BGL) is a digital currency
+    <br />
+    <a href="https://bitgesell.ca/"><strong>Explore more about project »</strong></a>
+    <br />
+    <br />
+    <a href="#">English</a>
+    ·
+    <a href="https://github.com/BitgesellOfficial/bitgesell/blob/master/README-zh.md">Chinese</a>
+  </p>
+</p>
 
-This library is intended to be the highest quality publicly available library for cryptography on the secp256k1 curve. However, the primary focus of its development has been for usage in the Bitcoin system and usage unlike Bitcoin's may be less well tested, verified, or suffer from a less well thought out interface. Correct usage requires some care and consideration that the library is fit for your application's purpose.
+
+
+<!-- TABLE OF CONTENTS -->
+<details open="open">
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <!-- <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul> -->
+    </li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgements">Translations</a></li>
+  </ol>
+</details>
+
+
+<!-- ABOUT THE PROJECT -->
+## About The Project
+
+![Product Name Screen Shot](https://github.com/BitgesellOfficial/bitgesell/blob/master/share/pixmaps/BGL64.png) 
+
 
 Features:
 * secp256k1 ECDSA signing/verification and key generation.
