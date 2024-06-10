@@ -436,6 +436,9 @@ namespace GUIUtil
         return false;
     }
 
+    QString WalletDisplayName(const std::string& name);
+    QString WalletDisplayName(const QString& name);
+
 } // namespace GUIUtil
 
 #endif // BGL_QT_GUIUTIL_H
