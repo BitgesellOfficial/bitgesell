@@ -21,29 +21,29 @@ static constexpr decltype(CTransaction::version) TRUC_VERSION{3};
 
 // v3 only allows 1 parent and 1 child when unconfirmed.
 /** Maximum number of transactions including an unconfirmed tx and its descendants. */
-static constexpr unsigned int V3_DESCENDANT_LIMIT{2};
-/** Maximum number of transactions including a V3 tx and all its mempool ancestors. */
-static constexpr unsigned int V3_ANCESTOR_LIMIT{2};
+static constexpr unsigned int TRUC_DESCENDANT_LIMIT{2};
+/** Maximum number of transactions including a TRUC tx and all its mempool ancestors. */
+static constexpr unsigned int TRUC_ANCESTOR_LIMIT{2};
 
 /** Maximum sigop-adjusted virtual size of all v3 transactions. */
-static constexpr int64_t V3_MAX_VSIZE{10000};
-/** Maximum sigop-adjusted virtual size of a tx which spends from an unconfirmed v3 transaction. */
-static constexpr int64_t V3_CHILD_MAX_VSIZE{1000};
+static constexpr int64_t TRUC_MAX_VSIZE{10000};
+/** Maximum sigop-adjusted virtual size of a tx which spends from an unconfirmed TRUC transaction. */
+static constexpr int64_t TRUC_CHILD_MAX_VSIZE{1000};
 // These limits are within the default ancestor/descendant limits.
-static_assert(V3_MAX_VSIZE + V3_CHILD_MAX_VSIZE <= DEFAULT_ANCESTOR_SIZE_LIMIT_KVB * 1000);
-static_assert(V3_MAX_VSIZE + V3_CHILD_MAX_VSIZE <= DEFAULT_DESCENDANT_SIZE_LIMIT_KVB * 1000);
+static_assert(TRUC_MAX_VSIZE + TRUC_CHILD_MAX_VSIZE <= DEFAULT_ANCESTOR_SIZE_LIMIT_KVB * 1000);
+static_assert(TRUC_MAX_VSIZE + TRUC_CHILD_MAX_VSIZE <= DEFAULT_DESCENDANT_SIZE_LIMIT_KVB * 1000);
 
 /** Must be called for every transaction, even if not v3. Not strictly necessary for transactions
  * accepted through AcceptMultipleTransactions.
  *
  * Checks the following rules:
- * 1. A v3 tx must only have v3 unconfirmed ancestors.
- * 2. A non-v3 tx must only have non-v3 unconfirmed ancestors.
- * 3. A v3's ancestor set, including itself, must be within V3_ANCESTOR_LIMIT.
- * 4. A v3's descendant set, including itself, must be within V3_DESCENDANT_LIMIT.
- * 5. If a v3 tx has any unconfirmed ancestors, the tx's sigop-adjusted vsize must be within
- * V3_CHILD_MAX_VSIZE.
- * 6. A v3 tx must be within V3_MAX_VSIZE.
+ * 1. A TRUC tx must only have TRUC unconfirmed ancestors.
+ * 2. A non-TRUC tx must only have non-TRUC unconfirmed ancestors.
+ * 3. A TRUC's ancestor set, including itself, must be within TRUC_ANCESTOR_LIMIT.
+ * 4. A TRUC's descendant set, including itself, must be within TRUC_DESCENDANT_LIMIT.
+ * 5. If a TRUC tx has any unconfirmed ancestors, the tx's sigop-adjusted vsize must be within
+ * TRUC_CHILD_MAX_VSIZE.
+ * 6. A TRUC tx must be within TRUC_MAX_VSIZE.
  *
  *
  * @param[in]   mempool_ancestors       The in-mempool ancestors of ptx.
@@ -60,7 +60,7 @@ static_assert(V3_MAX_VSIZE + V3_CHILD_MAX_VSIZE <= DEFAULT_DESCENDANT_SIZE_LIMIT
  * - debug string + nullptr if this transaction violates some v3 rule and sibling eviction is not
  *   applicable.
  */
-std::optional<std::pair<std::string, CTransactionRef>> SingleV3Checks(const CTransactionRef& ptx,
+std::optional<std::pair<std::string, CTransactionRef>> SingleTRUCChecks(const CTransactionRef& ptx,
                                           const CTxMemPool::setEntries& mempool_ancestors,
                                           const std::set<Txid>& direct_conflicts,
                                           int64_t vsize);
@@ -74,19 +74,19 @@ std::optional<std::pair<std::string, CTransactionRef>> SingleV3Checks(const CTra
  * If such a parent exists, verify that parent has no other children in the package or the mempool,
  * and that the transaction itself has no children in the package.
  *
- * If any v3 violations in the package exist, this test will fail for one of them:
- * - if a v3 transaction T has a parent in the mempool and a child in the package, then PV3C(T) will fail
- * - if a v3 transaction T has a parent in the package and a child in the package, then PV3C(T) will fail
- * - if a v3 transaction T and a v3 (sibling) transaction U have some parent in the mempool,
- *   then PV3C(T) and PV3C(U) will fail
- * - if a v3 transaction T and a v3 (sibling) transaction U have some parent in the package,
- *   then PV3C(T) and PV3C(U) will fail
- * - if a v3 transaction T has a parent P and a grandparent G in the package, then
- *   PV3C(P) will fail (though PV3C(G) and PV3C(T) might succeed).
+ * If any TRUC violations in the package exist, this test will fail for one of them:
+ * - if a TRUC transaction T has a parent in the mempool and a child in the package, then PTRUCC(T) will fail
+ * - if a TRUC transaction T has a parent in the package and a child in the package, then PTRUCC(T) will fail
+ * - if a TRUC transaction T and a TRUC (sibling) transaction U have some parent in the mempool,
+ *   then PTRUCC(T) and PTRUCC(U) will fail
+ * - if a TRUC transaction T and a TRUC (sibling) transaction U have some parent in the package,
+ *   then PTRUCC(T) and PTRUCC(U) will fail
+ * - if a TRUC transaction T has a parent P and a grandparent G in the package, then
+ *   PTRUCC(P) will fail (though PTRUCC(G) and PTRUCC(T) might succeed).
  *
  * @returns debug string if an error occurs, std::nullopt otherwise.
  * */
-std::optional<std::string> PackageV3Checks(const CTransactionRef& ptx, int64_t vsize,
+std::optional<std::string> PackageTRUCChecks(const CTransactionRef& ptx, int64_t vsize,
                                            const Package& package,
                                            const CTxMemPool::setEntries& mempool_ancestors);
 
