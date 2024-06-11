@@ -151,20 +151,20 @@ void CheckMempoolTRUCInvariants(const CTxMemPool& tx_pool)
             Assert(entry.GetTxSize() <= TRUC_MAX_VSIZE);
 
             // Check that special TRUC ancestor/descendant limits and rules are always respected
-            Assert(entry.GetCountWithDescendants() <= TRUC_DESCENDANT_LIMIT);
-            Assert(entry.GetCountWithAncestors() <= TRUC_ANCESTOR_LIMIT);
-            Assert(entry.GetSizeWithDescendants() <= TRUC_MAX_VSIZE + TRUC_CHILD_MAX_VSIZE);
-            Assert(entry.GetSizeWithAncestors() <= TRUC_MAX_VSIZE + TRUC_CHILD_MAX_VSIZE);
+            Assert(entry.GetCountWithDescendants() <= V3_DESCENDANT_LIMIT);
+            Assert(entry.GetCountWithAncestors() <= V3_ANCESTOR_LIMIT);
+            Assert(entry.GetSizeWithDescendants() <= V3_MAX_VSIZE + V3_CHILD_MAX_VSIZE);
+            Assert(entry.GetSizeWithAncestors() <= V3_MAX_VSIZE + V3_CHILD_MAX_VSIZE);
 
             // If this transaction has at least 1 ancestor, it's a "child" and has restricted weight.
             if (entry.GetCountWithAncestors() > 1) {
-                Assert(entry.GetTxSize() <= TRUC_CHILD_MAX_VSIZE);
+                Assert(entry.GetTxSize() <= V3_CHILD_MAX_VSIZE);
                 // All TRUC transactions must only have TRUC unconfirmed parents.
                 const auto& parents = entry.GetMemPoolParentsConst();
                 Assert(parents.begin()->get().GetSharedTx()->version == TRUC_VERSION);
             }
         } else if (entry.GetCountWithAncestors() > 1) {
-            // All non-v3 transactions must only have non-v3 unconfirmed parents.
+            // All non-TRUC transactions must only have non-TRUC unconfirmed parents.
             for (const auto& parent : entry.GetMemPoolParentsConst()) {
                 Assert(parent.get().GetSharedTx()->version != TRUC_VERSION);
             }
