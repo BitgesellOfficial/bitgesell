@@ -73,20 +73,22 @@ BOOST_FIXTURE_TEST_CASE(package_hash_tests, TestChain100Setup)
     CTransactionRef ptx_3{MakeTransactionRef(tx_3)};
 
     // It's easy to see that wtxids are sorted in lexicographical order:
-    Wtxid wtxid_1{WtxidFromString("0x85cd1a31eb38f74ed5742ec9cb546712ab5aaf747de28a9168b53e846cbda17f")};
-    Wtxid wtxid_2{WtxidFromString("0xb4749f017444b051c44dfd2720e88f314ff94f3dd6d56d40ef65854fcd7fff6b")};
-    Wtxid wtxid_3{WtxidFromString("0xe065bac15f62bb4e761d761db928ddee65a47296b2b776785abb912cdec474e3")};
-    BOOST_CHECK_EQUAL(tx_1.GetWitnessHash(), wtxid_1);
-    BOOST_CHECK_EQUAL(tx_2.GetWitnessHash(), wtxid_2);
-    BOOST_CHECK_EQUAL(tx_3.GetWitnessHash(), wtxid_3);
+    // lexicographical order in not maintained by Bitgesell
+
+    Wtxid wtxid_1{WtxidFromString("0x3c40c80b673623ec9d82a99b5d3672999f1cf58bb6565667e9364390576b5d06")};
+    Wtxid wtxid_2{WtxidFromString("0x8dc6bae3d8ebcb0ad5ac63f615c473d9e75d08efdd6c6f50388b0be2f6ea84e9")};
+    Wtxid wtxid_3{WtxidFromString("0xc208f7a05ec5bc7428e8e30a86ede87deb4f5c3dfcf5f31cc665033578eaa026")};
+    BOOST_CHECK_EQUAL(tx_1.GetWitnessHash(), wtxid_2);
+    BOOST_CHECK_EQUAL(tx_2.GetWitnessHash(), wtxid_3);
+    BOOST_CHECK_EQUAL(tx_3.GetWitnessHash(), wtxid_1);
 
     BOOST_CHECK(wtxid_1.GetHex() < wtxid_2.GetHex());
     BOOST_CHECK(wtxid_2.GetHex() < wtxid_3.GetHex());
 
     // The txids are not (we want to test that sorting and hashing use wtxid, not txid):
-    Txid txid_1{TxidFromString("0xbd0f71c1d5e50589063e134fad22053cdae5ab2320db5bf5e540198b0b5a4e69")};
-    Txid txid_2{TxidFromString("0xb4749f017444b051c44dfd2720e88f314ff94f3dd6d56d40ef65854fcd7fff6b")};
-    Txid txid_3{TxidFromString("0xee707be5201160e32c4fc715bec227d1aeea5940fb4295605e7373edce3b1a93")};
+    Txid txid_1{TxidFromString("0xcc96b47fb3e7d6b1a4d8951791797597e80a48f6abc86e2d4495982667b46aed")};
+    Txid txid_2{TxidFromString("0xc208f7a05ec5bc7428e8e30a86ede87deb4f5c3dfcf5f31cc665033578eaa026")};
+    Txid txid_3{TxidFromString("0x4f3bdaa8c4fa938ccca562391ea6eb98de8b9de8ed6a327c2df4b0dd14f918b6")};
     BOOST_CHECK_EQUAL(tx_1.GetHash(), txid_1);
     BOOST_CHECK_EQUAL(tx_2.GetHash(), txid_2);
     BOOST_CHECK_EQUAL(tx_3.GetHash(), txid_3);
@@ -94,14 +96,14 @@ BOOST_FIXTURE_TEST_CASE(package_hash_tests, TestChain100Setup)
     BOOST_CHECK(txid_2.GetHex() < txid_1.GetHex());
 
     BOOST_CHECK(txid_1.ToUint256() != wtxid_1.ToUint256());
-    BOOST_CHECK(txid_2.ToUint256() == wtxid_2.ToUint256());
+    BOOST_CHECK(txid_2.ToUint256() == wtxid_3.ToUint256());
     BOOST_CHECK(txid_3.ToUint256() != wtxid_3.ToUint256());
 
     // We are testing that both functions compare using GetHex() and not uint256.
     // (in this pair of wtxids, hex string order != uint256 order)
-    BOOST_CHECK(wtxid_2 < wtxid_1);
+    BOOST_CHECK(wtxid_1 < wtxid_2);
     // (in this pair of wtxids, hex string order == uint256 order)
-    BOOST_CHECK(wtxid_2 < wtxid_3);
+    BOOST_CHECK(wtxid_3 < wtxid_2);
 
     // All permutations of the package containing ptx_1, ptx_2, ptx_3 have the same package hash
     std::vector<CTransactionRef> package_123{ptx_1, ptx_2, ptx_3};
