@@ -316,6 +316,8 @@ public:
     std::unordered_set<CScript, SaltedSipHasher> GetScriptPubKeys() const override;
     std::unique_ptr<SigningProvider> GetSolvingProvider(const CScript& script) const override;
     uint256 GetID() const override { return uint256::ONE; }
+    // TODO: Remove IsMine when deleting LegacyScriptPubKeyMan
+    isminetype IsMine(const CScript& script) const override;
 
     // FillableSigningProvider overrides
     bool HaveKey(const CKeyID &address) const override;
