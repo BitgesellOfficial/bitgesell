@@ -483,7 +483,7 @@ class ToolWalletTest(BGLTestFramework):
         self.stop_node(0)
 
         wallet_dump = self.nodes[0].datadir_path / "endian.dump"
-        self.assert_tool_output("The dumpfile may contain private keys. To ensure the safety of your Bitcoin, do not share the dumpfile.\n", "-wallet=endian", f"-dumpfile={wallet_dump}", "dump")
+        self.assert_tool_output("The dumpfile may contain private keys. To ensure the safety of your Bitgesell, do not share the dumpfile.\n", "-wallet=endian", f"-dumpfile={wallet_dump}", "dump")
         expected_dump = self.read_dump(wallet_dump)
 
         self.do_tool_createfromdump("native_endian", "endian.dump", "bdb")
@@ -493,6 +493,42 @@ class ToolWalletTest(BGLTestFramework):
         self.do_tool_createfromdump("other_endian", "endian.dump", "bdb_swap")
         other_dump = self.read_dump(self.nodes[0].datadir_path / "rt-other_endian.dump")
         self.assert_dump(expected_dump, other_dump)
+
+    def test_dump_very_large_records(self):
+        self.log.info("Test that wallets with large records are successfully dumped")
+
+        self.start_node(0)
+        self.nodes[0].createwallet("bigrecords")
+        wallet = self.nodes[0].get_wallet_rpc("bigrecords")
+
+        # Both BDB and sqlite have maximum page sizes of 65536 bytes, with defaults of 4096
+        # When a record exceeds some size threshold, both BDB and SQLite will store the data
+        # in one or more overflow pages. We want to make sure that our tooling can dump such
+        # records, even when they span multiple pages. To make a large record, we just need
+        # to make a very big transaction.
+        self.generate(self.nodes[0], 101)
+        def_wallet = self.nodes[0].get_wallet_rpc(self.default_wallet_name)
+        outputs = {}
+        for i in range(500):
+            outputs[wallet.getnewaddress(address_type="p2sh-segwit")] = 0.01
+        def_wallet.sendmany(amounts=outputs)
+        self.generate(self.nodes[0], 1)
+        send_res = wallet.sendall([def_wallet.getnewaddress()])
+        self.generate(self.nodes[0], 1)
+        assert_equal(send_res["complete"], True)
+        tx = wallet.gettransaction(txid=send_res["txid"], verbose=True)
+        assert_greater_than(tx["decoded"]["size"], 70000)
+
+        self.stop_node(0)
+
+        wallet_dump = self.nodes[0].datadir_path / "bigrecords.dump"
+        self.assert_tool_output("The dumpfile may contain private keys. To ensure the safety of your Bitgesell, do not share the dumpfile.\n", "-wallet=bigrecords", f"-dumpfile={wallet_dump}", "dump")
+        dump = self.read_dump(wallet_dump)
+        for k,v in dump.items():
+            if tx["hex"] in v:
+                break
+        else:
+            assert False, "Big transaction was not found in wallet dump"
 
     def run_test(self):
         self.wallet_path = self.nodes[0].wallets_path / self.default_wallet_name / self.wallet_data_filename

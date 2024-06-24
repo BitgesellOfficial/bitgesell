@@ -43,7 +43,7 @@ class DumptxoutsetTest(BGLTestFramework):
         # UTXO snapshot hash should be deterministic based on mocked time.
         assert_equal(
             sha256sum_file(str(expected_path)).hex(),
-            '2f775f82811150d310527b5ff773f81fb0fb517e941c543c1f7c4d38fd2717b3')
+            'bb3fa11674d7631a415710d0eaca0da8325a177ee3d0e0a16cb9f278a92971a0')
 
         assert_equal(
             out['txoutset_hash'], 'accd33eb0199de6727cb6e5f5c3d14e9a543163818ed75fcc3b65626c13c4df7')

@@ -4,10 +4,14 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Tests some generic aspects of the RPC interface."""
 
+import json
 import os
-from test_framework.authproxy import JSONRPCException
+from dataclasses import dataclass
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import assert_equal, assert_greater_than_or_equal
+from threading import Thread
+from typing import Optional
+import subprocess
 
 
 RPC_INVALID_ADDRESS_OR_KEY = -5
@@ -102,24 +106,25 @@ class RPCInterfaceTest(BGLTestFramework):
         assert_greater_than_or_equal(command['duration'], 0)
         assert_equal(info['logpath'], os.path.join(self.nodes[0].chain_path, 'debug.log'))
 
-    def test_batch_request(self):
-        self.log.info("Testing basic JSON-RPC batch request...")
-
-        results = self.nodes[0].batch([
+    def test_batch_request(self, call_options):
+        calls = [
             # A basic request that will work fine.
-            {"method": "getblockcount", "id": 1},
+            {"method": "getblockcount"},
             # Request that will fail.  The whole batch request should still
             # work fine.
-            {"method": "invalidmethod", "id": 2},
+            {"method": "invalidmethod"},
             # Another call that should succeed.
             {"method": "getblockhash", "params": [0]},
             # Invalid request format
             {"pizza": "sausage"}
-        ])
+        ]
+
+        self.log.info("Testing basic JSON-RPC batch request...")
+
         results = [
             {"result": 0},
             {"error": {"code": RPC_METHOD_NOT_FOUND, "message": "Method not found"}},
-            {"result": "0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206"},
+            {"result": "2e14eaec9745ec9690602feddf650eb6e436d32a3ae8453cf6a90ef1d53a6c42"},
             {"error": {"code": RPC_INVALID_REQUEST, "message": "Missing method"}},
         ]
 
@@ -217,7 +222,7 @@ class RPCInterfaceTest(BGLTestFramework):
         expect_http_rpc_status(200, None,                   self.nodes[0], "getblockcount", [],  2, False)
         block_count = self.nodes[0].getblockcount()
         # Notification response status code: HTTP_NO_CONTENT
-        expect_http_rpc_status(204, None,                   self.nodes[0], "generatetoaddress", [1, "bcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqdku202"],  2, True)
+        expect_http_rpc_status(204, None,                   self.nodes[0], "generatetoaddress", [1, "rbgl1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq5f3zkq"],  2, True)
         # The command worked even though there was no response
         assert_equal(block_count + 1, self.nodes[0].getblockcount())
         # No error response for notifications even if they are invalid
@@ -239,7 +244,7 @@ class RPCInterfaceTest(BGLTestFramework):
 
     def run_test(self):
         self.test_getrpcinfo()
-        self.test_batch_request()
+        self.test_batch_requests()
         self.test_http_status_codes()
 
 
