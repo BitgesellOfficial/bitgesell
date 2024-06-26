@@ -2,15 +2,14 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BGL_KERNEL_MEMPOOL_PERSIST_H
-#define BGL_KERNEL_MEMPOOL_PERSIST_H
-
+#ifndef BGL_NODE_MEMPOOL_PERSIST_H
+#define BGL_NODE_MEMPOOL_PERSIST_H
 #include <util/fs.h>
 
 class Chainstate;
 class CTxMemPool;
 
-namespace kernel {
+namespace node {
 
 /** Dump the mempool to a file. */
 bool DumpMempool(const CTxMemPool& pool, const fs::path& dump_path,
@@ -28,7 +27,7 @@ bool LoadMempool(CTxMemPool& pool, const fs::path& load_path,
                  Chainstate& active_chainstate,
                  ImportMempoolOptions&& opts);
 
-} // namespace kernel
+} // namespace node
 
 
-#endif // BGL_KERNEL_MEMPOOL_PERSIST_H
+#endif // BGL_NODE_MEMPOOL_PERSIST_H
