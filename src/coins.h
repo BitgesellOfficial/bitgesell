@@ -106,8 +106,11 @@ using CoinsCachePair = std::pair<const COutPoint, CCoinsCacheEntry>;
  */
 struct CCoinsCacheEntry
 {
+private:
+    uint8_t m_flags{0};
+
+public:
     Coin coin; // The actual cached data.
-    unsigned char flags{0};
 
     enum Flags {
         /**
@@ -134,8 +137,14 @@ struct CCoinsCacheEntry
     explicit CCoinsCacheEntry(Coin&& coin_) : coin(std::move(coin_)), flags(0) {}
     CCoinsCacheEntry(Coin&& coin_, unsigned char flag) : coin(std::move(coin_)), flags(flag) {}
 
-    inline bool IsDirty() const noexcept { return flags & DIRTY; }
-    inline bool IsFresh() const noexcept { return flags & FRESH; }
+    inline void AddFlags(uint8_t flags) noexcept { m_flags |= flags; }
+    inline void ClearFlags() noexcept
+    {
+        m_flags = 0;
+    }
+    inline uint8_t GetFlags() const noexcept { return m_flags; }
+    inline bool IsDirty() const noexcept { return m_flags & DIRTY; }
+    inline bool IsFresh() const noexcept { return m_flags & FRESH; }
 };
 
 /**
