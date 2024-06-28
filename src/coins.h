@@ -133,11 +133,6 @@ struct CCoinsCacheEntry
     CCoinsCacheEntry() noexcept = default;
     explicit CCoinsCacheEntry(Coin&& coin_) noexcept : coin(std::move(coin_)) {}
 
-    inline void AddFlags(unsigned char flags) noexcept { this->flags |= flags; }
-    inline void ClearFlags() noexcept
-    {
-        flags = 0;
-    }
     inline unsigned char GetFlags() const noexcept { return flags; }
     inline bool IsDirty() const noexcept { return flags & DIRTY; }
     inline bool IsFresh() const noexcept { return flags & FRESH; }
