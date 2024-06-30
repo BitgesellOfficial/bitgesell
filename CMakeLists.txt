@@ -62,6 +62,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+#=============================
+# Configurable options
+#=============================
+# When adding a new option, end the <help_text> with a full stop for consistency.
+option(WITH_CCACHE "Attempt to use ccache for compiling." ON)
+
 set(configure_warnings)
 
 include(CheckPIESupported)
@@ -185,6 +191,8 @@ target_link_libraries(core_interface INTERFACE
 
 include(cmake/introspection.cmake)
 
+include(cmake/ccache.cmake)
+
 # Don't allow extended (non-ASCII) symbols in identifiers. This is easier for code review.
 try_append_cxx_flags("-fno-extended-identifiers" TARGET core_interface SKIP_LINK)
 
@@ -211,6 +219,7 @@ message("=================")
 message("C++ compiler .......................... ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, ${CMAKE_CXX_COMPILER}")
 include(FlagsSummary)
 flags_summary()
+message("Use ccache for compiling .............. ${WITH_CCACHE}")
 message("\n")
 if(configure_warnings)
     message("  ******\n")
