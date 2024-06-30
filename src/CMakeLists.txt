@@ -266,11 +266,11 @@ if(BUILD_DAEMON)
 endif()
 
 
-add_library(bitcoin_cli STATIC EXCLUDE_FROM_ALL
+add_library(BGL_cli STATIC EXCLUDE_FROM_ALL
   compat/stdin.cpp
   rpc/client.cpp
 )
-target_link_libraries(bitcoin_cli
+target_link_libraries(BGL_cli
   PUBLIC
     core_interface
     univalue
@@ -279,12 +279,29 @@ target_link_libraries(bitcoin_cli
 
 # Bitcoin Core RPC client
 if(BUILD_CLI)
-  add_executable(bitcoin-cli bitcoin-cli.cpp)
-  target_link_libraries(bitcoin-cli
+  add_executable(BGL-cli BGL-cli.cpp)
+  target_link_libraries(BGL-cli
     core_interface
-    bitcoin_cli
-    bitcoin_common
-    bitcoin_util
+    BGL_cli
+    BGL_common
+    BGL_util
     $<TARGET_NAME_IF_EXISTS:libevent::libevent>
   )
+endif()
+
+
+if(BUILD_TX)
+  add_executable(BGL-tx BGL-tx.cpp)
+  target_link_libraries(BGL-tx
+    core_interface
+    BGL_common
+    BGL_util
+    univalue
+  )
+endif()
+
+
+add_subdirectory(test/util)
+if(BUILD_TESTS)
+  add_subdirectory(test)
 endif()
