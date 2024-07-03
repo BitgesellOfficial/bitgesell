@@ -134,6 +134,7 @@ endif()
 cmake_dependent_option(BUILD_WALLET_TOOL "Build BGL-wallet tool." ${BUILD_TESTS} "ENABLE_WALLET" OFF)
 
 option(ENABLE_HARDENING "Attempt to harden the resulting executables." ON)
+option(REDUCE_EXPORTS "Attempt to reduce exported symbols in the resulting executables." OFF)
 option(WITH_CCACHE "Attempt to use ccache for compiling." ON)
 
 option(WITH_NATPMP "Enable NAT-PMP." OFF)
@@ -440,6 +441,12 @@ if(ENABLE_HARDENING)
       try_append_linker_flag("-Wl,-fixup_chains" TARGET hardening_interface)
     endif()
   endif()
+endif()
+
+if(REDUCE_EXPORTS)
+  set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+  try_append_linker_flag("-Wl,--exclude-libs,ALL" TARGET core_interface)
+  try_append_linker_flag("-Wl,-no_exported_symbols" VAR CMAKE_EXE_LINKER_FLAGS)
 endif()
 
 find_package(Python3 3.9 COMPONENTS Interpreter)
