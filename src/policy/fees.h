@@ -38,6 +38,7 @@ static constexpr bool DEFAULT_ACCEPT_STALE_FEE_ESTIMATES{false};
 class AutoFile;
 class TxConfirmStats;
 struct RemovedMempoolTransactionInfo;
+struct NewMempoolTransactionInfo;
 
 /* Identifier for each of the 3 different TxConfirmStats which will track
  * history over different time horizons. */
