@@ -205,7 +205,7 @@ public:
 
 protected:
     // needed for reverse_lock
-    UniqueLock() { }
+    UniqueLock() = default;
 
 public:
     /**
