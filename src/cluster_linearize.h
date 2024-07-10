@@ -164,6 +164,144 @@ public:
         for (auto pos : elems) ret += entries[pos].feerate;
         return ret;
     }
+};
+
+/** A set of transactions together with their aggregate feerate. */
+template<typename SetType>
+struct SetInfo
+{
+    /** The transactions in the set. */
+    SetType transactions;
+    /** Their combined fee and size. */
+    FeeFrac feerate;
+
+    /** Construct a SetInfo for the empty set. */
+    SetInfo() noexcept = default;
+
+    /** Construct a SetInfo for a specified set and feerate. */
+    SetInfo(const SetType& txn, const FeeFrac& fr) noexcept : transactions(txn), feerate(fr) {}
+
+    /** Construct a SetInfo for a given transaction in a depgraph. */
+    explicit SetInfo(const DepGraph<SetType>& depgraph, ClusterIndex pos) noexcept :
+        transactions(SetType::Singleton(pos)), feerate(depgraph.FeeRate(pos)) {}
+
+    /** Construct a SetInfo for a set of transactions in a depgraph. */
+    explicit SetInfo(const DepGraph<SetType>& depgraph, const SetType& txn) noexcept :
+        transactions(txn), feerate(depgraph.FeeRate(txn)) {}
+
+    /** Add the transactions of other to this SetInfo (no overlap allowed). */
+    SetInfo& operator|=(const SetInfo& other) noexcept
+    {
+        Assume(!transactions.Overlaps(other.transactions));
+        transactions |= other.transactions;
+        feerate += other.feerate;
+        return *this;
+    }
+
+    /** Construct a new SetInfo equal to this, with more transactions added (which may overlap
+     *  with the existing transactions in the SetInfo). */
+    [[nodiscard]] SetInfo Add(const DepGraph<SetType>& depgraph, const SetType& txn) const noexcept
+    {
+        return {transactions | txn, feerate + depgraph.FeeRate(txn - transactions)};
+    }
+
+    /** Permit equality testing. */
+    friend bool operator==(const SetInfo&, const SetInfo&) noexcept = default;
+};
+
+/** Compute the feerates of the chunks of linearization. */
+template<typename SetType>
+std::vector<FeeFrac> ChunkLinearization(const DepGraph<SetType>& depgraph, Span<const ClusterIndex> linearization) noexcept
+{
+    std::vector<FeeFrac> ret;
+    for (ClusterIndex i : linearization) {
+        /** The new chunk to be added, initially a singleton. */
+        auto new_chunk = depgraph.FeeRate(i);
+        // As long as the new chunk has a higher feerate than the last chunk so far, absorb it.
+        while (!ret.empty() && new_chunk >> ret.back()) {
+            new_chunk += ret.back();
+            ret.pop_back();
+        }
+        // Actually move that new chunk into the chunking.
+        ret.push_back(std::move(new_chunk));
+    }
+    return ret;
+}
+
+/** Class encapsulating the state needed to find the best remaining ancestor set.
+ *
+ * It is initialized for an entire DepGraph, and parts of the graph can be dropped by calling
+ * MarkDone.
+ *
+ * As long as any part of the graph remains, FindCandidateSet() can be called which will return a
+ * SetInfo with the highest-feerate ancestor set that remains (an ancestor set is a single
+ * transaction together with all its remaining ancestors).
+ */
+template<typename SetType>
+class AncestorCandidateFinder
+{
+    /** Internal dependency graph. */
+    const DepGraph<SetType>& m_depgraph;
+    /** Which transaction are left to include. */
+    SetType m_todo;
+    /** Precomputed ancestor-set feerates (only kept up-to-date for indices in m_todo). */
+    std::vector<FeeFrac> m_ancestor_set_feerates;
+
+public:
+    /** Construct an AncestorCandidateFinder for a given cluster.
+     *
+     * Complexity: O(N^2) where N=depgraph.TxCount().
+     */
+    AncestorCandidateFinder(const DepGraph<SetType>& depgraph LIFETIMEBOUND) noexcept :
+        m_depgraph(depgraph),
+        m_todo{SetType::Fill(depgraph.TxCount())},
+        m_ancestor_set_feerates(depgraph.TxCount())
+    {
+        // Precompute ancestor-set feerates.
+        for (ClusterIndex i = 0; i < depgraph.TxCount(); ++i) {
+            /** The remaining ancestors for transaction i. */
+            SetType anc_to_add = m_depgraph.Ancestors(i);
+            FeeFrac anc_feerate;
+            // Reuse accumulated feerate from first ancestor, if usable.
+            Assume(anc_to_add.Any());
+            ClusterIndex first = anc_to_add.First();
+            if (first < i) {
+                anc_feerate = m_ancestor_set_feerates[first];
+                Assume(!anc_feerate.IsEmpty());
+                anc_to_add -= m_depgraph.Ancestors(first);
+            }
+            // Add in other ancestors (which necessarily include i itself).
+            Assume(anc_to_add[i]);
+            anc_feerate += m_depgraph.FeeRate(anc_to_add);
+            // Store the result.
+            m_ancestor_set_feerates[i] = anc_feerate;
+        }
+    }
+
+    /** Remove a set of transactions from the set of to-be-linearized ones.
+     *
+     * The same transaction may not be MarkDone()'d twice.
+     *
+     * Complexity: O(N*M) where N=depgraph.TxCount(), M=select.Count().
+     */
+    void MarkDone(SetType select) noexcept
+    {
+        Assume(select.Any());
+        Assume(select.IsSubsetOf(m_todo));
+        m_todo -= select;
+        for (auto i : select) {
+            auto feerate = m_depgraph.FeeRate(i);
+            for (auto j : m_depgraph.Descendants(i) & m_todo) {
+                m_ancestor_set_feerates[j] -= feerate;
+            }
+        }
+    }
+
+    /** Check whether any unlinearized transactions remain. */
+    bool AllDone() const noexcept
+    {
+        return m_todo.None();
+    }
 
 };
 
