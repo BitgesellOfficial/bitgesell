@@ -8,6 +8,7 @@
 #include <chain.h>
 #include <chainparams.h>
 #include <common/args.h>
+#include <consensus/merkle.h>
 #include <consensus/validation.h>
 #include <deploymentstatus.h>
 #include <external_signer.h>
@@ -906,6 +907,11 @@ public:
     int getWitnessCommitmentIndex() override
     {
         return GetWitnessCommitmentIndex(m_block_template->block);
+    }
+
+    std::vector<uint256> getCoinbaseMerklePath() override
+    {
+        return BlockMerkleBranch(m_block_template->block);
     }
 
     const std::unique_ptr<CBlockTemplate> m_block_template;
