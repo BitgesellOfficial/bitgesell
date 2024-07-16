@@ -46,4 +46,4 @@ class GetdataTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    GetdataTest().main()
+    GetdataTest(__file__).main()

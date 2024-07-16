@@ -482,4 +482,4 @@ class BIP68_112_113Test(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    BIP68_112_113Test().main()
+    BIP68_112_113Test(__file__).main()

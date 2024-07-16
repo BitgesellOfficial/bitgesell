@@ -96,5 +96,5 @@ class HeadersSyncTest(BGLTestFramework):
         self.log.info("Success!")
 
 if __name__ == '__main__':
-    HeadersSyncTest().main()
+    HeadersSyncTest(__file__).main()
 

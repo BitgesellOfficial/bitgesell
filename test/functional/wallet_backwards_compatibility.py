@@ -333,4 +333,4 @@ class BackwardsCompatibilityTest(BGLTestFramework):
             assert wallet.getaddressinfo(address_18075)["solvable"]
 
 if __name__ == '__main__':
-    BackwardsCompatibilityTest().main()
+    BackwardsCompatibilityTest(__file__).main()

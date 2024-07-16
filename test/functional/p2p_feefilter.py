@@ -131,4 +131,4 @@ class FeeFilterTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    FeeFilterTest().main()
+    FeeFilterTest(__file__).main()

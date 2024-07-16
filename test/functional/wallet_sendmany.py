@@ -40,4 +40,4 @@ class SendmanyTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    SendmanyTest().main()
+    SendmanyTest(__file__).main()

@@ -361,4 +361,4 @@ class UpgradeWalletTest(BGLTestFramework):
             self.test_upgradewallet(disabled_wallet, previous_version=169900, expected_version=169900)
 
 if __name__ == '__main__':
-    UpgradeWalletTest().main()
+    UpgradeWalletTest(__file__).main()

@@ -306,4 +306,4 @@ class TxDownloadTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    TxDownloadTest().main()
+    TxDownloadTest(__file__).main()

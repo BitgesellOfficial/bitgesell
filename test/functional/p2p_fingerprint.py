@@ -143,4 +143,4 @@ class P2PFingerprintTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    P2PFingerprintTest().main()
+    P2PFingerprintTest(__file__).main()

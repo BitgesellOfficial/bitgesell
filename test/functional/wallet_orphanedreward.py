@@ -73,4 +73,4 @@ class OrphanedBlockRewardTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    OrphanedBlockRewardTest().main()
+    OrphanedBlockRewardTest(__file__).main()

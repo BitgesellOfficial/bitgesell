@@ -108,4 +108,4 @@ class P2PCompactBlocksBlocksOnly(BGLTestFramework):
         assert_equal(p2p_conn_low_bw.last_message['getdata'].inv, [CInv(MSG_CMPCT_BLOCK, block1.sha256)])
 
 if __name__ == '__main__':
-    P2PCompactBlocksBlocksOnly().main()
+    P2PCompactBlocksBlocksOnly(__file__).main()

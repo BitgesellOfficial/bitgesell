@@ -168,4 +168,4 @@ class V2TransportTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    V2TransportTest().main()
+    V2TransportTest(__file__).main()

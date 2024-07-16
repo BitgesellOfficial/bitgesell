@@ -31,4 +31,4 @@ class P2PDNSSeeds(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    P2PDNSSeeds().main()
+    P2PDNSSeeds(__file__).main()

@@ -548,4 +548,4 @@ class ToolWalletTest(BGLTestFramework):
         self.test_dump_very_large_records()
 
 if __name__ == '__main__':
-    ToolWalletTest().main()
+    ToolWalletTest(__file__).main()

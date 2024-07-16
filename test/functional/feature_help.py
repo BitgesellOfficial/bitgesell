@@ -59,4 +59,4 @@ class HelpTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    HelpTest().main()
+    HelpTest(__file__).main()

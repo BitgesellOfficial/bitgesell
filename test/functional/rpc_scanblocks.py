@@ -138,4 +138,4 @@ class ScanblocksTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    ScanblocksTest().main()
+    ScanblocksTest(__file__).main()

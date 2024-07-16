@@ -115,4 +115,4 @@ class MinimumChainWorkTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    MinimumChainWorkTest().main()
+    MinimumChainWorkTest(__file__).main()

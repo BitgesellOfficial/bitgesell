@@ -72,4 +72,4 @@ class BindPortExternalIPTest(BGLTestFramework):
             assert found
 
 if __name__ == '__main__':
-    BindPortExternalIPTest().main()
+    BindPortExternalIPTest(__file__).main()

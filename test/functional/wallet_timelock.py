@@ -50,4 +50,4 @@ class WalletLocktimeTest(BGLTestFramework):
 
 
 if __name__ == "__main__":
-    WalletLocktimeTest().main()
+    WalletLocktimeTest(__file__).main()

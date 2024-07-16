@@ -657,4 +657,4 @@ class SegWitTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    SegWitTest().main()
+    SegWitTest(__file__).main()

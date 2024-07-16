@@ -137,4 +137,4 @@ class TxConflicts(BGLTestFramework):
         assert_equal(former_conflicted["blockheight"], 217)
 
 if __name__ == '__main__':
-    TxConflicts().main()
+    TxConflicts(__file__).main()

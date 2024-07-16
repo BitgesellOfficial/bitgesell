@@ -324,4 +324,4 @@ class CoinStatsIndexTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    CoinStatsIndexTest().main()
+    CoinStatsIndexTest(__file__).main()

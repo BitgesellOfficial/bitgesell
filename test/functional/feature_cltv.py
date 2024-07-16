@@ -194,4 +194,4 @@ class BIP65Test(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    BIP65Test().main()
+    BIP65Test(__file__).main()

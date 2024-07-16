@@ -357,4 +357,4 @@ class InvalidMessagesTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    InvalidMessagesTest().main()
+    InvalidMessagesTest(__file__).main()

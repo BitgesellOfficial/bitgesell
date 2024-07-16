@@ -62,4 +62,4 @@ class WalletCrossChain(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    WalletCrossChain().main()
+    WalletCrossChain(__file__).main()

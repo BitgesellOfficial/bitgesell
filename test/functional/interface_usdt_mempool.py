@@ -334,4 +334,4 @@ class MempoolTracepointTest(BGLTestFramework):
 
 
 if __name__ == "__main__":
-    MempoolTracepointTest().main()
+    MempoolTracepointTest(__file__).main()

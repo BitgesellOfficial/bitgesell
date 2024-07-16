@@ -79,4 +79,4 @@ class SignetBasicTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    SignetBasicTest().main()
+    SignetBasicTest(__file__).main()

@@ -338,4 +338,4 @@ class ImportRescanTest(BGLTestFramework):
 
 
 if __name__ == "__main__":
-    ImportRescanTest().main()
+    ImportRescanTest(__file__).main()

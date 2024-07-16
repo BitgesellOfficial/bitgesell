@@ -78,4 +78,4 @@ class P2PIBDTxRelayTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    P2PIBDTxRelayTest().main()
+    P2PIBDTxRelayTest(__file__).main()

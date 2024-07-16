@@ -75,4 +75,4 @@ class UTXOSetHashTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    UTXOSetHashTest().main()
+    UTXOSetHashTest(__file__).main()

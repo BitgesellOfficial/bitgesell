@@ -280,4 +280,4 @@ class WalletHDTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    WalletHDTest().main()
+    WalletHDTest(__file__).main()

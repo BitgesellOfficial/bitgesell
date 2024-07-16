@@ -613,4 +613,4 @@ class WalletSendTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    WalletSendTest().main()
+    WalletSendTest(__file__).main()

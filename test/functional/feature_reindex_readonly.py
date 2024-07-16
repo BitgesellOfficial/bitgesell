@@ -87,4 +87,4 @@ class BlockstoreReindexTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    BlockstoreReindexTest().main()
+    BlockstoreReindexTest(__file__).main()

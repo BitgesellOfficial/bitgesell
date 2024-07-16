@@ -301,4 +301,4 @@ class MempoolPackagesTest(BGLTestFramework):
         self.sync_blocks()
 
 if __name__ == '__main__':
-    MempoolPackagesTest().main()
+    MempoolPackagesTest(__file__).main()

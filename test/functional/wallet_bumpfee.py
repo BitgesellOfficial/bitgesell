@@ -801,4 +801,4 @@ def test_feerate_checks_replaced_outputs(self, rbf_node, peer_node):
 
 
 if __name__ == "__main__":
-    BumpFeeTest().main()
+    BumpFeeTest(__file__).main()

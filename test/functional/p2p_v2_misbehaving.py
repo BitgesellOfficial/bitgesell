@@ -113,4 +113,4 @@ class EncryptedP2PMisbehaving(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    EncryptedP2PMisbehaving().main()
+    EncryptedP2PMisbehaving(__file__).main()

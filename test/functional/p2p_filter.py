@@ -252,4 +252,4 @@ class FilterTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    FilterTest().main()
+    FilterTest(__file__).main()

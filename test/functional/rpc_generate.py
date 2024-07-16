@@ -126,4 +126,4 @@ class RPCGenerateTest(BGLTestFramework):
 
 
 if __name__ == "__main__":
-    RPCGenerateTest().main()
+    RPCGenerateTest(__file__).main()

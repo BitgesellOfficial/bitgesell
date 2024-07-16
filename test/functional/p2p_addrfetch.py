@@ -84,4 +84,4 @@ class P2PAddrFetch(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    P2PAddrFetch().main()
+    P2PAddrFetch(__file__).main()

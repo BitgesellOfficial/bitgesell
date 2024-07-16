@@ -153,4 +153,4 @@ class GetBlockFromPeerTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    GetBlockFromPeerTest().main()
+    GetBlockFromPeerTest(__file__).main()

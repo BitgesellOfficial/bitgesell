@@ -401,4 +401,4 @@ class WalletMiniscriptTest(BGLTestFramework):
 
 
 if __name__ == "__main__":
-    WalletMiniscriptTest().main()
+    WalletMiniscriptTest(__file__).main()

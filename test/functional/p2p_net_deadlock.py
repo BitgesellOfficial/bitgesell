@@ -34,4 +34,4 @@ class NetDeadlockTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    NetDeadlockTest().main()
+    NetDeadlockTest(__file__).main()

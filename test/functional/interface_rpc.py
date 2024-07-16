@@ -248,4 +248,4 @@ class RPCInterfaceTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    RPCInterfaceTest().main()
+    RPCInterfaceTest(__file__).main()

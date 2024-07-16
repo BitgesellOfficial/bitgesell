@@ -726,4 +726,4 @@ class ReplaceByFeeTest(BGLTestFramework):
         assert conflicting_tx['txid'] in self.nodes[0].getrawmempool()
 
 if __name__ == '__main__':
-    ReplaceByFeeTest().main()
+    ReplaceByFeeTest(__file__).main()

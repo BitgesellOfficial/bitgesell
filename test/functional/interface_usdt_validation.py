@@ -134,4 +134,4 @@ class ValidationTracepointTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    ValidationTracepointTest().main()
+    ValidationTracepointTest(__file__).main()

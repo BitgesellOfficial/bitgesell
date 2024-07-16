@@ -110,4 +110,4 @@ class DustRelayFeeTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    DustRelayFeeTest().main()
+    DustRelayFeeTest(__file__).main()

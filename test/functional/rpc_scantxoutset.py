@@ -131,4 +131,4 @@ class ScantxoutsetTest(BGLTestFramework):
 
 
 if __name__ == "__main__":
-    ScantxoutsetTest().main()
+    ScantxoutsetTest(__file__).main()

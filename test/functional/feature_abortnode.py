@@ -41,4 +41,4 @@ class AbortNodeTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    AbortNodeTest().main()
+    AbortNodeTest(__file__).main()

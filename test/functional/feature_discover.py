@@ -72,4 +72,4 @@ class DiscoverTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    DiscoverTest().main()
+    DiscoverTest(__file__).main()

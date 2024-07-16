@@ -227,4 +227,4 @@ class WalletSignerTest(BGLTestFramework):
         assert_raises_rpc_error(-1, "Invalid descriptor", self.nodes[1].createwallet, wallet_name='hww_invalid', disable_private_keys=True, descriptors=True, external_signer=True)
 
 if __name__ == '__main__':
-    WalletSignerTest().main()
+    WalletSignerTest(__file__).main()

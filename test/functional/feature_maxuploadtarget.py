@@ -204,4 +204,4 @@ class MaxUploadTest(BGLTestFramework):
         self.nodes[0].assert_start_raises_init_error(extra_args=["-maxuploadtarget=abc"], expected_msg="Error: Unable to parse -maxuploadtarget: 'abc'")
 
 if __name__ == '__main__':
-    MaxUploadTest().main()
+    MaxUploadTest(__file__).main()

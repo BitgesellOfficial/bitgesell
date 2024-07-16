@@ -822,4 +822,4 @@ class WalletTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    WalletTest().main()
+    WalletTest(__file__).main()

@@ -65,4 +65,4 @@ class ImplicitSegwitTest(BGLTestFramework):
         check_implicit_transactions(implicit_keys, self.nodes[0])
 
 if __name__ == '__main__':
-    ImplicitSegwitTest().main()
+    ImplicitSegwitTest(__file__).main()

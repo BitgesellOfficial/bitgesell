@@ -169,4 +169,4 @@ class NetTracepointTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    NetTracepointTest().main()
+    NetTracepointTest(__file__).main()

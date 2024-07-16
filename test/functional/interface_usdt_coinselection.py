@@ -231,4 +231,4 @@ class CoinSelectionTracepointTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    CoinSelectionTracepointTest().main()
+    CoinSelectionTracepointTest(__file__).main()

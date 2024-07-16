@@ -62,4 +62,4 @@ class SignetMinerTest(BGLTestFramework):
 
 
 if __name__ == "__main__":
-    SignetMinerTest().main()
+    SignetMinerTest(__file__).main()

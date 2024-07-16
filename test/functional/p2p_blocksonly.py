@@ -125,4 +125,4 @@ class P2PBlocksOnly(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    P2PBlocksOnly().main()
+    P2PBlocksOnly(__file__).main()

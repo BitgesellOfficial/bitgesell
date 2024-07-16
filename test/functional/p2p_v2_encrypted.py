@@ -131,4 +131,4 @@ class P2PEncrypted(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    P2PEncrypted().main()
+    P2PEncrypted(__file__).main()

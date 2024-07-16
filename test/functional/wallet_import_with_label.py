@@ -125,4 +125,4 @@ class ImportWithLabel(BGLTestFramework):
 
 
 if __name__ == "__main__":
-    ImportWithLabel().main()
+    ImportWithLabel(__file__).main()

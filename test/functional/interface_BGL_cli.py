@@ -333,4 +333,4 @@ class TestBGLCli(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    TestBGLCli().main()
+    TestBGLCli(__file__).main()

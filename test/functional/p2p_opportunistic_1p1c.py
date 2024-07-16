@@ -412,4 +412,4 @@ class PackageRelayTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    PackageRelayTest().main()
+    PackageRelayTest(__file__).main()

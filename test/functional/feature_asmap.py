@@ -146,4 +146,4 @@ class AsmapTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    AsmapTest().main()
+    AsmapTest(__file__).main()

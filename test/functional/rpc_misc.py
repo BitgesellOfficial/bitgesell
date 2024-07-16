@@ -105,4 +105,4 @@ class RpcMiscTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    RpcMiscTest().main()
+    RpcMiscTest(__file__).main()

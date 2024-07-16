@@ -97,4 +97,4 @@ class P2PAddConnections(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    P2PAddConnections().main()
+    P2PAddConnections(__file__).main()

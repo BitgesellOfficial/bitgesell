@@ -411,4 +411,4 @@ class RESTTest (BGLTestFramework):
         assert_equal(resp.read().decode('utf-8').rstrip(), f"Invalid hash: {INVALID_PARAM}")
 
 if __name__ == '__main__':
-    RESTTest().main()
+    RESTTest(__file__).main()

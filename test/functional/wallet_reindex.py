@@ -84,4 +84,4 @@ class WalletReindexTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    WalletReindexTest().main()
+    WalletReindexTest(__file__).main()

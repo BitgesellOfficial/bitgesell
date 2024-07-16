@@ -80,4 +80,4 @@ class RPCSignerTest(BGLTestFramework):
         assert_equal(result['signers'][0]["name"], "trezor_t")
 
 if __name__ == '__main__':
-    RPCSignerTest().main()
+    RPCSignerTest(__file__).main()

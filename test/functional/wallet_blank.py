@@ -160,4 +160,4 @@ class WalletBlankTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    WalletBlankTest().main()
+    WalletBlankTest(__file__).main()

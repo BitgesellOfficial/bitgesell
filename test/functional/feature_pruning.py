@@ -513,4 +513,4 @@ class PruneTest(BGLTestFramework):
         assert_equal(pruneheight, new_pruneheight)
 
 if __name__ == '__main__':
-    PruneTest().main()
+    PruneTest(__file__).main()

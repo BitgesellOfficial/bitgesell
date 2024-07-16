@@ -145,4 +145,4 @@ class SignRawTransactionWithKeyTest(BGLTestFramework):
 
 
 if __name__ == '__main__':
-    SignRawTransactionWithKeyTest().main()
+    SignRawTransactionWithKeyTest(__file__).main()
