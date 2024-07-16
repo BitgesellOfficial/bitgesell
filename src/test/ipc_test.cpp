@@ -12,6 +12,7 @@
 #include <test/ipc_test.capnp.proxy.h>
 #include <test/ipc_test.h>
 #include <tinyformat.h>
+#include <validation.h>
 
 #include <future>
 #include <thread>
@@ -97,6 +98,29 @@ void IpcPipeTest()
     CTransactionRef tx2{foo->passTransaction(tx1)};
     BOOST_CHECK(*Assert(tx1) == *Assert(tx2));
 
+    std::vector<char> vec1{'H', 'e', 'l', 'l', 'o'};
+    std::vector<char> vec2{foo->passVectorChar(vec1)};
+    BOOST_CHECK_EQUAL(std::string_view(vec1.begin(), vec1.end()), std::string_view(vec2.begin(), vec2.end()));
+
+    BlockValidationState bs1;
+    bs1.Invalid(BlockValidationResult::BLOCK_CHECKPOINT, "reject reason", "debug message");
+    BlockValidationState bs2{foo->passBlockState(bs1)};
+    BOOST_CHECK_EQUAL(bs1.IsValid(), bs2.IsValid());
+    BOOST_CHECK_EQUAL(bs1.IsError(), bs2.IsError());
+    BOOST_CHECK_EQUAL(bs1.IsInvalid(), bs2.IsInvalid());
+    BOOST_CHECK_EQUAL(static_cast<int>(bs1.GetResult()), static_cast<int>(bs2.GetResult()));
+    BOOST_CHECK_EQUAL(bs1.GetRejectReason(), bs2.GetRejectReason());
+    BOOST_CHECK_EQUAL(bs1.GetDebugMessage(), bs2.GetDebugMessage());
+
+    BlockValidationState bs3;
+    BlockValidationState bs4{foo->passBlockState(bs3)};
+    BOOST_CHECK_EQUAL(bs3.IsValid(), bs4.IsValid());
+    BOOST_CHECK_EQUAL(bs3.IsError(), bs4.IsError());
+    BOOST_CHECK_EQUAL(bs3.IsInvalid(), bs4.IsInvalid());
+    BOOST_CHECK_EQUAL(static_cast<int>(bs3.GetResult()), static_cast<int>(bs4.GetResult()));
+    BOOST_CHECK_EQUAL(bs3.GetRejectReason(), bs4.GetRejectReason());
+    BOOST_CHECK_EQUAL(bs3.GetDebugMessage(), bs4.GetDebugMessage());
+
     // Test cleanup: disconnect pipe and join thread
     disconnect_client();
     thread.join();
@@ -130,12 +154,12 @@ void IpcSocketTest(const fs::path& datadir)
     std::unique_ptr<ipc::Process> process{ipc::MakeProcess()};
 
     std::string invalid_bind{"invalid:"};
-    BOOST_CHECK_THROW(process->bind(datadir, "test_bitcoin", invalid_bind), std::invalid_argument);
-    BOOST_CHECK_THROW(process->connect(datadir, "test_bitcoin", invalid_bind), std::invalid_argument);
+    BOOST_CHECK_THROW(process->bind(datadir, "test_BGL", invalid_bind), std::invalid_argument);
+    BOOST_CHECK_THROW(process->connect(datadir, "test_BGL", invalid_bind), std::invalid_argument);
 
     auto bind_and_listen{[&](const std::string& bind_address) {
         std::string address{bind_address};
-        int serve_fd = process->bind(datadir, "test_bitcoin", address);
+        int serve_fd = process->bind(datadir, "test_BGL", address);
         BOOST_CHECK_GE(serve_fd, 0);
         BOOST_CHECK_EQUAL(address, bind_address);
         protocol->listen(serve_fd, "test-serve", *init);
@@ -143,7 +167,7 @@ void IpcSocketTest(const fs::path& datadir)
 
     auto connect_and_test{[&](const std::string& connect_address) {
         std::string address{connect_address};
-        int connect_fd{process->connect(datadir, "test_bitcoin", address)};
+        int connect_fd{process->connect(datadir, "test_BGL", address)};
         BOOST_CHECK_EQUAL(address, connect_address);
         std::unique_ptr<interfaces::Init> remote_init{protocol->connect(connect_fd, "test-connect")};
         std::unique_ptr<interfaces::Echo> remote_echo{remote_init->makeEcho()};
@@ -155,8 +179,8 @@ void IpcSocketTest(const fs::path& datadir)
     // addresses in the data directory would fail with errors like:
     //   Address 'unix' path '"/tmp/test_common_Bitcoin Core/ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff/test_bitcoin.sock"' exceeded maximum socket path length
     std::vector<std::string> addresses{
-        strprintf("unix:%s", TempPath("bitcoin_sock0_XXXXXX")),
-        strprintf("unix:%s", TempPath("bitcoin_sock1_XXXXXX")),
+        strprintf("unix:%s", TempPath("BGL_sock0_XXXXXX")),
+        strprintf("unix:%s", TempPath("BGL_sock1_XXXXXX")),
     };
 
     // Bind and listen on multiple addresses
