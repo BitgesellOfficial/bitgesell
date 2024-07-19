@@ -253,6 +253,7 @@ add_library(BGL_node STATIC EXCLUDE_FROM_ALL
   node/utxo_snapshot.cpp
   node/warnings.cpp
   noui.cpp
+  policy/ephemeral_policy.cpp
   policy/fees.cpp
   policy/fees_args.cpp
   policy/packages.cpp
