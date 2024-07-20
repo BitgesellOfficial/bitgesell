@@ -78,7 +78,7 @@ Features:
   ```sh
   Eliminates problems with legacy type of transactions
   ```
-* Halving Interval [Halving cycle of bitgetsell is 1yr while that of BGL is 4yr]
+* Halving Interval [Halving cycle of Bitgesell is 1 year while that of Bitcoin is 4 years]
   ```sh
   210000 blocks/4
   ```
