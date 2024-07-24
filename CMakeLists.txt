@@ -172,7 +172,32 @@ endif()
 
 cmake_dependent_option(ENABLE_EXTERNAL_SIGNER "Enable external signer support." ON "NOT WIN32" OFF)
 
+cmake_dependent_option(WITH_QRENCODE "Enable QR code support." ON "BUILD_GUI" OFF)
+if(WITH_QRENCODE)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(libqrencode REQUIRED IMPORTED_TARGET libqrencode)
+  set(USE_QRCODE TRUE)
+endif()
+
+cmake_dependent_option(WITH_DBUS "Enable DBus support." ON "CMAKE_SYSTEM_NAME STREQUAL \"Linux\" AND BUILD_GUI" OFF)
+if(BUILD_GUI)
+  set(qt_components Core Gui Widgets LinguistTools)
+  if(ENABLE_WALLET)
+    list(APPEND qt_components Network)
+  endif()
+  if(WITH_DBUS)
+    list(APPEND qt_components DBus)
+    set(USE_DBUS TRUE)
+  endif()
+  find_package(Qt5 5.11.3 MODULE REQUIRED
+    COMPONENTS ${qt_components}
+  )
+  unset(qt_components)
+endif()
+
 option(BUILD_BENCH "Build bench_BGL executable." OFF)
+option(BUILD_FUZZ_BINARY "Build fuzz binary." OFF)
+cmake_dependent_option(BUILD_FOR_FUZZING "Build for fuzzing. Enabling this will disable all other targets and override BUILD_FUZZ_BINARY." OFF "NOT MSVC" OFF)
 
 set(configure_warnings)
 
@@ -420,6 +445,8 @@ message("   - using NAT-PMP .................... ${WITH_NATPMP}")
 message("   - using UPnP ....................... ${WITH_MINIUPNPC}")
 message("  ZeroMQ .............................. ${WITH_ZMQ}")
 message("  USDT tracing ........................ ${WITH_USDT}")
+message("  QR code (GUI) ....................... ${WITH_QRENCODE}")
+message("  DBus (GUI, Linux only) .............. ${WITH_DBUS}")
 message("Tests:")
 message("  test_BGL ........................ ${BUILD_TESTS}")
 message("  bench_BGL ....................... ${BUILD_BENCH}")
