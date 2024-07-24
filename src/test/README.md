@@ -12,22 +12,23 @@ that runs all of the unit tests. The main source file for the test library is fo
 
 ### Compiling/running unit tests
 
-Unit tests will be automatically compiled if dependencies were met in `./configure`
+Unit tests will be automatically compiled if dependencies were met
+during the generation of the Bitcoin Core build system
 and tests weren't explicitly disabled.
 
-After configuring, they can be run with `make check`, which includes unit tests from
-subtrees, or `make && make -C src check-unit` for just the unit tests.
+Assuming the build directory is named `build`, the unit tests can be run
+with `ctests --test-dir build`, which includes unit tests from subtrees.
 
-To run the BGLd tests manually, launch `src/test/test_BGL`. To recompile
-after a test file was modified, run `make` and then run the test again. If you
-modify a non-test file, use `make -C src/test` to recompile only what's needed
-to run the BGLd tests.
+To run the unit tests manually, launch `build/src/test/test_BGL`. To recompile
+after a test file was modified, run `cmake --build build` and then run the test again. If you
+modify a non-test file, use `cmake --build build --target test_BGL` to recompile only what's needed
+to run the unit tests.
 
 To add more BGLd tests, add `BOOST_AUTO_TEST_CASE` functions to the existing
 .cpp files in the `test/` directory or add new .cpp files that
 implement new `BOOST_AUTO_TEST_SUITE` sections.
 
-To run the BGL-qt tests manually, launch `src/qt/test/test_BGL-qt`
+To run the GUI unit tests manually, launch `build/src/qt/test/test_BGL-qt`
 
 To add more BGL-qt tests, add them to the `src/qt/test/` directory and
 the `src/qt/test/test_main.cpp` file.
@@ -38,7 +39,7 @@ the `src/qt/test/test_main.cpp` file.
 For example, to run just the `getarg_tests` suite of tests:
 
 ```bash
-test_BGL --log_level=all --run_test=getarg_tests
+build/src/test/test_BGL --log_level=all --run_test=getarg_tests
 ```
 
 `log_level` controls the verbosity of the test framework, which logs when a
@@ -48,7 +49,7 @@ test case is entered, for example.
 `BGLd`. Use `--` to separate these sets of arguments:
 
 ```bash
-test_BGL --log_level=all --run_test=getarg_tests -- -printtoconsole=1
+build/src/test/test_BGL --log_level=all --run_test=getarg_tests -- -printtoconsole=1
 ```
 
 The `-printtoconsole=1` after the two dashes sends debug logging, which
@@ -58,7 +59,7 @@ standard terminal output.
 ... or to run just the doubledash test:
 
 ```bash
-test_ --run_test=getarg_tests/doubledash
+build/src/test/test_BGL --run_test=getarg_tests/doubledash
 ```
 
 `test_BGL` creates a temporary working (data) directory with a randomly
@@ -72,7 +73,7 @@ have a `debug.log` file, for example.
 The location of the temporary data directory can be specified with the
 `-testdatadir` option. This can make debugging easier. The directory
 path used is the argument path appended with
-`/test_common_Bitcoin Core/<test-name>/datadir`.
+`/test_common_BGL Core/<test-name>/datadir`.
 The directory path is created if necessary.
 Specifying this argument also causes the data directory
 not to be removed after the last test. This is useful for looking at
@@ -81,8 +82,8 @@ what the test wrote to `debug.log` after it completes, for example.
 so no leftover state is used.)
 
 ```bash
-$ test_bitcoin --run_test=getarg_tests/doubledash -- -testdatadir=/somewhere/mydatadir
-Test directory (will not be deleted): "/somewhere/mydatadir/test_common_BGL Core/getarg_tests/doubledash/datadir
+$ build/src/test/test_BGL --run_test=getarg_tests/doubledash -- -testdatadir=/somewhere/mydatadir
+Test directory (will not be deleted): "/somewhere/mydatadir/test_common_Bitcoin Core/getarg_tests/doubledash/datadir
 Running 1 test case...
 
 *** No errors detected
@@ -96,12 +97,13 @@ If you run an entire test suite, such as `--run_test=getarg_tests`, or all the t
 (by not specifying `--run_test`), a separate directory
 will be created for each individual test.
 
-Run `test_bitcoin --help` for the full list of tests.
+Run `test_BGL --help` for the full list of tests.
 
 ### Adding test cases
 
-To add a new unit test file to our test suite you need
-to add the file to `src/Makefile.test.include`. The pattern is to create
+To add a new unit test file to our test suite, you need
+to add the file to either `src/test/CMakeLists.txt` or
+`src/wallet/test/CMakeLists.txt` for wallet-related tests. The pattern is to create
 one test file for each class or source file for which you want to create
 unit tests. The file naming convention is `<source_filename>_tests.cpp`
 and such files should wrap their tests in a test suite
@@ -110,7 +112,8 @@ see `uint256_tests.cpp`.
 
 ### Logging and debugging in unit tests
 
-`make check` will write to a log file `foo_tests.cpp.log` and display this file
+`ctest --test-dir build` will write to a log file `build/Testing/Temporary/LastTest.log`. You can
+additionaly use the `--output-on-failure` option to display logs of the failed tests automatically
 on failure. For running individual tests verbosely, refer to the section
 [above](#running-individual-tests).
 
@@ -121,13 +124,13 @@ For debugging you can launch the `test_BGL` executable with `gdb` or `lldb` and
 start debugging, just like you would with any other program:
 
 ```bash
-gdb src/test/test_BGL
+gdb build/src/test/test_BGL
 ```
 
 #### Segmentation faults
 
 If you hit a segmentation fault during a test run, you can diagnose where the fault
-is happening by running `gdb ./src/test/test_BGL` and then using the `bt` command
+is happening by running `gdb ./build/src/test/test_BGL` and then using the `bt` command
 within gdb.
 
 Another tool that can be used to resolve segmentation faults is
@@ -145,7 +148,7 @@ Running the tests and hitting a segmentation fault should now produce a file cal
 
 You can then explore the core dump using
 ```bash
-gdb src/test/test_BGL core
+gdb build/src/test/test_BGL core
 
 (gbd) bt  # produce a backtrace for where a segfault occurred
 ```

@@ -1,6 +1,6 @@
 # macOS Build Guide
 
-**Updated for MacOS [11.2](https://www.apple.com/macos/big-sur/)**
+**Updated for MacOS [14.4](https://www.apple.com/macos/sonoma/)**
 
 This guide describes how to build BGLd, command-line utilities, and GUI on macOS
 
@@ -43,7 +43,7 @@ See [dependencies.md](dependencies.md) for a complete overview.
 To install, run the following from your terminal:
 
 ``` bash
-brew install automake libtool boost pkg-config libevent
+brew install cmake boost pkg-config libevent
 ```
 
 For macOS 11 (Big Sur) and 12 (Monterey) you need to install a more recent version of llvm.
@@ -97,9 +97,8 @@ brew install berkeley-db@4
 
 ###### Qt
 
-BGL Core includes a GUI built with the cross-platform Qt Framework.
-To compile the GUI, we need to install `qt@5`.
-Skip if you don't intend to use the GUI.
+Bitgesell Core includes a GUI built with the cross-platform Qt Framework. To compile the GUI, we need to install
+the necessary parts of Qt, the libqrencode and pass `-DBUILD_GUI=ON`. Skip if you don't intend to use the GUI.
 
 ``` bash
 brew install qt@5
@@ -108,14 +107,16 @@ brew install qt@5
 Note: Building with Qt binaries downloaded from the Qt website is not officially supported.
 See the notes in [#7714](https://github.com/bitcoin/bitcoin/issues/7714).
 
-###### qrencode
+###### libqrencode
 
-The GUI can encode addresses in a QR Code. To build in QR support for the GUI, install `qrencode`.
-Skip if not using the GUI or don't want QR code functionality.
+The GUI will be able to encode addresses in QR codes unless this feature is explicitly disabled. To install libqrencode, run:
 
 ``` bash
 brew install qrencode
 ```
+
+Otherwise, if you don't need QR encoding support, use the `-DWITH_QRENCODE=OFF` option to disable this feature in order to compile the GUI.
+
 ---
 
 Then install [Homebrew](https://brew.sh).
@@ -129,7 +130,7 @@ brew install automake libtool boost miniupnpc libnatpmp pkg-config python qt@5 l
 
 #### Deploy Dependencies
 
-You can deploy a `.zip` containing the Bitgesell Core application using `make deploy`.
+You can [deploy](#3-deploy-optional) a `.zip` containing the Bitgesell Core application.
 It is required that you have `python` installed.
 
 The wallet support requires one or both of the dependencies ([*SQLite*](#sqlite) and [*Berkeley DB*](#berkeley-db)) in the sections below.
@@ -137,32 +138,33 @@ To build BGL Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mo
 
 #### SQLite
 
-If `berkeley-db@4` is installed, then legacy wallet support will be built.
-If `sqlite` is installed, then descriptor wallet support will also be built.
-Additionally, this explicitly disables the GUI.
+If `berkeley-db@4` or `sqlite` are not installed, this will throw an error.
 
-```shell
-brew install sqlite
+``` bash
+cmake -B build -DWITH_BDB=ON
 ```
 
 In that case the Homebrew package will prevail.
 
-#### Berkeley DB
+This enables the GUI.
+If `sqlite` or `qt` are not installed, this will throw an error.
 
-It is recommended to use Berkeley DB 4.8. If you have to build it yourself,
-you can use [this](/contrib/install_db4.sh) script to install it
-like so:
+``` bash
+cmake -B build -DBUILD_GUI=ON
+```
 
-```shell
-./contrib/install_db4.sh .
+##### No Wallet or GUI
+
+``` bash
+cmake -B build -DENABLE_WALLET=OFF
 ```
 
 from the root of the repository.
 
 Also, the Homebrew package could be installed:
 
-```shell
-brew install berkeley-db4
+``` bash
+cmake -B build -LH
 ```
 
 ## Build BGL Core
@@ -174,18 +176,17 @@ brew install berkeley-db4
     ```
 
 ``` bash
-make        # use "-j N" here for N parallel jobs
-make check  # Run tests if Python 3 is available
+cmake --build build     # Use "-j N" here for N parallel jobs.
+ctest --test-dir build  # Use "-j N" for N parallel tests. Some tests are disabled if Python 3 is not available.
 ```
 
     Configure and build the headless BGL Core binaries as well as the GUI (if Qt is found).
 
 You can also create a  `.zip` containing the `.app` bundle by running the following command:
 
-3.  It is recommended to build and run the unit tests:
-    ```shell
-    make check
-    ```
+``` bash
+cmake --build build --target deploy
+```
 
 4.  You can also create a  `.dmg` that contains the `.app` bundle (optional):
     ```shell
@@ -225,9 +226,10 @@ tail -f $HOME/Library/Application\ Support/BGL/debug.log
 
 ## Other commands:
 ```shell
-./src/BGLd -daemon      # Starts the BGL daemon.
-./src/BGL-cli --help    # Outputs a list of command-line options.
-./src/BGL-cli help      # Outputs a list of RPC commands when the daemon is running.
+./build/src/BGLd -daemon      # Starts the bitcoin daemon.
+./build/src/BGL-cli --help    # Outputs a list of command-line options.
+./build/src/BGL-cli help      # Outputs a list of RPC commands when the daemon is running.
+./build/src/qt/BGL-qt -server # Starts the bitcoin-qt server mode, allows bitcoin-cli control
 ```
 
 ## Notes

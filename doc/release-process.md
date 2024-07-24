@@ -6,14 +6,14 @@ We distinguish between two types of releases: *regular* and *maintenance* releas
 Regular releases are releases of a new major or minor version as well as patches of the most recent release.
 Maintenance releases, on the other hand, are required for patches of older releases.
 
-* Update release candidate version in `configure.ac` (`CLIENT_VERSION_RC`).
+* Update release candidate version in `CMakeLists.txt` (`CLIENT_VERSION_RC`).
 * Update manpages (after rebuilding the binaries), see [gen-manpages.py](https://github.com/bitcoin/bitcoin/blob/master/contrib/devtools/README.md#gen-manpagespy).
 * Update bitcoin.conf and commit changes if they exist, see [gen-bitcoin-conf.sh](https://github.com/bitcoin/bitcoin/blob/master/contrib/devtools/README.md#gen-bitcoin-confsh).
 
 This process also assumes that there will be no minor releases for old major releases.
 
 * Update [bips.md](bips.md) to account for changes since the last release.
-* Update version in `configure.ac` (don't forget to set `CLIENT_VERSION_RC` to `0`).
+* Update version in `CMakeLists.txt` (don't forget to set `CLIENT_VERSION_RC` to `0`).
 * Update manpages (see previous section)
 * Write release notes (see "Write the release notes" below) in doc/release-notes.md. If necessary,
   archive the previous release notes as doc/release-notes/release-notes-${VERSION}.md.
@@ -23,8 +23,8 @@ Perform these checks when reviewing the release PR (see below):
 
 
 * On both the master branch and the new release branch:
-  - update `CLIENT_VERSION_MAJOR` in [`configure.ac`](../configure.ac)
-* On the new release branch in [`configure.ac`](../configure.ac)(see [this commit](https://github.com/bitcoin/bitcoin/commit/742f7dd)):
+  - update `CLIENT_VERSION_MAJOR` in [`CMakeLists.txt`](../CMakeLists.txt)
+* On the new release branch in [`CMakeLists.txt`](../CMakeLists.txt)(see [this commit](https://github.com/bitcoin/bitcoin/commit/742f7dd)):
   - set `CLIENT_VERSION_MINOR` to `0`
   - set `CLIENT_VERSION_BUILD` to `0`
   - set `CLIENT_VERSION_IS_RELEASE` to `true`
