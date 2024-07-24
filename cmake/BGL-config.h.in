@@ -141,9 +141,12 @@
 /* Define if BDB support should be compiled in */
 #cmakedefine USE_BDB 1
 
+<<<<<<< HEAD:cmake/BGL-config.h.in
 /* Define if dbus support should be compiled in */
 #cmakedefine USE_DBUS 1
 
+=======
+>>>>>>> 5bb5a4bc75... cmake: Add `libqrencode` optional package support:cmake/bitcoin-config.h.in
 /* Define if QR support should be compiled in */
 #cmakedefine USE_QRCODE 1
 
