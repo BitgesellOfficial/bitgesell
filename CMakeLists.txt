@@ -65,12 +65,44 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 #=============================
 # Configurable options
 #=============================
+include(CMakeDependentOption)
 # When adding a new option, end the <help_text> with a full stop for consistency.
 option(BUILD_DAEMON "Build BGLd executable." ON)
 option(BUILD_CLI "Build BGL-cli executable." ON)
 
 option(BUILD_TESTS "Build test_BGL executable." ON)
 option(BUILD_TX "Build BGL-tx executable." ${BUILD_TESTS})
+
+option(ENABLE_WALLET "Enable wallet." ON)
+option(WITH_SQLITE "Enable SQLite wallet support." ${ENABLE_WALLET})
+if(WITH_SQLITE)
+  if(VCPKG_TARGET_TRIPLET)
+    # Use of the `unofficial::` namespace is a vcpkg package manager convention.
+    find_package(unofficial-sqlite3 CONFIG REQUIRED)
+  else()
+    find_package(SQLite3 3.7.17 REQUIRED)
+  endif()
+  set(USE_SQLITE ON)
+  set(ENABLE_WALLET ON)
+endif()
+option(WITH_BDB "Enable Berkeley DB (BDB) wallet support." OFF)
+cmake_dependent_option(WARN_INCOMPATIBLE_BDB "Warn when using a Berkeley DB (BDB) version other than 4.8." ON "WITH_BDB" OFF)
+if(WITH_BDB)
+  find_package(BerkeleyDB 4.8 MODULE REQUIRED)
+  set(USE_BDB ON)
+  set(ENABLE_WALLET ON)
+  if(NOT BerkeleyDB_VERSION VERSION_EQUAL 4.8)
+    message(WARNING "Found Berkeley DB (BDB) other than 4.8.\n"
+                    "BDB (legacy) wallets opened by this build will not be portable!"
+    )
+    if(WARN_INCOMPATIBLE_BDB)
+      message(WARNING "If this is intended, pass \"-DWARN_INCOMPATIBLE_BDB=OFF\".\n"
+                      "Passing \"-DWITH_BDB=OFF\" will suppress this warning."
+      )
+    endif()
+  endif()
+endif()
+cmake_dependent_option(BUILD_WALLET_TOOL "Build BGL-wallet tool." ${BUILD_TESTS} "ENABLE_WALLET" OFF)
 
 option(ENABLE_WALLET "Enable wallet." ON)
 option(WITH_SQLITE "Enable SQLite wallet support." ${ENABLE_WALLET})
@@ -278,7 +310,6 @@ message("=================")
 message("Executables:")
 message("  BGLd ............................ ${BUILD_DAEMON}")
 message("  BGL-cli ......................... ${BUILD_CLI}")
-message("  BGL-tx .......................... ${BUILD_TX}")
 message("  BGL-wallet ...................... ${BUILD_WALLET_TOOL}")
 message("Optional features:")
 message("  wallet support ...................... ${ENABLE_WALLET}")
@@ -286,9 +317,6 @@ if(ENABLE_WALLET)
   message("   - descriptor wallets (SQLite) ...... ${WITH_SQLITE}")
   message("   - legacy wallets (Berkeley DB) ..... ${WITH_BDB}")
 endif()
-message("  port mapping:")
-message("   - using NAT-PMP .................... ${WITH_NATPMP}")
-message("   - using UPnP ....................... ${WITH_MINIUPNPC}")
 message("Tests:")
 message("  test_BGL ........................ ${BUILD_TESTS}")
 message("")

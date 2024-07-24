@@ -144,6 +144,26 @@ target_link_libraries(BGL_common
 )
 
 
+if(ENABLE_WALLET)
+  add_subdirectory(wallet)
+
+  if(BUILD_WALLET_TOOL)
+    add_executable(BGL-wallet
+      BGL-wallet.cpp
+      init/BGL-wallet.cpp
+      wallet/wallettool.cpp
+    )
+    target_link_libraries(BGL-wallet
+      core_interface
+      BGL_wallet
+      BGL_common
+      BGL_util
+      Boost::headers
+    )
+  endif()
+endif()
+
+
 # P2P and RPC server functionality used by `bitcoind` and `bitcoin-qt` executables.
 add_library(BGL_node STATIC EXCLUDE_FROM_ALL
   addrdb.cpp
@@ -236,8 +256,8 @@ add_library(BGL_node STATIC EXCLUDE_FROM_ALL
   validation.cpp
   validationinterface.cpp
   versionbits.cpp
-
-  dummywallet.cpp
+  $<$<TARGET_EXISTS:BGL_wallet>:wallet/init.cpp>
+  $<$<NOT:$<TARGET_EXISTS:BGL_wallet>>:dummywallet.cpp>
 )
 target_link_libraries(BGL_node
   PRIVATE
@@ -264,6 +284,7 @@ if(BUILD_DAEMON)
   target_link_libraries(BGLd
     core_interface
     BGL_node
+    $<TARGET_NAME_IF_EXISTS:BGL_wallet>
   )
 endif()
 
