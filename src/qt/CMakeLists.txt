@@ -253,10 +253,16 @@ if(WITH_MULTIPROCESS)
     BGL_ipc
   )
   import_plugins(BGL-gui)
+  list(APPEND installable_targets BGL-gui)
   if(WIN32)
     set_target_properties(BGL-gui PROPERTIES WIN32_EXECUTABLE TRUE)
   endif()
 endif()
+
+install(TARGETS ${installable_targets}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  COMPONENT GUI
+)
 
 if(BUILD_GUI_TESTS)
   add_subdirectory(test)
