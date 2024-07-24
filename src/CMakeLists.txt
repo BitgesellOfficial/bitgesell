@@ -143,6 +143,7 @@ target_link_libraries(BGL_common
     univalue
     secp256k1
     Boost::headers
+    $<TARGET_NAME_IF_EXISTS:USDT::headers>
     $<$<PLATFORM_ID:Windows>:ws2_32>
 )
 
@@ -276,6 +277,7 @@ target_link_libraries(BGL_node
     $<TARGET_NAME_IF_EXISTS:NATPMP::NATPMP>
     $<TARGET_NAME_IF_EXISTS:MiniUPnPc::MiniUPnPc>
     $<TARGET_NAME_IF_EXISTS:bitcoin_zmq>
+    $<TARGET_NAME_IF_EXISTS:USDT::headers>
 )
 
 
