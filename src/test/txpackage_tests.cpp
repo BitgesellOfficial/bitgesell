@@ -43,13 +43,6 @@ inline CTransactionRef create_placeholder_tx(size_t num_inputs, size_t num_outpu
     }
     return MakeTransactionRef(mtx);
 }
-
-// Create a Wtxid from a hex string
-inline Wtxid WtxidFromString(std::string_view str)
-{
-    return Wtxid::FromUint256(uint256S(str));
-}
-
 BOOST_FIXTURE_TEST_CASE(package_hash_tests, TestChain100Setup)
 {
     // Random real segwit transaction
@@ -74,14 +67,12 @@ BOOST_FIXTURE_TEST_CASE(package_hash_tests, TestChain100Setup)
     CTransactionRef ptx_3{MakeTransactionRef(tx_3)};
 
     // It's easy to see that wtxids are sorted in lexicographical order:
-    // lexicographical order in not maintained by Bitgesell
-
-    Wtxid wtxid_1{WtxidFromString("0x3c40c80b673623ec9d82a99b5d3672999f1cf58bb6565667e9364390576b5d06")};
-    Wtxid wtxid_2{WtxidFromString("0x8dc6bae3d8ebcb0ad5ac63f615c473d9e75d08efdd6c6f50388b0be2f6ea84e9")};
-    Wtxid wtxid_3{WtxidFromString("0xc208f7a05ec5bc7428e8e30a86ede87deb4f5c3dfcf5f31cc665033578eaa026")};
-    BOOST_CHECK_EQUAL(tx_1.GetWitnessHash(), wtxid_2);
-    BOOST_CHECK_EQUAL(tx_2.GetWitnessHash(), wtxid_3);
-    BOOST_CHECK_EQUAL(tx_3.GetWitnessHash(), wtxid_1);
+    Wtxid wtxid_1{Wtxid::FromHex("85cd1a31eb38f74ed5742ec9cb546712ab5aaf747de28a9168b53e846cbda17f").value()};
+    Wtxid wtxid_2{Wtxid::FromHex("b4749f017444b051c44dfd2720e88f314ff94f3dd6d56d40ef65854fcd7fff6b").value()};
+    Wtxid wtxid_3{Wtxid::FromHex("e065bac15f62bb4e761d761db928ddee65a47296b2b776785abb912cdec474e3").value()};
+    BOOST_CHECK_EQUAL(tx_1.GetWitnessHash(), wtxid_1);
+    BOOST_CHECK_EQUAL(tx_2.GetWitnessHash(), wtxid_2);
+    BOOST_CHECK_EQUAL(tx_3.GetWitnessHash(), wtxid_3);
 
     BOOST_CHECK(wtxid_1.GetHex() < wtxid_2.GetHex());
     BOOST_CHECK(wtxid_2.GetHex() < wtxid_3.GetHex());
