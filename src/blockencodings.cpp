@@ -40,9 +40,9 @@ void CBlockHeaderAndShortTxIDs::FillShortTxIDSelector() const {
     shorttxidk1 = shorttxidhash.GetUint64(1);
 }
 
-uint64_t CBlockHeaderAndShortTxIDs::GetShortID(const uint256& txhash) const {
+uint64_t CBlockHeaderAndShortTxIDs::GetShortID(const Wtxid& wtxid) const {
     static_assert(SHORTTXIDS_LENGTH == 6, "shorttxids calculation assumes 6-byte shorttxids");
-    return SipHashUint256(shorttxidk0, shorttxidk1, txhash) & 0xffffffffffffL;
+    return SipHashUint256(shorttxidk0, shorttxidk1, wtxid) & 0xffffffffffffL;
 }
 
 

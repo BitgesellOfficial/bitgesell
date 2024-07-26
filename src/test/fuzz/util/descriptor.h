@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_TEST_FUZZ_UTIL_DESCRIPTOR_H
-#define BITCOIN_TEST_FUZZ_UTIL_DESCRIPTOR_H
+#ifndef BGL_TEST_FUZZ_UTIL_DESCRIPTOR_H
+#define BGL_TEST_FUZZ_UTIL_DESCRIPTOR_H
 
 #include <key_io.h>
 #include <util/strencodings.h>
@@ -55,4 +55,4 @@ constexpr int MAX_DEPTH{2};
  */
 bool HasDeepDerivPath(const FuzzBufferType& buff, const int max_depth = MAX_DEPTH);
 
-#endif // BITCOIN_TEST_FUZZ_UTIL_DESCRIPTOR_H
+#endif // BGL_TEST_FUZZ_UTIL_DESCRIPTOR_H

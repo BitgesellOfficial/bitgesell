@@ -13,6 +13,8 @@
 #include <test/util/setup_common.h>
 #include <test/util/txmempool.h>
 #include <txmempool.h>
+#include <util/check.h>
+#include <util/translation.h>
 
 #include <cstdint>
 #include <optional>
@@ -56,7 +58,9 @@ FUZZ_TARGET(rbf, .init = initialize_rbf)
         return;
     }
 
-    CTxMemPool pool{MemPoolOptionsForTest(g_setup->m_node)};
+    bilingual_str error;
+    CTxMemPool pool{MemPoolOptionsForTest(g_setup->m_node), error};
+    Assert(error.empty());
 
     LIMITED_WHILE(fuzzed_data_provider.ConsumeBool(), NUM_ITERS)
     {
@@ -92,7 +96,9 @@ FUZZ_TARGET(package_rbf, .init = initialize_package_rbf)
     CMutableTransaction child;
     child.vin.resize(1);
 
-    CTxMemPool pool{MemPoolOptionsForTest(g_setup->m_node)};
+    bilingual_str error;
+    CTxMemPool pool{MemPoolOptionsForTest(g_setup->m_node), error};
+    Assert(error.empty());
 
     // Add a bunch of parent-child pairs to the mempool, and remember them.
     std::vector<CTransaction> mempool_txs;

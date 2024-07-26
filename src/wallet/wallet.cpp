@@ -11,7 +11,9 @@
 #include <chain.h>
 #include <coins.h>
 #include <common/args.h>
+#include <common/messages.h>
 #include <common/settings.h>
+#include <common/signmessage.h>
 #include <common/system.h>
 #include <consensus/amount.h>
 #include <consensus/consensus.h>
@@ -25,6 +27,7 @@
 #include <key.h>
 #include <key_io.h>
 #include <logging.h>
+#include <node/types.h>
 #include <outputtype.h>
 #include <policy/feerate.h>
 #include <primitives/block.h>
@@ -49,10 +52,8 @@
 #include <uint256.h>
 #include <univalue.h>
 #include <util/check.h>
-#include <util/error.h>
 #include <util/fs.h>
 #include <util/fs_helpers.h>
-#include <util/message.h>
 #include <util/moneystr.h>
 #include <util/result.h>
 #include <util/string.h>
@@ -81,7 +82,12 @@
 
 struct KeyOriginInfo;
 
+using common::AmountErrMsg;
+using common::AmountHighWarn;
+using common::PSBTError;
 using interfaces::FoundBlock;
+using util::ReplaceAll;
+using util::ToString;
 
 namespace wallet {
 
@@ -2172,7 +2178,7 @@ bool CWallet::SignTransaction(CMutableTransaction& tx, const std::map<COutPoint,
     return false;
 }
 
-TransactionError CWallet::FillPSBT(PartiallySignedTransaction& psbtx, bool& complete, int sighash_type, bool sign, bool bip32derivs, size_t * n_signed, bool finalize) const
+std::optional<PSBTError> CWallet::FillPSBT(PartiallySignedTransaction& psbtx, bool& complete, int sighash_type, bool sign, bool bip32derivs, size_t * n_signed, bool finalize) const
 {
     if (n_signed) {
         *n_signed = 0;
@@ -2205,9 +2211,9 @@ TransactionError CWallet::FillPSBT(PartiallySignedTransaction& psbtx, bool& comp
     // Fill in information from ScriptPubKeyMans
     for (ScriptPubKeyMan* spk_man : GetAllScriptPubKeyMans()) {
         int n_signed_this_spkm = 0;
-        TransactionError res = spk_man->FillPSBT(psbtx, txdata, sighash_type, sign, bip32derivs, &n_signed_this_spkm, finalize);
-        if (res != TransactionError::OK) {
-            return res;
+        const auto error{spk_man->FillPSBT(psbtx, txdata, sighash_type, sign, bip32derivs, &n_signed_this_spkm, finalize)};
+        if (error) {
+            return error;
         }
 
         if (n_signed) {
@@ -2219,11 +2225,11 @@ TransactionError CWallet::FillPSBT(PartiallySignedTransaction& psbtx, bool& comp
 
     // Complete if every input is now signed
     complete = true;
-    for (const auto& input : psbtx.inputs) {
-        complete &= PSBTInputSigned(input);
+    for (size_t i = 0; i < psbtx.inputs.size(); ++i) {
+        complete &= PSBTInputSignedAndVerified(psbtx, i, &txdata);
     }
 
-    return TransactionError::OK;
+    return {};
 }
 
 SigningResult CWallet::SignMessage(const std::string& message, const PKHash& pkhash, std::string& str_sig) const
@@ -3611,6 +3617,16 @@ LegacyScriptPubKeyMan* CWallet::GetLegacyScriptPubKeyMan() const
     return dynamic_cast<LegacyScriptPubKeyMan*>(it->second);
 }
 
+LegacyDataSPKM* CWallet::GetLegacyDataSPKM() const
+{
+    if (IsWalletFlagSet(WALLET_FLAG_DESCRIPTORS)) {
+        return nullptr;
+    }
+    auto it = m_internal_spk_managers.find(OutputType::LEGACY);
+    if (it == m_internal_spk_managers.end()) return nullptr;
+    return dynamic_cast<LegacyDataSPKM*>(it->second);
+}
+
 LegacyScriptPubKeyMan* CWallet::GetOrCreateLegacyScriptPubKeyMan()
 {
     SetupLegacyScriptPubKeyMan();
@@ -3627,13 +3643,22 @@ void CWallet::AddScriptPubKeyMan(const uint256& id, std::unique_ptr<ScriptPubKey
     MaybeUpdateBirthTime(spkm->GetTimeFirstKey());
 }
 
+LegacyDataSPKM* CWallet::GetOrCreateLegacyDataSPKM()
+{
+    SetupLegacyScriptPubKeyMan();
+    return GetLegacyDataSPKM();
+}
+
 void CWallet::SetupLegacyScriptPubKeyMan()
 {
     if (!m_internal_spk_managers.empty() || !m_external_spk_managers.empty() || !m_spk_managers.empty() || IsWalletFlagSet(WALLET_FLAG_DESCRIPTORS)) {
         return;
     }
 
-    auto spk_manager = std::unique_ptr<ScriptPubKeyMan>(new LegacyScriptPubKeyMan(*this, m_keypool_size));
+    std::unique_ptr<ScriptPubKeyMan> spk_manager = m_database->Format() == "bdb_ro" ?
+        std::make_unique<LegacyDataSPKM>(*this) :
+        std::make_unique<LegacyScriptPubKeyMan>(*this, m_keypool_size);
+
     for (const auto& type : LEGACY_OUTPUT_TYPES) {
         m_internal_spk_managers[type] = spk_manager.get();
         m_external_spk_managers[type] = spk_manager.get();
@@ -4001,7 +4026,7 @@ std::optional<MigrationData> CWallet::GetDescriptorsForLegacy(bilingual_str& err
 {
     AssertLockHeld(cs_wallet);
 
-    LegacyScriptPubKeyMan* legacy_spkm = GetLegacyScriptPubKeyMan();
+    LegacyDataSPKM* legacy_spkm = GetLegacyDataSPKM();
     if (!Assume(legacy_spkm)) {
         // This shouldn't happen
         error = Untranslated(STR_INTERNAL_BUG("Error: Legacy wallet data missing"));
@@ -4020,7 +4045,7 @@ bool CWallet::ApplyMigrationData(MigrationData& data, bilingual_str& error)
 {
     AssertLockHeld(cs_wallet);
 
-    LegacyScriptPubKeyMan* legacy_spkm = GetLegacyScriptPubKeyMan();
+    LegacyDataSPKM* legacy_spkm = GetLegacyDataSPKM();
     if (!Assume(legacy_spkm)) {
         // This shouldn't happen
         error = Untranslated(STR_INTERNAL_BUG("Error: Legacy wallet data missing"));

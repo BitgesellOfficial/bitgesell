@@ -249,8 +249,6 @@ FGREP = /bin/grep -F
 GCOV = /usr/bin/gcov
 GENHTML = 
 GIT = /usr/bin/git
-GPROF_CXXFLAGS = 
-GPROF_LDFLAGS = 
 GREP = /bin/grep
 HARDENED_CPPFLAGS =  -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3
 HARDENED_CXXFLAGS =  -Wstack-protector -fstack-protector-all -fcf-protection=full -fstack-clash-protection
@@ -301,7 +299,7 @@ NATPMP_CPPFLAGS =
 NATPMP_LIBS = 
 NM = /usr/bin/nm -B
 NMEDIT = 
-NOWARN_CXXFLAGS =  -Wno-unused-parameter -Wno-self-assign
+NOWARN_CXXFLAGS =  -Wno-unused-parameter
 OBJCOPY = /usr/bin/objcopy
 OBJCXX = clang++-17 -std=c++20
 OBJCXXDEPMODE = depmode=gcc3
@@ -396,7 +394,7 @@ USE_QRCODE =
 USE_SQLITE = 
 USE_UPNP = 
 VERSION = 0.1.11
-WARN_CXXFLAGS =  -Wall -Wextra -Wgnu -Wformat -Wformat-security -Wvla -Wshadow-field -Wthread-safety -Wloop-analysis -Wredundant-decls -Wunused-member-function -Wdate-time -Wconditional-uninitialized -Woverloaded-virtual -Wsuggest-override -Wimplicit-fallthrough -Wunreachable-code -Wdocumentation
+WARN_CXXFLAGS =  -Wall -Wextra -Wgnu -Wformat -Wformat-security -Wvla -Wshadow-field -Wthread-safety -Wloop-analysis -Wredundant-decls -Wunused-member-function -Wdate-time -Wconditional-uninitialized -Woverloaded-virtual -Wsuggest-override -Wimplicit-fallthrough -Wunreachable-code -Wdocumentation -Wself-assign
 WINDRES = 
 X86_SHANI_CXXFLAGS = -msse4 -msha
 XGETTEXT = /usr/bin/xgettext

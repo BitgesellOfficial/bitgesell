@@ -8,6 +8,7 @@
 #include <init.h>
 
 #include <kernel/checks.h>
+#include <node/mempool_persist.h>
 #include <kernel/validation_cache_sizes.h>
 
 #include <addrman.h>
@@ -50,7 +51,6 @@
 #include <node/interface_ui.h>
 #include <node/kernel_notifications.h>
 #include <node/mempool_args.h>
-#include <node/mempool_persist.h>
 #include <node/mempool_persist_args.h>
 #include <node/miner.h>
 #include <node/peerman_args.h>
@@ -119,6 +119,8 @@
 using common::AmountErrMsg;
 using common::InvalidPortErrMsg;
 using common::ResolveErrMsg;
+using node::DumpMempool;
+using node::LoadMempool;
 using kernel::ValidationCacheSizes;
 
 using node::ApplyArgsManOptions;
@@ -128,8 +130,6 @@ using node::CalculateCacheSizes;
 using node::DEFAULT_PERSIST_MEMPOOL;
 using node::DEFAULT_PRINT_MODIFIED_FEE;
 using node::DEFAULT_STOPATHEIGHT;
-using node::DumpMempool;
-using node::LoadMempool;
 using node::KernelNotifications;
 using node::LoadChainstate;
 using node::MempoolPath;
@@ -137,6 +137,9 @@ using node::NodeContext;
 using node::ShouldPersistMempool;
 using node::ImportBlocks;
 using node::VerifyLoadedChainstate;
+using util::Join;
+using util::ReplaceAll;
+using util::ToString;
 
 static constexpr bool DEFAULT_PROXYRANDOMIZE{true};
 static constexpr bool DEFAULT_REST_ENABLE{false};
@@ -552,19 +555,15 @@ void SetupServerArgs(ArgsManager& argsman)
     argsman.AddArg("-networkactive", "Enable all P2P network activity (default: 1). Can be changed by the setnetworkactive RPC command", ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
     argsman.AddArg("-timeout=<n>", strprintf("Specify socket connection timeout in milliseconds. If an initial attempt to connect is unsuccessful after this amount of time, drop it (minimum: 1, default: %d)", DEFAULT_CONNECT_TIMEOUT), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
     argsman.AddArg("-peertimeout=<n>", strprintf("Specify a p2p connection timeout delay in seconds. After connecting to a peer, wait this amount of time before considering disconnection based on inactivity (minimum: 1, default: %d)", DEFAULT_PEER_CONNECT_TIMEOUT), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::CONNECTION);
-    argsman.AddArg("-torcontrol=<ip>:<port>", strprintf("Tor control port to use if onion listening enabled (default: %s)", DEFAULT_TOR_CONTROL), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
+    argsman.AddArg("-torcontrol=<ip>:<port>", strprintf("Tor control host and port to use if onion listening enabled (default: %s). If no port is specified, the default port of %i will be used.", DEFAULT_TOR_CONTROL, DEFAULT_TOR_CONTROL_PORT), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
     argsman.AddArg("-torpassword=<pass>", "Tor control port password (default: empty)", ArgsManager::ALLOW_ANY | ArgsManager::SENSITIVE, OptionsCategory::CONNECTION);
 #ifdef USE_UPNP
-#if USE_UPNP
-    argsman.AddArg("-upnp", "Use UPnP to map the listening port (default: 1 when listening and no -proxy)", ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
-#else
-    argsman.AddArg("-upnp", strprintf("Use UPnP to map the listening port (default: %u)", 0), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
-#endif
+    argsman.AddArg("-upnp", strprintf("Use UPnP to map the listening port (default: %u)", DEFAULT_UPNP), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
 #else
     hidden_args.emplace_back("-upnp");
 #endif
 #ifdef USE_NATPMP
-    argsman.AddArg("-natpmp", strprintf("Use NAT-PMP to map the listening port (default: %s)", DEFAULT_NATPMP ? "1 when listening and no -proxy" : "0"), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
+    argsman.AddArg("-natpmp", strprintf("Use NAT-PMP to map the listening port (default: %u)", DEFAULT_NATPMP), ArgsManager::ALLOW_ANY, OptionsCategory::CONNECTION);
 #else
     hidden_args.emplace_back("-natpmp");
 #endif // USE_NATPMP
@@ -606,7 +605,7 @@ void SetupServerArgs(ArgsManager& argsman)
 
     argsman.AddArg("-checkblocks=<n>", strprintf("How many blocks to check at startup (default: %u, 0 = all)", DEFAULT_CHECKBLOCKS), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-checklevel=<n>", strprintf("How thorough the block verification of -checkblocks is: %s (0-4, default: %u)", Join(CHECKLEVEL_DOC, ", "), DEFAULT_CHECKLEVEL), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
-    argsman.AddArg("-checkblockindex", strprintf("Do a consistency check for the block tree, chainstate, and other validation data structures occasionally. (default: %u, regtest: %u)", defaultChainParams->DefaultConsistencyChecks(), regtestChainParams->DefaultConsistencyChecks()), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
+    argsman.AddArg("-checkblockindex", strprintf("Do a consistency check for the block tree, chainstate, and other validation data structures every <n> operations. Use 0 to disable. (default: %u, regtest: %u)", defaultChainParams->DefaultConsistencyChecks(), regtestChainParams->DefaultConsistencyChecks()), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-checkaddrman=<n>", strprintf("Run addrman consistency checks every <n> operations. Use 0 to disable. (default: %u)", DEFAULT_ADDRMAN_CONSISTENCY_CHECKS), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-checkmempool=<n>", strprintf("Run mempool consistency checks every <n> transactions. Use 0 to disable. (default: %u, regtest: %u)", defaultChainParams->DefaultConsistencyChecks(), regtestChainParams->DefaultConsistencyChecks()), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
     argsman.AddArg("-checkpoints", strprintf("Enable rejection of any forks from the known historical chain until block %s (default: %u)", defaultChainParams->Checkpoints().GetHeight(), DEFAULT_CHECKPOINTS_ENABLED), ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::DEBUG_TEST);
@@ -733,73 +732,73 @@ void InitParameterInteraction(ArgsManager& args)
     // even when -connect or -proxy is specified
     if (args.IsArgSet("-bind")) {
         if (args.SoftSetBoolArg("-listen", true))
-            LogInfo("parameter interaction: -bind set -> setting -listen=1\n");
+            LogPrintf("%s: parameter interaction: -bind set -> setting -listen=1\n", __func__);
     }
     if (args.IsArgSet("-whitebind")) {
         if (args.SoftSetBoolArg("-listen", true))
-            LogInfo("parameter interaction: -whitebind set -> setting -listen=1\n");
+            LogPrintf("%s: parameter interaction: -whitebind set -> setting -listen=1\n", __func__);
     }
 
     if (args.IsArgSet("-connect") || args.GetIntArg("-maxconnections", DEFAULT_MAX_PEER_CONNECTIONS) <= 0) {
         // when only connecting to trusted nodes, do not seed via DNS, or listen by default
         if (args.SoftSetBoolArg("-dnsseed", false))
-            LogInfo("parameter interaction: -connect or -maxconnections=0 set -> setting -dnsseed=0\n");
+            LogPrintf("%s: parameter interaction: -connect or -maxconnections=0 set -> setting -dnsseed=0\n", __func__);
         if (args.SoftSetBoolArg("-listen", false))
-            LogInfo("parameter interaction: -connect or -maxconnections=0 set -> setting -listen=0\n");
+            LogPrintf("%s: parameter interaction: -connect or -maxconnections=0 set -> setting -listen=0\n", __func__);
     }
 
     std::string proxy_arg = args.GetArg("-proxy", "");
     if (proxy_arg != "" && proxy_arg != "0") {
         // to protect privacy, do not listen by default if a default proxy server is specified
         if (args.SoftSetBoolArg("-listen", false))
-            LogInfo("parameter interaction: -proxy set -> setting -listen=0\n");
+            LogPrintf("%s: parameter interaction: -proxy set -> setting -listen=0\n", __func__);
         // to protect privacy, do not map ports when a proxy is set. The user may still specify -listen=1
         // to listen locally, so don't rely on this happening through -listen below.
         if (args.SoftSetBoolArg("-upnp", false))
-            LogInfo("parameter interaction: -proxy set -> setting -upnp=0\n");
+            LogPrintf("%s: parameter interaction: -proxy set -> setting -upnp=0\n", __func__);
         if (args.SoftSetBoolArg("-natpmp", false)) {
-            LogInfo("parameter interaction: -proxy set -> setting -natpmp=0\n");
+            LogPrintf("%s: parameter interaction: -proxy set -> setting -natpmp=0\n", __func__);
         }
         // to protect privacy, do not discover addresses by default
         if (args.SoftSetBoolArg("-discover", false))
-            LogInfo("parameter interaction: -proxy set -> setting -discover=0\n");
+            LogPrintf("%s: parameter interaction: -proxy set -> setting -discover=0\n", __func__);
     }
 
     if (!args.GetBoolArg("-listen", DEFAULT_LISTEN)) {
         // do not map ports or try to retrieve public IP when not listening (pointless)
         if (args.SoftSetBoolArg("-upnp", false))
-            LogInfo("parameter interaction: -listen=0 -> setting -upnp=0\n");
+            LogPrintf("%s: parameter interaction: -listen=0 -> setting -upnp=0\n", __func__);
         if (args.SoftSetBoolArg("-natpmp", false)) {
-            LogInfo("parameter interaction: -listen=0 -> setting -natpmp=0\n");
+            LogPrintf("%s: parameter interaction: -listen=0 -> setting -natpmp=0\n", __func__);
         }
         if (args.SoftSetBoolArg("-discover", false))
-            LogInfo("parameter interaction: -listen=0 -> setting -discover=0\n");
+            LogPrintf("%s: parameter interaction: -listen=0 -> setting -discover=0\n", __func__);
         if (args.SoftSetBoolArg("-listenonion", false))
-            LogInfo("parameter interaction: -listen=0 -> setting -listenonion=0\n");
+            LogPrintf("%s: parameter interaction: -listen=0 -> setting -listenonion=0\n", __func__);
         if (args.SoftSetBoolArg("-i2pacceptincoming", false)) {
-            LogInfo("parameter interaction: -listen=0 -> setting -i2pacceptincoming=0\n");
+            LogPrintf("%s: parameter interaction: -listen=0 -> setting -i2pacceptincoming=0\n", __func__);
         }
     }
 
     if (args.IsArgSet("-externalip")) {
         // if an explicit public IP is specified, do not try to find others
         if (args.SoftSetBoolArg("-discover", false))
-            LogInfo("parameter interaction: -externalip set -> setting -discover=0\n");
+            LogPrintf("%s: parameter interaction: -externalip set -> setting -discover=0\n", __func__);
     }
 
     if (args.GetBoolArg("-blocksonly", DEFAULT_BLOCKSONLY)) {
         // disable whitelistrelay in blocksonly mode
         if (args.SoftSetBoolArg("-whitelistrelay", false))
-            LogInfo("parameter interaction: -blocksonly=1 -> setting -whitelistrelay=0\n");
+            LogPrintf("%s: parameter interaction: -blocksonly=1 -> setting -whitelistrelay=0\n", __func__);
         // Reduce default mempool size in blocksonly mode to avoid unexpected resource usage
         if (args.SoftSetArg("-maxmempool", ToString(DEFAULT_BLOCKSONLY_MAX_MEMPOOL_SIZE_MB)))
-            LogInfo("parameter interaction: -blocksonly=1 -> setting -maxmempool=%d\n", DEFAULT_BLOCKSONLY_MAX_MEMPOOL_SIZE_MB);
+            LogPrintf("%s: parameter interaction: -blocksonly=1 -> setting -maxmempool=%d\n", __func__, DEFAULT_BLOCKSONLY_MAX_MEMPOOL_SIZE_MB);
     }
 
     // Forcing relay from whitelisted hosts implies we will accept relays from them in the first place.
     if (args.GetBoolArg("-whitelistforcerelay", DEFAULT_WHITELISTFORCERELAY)) {
         if (args.SoftSetBoolArg("-whitelistrelay", true))
-            LogInfo("parameter interaction: -whitelistforcerelay=1 -> setting -whitelistrelay=1\n");
+            LogPrintf("%s: parameter interaction: -whitelistforcerelay=1 -> setting -whitelistrelay=1\n", __func__);
     }
     if (args.IsArgSet("-onlynet")) {
         const auto onlynets = args.GetArgs("-onlynet");
@@ -808,7 +807,7 @@ void InitParameterInteraction(ArgsManager& args)
             return n == NET_IPV4 || n == NET_IPV6;
         });
         if (!clearnet_reachable && args.SoftSetBoolArg("-dnsseed", false)) {
-            LogInfo("parameter interaction: -onlynet excludes IPv4 and IPv6 -> setting -dnsseed=0\n");
+            LogPrintf("%s: parameter interaction: -onlynet excludes IPv4 and IPv6 -> setting -dnsseed=0\n", __func__);
         }
     }
 }
@@ -840,7 +839,7 @@ std::set<BlockFilterType> g_enabled_filter_types;
 {
     // Rather than throwing std::bad-alloc if allocation fails, terminate
     // immediately to (try to) avoid chain corruption.
-    // Since logging may itself allocate memory, set the handler directly
+    // Since LogPrintf may itself allocate memory, set the handler directly
     // to terminate first.
     std::set_new_handler(std::terminate);
     LogError("Out of memory. Terminating.\n");
@@ -1532,19 +1531,17 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
     if (!result) {
         return InitError(util::ErrorString(result));
     }
-    mempool_opts.check_ratio = std::clamp<int>(mempool_opts.check_ratio, 0, 1'000'000);
-
-    int64_t descendant_limit_bytes = mempool_opts.limits.descendant_size_vbytes * 40;
-    if (mempool_opts.max_size_bytes < 0 || mempool_opts.max_size_bytes < descendant_limit_bytes) {
-        return InitError(strprintf(_("-maxmempool must be at least %d MB"), std::ceil(descendant_limit_bytes / 1'000'000.0)));
-    }
-    LogPrintf("* Using %.1f MiB for in-memory UTXO set (plus up to %.1f MiB of unused mempool space)\n", cache_sizes.coins * (1.0 / 1024 / 1024), mempool_opts.max_size_bytes * (1.0 / 1024 / 1024));
 
     bool do_reindex{args.GetBoolArg("-reindex", false)};
     const bool do_reindex_chainstate{args.GetBoolArg("-reindex-chainstate", false)};
 
     for (bool fLoaded = false; !fLoaded && !ShutdownRequested(node);) {
-        node.mempool = std::make_unique<CTxMemPool>(mempool_opts);
+        bilingual_str mempool_error;
+        node.mempool = std::make_unique<CTxMemPool>(mempool_opts, mempool_error);
+        if (!mempool_error.empty()) {
+            return InitError(mempool_error);
+        }
+        LogPrintf("* Using %.1f MiB for in-memory UTXO set (plus up to %.1f MiB of unused mempool space)\n", cache_sizes.coins * (1.0 / 1024 / 1024), mempool_opts.max_size_bytes * (1.0 / 1024 / 1024));
 
         node.chainman = std::make_unique<ChainstateManager>(*Assert(node.shutdown), chainman_opts, blockman_opts);
         ChainstateManager& chainman = *node.chainman;

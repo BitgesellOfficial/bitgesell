@@ -10,9 +10,9 @@
 #include <qt/platformstyle.h>
 #include <qt/walletmodel.h>
 
+#include <common/signmessage.h> // For MessageSign(), MessageVerify()
 #include <config/BGL-config.h> // IWYU pragma: keep
 #include <key_io.h>
-#include <util/message.h> // For MessageSign(), MessageVerify()
 #include <wallet/wallet.h>
 
 #include <vector>
@@ -20,9 +20,8 @@
 #include <QClipboard>
 
 SignVerifyMessageDialog::SignVerifyMessageDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
-    QDialog(parent),
+    QDialog(parent, GUIUtil::dialog_flags),
     ui(new Ui::SignVerifyMessageDialog),
-    model(nullptr),
     platformStyle(_platformStyle)
 {
     ui->setupUi(this);

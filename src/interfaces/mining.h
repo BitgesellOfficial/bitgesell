@@ -10,11 +10,13 @@
 #include <uint256.h>
 
 namespace node {
+struct CBlockTemplate;
 struct NodeContext;
 } // namespace node
 
 class BlockValidationState;
 class CBlock;
+class CScript;
 
 namespace interfaces {
 
@@ -52,10 +54,6 @@ public:
      * @returns     If the block was processed, independently of block validity
      */
     virtual bool processNewBlock(const std::shared_ptr<const CBlock>& block, bool* new_block) = 0;
-
-    //! Return the number of transaction updates in the mempool,
-    //! used to decide whether to make a new block template.
-    virtual unsigned int getTransactionsUpdated() = 0;
 
     //! Return the number of transaction updates in the mempool,
     //! used to decide whether to make a new block template.

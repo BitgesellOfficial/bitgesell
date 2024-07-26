@@ -50,6 +50,7 @@ using interfaces::Mining;
 using node::NodeContext;
 using node::RegenerateCommitments;
 using node::UpdateTime;
+using util::ToString;
 
 /**
  * Return average network hashes per second based on the last 'lookup' blocks,
@@ -123,7 +124,7 @@ static RPCHelpMan getnetworkhashps()
 {
     ChainstateManager& chainman = EnsureAnyChainman(request.context);
     LOCK(cs_main);
-    return GetNetworkHashPS(self.Arg<int>(0), self.Arg<int>(1), chainman.ActiveChain());
+    return GetNetworkHashPS(self.Arg<int>("nblocks"), self.Arg<int>("height"), chainman.ActiveChain());
 },
     };
 }
@@ -230,12 +231,12 @@ static RPCHelpMan generatetodescriptor()
             "\nGenerate 11 blocks to mydesc\n" + HelpExampleCli("generatetodescriptor", "11 \"mydesc\"")},
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
-    const auto num_blocks{self.Arg<int>(0)};
-    const auto max_tries{self.Arg<uint64_t>(2)};
+    const auto num_blocks{self.Arg<int>("num_blocks")};
+    const auto max_tries{self.Arg<uint64_t>("maxtries")};
 
     CScript coinbase_script;
     std::string error;
-    if (!getScriptFromDescriptor(self.Arg<std::string>(1), coinbase_script, error)) {
+    if (!getScriptFromDescriptor(self.Arg<std::string>("descriptor"), coinbase_script, error)) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, error);
     }
 
@@ -485,7 +486,7 @@ static RPCHelpMan prioritisetransaction()
     LOCK(cs_main);
 
     uint256 hash(ParseHashV(request.params[0], "txid"));
-    const auto dummy{self.MaybeArg<double>(1)};
+    const auto dummy{self.MaybeArg<double>("dummy")};
     CAmount nAmount = request.params[2].getInt<int64_t>();
 
     if (dummy && *dummy != 0) {
@@ -701,7 +702,6 @@ static RPCHelpMan getblocktemplate()
                 return "duplicate-inconclusive";
             }
 
-            CBlockIndex* const pindexPrev = active_chain.Tip();
             // testBlockValidity only supports blocks built on the current Tip
             if (block.hashPrevBlock != tip) {
                 return "inconclusive-not-best-prevblk";
@@ -832,8 +832,8 @@ static RPCHelpMan getblocktemplate()
     pblock->nNonce = 0;
 
     // NOTE: If at some point we support pre-segwit miners post-segwit-activation, this needs to take segwit support into consideration
-    const bool fPreSegWit = !(DeploymentActiveAfter(pindexPrev, chainman, Consensus::DEPLOYMENT_SEGWIT) || chainman.GetConsensus().SegwitHeight >= 1);
-    // NOTE: Bitgesell sets segwit-activation at height 1
+    const bool fPreSegWit = !DeploymentActiveAfter(pindexPrev, chainman, Consensus::DEPLOYMENT_SEGWIT);
+
     UniValue aCaps(UniValue::VARR); aCaps.push_back("proposal");
 
     UniValue transactions(UniValue::VARR);

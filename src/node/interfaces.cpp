@@ -861,12 +861,7 @@ public:
         return tip->GetBlockHash();
     }
 
-    unsigned int getTransactionsUpdated() override
-    {
-        return context()->mempool->GetTransactionsUpdated();
-    }
-
-    bool testBlockValidity(BlockValidationState& state, const CBlock& block, bool check_merkle_root) override
+    bool processNewBlock(const std::shared_ptr<const CBlock>& block, bool* new_block) override
     {
         return chainman().ProcessNewBlock(block, /*force_processing=*/true, /*min_pow_checked=*/true, /*new_block=*/new_block);
     }

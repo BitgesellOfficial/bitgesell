@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_NODE_ABORT_H
-#define BITCOIN_NODE_ABORT_H
+#ifndef BGL_NODE_ABORT_H
+#define BGL_NODE_ABORT_H
 
 #include <atomic>
 
@@ -18,4 +18,4 @@ class Warnings;
 void AbortNode(util::SignalInterrupt* shutdown, std::atomic<int>& exit_status, const bilingual_str& message, node::Warnings* warnings);
 } // namespace node
 
-#endif // BITCOIN_NODE_ABORT_H
+#endif // BGL_NODE_ABORT_H

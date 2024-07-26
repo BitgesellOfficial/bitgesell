@@ -164,7 +164,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">确认钱包加密</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BGLS&lt;/b&gt;!</source>
         <translation type="unfinished">警告: 如果把钱包加密后又忘记密码，你就会从此&lt;b&gt;失去其中所有的比特币了&lt;/b&gt;！</translation>
     </message>
     <message>

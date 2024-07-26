@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BGL_UTIL_MESSAGE_H
-#define BGL_UTIL_MESSAGE_H
+#ifndef BGL_COMMON_SIGNMESSAGE_H
+#define BGL_COMMON_SIGNMESSAGE_H
 
 #include <uint256.h>
 
@@ -74,4 +74,4 @@ uint256 MessageHash(const std::string& message);
 
 std::string SigningResultString(const SigningResult res);
 
-#endif // BGL_UTIL_MESSAGE_H
+#endif // BGL_COMMON_SIGNMESSAGE_H

@@ -405,7 +405,6 @@ AX_CHECK_COMPILE_FLAG([-Wimplicit-fallthrough], [WARN_CXXFLAGS="$WARN_CXXFLAGS -
 AX_CHECK_COMPILE_FLAG([-Wunreachable-code], [WARN_CXXFLAGS="$WARN_CXXFLAGS -Wunreachable-code"], [], [$CXXFLAG_WERROR])
 AX_CHECK_COMPILE_FLAG([-Wdocumentation], [WARN_CXXFLAGS="$WARN_CXXFLAGS -Wdocumentation"], [], [$CXXFLAG_WERROR])
 AX_CHECK_COMPILE_FLAG([-Wself-assign], [WARN_CXXFLAGS="$WARN_CXXFLAGS -Wself-assign"], [], [$CXXFLAG_WERROR])
-AX_CHECK_COMPILE_FLAG([-Wundef], [WARN_CXXFLAGS="$WARN_CXXFLAGS -Wundef"], [], [$CXXFLAG_WERROR])
 
 dnl Some compilers (gcc) ignore unknown -Wno-* options, but warn about all
 dnl unknown options if any other warning is produced. Test the -Wfoo case, and
@@ -813,98 +812,69 @@ fi
 dnl Check for endianness
 AC_C_BIGENDIAN
 
-AC_ARG_ENABLE(tests,
-    AS_HELP_STRING([--enable-tests],[compile tests [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_tests], [yes], [yes])])
+dnl Check for pthread compile/link requirements
+AX_PTHREAD
 
-AC_ARG_ENABLE(ctime_tests,
-    AS_HELP_STRING([--enable-ctime-tests],[compile constant-time tests [default=yes if valgrind enabled]]), [],
-    [SECP_SET_DEFAULT([enable_ctime_tests], [auto], [auto])])
+dnl Check if -latomic is required for <std::atomic>
+CHECK_ATOMIC
 
-AC_ARG_ENABLE(experimental,
-    AS_HELP_STRING([--enable-experimental],[allow experimental configure options [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_experimental], [no], [yes])])
+dnl The following macro will add the necessary defines to BGL-config.h, but
+dnl they also need to be passed down to any subprojects. Pull the results out of
+dnl the cache and add them to CPPFLAGS.
+AC_SYS_LARGEFILE
+dnl detect POSIX or GNU variant of strerror_r
+AC_FUNC_STRERROR_R
 
-AC_ARG_ENABLE(exhaustive_tests,
-    AS_HELP_STRING([--enable-exhaustive-tests],[compile exhaustive tests [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_exhaustive_tests], [yes], [yes])])
+if test "$ac_cv_sys_file_offset_bits" != "" &&
+   test "$ac_cv_sys_file_offset_bits" != "no" &&
+   test "$ac_cv_sys_file_offset_bits" != "unknown"; then
+  CORE_CPPFLAGS="$CORE_CPPFLAGS -D_FILE_OFFSET_BITS=$ac_cv_sys_file_offset_bits"
+fi
 
-AC_ARG_ENABLE(examples,
-    AS_HELP_STRING([--enable-examples],[compile the examples [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_examples], [no], [yes])])
+if test "$ac_cv_sys_large_files" != "" &&
+   test "$ac_cv_sys_large_files" != "no" &&
+   test "$ac_cv_sys_large_files" != "unknown"; then
+  CORE_CPPFLAGS="$CORE_CPPFLAGS -D_LARGE_FILES=$ac_cv_sys_large_files"
+fi
 
-AC_ARG_ENABLE(module_ecdh,
-    AS_HELP_STRING([--enable-module-ecdh],[enable ECDH module [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_module_ecdh], [yes], [yes])])
+if test "$TARGET_OS" != "windows"; then
+  dnl All windows code is PIC, forcing it on just adds useless compile warnings
+  AX_CHECK_COMPILE_FLAG([-fPIC], [PIC_FLAGS="-fPIC"])
+fi
 
-AC_ARG_ENABLE(module_recovery,
-    AS_HELP_STRING([--enable-module-recovery],[enable ECDSA pubkey recovery module [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_module_recovery], [no], [yes])])
+if test "$use_hardening" != "no"; then
+  AX_CHECK_COMPILE_FLAG([-Wstack-protector], [HARDENED_CXXFLAGS="$HARDENED_CXXFLAGS -Wstack-protector"])
+  AX_CHECK_COMPILE_FLAG([-fstack-protector-all], [HARDENED_CXXFLAGS="$HARDENED_CXXFLAGS -fstack-protector-all"])
 
-AC_ARG_ENABLE(module_extrakeys,
-    AS_HELP_STRING([--enable-module-extrakeys],[enable extrakeys module [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_module_extrakeys], [yes], [yes])])
+  AX_CHECK_COMPILE_FLAG([-fcf-protection=full], [HARDENED_CXXFLAGS="$HARDENED_CXXFLAGS -fcf-protection=full"])
 
-AC_ARG_ENABLE(module_schnorrsig,
-    AS_HELP_STRING([--enable-module-schnorrsig],[enable schnorrsig module [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_module_schnorrsig], [yes], [yes])])
+  case $host in
+    *mingw*)
+      dnl stack-clash-protection doesn't compile with GCC 10 and earlier.
+      dnl In any case, it is a no-op for Windows.
+      dnl See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90458 for more details.
+      ;;
+    *)
+      AX_CHECK_COMPILE_FLAG([-fstack-clash-protection], [HARDENED_CXXFLAGS="$HARDENED_CXXFLAGS -fstack-clash-protection"], [], [$CXXFLAG_WERROR])
+      ;;
+  esac
 
-AC_ARG_ENABLE(module_ellswift,
-    AS_HELP_STRING([--enable-module-ellswift],[enable ElligatorSwift module [default=yes]]), [],
-    [SECP_SET_DEFAULT([enable_module_ellswift], [yes], [yes])])
+  case $host in
+    *aarch64*)
+      AX_CHECK_COMPILE_FLAG([-mbranch-protection=bti], [HARDENED_CXXFLAGS="$HARDENED_CXXFLAGS -mbranch-protection=bti"])
+    ;;
+  esac
 
-AC_ARG_ENABLE(external_default_callbacks,
-    AS_HELP_STRING([--enable-external-default-callbacks],[enable external default callback functions [default=no]]), [],
-    [SECP_SET_DEFAULT([enable_external_default_callbacks], [no], [no])])
-
-# Test-only override of the (autodetected by the C code) "widemul" setting.
-# Legal values are:
-#  * int64 (for [u]int64_t),
-#  * int128 (for [unsigned] __int128),
-#  * int128_struct (for int128 implemented as a structure),
-#  *  and auto (the default).
-AC_ARG_WITH([test-override-wide-multiply], [] ,[set_widemul=$withval], [set_widemul=auto])
-
-AC_ARG_WITH([asm], [AS_HELP_STRING([--with-asm=x86_64|arm32|no|auto],
-[assembly to use (experimental: arm32) [default=auto]])],[req_asm=$withval], [req_asm=auto])
-
-AC_ARG_WITH([ecmult-window], [AS_HELP_STRING([--with-ecmult-window=SIZE],
-[window size for ecmult precomputation for verification, specified as integer in range [2..24].]
-[Larger values result in possibly better performance at the cost of an exponentially larger precomputed table.]
-[The table will store 2^(SIZE-1) * 64 bytes of data but can be larger in memory due to platform-specific padding and alignment.]
-[A window size larger than 15 will require you delete the prebuilt precomputed_ecmult.c file so that it can be rebuilt.]
-[For very large window sizes, use "make -j 1" to reduce memory use during compilation.]
-[The default value is a reasonable setting for desktop machines (currently 15). [default=15]]
-)],
-[set_ecmult_window=$withval], [set_ecmult_window=15])
-
-AC_ARG_WITH([ecmult-gen-kb], [AS_HELP_STRING([--with-ecmult-gen-kb=2|22|86],
-[The size of the precomputed table for signing in multiples of 1024 bytes (on typical platforms).]
-[Larger values result in possibly better signing/keygeneration performance at the cost of a larger table.]
-[The default value is a reasonable setting for desktop machines (currently 22). [default=22]]
-)],
-[set_ecmult_gen_kb=$withval], [set_ecmult_gen_kb=22])
-
-AC_ARG_WITH([valgrind], [AS_HELP_STRING([--with-valgrind=yes|no|auto],
-[Build with extra checks for running inside Valgrind [default=auto]]
-)],
-[req_valgrind=$withval], [req_valgrind=auto])
-
-###
-### Handle config options (except for modules)
-###
-
-if test x"$req_valgrind" = x"no"; then
-  enable_valgrind=no
-else
-  SECP_VALGRIND_CHECK
-  if test x"$has_valgrind" != x"yes"; then
-    if test x"$req_valgrind" = x"yes"; then
-      AC_MSG_ERROR([Valgrind support explicitly requested but valgrind/memcheck.h header not available])
-    fi
-    enable_valgrind=no
-  else
-    enable_valgrind=yes
+  dnl When enable_debug is yes, all optimizations are disabled.
+  dnl However, FORTIFY_SOURCE requires that there is some level of optimization, otherwise it does nothing and just creates a compiler warning.
+  dnl Since FORTIFY_SOURCE is a no-op without optimizations, do not enable it when enable_debug is yes.
+  if test "$enable_debug" != "yes"; then
+    AX_CHECK_PREPROC_FLAG([-D_FORTIFY_SOURCE=3],[
+      AX_CHECK_PREPROC_FLAG([-U_FORTIFY_SOURCE],[
+        HARDENED_CPPFLAGS="$HARDENED_CPPFLAGS -U_FORTIFY_SOURCE"
+      ])
+      HARDENED_CPPFLAGS="$HARDENED_CPPFLAGS -D_FORTIFY_SOURCE=3"
+    ])
   fi
 
   AX_CHECK_LINK_FLAG([-Wl,--enable-reloc-section], [HARDENED_LDFLAGS="$HARDENED_LDFLAGS -Wl,--enable-reloc-section"], [], [$LDFLAG_WERROR])
@@ -926,28 +896,64 @@ if test "$TARGET_OS" = "darwin"; then
   AX_CHECK_LINK_FLAG([-Wl,-fixup_chains], [HARDENED_LDFLAGS="$HARDENED_LDFLAGS -Wl,-fixup_chains"], [], [$LDFLAG_WERROR])
 fi
 
-print_msan_notice=no
-if test x"$enable_ctime_tests" = x"yes"; then
-  SECP_MSAN_CHECK
-  # MSan on Clang >=16 reports unitialized memory in function parameters and return values, even if
-  # the uninitalized variable is never actually "used". This is called "eager" checking, and it's
-  # sounds like good idea for normal use of MSan. However, it yields many false positives in the
-  # ctime_tests because many return values depend on secret (i.e., "uninitialized") values, and
-  # we're only interested in detecting branches (which count as "uses") on secret data.
-  if test x"$msan_enabled" = x"yes"; then
-    SECP_TRY_APPEND_CFLAGS([-fno-sanitize-memory-param-retval], SECP_CFLAGS)
-    print_msan_notice=yes
-  fi
-fi
+AC_CHECK_HEADERS([sys/select.h sys/prctl.h vm/vm_param.h sys/vmmeter.h sys/resources.h])
 
-if test x"$enable_coverage" = x"yes"; then
-    SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DCOVERAGE=1"
-    SECP_CFLAGS="-O0 --coverage $SECP_CFLAGS"
-    # If coverage is enabled, and the user has not overridden CFLAGS,
-    # override Autoconf's value "-g -O2" with "-g". Otherwise we'd end up
-    # with "-O0 --coverage -g -O2".
-    if test "$CFLAGS_overridden" = "no"; then
-      CFLAGS="-g"
+AC_CHECK_DECLS([getifaddrs, freeifaddrs],[CHECK_SOCKET],,
+    [#include <sys/types.h>
+    #include <ifaddrs.h>]
+)
+
+dnl These are used for daemonization in BGLd
+AC_CHECK_DECLS([fork])
+AC_CHECK_DECLS([setsid])
+
+AC_CHECK_DECLS([pipe2])
+
+dnl Check for malloc_info (for memory statistics information in getmemoryinfo)
+AC_MSG_CHECKING([for getmemoryinfo])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <malloc.h>]],
+ [[ int f = malloc_info(0, NULL); ]])],
+ [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_MALLOC_INFO], [1], [Define this symbol if you have malloc_info]) ],
+ [ AC_MSG_RESULT([no])]
+)
+
+dnl Check for mallopt(M_ARENA_MAX) (to set glibc arenas)
+AC_MSG_CHECKING([for mallopt M_ARENA_MAX])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <malloc.h>]],
+ [[ mallopt(M_ARENA_MAX, 1); ]])],
+ [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_MALLOPT_ARENA_MAX], [1], [Define this symbol if you have mallopt with M_ARENA_MAX]) ],
+ [ AC_MSG_RESULT([no])]
+)
+
+dnl Check for posix_fallocate
+AC_MSG_CHECKING([for posix_fallocate])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+                   // same as in src/util/fs_helpers.cpp
+                   #ifdef __linux__
+                   #ifdef _POSIX_C_SOURCE
+                   #undef _POSIX_C_SOURCE
+                   #endif
+                   #define _POSIX_C_SOURCE 200112L
+                   #endif // __linux__
+                   #include <fcntl.h>]],
+                   [[ int f = posix_fallocate(0, 0, 0); ]])],
+ [ AC_MSG_RESULT([yes]); AC_DEFINE([HAVE_POSIX_FALLOCATE], [1], [Define this symbol if you have posix_fallocate]) ],
+ [ AC_MSG_RESULT([no])]
+)
+
+AC_MSG_CHECKING([for default visibility attribute])
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+  int foo(void) __attribute__((visibility("default")));
+  int main(){}
+  ])],
+  [
+    AC_DEFINE([HAVE_DEFAULT_VISIBILITY_ATTRIBUTE], [1], [Define if the visibility attribute is supported.])
+    AC_MSG_RESULT([yes])
+  ],
+  [
+    AC_MSG_RESULT([no])
+    if test "$use_reduce_exports" = "yes"; then
+      AC_MSG_ERROR([Cannot find a working visibility attribute. Use --disable-reduce-exports.])
     fi
   ]
 )
@@ -1262,30 +1268,42 @@ if test "$use_natpmp" != "no"; then
     AC_CHECK_LIB([natpmp], [initnatpmp], [NATPMP_LIBS="$NATPMP_LIBS -lnatpmp"], [have_natpmp=no], [$NATPMP_LIBS])
   fi
 
-error_window_size=['window size for ecmult precomputation not an integer in range [2..24]']
-case $set_ecmult_window in
-''|*[[!0-9]]*)
-  # no valid integer
-  AC_MSG_ERROR($error_window_size)
-  ;;
-*)
-  if test "$set_ecmult_window" -lt 2 -o "$set_ecmult_window" -gt 24 ; then
-    # not in range
-    AC_MSG_ERROR($error_window_size)
+  CPPFLAGS="$TEMP_CPPFLAGS"
+fi
+
+if test "$build_BGL_wallet$build_BGL_cli$build_BGL_tx$build_BGL_util$build_BGLd$BGL_enable_qt$use_tests$use_bench$enable_fuzz_binary" = "nonononononononono"; then
+  use_boost=no
+else
+  use_boost=yes
+fi
+
+if test "$use_boost" = "yes"; then
+
+  dnl Check for Boost headers
+  AX_BOOST_BASE([1.73.0],[],[AC_MSG_ERROR([Boost is not available!])])
+  if test "$want_boost" = "no"; then
+    AC_MSG_ERROR([Boost is required])
   fi
 
-case $set_ecmult_gen_kb in
-2)
-  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DCOMB_BLOCKS=2 -DCOMB_TEETH=5"
-  ;;
-22)
-  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DCOMB_BLOCKS=11 -DCOMB_TEETH=6"
-  ;;
-86)
-  SECP_CONFIG_DEFINES="$SECP_CONFIG_DEFINES -DCOMB_BLOCKS=43 -DCOMB_TEETH=6"
-  ;;
-*)
-  AC_MSG_ERROR(['ecmult gen table size not 2, 22 or 86'])
+  dnl we don't use multi_index serialization
+  BOOST_CPPFLAGS="$BOOST_CPPFLAGS -DBOOST_MULTI_INDEX_DISABLE_SERIALIZATION"
+
+  dnl Prevent use of std::unary_function, which was removed in C++17,
+  dnl and will generate warnings with newer compilers for Boost
+  dnl older than 1.80.
+  dnl See: https://github.com/boostorg/config/pull/430.
+  AX_CHECK_PREPROC_FLAG([-DBOOST_NO_CXX98_FUNCTION_BASE], [BOOST_CPPFLAGS="$BOOST_CPPFLAGS -DBOOST_NO_CXX98_FUNCTION_BASE"], [], [$CXXFLAG_WERROR],
+                        [AC_LANG_PROGRAM([[#include <boost/config.hpp>]])])
+
+  if test "$suppress_external_warnings" != "no"; then
+    BOOST_CPPFLAGS=SUPPRESS_WARNINGS($BOOST_CPPFLAGS)
+  fi
+fi
+
+case $host in
+  dnl Re-enable it after enabling Windows support in cpp-subprocess.
+  *mingw*)
+    use_external_signer="no"
   ;;
 esac
 if test "$use_external_signer" = "yes"; then
@@ -1374,9 +1392,6 @@ if test "$with_libmultiprocess" = "yes" || test "$with_libmultiprocess" = "auto"
   PKG_CHECK_MODULES([LIBMULTIPROCESS], [libmultiprocess], [
      libmultiprocess_found=yes;
      libmultiprocess_prefix=`$PKG_CONFIG --variable=prefix libmultiprocess`;
-     if test "$suppress_external_warnings" != "no" ; then
-       LIBMULTIPROCESS_CFLAGS=SUPPRESS_WARNINGS($LIBMULTIPROCESS_CFLAGS)
-     fi
   ], [true])
 elif test "$with_libmultiprocess" != "no"; then
   AC_MSG_ERROR([--with-libmultiprocess=$with_libmultiprocess value is not yes, auto, or no])
@@ -1495,9 +1510,24 @@ else
   fi
 fi
 
-if test x"$enable_experimental" = x"no"; then
-  if test x"$set_asm" = x"arm32"; then
-    AC_MSG_ERROR([ARM32 assembly is experimental. Use --enable-experimental to allow.])
+dnl Enable NAT-PMP support.
+AC_MSG_CHECKING([whether to build with support for NAT-PMP])
+if test "$have_natpmp" = "no"; then
+  if test "$use_natpmp" = "yes"; then
+     AC_MSG_ERROR([NAT-PMP requested but cannot be built. Use --without-natpmp])
+  fi
+  AC_MSG_RESULT([no])
+  use_natpmp=no
+else
+  if test "$use_natpmp" != "no"; then
+    AC_MSG_RESULT([yes])
+    use_natpmp=yes
+    AC_DEFINE([USE_NATPMP], [1], [Define to 1 if UPnP support should be compiled in.])
+    if test "$TARGET_OS" = "windows"; then
+      NATPMP_CPPFLAGS="$NATPMP_CPPFLAGS -DSTATICLIB -DNATPMP_STATICLIB"
+    fi
+  else
+    AC_MSG_RESULT([no])
   fi
 fi
 
@@ -1750,23 +1780,3 @@ echo "  LDFLAGS         = $PTHREAD_LIBS $HARDENED_LDFLAGS $SANITIZER_LDFLAGS $CO
 echo "  AR              = $AR"
 echo "  ARFLAGS         = $ARFLAGS"
 echo
-echo "  valgrind                = $enable_valgrind"
-echo "  CC                      = $CC"
-echo "  CPPFLAGS                = $CPPFLAGS"
-echo "  SECP_CFLAGS             = $SECP_CFLAGS"
-echo "  CFLAGS                  = $CFLAGS"
-echo "  LDFLAGS                 = $LDFLAGS"
-
-if test x"$print_msan_notice" = x"yes"; then
-  echo
-  echo "Note:"
-  echo "  MemorySanitizer detected, tried to add -fno-sanitize-memory-param-retval to SECP_CFLAGS"
-  echo "  to avoid false positives in ctime_tests. Pass --disable-ctime-tests to avoid this."
-fi
-
-if test x"$enable_experimental" = x"yes"; then
-  echo
-  echo "WARNING: Experimental build"
-  echo "  Experimental features do not have stable APIs or properties, and may not be safe for"
-  echo "  production use."
-fi

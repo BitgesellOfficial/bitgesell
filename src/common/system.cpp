@@ -28,9 +28,10 @@
 #include <string>
 #include <thread>
 
+using util::ReplaceAll;
+
 // Application startup time (used for uptime calculation)
 const int64_t nStartupTime = GetTime();
-
 
 #ifndef WIN32
 std::string ShellEscape(const std::string& arg)

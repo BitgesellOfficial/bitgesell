@@ -116,7 +116,7 @@ public:
      */
     CBlockHeaderAndShortTxIDs(const CBlock& block, const uint64_t nonce);
 
-    uint64_t GetShortID(const uint256& txhash) const;
+    uint64_t GetShortID(const Wtxid& wtxid) const;
 
     size_t BlockTxCount() const { return shorttxids.size() + prefilledtxn.size(); }
 

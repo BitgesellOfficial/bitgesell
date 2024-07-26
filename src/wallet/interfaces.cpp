@@ -8,6 +8,7 @@
 #include <consensus/amount.h>
 #include <interfaces/chain.h>
 #include <interfaces/handler.h>
+#include <node/types.h>
 #include <policy/fees.h>
 #include <primitives/transaction.h>
 #include <rpc/server.h>
@@ -34,6 +35,7 @@
 #include <utility>
 #include <vector>
 
+using common::PSBTError;
 using interfaces::Chain;
 using interfaces::FoundBlock;
 using interfaces::Handler;
@@ -286,7 +288,7 @@ public:
         if (!res) return util::Error{util::ErrorString(res)};
         const auto& txr = *res;
         fee = txr.fee;
-        change_pos = txr.change_pos ? *txr.change_pos : -1;
+        change_pos = txr.change_pos ? int(*txr.change_pos) : -1;
 
         return txr.tx;
     }
@@ -389,7 +391,7 @@ public:
         }
         return {};
     }
-    TransactionError fillPSBT(int sighash_type,
+    std::optional<PSBTError> fillPSBT(int sighash_type,
         bool sign,
         bool bip32derivs,
         size_t* n_signed,

@@ -48,14 +48,15 @@ from .util import assert_equal
 
 MAX_BLOCK_SIGOPS = 20000
 MAX_BLOCK_SIGOPS_WEIGHT = MAX_BLOCK_SIGOPS * WITNESS_SCALE_FACTOR
+MAX_STANDARD_TX_WEIGHT = 400000
 
 # Genesis block time (regtest)
 TIME_GENESIS_BLOCK = 1585958400
 
+MAX_FUTURE_BLOCK_TIME = 2 * 60 * 60
+
 # Coinbase transaction outputs can only be spent after this number of new blocks (network rule)
 COINBASE_MATURITY = 100
-
-MAX_FUTURE_BLOCK_TIME = 2 * 60 * 60
 
 # From BIP141
 WITNESS_COMMITMENT_HEADER = b"\xaa\x21\xa9\xed"

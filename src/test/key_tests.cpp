@@ -19,6 +19,8 @@
 
 #include <boost/test/unit_test.hpp>
 
+using util::ToString;
+
 static const std::string strSecret1 = "5HxWvvfubhXpYYpS3tJkw6fq9jE9j18THftkZjHHfmFiWtmAbrj";
 static const std::string strSecret2 = "5KC4ejrDjv152FGwP386VD1i2NYc5KkfSMyv1nGy1VGDxGHqVY3";
 static const std::string strSecret1C = "Kwr371tjA9u2rFSMZjTNun2PXXP3WPZu2afRHTcta6KxEUdm1vEw";
@@ -70,10 +72,6 @@ BOOST_AUTO_TEST_CASE(key_test1)
     BOOST_CHECK(!key2C.VerifyPubKey(pubkey1C));
     BOOST_CHECK(!key2C.VerifyPubKey(pubkey2));
     BOOST_CHECK(key2C.VerifyPubKey(pubkey2C));
-
-    CTxDestination dest1 = DecodeDestination(addr1);
-    CTxDestination dest2 = CTxDestination(PKHash(pubkey1));
-    BOOST_CHECK(dest1 == dest2);
 
     BOOST_CHECK(DecodeDestination(addr1)  == CTxDestination(PKHash(pubkey1)));
     BOOST_CHECK(DecodeDestination(addr2)  == CTxDestination(PKHash(pubkey2)));
@@ -178,20 +176,30 @@ BOOST_AUTO_TEST_CASE(key_signature_tests)
     }
     BOOST_CHECK(found);
 
-    // When entropy is not specified, we should always see low R signatures that are less than 70 bytes in 256 tries
+    // When entropy is not specified, we should always see low R signatures that are less than or equal to 70 bytes in 256 tries
+    // The low R signatures should always have the value of their "length of R" byte less than or equal to 32
     // We should see at least one signature that is less than 70 bytes.
-    found = true;
     bool found_small = false;
+    bool found_big = false;
+    bool bad_sign = false;
     for (int i = 0; i < 256; ++i) {
         sig.clear();
         std::string msg = "A message to be signed" + ToString(i);
         msg_hash = Hash(msg);
-        BOOST_CHECK(key.Sign(msg_hash, sig));
-        found = sig[3] == 0x20;
-        BOOST_CHECK(sig.size() <= 70);
+        if (!key.Sign(msg_hash, sig)) {
+            bad_sign = true;
+            break;
+        }
+        // sig.size() > 70 implies sig[3] > 32, because S is always low.
+        // But check both conditions anyway, just in case this implication is broken for some reason
+        if (sig[3] > 32 || sig.size() > 70) {
+            found_big = true;
+            break;
+        }
         found_small |= sig.size() < 70;
     }
-    BOOST_CHECK(found);
+    BOOST_CHECK(!bad_sign);
+    BOOST_CHECK(!found_big);
     BOOST_CHECK(found_small);
 }
 

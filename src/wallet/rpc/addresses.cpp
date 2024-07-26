@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2022 The Bitcoin Core developers
+// Copyright (c) 2011-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -287,9 +287,30 @@ RPCHelpMan addmultisigaddress()
         output_type = parsed.value();
     }
 
-    // Construct using pay-to-script-hash:
+    // Construct multisig scripts
+    FlatSigningProvider provider;
     CScript inner;
-    CTxDestination dest = AddAndGetMultisigDestination(required, pubkeys, output_type, spk_man, inner);
+    CTxDestination dest = AddAndGetMultisigDestination(required, pubkeys, output_type, provider, inner);
+
+    // Import scripts into the wallet
+    for (const auto& [id, script] : provider.scripts) {
+        // Due to a bug in the legacy wallet, the p2sh maximum script size limit is also imposed on 'p2sh-segwit' and 'bech32' redeem scripts.
+        // Even when redeem scripts over MAX_SCRIPT_ELEMENT_SIZE bytes are valid for segwit output types, we don't want to
+        // enable it because:
+        // 1) It introduces a compatibility-breaking change requiring downgrade protection; older wallets would be unable to interact with these "new" legacy wallets.
+        // 2) Considering the ongoing deprecation of the legacy spkm, this issue adds another good reason to transition towards descriptors.
+        if (script.size() > MAX_SCRIPT_ELEMENT_SIZE) throw JSONRPCError(RPC_WALLET_ERROR, "Unsupported multisig script size for legacy wallet. Upgrade to descriptors to overcome this limitation for p2sh-segwit or bech32 scripts");
+
+        if (!spk_man.AddCScript(script)) {
+            if (CScript inner_script; spk_man.GetCScript(CScriptID(script), inner_script)) {
+                CHECK_NONFATAL(inner_script == script); // Nothing to add, script already contained by the wallet
+                continue;
+            }
+            throw JSONRPCError(RPC_WALLET_ERROR, strprintf("Error importing script into the wallet"));
+        }
+    }
+
+    // Store destination in the addressbook
     pwallet->SetAddressBook(dest, label, AddressPurpose::SEND);
 
     // Make the descriptor
@@ -513,7 +534,7 @@ RPCHelpMan getaddressinfo()
                         {RPCResult::Type::BOOL, "solvable", "If we know how to spend coins sent to this address, ignoring the possible lack of private keys."},
                         {RPCResult::Type::STR, "desc", /*optional=*/true, "A descriptor for spending coins sent to this address (only when solvable)."},
                         {RPCResult::Type::STR, "parent_desc", /*optional=*/true, "The descriptor used to derive this address if this is a descriptor wallet"},
-                        {RPCResult::Type::BOOL, "isscript", "If the key is a script."},
+                        {RPCResult::Type::BOOL, "isscript", /*optional=*/true, "If the key is a script."},
                         {RPCResult::Type::BOOL, "ischange", "If the address was used for change output."},
                         {RPCResult::Type::BOOL, "iswitness", "If the address is a witness address."},
                         {RPCResult::Type::NUM, "witness_version", /*optional=*/true, "The version number of the witness program."},

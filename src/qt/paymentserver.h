@@ -6,7 +6,7 @@
 #define BGL_QT_PAYMENTSERVER_H
 
 // This class handles payment requests from clicking on
-// BGL: URIs
+// bitcoin: URIs
 //
 // This is somewhat tricky, because we have to deal with
 // the situation where the user clicks on a link during
@@ -49,6 +49,8 @@ class QByteArray;
 class QLocalServer;
 class QUrl;
 QT_END_NAMESPACE
+
+extern const QString BGL_IPC_PREFIX;
 
 class PaymentServer : public QObject
 {
@@ -97,9 +99,9 @@ protected:
     bool eventFilter(QObject *object, QEvent *event) override;
 
 private:
-    bool saveURIs;                      // true during startup
-    QLocalServer* uriServer;
-    OptionsModel *optionsModel;
+    bool saveURIs{true}; // true during startup
+    QLocalServer* uriServer{nullptr};
+    OptionsModel* optionsModel{nullptr};
 };
 
 #endif // BGL_QT_PAYMENTSERVER_H

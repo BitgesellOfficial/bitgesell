@@ -38,5 +38,4 @@ void StopWallets(WalletContext& context);
 void UnloadWallets(WalletContext& context);
 } // namespace wallet
 
-
 #endif // BGL_WALLET_LOAD_H

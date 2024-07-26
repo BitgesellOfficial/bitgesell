@@ -11,6 +11,7 @@
 #include <core_io.h>
 #include <kernel/mempool_entry.h>
 #include <node/mempool_persist_args.h>
+#include <node/types.h>
 #include <policy/rbf.h>
 #include <policy/settings.h>
 #include <primitives/transaction.h>
@@ -32,6 +33,8 @@ using node::DEFAULT_MAX_BURN_AMOUNT;
 using node::DEFAULT_MAX_RAW_TX_FEE_RATE;
 using node::MempoolPath;
 using node::NodeContext;
+using node::TransactionError;
+using util::ToString;
 
 static RPCHelpMan sendrawtransaction()
 {
@@ -82,7 +85,7 @@ static RPCHelpMan sendrawtransaction()
 
             CTransactionRef tx(MakeTransactionRef(std::move(mtx)));
 
-            const CFeeRate max_raw_tx_fee_rate{ParseFeeRate(self.Arg<UniValue>(1))};
+            const CFeeRate max_raw_tx_fee_rate{ParseFeeRate(self.Arg<UniValue>("maxfeerate"))};
 
             int64_t virtual_size = GetVirtualTransactionSize(*tx);
             CAmount max_raw_tx_fee = max_raw_tx_fee_rate.GetFee(virtual_size);
@@ -162,7 +165,7 @@ static RPCHelpMan testmempoolaccept()
                                    "Array must contain between 1 and " + ToString(MAX_PACKAGE_COUNT) + " transactions.");
             }
 
-            const CFeeRate max_raw_tx_fee_rate{ParseFeeRate(self.Arg<UniValue>(1))};
+            const CFeeRate max_raw_tx_fee_rate{ParseFeeRate(self.Arg<UniValue>("maxfeerate"))};
 
             std::vector<CTransactionRef> txns;
             txns.reserve(raw_transactions.size());
@@ -873,7 +876,7 @@ static RPCHelpMan submitpackage()
             }
 
             // Fee check needs to be run with chainstate and package context
-            const CFeeRate max_raw_tx_fee_rate = ParseFeeRate(self.Arg<UniValue>(1));
+            const CFeeRate max_raw_tx_fee_rate{ParseFeeRate(self.Arg<UniValue>("maxfeerate"))};
             std::optional<CFeeRate> client_maxfeerate{max_raw_tx_fee_rate};
             // 0-value is special; it's mapped to no sanity check
             if (max_raw_tx_fee_rate == CFeeRate(0)) {

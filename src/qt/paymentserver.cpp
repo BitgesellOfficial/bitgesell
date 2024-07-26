@@ -76,11 +76,7 @@ void PaymentServer::ipcParseCommandLine(int argc, char* argv[])
         QString arg(argv[i]);
         if (arg.startsWith("-")) continue;
 
-        // If the BGL: URI contains a payment request, we are not able to detect the
-        // network as that would require fetching and parsing the payment request.
-        // That means clicking such an URI which contains a testnet payment request
-        // will start a mainnet instance and throw a "wrong network" error.
-        if (arg.startsWith(BGL_IPC_PREFIX, Qt::CaseInsensitive)) // BGL: URI
+        if (arg.startsWith(BGL_IPC_PREFIX, Qt::CaseInsensitive)) // bitcoin: URI
         {
             savedPaymentRequests.insert(arg);
         }
@@ -126,14 +122,11 @@ bool PaymentServer::ipcSendCommandLine()
     return fResult;
 }
 
-PaymentServer::PaymentServer(QObject* parent, bool startLocalServer) :
-    QObject(parent),
-    saveURIs(true),
-    uriServer(nullptr),
-    optionsModel(nullptr)
+PaymentServer::PaymentServer(QObject* parent, bool startLocalServer)
+    : QObject(parent)
 {
     // Install global event filter to catch QFileOpenEvents
-    // on Mac: sent when you click BGL: links
+    // on Mac: sent when you click bitcoin: links
     // other OSes: helpful when dealing with payment request files
     if (parent)
         parent->installEventFilter(this);
@@ -161,7 +154,7 @@ PaymentServer::PaymentServer(QObject* parent, bool startLocalServer) :
 PaymentServer::~PaymentServer() = default;
 
 //
-// OSX-specific way of handling BGL: URIs
+// OSX-specific way of handling bitcoin: URIs
 //
 bool PaymentServer::eventFilter(QObject *object, QEvent *event)
 {
@@ -201,7 +194,7 @@ void PaymentServer::handleURIOrFile(const QString& s)
         Q_EMIT message(tr("URI handling"), tr("'BGL://' is not a valid URI. Use 'BGL:' instead."),
             CClientUIInterface::MSG_ERROR);
     }
-    else if (s.startsWith(BGL_IPC_PREFIX, Qt::CaseInsensitive)) // BGL: URI
+    else if (s.startsWith(BGL_IPC_PREFIX, Qt::CaseInsensitive)) // bitcoin: URI
     {
         QUrlQuery uri((QUrl(s)));
         // normal URI
@@ -228,7 +221,7 @@ void PaymentServer::handleURIOrFile(const QString& s)
             }
             else
                 Q_EMIT message(tr("URI handling"),
-                    tr("URI cannot be parsed! This can be caused by an invalid BGL address or malformed URI parameters."),
+                    tr("URI cannot be parsed! This can be caused by an invalid Bitgesell address or malformed URI parameters."),
                     CClientUIInterface::ICON_WARNING);
 
             return;

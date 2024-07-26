@@ -21,6 +21,8 @@
 #include <system_error>
 #include <vector>
 
+using util::ToString;
+
 inline bool operator==(const common::SettingsValue& a, const common::SettingsValue& b)
 {
     return a.write() == b.write();
@@ -254,7 +256,7 @@ BOOST_FIXTURE_TEST_CASE(Merge, MergeTestingSetup)
 
     // If check below fails, should manually dump the results with:
     //
-    //   SETTINGS_MERGE_TEST_OUT=results.txt ./test_BGL --run_test=settings_tests/Merge
+    //   SETTINGS_MERGE_TEST_OUT=results.txt ./test_bitcoin --run_test=settings_tests/Merge
     //
     // And verify diff against previous results to make sure the changes are expected.
     //

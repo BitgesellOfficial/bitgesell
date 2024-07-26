@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_NODE_TIMEOFFSETS_H
-#define BITCOIN_NODE_TIMEOFFSETS_H
+#ifndef BGL_NODE_TIMEOFFSETS_H
+#define BGL_NODE_TIMEOFFSETS_H
 
 #include <sync.h>
 
@@ -46,4 +46,4 @@ public:
     bool WarnIfOutOfSync() const EXCLUSIVE_LOCKS_REQUIRED(!m_mutex);
 };
 
-#endif // BITCOIN_NODE_TIMEOFFSETS_H
+#endif // BGL_NODE_TIMEOFFSETS_H
