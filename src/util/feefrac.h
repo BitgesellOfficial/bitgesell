@@ -191,19 +191,27 @@ struct FeeFrac
     /** Compute the fee for a given size `at_size` using this object's feerate.
      *
      * This effectively corresponds to evaluating (this->fee * at_size) / this->size, with the
+<<<<<<< HEAD
      * result rounded towards negative infinity (if RoundDown) or towards positive infinity
      * (if !RoundDown).
+=======
+     * result rounded down (even for negative feerates).
+>>>>>>> ecf956ec9d (feefrac: add support for evaluating at given size)
      *
      * Requires this->size > 0, at_size >= 0, and that the correct result fits in a int64_t. This
      * is guaranteed to be the case when 0 <= at_size <= this->size.
      */
+<<<<<<< HEAD
     template<bool RoundDown>
+=======
+>>>>>>> ecf956ec9d (feefrac: add support for evaluating at given size)
     int64_t EvaluateFee(int32_t at_size) const noexcept
     {
         Assume(size > 0);
         Assume(at_size >= 0);
         if (fee >= 0 && fee < 0x200000000) [[likely]] {
             // Common case where (this->fee * at_size) is guaranteed to fit in a uint64_t.
+<<<<<<< HEAD
             if constexpr (RoundDown) {
                 return (uint64_t(fee) * at_size) / uint32_t(size);
             } else {
@@ -220,6 +228,14 @@ public:
     int64_t EvaluateFeeDown(int32_t at_size) const noexcept { return EvaluateFee<true>(at_size); }
     /** Compute the fee for a given size `at_size` using this object's feerate, rounding up. */
     int64_t EvaluateFeeUp(int32_t at_size) const noexcept { return EvaluateFee<false>(at_size); }
+=======
+            return (uint64_t(fee) * at_size) / uint32_t(size);
+        } else {
+            // Otherwise, use Mul and Div.
+            return Div(Mul(fee, at_size), size);
+        }
+    }
+>>>>>>> ecf956ec9d (feefrac: add support for evaluating at given size)
 };
 
 /** Compare the feerate diagrams implied by the provided sorted chunks data.

@@ -141,8 +141,7 @@ FUZZ_TARGET(feefrac_div_fallback)
     assert(Abs256(res) == quot_abs);
 
     // Compare approximately with floating-point.
-    long double expect = round_down ? std::floor(num_high * 4294967296.0L + num_low) / den
-                                    : std::ceil(num_high * 4294967296.0L + num_low) / den;
+    long double expect = std::floor(num_high * 4294967296.0L + num_low) / den;
     // Expect to be accurate within 50 bits of precision, +- 1 sat.
     if (expect == 0.0L) {
         assert(res >= -1 && res <= 1);
@@ -184,7 +183,7 @@ FUZZ_TARGET(feefrac_mul_div)
     // If the result is not representable by an int64_t, bail out.
     if ((is_negative && quot_abs > MAX_ABS_INT64) || (!is_negative && quot_abs >= MAX_ABS_INT64)) {
         // If 0 <= mul32 <= div, then the result is guaranteed to be representable. In the context
-        // of the Evaluate{Down,Up} calls below, this corresponds to 0 <= at_size <= feefrac.size.
+        // of the Evaluate call below, this corresponds to 0 <= at_size <= feefrac.size.
         assert(mul32 < 0 || mul32 > div);
         return;
     }
@@ -199,8 +198,7 @@ FUZZ_TARGET(feefrac_mul_div)
     assert(res == res_fallback);
 
     // Compare approximately with floating-point.
-    long double expect = round_down ? std::floor(static_cast<long double>(mul32) * mul64 / div)
-                                    : std::ceil(static_cast<long double>(mul32) * mul64 / div);
+    long double expect = std::floor(static_cast<long double>(mul32) * mul64 / div);
     // Expect to be accurate within 50 bits of precision, +- 1 sat.
     if (expect == 0.0L) {
         assert(res >= -1 && res <= 1);
@@ -212,22 +210,9 @@ FUZZ_TARGET(feefrac_mul_div)
         assert(res <= expect * 0.999999999999999L + 1.0L);
     }
 
-    // Verify the behavior of FeeFrac::Evaluate{Down,Up}.
+    // Verify the behavior of FeeFrac::Evaluate.
     if (mul32 >= 0) {
-        auto res_fee = round_down ?
-            FeeFrac{mul64, div}.EvaluateFeeDown(mul32) :
-            FeeFrac{mul64, div}.EvaluateFeeUp(mul32);
+        auto res_fee = FeeFrac{mul64, div}.EvaluateFee(mul32);
         assert(res == res_fee);
-
-        // Compare approximately with CFeeRate.
-        if (mul64 <= std::numeric_limits<int64_t>::max() / 1000 &&
-            mul64 >= std::numeric_limits<int64_t>::min() / 1000 &&
-            quot_abs <= arith_uint256{std::numeric_limits<int64_t>::max() / 1000}) {
-            CFeeRate feerate(mul64, (uint32_t)div);
-            CAmount feerate_fee{feerate.GetFee(mul32)};
-            auto allowed_gap = static_cast<int64_t>(mul32 / 1000 + 3 + round_down);
-            assert(feerate_fee - res_fee >= -allowed_gap);
-            assert(feerate_fee - res_fee <= allowed_gap);
-        }
     }
 }
