@@ -66,7 +66,23 @@ BGL Core includes a GUI built with the cross-platform Qt Framework. To compile t
 pkg_add qtbase qttools
 ```
 
-## Building BGL Core
+###### libqrencode
+
+The GUI can encode addresses in a QR Code. To build in QR support for the GUI, install `libqrencode`. Skip if not using the GUI or don't want QR code functionality.
+```bash
+pkg_add libqrencode
+```
+---
+
+#### Notifications
+###### ZeroMQ
+
+Bitcoin Core can provide notifications via ZeroMQ. If the package is installed, support will be compiled in.
+```bash
+pkg_add zeromq
+```
+
+## Building Bitcoin Core
 
 **Important**: Use `gmake` (the non-GNU `make` will exit with an error).
 
