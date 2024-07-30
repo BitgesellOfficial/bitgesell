@@ -224,12 +224,20 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Лозинка коју сте унели за дешифровање новчаника је погрешна.</translation>
     </message>
     <message>
+        <source>The passphrase entered for the wallet decryption is incorrect. It contains a null character (ie - a zero byte). If the passphrase was set with a version of this software prior to 25.0, please try again with only the characters up to — but not including — the first null character. If this is successful, please set a new passphrase to avoid this issue in the future.</source>
+        <translation type="unfinished">Приступна фраза унета за дешифровање новчаника је нетачна. Садржи нулти карактер (тј. - нулти бајт). Ако је приступна фраза постављена са верзијом овог софтвера старијом од 25.0, покушајте поново само са знаковима до — али не укључујући — првог нултог знака. Ако је ово успешно, поставите нову приступну фразу да бисте избегли овај проблем у будућности.</translation>
+    </message>
+    <message>
         <source>Wallet passphrase was successfully changed.</source>
         <translation type="unfinished">Лозинка новчаника успешно је промењена.</translation>
     </message>
     <message>
         <source>Passphrase change failed</source>
         <translation type="unfinished">Promena lozinke nije uspela</translation>
+    </message>
+    <message>
+        <source>The old passphrase entered for the wallet decryption is incorrect. It contains a null character (ie - a zero byte). If the passphrase was set with a version of this software prior to 25.0, please try again with only the characters up to — but not including — the first null character.</source>
+        <translation type="unfinished">Стара приступна фраза унета за дешифровање новчаника је нетачна. Садржи нулти карактер (тј. - нулти бајт). Ако је приступна фраза постављена са верзијом овог софтвера старијом од 25.0, покушајте поново са само знаковима до — али не укључујући — првог нултог знака.</translation>
     </message>
     <message>
         <source>Warning: The Caps Lock key is on!</source>
@@ -256,6 +264,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
         <translation type="unfinished">Дошло је до фаталне грешке. 1%1 даље не може безбедно да настави, те ће се угасити.</translation>
+    </message>
+    <message>
+        <source>Settings file %1 might be corrupt or invalid.</source>
+        <translation type="unfinished">Датотека подешавања %1 је можда оштећена или неважећа.</translation>
     </message>
     <message>
         <source>Runaway exception</source>
@@ -646,8 +658,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Учитај делимично потписану Bitgesell трансакцију</translation>
     </message>
     <message>
+        <source>Load PSBT from &amp;clipboard…</source>
+        <translation type="unfinished">Учитај ”PSBT” из привремене меморије</translation>
+    </message>
+    <message>
         <source>Load Partially Signed Bitgesell Transaction from clipboard</source>
-        <translation type="unfinished">Учитај делимично потписану Bitgesell трансакцију из clipboard-a</translation>
+        <translation type="unfinished">Учитај делимично потписану Bitcoin трансакцију из clipboard-a</translation>
     </message>
     <message>
         <source>Node window</source>
@@ -722,6 +738,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Wallet Data</source>
         <extracomment>Name of the wallet data file format.</extracomment>
         <translation type="unfinished">Подаци Новчаника</translation>
+    </message>
+    <message>
+        <source>Load Wallet Backup</source>
+        <extracomment>The title for Restore Wallet File Windows</extracomment>
+        <translation type="unfinished">Учитај резевну копију новчаника</translation>
     </message>
     <message>
         <source>Restore Wallet</source>
