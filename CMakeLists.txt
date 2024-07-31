@@ -172,6 +172,8 @@ endif()
 
 cmake_dependent_option(ENABLE_EXTERNAL_SIGNER "Enable external signer support." ON "NOT WIN32" OFF)
 
+option(BUILD_BENCH "Build bench_BGL executable." OFF)
+
 set(configure_warnings)
 
 include(CheckPIESupported)
@@ -362,7 +364,7 @@ endif()
 include(AddBoostIfNeeded)
 add_boost_if_needed()
 
-if(BUILD_DAEMON OR BUILD_CLI OR BUILD_TESTS OR BUILD_BENCH OR BUILD_FUZZ_BINARY)
+if(BUILD_DAEMON OR BUILD_CLI OR BUILD_TESTS OR BUILD_BENCH)
   find_package(Libevent 2.1.8 MODULE REQUIRED)
 endif()
 
@@ -419,7 +421,6 @@ message("  USDT tracing ........................ ${WITH_USDT}")
 message("Tests:")
 message("  test_BGL ........................ ${BUILD_TESTS}")
 message("  bench_BGL ....................... ${BUILD_BENCH}")
-message("  fuzz binary ......................... ${BUILD_FUZZ_BINARY}")
 message("")
 message("C++ compiler .......................... ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, ${CMAKE_CXX_COMPILER}")
 include(FlagsSummary)
