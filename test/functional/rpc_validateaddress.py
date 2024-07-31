@@ -166,6 +166,11 @@ VALID_DATA = [
         "bgl1qad89ple04k7lafrzw0kksjwfccg3uvyvhfxu5r",
         "0014eb4e50ff2fadbdfea46273ed6849c9c6111e308c",
     ),
+    # PayToAnchor(P2A)
+    (
+        "bc1pfeessrawgf",
+        "51024e73",
+    ),
 ]
 
 
