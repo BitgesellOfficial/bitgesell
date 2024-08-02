@@ -51,13 +51,50 @@ BIN_CHECKS=$(top_srcdir)/contrib/devtools/symbol-check.py \
            $(top_srcdir)/contrib/devtools/security-check.py \
            $(top_srcdir)/contrib/devtools/utils.py
 
-WINDOWS_PACKAGING = $(top_srcdir)/share/pixmaps/BGL.ico \
-  $(top_srcdir)/share/pixmaps/nsis-header.bmp \
-  $(top_srcdir)/share/pixmaps/nsis-wizard.bmp \
-  $(top_srcdir)/doc/README_windows.txt
-
-OSX_PACKAGING = $(OSX_DEPLOY_SCRIPT) $(OSX_INSTALLER_ICONS) \
-  $(top_srcdir)/contrib/macdeploy/detached-sig-create.sh
+if USE_EXAMPLES
+noinst_PROGRAMS += ecdsa_example
+ecdsa_example_SOURCES = examples/ecdsa.c
+ecdsa_example_CPPFLAGS = -I$(top_srcdir)/include -DSECP256K1_STATIC
+ecdsa_example_LDADD = libsecp256k1.la
+ecdsa_example_LDFLAGS = -static
+if BUILD_WINDOWS
+ecdsa_example_LDFLAGS += -lbcrypt
+endif
+TESTS += ecdsa_example
+if ENABLE_MODULE_ECDH
+noinst_PROGRAMS += ecdh_example
+ecdh_example_SOURCES = examples/ecdh.c
+ecdh_example_CPPFLAGS = -I$(top_srcdir)/include -DSECP256K1_STATIC
+ecdh_example_LDADD = libsecp256k1.la
+ecdh_example_LDFLAGS = -static
+if BUILD_WINDOWS
+ecdh_example_LDFLAGS += -lbcrypt
+endif
+TESTS += ecdh_example
+endif
+if ENABLE_MODULE_SCHNORRSIG
+noinst_PROGRAMS += schnorr_example
+schnorr_example_SOURCES = examples/schnorr.c
+schnorr_example_CPPFLAGS = -I$(top_srcdir)/include -DSECP256K1_STATIC
+schnorr_example_LDADD = libsecp256k1.la
+schnorr_example_LDFLAGS = -static
+if BUILD_WINDOWS
+schnorr_example_LDFLAGS += -lbcrypt
+endif
+TESTS += schnorr_example
+endif
+if ENABLE_MODULE_ELLSWIFT
+noinst_PROGRAMS += ellswift_example
+ellswift_example_SOURCES = examples/ellswift.c
+ellswift_example_CPPFLAGS = -I$(top_srcdir)/include -DSECP256K1_STATIC
+ellswift_example_LDADD = libsecp256k1.la
+ellswift_example_LDFLAGS = -static
+if BUILD_WINDOWS
+ellswift_example_LDFLAGS += -lbcrypt
+endif
+TESTS += ellswift_example
+endif
+endif
 
 COVERAGE_INFO = $(COV_TOOL_WRAPPER) baseline.info \
   test_BGL_filtered.info total_coverage.info \

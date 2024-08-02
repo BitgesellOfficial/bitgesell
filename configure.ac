@@ -1,15 +1,24 @@
-AC_PREREQ([2.69])
-define(_CLIENT_VERSION_MAJOR, 0)
-define(_CLIENT_VERSION_MINOR, 1)
-define(_CLIENT_VERSION_BUILD, 13)
-define(_CLIENT_VERSION_RC, 0)
-define(_CLIENT_VERSION_IS_RELEASE, true)
-define(_COPYRIGHT_YEAR, 2024)
-define(_COPYRIGHT_HOLDERS,[The %s developers])
-define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[Bitgesell Core]])
-AC_INIT([Bitgesell Core],m4_join([.], _CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MINOR, _CLIENT_VERSION_BUILD)m4_if(_CLIENT_VERSION_RC, [0], [], [rc]_CLIENT_VERSION_RC),[https://github.com/BitgesellOfficial/bitgesell/issues],[BGL],[https://bitgesell.ca/])
-AC_CONFIG_SRCDIR([src/validation.cpp])
-AC_CONFIG_HEADERS([src/config/BGL-config.h])
+AC_PREREQ([2.60])
+
+# The package (a.k.a. release) version is based on semantic versioning 2.0.0 of
+# the API. All changes in experimental modules are treated as
+# backwards-compatible and therefore at most increase the minor version.
+define(_PKG_VERSION_MAJOR, 0)
+define(_PKG_VERSION_MINOR, 5)
+define(_PKG_VERSION_PATCH, 1)
+define(_PKG_VERSION_IS_RELEASE, true)
+
+# The library version is based on libtool versioning of the ABI. The set of
+# rules for updating the version can be found here:
+# https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
+# All changes in experimental modules are treated as if they don't affect the
+# interface and therefore only increase the revision.
+define(_LIB_VERSION_CURRENT, 4)
+define(_LIB_VERSION_REVISION, 1)
+define(_LIB_VERSION_AGE, 2)
+
+AC_INIT([libsecp256k1],m4_join([.], _PKG_VERSION_MAJOR, _PKG_VERSION_MINOR, _PKG_VERSION_PATCH)m4_if(_PKG_VERSION_IS_RELEASE, [true], [], [-dev]),[https://github.com/bitcoin-core/secp256k1/issues],[libsecp256k1],[https://github.com/bitcoin-core/secp256k1])
+
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 
@@ -825,10 +834,99 @@ AC_SYS_LARGEFILE
 dnl detect POSIX or GNU variant of strerror_r
 AC_FUNC_STRERROR_R
 
-if test "$ac_cv_sys_file_offset_bits" != "" &&
-   test "$ac_cv_sys_file_offset_bits" != "no" &&
-   test "$ac_cv_sys_file_offset_bits" != "unknown"; then
-  CORE_CPPFLAGS="$CORE_CPPFLAGS -D_FILE_OFFSET_BITS=$ac_cv_sys_file_offset_bits"
+AC_ARG_ENABLE(tests,
+    AS_HELP_STRING([--enable-tests],[compile tests [default=yes]]), [],
+    [SECP_SET_DEFAULT([enable_tests], [yes], [yes])])
+
+AC_ARG_ENABLE(ctime_tests,
+    AS_HELP_STRING([--enable-ctime-tests],[compile constant-time tests [default=yes if valgrind enabled]]), [],
+    [SECP_SET_DEFAULT([enable_ctime_tests], [auto], [auto])])
+
+AC_ARG_ENABLE(experimental,
+    AS_HELP_STRING([--enable-experimental],[allow experimental configure options [default=no]]), [],
+    [SECP_SET_DEFAULT([enable_experimental], [no], [yes])])
+
+AC_ARG_ENABLE(exhaustive_tests,
+    AS_HELP_STRING([--enable-exhaustive-tests],[compile exhaustive tests [default=yes]]), [],
+    [SECP_SET_DEFAULT([enable_exhaustive_tests], [yes], [yes])])
+
+AC_ARG_ENABLE(examples,
+    AS_HELP_STRING([--enable-examples],[compile the examples [default=no]]), [],
+    [SECP_SET_DEFAULT([enable_examples], [no], [yes])])
+
+AC_ARG_ENABLE(module_ecdh,
+    AS_HELP_STRING([--enable-module-ecdh],[enable ECDH module [default=yes]]), [],
+    [SECP_SET_DEFAULT([enable_module_ecdh], [yes], [yes])])
+
+AC_ARG_ENABLE(module_recovery,
+    AS_HELP_STRING([--enable-module-recovery],[enable ECDSA pubkey recovery module [default=no]]), [],
+    [SECP_SET_DEFAULT([enable_module_recovery], [no], [yes])])
+
+AC_ARG_ENABLE(module_extrakeys,
+    AS_HELP_STRING([--enable-module-extrakeys],[enable extrakeys module [default=yes]]), [],
+    [SECP_SET_DEFAULT([enable_module_extrakeys], [yes], [yes])])
+
+AC_ARG_ENABLE(module_schnorrsig,
+    AS_HELP_STRING([--enable-module-schnorrsig],[enable schnorrsig module [default=yes]]), [],
+    [SECP_SET_DEFAULT([enable_module_schnorrsig], [yes], [yes])])
+
+AC_ARG_ENABLE(module_ellswift,
+    AS_HELP_STRING([--enable-module-ellswift],[enable ElligatorSwift module [default=yes]]), [],
+    [SECP_SET_DEFAULT([enable_module_ellswift], [yes], [yes])])
+
+AC_ARG_ENABLE(external_default_callbacks,
+    AS_HELP_STRING([--enable-external-default-callbacks],[enable external default callback functions [default=no]]), [],
+    [SECP_SET_DEFAULT([enable_external_default_callbacks], [no], [no])])
+
+# Test-only override of the (autodetected by the C code) "widemul" setting.
+# Legal values are:
+#  * int64 (for [u]int64_t),
+#  * int128 (for [unsigned] __int128),
+#  * int128_struct (for int128 implemented as a structure),
+#  *  and auto (the default).
+AC_ARG_WITH([test-override-wide-multiply], [] ,[set_widemul=$withval], [set_widemul=auto])
+
+AC_ARG_WITH([asm], [AS_HELP_STRING([--with-asm=x86_64|arm32|no|auto],
+[assembly to use (experimental: arm32) [default=auto]])],[req_asm=$withval], [req_asm=auto])
+
+AC_ARG_WITH([ecmult-window], [AS_HELP_STRING([--with-ecmult-window=SIZE],
+[window size for ecmult precomputation for verification, specified as integer in range [2..24].]
+[Larger values result in possibly better performance at the cost of an exponentially larger precomputed table.]
+[The table will store 2^(SIZE-1) * 64 bytes of data but can be larger in memory due to platform-specific padding and alignment.]
+[A window size larger than 15 will require you delete the prebuilt precomputed_ecmult.c file so that it can be rebuilt.]
+[For very large window sizes, use "make -j 1" to reduce memory use during compilation.]
+[The default value is a reasonable setting for desktop machines (currently 15). [default=15]]
+)],
+[set_ecmult_window=$withval], [set_ecmult_window=15])
+
+AC_ARG_WITH([ecmult-gen-kb], [AS_HELP_STRING([--with-ecmult-gen-kb=2|22|86],
+[The size of the precomputed table for signing in multiples of 1024 bytes (on typical platforms).]
+[Larger values result in possibly better signing/keygeneration performance at the cost of a larger table.]
+[The default value is a reasonable setting for desktop machines (currently 86). [default=86]]
+)],
+[set_ecmult_gen_kb=$withval], [set_ecmult_gen_kb=86])
+
+AC_ARG_WITH([valgrind], [AS_HELP_STRING([--with-valgrind=yes|no|auto],
+[Build with extra checks for running inside Valgrind [default=auto]]
+)],
+[req_valgrind=$withval], [req_valgrind=auto])
+
+###
+### Handle config options (except for modules)
+###
+
+if test x"$req_valgrind" = x"no"; then
+  enable_valgrind=no
+else
+  SECP_VALGRIND_CHECK
+  if test x"$has_valgrind" != x"yes"; then
+    if test x"$req_valgrind" = x"yes"; then
+      AC_MSG_ERROR([Valgrind support explicitly requested but valgrind/memcheck.h header not available])
+    fi
+    enable_valgrind=no
+  else
+    enable_valgrind=yes
+  fi
 fi
 
 if test "$ac_cv_sys_large_files" != "" &&

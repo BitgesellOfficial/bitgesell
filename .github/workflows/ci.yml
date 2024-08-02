@@ -22,7 +22,7 @@ env:
   BUILD: 'check'
   ### secp256k1 config
   ECMULTWINDOW: 15
-  ECMULTGENKB: 22
+  ECMULTGENKB: 86
   ASM: 'no'
   WIDEMUL: 'auto'
   WITH_VALGRIND: 'yes'
@@ -31,6 +31,7 @@ env:
   EXPERIMENTAL: 'no'
   ECDH: 'no'
   RECOVERY: 'no'
+  EXTRAKEYS: 'no'
   SCHNORRSIG: 'no'
   ELLSWIFT: 'no'
   ### test options
@@ -117,18 +118,18 @@ jobs:
       matrix:
         configuration:
           - env_vars: { WIDEMUL: 'int64',  RECOVERY: 'yes' }
-          - env_vars: { WIDEMUL: 'int64',                   ECDH: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
+          - env_vars: { WIDEMUL: 'int64',                   ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
           - env_vars: { WIDEMUL: 'int128' }
-          - env_vars: { WIDEMUL: 'int128_struct',                                           ELLSWIFT: 'yes' }
-          - env_vars: { WIDEMUL: 'int128', RECOVERY: 'yes',              SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
-          - env_vars: { WIDEMUL: 'int128',                  ECDH: 'yes', SCHNORRSIG: 'yes' }
-          - env_vars: { WIDEMUL: 'int128', ASM: 'x86_64',                                   ELLSWIFT: 'yes' }
-          - env_vars: {                    RECOVERY: 'yes',              SCHNORRSIG: 'yes' }
-          - env_vars: { CTIMETESTS: 'no',  RECOVERY: 'yes', ECDH: 'yes', SCHNORRSIG: 'yes', CPPFLAGS: '-DVERIFY' }
+          - env_vars: { WIDEMUL: 'int128_struct',                                                             ELLSWIFT: 'yes' }
+          - env_vars: { WIDEMUL: 'int128', RECOVERY: 'yes',              EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
+          - env_vars: { WIDEMUL: 'int128',                  ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes' }
+          - env_vars: { WIDEMUL: 'int128', ASM: 'x86_64',                                                     ELLSWIFT: 'yes' }
+          - env_vars: {                    RECOVERY: 'yes',              EXTRAKEYS: 'yes', SCHNORRSIG: 'yes' }
+          - env_vars: { CTIMETESTS: 'no',  RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', CPPFLAGS: '-DVERIFY' }
           - env_vars: { BUILD: 'distcheck', WITH_VALGRIND: 'no', CTIMETESTS: 'no', BENCH: 'no' }
           - env_vars: { CPPFLAGS: '-DDETERMINISTIC' }
           - env_vars: { CFLAGS: '-O0', CTIMETESTS: 'no' }
-          - env_vars: { CFLAGS: '-O1',     RECOVERY: 'yes', ECDH: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
+          - env_vars: { CFLAGS: '-O1',     RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
           - env_vars: { ECMULTGENKB: 2, ECMULTWINDOW: 2 }
           - env_vars: { ECMULTGENKB: 86, ECMULTWINDOW: 4 }
         cc:
@@ -151,13 +152,14 @@ jobs:
           sudo xcode-select --switch /Applications/Xcode_15.0.app
           clang --version
 
-      - name: Install Homebrew packages
-        env:
-          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
-        run: |
-          # A workaround for "The `brew link` step did not complete successfully" error.
-          brew install python@3 || brew link --overwrite python@3
-          brew install automake libtool pkg-config gnu-getopt ccache boost libevent miniupnpc libnatpmp zeromq qt@5 qrencode
+    env:
+      HOST: 'i686-linux-gnu'
+      ECDH: 'yes'
+      RECOVERY: 'yes'
+      EXTRAKEYS: 'yes'
+      SCHNORRSIG: 'yes'
+      ELLSWIFT: 'yes'
+      CC: ${{ matrix.cc }}
 
     steps:
       - name: Checkout
@@ -200,6 +202,7 @@ jobs:
       WITH_VALGRIND: 'no'
       ECDH: 'yes'
       RECOVERY: 'yes'
+      EXTRAKEYS: 'yes'
       SCHNORRSIG: 'yes'
       ELLSWIFT: 'yes'
       CTIMETESTS: 'no'
@@ -244,9 +247,25 @@ jobs:
           - env_vars: {}
           - env_vars: { EXPERIMENTAL: 'yes', ASM: 'arm32' }
 
-      - name: Save Ccache cache
-        uses: actions/cache/save@v4
-        if: github.event_name != 'pull_request' && steps.ccache-cache.outputs.cache-hit != 'true'
+    env:
+      WRAPPER_CMD: 'qemu-arm'
+      SECP256K1_TEST_ITERS: 16
+      HOST: 'arm-linux-gnueabihf'
+      WITH_VALGRIND: 'no'
+      ECDH: 'yes'
+      RECOVERY: 'yes'
+      EXTRAKEYS: 'yes'
+      SCHNORRSIG: 'yes'
+      ELLSWIFT: 'yes'
+      CTIMETESTS: 'no'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: CI script
+        env: ${{ matrix.configuration.env_vars }}
+        uses: ./.github/actions/run-in-docker-action
         with:
           dockerfile: ./ci/linux-debian.Dockerfile
           tag: linux-debian-image
@@ -281,6 +300,7 @@ jobs:
       WITH_VALGRIND: 'no'
       ECDH: 'yes'
       RECOVERY: 'yes'
+      EXTRAKEYS: 'yes'
       SCHNORRSIG: 'yes'
       ELLSWIFT: 'yes'
       CTIMETESTS: 'no'
@@ -330,13 +350,16 @@ jobs:
     needs: docker_cache
 
     env:
-      CCACHE_MAXSIZE: '200M'
-      CI_CCACHE_VERSION: '4.7.5'
-      CI_QT_CONF: '-release -silent -opensource -confirm-license -opengl desktop -static -static-runtime -mp -qt-zlib -qt-pcre -qt-libpng -nomake examples -nomake tests -nomake tools -no-angle -no-dbus -no-gif -no-gtk -no-ico -no-icu -no-libjpeg -no-libudev -no-sql-sqlite -no-sql-odbc -no-sqlite -no-vulkan -skip qt3d -skip qtactiveqt -skip qtandroidextras -skip qtcharts -skip qtconnectivity -skip qtdatavis3d -skip qtdeclarative -skip doc -skip qtdoc -skip qtgamepad -skip qtgraphicaleffects -skip qtimageformats -skip qtlocation -skip qtlottie -skip qtmacextras -skip qtmultimedia -skip qtnetworkauth -skip qtpurchasing -skip qtquick3d -skip qtquickcontrols -skip qtquickcontrols2 -skip qtquicktimeline -skip qtremoteobjects -skip qtscript -skip qtscxml -skip qtsensors -skip qtserialbus -skip qtserialport -skip qtspeech -skip qtsvg -skip qtvirtualkeyboard -skip qtwayland -skip qtwebchannel -skip qtwebengine -skip qtwebglplugin -skip qtwebsockets -skip qtwebview -skip qtx11extras -skip qtxmlpatterns -no-openssl -no-feature-bearermanagement -no-feature-printdialog -no-feature-printer -no-feature-printpreviewdialog -no-feature-printpreviewwidget -no-feature-sql -no-feature-sqlmodel -no-feature-textbrowser -no-feature-textmarkdownwriter -no-feature-textodfwriter -no-feature-xml'
-      CI_QT_DIR: 'qt-everywhere-src-5.15.11'
-      CI_QT_URL: 'https://download.qt.io/official_releases/qt/5.15/5.15.11/single/qt-everywhere-opensource-src-5.15.11.zip'
-      PYTHONUTF8: 1
-      TEST_RUNNER_TIMEOUT_FACTOR: 40
+      WRAPPER_CMD: 'qemu-ppc64le'
+      SECP256K1_TEST_ITERS: 16
+      HOST: 'powerpc64le-linux-gnu'
+      WITH_VALGRIND: 'no'
+      ECDH: 'yes'
+      RECOVERY: 'yes'
+      EXTRAKEYS: 'yes'
+      SCHNORRSIG: 'yes'
+      ELLSWIFT: 'yes'
+      CTIMETESTS: 'no'
 
     steps:
       - name: Checkout
@@ -381,18 +404,25 @@ jobs:
           - env_vars: { CC: 'clang',                                      ASM: 'no', ECMULTGENKB: 2, ECMULTWINDOW: 2 }
           - env_vars: { CC: 'i686-linux-gnu-gcc', HOST: 'i686-linux-gnu', ASM: 'no', ECMULTGENKB: 2, ECMULTWINDOW: 2 }
 
-      - name: Get tool information
-        run: |
-          msbuild -version | Tee-Object -FilePath "msbuild_version"
-          $env:VCToolsVersion | Tee-Object -FilePath "toolset_version"
-          $env:CI_QT_URL | Out-File -FilePath "qt_url"
-          $env:CI_QT_CONF | Out-File -FilePath "qt_conf"
-          py -3 --version
-          Write-Host "PowerShell version $($PSVersionTable.PSVersion.ToString())"
+    env:
+      # The `--error-exitcode` is required to make the test fail if valgrind found errors,
+      # otherwise it will return 0 (https://www.valgrind.org/docs/manual/manual-core.html).
+      WRAPPER_CMD: 'valgrind --error-exitcode=42'
+      ECDH: 'yes'
+      RECOVERY: 'yes'
+      EXTRAKEYS: 'yes'
+      SCHNORRSIG: 'yes'
+      ELLSWIFT: 'yes'
+      CTIMETESTS: 'no'
+      SECP256K1_TEST_ITERS: 2
 
-      - name: Restore static Qt cache
-        id: static-qt-cache
-        uses: actions/cache/restore@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: CI script
+        env: ${{ matrix.configuration.env_vars }}
+        uses: ./.github/actions/run-in-docker-action
         with:
           dockerfile: ./ci/linux-debian.Dockerfile
           tag: linux-debian-image
@@ -432,6 +462,7 @@ jobs:
     env:
       ECDH: 'yes'
       RECOVERY: 'yes'
+      EXTRAKEYS: 'yes'
       SCHNORRSIG: 'yes'
       ELLSWIFT: 'yes'
       CTIMETESTS: 'no'
@@ -520,6 +551,7 @@ jobs:
     env:
       ECDH: 'yes'
       RECOVERY: 'yes'
+      EXTRAKEYS: 'yes'
       SCHNORRSIG: 'yes'
       ELLSWIFT: 'yes'
       CC: 'clang'
@@ -561,9 +593,34 @@ jobs:
     runs-on: ubuntu-latest
     needs: docker_cache
 
-      - name: Restore Ccache cache
-        id: ccache-cache
-        uses: actions/cache/restore@v4
+    env:
+      WRAPPER_CMD: 'wine'
+      WITH_VALGRIND: 'no'
+      ECDH: 'yes'
+      RECOVERY: 'yes'
+      EXTRAKEYS: 'yes'
+      SCHNORRSIG: 'yes'
+      ELLSWIFT: 'yes'
+      CTIMETESTS: 'no'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration:
+          - job_name: 'x86_64 (mingw32-w64): Windows (Debian stable, Wine)'
+            env_vars:
+              HOST: 'x86_64-w64-mingw32'
+          - job_name: 'i686 (mingw32-w64): Windows (Debian stable, Wine)'
+            env_vars:
+              HOST: 'i686-w64-mingw32'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: CI script
+        env: ${{ matrix.configuration.env_vars }}
+        uses: ./.github/actions/run-in-docker-action
         with:
           dockerfile: ./ci/linux-debian.Dockerfile
           tag: linux-debian-image
@@ -600,15 +657,15 @@ jobs:
       fail-fast: false
       matrix:
         env_vars:
-          - { WIDEMUL: 'int64',  RECOVERY: 'yes', ECDH: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
+          - { WIDEMUL: 'int64',  RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
           - { WIDEMUL: 'int128_struct', ECMULTGENKB: 2, ECMULTWINDOW: 4 }
-          - { WIDEMUL: 'int128',                  ECDH: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
+          - { WIDEMUL: 'int128',                  ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
           - { WIDEMUL: 'int128', RECOVERY: 'yes' }
-          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
-          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes', CC: 'gcc' }
-          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes',            WRAPPER_CMD: 'valgrind --error-exitcode=42', SECP256K1_TEST_ITERS: 2 }
-          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes', CC: 'gcc', WRAPPER_CMD: 'valgrind --error-exitcode=42', SECP256K1_TEST_ITERS: 2 }
-          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes', CPPFLAGS: '-DVERIFY', CTIMETESTS: 'no' }
+          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
+          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes', CC: 'gcc' }
+          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes',            WRAPPER_CMD: 'valgrind --error-exitcode=42', SECP256K1_TEST_ITERS: 2 }
+          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes', CC: 'gcc', WRAPPER_CMD: 'valgrind --error-exitcode=42', SECP256K1_TEST_ITERS: 2 }
+          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes', CPPFLAGS: '-DVERIFY', CTIMETESTS: 'no' }
           - BUILD: 'distcheck'
 
     steps:
@@ -672,13 +729,13 @@ jobs:
       fail-fast: false
       matrix:
         env_vars:
-          - { WIDEMUL: 'int64',  RECOVERY: 'yes', ECDH: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
+          - { WIDEMUL: 'int64',  RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
           - { WIDEMUL: 'int128_struct', ECMULTGENPRECISION: 2, ECMULTWINDOW: 4 }
-          - { WIDEMUL: 'int128',                  ECDH: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
+          - { WIDEMUL: 'int128',                  ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
           - { WIDEMUL: 'int128', RECOVERY: 'yes' }
-          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
-          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes', CC: 'gcc' }
-          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes', CPPFLAGS: '-DVERIFY' }
+          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
+          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes', CC: 'gcc' }
+          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes', CPPFLAGS: '-DVERIFY' }
           - BUILD: 'distcheck'
 
     steps:
@@ -784,6 +841,7 @@ jobs:
       WERROR_CFLAGS:
       ECDH: 'yes'
       RECOVERY: 'yes'
+      EXTRAKEYS: 'yes'
       SCHNORRSIG: 'yes'
       ELLSWIFT: 'yes'
 
@@ -870,56 +928,5 @@ jobs:
 
       - name: Clone fuzz corpus
         run: |
-          git clone --depth=1 https://github.com/bitcoin-core/qa-assets "$env:RUNNER_TEMP\qa-assets"
-          Set-Location "$env:RUNNER_TEMP\qa-assets"
-          Write-Host "Using qa-assets repo from commit ..."
-          git log -1
-
-      - name: Run fuzz binaries
-        env:
-          BITCOINFUZZ: "${{ github.workspace}}\\src\\fuzz.exe"
-        shell: cmd
-        run: py -3 test\fuzz\test_runner.py --par %NUMBER_OF_PROCESSORS% --loglevel DEBUG %RUNNER_TEMP%\qa-assets\fuzz_seed_corpus
-
-  asan-lsan-ubsan-integer-no-depends-usdt:
-    name: 'ASan + LSan + UBSan + integer, no depends, USDT'
-    runs-on: ubuntu-24.04 # has to match container in ci/test/00_setup_env_native_asan.sh for tracing tools
-    # No need to run on the read-only mirror, unless it is a PR.
-    if: github.repository != 'bitcoin-core/gui' || github.event_name == 'pull_request'
-    timeout-minutes: 120
-    env:
-      FILE_ENV: "./ci/test/00_setup_env_native_asan.sh"
-      DANGER_CI_ON_HOST_CACHE_FOLDERS: 1
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set Ccache directory
-        run: echo "CCACHE_DIR=${RUNNER_TEMP}/ccache_dir" >> "$GITHUB_ENV"
-
-      - name: Set base root directory
-        run: echo "BASE_ROOT_DIR=${RUNNER_TEMP}" >> "$GITHUB_ENV"
-
-      - name: Restore Ccache cache
-        id: ccache-cache
-        uses: actions/cache/restore@v4
-        with:
-          path: ${{ env.CCACHE_DIR }}
-          key: ${{ github.job }}-ccache-${{ github.run_id }}
-          restore-keys: ${{ github.job }}-ccache-
-
-      - name: Enable bpfcc script
-        # In the image build step, no external environment variables are available,
-        # so any settings will need to be written to the settings env file:
-        run: sed -i "s|\${INSTALL_BCC_TRACING_TOOLS}|true|g" ./ci/test/00_setup_env_native_asan.sh
-
-      - name: CI script
-        run: ./ci/test_run_all.sh
-
-      - name: Save Ccache cache
-        uses: actions/cache/save@v4
-        if: github.event_name != 'pull_request' && steps.ccache-cache.outputs.cache-hit != 'true'
-        with:
-          path: ${{ env.CCACHE_DIR }}
-          # https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
-          key: ${{ github.job }}-ccache-${{ github.run_id }}
+          cmake -B ${{ env.CI_BUILD }} -DCMAKE_INSTALL_PREFIX=${{ env.CI_INSTALL }} && cmake --build ${{ env.CI_BUILD }} && cmake --install ${{ env.CI_BUILD }} && ls -RlAh ${{ env.CI_INSTALL }}
+          gcc -o ecdsa examples/ecdsa.c -I ${{ env.CI_INSTALL }}/include -L ${{ env.CI_INSTALL }}/lib*/ -l secp256k1 -Wl,-rpath,"${{ env.CI_INSTALL }}/lib",-rpath,"${{ env.CI_INSTALL }}/lib64" && ./ecdsa

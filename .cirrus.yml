@@ -20,6 +20,7 @@ env:
   EXPERIMENTAL: no
   ECDH: no
   RECOVERY: no
+  EXTRAKEYS: no
   SCHNORRSIG: no
   ELLSWIFT: no
   ### test options
@@ -156,7 +157,11 @@ task:
     labels:
       type: medium
   env:
-    HOST: i686-linux-gnu
+    ECDH: yes
+    RECOVERY: yes
+    EXTRAKEYS: yes
+    SCHNORRSIG: yes
+    ELLSWIFT: yes
   matrix:
     << : *ENV_MATRIX_VALGRIND
   matrix:
@@ -212,12 +217,19 @@ task:
     labels:
       type: small
   env:
-    EXEC_CMD: qemu-s390x
-    HOST: s390x-linux-gnu
-    BUILD:
-  << : *MERGE_BASE
-  test_script:
-    - ./ci/cirrus.sh
+    ECDH: yes
+    RECOVERY: yes
+    EXTRAKEYS: yes
+    SCHNORRSIG: yes
+    ELLSWIFT: yes
+    WRAPPER_CMD: 'valgrind --error-exitcode=42'
+    SECP256K1_TEST_ITERS: 2
+  matrix:
+     - env: { CC: 'gcc' }
+     - env: { CC: 'clang' }
+     - env: { CC: 'gcc-snapshot' }
+     - env: { CC: 'clang-snapshot' }
+  << : *LINUX_ARM64_CONTAINER
   << : *CAT_LOGS
 
 task:
