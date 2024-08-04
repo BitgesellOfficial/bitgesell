@@ -6,7 +6,7 @@
 #define BGL_BGL_CONFIG_H
 
 /* Version Build */
-#define CLIENT_VERSION_BUILD 12
+#define CLIENT_VERSION_BUILD 13
 
 /* Version is release */
 #define CLIENT_VERSION_IS_RELEASE true
@@ -59,13 +59,13 @@
 #define PACKAGE_NAME "Bitgesell Core"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "BGL Core 0.1.12"
+#define PACKAGE_STRING "BGL Core 0.1.13"
 
 /* Define to the home page for this package. */
 #define PACKAGE_URL "https://github.com/BitgesellOfficial/bitgesell/releases/"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.1.12"
+#define PACKAGE_VERSION "0.1.13"
 
 /* Define this symbol if the minimal qt platform exists */
 #define QT_QPA_PLATFORM_MINIMAL 1

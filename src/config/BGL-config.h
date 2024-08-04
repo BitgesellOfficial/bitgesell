@@ -24,7 +24,7 @@
 #define CLIENT_VERSION_MAJOR 1
 
 /* Minor version */
-#define CLIENT_VERSION_MINOR 12
+#define CLIENT_VERSION_MINOR 13
 
 /* Copyright holder(s) before %s replacement */
 #define COPYRIGHT_HOLDERS "The %s developers"
@@ -356,7 +356,7 @@
 #define PACKAGE_NAME "Bitgesell Core"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "Bitgesell Core 0.1.12"
+#define PACKAGE_STRING "Bitgesell Core 0.1.13"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "BGL"
@@ -365,7 +365,7 @@
 #define PACKAGE_URL "https://bitgesell.ca/"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.1.12"
+#define PACKAGE_VERSION "0.1.13"
 
 /* Define to necessary symbol if this constant uses a non-standard name on
    your system. */

@@ -22,13 +22,13 @@
   </array>
 
   <key>NSHumanReadableCopyright</key>
-  <string>0.1.12, Copyright © 2009-2024 The Bitgesell Core developers</string>
+  <string>0.1.13, Copyright © 2009-2024 The Bitgesell Core developers</string>
 
   <key>CFBundleShortVersionString</key>
-  <string>0.1.12</string>
+  <string>0.1.13</string>
 
   <key>CFBundleVersion</key>
-  <string>0.1.12</string>
+  <string>0.1.13</string>
 
   <key>CFBundleSignature</key>
   <string>????</string>

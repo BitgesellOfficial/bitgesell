@@ -76,7 +76,7 @@ void PaymentServer::ipcParseCommandLine(int argc, char* argv[])
         QString arg(argv[i]);
         if (arg.startsWith("-")) continue;
 
-        if (arg.startsWith(BGL_IPC_PREFIX, Qt::CaseInsensitive)) // bitcoin: URI
+        if (arg.startsWith(BGL_IPC_PREFIX, Qt::CaseInsensitive)) // BGL: URI
         {
             savedPaymentRequests.insert(arg);
         }

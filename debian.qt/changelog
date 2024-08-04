@@ -1,3 +1,8 @@
+bitgesell-qt (0.1.13) UNRELEASED; urgency=low
+  * Bitcoin code synced
+
+ -- Mathias van Orton <it@bitgesell.ca>  Fri, 2 Apr 2024 08:50:00 +0000
+
 bitgesell-qt (0.1.12) UNRELEASED; urgency=low
   * Bitcoin code synced
 

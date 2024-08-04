@@ -57,12 +57,12 @@ CRCCheck force
 XPStyle on
 BrandingText " "
 ShowInstDetails show
-VIProductVersion 0.1.12.0
+VIProductVersion 0.1.13.0
 VIAddVersionKey ProductName "Bitgesell Core"
-VIAddVersionKey ProductVersion "0.1.12"
+VIAddVersionKey ProductVersion "0.1.13"
 VIAddVersionKey CompanyName "${COMPANY}"
 VIAddVersionKey CompanyWebsite "${URL}"
-VIAddVersionKey FileVersion "0.1.12"
+VIAddVersionKey FileVersion "0.1.13"
 VIAddVersionKey FileDescription "Installer for Bitgesell Core"
 VIAddVersionKey LegalCopyright "Copyright (C) 2009-2024 The Bitgesell Core developers"
 InstallDirRegKey HKCU "${REGKEY}" Path
@@ -99,7 +99,7 @@ Section -post SEC0001
     CreateShortcut "$SMPROGRAMS\$StartMenuGroup\Uninstall $(^Name).lnk" $INSTDIR\uninstall.exe
     !insertmacro MUI_STARTMENU_WRITE_END
     WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" DisplayName "$(^Name)"
-    WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" DisplayVersion "0.1.12"
+    WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" DisplayVersion "0.1.13"
     WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" Publisher "${COMPANY}"
     WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" URLInfoAbout "${URL}"
     WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" DisplayIcon $INSTDIR\BGL-qt.exe
