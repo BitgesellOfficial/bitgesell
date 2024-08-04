@@ -4,7 +4,6 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test logic for limiting mempool and package ancestors/descendants."""
 from test_framework.blocktools import COINBASE_MATURITY
-from test_framework.test_framework import BGLTestFramework
 from test_framework.messages import (
     WITNESS_SCALE_FACTOR,
 )

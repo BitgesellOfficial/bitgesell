@@ -660,16 +660,16 @@ class RawTransactionsTest(BGLTestFramework):
         assert fundedTx["changepos"] != -1
 
         # Now we need to unlock.
-        wallet.walletpassphrase("test", 600)
-        signedTx = wallet.signrawtransactionwithwallet(fundedTx['hex'])
-        wallet.sendrawtransaction(signedTx['hex'])
-        self.generate(self.nodes[1], 1)
+        with WalletUnlock(wallet, "test"):
+            signedTx = wallet.signrawtransactionwithwallet(fundedTx['hex'])
+            wallet.sendrawtransaction(signedTx['hex'])
+            self.generate(self.nodes[1], 1)
 
-        # Make sure funds are received at node1.
-        assert_equal(oldBalance+Decimal('201.10000000'), self.nodes[0].getbalance())
+            # Make sure funds are received at node1.
+            assert_equal(oldBalance+Decimal('201.10000000'), self.nodes[0].getbalance())
 
-        # Restore pre-test wallet state
-        wallet.sendall(recipients=[df_wallet.getnewaddress(), df_wallet.getnewaddress(), df_wallet.getnewaddress()])
+            # Restore pre-test wallet state
+            wallet.sendall(recipients=[df_wallet.getnewaddress(), df_wallet.getnewaddress(), df_wallet.getnewaddress()])
         wallet.unloadwallet()
         self.generate(self.nodes[1], 1)
 
@@ -1006,7 +1006,7 @@ class RawTransactionsTest(BGLTestFramework):
         self.nodes[0].sendrawtransaction(signedtx['hex'])
 
     def test_transaction_too_large(self):
-        self.log.info("Test too large transaction")
+        self.log.info("Test fundrawtx where BnB solution would result in a too large transaction, but Knapsack would not")
         self.nodes[0].createwallet("large")
         wallet = self.nodes[0].get_wallet_rpc(self.default_wallet_name)
         recipient = self.nodes[0].get_wallet_rpc("large")
@@ -1055,8 +1055,8 @@ class RawTransactionsTest(BGLTestFramework):
         assert_raises_rpc_error(-4, "Not solvable pre-selected input COutPoint(%s, %s)" % (ext_utxo["txid"][0:10], ext_utxo["vout"]), wallet.fundrawtransaction, raw_tx)
 
         # Error conditions
-        assert_raises_rpc_error(-5, "Invalid public key: not a pubkey", wallet.fundrawtransaction, raw_tx, solving_data={"pubkeys":["not a pubkey"]})
-        assert_raises_rpc_error(-5, "Invalid public key: 01234567890a0b0c0d0e0f", wallet.fundrawtransaction, raw_tx, solving_data={"pubkeys":["01234567890a0b0c0d0e0f"]})
+        assert_raises_rpc_error(-5, 'Pubkey "not a pubkey" must be a hex string', wallet.fundrawtransaction, raw_tx, solving_data={"pubkeys":["not a pubkey"]})
+        assert_raises_rpc_error(-5, 'Pubkey "01234567890a0b0c0d0e0f" must have a length of either 33 or 65 bytes', wallet.fundrawtransaction, raw_tx, solving_data={"pubkeys":["01234567890a0b0c0d0e0f"]})
         assert_raises_rpc_error(-5, "'not a script' is not hex", wallet.fundrawtransaction, raw_tx, solving_data={"scripts":["not a script"]})
         assert_raises_rpc_error(-8, "Unable to parse descriptor 'not a descriptor'", wallet.fundrawtransaction, raw_tx, solving_data={"descriptors":["not a descriptor"]})
         assert_raises_rpc_error(-8, "Invalid parameter, missing vout key", wallet.fundrawtransaction, raw_tx, input_weights=[{"txid": ext_utxo["txid"]}])
@@ -1322,15 +1322,15 @@ class RawTransactionsTest(BGLTestFramework):
         outputs = []
         for _ in range(1472):
             outputs.append({wallet.getnewaddress(address_type="legacy"): 0.1})
-        txid = self.nodes[0].send(outputs=outputs)["txid"]
+        txid = self.nodes[0].send(outputs=outputs, change_position=0)["txid"]
         self.generate(self.nodes[0], 1)
 
         # 272 WU per input (273 when high-s); picking 1471 inputs will exceed the max standard tx weight.
         rawtx = wallet.createrawtransaction([], [{wallet.getnewaddress(): 0.1 * 1471}])
 
-        # 1) Try to fund transaction only using the preset inputs
+        # 1) Try to fund transaction only using the preset inputs (pick all 1472 inputs to cover the fee)
         input_weights = []
-        for i in range(1471):
+        for i in range(1, 1473):  # skip first output as it is the parent tx change output
             input_weights.append({"txid": txid, "vout": i, "weight": 273})
         assert_raises_rpc_error(-4, "Transaction too large", wallet.fundrawtransaction, hexstring=rawtx, input_weights=input_weights)
 
