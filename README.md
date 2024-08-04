@@ -1,12 +1,57 @@
-libsecp256k1
-============
+<!-- PROJECT LOGO -->
+<br />
+<p align="center">
+  <a href="https://github.com/BitgesellOfficial/bitgesell">
+    <img src="https://github.com/BitgesellOfficial/bitgesell/blob/master/share/pixmaps/BGL64.png" alt="Logo" width="80" height="80">
+  </a>
 
-![Dependencies: None](https://img.shields.io/badge/dependencies-none-success)
-[![irc.libera.chat #secp256k1](https://img.shields.io/badge/irc.libera.chat-%23secp256k1-success)](https://web.libera.chat/#secp256k1)
+  <h3 align="center">Bitgesell (BGL)</h3>
 
-High-performance high-assurance C library for digital signatures and other cryptographic primitives on the secp256k1 elliptic curve.
+  <p align="center">
+    Bitgesell (BGL) is a digital currency
+    <br />
+    <a href="https://bitgesell.ca/"><strong>Explore more about project »</strong></a>
+    <br />
+    <br />
+    <a href="#">English</a>
+    ·
+    <a href="https://github.com/BitgesellOfficial/bitgesell/blob/master/README-zh.md">Chinese</a>
+  </p>
+</p>
 
-This library is intended to be the highest quality publicly available library for cryptography on the secp256k1 curve. However, the primary focus of its development has been for usage in the Bitcoin system and usage unlike Bitcoin's may be less well tested, verified, or suffer from a less well thought out interface. Correct usage requires some care and consideration that the library is fit for your application's purpose.
+
+
+<!-- TABLE OF CONTENTS -->
+<details open="open">
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <!-- <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul> -->
+    </li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgements">Translations</a></li>
+  </ol>
+</details>
+
+
+<!-- ABOUT THE PROJECT -->
+## About The Project
+
+![Product Name Screen Shot](https://github.com/BitgesellOfficial/bitgesell/blob/master/share/pixmaps/BGL64.png)
+
 
 Features:
 * secp256k1 ECDSA signing/verification and key generation.
@@ -19,18 +64,17 @@ Features:
 * Optional module for public key recovery.
 * Optional module for ECDH key exchange.
 * Optional module for Schnorr signatures according to [BIP-340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki).
-* Optional module for ElligatorSwift key exchange according to [BIP-324](https://github.com/bitcoin/bips/blob/master/bip-0324.mediawiki).
 
 <b>Bitgesell is a fork of Bitcoin with the following changes:</b> <br>
 * Block Reward [Burn rate is 90% of tx fees]
   ```sh
-  nFees*0.1 + GetBlockSubsidy()  
+  nFees*0.1 + GetBlockSubsidy()
   ```
 * Block Weight [10 times smaller than Bitcoin]
   ```sh
   <= 400,000
   ```
-* 100% Segwit 
+* 100% Segwit
   ```sh
   Eliminates problems with legacy type of transactions
   ```
@@ -43,8 +87,8 @@ Features:
   `Hashing algorithm for blocks is Keccak (sha-3).` <br> <hr>
   `The master branch is regularly built (see` [doc/build-*.md](https://github.com/BitgesellOfficial/bitgesell/tree/master/doc) `for instructions) and tested, but is not guaranteed to be completely stable.` <br> <hr>
   [tags](https://github.com/BitgesellOfficial/bitgesell/tags) `are created regularly to indicate new official, stable release versions of BGL Core.` <br>
- 
- 
+
+
 ### Built With
 
 * General
@@ -102,9 +146,9 @@ To maintain a pristine source tree, CMake encourages to perform an out-of-source
 
     $ mkdir build && cd build
     $ cmake ..
-    $ cmake --build .
-    $ ctest  # run the test suite
-    $ sudo cmake --build . --target install  # optional
+    $ make
+    $ make check  # run the test suite
+    $ sudo make install  # optional
 
 To compile optional modules (such as Schnorr signatures), you need to run `cmake` with additional flags (such as `-DSECP256K1_ENABLE_MODULE_SCHNORRSIG=ON`). Run `cmake .. -LH` to see the full list of available flags.
 
