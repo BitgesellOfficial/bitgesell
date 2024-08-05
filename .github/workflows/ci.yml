@@ -152,14 +152,13 @@ jobs:
           sudo xcode-select --switch /Applications/Xcode_15.0.app
           clang --version
 
-    env:
-      HOST: 'i686-linux-gnu'
-      ECDH: 'yes'
-      RECOVERY: 'yes'
-      EXTRAKEYS: 'yes'
-      SCHNORRSIG: 'yes'
-      ELLSWIFT: 'yes'
-      CC: ${{ matrix.cc }}
+      - name: Install Homebrew packages
+        env:
+          HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
+        run: |
+          # A workaround for "The `brew link` step did not complete successfully" error.
+          brew install --quiet python@3 || brew link --overwrite python@3
+          brew install --quiet automake libtool pkg-config gnu-getopt ccache boost libevent miniupnpc libnatpmp zeromq qt@5 qrencode
 
     steps:
       - name: Checkout
