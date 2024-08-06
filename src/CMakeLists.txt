@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Must be included before CMAKE_INSTALL_INCLUDEDIR is used.
 include(GNUInstallDirs)
 
@@ -171,3 +172,11 @@ if(SECP256K1_INSTALL)
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
   )
 endif()
+=======
+# Copyright (c) 2023-present The Bitcoin Core developers
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or https://opensource.org/license/mit/.
+
+configure_file(${PROJECT_SOURCE_DIR}/cmake/bitcoin-config.h.in config/bitcoin-config.h @ONLY)
+include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+>>>>>>> 27d687fc1f... cmake: Add `config/bitcoin-config.h` support
