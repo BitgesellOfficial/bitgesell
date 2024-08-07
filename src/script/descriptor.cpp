@@ -217,6 +217,9 @@ public:
     virtual std::optional<CPubKey> GetRootPubKey() const = 0;
     /** Return the extended public key for this PubkeyProvider, if it has one. */
     virtual std::optional<CExtPubKey> GetRootExtPubKey() const = 0;
+
+    /** Make a deep copy of this PubkeyProvider */
+    virtual std::unique_ptr<PubkeyProvider> Clone() const = 0;
 };
 
 class OriginPubkeyProvider final : public PubkeyProvider
@@ -278,6 +281,10 @@ public:
     {
         return m_provider->GetRootExtPubKey();
     }
+    std::unique_ptr<PubkeyProvider> Clone() const override
+    {
+        return std::make_unique<OriginPubkeyProvider>(m_expr_index, m_origin, m_provider->Clone(), m_apostrophe);
+    }
 };
 
 /** An object representing a parsed constant public key in a descriptor. */
@@ -330,6 +337,10 @@ public:
     std::optional<CExtPubKey> GetRootExtPubKey() const override
     {
         return std::nullopt;
+    }
+    std::unique_ptr<PubkeyProvider> Clone() const override
+    {
+        return std::make_unique<ConstPubkeyProvider>(m_expr_index, m_pubkey, m_xonly);
     }
 };
 
@@ -553,6 +564,10 @@ public:
     std::optional<CExtPubKey> GetRootExtPubKey() const override
     {
         return m_root_extkey;
+    }
+    std::unique_ptr<PubkeyProvider> Clone() const override
+    {
+        return std::make_unique<BIP32PubkeyProvider>(m_expr_index, m_root_extkey, m_path, m_derive, m_apostrophe);
     }
 };
 
