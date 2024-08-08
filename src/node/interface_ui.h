@@ -6,9 +6,10 @@
 #ifndef BGL_NODE_INTERFACE_UI_H
 #define BGL_NODE_INTERFACE_UI_H
 
+#include <cstdint>
 #include <functional>
-#include <memory>
 #include <string>
+#include <vector>
 
 class CBlockIndex;
 enum class SynchronizationState;
