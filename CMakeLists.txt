@@ -66,6 +66,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Configurable options
 #=============================
 # When adding a new option, end the <help_text> with a full stop for consistency.
+option(BUILD_DAEMON "Build BGLd executable." ON)
+option(BUILD_CLI "Build BGL-cli executable." ON)
+
+option(BUILD_TESTS "Build test_BGL executable." ON)
+
 option(WITH_CCACHE "Attempt to use ccache for compiling." ON)
 
 set(configure_warnings)
@@ -189,6 +194,13 @@ target_link_libraries(core_interface INTERFACE
   Threads::Threads
 )
 
+include(AddBoostIfNeeded)
+add_boost_if_needed()
+
+if(BUILD_DAEMON OR BUILD_CLI OR BUILD_TESTS)
+  find_package(Libevent 2.1.8 MODULE REQUIRED)
+endif()
+
 include(cmake/introspection.cmake)
 
 include(cmake/ccache.cmake)
@@ -218,6 +230,12 @@ add_subdirectory(src)
 message("\n")
 message("Configure summary")
 message("=================")
+message("Executables:")
+message("  BGLd ............................ ${BUILD_DAEMON}")
+message("  BGL-cli ......................... ${BUILD_CLI}")
+message("Tests:")
+message("  test_BGL ........................ ${BUILD_TESTS}")
+message("")
 message("C++ compiler .......................... ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, ${CMAKE_CXX_COMPILER}")
 include(FlagsSummary)
 flags_summary()
