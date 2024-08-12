@@ -427,6 +427,16 @@ static void registerSignalHandler(int signal, void(*handler)(int))
 }
 #endif
 
+static void OnRPCStarted()
+{
+}
+
+static void OnRPCStopped()
+{
+    g_best_block_cv.notify_all();
+    LogDebug(BCLog::RPC, "RPC stopped.\n");
+}
+
 void SetupServerArgs(ArgsManager& argsman, bool can_listen_ipc)
 {
     SetupHelpOptions(argsman);
@@ -1993,11 +2003,6 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
     // cannot yet be called. Before we make it callable, we need to make sure
     // that the RPC's view of the best block is valid and consistent with
     // ChainstateManager's active tip.
-    //
-    // If we do not do this, RPC's view of the best block will be height=0 and
-    // hash=0x0. This will lead to erroroneous responses for things like
-    // waitforblockheight.
-    RPCNotifyBlockChange(WITH_LOCK(chainman.GetMutex(), return chainman.ActiveTip()));
     SetRPCWarmupFinished();
 
     uiInterface.InitMessage(_("Done loading").translated);
