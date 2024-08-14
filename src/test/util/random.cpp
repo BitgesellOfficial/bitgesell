@@ -12,8 +12,6 @@
 #include <cstdlib>
 #include <iostream>
 
-FastRandomContext g_insecure_rand_ctx;
-
 extern void MakeRandDeterministicDANGEROUS(const uint256& seed) noexcept;
 
 void SeedRandomStateForTest(SeedRand seedtype)
