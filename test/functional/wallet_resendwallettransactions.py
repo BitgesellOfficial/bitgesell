@@ -99,7 +99,7 @@ class ResendWalletTransactionsTest(BGLTestFramework):
         additional_child_fee = get_fee(child_tx_info["decoded"]["vsize"] + 1, Decimal(0.00001100))
         while True:
             txids = node.listreceivedbyaddress(minconf=0, address_filter=addr)[0]["txids"]
-            if txids == [child_txid1, txid1]:
+            if txids == [child_txid, txid]:
                 break
             # Manually bump the tx
             # The inputs and the output address stay the same, just changing the amount for the new fee
@@ -115,8 +115,6 @@ class ResendWalletTransactionsTest(BGLTestFramework):
             # The scheduler queue creates a copy of the added tx after
             # send/bumpfee and re-adds it to the wallet (undoing the next
             # removeprunedfunds). So empty the scheduler queue:
-            # The scheduler queue is not working as expected: ToDo
-            # The test might fail becuase there is no way to 'undoing the next removeprunedfunds'
             node.syncwithvalidationinterfacequeue()
             node.removeprunedfunds(child_txid)
             child_txid = bumped_txid
@@ -143,12 +141,11 @@ class ResendWalletTransactionsTest(BGLTestFramework):
         assert_raises_rpc_error(-5, "Transaction not in mempool", node.getmempoolentry, child_txid)
 
         # Rebroadcast and check that parent and child are both in the mempool
-        # The assert_debug_log is not matching at all causing failure: ToDo
-        #with node.assert_debug_log(['resubmit 2 unconfirmed transactions']):
-            #node.setmocktime(evict_time + 36 * 60 * 60) # 36 hrs is the upper limit of the resend timer
-            #node.mockscheduler(60)
-        #node.getmempoolentry(txid1)
-        #node.getmempoolentry(child_txid1)
+        with node.assert_debug_log(['resubmit 2 unconfirmed transactions']):
+            node.setmocktime(evict_time + 36 * 60 * 60) # 36 hrs is the upper limit of the resend timer
+            node.mockscheduler(60)
+        node.getmempoolentry(txid)
+        node.getmempoolentry(child_txid)
 
 
 if __name__ == '__main__':
