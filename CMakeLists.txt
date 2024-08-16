@@ -170,6 +170,12 @@ if(WITH_USDT)
   find_package(USDT MODULE REQUIRED)
 endif()
 
+cmake_dependent_option(ENABLE_EXTERNAL_SIGNER "Enable external signer support." ON "NOT WIN32" OFF)
+
+option(BUILD_BENCH "Build bench_BGL executable." OFF)
+option(BUILD_FUZZ_BINARY "Build fuzz binary." OFF)
+cmake_dependent_option(BUILD_FOR_FUZZING "Build for fuzzing. Enabling this will disable all other targets and override BUILD_FUZZ_BINARY." OFF "NOT MSVC" OFF)
+
 set(configure_warnings)
 
 include(CheckPIESupported)
@@ -193,6 +199,26 @@ target_link_libraries(core_interface INTERFACE
   $<$<CONFIG:RelWithDebInfo>:core_interface_relwithdebinfo>
   $<$<CONFIG:Debug>:core_interface_debug>
 )
+
+if(BUILD_FOR_FUZZING)
+  message(WARNING "BUILD_FOR_FUZZING=ON will disable all other targets and force BUILD_FUZZ_BINARY=ON.")
+  set(BUILD_DAEMON OFF)
+  set(BUILD_CLI OFF)
+  set(BUILD_TX OFF)
+  set(BUILD_UTIL OFF)
+  set(BUILD_WALLET_TOOL OFF)
+  set(ENABLE_EXTERNAL_SIGNER OFF)
+  set(WITH_NATPMP OFF)
+  set(WITH_MINIUPNPC OFF)
+  set(WITH_ZMQ OFF)
+  set(BUILD_TESTS OFF)
+  set(BUILD_BENCH OFF)
+  set(BUILD_FUZZ_BINARY ON)
+
+  target_compile_definitions(core_interface INTERFACE
+    ABORT_ON_FAILED_ASSUME
+  )
+endif()
 
 include(ProcessConfigurations)
 
@@ -291,10 +317,56 @@ target_link_libraries(core_interface INTERFACE
   Threads::Threads
 )
 
+add_library(sanitize_interface INTERFACE)
+target_link_libraries(core_interface INTERFACE sanitize_interface)
+if(SANITIZERS)
+  # First check if the compiler accepts flags. If an incompatible pair like
+  # -fsanitize=address,thread is used here, this check will fail. This will also
+  # fail if a bad argument is passed, e.g. -fsanitize=undfeined
+  try_append_cxx_flags("-fsanitize=${SANITIZERS}" TARGET sanitize_interface
+    RESULT_VAR cxx_supports_sanitizers
+    SKIP_LINK
+  )
+  if(NOT cxx_supports_sanitizers)
+    message(FATAL_ERROR "Compiler did not accept requested flags.")
+  endif()
+
+  # Some compilers (e.g. GCC) require additional libraries like libasan,
+  # libtsan, libubsan, etc. Make sure linking still works with the sanitize
+  # flag. This is a separate check so we can give a better error message when
+  # the sanitize flags are supported by the compiler but the actual sanitizer
+  # libs are missing.
+  try_append_linker_flag("-fsanitize=${SANITIZERS}" VAR SANITIZER_LDFLAGS
+    SOURCE "
+      #include <cstdint>
+      #include <cstddef>
+      extern \"C\" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) { return 0; }
+      __attribute__((weak)) // allow for libFuzzer linking
+      int main() { return 0; }
+    "
+    RESULT_VAR linker_supports_sanitizers
+  )
+  if(NOT linker_supports_sanitizers)
+    message(FATAL_ERROR "Linker did not accept requested flags, you are missing required libraries.")
+  endif()
+endif()
+target_link_options(sanitize_interface INTERFACE ${SANITIZER_LDFLAGS})
+
+if(BUILD_FUZZ_BINARY)
+  include(CheckSourceCompilesAndLinks)
+  check_cxx_source_links_with_flags("${SANITIZER_LDFLAGS}" "
+      #include <cstdint>
+      #include <cstddef>
+      extern \"C\" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) { return 0; }
+      // No main() function.
+    " FUZZ_BINARY_LINKS_WITHOUT_MAIN_FUNCTION
+  )
+endif()
+
 include(AddBoostIfNeeded)
 add_boost_if_needed()
 
-if(BUILD_DAEMON OR BUILD_CLI)
+if(BUILD_DAEMON OR BUILD_CLI OR BUILD_TESTS OR BUILD_BENCH OR BUILD_FUZZ_BINARY)
   find_package(Libevent 2.1.8 MODULE REQUIRED)
 endif()
 
@@ -349,6 +421,8 @@ message("  ZeroMQ .............................. ${WITH_ZMQ}")
 message("  USDT tracing ........................ ${WITH_USDT}")
 message("Tests:")
 message("  test_BGL ........................ ${BUILD_TESTS}")
+message("  bench_BGL ....................... ${BUILD_BENCH}")
+message("  fuzz binary ......................... ${BUILD_FUZZ_BINARY}")
 message("")
 message("C++ compiler .......................... ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, ${CMAKE_CXX_COMPILER}")
 include(FlagsSummary)
