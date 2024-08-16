@@ -16,7 +16,7 @@ FastRandomContext g_insecure_rand_ctx;
 
 extern void MakeRandDeterministicDANGEROUS(const uint256& seed) noexcept;
 
-void SeedRandomForTest(SeedRand seedtype)
+void SeedRandomStateForTest(SeedRand seedtype)
 {
     constexpr auto RANDOM_CTX_SEED{"RANDOM_CTX_SEED"};
 
@@ -41,5 +41,4 @@ void SeedRandomForTest(SeedRand seedtype)
     const uint256& seed{seedtype == SeedRand::SEED ? ctx_seed : uint256::ZERO};
     LogInfo("Setting random seed for current tests to %s=%s\n", RANDOM_CTX_SEED, seed.GetHex());
     MakeRandDeterministicDANGEROUS(seed);
-    g_insecure_rand_ctx.Reseed(GetRandHash());
 }
