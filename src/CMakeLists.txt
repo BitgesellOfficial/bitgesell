@@ -28,9 +28,6 @@ target_link_libraries(bitgesell_clientversion
 )
 add_dependencies(bitgesell_clientversion generate_build_info)
 
-add_subdirectory(crypto)
-add_subdirectory(univalue)
-
 #=============================
 # secp256k1 subtree
 #=============================
