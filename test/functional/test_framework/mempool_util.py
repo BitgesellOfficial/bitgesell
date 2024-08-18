@@ -37,8 +37,8 @@ def fill_mempool(test_framework, node):
 
     assert_equal(relayfee, Decimal('0.00001000'))
 
-    tx_batch_size = 3
-    num_of_batches = 250
+    tx_batch_size = 1
+    num_of_batches = 632
     # Generate UTXOs to flood the mempool
     # 1 to create a tx initially that will be evicted from the mempool later
     # 75 transactions each with a fee rate higher than the previous one
@@ -60,7 +60,7 @@ def fill_mempool(test_framework, node):
     # Increase the tx fee rate to give the subsequent transactions a higher priority in the mempool
     # The tx has an approx. vsize of 65k, i.e. multiplying the previous fee rate (in sats/kvB)
     # by 130 should result in a fee that corresponds to 2x of that fee rate
-    base_fee = relayfee * 130
+    base_fee = relayfee * 10
 
     test_framework.log.debug("Fill up the mempool with txs with higher fee rate")
     with node.assert_debug_log(["rolling minimum fee bumped"]):
