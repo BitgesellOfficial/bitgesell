@@ -8,6 +8,7 @@
 #include <crypto/aes.h>
 #include <crypto/sha512.h>
 
+#include <type_traits>
 #include <vector>
 
 namespace wallet {
@@ -24,8 +25,8 @@ int CCrypter::BytesToKeySHA512AES(const std::vector<unsigned char>& salt, const 
     unsigned char buf[CSHA512::OUTPUT_SIZE];
     CSHA512 di;
 
-    di.Write(UCharCast(key_data.data()), key_data.size());
-    di.Write(salt.data(), salt.size());
+    di.Write(UCharCast(strKeyData.data()), strKeyData.size());
+    di.Write(chSalt.data(), chSalt.size());
     di.Finalize(buf);
 
     for(int i = 0; i != count - 1; i++)
@@ -96,11 +97,11 @@ bool CCrypter::Decrypt(const std::vector<unsigned char>& ciphertext, CKeyingMate
         return false;
 
     // plaintext will always be equal to or lesser than length of ciphertext
-    plaintext.resize(ciphertext.size());
+    vchPlaintext.resize(vchCiphertext.size());
 
     AES256CBCDecrypt dec(vchKey.data(), vchIV.data(), true);
-    int len = dec.Decrypt(ciphertext.data(), ciphertext.size(), plaintext.data());
-    if (len == 0) {
+    int nLen = dec.Decrypt(vchCiphertext.data(), vchCiphertext.size(), vchPlaintext.data());
+    if(nLen == 0)
         return false;
     }
     plaintext.resize(len);
@@ -119,10 +120,10 @@ bool EncryptSecret(const CKeyingMaterial& vMasterKey, const CKeyingMaterial &vch
 
 bool DecryptSecret(const CKeyingMaterial& master_key, const std::vector<unsigned char>& ciphertext, const uint256& iv, CKeyingMaterial& plaintext)
 {
-    CCrypter key_crypter;
-    static_assert(WALLET_CRYPTO_IV_SIZE <= std::remove_reference_t<decltype(iv)>::size());
-    std::vector<unsigned char> iv_prefix{iv.begin(), iv.begin() + WALLET_CRYPTO_IV_SIZE};
-    if (!key_crypter.SetKey(master_key, iv_prefix)) {
+    CCrypter cKeyCrypter;
+    static_assert(WALLET_CRYPTO_IV_SIZE <= std::remove_reference_t<decltype(nIV)>::size());
+    std::vector<unsigned char> chIV{nIV.begin(), nIV.begin() + WALLET_CRYPTO_IV_SIZE};
+    if(!cKeyCrypter.SetKey(vMasterKey, chIV))
         return false;
     }
     return key_crypter.Decrypt(ciphertext, plaintext);
