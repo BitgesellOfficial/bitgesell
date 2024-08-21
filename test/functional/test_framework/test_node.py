@@ -42,7 +42,10 @@ from .util import (
     tor_port,
 )
 
-BGLD_PROC_WAIT_TIMEOUT = 60
+BITCOIND_PROC_WAIT_TIMEOUT = 60
+# The size of the blocks xor key
+# from InitBlocksdirXorKey::xor_key.size()
+NUM_XOR_BYTES = 8
 
 
 class FailedToStartError(Exception):
@@ -482,7 +485,6 @@ class TestNode():
 
     def read_xor_key(self) -> bytes:
         with open(self.blocks_key_path, "rb") as xor_f:
-            NUM_XOR_BYTES = 8 # From InitBlocksdirXorKey::xor_key.size()
             return xor_f.read(NUM_XOR_BYTES)
 
     @property
