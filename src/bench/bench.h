@@ -5,16 +5,17 @@
 #ifndef BGL_BENCH_BENCH_H
 #define BGL_BENCH_BENCH_H
 
+#include <bench/nanobench.h> // IWYU pragma: export
 #include <util/fs.h>
 #include <util/macros.h>
 
 #include <chrono>
+#include <cstdint>
 #include <functional>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
-
-#include <bench/nanobench.h> // IWYU pragma: export
 
 /*
  * Usage:
