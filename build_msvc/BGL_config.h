@@ -24,7 +24,7 @@
 #define COPYRIGHT_HOLDERS_FINAL "The Bitgesell Core developers"
 
 /* Replacement for %s in copyright holders string */
-#define COPYRIGHT_HOLDERS_SUBSTITUTION "BGL Core"
+#define COPYRIGHT_HOLDERS_SUBSTITUTION "Bitgesell Core"
 
 /* Copyright year */
 #define COPYRIGHT_YEAR 2024
