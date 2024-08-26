@@ -69,10 +69,10 @@ am__make_running_with_option = \
   test $$has_opt = yes
 am__make_dryrun = (target_option=n; $(am__make_running_with_option))
 am__make_keepgoing = (target_option=k; $(am__make_running_with_option))
-pkgdatadir = $(datadir)/bitcoin
-pkgincludedir = $(includedir)/bitcoin
-pkglibdir = $(libdir)/bitcoin
-pkglibexecdir = $(libexecdir)/bitcoin
+pkgdatadir = $(datadir)/BGL
+pkgincludedir = $(includedir)/BGL
+pkglibdir = $(libdir)/BGL
+pkglibexecdir = $(libexecdir)/BGL
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 install_sh_DATA = $(install_sh) -c -m 644
 install_sh_PROGRAM = $(install_sh) -c
@@ -97,7 +97,6 @@ subdir = doc/man
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/build-aux/m4/BGL_find_bdb48.m4 \
 	$(top_srcdir)/build-aux/m4/BGL_qt.m4 \
-	$(top_srcdir)/build-aux/m4/BGL_runtime_lib.m4 \
 	$(top_srcdir)/build-aux/m4/BGL_subdir_to_include.m4 \
 	$(top_srcdir)/build-aux/m4/ax_boost_base.m4 \
 	$(top_srcdir)/build-aux/m4/ax_check_compile_flag.m4 \
@@ -176,7 +175,6 @@ DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = ${SHELL} /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell/build-aux/missing aclocal-1.16
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 0
-ANDROID_ARCH =
 AR = /usr/bin/ar
 ARFLAGS = cr
 ARM_CRC_CXXFLAGS =
@@ -202,30 +200,30 @@ BGL_UTIL_NAME = BGL-util
 BGL_WALLET_TOOL_NAME = BGL-wallet
 BOOST_CPPFLAGS = -I/usr/include -DBOOST_MULTI_INDEX_DISABLE_SERIALIZATION -DBOOST_NO_CXX98_FUNCTION_BASE
 BREW =
-CC = /usr/local/bin/ccache gcc
+CC = /usr/local/bin/ccache clang
 CCACHE = /usr/local/bin/ccache
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
-CLIENT_VERSION_BUILD = 0
+CLIENT_VERSION_BUILD = 13
 CLIENT_VERSION_IS_RELEASE = false
-CLIENT_VERSION_MAJOR = 1
-CLIENT_VERSION_MINOR = 12
+CLIENT_VERSION_MAJOR = 0
+CLIENT_VERSION_MINOR = 1
 CLMUL_CXXFLAGS = -mpclmul
 COPYRIGHT_HOLDERS = The %s developers
 COPYRIGHT_HOLDERS_FINAL = The Bitgesell Core developers
 COPYRIGHT_HOLDERS_SUBSTITUTION = Bitgesell Core
-COPYRIGHT_YEAR = 2023
+COPYRIGHT_YEAR = 2024
 CORE_CPPFLAGS =  -DHAVE_BUILD_INFO -DPROVIDE_FUZZ_MAIN_FUNCTION
-CORE_CXXFLAGS =  -fno-extended-identifiers
+CORE_CXXFLAGS =  -g -O2
 CORE_LDFLAGS =
 COV_TOOL =
 COV_TOOL_WRAPPER =
-CPP = gcc -E
+CPP = clang -E
 CPPFLAGS =
-CXX = /usr/local/bin/ccache g++ -std=c++17
-CXXCPP = g++ -std=c++17 -E
+CXX = /usr/local/bin/ccache clang++-17 -std=c++20
+CXXCPP = clang++-17 -std=c++20 -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O2
+CXXFLAGS =
 CYGPATH_W = echo
 DEBUG_CPPFLAGS =  -fmacro-prefix-map=$(abs_top_srcdir)=.
 DEBUG_CXXFLAGS =  -fdebug-prefix-map=$(abs_top_srcdir)=.
@@ -251,26 +249,21 @@ FGREP = /bin/grep -F
 GCOV = /usr/bin/gcov
 GENHTML =
 GIT = /usr/bin/git
-GPROF_CXXFLAGS =
-GPROF_LDFLAGS =
 GREP = /bin/grep
 HARDENED_CPPFLAGS =  -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3
-HARDENED_CXXFLAGS =  -fstack-reuse=none -Wstack-protector -fstack-protector-all -fcf-protection=full -fstack-clash-protection
+HARDENED_CXXFLAGS =  -Wstack-protector -fstack-protector-all -fcf-protection=full -fstack-clash-protection
 HARDENED_LDFLAGS =  -Wl,-z,relro -Wl,-z,now -Wl,-z,separate-code -pie
 HAVE_BUILTIN_PREFETCH = 1
-HAVE_CXX17 = 1
-HAVE_CXX20 =
+HAVE_CXX20 = 1
 HAVE_EVHTTP_CONNECTION_GET_PEER_CONST_CHAR =
 HAVE_FDATASYNC = 1
 HAVE_FULLFSYNC = 0
-HAVE_GMTIME_R =
 HAVE_MM_PREFETCH = 1
 HAVE_O_CLOEXEC = 1
 HAVE_STRONG_GETAUXVAL = 1
 HEXDUMP = /usr/bin/hexdump
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
-INSTALL_NAME_TOOL =
 INSTALL_PROGRAM = ${INSTALL}
 INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
@@ -290,8 +283,6 @@ LLVM_COV = /usr/bin/llvm-cov
 LN_S = ln -s
 LRELEASE = /usr/lib/x86_64-linux-gnu/qt5/bin/lrelease
 LTLIBOBJS =
-LTO_CXXFLAGS =
-LTO_LDFLAGS =
 LT_SYS_LIBRARY_PATH =
 LUPDATE = /usr/lib/x86_64-linux-gnu/qt5/bin/lupdate
 MAINT =
@@ -302,7 +293,7 @@ MINIUPNPC_CPPFLAGS =
 MINIUPNPC_LIBS =
 MKDIR_P = /bin/mkdir -p
 MOC = /usr/lib/x86_64-linux-gnu/qt5/bin/moc
-MOC_DEFS = -DHAVE_CONFIG_H -I$(srcdir)
+MOC_DEFS = -I$(srcdir)
 MPGEN_PREFIX =
 NATPMP_CPPFLAGS =
 NATPMP_LIBS =
@@ -310,32 +301,31 @@ NM = /usr/bin/nm -B
 NMEDIT =
 NOWARN_CXXFLAGS =  -Wno-unused-parameter
 OBJCOPY = /usr/bin/objcopy
-OBJCXX = g++ -std=c++17
+OBJCXX = clang++-17 -std=c++20
 OBJCXXDEPMODE = depmode=gcc3
-OBJCXXFLAGS =
-OBJDUMP = objdump
+OBJCXXFLAGS = -g -O2
+OBJDUMP = /usr/bin/objdump
 OBJEXT = o
 OTOOL =
 OTOOL64 =
-PACKAGE = bitgesell
+PACKAGE = BGL
 PACKAGE_BUGREPORT = https://github.com/BitgesellOfficial/bitgesell/issues
 PACKAGE_NAME = Bitgesell Core
-PACKAGE_STRING = Bitgesell Core 0.1.12
+PACKAGE_STRING = Bitgesell Core 0.1.11
 PACKAGE_TARNAME = BGL
 PACKAGE_URL = https://bitgesell.ca/
-PACKAGE_VERSION = 0.1.12
+PACKAGE_VERSION = 0.1.11
 PATH_SEPARATOR = :
 PIC_FLAGS = -fPIC
 PIE_FLAGS = -fPIE
 PKG_CONFIG = env PKG_CONFIG_PATH=/usr/local/lib/pkgconfig: /usr/bin/pkg-config
 PKG_CONFIG_LIBDIR =
 PKG_CONFIG_PATH = /usr/local/lib/pkgconfig:
-PTHREAD_CC = gcc
+PTHREAD_CC = clang
 PTHREAD_CFLAGS = -pthread
-PTHREAD_CXX = g++ -std=c++17
+PTHREAD_CXX = clang++-17 -std=c++20
 PTHREAD_LIBS = -lpthread
-PYTHON = /home/emeka/.pyenv/shims/python3.8
-PYTHONPATH =
+PYTHON = /home/emeka/.pyenv/shims/python3.9
 QR_CFLAGS =
 QR_LIBS = -lqrencode
 QT_ACCESSIBILITY_CFLAGS =
@@ -351,8 +341,6 @@ QT_DEVICEDISCOVERY_CFLAGS =
 QT_DEVICEDISCOVERY_LIBS =
 QT_EDID_CFLAGS =
 QT_EDID_LIBS =
-QT_EGL_CFLAGS =
-QT_EGL_LIBS =
 QT_EVENTDISPATCHER_CFLAGS =
 QT_EVENTDISPATCHER_LIBS =
 QT_FB_CFLAGS =
@@ -389,7 +377,6 @@ QT_XCBQPA_LIBS =
 RANLIB = ranlib
 RCC = /usr/lib/x86_64-linux-gnu/qt5/bin/rcc
 RELDFLAGS =
-RUNTIME_LDFLAGS =
 SANITIZER_CXXFLAGS =
 SANITIZER_LDFLAGS =
 SED = /bin/sed
@@ -406,12 +393,12 @@ USE_BDB =
 USE_QRCODE =
 USE_SQLITE =
 USE_UPNP =
-VERSION = 0.1.12
-WARN_CXXFLAGS =  -Wall -Wextra -Wformat -Wformat-security -Wvla -Wredundant-decls -Wdate-time -Wduplicated-branches -Wduplicated-cond -Wlogical-op -Woverloaded-virtual -Wsuggest-override -Wimplicit-fallthrough
+VERSION = 0.1.11
+WARN_CXXFLAGS =  -Wall -Wextra -Wgnu -Wformat -Wformat-security -Wvla -Wshadow-field -Wthread-safety -Wloop-analysis -Wredundant-decls -Wunused-member-function -Wdate-time -Wconditional-uninitialized -Woverloaded-virtual -Wsuggest-override -Wimplicit-fallthrough -Wunreachable-code -Wdocumentation -Wself-assign
 WINDRES =
 X86_SHANI_CXXFLAGS = -msse4 -msha
 XGETTEXT = /usr/bin/xgettext
-XORRISOFS =
+ZIP =
 ZMQ_CFLAGS = -isystem /usr/include/mit-krb5 -I/usr/local/include -I/usr/include/pgm-5.2
 ZMQ_LIBS = -lzmq
 abs_builddir = /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell/doc/man
@@ -419,8 +406,8 @@ abs_srcdir = /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell/doc/man
 abs_top_builddir = /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell
 abs_top_srcdir = /home/emeka/buildtool/job/amhello/gitcoin/fn/bitgesell
 ac_ct_AR = ar
-ac_ct_CC = gcc
-ac_ct_CXX = g++
+ac_ct_CC = clang
+ac_ct_CXX =
 ac_ct_DUMPBIN =
 ac_ct_OBJCXX =
 am__include = include

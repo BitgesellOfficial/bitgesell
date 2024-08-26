@@ -13,8 +13,6 @@ The assumeutxo value generated and used here is committed to in
 
 Interesting test cases could be loading an assumeutxo snapshot file with:
 
-- TODO: Valid hash but invalid snapshot file (bad coin height or
-      bad other serialization)
 - TODO: Valid snapshot file, but referencing a snapshot block that turns out to be
       invalid, or has an invalid parent
 - TODO: Valid snapshot file and snapshot block, but the block is not on the
@@ -72,50 +70,91 @@ class AssumeutxoTest(BGLTestFramework):
         with open(valid_snapshot_path, 'rb') as f:
             valid_snapshot_contents = f.read()
         bad_snapshot_path = valid_snapshot_path + '.mod'
+        node = self.nodes[1]
 
         def expected_error(log_msg="", rpc_details=""):
-            with self.nodes[1].assert_debug_log([log_msg]):
-                assert_raises_rpc_error(-32603, f"Unable to load UTXO snapshot{rpc_details}", self.nodes[1].loadtxoutset, bad_snapshot_path)
+            with node.assert_debug_log([log_msg]):
+                assert_raises_rpc_error(-32603, f"Unable to load UTXO snapshot{rpc_details}", node.loadtxoutset, bad_snapshot_path)
+
+        self.log.info("  - snapshot file with invalid file magic")
+        parsing_error_code = -22
+        bad_magic = 0xf00f00f000
+        with open(bad_snapshot_path, 'wb') as f:
+            f.write(bad_magic.to_bytes(5, "big") + valid_snapshot_contents[5:])
+        assert_raises_rpc_error(parsing_error_code, "Unable to parse metadata: Invalid UTXO set snapshot magic bytes. Please check if this is indeed a snapshot file or if you are using an outdated snapshot format.", node.loadtxoutset, bad_snapshot_path)
+
+        self.log.info("  - snapshot file with unsupported version")
+        for version in [0, 2]:
+            with open(bad_snapshot_path, 'wb') as f:
+                f.write(valid_snapshot_contents[:5] + version.to_bytes(2, "little") + valid_snapshot_contents[7:])
+            assert_raises_rpc_error(parsing_error_code, f"Unable to parse metadata: Version of snapshot {version} does not match any of the supported versions.", node.loadtxoutset, bad_snapshot_path)
+
+        self.log.info("  - snapshot file with mismatching network magic")
+        invalid_magics = [
+            # magic, name, real
+            [0xf9beb4d9, "main", True],
+            [0x0b110907, "test", True],
+            [0x0a03cf40, "signet", True],
+            [0x00000000, "", False],
+            [0xffffffff, "", False],
+        ]
+        for [magic, name, real] in invalid_magics:
+            with open(bad_snapshot_path, 'wb') as f:
+                f.write(valid_snapshot_contents[:7] + magic.to_bytes(4, 'big') + valid_snapshot_contents[11:])
+            if real:
+                assert_raises_rpc_error(parsing_error_code, f"Unable to parse metadata: The network of the snapshot ({name}) does not match the network of this node (regtest).", node.loadtxoutset, bad_snapshot_path)
+            else:
+                assert_raises_rpc_error(parsing_error_code, "Unable to parse metadata: This snapshot has been created for an unrecognized network. This could be a custom signet, a new testnet or possibly caused by data corruption.", node.loadtxoutset, bad_snapshot_path)
 
         self.log.info("  - snapshot file referring to a block that is not in the assumeutxo parameters")
         prev_block_hash = self.nodes[0].getblockhash(SNAPSHOT_BASE_HEIGHT - 1)
         bogus_block_hash = "0" * 64  # Represents any unknown block hash
+        # The height is not used for anything critical currently, so we just
+        # confirm the manipulation in the error message
+        bogus_height = 1337
         for bad_block_hash in [bogus_block_hash, prev_block_hash]:
             with open(bad_snapshot_path, 'wb') as f:
-                # block hash of the snapshot base is stored right at the start (first 32 bytes)
-                f.write(bytes.fromhex(bad_block_hash)[::-1] + valid_snapshot_contents[32:])
-            error_details = f", assumeutxo block hash in snapshot metadata not recognized ({bad_block_hash})"
-            expected_error(rpc_details=error_details)
+                f.write(valid_snapshot_contents[:11] + bogus_height.to_bytes(4, "little") + bytes.fromhex(bad_block_hash)[::-1] + valid_snapshot_contents[47:])
+
+            msg = f"Unable to load UTXO snapshot: assumeutxo block hash in snapshot metadata not recognized (hash: {bad_block_hash}, height: {bogus_height}). The following snapshot heights are available: 110, 299."
+            assert_raises_rpc_error(-32603, msg, node.loadtxoutset, bad_snapshot_path)
 
         self.log.info("  - snapshot file with wrong number of coins")
-        valid_num_coins = int.from_bytes(valid_snapshot_contents[32:32 + 8], "little")
+        valid_num_coins = int.from_bytes(valid_snapshot_contents[47:47 + 8], "little")
         for off in [-1, +1]:
             with open(bad_snapshot_path, 'wb') as f:
-                f.write(valid_snapshot_contents[:32])
+                f.write(valid_snapshot_contents[:47])
                 f.write((valid_num_coins + off).to_bytes(8, "little"))
-                f.write(valid_snapshot_contents[32 + 8:])
+                f.write(valid_snapshot_contents[47 + 8:])
             expected_error(log_msg=f"bad snapshot - coins left over after deserializing 298 coins" if off == -1 else f"bad snapshot format or truncated snapshot after deserializing 299 coins")
 
-        self.log.info("  - snapshot file with alternated UTXO data")
+        self.log.info("  - snapshot file with alternated but parsable UTXO data results in different hash")
         cases = [
-            [b"\xff" * 32, 0, "1881a22910e0ac23e1249fa080029b4e0226c6eb4d94ebe77eec0ae1f3aca8e6"],  # wrong outpoint hash
-            [(1).to_bytes(4, "little"), 32, "298e2196262fc747d527504393012ea6be1d5db27c79d240363727055675f740"],  # wrong outpoint index
-            [b"\x81", 36, "9185da6f170855d99316fc2783bac4b58e5f0bcbfb0f29c0cb8f5ed8fc839d66"],  # wrong coin code VARINT((coinbase ? 1 : 0) | (height << 1))
-            [b"\x80", 36, "37198d274df7c2f663860aeeddc8517938284694f0499a28621c781dff509940"],  # another wrong coin code
+            # (content, offset, wrong_hash, custom_message)
+            [b"\xff" * 32, 0, "7d52155c9a9fdc4525b637ef6170568e5dad6fabd0b1fdbb9432010b8453095b", None],  # wrong outpoint hash
+            [(2).to_bytes(1, "little"), 32, None, "[snapshot] bad snapshot data after deserializing 1 coins"],  # wrong txid coins count
+            [b"\xfd\xff\xff", 32, None, "[snapshot] mismatch in coins count in snapshot metadata and actual snapshot data"],  # txid coins count exceeds coins left
+            [b"\x01", 33, "9f4d897031ab8547665b4153317ae2fdbf0130c7840b66427ebc48b881cb80ad", None],  # wrong outpoint index
+            [b"\x81", 34, "3da966ba9826fb6d2604260e01607b55ba44e1a5de298606b08704bc62570ea8", None],  # wrong coin code VARINT
+            [b"\x80", 34, "091e893b3ccb4334378709578025356c8bcb0a623f37c7c4e493133c988648e5", None],  # another wrong coin code
+            [b"\x84\x58", 34, None, "[snapshot] bad snapshot data after deserializing 0 coins"],  # wrong coin case with height 364 and coinbase 0
+            [b"\xCA\xD2\x8F\x5A", 39, None, "[snapshot] bad snapshot data after deserializing 0 coins - bad tx out value"],  # Amount exceeds MAX_MONEY
         ]
 
-        for content, offset, wrong_hash in cases:
+        for content, offset, wrong_hash, custom_message in cases:
             with open(bad_snapshot_path, "wb") as f:
-                f.write(valid_snapshot_contents[:(32 + 8 + offset)])
+                # Prior to offset: Snapshot magic, snapshot version, network magic, height, hash, coins count
+                f.write(valid_snapshot_contents[:(5 + 2 + 4 + 4 + 32 + 8 + offset)])
                 f.write(content)
-                f.write(valid_snapshot_contents[(32 + 8 + offset + len(content)):])
-            expected_error(log_msg=f"[snapshot] bad snapshot content hash: expected 37198d274df7c2f663860aeeddc8517938284694f0499a28621c781dff509940, got {wrong_hash}")
+                f.write(valid_snapshot_contents[(5 + 2 + 4 + 4 + 32 + 8 + offset + len(content)):])
+
+            log_msg = custom_message if custom_message is not None else f"[snapshot] bad snapshot content hash: expected a4bf3407ccb2cc0145c49ebba8fa91199f8a3903daf0883875941497d2493c27, got {wrong_hash}"
+            expected_error(log_msg=log_msg)
 
     def test_headers_not_synced(self, valid_snapshot_path):
         for node in self.nodes[1:]:
-            assert_raises_rpc_error(-32603, "The base block header (1e6b433578be026c430295078d3faca1d757c0aafec3252e385c300b35f3824b) must appear in the headers chain. Make sure all headers are syncing, and call this RPC again.",
-                                    node.loadtxoutset,
-                                    valid_snapshot_path)
+            msg = "Unable to load UTXO snapshot: The base block header (1e6b433578be026c430295078d3faca1d757c0aafec3252e385c300b35f3824b) must appear in the headers chain. Make sure all headers are syncing, and call loadtxoutset again."
+            assert_raises_rpc_error(-32603, msg, node.loadtxoutset, valid_snapshot_path)
 
     def test_invalid_chainstate_scenarios(self):
         self.log.info("Test different scenarios of invalid snapshot chainstate in datadir")
@@ -140,17 +179,43 @@ class AssumeutxoTest(BGLTestFramework):
         self.start_node(0)
 
     def test_invalid_mempool_state(self, dump_output_path):
-        self.log.info("Test bitcoind should fail when mempool not empty.")
+        self.log.info("Test BGLd should fail when mempool not empty.")
         node=self.nodes[2]
         tx = MiniWallet(node).send_self_transfer(from_node=node)
 
         assert tx['txid'] in node.getrawmempool()
 
         # Attempt to load the snapshot on Node 2 and expect it to fail
-        with node.assert_debug_log(expected_msgs=["[snapshot] can't activate a snapshot when mempool not empty"]):
-            assert_raises_rpc_error(-32603, "Unable to load UTXO snapshot", node.loadtxoutset, dump_output_path)
+        msg = "Unable to load UTXO snapshot: Can't activate a snapshot when mempool not empty"
+        assert_raises_rpc_error(-32603, msg, node.loadtxoutset, dump_output_path)
 
         self.restart_node(2, extra_args=self.extra_args[2])
+
+    def test_invalid_file_path(self):
+        self.log.info("Test BGLd should fail when file path is invalid.")
+        node = self.nodes[0]
+        path = node.datadir_path / node.chain / "invalid" / "path"
+        assert_raises_rpc_error(-8, "Couldn't open file {} for reading.".format(path), node.loadtxoutset, path)
+
+    def test_snapshot_with_less_work(self, dump_output_path):
+        self.log.info("Test BGLd should fail when snapshot has less accumulated work than this node.")
+        node = self.nodes[0]
+        assert_equal(node.getblockcount(), FINAL_HEIGHT)
+        with node.assert_debug_log(expected_msgs=["[snapshot] activation failed - work does not exceed active chainstate"]):
+            assert_raises_rpc_error(-32603, "Unable to load UTXO snapshot", node.loadtxoutset, dump_output_path)
+
+    def test_snapshot_block_invalidated(self, dump_output_path):
+        self.log.info("Test snapshot is not loaded when base block is invalid.")
+        node = self.nodes[0]
+        # We are testing the case where the base block is invalidated itself
+        # and also the case where one of its parents is invalidated.
+        for height in [SNAPSHOT_BASE_HEIGHT, SNAPSHOT_BASE_HEIGHT - 1]:
+            block_hash = node.getblockhash(height)
+            node.invalidateblock(block_hash)
+            assert_equal(node.getblockcount(), height - 1)
+            msg = "Unable to load UTXO snapshot: The base block header (1e6b433578be026c430295078d3faca1d757c0aafec3252e385c300b35f3824b) is part of an invalid chain."
+            assert_raises_rpc_error(-32603, msg, node.loadtxoutset, dump_output_path)
+            node.reconsiderblock(block_hash)
 
     def run_test(self):
         """
@@ -236,6 +301,8 @@ class AssumeutxoTest(BGLTestFramework):
         self.test_invalid_mempool_state(dump_output['path'])
         #self.test_invalid_snapshot_scenarios(dump_output['path'])
         self.test_invalid_chainstate_scenarios()
+        self.test_invalid_file_path()
+        self.test_snapshot_block_invalidated(dump_output['path'])
 
         self.log.info(f"Loading snapshot into second node from {dump_output['path']}")
         loaded = n1.loadtxoutset(dump_output['path'])
@@ -385,6 +452,10 @@ class AssumeutxoTest(BGLTestFramework):
         assert_equal(snapshot['blocks'], SNAPSHOT_BASE_HEIGHT)
         assert_equal(snapshot['snapshot_blockhash'], dump_output['base_hash'])
         assert_equal(snapshot['validated'], False)
+
+        self.log.info("Check that loading the snapshot again will fail because there is already an active snapshot.")
+        msg = "Unable to load UTXO snapshot: Can't activate a snapshot-based chainstate more than once"
+        assert_raises_rpc_error(-32603, msg, n2.loadtxoutset, dump_output['path'])
 
         self.connect_nodes(0, 2)
         self.wait_until(lambda: n2.getchainstates()['chainstates'][-1]['blocks'] == FINAL_HEIGHT)

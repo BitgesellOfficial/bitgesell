@@ -201,14 +201,13 @@ class TestP2PConn(P2PInterface):
     def announce_block_and_wait_for_getdata(self, block, use_header, timeout=60):
         with p2p_lock:
             self.last_message.pop("getdata", None)
-            self.last_message.pop("getheaders", None)
         msg = msg_headers()
         msg.headers = [CBlockHeader(block)]
         if use_header:
             self.send_message(msg)
         else:
             self.send_message(msg_inv(inv=[CInv(MSG_BLOCK, block.sha256)]))
-            self.wait_for_getheaders(timeout=timeout)
+            self.wait_for_getheaders(block_hash=block.hashPrevBlock, timeout=timeout)
             self.send_message(msg)
         self.wait_for_getdata([block.sha256], timeout=timeout)
 
@@ -1063,7 +1062,7 @@ class SegWitTest(BGLTestFramework):
 
     @subtest
     def test_max_witness_push_length(self):
-        """Test that witness stack can only allow up to 520 byte pushes."""
+        """Test that witness stack can only allow up to MAX_SCRIPT_ELEMENT_SIZE byte pushes."""
 
         block = self.build_next_block()
 
@@ -1174,7 +1173,7 @@ class SegWitTest(BGLTestFramework):
                 if not self.wit.is_null():
                     flags |= 1
                 r = b""
-                r += struct.pack("<i", self.nVersion)
+                r += self.version.to_bytes(4, "little")
                 if flags:
                     dummy = []
                     r += ser_vector(dummy)
@@ -1983,7 +1982,7 @@ class SegWitTest(BGLTestFramework):
         def serialize_with_bogus_witness(tx):
             flags = 3
             r = b""
-            r += struct.pack("<i", tx.nVersion)
+            r += tx.version.to_bytes(4, "little")
             if flags:
                 dummy = []
                 r += ser_vector(dummy)

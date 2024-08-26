@@ -5,9 +5,7 @@
 #ifndef BGL_QT_BGL_H
 #define BGL_QT_BGL_H
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
+#include <config/BGL-config.h> // IWYU pragma: keep
 
 #include <interfaces/node.h>
 #include <qt/initexecutor.h>

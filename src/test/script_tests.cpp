@@ -396,7 +396,7 @@ public:
                 wit.push_back(HexStr(scriptWitness.stack[i]));
             }
             wit.push_back(ValueFromAmount(nValue));
-            array.push_back(wit);
+            array.push_back(std::move(wit));
         }
         array.push_back(FormatScript(spendTx.vin[0].scriptSig));
         array.push_back(FormatScript(creditTx->vout[0].scriptPubKey));
@@ -1252,6 +1252,29 @@ BOOST_AUTO_TEST_CASE(script_combineSigs)
     BOOST_CHECK(combined.scriptSig == complete23);
     combined = CombineSignatures(txFrom.vout[0], txTo, partial3_sigs, partial3_sigs);
     BOOST_CHECK(combined.scriptSig == partial3c);
+}
+
+/**
+ * Reproduction of an exception incorrectly raised when parsing a public key inside a TapMiniscript.
+ */
+BOOST_AUTO_TEST_CASE(sign_invalid_miniscript)
+{
+    FillableSigningProvider keystore;
+    SignatureData sig_data;
+    CMutableTransaction prev, curr;
+
+    // Create a Taproot output which contains a leaf in which a non-32 bytes push is used where a public key is expected
+    // by the Miniscript parser. This offending Script was found by the RPC fuzzer.
+    const auto invalid_pubkey{ParseHex("173d36c8c9c9c9ffffffffffff0200000000021e1e37373721361818181818181e1e1e1e19000000000000000000b19292929292926b006c9b9b9292")};
+    TaprootBuilder builder;
+    builder.Add(0, {invalid_pubkey}, 0xc0);
+    builder.Finalize(XOnlyPubKey::NUMS_H);
+    prev.vout.emplace_back(0, GetScriptForDestination(builder.GetOutput()));
+    curr.vin.emplace_back(COutPoint{prev.GetHash(), 0});
+    sig_data.tr_spenddata = builder.GetSpendData();
+
+    // SignSignature can fail but it shouldn't raise an exception (nor crash).
+    BOOST_CHECK(!SignSignature(keystore, CTransaction(prev), curr, 0, SIGHASH_ALL, sig_data));
 }
 
 BOOST_AUTO_TEST_CASE(script_standard_push)

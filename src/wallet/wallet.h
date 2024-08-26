@@ -58,7 +58,9 @@ class Coin;
 class SigningProvider;
 enum class MemPoolRemovalReason;
 enum class SigningResult;
-enum class TransactionError;
+namespace common {
+enum class PSBTError;
+} // namespace common
 namespace interfaces {
 class Wallet;
 }
@@ -537,8 +539,8 @@ public:
     bool IsSpentKey(const CScript& scriptPubKey) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     void SetSpentKeyState(WalletBatch& batch, const uint256& hash, unsigned int n, bool used, std::set<CTxDestination>& tx_destinations) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
 
-    /** Display address on an external signer. Returns false if external signer support is not compiled */
-    bool DisplayAddress(const CTxDestination& dest) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
+    /** Display address on an external signer. */
+    util::Result<void> DisplayAddress(const CTxDestination& dest) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
 
     bool IsLockedCoin(const COutPoint& output) const EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
     bool LockCoin(const COutPoint& output, WalletBatch* batch = nullptr) EXCLUSIVE_LOCKS_REQUIRED(cs_wallet);
@@ -659,7 +661,7 @@ public:
      * @param[in] finalize whether to create the final scriptSig or scriptWitness if possible
      * return error
      */
-    TransactionError FillPSBT(PartiallySignedTransaction& psbtx,
+    std::optional<common::PSBTError> FillPSBT(PartiallySignedTransaction& psbtx,
                   bool& complete,
                   int sighash_type = SIGHASH_DEFAULT,
                   bool sign = true,
@@ -961,8 +963,10 @@ public:
     //! Get the LegacyScriptPubKeyMan which is used for all types, internal, and external.
     LegacyScriptPubKeyMan* GetLegacyScriptPubKeyMan() const;
     LegacyScriptPubKeyMan* GetOrCreateLegacyScriptPubKeyMan();
+    LegacyDataSPKM* GetLegacyDataSPKM() const;
+    LegacyDataSPKM* GetOrCreateLegacyDataSPKM();
 
-    //! Make a LegacyScriptPubKeyMan and set it for all types, internal, and external.
+    //! Make a Legacy(Data)SPKM and set it for all types, internal, and external.
     void SetupLegacyScriptPubKeyMan();
 
     bool WithEncryptionKey(std::function<bool (const CKeyingMaterial&)> cb) const override;

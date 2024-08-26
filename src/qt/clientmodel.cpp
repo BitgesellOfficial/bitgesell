@@ -2,9 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
+#include <config/BGL-config.h> // IWYU pragma: keep
 
 #include <qt/clientmodel.h>
 
@@ -55,7 +53,7 @@ ClientModel::ClientModel(interfaces::Node& node, OptionsModel *_optionsModel, QO
     connect(timer, &QTimer::timeout, [this] {
         // no locking required at this point
         // the following calls will acquire the required lock
-        Q_EMIT mempoolSizeChanged(m_node.getMempoolSize(), m_node.getMempoolDynamicUsage());
+        Q_EMIT mempoolSizeChanged(m_node.getMempoolSize(), m_node.getMempoolDynamicUsage(), m_node.getMempoolMaxUsage());
         Q_EMIT bytesChanged(m_node.getTotalBytesRecv(), m_node.getTotalBytesSent());
     });
     connect(m_thread, &QThread::finished, timer, &QObject::deleteLater);

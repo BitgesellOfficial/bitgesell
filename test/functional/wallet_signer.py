@@ -95,7 +95,7 @@ class WalletSignerTest(BGLTestFramework):
         # )
         # self.clear_mock_result(self.nodes[1])
 
-        assert_equal(hww.getwalletinfo()["keypoolsize"], 30)
+        assert_equal(hww.getwalletinfo()["keypoolsize"], 40)
 
         address1 = hww.getnewaddress(address_type="bech32")
         assert_equal(address1, "rbgl1qm90ugl4d48jv8n6e5t9ln6t9zlpm5th67ecp7z")
@@ -119,8 +119,9 @@ class WalletSignerTest(BGLTestFramework):
         assert_equal(address_info['hdkeypath'], "m/44h/1h/0h/0/0")
 
         self.log.info('Test walletdisplayaddress')
-        result = hww.walletdisplayaddress(address1)
-        assert_equal(result, {"address": address1})
+        for address in [address1, address2, address3]:
+            result = hww.walletdisplayaddress(address)
+            assert_equal(result, {"address": address})
 
         # Handle error thrown by script
         self.set_mock_result(self.nodes[1], "2")
@@ -128,6 +129,13 @@ class WalletSignerTest(BGLTestFramework):
             hww.walletdisplayaddress, address1
         )
         self.clear_mock_result(self.nodes[1])
+
+        # Returned address MUST match:
+        address_fail = hww.getnewaddress(address_type="bech32")
+        assert_equal(address_fail, "rbgl1ql7zg7ukh3dwr25ex2zn9jse926f27xy2tae0j3")
+        assert_raises_rpc_error(-1, 'Signer echoed unexpected address wrong_address',
+            hww.walletdisplayaddress, address_fail
+        )
 
         self.log.info('Prepare mock PSBT')
         self.nodes[0].sendtoaddress(address1, 1)

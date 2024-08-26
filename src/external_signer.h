@@ -35,6 +35,7 @@ public:
 
     //! Master key fingerprint of the signer
     std::string m_fingerprint;
+
     //! Name of signer
     std::string m_name;
 

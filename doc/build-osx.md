@@ -46,7 +46,21 @@ To install, run the following from your terminal:
 brew install automake libtool boost pkg-config libevent
 ```
 
-### 4. Clone BGL repository
+For macOS 11 (Big Sur) and 12 (Monterey) you need to install a more recent version of llvm.
+
+``` bash
+brew install llvm
+```
+
+And append the following to the configure commands below:
+
+``` bash
+CC=$(brew --prefix llvm)/bin/clang CXX=$(brew --prefix llvm)/bin/clang++
+```
+
+Try `llvm@17` if compilation fails with the default version of llvm.
+
+### 4. Clone Bitgesell repository
 
 `git` should already be installed by default on your system.
 Now that all the required dependencies are installed, let's clone the BGL Core repository to a directory.

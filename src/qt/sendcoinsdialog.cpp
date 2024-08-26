@@ -2,9 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
+#include <config/BGL-config.h> // IWYU pragma: keep
 
 #include <qt/sendcoinsdialog.h>
 #include <qt/forms/ui_sendcoinsdialog.h>
@@ -22,6 +20,7 @@
 #include <interfaces/node.h>
 #include <key_io.h>
 #include <node/interface_ui.h>
+#include <node/types.h>
 #include <policy/fees.h>
 #include <txmempool.h>
 #include <validation.h>
@@ -39,6 +38,7 @@
 #include <QSettings>
 #include <QTextDocument>
 
+using common::PSBTError;
 using wallet::CCoinControl;
 using wallet::DEFAULT_PAY_TX_FEE;
 
@@ -64,11 +64,7 @@ int getIndexForConfTarget(int target) {
 SendCoinsDialog::SendCoinsDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
     QDialog(parent, GUIUtil::dialog_flags),
     ui(new Ui::SendCoinsDialog),
-    clientModel(nullptr),
-    model(nullptr),
     m_coin_control(new CCoinControl),
-    fNewRecipientAllowed(true),
-    fFeeMinimized(true),
     platformStyle(_platformStyle)
 {
     ui->setupUi(this);
@@ -214,7 +210,7 @@ void SendCoinsDialog::setModel(WalletModel *_model)
             }
         } else if (model->wallet().privateKeysDisabled()) {
             ui->sendButton->setText(tr("Cr&eate Unsigned"));
-            ui->sendButton->setToolTip(tr("Creates a Partially Signed BGL Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
+            ui->sendButton->setToolTip(tr("Creates a Partially Signed Bitgesell Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
         }
 
         // set the smartfee-sliders default value (wallets default conf.target or last stored value)
@@ -336,12 +332,12 @@ bool SendCoinsDialog::PrepareSendText(QString& question_string, QString& informa
         /*: Text to inform a user attempting to create a transaction of their current options. At this stage,
             a user can only create a PSBT. This string is displayed when private keys are disabled and an external
             signer is not available. */
-        question_string.append(tr("Please, review your transaction proposal. This will produce a Partially Signed BGL Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
+        question_string.append(tr("Please, review your transaction proposal. This will produce a Partially Signed Bitgesell Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
     } else if (model->getOptionsModel()->getEnablePSBTControls()) {
         /*: Text to inform a user attempting to create a transaction of their current options. At this stage,
             a user can send their transaction or create a PSBT. This string is displayed when both private keys
             and PSBT controls are enabled. */
-        question_string.append(tr("Please, review your transaction. You can create and send this transaction or create a Partially Signed BGL Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
+        question_string.append(tr("Please, review your transaction. You can create and send this transaction or create a Partially Signed Bitgesell Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.").arg(PACKAGE_NAME));
     } else {
         /*: Text to prompt a user to review the details of the transaction they are attempting to send. */
         question_string.append(tr("Please, review your transaction."));
@@ -448,26 +444,26 @@ void SendCoinsDialog::presentPSBT(PartiallySignedTransaction& psbtx)
 }
 
 bool SendCoinsDialog::signWithExternalSigner(PartiallySignedTransaction& psbtx, CMutableTransaction& mtx, bool& complete) {
-    TransactionError err;
+    std::optional<PSBTError> err;
     try {
         err = model->wallet().fillPSBT(SIGHASH_ALL, /*sign=*/true, /*bip32derivs=*/true, /*n_signed=*/nullptr, psbtx, complete);
     } catch (const std::runtime_error& e) {
         QMessageBox::critical(nullptr, tr("Sign failed"), e.what());
         return false;
     }
-    if (err == TransactionError::EXTERNAL_SIGNER_NOT_FOUND) {
+    if (err == PSBTError::EXTERNAL_SIGNER_NOT_FOUND) {
         //: "External signer" means using devices such as hardware wallets.
         const QString msg = tr("External signer not found");
         QMessageBox::critical(nullptr, msg, msg);
         return false;
     }
-    if (err == TransactionError::EXTERNAL_SIGNER_FAILED) {
+    if (err == PSBTError::EXTERNAL_SIGNER_FAILED) {
         //: "External signer" means using devices such as hardware wallets.
         const QString msg = tr("External signer failure");
         QMessageBox::critical(nullptr, msg, msg);
         return false;
     }
-    if (err != TransactionError::OK) {
+    if (err) {
         tfm::format(std::cerr, "Failed to sign PSBT");
         processSendCoinsReturn(WalletModel::TransactionCreationFailed);
         return false;
@@ -507,9 +503,9 @@ void SendCoinsDialog::sendButtonClicked([[maybe_unused]] bool checked)
         PartiallySignedTransaction psbtx(mtx);
         bool complete = false;
         // Fill without signing
-        TransactionError err = model->wallet().fillPSBT(SIGHASH_ALL, /*sign=*/false, /*bip32derivs=*/true, /*n_signed=*/nullptr, psbtx, complete);
+        const auto err{model->wallet().fillPSBT(SIGHASH_ALL, /*sign=*/false, /*bip32derivs=*/true, /*n_signed=*/nullptr, psbtx, complete)};
         assert(!complete);
-        assert(err == TransactionError::OK);
+        assert(!err);
 
         // Copy PSBT to clipboard and offer to save
         presentPSBT(psbtx);
@@ -523,9 +519,9 @@ void SendCoinsDialog::sendButtonClicked([[maybe_unused]] bool checked)
             bool complete = false;
             // Always fill without signing first. This prevents an external signer
             // from being called prematurely and is not expensive.
-            TransactionError err = model->wallet().fillPSBT(SIGHASH_ALL, /*sign=*/false, /*bip32derivs=*/true, /*n_signed=*/nullptr, psbtx, complete);
+            const auto err{model->wallet().fillPSBT(SIGHASH_ALL, /*sign=*/false, /*bip32derivs=*/true, /*n_signed=*/nullptr, psbtx, complete)};
             assert(!complete);
-            assert(err == TransactionError::OK);
+            assert(!err);
             send_failure = !signWithExternalSigner(psbtx, mtx, complete);
             // Don't broadcast when user rejects it on the device or there's a failure:
             broadcast = complete && !send_failure;
@@ -711,7 +707,7 @@ void SendCoinsDialog::setBalance(const interfaces::WalletBalances& balances)
         CAmount balance = balances.balance;
         if (model->wallet().hasExternalSigner()) {
             ui->labelBalanceName->setText(tr("External balance:"));
-        } else if (model->wallet().privateKeysDisabled()) {
+        } else if (model->wallet().isLegacy() && model->wallet().privateKeysDisabled()) {
             balance = balances.watch_only_balance;
             ui->labelBalanceName->setText(tr("Watch-only balance:"));
         }
@@ -979,7 +975,7 @@ void SendCoinsDialog::coinControlChangeEdited(const QString& text)
         }
         else if (!IsValidDestination(dest)) // Invalid address
         {
-            ui->labelCoinControlChangeLabel->setText(tr("Warning: Invalid BGL address"));
+            ui->labelCoinControlChangeLabel->setText(tr("Warning: Invalid Bitgesell address"));
         }
         else // Valid address
         {

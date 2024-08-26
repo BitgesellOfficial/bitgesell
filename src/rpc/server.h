@@ -179,6 +179,16 @@ extern CRPCTable tableRPC;
 void StartRPC();
 void InterruptRPC();
 void StopRPC();
-std::string JSONRPCExecBatch(const JSONRPCRequest& jreq, const UniValue& vReq);
+UniValue JSONRPCExec(const JSONRPCRequest& jreq, bool catch_errors);
+
+// Drop witness when serializing for RPC?
+bool RPCSerializationWithoutWitness();
+
+template<typename T>
+auto RPCTxSerParams(T&& t)
+{
+    if (RPCSerializationWithoutWitness()) return TX_NO_WITNESS(t);
+    return TX_WITH_WITNESS(t);
+}
 
 #endif // BGL_RPC_SERVER_H

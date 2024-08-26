@@ -2,9 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
+#include <config/BGL-config.h> // IWYU pragma: keep
 
 #include <qt/guiutil.h>
 
@@ -764,9 +762,9 @@ QString formatPingTime(std::chrono::microseconds ping_time)
         QObject::tr("%1 ms").arg(QString::number((int)(count_microseconds(ping_time) / 1000), 10));
 }
 
-QString formatTimeOffset(int64_t nTimeOffset)
+QString formatTimeOffset(int64_t time_offset)
 {
-  return QObject::tr("%1 s").arg(QString::number((int)nTimeOffset, 10));
+  return QObject::tr("%1 s").arg(QString::number((int)time_offset, 10));
 }
 
 QString formatNiceTimeOffset(qint64 secs)

@@ -6,6 +6,7 @@
 
 #include <common/system.h>
 #include <key_io.h>
+#include <span.h>
 #include <streams.h>
 #include <test/util/random.h>
 #include <test/util/setup_common.h>
@@ -17,6 +18,8 @@
 #include <vector>
 
 #include <boost/test/unit_test.hpp>
+
+using util::ToString;
 
 static const std::string strSecret1 = "5HxWvvfubhXpYYpS3tJkw6fq9jE9j18THftkZjHHfmFiWtmAbrj";
 static const std::string strSecret2 = "5KC4ejrDjv152FGwP386VD1i2NYc5KkfSMyv1nGy1VGDxGHqVY3";
@@ -69,10 +72,6 @@ BOOST_AUTO_TEST_CASE(key_test1)
     BOOST_CHECK(!key2C.VerifyPubKey(pubkey1C));
     BOOST_CHECK(!key2C.VerifyPubKey(pubkey2));
     BOOST_CHECK(key2C.VerifyPubKey(pubkey2C));
-
-    CTxDestination dest1 = DecodeDestination(addr1);
-    CTxDestination dest2 = CTxDestination(PKHash(pubkey1));
-    BOOST_CHECK(dest1 == dest2);
 
     BOOST_CHECK(DecodeDestination(addr1)  == CTxDestination(PKHash(pubkey1)));
     BOOST_CHECK(DecodeDestination(addr2)  == CTxDestination(PKHash(pubkey2)));
@@ -177,52 +176,31 @@ BOOST_AUTO_TEST_CASE(key_signature_tests)
     }
     BOOST_CHECK(found);
 
-    // When entropy is not specified, we should always see low R signatures that are less than 70 bytes in 256 tries
+    // When entropy is not specified, we should always see low R signatures that are less than or equal to 70 bytes in 256 tries
+    // The low R signatures should always have the value of their "length of R" byte less than or equal to 32
     // We should see at least one signature that is less than 70 bytes.
-    found = true;
     bool found_small = false;
+    bool found_big = false;
+    bool bad_sign = false;
     for (int i = 0; i < 256; ++i) {
         sig.clear();
         std::string msg = "A message to be signed" + ToString(i);
         msg_hash = Hash(msg);
-        BOOST_CHECK(key.Sign(msg_hash, sig));
-        found = sig[3] == 0x20;
-        BOOST_CHECK(sig.size() <= 70);
+        if (!key.Sign(msg_hash, sig)) {
+            bad_sign = true;
+            break;
+        }
+        // sig.size() > 70 implies sig[3] > 32, because S is always low.
+        // But check both conditions anyway, just in case this implication is broken for some reason
+        if (sig[3] > 32 || sig.size() > 70) {
+            found_big = true;
+            break;
+        }
         found_small |= sig.size() < 70;
     }
-    BOOST_CHECK(found);
+    BOOST_CHECK(!bad_sign);
+    BOOST_CHECK(!found_big);
     BOOST_CHECK(found_small);
-}
-
-BOOST_AUTO_TEST_CASE(key_key_negation)
-{
-    // create a dummy hash for signature comparison
-    unsigned char rnd[8];
-    std::string str = "Bitgesell key verification\n";
-    GetRandBytes(rnd);
-    uint256 hash{Hash(str, rnd)};
-
-    // import the static test key
-    CKey key = DecodeSecret(strSecret1C);
-
-    // create a signature
-    std::vector<unsigned char> vch_sig;
-    std::vector<unsigned char> vch_sig_cmp;
-    key.Sign(hash, vch_sig);
-
-    // negate the key twice
-    BOOST_CHECK(key.GetPubKey().data()[0] == 0x03);
-    key.Negate();
-    // after the first negation, the signature must be different
-    key.Sign(hash, vch_sig_cmp);
-    BOOST_CHECK(vch_sig_cmp != vch_sig);
-    BOOST_CHECK(key.GetPubKey().data()[0] == 0x02);
-    key.Negate();
-    // after the second negation, we should have the original key and thus the
-    // same signature
-    key.Sign(hash, vch_sig_cmp);
-    BOOST_CHECK(vch_sig_cmp == vch_sig);
-    BOOST_CHECK(key.GetPubKey().data()[0] == 0x03);
 }
 
 static CPubKey UnserializePubkey(const std::vector<uint8_t>& data)
@@ -356,6 +334,15 @@ BOOST_AUTO_TEST_CASE(key_ellswift)
         }
         BOOST_CHECK(key.GetPubKey() == decoded_pubkey);
     }
+}
+
+BOOST_AUTO_TEST_CASE(bip341_test_h)
+{
+    std::vector<unsigned char> G_uncompressed = ParseHex("0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8");
+    CHashWriterSHA256 hw(SER_GETHASH, 0);
+    hw.write(MakeByteSpan(G_uncompressed));
+    XOnlyPubKey H{hw.GetSHA256()};
+    BOOST_CHECK(XOnlyPubKey::NUMS_H == H);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -30,7 +30,7 @@ class ChainstateManager;
 namespace Consensus { struct Params; };
 
 namespace node {
-static const bool DEFAULT_PRINTPRIORITY = false;
+static const bool DEFAULT_PRINT_MODIFIED_FEE = false;
 
 struct CBlockTemplate
 {
@@ -159,9 +159,9 @@ public:
         CFeeRate blockMinFeeRate{DEFAULT_BLOCK_MIN_TX_FEE};
         // Whether to call TestBlockValidity() at the end of CreateNewBlock().
         bool test_block_validity{true};
+        bool print_modified_fee{DEFAULT_PRINT_MODIFIED_FEE};
     };
 
-    explicit BlockAssembler(Chainstate& chainstate, const CTxMemPool* mempool);
     explicit BlockAssembler(Chainstate& chainstate, const CTxMemPool* mempool, const Options& options);
 
     /** Construct a new block template with coinbase to scriptPubKeyIn */
@@ -203,6 +203,9 @@ int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParam
 
 /** Update an old GenerateCoinbaseCommitment from CreateNewBlock after the block txs have changed */
 void RegenerateCommitments(CBlock& block, ChainstateManager& chainman);
+
+/** Apply -blockmintxfee and -blockmaxweight options from ArgsManager to BlockAssembler options. */
+void ApplyArgsManOptions(const ArgsManager& gArgs, BlockAssembler::Options& options);
 } // namespace node
 
 #endif // BGL_NODE_MINER_H

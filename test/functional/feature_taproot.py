@@ -10,7 +10,6 @@ from test_framework.blocktools import (
     create_block,
     add_witness_commitment,
     MAX_BLOCK_SIGOPS_WEIGHT,
-    WITNESS_SCALE_FACTOR,
 )
 from test_framework.messages import (
     COutPoint,
@@ -20,6 +19,7 @@ from test_framework.messages import (
     CTxOut,
     SEQUENCE_FINAL,
     tx_from_hex,
+    WITNESS_SCALE_FACTOR,
 )
 from test_framework.script import (
     ANNEX_TAG,
@@ -1401,10 +1401,10 @@ class TaprootTest(BGLTestFramework):
 
         left = done
         while left:
-            # Construct CTransaction with random nVersion, nLocktime
+            # Construct CTransaction with random version, nLocktime
             tx = CTransaction()
-            tx.nVersion = random.choice([1, 2, random.randint(-0x80000000, 0x7fffffff)])
-            min_sequence = (tx.nVersion != 1 and tx.nVersion != 0) * 0x80000000  # The minimum sequence number to disable relative locktime
+            tx.version = random.choice([1, 2, random.getrandbits(32)])
+            min_sequence = (tx.version != 1 and tx.version != 0) * 0x80000000  # The minimum sequence number to disable relative locktime
             if random.choice([True, False]):
                 tx.nLockTime = random.randrange(LOCKTIME_THRESHOLD, self.lastblocktime - 7200)  # all absolute locktimes in the past
             else:
@@ -1493,8 +1493,8 @@ class TaprootTest(BGLTestFramework):
                 is_standard_tx = (
                     fail_input is None  # Must be valid to be standard
                     and (all(utxo.spender.is_standard for utxo in input_utxos))  # All inputs must be standard
-                    and tx.nVersion >= 1  # The tx version must be standard
-                    and tx.nVersion <= 2)
+                    and tx.version >= 1  # The tx version must be standard
+                    and tx.version <= 2)
                 tx.rehash()
                 msg = ','.join(utxo.spender.comment + ("*" if n == fail_input else "") for n, utxo in enumerate(input_utxos))
                 if is_standard_tx:
@@ -1521,7 +1521,7 @@ class TaprootTest(BGLTestFramework):
         # Deterministically mine coins to OP_TRUE in block 1
         assert_equal(self.nodes[0].getblockcount(), 0)
         coinbase = CTransaction()
-        coinbase.nVersion = 1
+        coinbase.version = 1
         coinbase.vin = [CTxIn(COutPoint(0, 0xffffffff), CScript([OP_1, OP_1]), SEQUENCE_FINAL)]
         coinbase.vout = [CTxOut(5000000000, CScript([OP_1]))]
         coinbase.nLockTime = 0
@@ -1613,7 +1613,7 @@ class TaprootTest(BGLTestFramework):
         for i, spk in enumerate(old_spks + tap_spks):
             val = 42000000 * (i + 7)
             tx = CTransaction()
-            tx.nVersion = 1
+            tx.version = 1
             tx.vin = [CTxIn(COutPoint(lasttxid, i & 1), CScript([]), SEQUENCE_FINAL)]
             tx.vout = [CTxOut(val, spk), CTxOut(amount - val, CScript([OP_1]))]
             if i & 1:
@@ -1670,7 +1670,7 @@ class TaprootTest(BGLTestFramework):
 
         # Construct a deterministic transaction spending all outputs created above.
         tx = CTransaction()
-        tx.nVersion = 2
+        tx.version = 2
         tx.vin = []
         inputs = []
         input_spks = [tap_spks[0], tap_spks[1], old_spks[0], tap_spks[2], tap_spks[5], old_spks[2], tap_spks[6], tap_spks[3], tap_spks[4]]

@@ -56,7 +56,7 @@ CreateAndActivateUTXOSnapshot(
     //
     FILE* infile{fsbridge::fopen(snapshot_path, "rb")};
     AutoFile auto_infile{infile};
-    node::SnapshotMetadata metadata;
+    node::SnapshotMetadata metadata{node.chainman->GetParams().MessageStart()};
     auto_infile >> metadata;
 
     malleation(auto_infile, metadata);
@@ -124,11 +124,11 @@ CreateAndActivateUTXOSnapshot(
         new_active.m_chain.SetTip(*(tip->pprev));
     }
 
-    bool res = node.chainman->ActivateSnapshot(auto_infile, metadata, in_memory_chainstate);
+    auto res = node.chainman->ActivateSnapshot(auto_infile, metadata, in_memory_chainstate);
 
     // Restore the old tip.
     new_active.m_chain.SetTip(*tip);
-    return res;
+    return !!res;
 }
 
 

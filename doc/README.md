@@ -45,7 +45,6 @@ The following are developer notes on how to build BGL Core on your native platfo
 - [FreeBSD Build Notes](build-freebsd.md)
 - [OpenBSD Build Notes](build-openbsd.md)
 - [NetBSD Build Notes](build-netbsd.md)
-- [Android Build Notes](build-android.md)
 
 Development
 ---------------------

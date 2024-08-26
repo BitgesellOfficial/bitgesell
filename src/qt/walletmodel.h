@@ -130,7 +130,7 @@ public:
     UnlockContext requestUnlock();
 
     bool bumpFee(uint256 hash, uint256& new_hash);
-    bool displayAddress(std::string sAddress) const;
+    void displayAddress(std::string sAddress) const;
 
     static bool isWalletEnabled();
 
@@ -174,13 +174,13 @@ private:
     // (transaction fee, for example)
     OptionsModel *optionsModel;
 
-    AddressTableModel *addressTableModel;
-    TransactionTableModel *transactionTableModel;
-    RecentRequestsTableModel *recentRequestsTableModel;
+    AddressTableModel* addressTableModel{nullptr};
+    TransactionTableModel* transactionTableModel{nullptr};
+    RecentRequestsTableModel* recentRequestsTableModel{nullptr};
 
     // Cache some values to be able to detect changes
     interfaces::WalletBalances m_cached_balances;
-    EncryptionStatus cachedEncryptionStatus;
+    EncryptionStatus cachedEncryptionStatus{Unencrypted};
     QTimer* timer;
 
     // Block hash denoting when the last balance update was done.

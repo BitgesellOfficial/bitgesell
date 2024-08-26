@@ -82,24 +82,23 @@ BOOST_AUTO_TEST_CASE(sign)
     for (int i = 0; i < 4; i++)
     {
         BOOST_CHECK(keystore.AddCScript(standardScripts[i]));
-        evalScripts[i] = GetScriptForDestination(WitnessV0ScriptHash(standardScripts[i]));
+        evalScripts[i] = GetScriptForDestination(ScriptHash(standardScripts[i]));
     }
 
     CMutableTransaction txFrom;  // Funding transaction:
-    txFrom.nVersion = 1;
     std::string reason;
-    txFrom.vout.resize(4);
+    txFrom.vout.resize(8);
     for (int i = 0; i < 4; i++)
     {
         txFrom.vout[i].scriptPubKey = evalScripts[i];
         txFrom.vout[i].nValue = COIN;
-        //txFrom.vout[i+4].scriptPubKey = standardScripts[i];
-        //txFrom.vout[i+4].nValue = COIN;
+        txFrom.vout[i+4].scriptPubKey = standardScripts[i];
+        txFrom.vout[i+4].nValue = COIN;
     }
     BOOST_CHECK(IsStandardTx(CTransaction(txFrom), reason));
 
-    CMutableTransaction txTo[4]; // Spending transactions
-    for (int i = 0; i < 4; i++)
+    CMutableTransaction txTo[8]; // Spending transactions
+    for (int i = 0; i < 8; i++)
     {
         txTo[i].vin.resize(1);
         txTo[i].vout.resize(1);
@@ -107,24 +106,24 @@ BOOST_AUTO_TEST_CASE(sign)
         txTo[i].vin[0].prevout.hash = txFrom.GetHash();
         txTo[i].vout[0].nValue = 1;
     }
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 8; i++)
     {
         SignatureData empty;
         BOOST_CHECK_MESSAGE(SignSignature(keystore, CTransaction(txFrom), txTo[i], 0, SIGHASH_ALL, empty), strprintf("SignSignature %d", i));
     }
     // All of the above should be OK, and the txTos have valid signatures
     // Check to make sure signature verification fails if we use the wrong ScriptSig:
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 8; i++) {
         PrecomputedTransactionData txdata(txTo[i]);
-        for (int j = 0; j < 4; j++)
+        for (int j = 0; j < 8; j++)
         {
             CScript sigSave = txTo[i].vin[0].scriptSig;
             txTo[i].vin[0].scriptSig = txTo[j].vin[0].scriptSig;
-            bool sigOK = CScriptCheck(txFrom.vout[txTo[i].vin[0].prevout.n], CTransaction(txTo[i]), 0, SCRIPT_VERIFY_WITNESS | SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_STRICTENC, false, &txdata)();
+            bool sigOK = CScriptCheck(txFrom.vout[txTo[i].vin[0].prevout.n], CTransaction(txTo[i]), 0, SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_STRICTENC, false, &txdata)();
             if (i == j)
                 BOOST_CHECK_MESSAGE(sigOK, strprintf("VerifySignature %d %d", i, j));
-            //else
-            //    BOOST_CHECK_MESSAGE(!sigOK, strprintf("VerifySignature %d %d", i, j));
+            else
+                BOOST_CHECK_MESSAGE(!sigOK, strprintf("VerifySignature %d %d", i, j));
             txTo[i].vin[0].scriptSig = sigSave;
         }
     }
@@ -180,7 +179,7 @@ BOOST_AUTO_TEST_CASE(set)
     CScript outer[4];
     for (int i = 0; i < 4; i++)
     {
-        outer[i] = GetScriptForDestination(WitnessV0ScriptHash(inner[i]));
+        outer[i] = GetScriptForDestination(ScriptHash(inner[i]));
         BOOST_CHECK(keystore.AddCScript(inner[i]));
     }
 

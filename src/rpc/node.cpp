@@ -3,13 +3,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
+#include <config/BGL-config.h> // IWYU pragma: keep
 
 #include <chainparams.h>
 #include <httpserver.h>
 #include <index/blockfilterindex.h>
+#include <index/coinstatsindex.h>
 #include <index/txindex.h>
 #include <interfaces/chain.h>
 #include <interfaces/echo.h>
@@ -25,6 +24,7 @@
 #include <univalue.h>
 #include <util/any.h>
 #include <util/check.h>
+#include <util/time.h>
 
 #include <stdint.h>
 #ifdef HAVE_MALLOC_INFO
@@ -57,9 +57,11 @@ static RPCHelpMan setmocktime()
     LOCK(cs_main);
 
     const int64_t time{request.params[0].getInt<int64_t>()};
-    if (time < 0) {
-        throw JSONRPCError(RPC_INVALID_PARAMETER, strprintf("Mocktime cannot be negative: %s.", time));
+    constexpr int64_t max_time{Ticks<std::chrono::seconds>(std::chrono::nanoseconds::max())};
+    if (time < 0 || time > max_time) {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, strprintf("Mocktime must be in the range [0, %s], not %s.", max_time, time));
     }
+
     SetMockTime(time);
     const NodeContext& node_context{EnsureAnyNodeContext(request.context)};
     for (const auto& chain_client : node_context.chain_clients) {
@@ -349,7 +351,7 @@ static UniValue SummaryToJSON(const IndexSummary&& summary, std::string index_na
     UniValue entry(UniValue::VOBJ);
     entry.pushKV("synced", summary.synced);
     entry.pushKV("best_block_height", summary.best_block_height);
-    ret_summary.pushKV(summary.name, entry);
+    ret_summary.pushKV(summary.name, std::move(entry));
     return ret_summary;
 }
 
@@ -384,6 +386,10 @@ static RPCHelpMan getindexinfo()
 
     if (g_txindex) {
         result.pushKVs(SummaryToJSON(g_txindex->GetSummary(), index_name));
+    }
+
+    if (g_coin_stats_index) {
+        result.pushKVs(SummaryToJSON(g_coin_stats_index->GetSummary(), index_name));
     }
 
     ForEachBlockFilterIndex([&result, &index_name](const BlockFilterIndex& index) {

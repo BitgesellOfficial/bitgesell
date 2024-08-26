@@ -22,6 +22,7 @@
 
 using namespace std::literals;
 using node::NodeContext;
+using util::ToString;
 
 static NetGroupManager EMPTY_NETGROUPMAN{std::vector<bool>()};
 static const bool DETERMINISTIC{true};
@@ -1059,7 +1060,7 @@ BOOST_AUTO_TEST_CASE(load_addrman_corrupted)
     BOOST_CHECK(exceptionThrown);
 
     // Test that ReadFromStream fails if peers.dat is corrupt
-    CDataStream ssPeers2{MakeCorruptPeersDat()};
+    auto ssPeers2{MakeCorruptPeersDat()};
 
     AddrMan addrman2{EMPTY_NETGROUPMAN, !DETERMINISTIC, GetCheckRatio(m_node)};
     BOOST_CHECK(addrman2.Size() == 0);

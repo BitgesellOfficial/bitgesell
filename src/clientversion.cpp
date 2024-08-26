@@ -2,22 +2,22 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
+#include <config/BGL-config.h> // IWYU pragma: keep
 
 #include <clientversion.h>
+#include <util/string.h>
 #include <util/translation.h>
 
 #include <tinyformat.h>
 
-#include <sstream>
 #include <string>
 #include <vector>
 
+using util::Join;
+
 /**
  * Name of client reported in the 'version' message. Report the same name
- * for both BGLd and BGL-qt, to make it harder for attackers to
+ * for both bitcoind and bitcoin-qt, to make it harder for attackers to
  * target servers or GUI users specifically.
  */
 const std::string CLIENT_NAME("SatoshiBGL");
@@ -62,23 +62,13 @@ std::string FormatFullVersion()
 }
 
 /**
- * Format the subversion field according to BIP 14 spec (https://github.com/BGL/bips/blob/master/bip-0014.mediawiki)
+ * Format the subversion field according to BIP 14 spec (https://github.com/bitcoin/bips/blob/master/bip-0014.mediawiki)
  */
 std::string FormatSubVersion(const std::string& name, int nClientVersion, const std::vector<std::string>& comments)
 {
-    std::ostringstream ss;
-    ss << "/";
-    ss << name << ":" << FormatVersion(nClientVersion);
-    if (!comments.empty())
-    {
-        std::vector<std::string>::const_iterator it(comments.begin());
-        ss << "(" << *it;
-        for(++it; it != comments.end(); ++it)
-            ss << "; " << *it;
-        ss << ")";
-    }
-    ss << "/";
-    return ss.str();
+    std::string comments_str;
+    if (!comments.empty()) comments_str = strprintf("(%s)", Join(comments, "; "));
+    return strprintf("/%s:%s%s/", name, FormatVersion(nClientVersion), comments_str);
 }
 
 std::string CopyrightHolders(const std::string& strPrefix)
@@ -95,7 +85,7 @@ std::string CopyrightHolders(const std::string& strPrefix)
 
 std::string LicenseInfo()
 {
-    const std::string URL_SOURCE_CODE = "<https://github.com/BitgesellOfficial/bitgesell>";
+    const std::string URL_SOURCE_CODE = "<https://github.com/bitcoin/bitcoin>";
 
     return CopyrightHolders(strprintf(_("Copyright (C) %i-%i").translated, 2009, COPYRIGHT_YEAR) + " ") + "\n" +
            "\n" +

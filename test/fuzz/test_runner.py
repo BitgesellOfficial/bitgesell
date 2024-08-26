@@ -11,6 +11,7 @@ import argparse
 import configparser
 import logging
 import os
+import platform
 import random
 import subprocess
 import sys
@@ -18,7 +19,7 @@ import sys
 
 def get_fuzz_env(*, target, source_dir):
     symbolizer = os.environ.get('LLVM_SYMBOLIZER_PATH', "/usr/bin/llvm-symbolizer")
-    return {
+    fuzz_env = {
         'FUZZ': target,
         'UBSAN_OPTIONS':
         f'suppressions={source_dir}/test/sanitizer_suppressions/ubsan:print_stacktrace=1:halt_on_error=1:report_error_type=1',
@@ -27,6 +28,10 @@ def get_fuzz_env(*, target, source_dir):
         'ASAN_SYMBOLIZER_PATH':symbolizer,
         'MSAN_SYMBOLIZER_PATH':symbolizer,
     }
+    if platform.system() == "Windows":
+        # On Windows, `env` option must include valid `SystemRoot`.
+        fuzz_env = {**fuzz_env, 'SystemRoot': os.environ.get('SystemRoot')}
+    return fuzz_env
 
 
 def main():
@@ -104,9 +109,11 @@ def main():
         logging.error("Must have fuzz executable built")
         sys.exit(1)
 
+    fuzz_bin=os.getenv("BITCOINFUZZ", default=os.path.join(config["environment"]["BUILDDIR"], 'src', 'test', 'fuzz', 'fuzz'))
+
     # Build list of tests
     test_list_all = parse_test_list(
-        fuzz_bin=os.path.join(config["environment"]["BUILDDIR"], 'src', 'test', 'fuzz', 'fuzz'),
+        fuzz_bin=fuzz_bin,
         source_dir=config['environment']['SRCDIR'],
     )
 
@@ -151,7 +158,7 @@ def main():
     try:
         help_output = subprocess.run(
             args=[
-                os.path.join(config["environment"]["BUILDDIR"], 'src', 'test', 'fuzz', 'fuzz'),
+                fuzz_bin,
                 '-help=1',
             ],
             env=get_fuzz_env(target=test_list_selection[0], source_dir=config['environment']['SRCDIR']),
@@ -173,7 +180,7 @@ def main():
             return generate_corpus(
                 fuzz_pool=fuzz_pool,
                 src_dir=config['environment']['SRCDIR'],
-                build_dir=config["environment"]["BUILDDIR"],
+                fuzz_bin=fuzz_bin,
                 corpus_dir=args.corpus_dir,
                 targets=test_list_selection,
             )
@@ -184,7 +191,7 @@ def main():
                 corpus=args.corpus_dir,
                 test_list=test_list_selection,
                 src_dir=config['environment']['SRCDIR'],
-                build_dir=config["environment"]["BUILDDIR"],
+                fuzz_bin=fuzz_bin,
                 merge_dirs=[Path(m_dir) for m_dir in args.m_dir],
             )
             return
@@ -194,7 +201,7 @@ def main():
             corpus=args.corpus_dir,
             test_list=test_list_selection,
             src_dir=config['environment']['SRCDIR'],
-            build_dir=config["environment"]["BUILDDIR"],
+            fuzz_bin=fuzz_bin,
             using_libfuzzer=using_libfuzzer,
             use_valgrind=args.valgrind,
             empty_min_time=args.empty_min_time,
@@ -237,7 +244,7 @@ def transform_rpc_target(targets, src_dir):
     return targets
 
 
-def generate_corpus(*, fuzz_pool, src_dir, build_dir, corpus_dir, targets):
+def generate_corpus(*, fuzz_pool, src_dir, fuzz_bin, corpus_dir, targets):
     """Generates new corpus.
 
     Run {targets} without input, and outputs the generated corpus to
@@ -270,7 +277,7 @@ def generate_corpus(*, fuzz_pool, src_dir, build_dir, corpus_dir, targets):
         os.makedirs(target_corpus_dir, exist_ok=True)
         use_value_profile = int(random.random() < .3)
         command = [
-            os.path.join(build_dir, 'src', 'test', 'fuzz', 'fuzz'),
+            fuzz_bin,
             "-rss_limit_mb=8000",
             "-max_total_time=6000",
             "-reload=0",
@@ -283,12 +290,12 @@ def generate_corpus(*, fuzz_pool, src_dir, build_dir, corpus_dir, targets):
         future.result()
 
 
-def merge_inputs(*, fuzz_pool, corpus, test_list, src_dir, build_dir, merge_dirs):
+def merge_inputs(*, fuzz_pool, corpus, test_list, src_dir, fuzz_bin, merge_dirs):
     logging.info(f"Merge the inputs from the passed dir into the corpus_dir. Passed dirs {merge_dirs}")
     jobs = []
     for t in test_list:
         args = [
-            os.path.join(build_dir, 'src', 'test', 'fuzz', 'fuzz'),
+            fuzz_bin,
             '-rss_limit_mb=8000',
             '-set_cover_merge=1',
             # set_cover_merge is used instead of -merge=1 to reduce the overall
@@ -325,13 +332,13 @@ def merge_inputs(*, fuzz_pool, corpus, test_list, src_dir, build_dir, merge_dirs
         future.result()
 
 
-def run_once(*, fuzz_pool, corpus, test_list, src_dir, build_dir, using_libfuzzer, use_valgrind, empty_min_time):
+def run_once(*, fuzz_pool, corpus, test_list, src_dir, fuzz_bin, using_libfuzzer, use_valgrind, empty_min_time):
     jobs = []
     for t in test_list:
         corpus_path = corpus / t
         os.makedirs(corpus_path, exist_ok=True)
         args = [
-            os.path.join(build_dir, 'src', 'test', 'fuzz', 'fuzz'),
+            fuzz_bin,
         ]
         empty_dir = not any(corpus_path.iterdir())
         if using_libfuzzer:

@@ -45,7 +45,7 @@ class AddressType(enum.Enum):
 b58chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 
 
-def create_deterministic_address_bcrt1_p2tr_op_true():
+def create_deterministic_address_bcrt1_p2tr_op_true(explicit_internal_key=None):
     """
     Generates a deterministic bech32m address (segwit v1 output) that
     can be spent with a witness stack of OP_TRUE and the control block
@@ -53,9 +53,10 @@ def create_deterministic_address_bcrt1_p2tr_op_true():
 
     Returns a tuple with the generated address and the internal key.
     """
-    internal_key = (1).to_bytes(32, 'big')
+    internal_key = explicit_internal_key or (1).to_bytes(32, 'big')
     address = output_key_to_p2tr(taproot_construct(internal_key, [(None, CScript([OP_TRUE]))]).output_pubkey)
-    assert_equal(address, 'rbgl1p9yfmy5h72durp7zrhlw9lf7jpwjgvwdg0jr0lqmmjtgg83266lqsylg5sy')
+    if explicit_internal_key is None:
+        assert_equal(address, 'rbgl1p9yfmy5h72durp7zrhlw9lf7jpwjgvwdg0jr0lqmmjtgg83266lqsylg5sy')
     return (address, internal_key)
 
 

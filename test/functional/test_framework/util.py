@@ -14,6 +14,7 @@ import logging
 import os
 import pathlib
 import platform
+import random
 import re
 import time
 
@@ -246,6 +247,10 @@ def ceildiv(a, b):
     assert isinstance(b, int)
     return -(-a // b)
 
+def random_bitflip(data):
+    data = list(data)
+    data[random.randrange(len(data))] ^= (1 << (random.randrange(8)))
+    return bytes(data)
 
 def get_fee(tx_size, feerate_btc_kvb):
     """Calculate the fee in BTC given a feerate is BTC/kvB. Reflects CFeeRate::GetFee"""

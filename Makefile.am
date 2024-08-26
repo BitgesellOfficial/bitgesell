@@ -113,9 +113,6 @@ OSX_APP_BUILT=$(OSX_APP)/Contents/PkgInfo $(OSX_APP)/Contents/Resources/empty.lp
   $(OSX_APP)/Contents/Resources/BGL.icns $(OSX_APP)/Contents/Info.plist \
   $(OSX_APP)/Contents/MacOS/BGL-Qt $(OSX_APP)/Contents/Resources/Base.lproj/InfoPlist.strings
 
-osx_volname:
-	echo $(OSX_VOLNAME) >$@
-
 if BUILD_DARWIN
 $(OSX_ZIP): $(OSX_APP_BUILT) $(OSX_PACKAGING)
 	$(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) $(OSX_VOLNAME) -translations-dir=$(QT_TRANSLATION_DIR) -zip
@@ -129,7 +126,7 @@ $(OSX_ZIP): deploydir
 	cd $(APP_DIST_DIR) && find . | sort | $(ZIP) -X@ $@
 
 $(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/BGL-Qt: $(OSX_APP_BUILT) $(OSX_PACKAGING)
-	INSTALL_NAME_TOOL=$(INSTALL_NAME_TOOL) OTOOL=$(OTOOL) STRIP=$(STRIP) $(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) $(OSX_VOLNAME) -translations-dir=$(QT_TRANSLATION_DIR)
+	OBJDUMP=$(OBJDUMP) $(PYTHON) $(OSX_DEPLOY_SCRIPT) $(OSX_APP) $(OSX_VOLNAME) -translations-dir=$(QT_TRANSLATION_DIR)
 
 deploydir: $(APP_DIST_DIR)/$(OSX_APP)/Contents/MacOS/BGL-Qt
 endif !BUILD_DARWIN
@@ -189,7 +186,7 @@ baseline_filtered.info: baseline.info
 	$(LCOV) -a $@ $(LCOV_OPTS) -o $@
 
 fuzz.info: baseline_filtered.info
-	@TIMEOUT=15 test/fuzz/test_runner.py $(DIR_FUZZ_SEED_CORPUS) -l DEBUG
+	@test/fuzz/test_runner.py $(DIR_FUZZ_SEED_CORPUS) -l DEBUG
 	$(LCOV) -c $(LCOV_OPTS) -d $(abs_builddir)/src --t fuzz-tests -o $@
 	$(LCOV) -z $(LCOV_OPTS) -d $(abs_builddir)/src
 
@@ -207,7 +204,7 @@ test_BGL_filtered.info: test_BGL.info
 	$(LCOV) -a $@ $(LCOV_OPTS) -o $@
 
 functional_test.info: test_BGL_filtered.info
-	@TIMEOUT=15 test/functional/test_runner.py $(EXTENDED_FUNCTIONAL_TESTS)
+	@test/functional/test_runner.py $(EXTENDED_FUNCTIONAL_TESTS)
 	$(LCOV) -c $(LCOV_OPTS) -d $(abs_builddir)/src --t functional-tests -o $@
 	$(LCOV) -z $(LCOV_OPTS) -d $(abs_builddir)/src
 
@@ -333,7 +330,7 @@ clean-docs:
 clean-local: clean-docs
 	rm -rf coverage_percent.txt test_BGL.coverage/ total.coverage/ fuzz.coverage/ test/tmp/ cache/ $(OSX_APP)
 	rm -rf test/functional/__pycache__ test/functional/test_framework/__pycache__ test/cache share/rpcauth/__pycache__
-	rm -rf osx_volname dist/ test/lint/test_runner/target/ test/lint/__pycache__
+	rm -rf dist/ test/lint/test_runner/target/ test/lint/__pycache__
 
 test-security-check:
 if TARGET_DARWIN

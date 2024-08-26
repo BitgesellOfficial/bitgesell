@@ -1,4 +1,4 @@
-# Release Process
+# Release process
 
 This document outlines the process for releasing versions of the form `$MAJOR.$MINOR.$PATCH`.
 
@@ -6,19 +6,21 @@ We distinguish between two types of releases: *regular* and *maintenance* releas
 Regular releases are releases of a new major or minor version as well as patches of the most recent release.
 Maintenance releases, on the other hand, are required for patches of older releases.
 
-You should coordinate with the other maintainers on the release date, if possible.
-This date will be part of the release entry in [CHANGELOG.md](../CHANGELOG.md) and it should match the dates of the remaining steps in the release process (including the date of the tag and the GitHub release).
-It is best if the maintainers are present during the release, so they can help ensure that the process is followed correctly and, in the case of a regular release, they are aware that they should not modify the master branch between merging the PR in step 1 and the PR in step 3.
+* Update release candidate version in `configure.ac` (`CLIENT_VERSION_RC`).
+* Update manpages (after rebuilding the binaries), see [gen-manpages.py](https://github.com/bitcoin/bitcoin/blob/master/contrib/devtools/README.md#gen-manpagespy).
+* Update bitcoin.conf and commit changes if they exist, see [gen-bitcoin-conf.sh](https://github.com/bitcoin/bitcoin/blob/master/contrib/devtools/README.md#gen-bitcoin-confsh).
 
 This process also assumes that there will be no minor releases for old major releases.
 
 * Update [bips.md](bips.md) to account for changes since the last release.
 * Update version in `configure.ac` (don't forget to set `CLIENT_VERSION_RC` to `0`).
 * Update manpages (see previous section)
-* Write release notes (see "Write the release notes" below).
+* Write release notes (see "Write the release notes" below) in doc/release-notes.md. If necessary,
+  archive the previous release notes as doc/release-notes/release-notes-${VERSION}.md.
 
-## Sanity Checks
-Perform these checks before creating a release:
+## Sanity checks
+Perform these checks when reviewing the release PR (see below):
+
 
 * On both the master branch and the new release branch:
   - update `CLIENT_VERSION_MAJOR` in [`configure.ac`](../configure.ac)
@@ -29,6 +31,7 @@ Perform these checks before creating a release:
 
 #### Before branch-off
 
+* Update translations see [translation_process.md](https://github.com/bitcoin/bitcoin/blob/master/doc/translation_process.md#synchronising-translations).
 * Update hardcoded [seeds](/contrib/seeds/README.md), see [this pull request](https://github.com/bitcoin/bitcoin/pull/27488) for an example.
 * Update the following variables in [`src/kernel/chainparams.cpp`](/src/kernel/chainparams.cpp) for mainnet, testnet, and signet:
   - `m_assumed_blockchain_size` and `m_assumed_chain_state_size` with the current size plus some overhead (see
@@ -121,7 +124,7 @@ git fetch origin "v${VERSION}"
 git checkout "v${VERSION}"
 popd
 ```
-<<<<<<< HEAD
+
 
 Ensure your guix.sigs are up-to-date if you wish to `guix-verify` your builds
 against other `guix-attest` signatures.
@@ -153,33 +156,37 @@ pushd ./guix.sigs
 git add "${VERSION}/${SIGNER}"/noncodesigned.SHA256SUMS{,.asc}
 git commit -m "Add attestations by ${SIGNER} for ${VERSION} non-codesigned"
 popd
-=======
+
+1. Ensure `make distcheck` doesn't fail.
+   ```shell
+   ./autogen.sh && ./configure --enable-dev-mode && make distcheck
+   ```
+
 2. Check installation with autotools:
-```shell
-dir=$(mktemp -d)
-./autogen.sh && ./configure --prefix=$dir && make clean && make install && ls -RlAh $dir
-gcc -o ecdsa examples/ecdsa.c $(PKG_CONFIG_PATH=$dir/lib/pkgconfig pkg-config --cflags --libs libsecp256k1) -Wl,-rpath,"$dir/lib" && ./ecdsa
-```
+   ```shell
+   dir=$(mktemp -d)
+   ./autogen.sh && ./configure --prefix=$dir && make clean && make install && ls -RlAh $dir
+   gcc -o ecdsa examples/ecdsa.c $(PKG_CONFIG_PATH=$dir/lib/pkgconfig pkg-config --cflags --libs libsecp256k1) -Wl,-rpath,"$dir/lib" && ./ecdsa
+   ```
 3. Check installation with CMake:
-```shell
-dir=$(mktemp -d)
-build=$(mktemp -d)
-cmake -B $build -DCMAKE_INSTALL_PREFIX=$dir && cmake --build $build --target install && ls -RlAh $dir
-gcc -o ecdsa examples/ecdsa.c -I $dir/include -L $dir/lib*/ -l secp256k1 -Wl,-rpath,"$dir/lib",-rpath,"$dir/lib64" && ./ecdsa
->>>>>>> 29fde0223a... Squashed 'src/secp256k1/' changes from 199d27cea3..efe85c70a2
-```
-4. Use the [`check-abi.sh`](/tools/check-abi.sh) tool to ensure there are no unexpected ABI incompatibilities and that the version number and release notes accurately reflect all potential ABI changes. To run this tool, the `abi-dumper` and `abi-compliance-checker` packages are required.
+   ```shell
+   dir=$(mktemp -d)
+   build=$(mktemp -d)
+   cmake -B $build -DCMAKE_INSTALL_PREFIX=$dir && cmake --build $build --target install && ls -RlAh $dir
+   gcc -o ecdsa examples/ecdsa.c -I $dir/include -L $dir/lib*/ -l secp256k1 -Wl,-rpath,"$dir/lib",-rpath,"$dir/lib64" && ./ecdsa
+   ```
+4. Use the [`check-abi.sh`](/tools/check-abi.sh) tool to verify that there are no unexpected ABI incompatibilities and that the version number and the release notes accurately reflect all potential ABI changes. To run this tool, the `abi-dumper` and `abi-compliance-checker` packages are required.
+   ```shell
+   tools/check-abi.sh
+   ```
 
-```shell
-tools/check-abi.sh
-```
-
-<<<<<<< HEAD
 Then open a Pull Request to the [guix.sigs repository](https://github.com/bitcoin-core/guix.sigs).
 
 ## Codesigning
 
 ### macOS codesigner only: Create detached macOS signatures (assuming [signapple](https://github.com/achow101/signapple/) is installed and up to date with master branch)
+
+In the `guix-build-${VERSION}/output/x86_64-apple-darwin` and `guix-build-${VERSION}/output/arm64-apple-darwin` directories:
 
     tar xf bitcoin-osx-unsigned.tar.gz
     ./detached-sig-create.sh /path/to/codesign.p12
@@ -188,6 +195,8 @@ Then open a Pull Request to the [guix.sigs repository](https://github.com/bitcoi
 
 ### Windows codesigner only: Create detached Windows signatures
 
+In the `guix-build-${VERSION}/output/x86_64-w64-mingw32` directory:
+
     tar xf bitcoin-win-unsigned.tar.gz
     ./detached-sig-create.sh -key /path/to/codesign.key
     Enter the passphrase for the key when prompted
@@ -195,18 +204,22 @@ Then open a Pull Request to the [guix.sigs repository](https://github.com/bitcoi
 
 ### Windows and macOS codesigners only: test code signatures
 It is advised to test that the code signature attaches properly prior to tagging by performing the `guix-codesign` step.
-However if this is done, once the release has been tagged in the bitcoin-detached-sigs repo, the `guix-codesign` step must be performed again in order for the guix attestation to be valid when compared against the attestations of non-codesigner builds.
+However if this is done, once the release has been tagged in the bitcoin-detached-sigs repo, the `guix-codesign` step must be performed again in order for the guix attestation to be valid when compared against the attestations of non-codesigner builds. The directories created by `guix-codesign` will need to be cleared prior to running `guix-codesign` again.
 
 ### Windows and macOS codesigners only: Commit the detached codesign payloads
 
 ```sh
 pushd ./bitcoin-detached-sigs
-# checkout the appropriate branch for this release series
-rm -rf ./*
+# checkout or create the appropriate branch for this release series
+git checkout --orphan <branch>
+# if you are the macOS codesigner
+rm -rf osx
 tar xf signature-osx.tar.gz
+# if you are the windows codesigner
+rm -rf win
 tar xf signature-win.tar.gz
 git add -A
-git commit -m "point to ${VERSION}"
+git commit -m "<version>: {osx,win} signature for {rc,final}"
 git tag -s "v${VERSION}" HEAD
 git push the current branch and new tag
 popd
@@ -236,45 +249,36 @@ popd
 
 Then open a Pull Request to the [guix.sigs repository](https://github.com/bitcoin-core/guix.sigs).
 
-## After 3 or more people have guix-built and their results match
+## After 6 or more people have guix-built and their results match
 
-Combine the `all.SHA256SUMS.asc` file from all signers into `SHA256SUMS.asc`:
+After verifying signatures, combine the `all.SHA256SUMS.asc` file from all signers into `SHA256SUMS.asc`:
 
 ```bash
 cat "$VERSION"/*/all.SHA256SUMS.asc > SHA256SUMS.asc
 ```
 
 
-- Upload to the bitcoincore.org server (`/var/www/bin/bitcoin-core-${VERSION}/`):
-    1. The contents of each `./bitcoin/guix-build-${VERSION}/output/${HOST}/` directory, except for
-       `*-debug*` files.
+- Upload to the bitcoincore.org server:
+    1. The contents of each `./bitcoin/guix-build-${VERSION}/output/${HOST}/` directory.
 
        Guix will output all of the results into host subdirectories, but the SHA256SUMS
        file does not include these subdirectories. In order for downloads via torrent
        to verify without directory structure modification, all of the uploaded files
        need to be in the same directory as the SHA256SUMS file.
 
-       The `*-debug*` files generated by the guix build contain debug symbols
-       for troubleshooting by developers. It is assumed that anyone that is
-       interested in debugging can run guix to generate the files for
-       themselves. To avoid end-user confusion about which file to pick, as well
-       as save storage space *do not upload these to the bitcoincore.org server,
-       nor put them in the torrent*.
-
-       ```sh
-       find guix-build-${VERSION}/output/ -maxdepth 2 -type f -not -name "SHA256SUMS.part" -and -not -name "*debug*" -exec scp {} user@bitcoincore.org:/var/www/bin/bitcoin-core-${VERSION} \;
-       ```
+       Wait until all of these files have finished uploading before uploading the SHA256SUMS(.asc) files.
 
     2. The `SHA256SUMS` file
 
-    3. The `SHA256SUMS.asc` combined signature file you just created
+    3. The `SHA256SUMS.asc` combined signature file you just created.
 
-- Create a torrent of the `/var/www/bin/bitcoin-core-${VERSION}` directory such
-  that at the top level there is only one file: the `bitcoin-core-${VERSION}`
-  directory containing everything else. Name the torrent
-  `bitcoin-${VERSION}.torrent` (note that there is no `-core-` in this name).
+- After uploading release candidate binaries, notify the bitcoin-core-dev mailing list and
+  bitcoin-dev group that a release candidate is available for testing. Include a link to the release
+  notes draft.
 
-  Optionally help seed this torrent. To get the `magnet:` URI use:
+- The server will automatically create an OpenTimestamps file and torrent of the directory.
+
+- Optionally help seed this torrent. To get the `magnet:` URI use:
 
   ```sh
   transmission-show -m <torrent file>
@@ -285,20 +289,25 @@ cat "$VERSION"/*/all.SHA256SUMS.asc > SHA256SUMS.asc
   Also put it into the `optional_magnetlink:` slot in the YAML file for
   bitcoincore.org.
 
-- Update other repositories and websites for new version
+- Archive the release notes for the new version to `doc/release-notes/release-notes-${VERSION}.md`
+  (branch `master` and branch of the release).
 
-  - bitcoincore.org blog post
+- Update the bitcoincore.org website
 
-  - bitcoincore.org maintained versions update:
-    [table](https://github.com/bitcoin-core/bitcoincore.org/commits/master/_includes/posts/maintenance-table.md)
+  - blog post
+
+  - maintained versions [table](https://github.com/bitcoin-core/bitcoincore.org/commits/master/_includes/posts/maintenance-table.md)
+
+  - RPC documentation update
+
+      - See https://github.com/bitcoin-core/bitcoincore.org/blob/master/contrib/doc-gen/
+
+
+- Update repositories
 
   - Delete post-EOL [release branches](https://github.com/bitcoin/bitcoin/branches/all) and create a tag `v${branch_name}-final`.
 
   - Delete ["Needs backport" labels](https://github.com/bitcoin/bitcoin/labels?q=backport) for non-existing branches.
-
-  - bitcoincore.org RPC documentation update
-
-      - See https://github.com/bitcoin-core/bitcoincore.org/blob/master/contrib/doc-gen/
 
   - Update packaging repo
 
@@ -306,19 +315,15 @@ cat "$VERSION"/*/all.SHA256SUMS.asc > SHA256SUMS.asc
 
       - Push the snap, see https://github.com/bitcoin-core/packaging/blob/main/snap/local/build.md
 
-  - This repo
-
-      - Archive the release notes for the new version to `doc/release-notes/` (branch `master` and branch of the release)
-
-      - Create a [new GitHub release](https://github.com/BitgesellOfficial/bitgesell/releases/new) with a link to the archived release notes
+  - Create a [new GitHub release](https://github.com/bitcoin/bitcoin/releases/new) with a link to the archived release notes
 
 - Announce the release:
 
-  - bitcoin-dev and bitcoin-core-dev mailing list
+  - BGL-dev and BGL-core-dev mailing list
 
   - BGL Core announcements list https://bitgesell.ca/en/list/announcements/join/
 
-  - Bitcoin Core Twitter https://twitter.com/bitcoincoreorg
+  - BGL Core Twitter https://twitter.com/bitgesell
 
   - Celebrate
 
@@ -350,27 +355,29 @@ Notes:
        * adding a section for the release (make sure that the version number is a link to a diff between the previous and new version),
        * removing the `[Unreleased]` section header, and
        * including an entry for `### ABI Compatibility` if it doesn't exist,
-   * sets `_PKG_VERSION_IS_RELEASE` to `true` in `configure.ac`, and
-   * if this is not a patch release
-       * updates `_PKG_VERSION_*` and `_LIB_VERSION_*`  in `configure.ac` and
+   * sets `_PKG_VERSION_IS_RELEASE` to `true` in `configure.ac`, and,
+   * if this is not a patch release,
+       * updates `_PKG_VERSION_*` and `_LIB_VERSION_*`  in `configure.ac`, and
        * updates `project(libsecp256k1 VERSION ...)` and `${PROJECT_NAME}_LIB_VERSION_*` in `CMakeLists.txt`.
-2. After the PR is merged, tag the commit and push it:
+2. Perform the [sanity checks](#sanity-checks) on the PR branch.
+3. After the PR is merged, tag the commit, and push the tag:
    ```
    RELEASE_COMMIT=<merge commit of step 1>
    git tag -s v$MAJOR.$MINOR.$PATCH -m "libsecp256k1 $MAJOR.$MINOR.$PATCH" $RELEASE_COMMIT
    git push git@github.com:bitcoin-core/secp256k1.git v$MAJOR.$MINOR.$PATCH
    ```
-3. Open a PR to the master branch with a commit (using message `"release cleanup: bump version after $MAJOR.$MINOR.$PATCH"`, for example) that
+4. Open a PR to the master branch with a commit (using message `"release cleanup: bump version after $MAJOR.$MINOR.$PATCH"`, for example) that
    * sets `_PKG_VERSION_IS_RELEASE` to `false` and increments `_PKG_VERSION_PATCH` and `_LIB_VERSION_REVISION` in `configure.ac`,
    * increments the `$PATCH` component of `project(libsecp256k1 VERSION ...)` and `${PROJECT_NAME}_LIB_VERSION_REVISION` in `CMakeLists.txt`, and
    * adds an `[Unreleased]` section header to the [CHANGELOG.md](../CHANGELOG.md).
 
    If other maintainers are not present to approve the PR, it can be merged without ACKs.
-4. Create a new GitHub release with a link to the corresponding entry in [CHANGELOG.md](../CHANGELOG.md).
+5. Create a new GitHub release with a link to the corresponding entry in [CHANGELOG.md](../CHANGELOG.md).
+6. Send an announcement email to the bitcoin-dev mailing list.
 
 ## Maintenance release
 
-Note that bugfixes only need to be backported to releases for which no compatible release without the bug exists.
+Note that bug fixes need to be backported only to releases for which no compatible release without the bug exists.
 
 1. If there's no maintenance branch `$MAJOR.$MINOR`, create one:
    ```
@@ -378,20 +385,18 @@ Note that bugfixes only need to be backported to releases for which no compatibl
    git push git@github.com:bitcoin-core/secp256k1.git $MAJOR.$MINOR
    ```
 2. Open a pull request to the `$MAJOR.$MINOR` branch that
-   * includes the bugfixes,
+   * includes the bug fixes,
    * finalizes the release notes similar to a regular release,
    * increments `_PKG_VERSION_PATCH` and `_LIB_VERSION_REVISION` in `configure.ac`
      and the `$PATCH` component of `project(libsecp256k1 VERSION ...)` and `${PROJECT_NAME}_LIB_VERSION_REVISION` in `CMakeLists.txt`
      (with commit message `"release: bump versions for $MAJOR.$MINOR.$PATCH"`, for example).
-3. After the PRs are merged, update the release branch and tag the commit:
+3. Perform the [sanity checks](#sanity-checks) on the PR branch.
+4. After the PRs are merged, update the release branch, tag the commit, and push the tag:
    ```
    git checkout $MAJOR.$MINOR && git pull
    git tag -s v$MAJOR.$MINOR.$PATCH -m "libsecp256k1 $MAJOR.$MINOR.$PATCH"
-   ```
-4. Push tag:
-   ```
    git push git@github.com:bitcoin-core/secp256k1.git v$MAJOR.$MINOR.$PATCH
    ```
-5. Create a new GitHub release with a link to the corresponding entry in [CHANGELOG.md](../CHANGELOG.md).
-6. Open PR to the master branch that includes a commit (with commit message `"release notes: add $MAJOR.$MINOR.$PATCH"`, for example) that adds release notes to [CHANGELOG.md](../CHANGELOG.md).
->>>>>>> 29fde0223a... Squashed 'src/secp256k1/' changes from 199d27cea3..efe85c70a2
+6. Create a new GitHub release with a link to the corresponding entry in [CHANGELOG.md](../CHANGELOG.md).
+7. Send an announcement email to the bitcoin-dev mailing list.
+8. Open PR to the master branch that includes a commit (with commit message `"release notes: add $MAJOR.$MINOR.$PATCH"`, for example) that adds release notes to [CHANGELOG.md](../CHANGELOG.md).

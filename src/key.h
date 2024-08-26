@@ -75,13 +75,15 @@ public:
 
     CKey& operator=(const CKey& other)
     {
-        if (other.keydata) {
-            MakeKeyData();
-            *keydata = *other.keydata;
-        } else {
-            ClearKeyData();
+        if (this != &other) {
+            if (other.keydata) {
+                MakeKeyData();
+                *keydata = *other.keydata;
+            } else {
+                ClearKeyData();
+            }
+            fCompressed = other.fCompressed;
         }
-        fCompressed = other.fCompressed;
         return *this;
     }
 
@@ -123,9 +125,6 @@ public:
 
     //! Generate a new private key using a cryptographic PRNG.
     void MakeNewKey(bool fCompressed);
-
-    //! Negate private key
-    bool Negate();
 
     /**
      * Convert the private key to a CPrivKey (serialized OpenSSL private key data).
@@ -236,13 +235,21 @@ struct CExtKey {
     void SetSeed(Span<const std::byte> seed);
 };
 
-/** Initialize the elliptic curve support. May not be called twice without calling ECC_Stop first. */
-void ECC_Start();
-
-/** Deinitialize the elliptic curve support. No-op if ECC_Start wasn't called first. */
-void ECC_Stop();
-
 /** Check that required EC support is available at runtime. */
 bool ECC_InitSanityCheck();
+
+/**
+ * RAII class initializing and deinitializing global state for elliptic curve support.
+ * Only one instance may be initialized at a time.
+ *
+ * In the future global ECC state could be removed, and this class could contain
+ * state and be passed as an argument to ECC key functions.
+ */
+class ECC_Context
+{
+public:
+    ECC_Context();
+    ~ECC_Context();
+};
 
 #endif // BGL_KEY_H

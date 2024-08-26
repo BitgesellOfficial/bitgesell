@@ -2,9 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
+#include <config/BGL-config.h> // IWYU pragma: keep
 
 #include <clientversion.h>
 #include <common/args.h>
@@ -21,6 +19,8 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+
+using util::SplitString;
 
 namespace init {
 void AddLoggingArgs(ArgsManager& argsman)

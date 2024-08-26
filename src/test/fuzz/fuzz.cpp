@@ -25,7 +25,6 @@
 #include <memory>
 #include <string>
 #include <tuple>
-#include <unistd.h>
 #include <utility>
 #include <vector>
 
@@ -73,17 +72,38 @@ auto& FuzzTargets()
 
 void FuzzFrameworkRegisterTarget(std::string_view name, TypeTestOneInput target, FuzzTargetOptions opts)
 {
-    const auto it_ins{FuzzTargets().try_emplace(name, FuzzTarget /* temporary can be dropped after clang-16 */ {std::move(target), std::move(opts)})};
-    Assert(it_ins.second);
+    const auto [it, ins]{FuzzTargets().try_emplace(name, FuzzTarget /* temporary can be dropped after Apple-Clang-16 ? */ {std::move(target), std::move(opts)})};
+    Assert(ins);
 }
 
 static std::string_view g_fuzz_target;
 static const TypeTestOneInput* g_test_one_input{nullptr};
 
+
+#if defined(__clang__) && defined(__linux__)
+extern "C" void __llvm_profile_reset_counters(void) __attribute__((weak));
+extern "C" void __gcov_reset(void) __attribute__((weak));
+
+void ResetCoverageCounters()
+{
+    if (__llvm_profile_reset_counters) {
+        __llvm_profile_reset_counters();
+    }
+
+    if (__gcov_reset) {
+        __gcov_reset();
+    }
+}
+#else
+void ResetCoverageCounters() {}
+#endif
+
+
 void initialize()
 {
-    // Terminate immediately if a fuzzing harness ever tries to create a TCP socket.
-    CreateSock = [](const sa_family_t&) -> std::unique_ptr<Sock> { std::terminate(); };
+    // Terminate immediately if a fuzzing harness ever tries to create a socket.
+    // Individual tests can override this by pointing CreateSock to a mocked alternative.
+    CreateSock = [](int, int, int) -> std::unique_ptr<Sock> { std::terminate(); };
 
     // Terminate immediately if a fuzzing harness ever tries to perform a DNS lookup.
     g_dns_lookup = [](const std::string& name, bool allow_lookup) {
@@ -130,14 +150,16 @@ void initialize()
     Assert(!g_test_one_input);
     g_test_one_input = &it->second.test_one_input;
     it->second.opts.init();
+
+    ResetCoverageCounters();
 }
 
 #if defined(PROVIDE_FUZZ_MAIN_FUNCTION)
 static bool read_stdin(std::vector<uint8_t>& data)
 {
-    uint8_t buffer[1024];
-    ssize_t length = 0;
-    while ((length = read(STDIN_FILENO, buffer, 1024)) > 0) {
+    std::istream::char_type buffer[1024];
+    std::streamsize length;
+    while ((std::cin.read(buffer, 1024), length = std::cin.gcount()) > 0) {
         data.insert(data.end(), buffer, buffer + length);
     }
     return length == 0;

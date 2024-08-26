@@ -28,6 +28,7 @@ from .messages import (
     ser_uint256,
     tx_from_hex,
     uint256_from_str,
+    WITNESS_SCALE_FACTOR,
 )
 from .script import (
     CScript,
@@ -45,17 +46,17 @@ from .script_util import (
 )
 from .util import assert_equal
 
-WITNESS_SCALE_FACTOR = 4
 MAX_BLOCK_SIGOPS = 20000
 MAX_BLOCK_SIGOPS_WEIGHT = MAX_BLOCK_SIGOPS * WITNESS_SCALE_FACTOR
+MAX_STANDARD_TX_WEIGHT = 400000
 
 # Genesis block time (regtest)
 TIME_GENESIS_BLOCK = 1585958400
 
+MAX_FUTURE_BLOCK_TIME = 2 * 60 * 60
+
 # Coinbase transaction outputs can only be spent after this number of new blocks (network rule)
 COINBASE_MATURITY = 100
-
-MAX_FUTURE_BLOCK_TIME = 2 * 60 * 60
 
 # From BIP141
 WITNESS_COMMITMENT_HEADER = b"\xaa\x21\xa9\xed"

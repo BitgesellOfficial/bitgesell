@@ -15,9 +15,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h> /* for USE_QRCODE */
-#endif
+#include <config/BGL-config.h> // IWYU pragma: keep
 
 #ifdef USE_QRCODE
 #include <qrencode.h>
@@ -94,14 +92,12 @@ bool QRImageWidget::setQR(const QString& data, const QString& text)
 
 QImage QRImageWidget::exportImage()
 {
-    if(!pixmap())
-        return QImage();
-    return pixmap()->toImage();
+    return GUIUtil::GetImage(this);
 }
 
 void QRImageWidget::mousePressEvent(QMouseEvent *event)
 {
-    if(event->button() == Qt::LeftButton && pixmap())
+    if (event->button() == Qt::LeftButton && GUIUtil::HasPixmap(this))
     {
         event->accept();
         QMimeData *mimeData = new QMimeData;
@@ -117,7 +113,7 @@ void QRImageWidget::mousePressEvent(QMouseEvent *event)
 
 void QRImageWidget::saveImage()
 {
-    if(!pixmap())
+    if (!GUIUtil::HasPixmap(this))
         return;
     QString fn = GUIUtil::getSaveFileName(
         this, tr("Save QR Code"), QString(),
@@ -132,14 +128,14 @@ void QRImageWidget::saveImage()
 
 void QRImageWidget::copyImage()
 {
-    if(!pixmap())
+    if (!GUIUtil::HasPixmap(this))
         return;
     QApplication::clipboard()->setImage(exportImage());
 }
 
 void QRImageWidget::contextMenuEvent(QContextMenuEvent *event)
 {
-    if(!pixmap())
+    if (!GUIUtil::HasPixmap(this))
         return;
     contextMenu->exec(event->globalPos());
 }

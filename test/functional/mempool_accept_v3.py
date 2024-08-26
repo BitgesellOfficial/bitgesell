@@ -6,6 +6,7 @@ from decimal import Decimal
 
 from test_framework.messages import (
     MAX_BIP125_RBF_SEQUENCE,
+    WITNESS_SCALE_FACTOR,
 )
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
@@ -21,6 +22,7 @@ from test_framework.wallet import (
 )
 
 MAX_REPLACEMENT_CANDIDATES = 100
+V3_MAX_VSIZE = 10000
 
 def cleanup(extra_args=None):
     def decorator(func):
@@ -40,7 +42,7 @@ def cleanup(extra_args=None):
 class MempoolAcceptV3(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
-        self.extra_args = [["-acceptnonstdtxn=1"]]
+        self.extra_args = [[]]
         self.setup_clean_chain = True
 
     def check_mempool(self, txids):
@@ -49,7 +51,21 @@ class MempoolAcceptV3(BGLTestFramework):
         assert_equal(len(txids), len(mempool_contents))
         assert all([txid in txids for txid in mempool_contents])
 
-    @cleanup(extra_args=["-datacarriersize=1000", "-acceptnonstdtxn=1"])
+    @cleanup(extra_args=["-datacarriersize=20000"])
+    def test_v3_max_vsize(self):
+        node = self.nodes[0]
+        self.log.info("Test v3-specific maximum transaction vsize")
+        tx_v3_heavy = self.wallet.create_self_transfer(target_weight=(V3_MAX_VSIZE + 1) * WITNESS_SCALE_FACTOR, version=3)
+        assert_greater_than_or_equal(tx_v3_heavy["tx"].get_vsize(), V3_MAX_VSIZE)
+        expected_error_heavy = f"v3-rule-violation, v3 tx {tx_v3_heavy['txid']} (wtxid={tx_v3_heavy['wtxid']}) is too big"
+        assert_raises_rpc_error(-26, expected_error_heavy, node.sendrawtransaction, tx_v3_heavy["hex"])
+        self.check_mempool([])
+
+        # Ensure we are hitting the v3-specific limit and not something else
+        tx_v2_heavy = self.wallet.send_self_transfer(from_node=node, target_weight=(V3_MAX_VSIZE + 1) * WITNESS_SCALE_FACTOR, version=2)
+        self.check_mempool([tx_v2_heavy["txid"]])
+
+    @cleanup(extra_args=["-datacarriersize=1000"])
     def test_v3_acceptance(self):
         node = self.nodes[0]
         self.log.info("Test a child of a v3 transaction cannot be more than 1000vB")
@@ -89,7 +105,7 @@ class MempoolAcceptV3(BGLTestFramework):
         self.check_mempool([tx_v3_parent_normal["txid"], tx_v3_child_almost_heavy_rbf["txid"]])
         assert_equal(node.getmempoolentry(tx_v3_parent_normal["txid"])["descendantcount"], 2)
 
-    @cleanup(extra_args=["-acceptnonstdtxn=1"])
+    @cleanup(extra_args=None)
     def test_v3_replacement(self):
         node = self.nodes[0]
         self.log.info("Test v3 transactions may be replaced by v3 transactions")
@@ -146,7 +162,7 @@ class MempoolAcceptV3(BGLTestFramework):
         self.check_mempool([tx_v3_bip125_rbf_v2["txid"], tx_v3_parent["txid"], tx_v3_child["txid"]])
 
 
-    @cleanup(extra_args=["-acceptnonstdtxn=1"])
+    @cleanup(extra_args=None)
     def test_v3_bip125(self):
         node = self.nodes[0]
         self.log.info("Test v3 transactions that don't signal BIP125 are replaceable")
@@ -170,7 +186,7 @@ class MempoolAcceptV3(BGLTestFramework):
         )
         self.check_mempool([tx_v3_no_bip125_rbf["txid"]])
 
-    @cleanup(extra_args=["-datacarriersize=40000", "-acceptnonstdtxn=1"])
+    @cleanup(extra_args=["-datacarriersize=40000"])
     def test_v3_reorg(self):
         node = self.nodes[0]
         self.log.info("Test that, during a reorg, v3 rules are not enforced")
@@ -192,7 +208,7 @@ class MempoolAcceptV3(BGLTestFramework):
         node.reconsiderblock(block[0])
 
 
-    @cleanup(extra_args=["-limitdescendantsize=10", "-datacarriersize=40000", "-acceptnonstdtxn=1"])
+    @cleanup(extra_args=["-limitdescendantsize=10", "-datacarriersize=40000"])
     def test_nondefault_package_limits(self):
         """
         Max standard tx size + v3 rules imply the ancestor/descendant rules (at their default
@@ -201,25 +217,51 @@ class MempoolAcceptV3(BGLTestFramework):
         """
         node = self.nodes[0]
         self.log.info("Test that a decreased limitdescendantsize also applies to v3 child")
-        tx_v3_parent_large1 = self.wallet.send_self_transfer(from_node=node, target_weight=99900, version=3)
-        tx_v3_child_large1 = self.wallet.create_self_transfer(utxo_to_spend=tx_v3_parent_large1["new_utxo"], version=3)
-        # Child is within v3 limits, but parent's descendant limit is exceeded
-        assert_greater_than(1000, tx_v3_child_large1["tx"].get_vsize())
+        parent_target_weight = 9990 * WITNESS_SCALE_FACTOR
+        child_target_weight = 500 * WITNESS_SCALE_FACTOR
+        tx_v3_parent_large1 = self.wallet.send_self_transfer(
+            from_node=node,
+            target_weight=parent_target_weight,
+            version=3
+        )
+        tx_v3_child_large1 = self.wallet.create_self_transfer(
+            utxo_to_spend=tx_v3_parent_large1["new_utxo"],
+            target_weight=child_target_weight,
+            version=3
+        )
+
+        # Parent and child are within v3 limits, but parent's 10kvB descendant limit is exceeded
+        assert_greater_than_or_equal(V3_MAX_VSIZE, tx_v3_parent_large1["tx"].get_vsize())
+        assert_greater_than_or_equal(1000, tx_v3_child_large1["tx"].get_vsize())
+        assert_greater_than(tx_v3_parent_large1["tx"].get_vsize() + tx_v3_child_large1["tx"].get_vsize(), 10000)
+
         assert_raises_rpc_error(-26, f"too-long-mempool-chain, exceeds descendant size limit for tx {tx_v3_parent_large1['txid']}", node.sendrawtransaction, tx_v3_child_large1["hex"])
         self.check_mempool([tx_v3_parent_large1["txid"]])
         assert_equal(node.getmempoolentry(tx_v3_parent_large1["txid"])["descendantcount"], 1)
         self.generate(node, 1)
 
         self.log.info("Test that a decreased limitancestorsize also applies to v3 parent")
-        self.restart_node(0, extra_args=["-limitancestorsize=10", "-datacarriersize=40000", "-acceptnonstdtxn=1"])
-        tx_v3_parent_large2 = self.wallet.send_self_transfer(from_node=node, target_weight=99900, version=3)
-        tx_v3_child_large2 = self.wallet.create_self_transfer(utxo_to_spend=tx_v3_parent_large2["new_utxo"], version=3)
-        # Child is within v3 limits
+        self.restart_node(0, extra_args=["-limitancestorsize=10", "-datacarriersize=40000"])
+        tx_v3_parent_large2 = self.wallet.send_self_transfer(
+            from_node=node,
+            target_weight=parent_target_weight,
+            version=3
+        )
+        tx_v3_child_large2 = self.wallet.create_self_transfer(
+            utxo_to_spend=tx_v3_parent_large2["new_utxo"],
+            target_weight=child_target_weight,
+            version=3
+        )
+
+        # Parent and child are within v3 limits
+        assert_greater_than_or_equal(V3_MAX_VSIZE, tx_v3_parent_large2["tx"].get_vsize())
         assert_greater_than_or_equal(1000, tx_v3_child_large2["tx"].get_vsize())
+        assert_greater_than(tx_v3_parent_large2["tx"].get_vsize() + tx_v3_child_large2["tx"].get_vsize(), 10000)
+
         assert_raises_rpc_error(-26, f"too-long-mempool-chain, exceeds ancestor size limit", node.sendrawtransaction, tx_v3_child_large2["hex"])
         self.check_mempool([tx_v3_parent_large2["txid"]])
 
-    @cleanup(extra_args=["-datacarriersize=1000", "-acceptnonstdtxn=1"])
+    @cleanup(extra_args=["-datacarriersize=1000"])
     def test_v3_ancestors_package(self):
         self.log.info("Test that v3 ancestor limits are checked within the package")
         node = self.nodes[0]
@@ -262,7 +304,7 @@ class MempoolAcceptV3(BGLTestFramework):
         result = node.testmempoolaccept([tx_v3_parent["hex"], tx_v3_child["hex"], tx_v3_grandchild["hex"]])
         assert all([txresult["package-error"] == f"v3-violation, tx {tx_v3_grandchild['txid']} (wtxid={tx_v3_grandchild['wtxid']}) would have too many ancestors" for txresult in result])
 
-    @cleanup(extra_args=["-acceptnonstdtxn=1"])
+    @cleanup(extra_args=None)
     def test_v3_ancestors_package_and_mempool(self):
         """
         A v3 transaction in a package cannot have 2 v3 parents.
@@ -292,7 +334,7 @@ class MempoolAcceptV3(BGLTestFramework):
         assert_equal(result['package_msg'], f"v3-violation, tx {tx_child_violator['txid']} (wtxid={tx_child_violator['wtxid']}) would have too many ancestors")
         self.check_mempool([tx_in_mempool["txid"]])
 
-    @cleanup(extra_args=["-acceptnonstdtxn=1"])
+    @cleanup(extra_args=None)
     def test_sibling_eviction_package(self):
         """
         When a transaction has a mempool sibling, it may be eligible for sibling eviction.
@@ -368,7 +410,7 @@ class MempoolAcceptV3(BGLTestFramework):
         assert_equal(result_package_cpfp["tx-results"][tx_sibling_3['wtxid']]['error'], expected_error_cpfp)
 
 
-    @cleanup(extra_args=["-datacarriersize=1000", "-acceptnonstdtxn=1"])
+    @cleanup(extra_args=["-datacarriersize=1000"])
     def test_v3_package_inheritance(self):
         self.log.info("Test that v3 inheritance is checked within package")
         node = self.nodes[0]
@@ -387,7 +429,7 @@ class MempoolAcceptV3(BGLTestFramework):
         assert_equal(result['package_msg'], f"v3-violation, non-v3 tx {tx_v2_child['txid']} (wtxid={tx_v2_child['wtxid']}) cannot spend from v3 tx {tx_v3_parent['txid']} (wtxid={tx_v3_parent['wtxid']})")
         self.check_mempool([])
 
-    @cleanup(extra_args=["-acceptnonstdtxn=1"])
+    @cleanup(extra_args=None)
     def test_v3_in_testmempoolaccept(self):
         node = self.nodes[0]
 
@@ -437,7 +479,7 @@ class MempoolAcceptV3(BGLTestFramework):
         test_accept_2children_with_in_mempool_parent = node.testmempoolaccept([tx_v3_child_1["hex"], tx_v3_child_2["hex"]])
         assert all([result["package-error"] == expected_error_extra for result in test_accept_2children_with_in_mempool_parent])
 
-    @cleanup(extra_args=["-acceptnonstdtxn=1"])
+    @cleanup(extra_args=None)
     def test_reorg_2child_rbf(self):
         node = self.nodes[0]
         self.log.info("Test that children of a v3 transaction can be replaced individually, even if there are multiple due to reorg")
@@ -468,7 +510,7 @@ class MempoolAcceptV3(BGLTestFramework):
         self.check_mempool([ancestor_tx["txid"], child_1_conflict["txid"], child_2["txid"]])
         assert_equal(node.getmempoolentry(ancestor_tx["txid"])["descendantcount"], 3)
 
-    @cleanup(extra_args=["-acceptnonstdtxn=1"])
+    @cleanup(extra_args=None)
     def test_v3_sibling_eviction(self):
         self.log.info("Test sibling eviction for v3")
         node = self.nodes[0]
@@ -533,15 +575,15 @@ class MempoolAcceptV3(BGLTestFramework):
         tx_unrelated_replacee = self.wallet.send_self_transfer(from_node=node, utxo_to_spend=utxo_unrelated_conflict)
         assert tx_unrelated_replacee["txid"] in node.getrawmempool()
 
-        fee_to_beat_child2 = int(tx_v3_child_2["fee"] * COIN)
+        fee_to_beat = max(int(tx_v3_child_2["fee"] * COIN), int(tx_unrelated_replacee["fee"]*COIN))
 
         tx_v3_child_3 = self.wallet.create_self_transfer_multi(
-            utxos_to_spend=[tx_v3_parent["new_utxos"][0], utxo_unrelated_conflict], fee_per_output=fee_to_beat_child2*5, version=3
+            utxos_to_spend=[tx_v3_parent["new_utxos"][0], utxo_unrelated_conflict], fee_per_output=fee_to_beat*2, version=3
         )
         node.sendrawtransaction(tx_v3_child_3["hex"])
         self.check_mempool(txids_v2_100 + [tx_v3_parent["txid"], tx_v3_child_3["txid"]])
 
-    @cleanup(extra_args=["-acceptnonstdtxn=1"])
+    @cleanup(extra_args=None)
     def test_reorg_sibling_eviction_1p2c(self):
         node = self.nodes[0]
         self.log.info("Test that sibling eviction is not allowed when multiple siblings exist")
@@ -585,6 +627,7 @@ class MempoolAcceptV3(BGLTestFramework):
         node = self.nodes[0]
         self.wallet = MiniWallet(node)
         self.generate(self.wallet, 120)
+        self.test_v3_max_vsize()
         self.test_v3_acceptance()
         self.test_v3_replacement()
         self.test_v3_bip125()

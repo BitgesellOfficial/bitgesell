@@ -12,7 +12,7 @@ container=`docker run -dit -e TZ='Etc/UTC' -e DEBIAN_FRONTEND='noninteractive' u
 docker exec $container apt-get -y update
 docker exec $container apt-get -y install apt-utils #dpkg-dev
 docker exec $container mkdir /root/repo
-docker cp ./bitgesell_0.1.12_amd64.deb $container:/root/repo
+docker cp ./bitgesell_0.1.13_amd64.deb $container:/root/repo
 # docker exec -w /root/repo $container sh -c "dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz"
 docker exec -w /root/repo $container sh -c "apt-ftparchive packages . > Packages"
 docker exec $container sh -c "echo deb [trusted=yes] file:/root/repo ./ >> /etc/apt/sources.list"

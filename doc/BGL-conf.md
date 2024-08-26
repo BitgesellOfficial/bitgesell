@@ -59,7 +59,7 @@ The `includeconf=<file>` option in the `BGL.conf` file can be used to include ad
 
 Operating System | Data Directory | Example Path
 -- | -- | --
-Windows | `%APPDATA%\BGL\` | `C:\Users\username\AppData\Roaming\BGL\BGL.conf`
+Windows | `%LOCALAPPDATA%\BGL\` | `C:\Users\username\AppData\Local\BGL\BGL.conf`
 Linux | `$HOME/.BGL/` | `/home/username/.BGL/BGL.conf`
 macOS | `$HOME/Library/Application Support/BGL/` | `/Users/username/Library/Application Support/BGL/BGL.conf`
 

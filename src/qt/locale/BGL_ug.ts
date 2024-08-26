@@ -164,7 +164,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ھەميان شىفىرىنى جەزملە</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BITCOINS&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR BGLS&lt;/b&gt;!</source>
         <translation type="unfinished">ئاگاھلاندۇرۇش: ئەگەر ھەميانىڭىزنى شىفىرلاپ ھەمدە ئىم ئىبارىسىنى يوقىتىپ قويسىڭىز، سىز &lt;b&gt;ھەممە بىت تەڭگىڭىزنى يوقىتىپ قويىسىز&lt;/b&gt;!</translation>
     </message>
     <message>

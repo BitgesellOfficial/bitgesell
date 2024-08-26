@@ -3,9 +3,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
+#include <config/BGL-config.h> // IWYU pragma: keep
 
 #include <net.h>
 
@@ -198,8 +196,7 @@ static std::vector<CAddress> ConvertSeeds(const std::vector<uint8_t> &vSeedsIn)
     const auto one_week{7 * 24h};
     std::vector<CAddress> vSeedsOut;
     FastRandomContext rng;
-    DataStream underlying_stream{vSeedsIn};
-    ParamsStream s{CAddress::V2_NETWORK, underlying_stream};
+    ParamsStream s{DataStream{vSeedsIn}, CAddress::V2_NETWORK};
     while (!s.eof()) {
         CService endpoint;
         s >> endpoint;
@@ -412,6 +409,9 @@ CNode* CConnman::ConnectNode(CAddress addrConnect, const char *pszDest, bool fCo
     // Resolve
     const uint16_t default_port{pszDest != nullptr ? GetDefaultPort(pszDest) :
                                                      m_params.GetDefaultPort()};
+
+    // Collection of addresses to try to connect to: either all dns resolved addresses if a domain name (pszDest) is provided, or addrConnect otherwise.
+    std::vector<CAddress> connect_to{};
     if (pszDest) {
         std::vector<CService> resolved{Lookup(pszDest, default_port, fNameLookup && !HaveNameProxy(), 256)};
         if (!resolved.empty()) {
@@ -432,8 +432,16 @@ CNode* CConnman::ConnectNode(CAddress addrConnect, const char *pszDest, bool fCo
                     LogPrintf("Not opening a connection to %s, already connected to %s\n", pszDest, addrConnect.ToStringAddrPort());
                     return nullptr;
                 }
+                // Add the address to the resolved addresses vector so we can try to connect to it later on
+                connect_to.push_back(addrConnect);
             }
+        } else {
+            // For resolution via proxy
+            connect_to.push_back(addrConnect);
         }
+    } else {
+        // Connect via addrConnect directly
+        connect_to.push_back(addrConnect);
     }
 
     // Connect
@@ -443,94 +451,99 @@ CNode* CConnman::ConnectNode(CAddress addrConnect, const char *pszDest, bool fCo
     assert(!addr_bind.IsValid());
     std::unique_ptr<i2p::sam::Session> i2p_transient_session;
 
-    if (addrConnect.IsValid()) {
-        const bool use_proxy{GetProxy(addrConnect.GetNetwork(), proxy)};
-        bool proxyConnectionFailed = false;
+    for (auto& target_addr: connect_to) {
+        if (target_addr.IsValid()) {
+            const bool use_proxy{GetProxy(target_addr.GetNetwork(), proxy)};
+            bool proxyConnectionFailed = false;
 
-        if (addrConnect.IsI2P() && use_proxy) {
-            i2p::Connection conn;
-            bool connected{false};
+            if (target_addr.IsI2P() && use_proxy) {
+                i2p::Connection conn;
+                bool connected{false};
 
-            if (m_i2p_sam_session) {
-                connected = m_i2p_sam_session->Connect(addrConnect, conn, proxyConnectionFailed);
+                if (m_i2p_sam_session) {
+                    connected = m_i2p_sam_session->Connect(target_addr, conn, proxyConnectionFailed);
+                } else {
+                    {
+                        LOCK(m_unused_i2p_sessions_mutex);
+                        if (m_unused_i2p_sessions.empty()) {
+                            i2p_transient_session =
+                                std::make_unique<i2p::sam::Session>(proxy, &interruptNet);
+                        } else {
+                            i2p_transient_session.swap(m_unused_i2p_sessions.front());
+                            m_unused_i2p_sessions.pop();
+                        }
+                    }
+                    connected = i2p_transient_session->Connect(target_addr, conn, proxyConnectionFailed);
+                    if (!connected) {
+                        LOCK(m_unused_i2p_sessions_mutex);
+                        if (m_unused_i2p_sessions.size() < MAX_UNUSED_I2P_SESSIONS_SIZE) {
+                            m_unused_i2p_sessions.emplace(i2p_transient_session.release());
+                        }
+                    }
+                }
+
+                if (connected) {
+                    sock = std::move(conn.sock);
+                    addr_bind = CAddress{conn.me, NODE_NONE};
+                }
+            } else if (use_proxy) {
+                LogPrintLevel(BCLog::PROXY, BCLog::Level::Debug, "Using proxy: %s to connect to %s\n", proxy.ToString(), target_addr.ToStringAddrPort());
+                sock = ConnectThroughProxy(proxy, target_addr.ToStringAddr(), target_addr.GetPort(), proxyConnectionFailed);
             } else {
-                {
-                    LOCK(m_unused_i2p_sessions_mutex);
-                    if (m_unused_i2p_sessions.empty()) {
-                        i2p_transient_session =
-                            std::make_unique<i2p::sam::Session>(proxy, &interruptNet);
-                    } else {
-                        i2p_transient_session.swap(m_unused_i2p_sessions.front());
-                        m_unused_i2p_sessions.pop();
-                    }
-                }
-                connected = i2p_transient_session->Connect(addrConnect, conn, proxyConnectionFailed);
-                if (!connected) {
-                    LOCK(m_unused_i2p_sessions_mutex);
-                    if (m_unused_i2p_sessions.size() < MAX_UNUSED_I2P_SESSIONS_SIZE) {
-                        m_unused_i2p_sessions.emplace(i2p_transient_session.release());
-                    }
-                }
+                // no proxy needed (none set for target network)
+                sock = ConnectDirectly(target_addr, conn_type == ConnectionType::MANUAL);
             }
-
-            if (connected) {
-                sock = std::move(conn.sock);
-                addr_bind = CAddress{conn.me, NODE_NONE};
+            if (!proxyConnectionFailed) {
+                // If a connection to the node was attempted, and failure (if any) is not caused by a problem connecting to
+                // the proxy, mark this as an attempt.
+                addrman.Attempt(target_addr, fCountFailure);
             }
-        } else if (use_proxy) {
-            LogPrintLevel(BCLog::PROXY, BCLog::Level::Debug, "Using proxy: %s to connect to %s:%s\n", proxy.ToString(), addrConnect.ToStringAddr(), addrConnect.GetPort());
-            sock = ConnectThroughProxy(proxy, addrConnect.ToStringAddr(), addrConnect.GetPort(), proxyConnectionFailed);
-        } else {
-            // no proxy needed (none set for target network)
-            sock = ConnectDirectly(addrConnect, conn_type == ConnectionType::MANUAL);
+        } else if (pszDest && GetNameProxy(proxy)) {
+            std::string host;
+            uint16_t port{default_port};
+            SplitHostPort(std::string(pszDest), port, host);
+            bool proxyConnectionFailed;
+            sock = ConnectThroughProxy(proxy, host, port, proxyConnectionFailed);
         }
-        if (!proxyConnectionFailed) {
-            // If a connection to the node was attempted, and failure (if any) is not caused by a problem connecting to
-            // the proxy, mark this as an attempt.
-            addrman.Attempt(addrConnect, fCountFailure);
+        // Check any other resolved address (if any) if we fail to connect
+        if (!sock) {
+            continue;
         }
-    } else if (pszDest && GetNameProxy(proxy)) {
-        std::string host;
-        uint16_t port{default_port};
-        SplitHostPort(std::string(pszDest), port, host);
-        bool proxyConnectionFailed;
-        sock = ConnectThroughProxy(proxy, host, port, proxyConnectionFailed);
+
+        NetPermissionFlags permission_flags = NetPermissionFlags::None;
+        std::vector<NetWhitelistPermissions> whitelist_permissions = conn_type == ConnectionType::MANUAL ? vWhitelistedRangeOutgoing : std::vector<NetWhitelistPermissions>{};
+        AddWhitelistPermissionFlags(permission_flags, target_addr, whitelist_permissions);
+
+        // Add node
+        NodeId id = GetNewNodeId();
+        uint64_t nonce = GetDeterministicRandomizer(RANDOMIZER_ID_LOCALHOSTNONCE).Write(id).Finalize();
+        if (!addr_bind.IsValid()) {
+            addr_bind = GetBindAddress(*sock);
+        }
+        CNode* pnode = new CNode(id,
+                                std::move(sock),
+                                target_addr,
+                                CalculateKeyedNetGroup(target_addr),
+                                nonce,
+                                addr_bind,
+                                pszDest ? pszDest : "",
+                                conn_type,
+                                /*inbound_onion=*/false,
+                                CNodeOptions{
+                                    .permission_flags = permission_flags,
+                                    .i2p_sam_session = std::move(i2p_transient_session),
+                                    .recv_flood_size = nReceiveFloodSize,
+                                    .use_v2transport = use_v2transport,
+                                });
+        pnode->AddRef();
+
+        // We're making a new connection, harvest entropy from the time (and our peer count)
+        RandAddEvent((uint32_t)id);
+
+        return pnode;
     }
-    if (!sock) {
-        return nullptr;
-    }
 
-    NetPermissionFlags permission_flags = NetPermissionFlags::None;
-    std::vector<NetWhitelistPermissions> whitelist_permissions = conn_type == ConnectionType::MANUAL ? vWhitelistedRangeOutgoing : std::vector<NetWhitelistPermissions>{};
-    AddWhitelistPermissionFlags(permission_flags, addrConnect, whitelist_permissions);
-
-    // Add node
-    NodeId id = GetNewNodeId();
-    uint64_t nonce = GetDeterministicRandomizer(RANDOMIZER_ID_LOCALHOSTNONCE).Write(id).Finalize();
-    if (!addr_bind.IsValid()) {
-        addr_bind = GetBindAddress(*sock);
-    }
-    CNode* pnode = new CNode(id,
-                             std::move(sock),
-                             addrConnect,
-                             CalculateKeyedNetGroup(addrConnect),
-                             nonce,
-                             addr_bind,
-                             pszDest ? pszDest : "",
-                             conn_type,
-                             /*inbound_onion=*/false,
-                             CNodeOptions{
-                                 .permission_flags = permission_flags,
-                                 .i2p_sam_session = std::move(i2p_transient_session),
-                                 .recv_flood_size = nReceiveFloodSize,
-                                 .use_v2transport = use_v2transport,
-                             });
-    pnode->AddRef();
-
-    // We're making a new connection, harvest entropy from the time (and our peer count)
-    RandAddEvent((uint32_t)id);
-
-    return pnode;
+    return nullptr;
 }
 
 void CNode::CloseSocketDisconnect()
@@ -599,7 +612,6 @@ void CNode::CopyStats(CNodeStats& stats)
     X(m_last_tx_time);
     X(m_last_block_time);
     X(m_connected);
-    X(nTimeOffset);
     X(m_addr_name);
     X(nVersion);
     {
@@ -2168,11 +2180,36 @@ void CConnman::WakeMessageHandler()
 
 void CConnman::ThreadDNSAddressSeed()
 {
+    constexpr int TARGET_OUTBOUND_CONNECTIONS = 2;
+    int outbound_connection_count = 0;
+
+    if (gArgs.IsArgSet("-seednode")) {
+        auto start = NodeClock::now();
+        constexpr std::chrono::seconds SEEDNODE_TIMEOUT = 30s;
+        LogPrintf("-seednode enabled. Trying the provided seeds for %d seconds before defaulting to the dnsseeds.\n", SEEDNODE_TIMEOUT.count());
+        while (!interruptNet) {
+            if (!interruptNet.sleep_for(std::chrono::milliseconds(500)))
+                return;
+
+            // Abort if we have spent enough time without reaching our target.
+            // Giving seed nodes 30 seconds so this does not become a race against fixedseeds (which triggers after 1 min)
+            if (NodeClock::now() > start + SEEDNODE_TIMEOUT) {
+                LogPrintf("Couldn't connect to enough peers via seed nodes. Handing fetch logic to the DNS seeds.\n");
+                break;
+            }
+
+            outbound_connection_count = GetFullOutboundConnCount();
+            if (outbound_connection_count >= TARGET_OUTBOUND_CONNECTIONS) {
+                LogPrintf("P2P peers available. Finished fetching data from seed nodes.\n");
+                break;
+            }
+        }
+    }
+
     FastRandomContext rng;
     std::vector<std::string> seeds = m_params.DNSSeeds();
     Shuffle(seeds.begin(), seeds.end(), rng);
     int seeds_right_now = 0; // Number of seeds left before testing if we have enough connections
-    int found = 0;
 
     if (gArgs.GetBoolArg("-forcednsseed", DEFAULT_FORCEDNSSEED)) {
         // When -forcednsseed is provided, query all.
@@ -2184,98 +2221,101 @@ void CConnman::ThreadDNSAddressSeed()
         seeds_right_now = seeds.size();
     }
 
-    // goal: only query DNS seed if address need is acute
-    // * If we have a reasonable number of peers in addrman, spend
-    //   some time trying them first. This improves user privacy by
-    //   creating fewer identifying DNS requests, reduces trust by
-    //   giving seeds less influence on the network topology, and
-    //   reduces traffic to the seeds.
-    // * When querying DNS seeds query a few at once, this ensures
-    //   that we don't give DNS seeds the ability to eclipse nodes
-    //   that query them.
-    // * If we continue having problems, eventually query all the
-    //   DNS seeds, and if that fails too, also try the fixed seeds.
-    //   (done in ThreadOpenConnections)
-    const std::chrono::seconds seeds_wait_time = (addrman.Size() >= DNSSEEDS_DELAY_PEER_THRESHOLD ? DNSSEEDS_DELAY_MANY_PEERS : DNSSEEDS_DELAY_FEW_PEERS);
+    // Proceed with dnsseeds if seednodes hasn't reached the target or if forcednsseed is set
+    if (outbound_connection_count < TARGET_OUTBOUND_CONNECTIONS || seeds_right_now) {
+        // goal: only query DNS seed if address need is acute
+        // * If we have a reasonable number of peers in addrman, spend
+        //   some time trying them first. This improves user privacy by
+        //   creating fewer identifying DNS requests, reduces trust by
+        //   giving seeds less influence on the network topology, and
+        //   reduces traffic to the seeds.
+        // * When querying DNS seeds query a few at once, this ensures
+        //   that we don't give DNS seeds the ability to eclipse nodes
+        //   that query them.
+        // * If we continue having problems, eventually query all the
+        //   DNS seeds, and if that fails too, also try the fixed seeds.
+        //   (done in ThreadOpenConnections)
+        int found = 0;
+        const std::chrono::seconds seeds_wait_time = (addrman.Size() >= DNSSEEDS_DELAY_PEER_THRESHOLD ? DNSSEEDS_DELAY_MANY_PEERS : DNSSEEDS_DELAY_FEW_PEERS);
 
-    for (const std::string& seed : seeds) {
-        if (seeds_right_now == 0) {
-            seeds_right_now += DNSSEEDS_TO_QUERY_AT_ONCE;
+        for (const std::string& seed : seeds) {
+            if (seeds_right_now == 0) {
+                seeds_right_now += DNSSEEDS_TO_QUERY_AT_ONCE;
 
-            if (addrman.Size() > 0) {
-                LogPrintf("Waiting %d seconds before querying DNS seeds.\n", seeds_wait_time.count());
-                std::chrono::seconds to_wait = seeds_wait_time;
-                while (to_wait.count() > 0) {
-                    // if sleeping for the MANY_PEERS interval, wake up
-                    // early to see if we have enough peers and can stop
-                    // this thread entirely freeing up its resources
-                    std::chrono::seconds w = std::min(DNSSEEDS_DELAY_FEW_PEERS, to_wait);
-                    if (!interruptNet.sleep_for(w)) return;
-                    to_wait -= w;
+                if (addrman.Size() > 0) {
+                    LogPrintf("Waiting %d seconds before querying DNS seeds.\n", seeds_wait_time.count());
+                    std::chrono::seconds to_wait = seeds_wait_time;
+                    while (to_wait.count() > 0) {
+                        // if sleeping for the MANY_PEERS interval, wake up
+                        // early to see if we have enough peers and can stop
+                        // this thread entirely freeing up its resources
+                        std::chrono::seconds w = std::min(DNSSEEDS_DELAY_FEW_PEERS, to_wait);
+                        if (!interruptNet.sleep_for(w)) return;
+                        to_wait -= w;
 
-                    int nRelevant = 0;
-                    {
-                        LOCK(m_nodes_mutex);
-                        for (const CNode* pnode : m_nodes) {
-                            if (pnode->fSuccessfullyConnected && pnode->IsFullOutboundConn()) ++nRelevant;
+                        if (GetFullOutboundConnCount() >= TARGET_OUTBOUND_CONNECTIONS) {
+                            if (found > 0) {
+                                LogPrintf("%d addresses found from DNS seeds\n", found);
+                                LogPrintf("P2P peers available. Finished DNS seeding.\n");
+                            } else {
+                                LogPrintf("P2P peers available. Skipped DNS seeding.\n");
+                            }
+                            return;
                         }
-                    }
-                    if (nRelevant >= 2) {
-                        if (found > 0) {
-                            LogPrintf("%d addresses found from DNS seeds\n", found);
-                            LogPrintf("P2P peers available. Finished DNS seeding.\n");
-                        } else {
-                            LogPrintf("P2P peers available. Skipped DNS seeding.\n");
-                        }
-                        return;
                     }
                 }
             }
-        }
 
-        if (interruptNet) return;
+            if (interruptNet) return;
 
-        // hold off on querying seeds if P2P network deactivated
-        if (!fNetworkActive) {
-            LogPrintf("Waiting for network to be reactivated before querying DNS seeds.\n");
-            do {
-                if (!interruptNet.sleep_for(std::chrono::seconds{1})) return;
-            } while (!fNetworkActive);
-        }
-
-        LogPrintf("Loading addresses from DNS seed %s\n", seed);
-        // If -proxy is in use, we make an ADDR_FETCH connection to the DNS resolved peer address
-        // for the base dns seed domain in chainparams
-        if (HaveNameProxy()) {
-            AddAddrFetch(seed);
-        } else {
-            std::vector<CAddress> vAdd;
-            constexpr ServiceFlags requiredServiceBits{SeedsServiceFlags()};
-            std::string host = strprintf("x%x.%s", requiredServiceBits, seed);
-            CNetAddr resolveSource;
-            if (!resolveSource.SetInternal(host)) {
-                continue;
+            // hold off on querying seeds if P2P network deactivated
+            if (!fNetworkActive) {
+                LogPrintf("Waiting for network to be reactivated before querying DNS seeds.\n");
+                do {
+                    if (!interruptNet.sleep_for(std::chrono::seconds{1})) return;
+                } while (!fNetworkActive);
             }
-            unsigned int nMaxIPs = 256; // Limits number of IPs learned from a DNS seed
-            const auto addresses{LookupHost(host, nMaxIPs, true)};
-            if (!addresses.empty()) {
-                for (const CNetAddr& ip : addresses) {
-                    CAddress addr = CAddress(CService(ip, m_params.GetDefaultPort()), requiredServiceBits);
-                    addr.nTime = rng.rand_uniform_delay(Now<NodeSeconds>() - 3 * 24h, -4 * 24h); // use a random age between 3 and 7 days old
-                    vAdd.push_back(addr);
-                    found++;
-                }
-                addrman.Add(vAdd, resolveSource);
-            } else {
-                // If the seed does not support a subdomain with our desired service bits,
-                // we make an ADDR_FETCH connection to the DNS resolved peer address for the
-                // base dns seed domain in chainparams
+
+            LogPrintf("Loading addresses from DNS seed %s\n", seed);
+            // If -proxy is in use, we make an ADDR_FETCH connection to the DNS resolved peer address
+            // for the base dns seed domain in chainparams
+            if (HaveNameProxy()) {
                 AddAddrFetch(seed);
+            } else {
+                std::vector<CAddress> vAdd;
+                constexpr ServiceFlags requiredServiceBits{SeedsServiceFlags()};
+                std::string host = strprintf("x%x.%s", requiredServiceBits, seed);
+                CNetAddr resolveSource;
+                if (!resolveSource.SetInternal(host)) {
+                    continue;
+                }
+                // Limit number of IPs learned from a single DNS seed. This limit exists to prevent the results from
+                // one DNS seed from dominating AddrMan. Note that the number of results from a UDP DNS query is
+                // bounded to 33 already, but it is possible for it to use TCP where a larger number of results can be
+                // returned.
+                unsigned int nMaxIPs = 32;
+                const auto addresses{LookupHost(host, nMaxIPs, true)};
+                if (!addresses.empty()) {
+                    for (const CNetAddr& ip : addresses) {
+                        CAddress addr = CAddress(CService(ip, m_params.GetDefaultPort()), requiredServiceBits);
+                        addr.nTime = rng.rand_uniform_delay(Now<NodeSeconds>() - 3 * 24h, -4 * 24h); // use a random age between 3 and 7 days old
+                        vAdd.push_back(addr);
+                        found++;
+                    }
+                    addrman.Add(vAdd, resolveSource);
+                } else {
+                    // If the seed does not support a subdomain with our desired service bits,
+                    // we make an ADDR_FETCH connection to the DNS resolved peer address for the
+                    // base dns seed domain in chainparams
+                    AddAddrFetch(seed);
+                }
             }
+            --seeds_right_now;
         }
-        --seeds_right_now;
+        LogPrintf("%d addresses found from DNS seeds\n", found);
+    } else {
+        LogPrintf("Skipping DNS seeds. Enough peers have been found\n");
     }
-    LogPrintf("%d addresses found from DNS seeds\n", found);
 }
 
 void CConnman::DumpAddresses()
@@ -2324,6 +2364,19 @@ void CConnman::StartExtraBlockRelayPeers()
 {
     LogPrint(BCLog::NET, "enabling extra block-relay-only peers\n");
     m_start_extra_block_relay_peers = true;
+}
+
+// Return the number of outbound connections that are full relay (not blocks only)
+int CConnman::GetFullOutboundConnCount() const
+{
+    int nRelevant = 0;
+    {
+        LOCK(m_nodes_mutex);
+        for (const CNode* pnode : m_nodes) {
+            if (pnode->fSuccessfullyConnected && pnode->IsFullOutboundConn()) ++nRelevant;
+        }
+    }
+    return nRelevant;
 }
 
 // Return the number of peers we have over our outbound connection limit
@@ -2778,7 +2831,7 @@ std::vector<AddedNodeInfo> CConnman::GetAddedNodeInfo(bool include_connected) co
     }
 
     for (const auto& addr : lAddresses) {
-        CService service(LookupNumeric(addr.m_added_node, GetDefaultPort(addr.m_added_node)));
+        CService service{MaybeFlipIPv6toCJDNS(LookupNumeric(addr.m_added_node, GetDefaultPort(addr.m_added_node)))};
         AddedNodeInfo addedNode{addr, CService(), false, false};
         if (service.IsValid()) {
             // strAddNode is an IP:port
@@ -2976,7 +3029,7 @@ bool CConnman::BindListenPort(const CService& addrBind, bilingual_str& strError,
         return false;
     }
 
-    std::unique_ptr<Sock> sock = CreateSock(addrBind.GetSAFamily());
+    std::unique_ptr<Sock> sock = CreateSock(addrBind.GetSAFamily(), SOCK_STREAM, IPPROTO_TCP);
     if (!sock) {
         strError = strprintf(Untranslated("Couldn't open socket for incoming connections (socket returned error %s)"), NetworkErrorString(WSAGetLastError()));
         LogPrintLevel(BCLog::NET, BCLog::Level::Error, "%s\n", strError.original);
@@ -3057,8 +3110,7 @@ void Discover()
         {
             if (ifa->ifa_addr == nullptr) continue;
             if ((ifa->ifa_flags & IFF_UP) == 0) continue;
-            if (strcmp(ifa->ifa_name, "lo") == 0) continue;
-            if (strcmp(ifa->ifa_name, "lo0") == 0) continue;
+            if ((ifa->ifa_flags & IFF_LOOPBACK) != 0) continue;
             if (ifa->ifa_addr->sa_family == AF_INET)
             {
                 struct sockaddr_in* s4 = (struct sockaddr_in*)(ifa->ifa_addr);
@@ -3684,8 +3736,9 @@ CNode::CNode(NodeId idIn,
 {
     if (inbound_onion) assert(conn_type_in == ConnectionType::INBOUND);
 
-    for (const std::string &msg : getAllNetMessageTypes())
+    for (const auto& msg : ALL_NET_MESSAGE_TYPES) {
         mapRecvBytesPerMsgType[msg] = 0;
+    }
     mapRecvBytesPerMsgType[NET_MESSAGE_TYPE_OTHER] = 0;
 
     if (fLogIPs) {

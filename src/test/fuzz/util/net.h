@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_TEST_FUZZ_UTIL_NET_H
-#define BITCOIN_TEST_FUZZ_UTIL_NET_H
+#ifndef BGL_TEST_FUZZ_UTIL_NET_H
+#define BGL_TEST_FUZZ_UTIL_NET_H
 
 #include <net.h>
 #include <net_permissions.h>
@@ -43,7 +43,7 @@ class FuzzedSock : public Sock
      * If `MSG_PEEK` is used, then our `Recv()` returns some random data as usual, but on the next
      * `Recv()` call we must return the same data, thus we remember it here.
      */
-    mutable std::optional<uint8_t> m_peek_data;
+    mutable std::vector<uint8_t> m_peek_data;
 
     /**
      * Whether to pretend that the socket is select(2)-able. This is randomly set in the
@@ -146,4 +146,4 @@ inline std::unique_ptr<CNode> ConsumeNodeAsUniquePtr(FuzzedDataProvider& fdp, co
 
 void FillNode(FuzzedDataProvider& fuzzed_data_provider, ConnmanTestMsg& connman, CNode& node) noexcept EXCLUSIVE_LOCKS_REQUIRED(NetEventsInterface::g_msgproc_mutex);
 
-#endif // BITCOIN_TEST_FUZZ_UTIL_NET_H
+#endif // BGL_TEST_FUZZ_UTIL_NET_H

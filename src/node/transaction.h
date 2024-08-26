@@ -5,9 +5,9 @@
 #ifndef BGL_NODE_TRANSACTION_H
 #define BGL_NODE_TRANSACTION_H
 
+#include <common/messages.h>
 #include <policy/feerate.h>
 #include <primitives/transaction.h>
-#include <util/error.h>
 
 class CBlockIndex;
 class CTxMemPool;

@@ -8,8 +8,8 @@ print-%: FORCE
 
 DIST_SUBDIRS = secp256k1
 
-AM_LDFLAGS = $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS) $(GPROF_LDFLAGS) $(SANITIZER_LDFLAGS) $(CORE_LDFLAGS)
-AM_CXXFLAGS = $(CORE_CXXFLAGS) $(DEBUG_CXXFLAGS) $(HARDENED_CXXFLAGS) $(WARN_CXXFLAGS) $(NOWARN_CXXFLAGS) $(ERROR_CXXFLAGS) $(GPROF_CXXFLAGS) $(SANITIZER_CXXFLAGS)
+AM_LDFLAGS = $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS) $(SANITIZER_LDFLAGS) $(CORE_LDFLAGS)
+AM_CXXFLAGS = $(CORE_CXXFLAGS) $(DEBUG_CXXFLAGS) $(HARDENED_CXXFLAGS) $(WARN_CXXFLAGS) $(NOWARN_CXXFLAGS) $(ERROR_CXXFLAGS) $(SANITIZER_CXXFLAGS)
 AM_OBJCXXFLAGS = $(AM_CXXFLAGS)
 AM_CPPFLAGS = $(DEBUG_CPPFLAGS) $(HARDENED_CPPFLAGS) $(CORE_CPPFLAGS)
 AM_LIBTOOLFLAGS = --preserve-dup-deps
@@ -137,13 +137,16 @@ BGL_CORE_H = \
   common/bloom.h \
   common/init.h \
   common/run_command.h \
+  common/types.h \
   common/url.h \
   compat/assumptions.h \
   compat/byteswap.h \
   compat/compat.h \
   compat/cpuid.h \
   compat/endian.h \
+  common/messages.h \
   common/settings.h \
+  common/signmessage.h \
   common/system.h \
   compressor.h \
   consensus/consensus.h \
@@ -174,6 +177,7 @@ BGL_CORE_H = \
   interfaces/handler.h \
   interfaces/init.h \
   interfaces/ipc.h \
+  interfaces/mining.h \
   interfaces/node.h \
   interfaces/wallet.h \
   kernel/blockmanager_opts.h \
@@ -188,11 +192,11 @@ BGL_CORE_H = \
   kernel/mempool_entry.h \
   kernel/mempool_limits.h \
   kernel/mempool_options.h \
-  kernel/mempool_persist.h \
   kernel/mempool_removal_reason.h \
   kernel/messagestartchars.h \
   kernel/notifications_interface.h \
   kernel/validation_cache_sizes.h \
+  kernel/warning.h \
   key.h \
   key_io.h \
   logging.h \
@@ -223,6 +227,7 @@ BGL_CORE_H = \
   node/interface_ui.h \
   node/kernel_notifications.h \
   node/mempool_args.h \
+  node/mempool_persist.h \
   node/mempool_persist_args.h \
   node/miner.h \
   node/mini_miner.h \
@@ -230,13 +235,15 @@ BGL_CORE_H = \
   node/peerman_args.h \
   node/protocol_version.h \
   node/psbt.h \
+  node/timeoffsets.h \
   node/transaction.h \
   node/txreconciliation.h \
+  node/types.h \
   node/utxo_snapshot.h \
   node/validation_cache_args.h \
+  node/warnings.h \
   noui.h \
   outputtype.h \
-  policy/v3_policy.h \
   policy/feerate.h \
   policy/fees.h \
   policy/fees_args.h \
@@ -244,6 +251,7 @@ BGL_CORE_H = \
   policy/policy.h \
   policy/rbf.h \
   policy/settings.h \
+  policy/truc_policy.h \
   pow.h \
   protocol.h \
   psbt.h \
@@ -266,6 +274,7 @@ BGL_CORE_H = \
   script/descriptor.h \
   script/keyorigin.h \
   script/miniscript.h \
+  script/parsing.h \
   script/sigcache.h \
   script/sign.h \
   script/signingprovider.h \
@@ -280,7 +289,6 @@ BGL_CORE_H = \
   support/lockedpool.h \
   sync.h \
   threadsafety.h \
-  timedata.h \
   torcontrol.h \
   txdb.h \
   txmempool.h \
@@ -292,14 +300,13 @@ BGL_CORE_H = \
   util/batchpriority.h \
   util/bip32.h \
   util/bitdeque.h \
+  util/bitset.h \
   util/bytevectorhash.h \
   util/chaintype.h \
   util/check.h \
   util/epochguard.h \
-  util/error.h \
   util/exception.h \
   util/fastrange.h \
-  util/fees.h \
   util/fs.h \
   util/fs_helpers.h \
   util/golombrice.h \
@@ -307,7 +314,6 @@ BGL_CORE_H = \
   util/hasher.h \
   util/insert.h \
   util/macros.h \
-  util/message.h \
   util/moneystr.h \
   util/overflow.h \
   util/overloaded.h \
@@ -319,6 +325,7 @@ BGL_CORE_H = \
   util/sock.h \
   util/spanparsing.h \
   util/string.h \
+  util/subprocess.h \
   util/syserror.h \
   util/task_runner.h \
   util/thread.h \
@@ -331,6 +338,7 @@ BGL_CORE_H = \
   util/translation.h \
   util/types.h \
   util/ui_change_type.h \
+  util/vecdeque.h \
   util/vector.h \
   validation.h \
   validationinterface.h \
@@ -346,6 +354,7 @@ BGL_CORE_H = \
   wallet/feebumper.h \
   wallet/fees.h \
   wallet/load.h \
+  wallet/migrate.h \
   wallet/receive.h \
   wallet/rpc/util.h \
   wallet/rpc/wallet.h \
@@ -360,7 +369,6 @@ BGL_CORE_H = \
   wallet/wallettool.h \
   wallet/walletutil.h \
   walletinitinterface.h \
-  warnings.h \
   zmq/zmqabstractnotifier.h \
   zmq/zmqnotificationinterface.h \
   zmq/zmqpublishnotifier.h \
@@ -404,7 +412,6 @@ libBGL_node_a_SOURCES = \
   kernel/context.cpp \
   kernel/cs_main.cpp \
   kernel/disconnected_transactions.cpp \
-  kernel/mempool_persist.cpp \
   kernel/mempool_removal_reason.cpp \
   mapport.cpp \
   net.cpp \
@@ -426,23 +433,26 @@ libBGL_node_a_SOURCES = \
   node/interfaces.cpp \
   node/kernel_notifications.cpp \
   node/mempool_args.cpp \
+  node/mempool_persist.cpp \
   node/mempool_persist_args.cpp \
   node/miner.cpp \
   node/mini_miner.cpp \
   node/minisketchwrapper.cpp \
   node/peerman_args.cpp \
   node/psbt.cpp \
+  node/timeoffsets.cpp \
   node/transaction.cpp \
   node/txreconciliation.cpp \
   node/utxo_snapshot.cpp \
   node/validation_cache_args.cpp \
+  node/warnings.cpp \
   noui.cpp \
-  policy/v3_policy.cpp \
   policy/fees.cpp \
   policy/fees_args.cpp \
   policy/packages.cpp \
   policy/rbf.cpp \
   policy/settings.cpp \
+  policy/truc_policy.cpp \
   pow.cpp \
   rest.cpp \
   rpc/blockchain.cpp \
@@ -459,7 +469,6 @@ libBGL_node_a_SOURCES = \
   rpc/txoutproof.cpp \
   script/sigcache.cpp \
   signet.cpp \
-  timedata.cpp \
   torcontrol.cpp \
   txdb.cpp \
   txmempool.cpp \
@@ -506,6 +515,7 @@ libBGL_wallet_a_SOURCES = \
   wallet/fees.cpp \
   wallet/interfaces.cpp \
   wallet/load.cpp \
+  wallet/migrate.cpp \
   wallet/receive.cpp \
   wallet/rpc/addresses.cpp \
   wallet/rpc/backup.cpp \
@@ -563,6 +573,8 @@ crypto_libBGL_crypto_base_la_SOURCES = \
   crypto/chacha20poly1305.h \
   crypto/chacha20poly1305.cpp \
   crypto/common.h \
+  crypto/hex_base.cpp \
+  crypto/hex_base.h \
   crypto/hkdf_sha256_32.cpp \
   crypto/hkdf_sha256_32.h \
   crypto/hmac_sha256.cpp \
@@ -676,9 +688,12 @@ libBGL_common_a_SOURCES = \
   common/config.cpp \
   common/init.cpp \
   common/interfaces.cpp \
+  common/messages.cpp \
   common/run_command.cpp \
   common/settings.cpp \
+  common/signmessage.cpp \
   common/system.cpp \
+  common/url.cpp \
   compressor.cpp \
   core_read.cpp \
   core_write.cpp \
@@ -694,9 +709,9 @@ libBGL_common_a_SOURCES = \
   netbase.cpp \
   net_permissions.cpp \
   outputtype.cpp \
-  policy/v3_policy.cpp \
   policy/feerate.cpp \
   policy/policy.cpp \
+  policy/truc_policy.cpp \
   protocol.cpp \
   psbt.cpp \
   rpc/external_signer.cpp \
@@ -706,16 +721,11 @@ libBGL_common_a_SOURCES = \
   scheduler.cpp \
   script/descriptor.cpp \
   script/miniscript.cpp \
+  script/parsing.cpp \
   script/sign.cpp \
   script/signingprovider.cpp \
   script/solver.cpp \
-  warnings.cpp \
   $(BGL_CORE_H)
-
-if USE_LIBEVENT
-libBGL_common_a_CPPFLAGS += $(EVENT_CFLAGS)
-libBGL_common_a_SOURCES += common/url.cpp
-endif
 #
 
 # util #
@@ -737,16 +747,13 @@ libBGL_util_a_SOURCES = \
   util/bytevectorhash.cpp \
   util/chaintype.cpp \
   util/check.cpp \
-  util/error.cpp \
   util/exception.cpp \
   util/feefrac.cpp \
-  util/fees.cpp \
   util/fs.cpp \
   util/fs_helpers.cpp \
   util/hasher.cpp \
   util/sock.cpp \
   util/syserror.cpp \
-  util/message.cpp \
   util/moneystr.cpp \
   util/rbf.cpp \
   util/readwritefile.cpp \
@@ -947,19 +954,17 @@ libBGLkernel_la_SOURCES = \
   kernel/context.cpp \
   kernel/cs_main.cpp \
   kernel/disconnected_transactions.cpp \
-  kernel/mempool_persist.cpp \
   kernel/mempool_removal_reason.cpp \
-  key.cpp \
   logging.cpp \
   node/blockstorage.cpp \
   node/chainstate.cpp \
   node/utxo_snapshot.cpp \
-  policy/v3_policy.cpp \
   policy/feerate.cpp \
   policy/packages.cpp \
   policy/policy.cpp \
   policy/rbf.cpp \
   policy/settings.cpp \
+  policy/truc_policy.cpp \
   pow.cpp \
   primitives/block.cpp \
   primitives/transaction.cpp \
@@ -979,7 +984,6 @@ libBGLkernel_la_SOURCES = \
   txdb.cpp \
   txmempool.cpp \
   uint256.cpp \
-  util/batchpriority.cpp \
   util/chaintype.cpp \
   util/check.cpp \
   util/fs.cpp \
@@ -997,8 +1001,7 @@ libBGLkernel_la_SOURCES = \
   util/tokenpipe.cpp \
   validation.cpp \
   validationinterface.cpp \
-  versionbits.cpp \
-  warnings.cpp
+  versionbits.cpp
 
 # Required for obj/build.h to be generated first.
 # More details: https://www.gnu.org/software/automake/manual/html_node/Built-Sources-Example.html
@@ -1089,7 +1092,7 @@ libBGL_ipc_a_SOURCES = \
   ipc/process.cpp \
   ipc/process.h \
   ipc/protocol.h
-libBGL_ipc_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES)
+libBGL_ipc_a_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS)
 libBGL_ipc_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(LIBMULTIPROCESS_CFLAGS)
 
 include $(MPGEN_PREFIX)/include/mpgen.mk

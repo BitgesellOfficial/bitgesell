@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_RPC_SERVER_UTIL_H
-#define BITCOIN_RPC_SERVER_UTIL_H
+#ifndef BGL_RPC_SERVER_UTIL_H
+#define BGL_RPC_SERVER_UTIL_H
 
 #include <any>
 
@@ -18,6 +18,9 @@ class BanMan;
 namespace node {
 struct NodeContext;
 } // namespace node
+namespace interfaces {
+class Mining;
+} // namespace interfaces
 
 node::NodeContext& EnsureAnyNodeContext(const std::any& context);
 CTxMemPool& EnsureMemPool(const node::NodeContext& node);
@@ -31,8 +34,10 @@ ChainstateManager& EnsureAnyChainman(const std::any& context);
 CBlockPolicyEstimator& EnsureFeeEstimator(const node::NodeContext& node);
 CBlockPolicyEstimator& EnsureAnyFeeEstimator(const std::any& context);
 CConnman& EnsureConnman(const node::NodeContext& node);
+interfaces::Mining& EnsureMining(const node::NodeContext& node);
 PeerManager& EnsurePeerman(const node::NodeContext& node);
 AddrMan& EnsureAddrman(const node::NodeContext& node);
 AddrMan& EnsureAnyAddrman(const std::any& context);
 
-#endif // BITCOIN_RPC_SERVER_UTIL_H
+#endif // BGL_RPC_SERVER_UTIL_H
+

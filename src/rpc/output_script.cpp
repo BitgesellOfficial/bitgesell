@@ -72,11 +72,11 @@ static RPCHelpMan validateaddress()
                 ret.pushKV("scriptPubKey", HexStr(scriptPubKey));
 
                 UniValue detail = DescribeAddress(dest);
-                ret.pushKVs(detail);
+                ret.pushKVs(std::move(detail));
             } else {
                 UniValue error_indices(UniValue::VARR);
                 for (int i : error_locations) error_indices.push_back(i);
-                ret.pushKV("error_locations", error_indices);
+                ret.pushKV("error_locations", std::move(error_indices));
                 ret.pushKV("error", error_msg);
             }
 
@@ -124,11 +124,7 @@ static RPCHelpMan createmultisig()
             const UniValue& keys = request.params[1].get_array();
             std::vector<CPubKey> pubkeys;
             for (unsigned int i = 0; i < keys.size(); ++i) {
-                if (IsHex(keys[i].get_str()) && (keys[i].get_str().length() == 66 || keys[i].get_str().length() == 130)) {
-                    pubkeys.push_back(HexToPubKey(keys[i].get_str()));
-                } else {
-                    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, strprintf("Invalid public key: %s\n.", keys[i].get_str()));
-                }
+                pubkeys.push_back(HexToPubKey(keys[i].get_str()));
             }
 
             // Get the output type
@@ -143,8 +139,7 @@ static RPCHelpMan createmultisig()
                 output_type = parsed.value();
             }
 
-            // Construct using pay-to-script-hash:
-            FillableSigningProvider keystore;
+            FlatSigningProvider keystore;
             CScript inner;
             const CTxDestination dest = AddAndGetMultisigDestination(required, pubkeys, output_type, keystore, inner);
 

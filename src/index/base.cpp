@@ -17,7 +17,6 @@
 #include <util/thread.h>
 #include <util/translation.h>
 #include <validation.h> // For g_chainman
-#include <warnings.h>
 
 #include <string>
 #include <utility>
@@ -31,7 +30,7 @@ template <typename... Args>
 void BaseIndex::FatalErrorf(const char* fmt, const Args&... args)
 {
     auto message = tfm::format(fmt, args...);
-    node::AbortNode(m_chain->context()->shutdown, m_chain->context()->exit_status, Untranslated(message));
+    node::AbortNode(m_chain->context()->shutdown, m_chain->context()->exit_status, Untranslated(message), m_chain->context()->warnings.get());
 }
 
 CBlockLocator GetLocator(interfaces::Chain& chain, const uint256& block_hash)
@@ -160,12 +159,24 @@ void BaseIndex::Sync()
             }
 
             const CBlockIndex* pindex_next = WITH_LOCK(cs_main, return NextSyncBlock(pindex, m_chainstate->m_chain));
+            // If pindex_next is null, it means pindex is the chain tip, so
+            // commit data indexed so far.
             if (!pindex_next) {
                 SetBestBlockIndex(pindex);
-                m_synced = true;
                 // No need to handle errors in Commit. See rationale above.
                 Commit();
-                break;
+
+                // If pindex is still the chain tip after committing, exit the
+                // sync loop. It is important for cs_main to be locked while
+                // setting m_synced = true, otherwise a new block could be
+                // attached while m_synced is still false, and it would not be
+                // indexed.
+                LOCK(::cs_main);
+                pindex_next = NextSyncBlock(pindex, m_chainstate->m_chain);
+                if (!pindex_next) {
+                    m_synced = true;
+                    break;
+                }
             }
             if (pindex_next->pprev != pindex && !Rewind(pindex, pindex_next->pprev)) {
                 FatalErrorf("%s: Failed to rewind index %s to a previous chain tip", __func__, GetName());

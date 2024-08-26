@@ -226,10 +226,13 @@ struct SnapshotTestSetup : TestChain100Setup {
                 // A UTXO is missing but count is correct
                 metadata.m_coins_count -= 1;
 
-                COutPoint outpoint;
+                Txid txid;
+                auto_infile >> txid;
+                // coins size
+                (void)ReadCompactSize(auto_infile);
+                // vout index
+                (void)ReadCompactSize(auto_infile);
                 Coin coin;
-
-                auto_infile >> outpoint;
                 auto_infile >> coin;
         }));
 
@@ -375,7 +378,7 @@ struct SnapshotTestSetup : TestChain100Setup {
             LOCK(::cs_main);
             chainman.ResetChainstates();
             BOOST_CHECK_EQUAL(chainman.GetAll().size(), 0);
-            m_node.notifications = std::make_unique<KernelNotifications>(*Assert(m_node.shutdown), m_node.exit_status);
+            m_node.notifications = std::make_unique<KernelNotifications>(*Assert(m_node.shutdown), m_node.exit_status, *Assert(m_node.warnings));
             const ChainstateManager::Options chainman_opts{
                 .chainparams = ::Params(),
                 .datadir = chainman.m_options.datadir,

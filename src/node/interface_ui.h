@@ -1,4 +1,3 @@
-
 // Copyright (c) 2010 Satoshi Nakamoto
 // Copyright (c) 2012-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying

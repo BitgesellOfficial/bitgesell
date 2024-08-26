@@ -7,7 +7,8 @@
 #include <chainparams.h>
 #include <node/context.h>
 #include <node/mempool_args.h>
-#include <policy/v3_policy.h>
+#include <policy/rbf.h>
+#include <policy/truc_policy.h>
 #include <txmempool.h>
 #include <util/check.h>
 #include <util/time.h>
@@ -68,10 +69,26 @@ std::optional<std::string> CheckPackageMempoolAcceptResult(const Package& txns,
             return strprintf("tx %s unexpectedly failed: %s", wtxid.ToString(), atmp_result.m_state.ToString());
         }
 
-        //m_replaced_transactions should exist iff the result was VALID
-        if (atmp_result.m_replaced_transactions.has_value() != valid) {
-            return strprintf("tx %s result should %shave m_replaced_transactions",
-                                    wtxid.ToString(), valid ? "" : "not ");
+        // Each subpackage is allowed MAX_REPLACEMENT_CANDIDATES replacements (only checking individually here)
+        if (atmp_result.m_replaced_transactions.size() > MAX_REPLACEMENT_CANDIDATES) {
+            return strprintf("tx %s result replaced too many transactions",
+                                wtxid.ToString());
+        }
+
+        // Replacements can't happen for subpackages larger than 2
+        if (!atmp_result.m_replaced_transactions.empty() &&
+            atmp_result.m_wtxids_fee_calculations.has_value() && atmp_result.m_wtxids_fee_calculations.value().size() > 2) {
+             return strprintf("tx %s was part of a too-large package RBF subpackage",
+                                wtxid.ToString());
+        }
+
+        if (!atmp_result.m_replaced_transactions.empty() && mempool) {
+            LOCK(mempool->cs);
+            // If replacements occurred and it used 2 transactions, this is a package RBF and should result in a cluster of size 2
+            if (atmp_result.m_wtxids_fee_calculations.has_value() && atmp_result.m_wtxids_fee_calculations.value().size() == 2) {
+                const auto cluster = mempool->GatherClusters({tx->GetHash()});
+                if (cluster.size() != 2) return strprintf("tx %s has too many ancestors or descendants for a package rbf", wtxid.ToString());
+            }
         }
 
         // m_vsize and m_base_fees should exist iff the result was VALID or MEMPOOL_ENTRY
@@ -114,6 +131,11 @@ std::optional<std::string> CheckPackageMempoolAcceptResult(const Package& txns,
                     return strprintf("wtxid %s should not be in mempool", wtxid.ToString());
                 }
             }
+            for (const auto& tx_ref : atmp_result.m_replaced_transactions) {
+                if (mempool->exists(GenTxid::Txid(tx_ref->GetHash()))) {
+                    return strprintf("tx %s should not be in mempool as it was replaced", tx_ref->GetWitnessHash().ToString());
+                }
+            }
         }
     }
     return std::nullopt;
@@ -124,21 +146,27 @@ void CheckMempoolV3Invariants(const CTxMemPool& tx_pool)
     LOCK(tx_pool.cs);
     for (const auto& tx_info : tx_pool.infoAll()) {
         const auto& entry = *Assert(tx_pool.GetEntry(tx_info.tx->GetHash()));
-        if (tx_info.tx->nVersion == 3) {
+        if (tx_info.tx->version == TRUC_VERSION) {
+            // Check that special maximum virtual size is respected
+            Assert(entry.GetTxSize() <= V3_MAX_VSIZE);
+
             // Check that special v3 ancestor/descendant limits and rules are always respected
             Assert(entry.GetCountWithDescendants() <= V3_DESCENDANT_LIMIT);
             Assert(entry.GetCountWithAncestors() <= V3_ANCESTOR_LIMIT);
+            Assert(entry.GetSizeWithDescendants() <= V3_MAX_VSIZE + V3_CHILD_MAX_VSIZE);
+            Assert(entry.GetSizeWithAncestors() <= V3_MAX_VSIZE + V3_CHILD_MAX_VSIZE);
+
             // If this transaction has at least 1 ancestor, it's a "child" and has restricted weight.
             if (entry.GetCountWithAncestors() > 1) {
                 Assert(entry.GetTxSize() <= V3_CHILD_MAX_VSIZE);
                 // All v3 transactions must only have v3 unconfirmed parents.
                 const auto& parents = entry.GetMemPoolParentsConst();
-                Assert(parents.begin()->get().GetSharedTx()->nVersion == 3);
+                Assert(parents.begin()->get().GetSharedTx()->version == TRUC_VERSION);
             }
         } else if (entry.GetCountWithAncestors() > 1) {
             // All non-v3 transactions must only have non-v3 unconfirmed parents.
             for (const auto& parent : entry.GetMemPoolParentsConst()) {
-                Assert(parent.get().GetSharedTx()->nVersion != 3);
+                Assert(parent.get().GetSharedTx()->version != TRUC_VERSION);
             }
         }
     }

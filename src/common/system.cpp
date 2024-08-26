@@ -3,9 +3,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
+#include <config/BGL-config.h> // IWYU pragma: keep
 
 #include <common/system.h>
 
@@ -30,9 +28,10 @@
 #include <string>
 #include <thread>
 
+using util::ReplaceAll;
+
 // Application startup time (used for uptime calculation)
 const int64_t nStartupTime = GetTime();
-
 
 #ifndef WIN32
 std::string ShellEscape(const std::string& arg)

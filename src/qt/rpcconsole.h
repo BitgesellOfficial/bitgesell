@@ -5,9 +5,7 @@
 #ifndef BGL_QT_RPCCONSOLE_H
 #define BGL_QT_RPCCONSOLE_H
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
+#include <config/BGL-config.h> // IWYU pragma: keep
 
 #include <qt/clientmodel.h>
 #include <qt/guiutil.h>
@@ -123,7 +121,7 @@ public Q_SLOTS:
     /** Set number of blocks and last block date shown in the UI */
     void setNumBlocks(int count, const QDateTime& blockDate, double nVerificationProgress, SyncType synctype);
     /** Set size (number of transactions and memory usage) of the mempool in the UI */
-    void setMempoolSize(long numberOfTxs, size_t dynUsage);
+    void setMempoolSize(long numberOfTxs, size_t dynUsage, size_t maxUsage);
     /** Go forward or back in history */
     void browseHistory(int offset);
     /** Scroll console view to end */

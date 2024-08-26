@@ -3,6 +3,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <common/messages.h>
 #include <core_io.h>
 #include <node/context.h>
 #include <policy/feerate.h>
@@ -14,7 +15,6 @@
 #include <rpc/util.h>
 #include <txmempool.h>
 #include <univalue.h>
-#include <util/fees.h>
 #include <validationinterface.h>
 
 #include <algorithm>
@@ -22,6 +22,9 @@
 #include <cmath>
 #include <string>
 
+using common::FeeModeFromString;
+using common::FeeModes;
+using common::InvalidEstimateModeErrorMessage;
 using node::NodeContext;
 
 static RPCHelpMan estimatesmartfee()
@@ -65,7 +68,7 @@ static RPCHelpMan estimatesmartfee()
             const NodeContext& node = EnsureAnyNodeContext(request.context);
             const CTxMemPool& mempool = EnsureMemPool(node);
 
-            CHECK_NONFATAL(mempool.m_signals)->SyncWithValidationInterfaceQueue();
+            CHECK_NONFATAL(mempool.m_opts.signals)->SyncWithValidationInterfaceQueue();
             unsigned int max_target = fee_estimator.HighestTargetTracked(FeeEstimateHorizon::LONG_HALFLIFE);
             unsigned int conf_target = ParseConfirmTarget(request.params[0], max_target);
             bool conservative = true;
@@ -83,12 +86,12 @@ static RPCHelpMan estimatesmartfee()
             CFeeRate feeRate{fee_estimator.estimateSmartFee(conf_target, &feeCalc, conservative)};
             if (feeRate != CFeeRate(0)) {
                 CFeeRate min_mempool_feerate{mempool.GetMinFee()};
-                CFeeRate min_relay_feerate{mempool.m_min_relay_feerate};
+                CFeeRate min_relay_feerate{mempool.m_opts.min_relay_feerate};
                 feeRate = std::max({feeRate, min_mempool_feerate, min_relay_feerate});
                 result.pushKV("feerate", ValueFromAmount(feeRate.GetFeePerK()));
             } else {
                 errors.push_back("Insufficient data or no feerate found");
-                result.pushKV("errors", errors);
+                result.pushKV("errors", std::move(errors));
             }
             result.pushKV("blocks", feeCalc.returnedTarget);
             return result;
@@ -198,18 +201,18 @@ static RPCHelpMan estimaterawfee()
                     horizon_result.pushKV("feerate", ValueFromAmount(feeRate.GetFeePerK()));
                     horizon_result.pushKV("decay", buckets.decay);
                     horizon_result.pushKV("scale", (int)buckets.scale);
-                    horizon_result.pushKV("pass", passbucket);
+                    horizon_result.pushKV("pass", std::move(passbucket));
                     // buckets.fail.start == -1 indicates that all buckets passed, there is no fail bucket to output
-                    if (buckets.fail.start != -1) horizon_result.pushKV("fail", failbucket);
+                    if (buckets.fail.start != -1) horizon_result.pushKV("fail", std::move(failbucket));
                 } else {
                     // Output only information that is still meaningful in the event of error
                     horizon_result.pushKV("decay", buckets.decay);
                     horizon_result.pushKV("scale", (int)buckets.scale);
-                    horizon_result.pushKV("fail", failbucket);
+                    horizon_result.pushKV("fail", std::move(failbucket));
                     errors.push_back("Insufficient data or no feerate found which meets threshold");
-                    horizon_result.pushKV("errors", errors);
+                    horizon_result.pushKV("errors", std::move(errors));
                 }
-                result.pushKV(StringForFeeEstimateHorizon(horizon), horizon_result);
+                result.pushKV(StringForFeeEstimateHorizon(horizon), std::move(horizon_result));
             }
             return result;
         },

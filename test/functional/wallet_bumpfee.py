@@ -345,26 +345,6 @@ def test_simple_bumpfee_succeeds(self, mode, rbf_node, peer_node, dest_address):
     self.clear_mempool()
 
 
-def test_feerate_args(self, rbf_node, peer_node, dest_address):
-    self.log.info('Test fee_rate args')
-    rbfid = spend_one_input(rbf_node, dest_address)
-    self.sync_mempools((rbf_node, peer_node))
-    assert rbfid in rbf_node.getrawmempool() and rbfid in peer_node.getrawmempool()
-
-    assert_raises_rpc_error(-8, "conf_target can't be set with fee_rate. Please provide either a confirmation target in blocks for automatic fee estimation, or an explicit fee rate.", rbf_node.bumpfee, rbfid, {"fee_rate": NORMAL, "confTarget": 1})
-
-    assert_raises_rpc_error(-3, "Unexpected key totalFee", rbf_node.bumpfee, rbfid, {"totalFee": NORMAL})
-    assert_raises_rpc_error(-8, "conf_target can't be set with fee_rate. Please provide either a confirmation target in blocks for automatic fee estimation, or an explicit fee rate.", rbf_node.bumpfee, rbfid, {"fee_rate":0.00001, "confTarget": 1})
-
-    # Bumping to just above minrelay should fail to increase total fee enough, at least
-    assert_raises_rpc_error(-8, "Insufficient total fee", rbf_node.bumpfee, rbfid, {"fee_rate": INSUFFICIENT})
-
-    assert_raises_rpc_error(-3, "Amount out of range", rbf_node.bumpfee, rbfid, {"fee_rate": -1})
-
-    assert_raises_rpc_error(-4, "is too high (cannot be higher than", rbf_node.bumpfee, rbfid, {"fee_rate": TOO_HIGH})
-    self.clear_mempool()
-
-
 def test_segwit_bumpfee_succeeds(self, rbf_node, dest_address):
     self.log.info('Test that segwit-sourcing bumpfee works')
     # Create a transaction with segwit output, then create an RBF transaction
@@ -806,7 +786,7 @@ def test_feerate_checks_replaced_outputs(self, rbf_node, peer_node):
     # Since the bumped tx will replace all of the outputs with a single output, we can estimate that its size will 31 * (len(outputs) - 1) bytes smaller
     tx_size = tx_details["decoded"]["vsize"]
     est_bumped_size = tx_size - (len(tx_details["decoded"]["vout"]) - 1) * 31
-    inc_fee_rate = max(rbf_node.getmempoolinfo()["incrementalrelayfee"], Decimal(0.00005000)) # Wallet has a fixed incremental relay fee of 5 sat/vb
+    inc_fee_rate = rbf_node.getmempoolinfo()["incrementalrelayfee"]
     # RPC gives us fee as negative
     min_fee = (-tx_details["fee"] + get_fee(est_bumped_size, inc_fee_rate)) * Decimal(1e8)
     min_fee_rate = (min_fee / est_bumped_size).quantize(Decimal("1.000"))

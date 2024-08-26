@@ -76,7 +76,7 @@ bool IsConsistentPackage(const Package& txns)
     return true;
 }
 
-bool CheckPackage(const Package& txns, PackageValidationState& state, bool require_sorted)
+bool IsWellFormedPackage(const Package& txns, PackageValidationState& state, bool require_sorted)
 {
     const unsigned int package_count = txns.size();
 
@@ -146,4 +146,25 @@ bool IsChildWithParentsTree(const Package& package)
         }
         return true;
     });
+}
+
+uint256 GetPackageHash(const std::vector<CTransactionRef>& transactions)
+{
+    // Create a vector of the wtxids.
+    std::vector<Wtxid> wtxids_copy;
+    std::transform(transactions.cbegin(), transactions.cend(), std::back_inserter(wtxids_copy),
+        [](const auto& tx){ return tx->GetWitnessHash(); });
+
+    // Sort in ascending order
+    std::sort(wtxids_copy.begin(), wtxids_copy.end(), [](const auto& lhs, const auto& rhs) {
+        return std::lexicographical_compare(std::make_reverse_iterator(lhs.end()), std::make_reverse_iterator(lhs.begin()),
+                                            std::make_reverse_iterator(rhs.end()), std::make_reverse_iterator(rhs.begin()));
+    });
+
+    // Get sha256 hash of the wtxids concatenated in this order
+    CHashWriterSHA256 hashwriter(SER_GETHASH, 0);
+    for (const auto& wtxid : wtxids_copy) {
+        hashwriter << wtxid;
+    }
+    return hashwriter.GetSHA256();
 }

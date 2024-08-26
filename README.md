@@ -50,7 +50,9 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
+
 ![Product Name Screen Shot](https://github.com/BitgesellOfficial/bitgesell/blob/master/share/pixmaps/BGL64.png) 
+
 
 
 Features:
@@ -68,13 +70,13 @@ Features:
 <b>Bitgesell is a fork of Bitcoin with the following changes:</b> <br>
 * Block Reward [Burn rate is 90% of tx fees]
   ```sh
-  nFees*0.1 + GetBlockSubsidy()  
+  nFees*0.1 + GetBlockSubsidy()
   ```
 * Block Weight [10 times smaller than Bitcoin]
   ```sh
   <= 400,000
   ```
-* 100% Segwit 
+* 100% Segwit
   ```sh
   Eliminates problems with legacy type of transactions
   ```
@@ -87,8 +89,8 @@ Features:
   `Hashing algorithm for blocks is Keccak (sha-3).` <br> <hr>
   `The master branch is regularly built (see` [doc/build-*.md](https://github.com/BitgesellOfficial/bitgesell/tree/master/doc) `for instructions) and tested, but is not guaranteed to be completely stable.` <br> <hr>
   [tags](https://github.com/BitgesellOfficial/bitgesell/tags) `are created regularly to indicate new official, stable release versions of BGL Core.` <br>
- 
- 
+
+
 ### Built With
 
 * General

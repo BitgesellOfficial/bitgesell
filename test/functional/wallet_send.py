@@ -9,10 +9,6 @@ from itertools import product
 
 from test_framework.authproxy import JSONRPCException
 from test_framework.descriptors import descsum_create
-from test_framework.messages import (
-    ser_compact_size,
-    WITNESS_SCALE_FACTOR,
-)
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
@@ -21,7 +17,10 @@ from test_framework.util import (
     assert_raises_rpc_error,
     count_bytes,
 )
-from test_framework.wallet_util import generate_keypair
+from test_framework.wallet_util import (
+    calculate_input_weight,
+    generate_keypair,
+)
 
 
 class WalletSendTest(BGLTestFramework):
@@ -544,17 +543,9 @@ class WalletSendTest(BGLTestFramework):
                 input_idx = i
                 break
         psbt_in = dec["inputs"][input_idx]
-        # Calculate the input weight
-        # (prevout + sequence + length of scriptSig + scriptsig) * WITNESS_SCALE_FACTOR + len of num scriptWitness stack items + (length of stack item + stack item) * N stack items
-        # Note that occasionally this weight estimate may be slightly larger or smaller than the real weight
-        # as sometimes ECDSA signatures are one byte shorter than expected with a probability of 1/128
-        len_scriptsig = len(psbt_in["final_scriptSig"]["hex"]) // 2 if "final_scriptSig" in psbt_in else 0
-        len_scriptsig += len(ser_compact_size(len_scriptsig))
-        len_scriptwitness = (sum([(len(x) // 2) + len(ser_compact_size(len(x) // 2)) for x in psbt_in["final_scriptwitness"]]) + len(ser_compact_size(len(psbt_in["final_scriptwitness"])))) if "final_scriptwitness" in psbt_in else 0
-        len_prevout_txid = 32
-        len_prevout_index = 4
-        len_sequence = 4
-        input_weight = ((len_prevout_txid + len_prevout_index + len_sequence + len_scriptsig) * WITNESS_SCALE_FACTOR) + len_scriptwitness
+        scriptsig_hex = psbt_in["final_scriptSig"]["hex"] if "final_scriptSig" in psbt_in else ""
+        witness_stack_hex = psbt_in["final_scriptwitness"] if "final_scriptwitness" in psbt_in else None
+        input_weight = calculate_input_weight(scriptsig_hex, witness_stack_hex)
 
         # Input weight error conditions
         assert_raises_rpc_error(
@@ -586,6 +577,40 @@ class WalletSendTest(BGLTestFramework):
         # Due to ECDSA signatures not always being the same length, the actual fee rate may be slightly different
         # but rounded to nearest integer, it should be the same as the target fee rate
         assert_equal(round(actual_fee_rate_sat_vb), target_fee_rate_sat_vb)
+
+        # Check tx creation size limits
+        self.test_weight_limits()
+
+    def test_weight_limits(self):
+        self.log.info("Test weight limits")
+
+        self.nodes[1].createwallet("test_weight_limits")
+        wallet = self.nodes[1].get_wallet_rpc("test_weight_limits")
+
+        # Generate future inputs; 272 WU per input (273 when high-s).
+        # Picking 1471 inputs will exceed the max standard tx weight.
+        outputs = []
+        for _ in range(1472):
+            outputs.append({wallet.getnewaddress(address_type="legacy"): 0.1})
+        self.nodes[0].send(outputs=outputs)
+        self.generate(self.nodes[0], 1)
+
+        # 1) Try to fund transaction only using the preset inputs
+        inputs = wallet.listunspent()
+        assert_raises_rpc_error(-4, "Transaction too large",
+                                wallet.send, outputs=[{wallet.getnewaddress(): 0.1 * 1471}], options={"inputs": inputs, "add_inputs": False})
+
+        # 2) Let the wallet fund the transaction
+        assert_raises_rpc_error(-4, "The inputs size exceeds the maximum weight. Please try sending a smaller amount or manually consolidating your wallet's UTXOs",
+                                wallet.send, outputs=[{wallet.getnewaddress(): 0.1 * 1471}])
+
+        # 3) Pre-select some inputs and let the wallet fill-up the remaining amount
+        inputs = inputs[0:1000]
+        assert_raises_rpc_error(-4, "The combination of the pre-selected inputs and the wallet automatic inputs selection exceeds the transaction maximum weight. Please try sending a smaller amount or manually consolidating your wallet's UTXOs",
+                                wallet.send, outputs=[{wallet.getnewaddress(): 0.1 * 1471}], options={"inputs": inputs, "add_inputs": True})
+
+        self.nodes[1].unloadwallet("test_weight_limits")
+
 
 if __name__ == '__main__':
     WalletSendTest().main()

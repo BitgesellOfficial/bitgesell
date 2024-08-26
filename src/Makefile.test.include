@@ -85,6 +85,7 @@ BGL_TESTS =\
   test/checkqueue_tests.cpp \
   test/coins_tests.cpp \
   test/coinstatsindex_tests.cpp \
+  test/common_url_tests.cpp \
   test/compilerbug_tests.cpp \
   test/compress_tests.cpp \
   test/crypto_tests.cpp \
@@ -94,6 +95,7 @@ BGL_TESTS =\
   test/descriptor_tests.cpp \
   test/disconnected_transactions.cpp \
   test/flatfile_tests.cpp \
+  test/feefrac_tests.cpp \
   test/fs_tests.cpp \
   test/getarg_tests.cpp \
   test/hash_tests.cpp \
@@ -116,6 +118,7 @@ BGL_TESTS =\
   test/net_peer_eviction_tests.cpp \
   test/net_tests.cpp \
   test/netbase_tests.cpp \
+  test/node_warnings_tests.cpp \
   test/orphanage_tests.cpp \
   test/peerman_tests.cpp \
   test/pmt_tests.cpp \
@@ -151,7 +154,7 @@ BGL_TESTS =\
   test/streams_tests.cpp \
   test/sync_tests.cpp \
   test/system_tests.cpp \
-  test/timedata_tests.cpp \
+  test/timeoffsets_tests.cpp \
   test/torcontrol_tests.cpp \
   test/transaction_tests.cpp \
   test/translation_tests.cpp \
@@ -202,7 +205,8 @@ FUZZ_WALLET_SRC = \
  wallet/test/fuzz/coincontrol.cpp \
  wallet/test/fuzz/coinselection.cpp \
  wallet/test/fuzz/fees.cpp \
- wallet/test/fuzz/parse_iso8601.cpp
+ wallet/test/fuzz/parse_iso8601.cpp \
+ wallet/test/fuzz/wallet_bdb_parser.cpp
 
 if USE_SQLITE
 FUZZ_WALLET_SRC += \
@@ -274,7 +278,7 @@ FUZZ_SUITE_LD_COMMON += $(LIBBGL_ZMQ) $(ZMQ_LIBS)
 endif
 
 if ENABLE_FUZZ_BINARY
-test_fuzz_fuzz_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS)
+test_fuzz_fuzz_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS) $(EVENT_CFLAGS)
 test_fuzz_fuzz_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 test_fuzz_fuzz_LDADD = $(FUZZ_SUITE_LD_COMMON)
 test_fuzz_fuzz_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
@@ -290,6 +294,7 @@ test_fuzz_fuzz_SOURCES = \
  test/fuzz/bech32.cpp \
  test/fuzz/bip324.cpp \
  test/fuzz/bitdeque.cpp \
+ test/fuzz/bitset.cpp \
  test/fuzz/block.cpp \
  test/fuzz/block_header.cpp \
  test/fuzz/blockfilter.cpp \
@@ -321,6 +326,7 @@ test_fuzz_fuzz_SOURCES = \
  test/fuzz/headerssync.cpp \
  test/fuzz/hex.cpp \
  test/fuzz/http_request.cpp \
+ test/fuzz/i2p.cpp \
  test/fuzz/integer.cpp \
  test/fuzz/key.cpp \
  test/fuzz/key_io.cpp \
@@ -380,7 +386,7 @@ test_fuzz_fuzz_SOURCES = \
  test/fuzz/string.cpp \
  test/fuzz/strprintf.cpp \
  test/fuzz/system.cpp \
- test/fuzz/timedata.cpp \
+ test/fuzz/timeoffsets.cpp \
  test/fuzz/torcontrol.cpp \
  test/fuzz/transaction.cpp \
  test/fuzz/tx_in.cpp \
@@ -391,6 +397,7 @@ test_fuzz_fuzz_SOURCES = \
  test/fuzz/utxo_snapshot.cpp \
  test/fuzz/utxo_total_supply.cpp \
  test/fuzz/validation_load_mempool.cpp \
+ test/fuzz/vecdeque.cpp \
  test/fuzz/versionbits.cpp
 endif # ENABLE_FUZZ_BINARY
 

@@ -2,9 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
+#include <config/BGL-config.h> // IWYU pragma: keep
 
 #include <qt/BGL.h>
 
@@ -86,6 +84,8 @@ Q_DECLARE_METATYPE(uint256)
 #ifdef ENABLE_WALLET
 Q_DECLARE_METATYPE(wallet::AddressPurpose)
 #endif // ENABLE_WALLET
+
+using util::MakeUnorderedList;
 
 static void RegisterMetaTypes()
 {
@@ -550,6 +550,34 @@ int GuiMain(int argc, char* argv[])
             // message cannot be translated because translations have not been initialized
             QString::fromStdString("Error parsing command line arguments: %1.").arg(QString::fromStdString(error)));
         return EXIT_FAILURE;
+    }
+
+    // Error out when loose non-argument tokens are encountered on command line
+    // However, allow BIP-21 URIs only if no options follow
+    bool payment_server_token_seen = false;
+    for (int i = 1; i < argc; i++) {
+        QString arg(argv[i]);
+        bool invalid_token = !arg.startsWith("-");
+#ifdef ENABLE_WALLET
+        if (arg.startsWith(BGL_IPC_PREFIX, Qt::CaseInsensitive)) {
+            invalid_token &= false;
+            payment_server_token_seen = true;
+        }
+#endif
+        if (payment_server_token_seen && arg.startsWith("-")) {
+            InitError(Untranslated(strprintf("Options ('%s') cannot follow a BIP-21 payment URI", argv[i])));
+            QMessageBox::critical(nullptr, PACKAGE_NAME,
+                                  // message cannot be translated because translations have not been initialized
+                                  QString::fromStdString("Options ('%1') cannot follow a BIP-21 payment URI").arg(QString::fromStdString(argv[i])));
+            return EXIT_FAILURE;
+        }
+        if (invalid_token) {
+            InitError(Untranslated(strprintf("Command line contains unexpected token '%s', see bitcoin-qt -h for a list of options.", argv[i])));
+            QMessageBox::critical(nullptr, PACKAGE_NAME,
+                                  // message cannot be translated because translations have not been initialized
+                                  QString::fromStdString("Command line contains unexpected token '%1', see bitcoin-qt -h for a list of options.").arg(QString::fromStdString(argv[i])));
+            return EXIT_FAILURE;
+        }
     }
 
     // Now that the QApplication is setup and we have parsed our parameters, we can set the platform style

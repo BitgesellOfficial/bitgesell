@@ -124,7 +124,6 @@ class WalletDumpTest(BGLTestFramework):
             for _ in range(test_addr_count):
                 addr = self.nodes[0].getnewaddress(address_type=address_type)
                 vaddr = self.nodes[0].getaddressinfo(addr)  # required to get hd keypath
-                print("vaddr",vaddr)
                 addrs.append(vaddr)
 
         # Test scripts dump by adding a 1-of-1 multisig address

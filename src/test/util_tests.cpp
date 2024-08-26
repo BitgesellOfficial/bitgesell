@@ -3,8 +3,10 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <clientversion.h>
+#include <common/signmessage.h> // For MessageSign(), MessageVerify(), MESSAGE_MAGIC
 #include <hash.h> // For Hash()
 #include <key.h>  // For CKey
+#include <script/parsing.h>
 #include <sync.h>
 #include <test/util/random.h>
 #include <test/util/setup_common.h>
@@ -12,11 +14,9 @@
 #include <util/bitdeque.h>
 #include <util/fs.h>
 #include <util/fs_helpers.h>
-#include <util/message.h> // For MessageSign(), MessageVerify(), MESSAGE_MAGIC
 #include <util/moneystr.h>
 #include <util/overflow.h>
 #include <util/readwritefile.h>
-#include <util/spanparsing.h>
 #include <util/strencodings.h>
 #include <util/string.h>
 #include <util/time.h>
@@ -45,6 +45,15 @@
 #include <boost/test/unit_test.hpp>
 
 using namespace std::literals;
+using util::Join;
+using util::RemovePrefix;
+using util::RemovePrefixView;
+using util::ReplaceAll;
+using util::Split;
+using util::SplitString;
+using util::TrimString;
+using util::TrimStringView;
+
 static const std::string STRING_WITH_EMBEDDED_NULL_CHAR{"1"s "\0" "1"s};
 
 /* defined in logging.cpp */
@@ -290,13 +299,18 @@ BOOST_AUTO_TEST_CASE(util_TrimString)
 
 BOOST_AUTO_TEST_CASE(util_FormatISO8601DateTime)
 {
+    BOOST_CHECK_EQUAL(FormatISO8601DateTime(971890963199), "32767-12-31T23:59:59Z");
+    BOOST_CHECK_EQUAL(FormatISO8601DateTime(971890876800), "32767-12-31T00:00:00Z");
     BOOST_CHECK_EQUAL(FormatISO8601DateTime(1317425777), "2011-09-30T23:36:17Z");
     BOOST_CHECK_EQUAL(FormatISO8601DateTime(0), "1970-01-01T00:00:00Z");
 }
 
 BOOST_AUTO_TEST_CASE(util_FormatISO8601Date)
 {
+    BOOST_CHECK_EQUAL(FormatISO8601Date(971890963199), "32767-12-31");
+    BOOST_CHECK_EQUAL(FormatISO8601Date(971890876800), "32767-12-31");
     BOOST_CHECK_EQUAL(FormatISO8601Date(1317425777), "2011-09-30");
+    BOOST_CHECK_EQUAL(FormatISO8601Date(0), "1970-01-01");
 }
 
 BOOST_AUTO_TEST_CASE(util_FormatMoney)
@@ -1287,9 +1301,9 @@ static std::string SpanToStr(const Span<const char>& span)
     return std::string(span.begin(), span.end());
 }
 
-BOOST_AUTO_TEST_CASE(test_spanparsing)
+BOOST_AUTO_TEST_CASE(test_script_parsing)
 {
-    using namespace spanparsing;
+    using namespace script;
     std::string input;
     Span<const char> sp;
     bool success;
@@ -1494,14 +1508,10 @@ struct Tracker
     Tracker(Tracker&& t) noexcept : origin(t.origin), copies(t.copies) {}
     Tracker& operator=(const Tracker& t) noexcept
     {
-        origin = t.origin;
-        copies = t.copies + 1;
-        return *this;
-    }
-    Tracker& operator=(Tracker&& t) noexcept
-    {
-        origin = t.origin;
-        copies = t.copies;
+        if (this != &t) {
+            origin = t.origin;
+            copies = t.copies + 1;
+        }
         return *this;
     }
 };
@@ -1686,8 +1696,7 @@ BOOST_AUTO_TEST_CASE(message_hash)
     const uint256 message_hash1 = Hash(prefixed_message);
     const uint256 message_hash2 = MessageHash(unsigned_tx);
 
-   // Commented out because MessageHash uses keccak algorithm, while Hash uses CSHA256
-   // BOOST_CHECK_EQUAL(message_hash1, message_hash2);
+    BOOST_CHECK_EQUAL(message_hash1, message_hash2);
     BOOST_CHECK_NE(message_hash1, signature_hash);
 }
 
@@ -1789,7 +1798,7 @@ BOOST_AUTO_TEST_CASE(util_WriteBinaryFile)
 {
     fs::path tmpfolder = m_args.GetDataDirBase();
     fs::path tmpfile = tmpfolder / "write_binary.dat";
-    std::string expected_text = "BGL";
+    std::string expected_text = "bitcoin";
     auto valid = WriteBinaryFile(tmpfile, expected_text);
     std::string actual_text;
     std::ifstream file{tmpfile};

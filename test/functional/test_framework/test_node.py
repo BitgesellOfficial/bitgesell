@@ -106,7 +106,7 @@ class TestNode():
             "-debugexclude=libevent",
             "-debugexclude=leveldb",
             "-debugexclude=rand",
-            "-uacomment=testnode%d" % i,
+            "-uacomment=testnode%d" % i,  # required for subversion uniqueness across peers
         ]
         if self.descriptors is None:
             self.args.append("-disablewallet")
@@ -253,7 +253,7 @@ class TestNode():
         if self.start_perf:
             self._start_perf()
 
-    def wait_for_rpc_connection(self):
+    def wait_for_rpc_connection(self, *, wait_for_import=True):
         """Sets up an RPC connection to the BGLd process. Returns False if unable to connect."""
         # Poll at a rate of four times per second
         poll_per_s = 4
@@ -275,7 +275,7 @@ class TestNode():
                 )
                 rpc.getblockcount()
                 # If the call to getblockcount() succeeds then the RPC connection is up
-                if self.version_is_at_least(190000):
+                if self.version_is_at_least(190000) and wait_for_import:
                     # getmempoolinfo.loaded is available since commit
                     # bb8ae2c (version 0.19.0)
                     self.wait_until(lambda: rpc.getmempoolinfo()['loaded'])
@@ -431,8 +431,9 @@ class TestNode():
         return True
 
     def wait_until_stopped(self, *, timeout=BGLD_PROC_WAIT_TIMEOUT, expect_error=False, **kwargs):
-        expected_ret_code = 1 if expect_error else 0  # Whether node shutdown return EXIT_FAILURE or EXIT_SUCCESS
-        self.wait_until(lambda: self.is_node_stopped(expected_ret_code=expected_ret_code, **kwargs), timeout=timeout)
+        if "expected_ret_code" not in kwargs:
+            kwargs["expected_ret_code"] = 1 if expect_error else 0  # Whether node shutdown return EXIT_FAILURE or EXIT_SUCCESS
+        self.wait_until(lambda: self.is_node_stopped(**kwargs), timeout=timeout)
 
     def replace_in_config(self, replacements):
         """
@@ -502,7 +503,7 @@ class TestNode():
         self._raise_assertion_error('Expected messages "{}" does not partially match log:\n\n{}\n\n'.format(str(expected_msgs), print_log))
 
     @contextlib.contextmanager
-    def wait_for_debug_log(self, expected_msgs, timeout=60):
+    def busy_wait_for_debug_log(self, expected_msgs, timeout=60):
         """
         Block until we see a particular debug log message fragment or until we exceed the timeout.
         Return:

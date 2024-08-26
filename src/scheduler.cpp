@@ -79,7 +79,7 @@ void CScheduler::schedule(CScheduler::Function f, std::chrono::steady_clock::tim
 
 void CScheduler::MockForward(std::chrono::seconds delta_seconds)
 {
-    assert(delta_seconds.count() > 0 && delta_seconds < std::chrono::hours{1});
+    assert(delta_seconds > 0s && delta_seconds <= 1h);
 
     {
         LOCK(newTaskMutex);

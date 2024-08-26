@@ -30,10 +30,10 @@ class RPCTimerInterface;
 class UniValue;
 class Proxy;
 enum class SynchronizationState;
-enum class TransactionError;
 struct CNodeStateStats;
 struct bilingual_str;
 namespace node {
+enum class TransactionError;
 struct NodeContext;
 } // namespace node
 namespace wallet {
@@ -162,6 +162,9 @@ public:
     //! Get mempool dynamic usage.
     virtual size_t getMempoolDynamicUsage() = 0;
 
+    //! Get mempool maximum memory usage.
+    virtual size_t getMempoolMaxUsage() = 0;
+
     //! Get header tip height and time.
     virtual bool getHeaderTip(int& height, int64_t& block_time) = 0;
 
@@ -208,7 +211,7 @@ public:
     virtual std::optional<Coin> getUnspentOutput(const COutPoint& output) = 0;
 
     //! Broadcast transaction.
-    virtual TransactionError broadcastTransaction(CTransactionRef tx, CAmount max_tx_fee, std::string& err_string) = 0;
+    virtual node::TransactionError broadcastTransaction(CTransactionRef tx, CAmount max_tx_fee, std::string& err_string) = 0;
 
     //! Get wallet loader.
     virtual WalletLoader& walletLoader() = 0;

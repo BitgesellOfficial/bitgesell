@@ -27,22 +27,24 @@ def clean_files(source, executable):
     os.remove(source)
     os.remove(executable)
 
-def call_security_check(cc: str, source: str, executable: str, options) -> tuple:
+def env_flags() -> list[str]:
     # This should behave the same as AC_TRY_LINK, so arrange well-known flags
     # in the same order as autoconf would.
     #
     # See the definitions for ac_link in autoconf's lib/autoconf/c.m4 file for
     # reference.
-    env_flags: list[str] = []
+    flags: list[str] = []
     for var in ['CFLAGS', 'CPPFLAGS', 'LDFLAGS']:
-        env_flags += filter(None, os.environ.get(var, '').split(' '))
+        flags += filter(None, os.environ.get(var, '').split(' '))
+    return flags
 
-    subprocess.run([*cc,source,'-o',executable] + env_flags + options, check=True)
+def call_security_check(cc: str, source: str, executable: str, options) -> tuple:
+    subprocess.run([*cc,source,'-o',executable] + env_flags() + options, check=True)
     p = subprocess.run([os.path.join(os.path.dirname(__file__), 'security-check.py'), executable], stdout=subprocess.PIPE, text=True)
     return (p.returncode, p.stdout.rstrip())
 
 def get_arch(cc, source, executable):
-    subprocess.run([*cc, source, '-o', executable], check=True)
+    subprocess.run([*cc, source, '-o', executable] + env_flags(), check=True)
     binary = lief.parse(executable)
     arch = binary.abstract.header.architecture
     os.remove(executable)
@@ -57,32 +59,32 @@ class TestSecurityChecks(unittest.TestCase):
         arch = get_arch(cc, source, executable)
 
         if arch == lief.ARCHITECTURES.X86:
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-zexecstack','-fno-stack-protector','-Wl,-znorelro','-no-pie','-fno-PIE', '-Wl,-z,separate-code']),
-                    (1, executable+': failed PIE NX RELRO Canary CONTROL_FLOW'))
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-fno-stack-protector','-Wl,-znorelro','-no-pie','-fno-PIE', '-Wl,-z,separate-code']),
-                    (1, executable+': failed PIE RELRO Canary CONTROL_FLOW'))
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-fstack-protector-all','-Wl,-znorelro','-no-pie','-fno-PIE', '-Wl,-z,separate-code']),
+            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-zexecstack','-Wl,-znorelro','-no-pie','-fno-PIE', '-Wl,-z,separate-code']),
+                    (1, executable+': failed PIE NX RELRO CONTROL_FLOW'))
+            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-Wl,-znorelro','-no-pie','-fno-PIE', '-Wl,-z,separate-code']),
                     (1, executable+': failed PIE RELRO CONTROL_FLOW'))
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-fstack-protector-all','-Wl,-znorelro','-pie','-fPIE', '-Wl,-z,separate-code']),
+            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-Wl,-znorelro','-no-pie','-fno-PIE', '-Wl,-z,separate-code']),
+                    (1, executable+': failed PIE RELRO CONTROL_FLOW'))
+            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-Wl,-znorelro','-pie','-fPIE', '-Wl,-z,separate-code']),
                     (1, executable+': failed RELRO CONTROL_FLOW'))
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-fstack-protector-all','-Wl,-zrelro','-Wl,-z,now','-pie','-fPIE', '-Wl,-z,noseparate-code']),
+            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-Wl,-zrelro','-Wl,-z,now','-pie','-fPIE', '-Wl,-z,noseparate-code']),
                     (1, executable+': failed separate_code CONTROL_FLOW'))
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-fstack-protector-all','-Wl,-zrelro','-Wl,-z,now','-pie','-fPIE', '-Wl,-z,separate-code']),
+            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-Wl,-zrelro','-Wl,-z,now','-pie','-fPIE', '-Wl,-z,separate-code']),
                     (1, executable+': failed CONTROL_FLOW'))
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-fstack-protector-all','-Wl,-zrelro','-Wl,-z,now','-pie','-fPIE', '-Wl,-z,separate-code', '-fcf-protection=full']),
+            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-Wl,-zrelro','-Wl,-z,now','-pie','-fPIE', '-Wl,-z,separate-code', '-fcf-protection=full']),
                     (0, ''))
         else:
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-zexecstack','-fno-stack-protector','-Wl,-znorelro','-no-pie','-fno-PIE', '-Wl,-z,separate-code']),
-                    (1, executable+': failed PIE NX RELRO Canary'))
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-fno-stack-protector','-Wl,-znorelro','-no-pie','-fno-PIE', '-Wl,-z,separate-code']),
-                    (1, executable+': failed PIE RELRO Canary'))
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-fstack-protector-all','-Wl,-znorelro','-no-pie','-fno-PIE', '-Wl,-z,separate-code']),
+            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-zexecstack','-Wl,-znorelro','-no-pie','-fno-PIE', '-Wl,-z,separate-code']),
+                    (1, executable+': failed PIE NX RELRO'))
+            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-Wl,-znorelro','-no-pie','-fno-PIE', '-Wl,-z,separate-code']),
                     (1, executable+': failed PIE RELRO'))
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-fstack-protector-all','-Wl,-znorelro','-pie','-fPIE', '-Wl,-z,separate-code']),
+            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-Wl,-znorelro','-no-pie','-fno-PIE', '-Wl,-z,separate-code']),
+                    (1, executable+': failed PIE RELRO'))
+            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-Wl,-znorelro','-pie','-fPIE', '-Wl,-z,separate-code']),
                     (1, executable+': failed RELRO'))
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-fstack-protector-all','-Wl,-zrelro','-Wl,-z,now','-pie','-fPIE', '-Wl,-z,noseparate-code']),
+            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-Wl,-zrelro','-Wl,-z,now','-pie','-fPIE', '-Wl,-z,noseparate-code']),
                     (1, executable+': failed separate_code'))
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-fstack-protector-all','-Wl,-zrelro','-Wl,-z,now','-pie','-fPIE', '-Wl,-z,separate-code']),
+            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-znoexecstack','-Wl,-zrelro','-Wl,-z,now','-pie','-fPIE', '-Wl,-z,separate-code']),
                     (0, ''))
 
         clean_files(source, executable)
@@ -118,21 +120,15 @@ class TestSecurityChecks(unittest.TestCase):
         arch = get_arch(cc, source, executable)
 
         if arch == lief.ARCHITECTURES.X86:
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-no_pie','-Wl,-flat_namespace','-Wl,-allow_stack_execute','-fno-stack-protector', '-Wl,-no_fixup_chains']),
-                (1, executable+': failed NOUNDEFS Canary FIXUP_CHAINS PIE NX CONTROL_FLOW'))
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-no_pie','-Wl,-flat_namespace','-Wl,-allow_stack_execute','-fno-stack-protector', '-Wl,-fixup_chains']),
-                (1, executable+': failed NOUNDEFS Canary PIE NX CONTROL_FLOW'))
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-no_pie','-Wl,-flat_namespace','-Wl,-allow_stack_execute','-fstack-protector-all', '-Wl,-fixup_chains']),
-                (1, executable+': failed NOUNDEFS PIE NX CONTROL_FLOW'))
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-no_pie','-Wl,-flat_namespace','-fstack-protector-all', '-Wl,-fixup_chains']),
-                (1, executable+': failed NOUNDEFS PIE CONTROL_FLOW'))
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-no_pie','-fstack-protector-all', '-Wl,-fixup_chains']),
-                (1, executable+': failed PIE CONTROL_FLOW'))
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-no_pie','-fstack-protector-all', '-Wl,-fixup_chains']),
-                (1, executable+': failed PIE CONTROL_FLOW'))
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-no_pie','-fstack-protector-all', '-fcf-protection=full', '-Wl,-fixup_chains']),
-                (1, executable+': failed PIE'))
-            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-pie','-fstack-protector-all', '-fcf-protection=full', '-Wl,-fixup_chains']),
+            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-no_pie','-Wl,-flat_namespace','-fno-stack-protector', '-Wl,-no_fixup_chains']),
+                (1, executable+': failed NOUNDEFS Canary FIXUP_CHAINS PIE CONTROL_FLOW'))
+            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-flat_namespace','-fno-stack-protector', '-Wl,-fixup_chains']),
+                (1, executable+': failed NOUNDEFS Canary CONTROL_FLOW'))
+            self.assertEqual(call_security_check(cc, source, executable, ['-Wl,-flat_namespace','-fstack-protector-all', '-Wl,-fixup_chains']),
+                (1, executable+': failed NOUNDEFS CONTROL_FLOW'))
+            self.assertEqual(call_security_check(cc, source, executable, ['-fstack-protector-all', '-Wl,-fixup_chains']),
+                (1, executable+': failed CONTROL_FLOW'))
+            self.assertEqual(call_security_check(cc, source, executable, ['-fstack-protector-all', '-fcf-protection=full', '-Wl,-fixup_chains']),
                 (0, ''))
         else:
             # arm64 darwin doesn't support non-PIE binaries, control flow or executable stacks

@@ -3,9 +3,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
+#include <config/BGL-config.h> // IWYU pragma: keep
 
 #include <netbase.h>
 
@@ -25,9 +23,11 @@
 #include <limits>
 #include <memory>
 
-#if HAVE_SOCKADDR_UN
+#ifdef HAVE_SOCKADDR_UN
 #include <sys/un.h>
 #endif
+
+using util::ContainsNoNUL;
 
 // Settings
 static GlobalMutex g_proxyinfo_mutex;
@@ -218,7 +218,7 @@ CService LookupNumeric(const std::string& name, uint16_t portDefault, DNSLookupF
 
 bool IsUnixSocketPath(const std::string& name)
 {
-#if HAVE_SOCKADDR_UN
+#ifdef HAVE_SOCKADDR_UN
     if (name.find(ADDR_PREFIX_UNIX) != 0) return false;
 
     // Split off "unix:" prefix
@@ -487,23 +487,22 @@ bool Socks5(const std::string& strDest, uint16_t port, const ProxyCredentials* a
     }
 }
 
-std::unique_ptr<Sock> CreateSockOS(sa_family_t address_family)
+std::unique_ptr<Sock> CreateSockOS(int domain, int type, int protocol)
 {
     // Not IPv4, IPv6 or UNIX
-    if (address_family == AF_UNSPEC) return nullptr;
-
-    int protocol{IPPROTO_TCP};
-#if HAVE_SOCKADDR_UN
-    if (address_family == AF_UNIX) protocol = 0;
-#endif
+    if (domain == AF_UNSPEC) return nullptr;
 
     // Create a socket in the specified address family.
-    SOCKET hSocket = socket(address_family, SOCK_STREAM, protocol);
+    SOCKET hSocket = socket(domain, type, protocol);
     if (hSocket == INVALID_SOCKET) {
         return nullptr;
     }
 
     auto sock = std::make_unique<Sock>(hSocket);
+
+    if (domain != AF_INET && domain != AF_INET6 && domain != AF_UNIX) {
+        return sock;
+    }
 
     // Ensure that waiting for I/O on this socket won't result in undefined
     // behavior.
@@ -528,19 +527,22 @@ std::unique_ptr<Sock> CreateSockOS(sa_family_t address_family)
         return nullptr;
     }
 
-#if HAVE_SOCKADDR_UN
-    if (address_family == AF_UNIX) return sock;
+#ifdef HAVE_SOCKADDR_UN
+    if (domain == AF_UNIX) return sock;
 #endif
 
-    // Set the no-delay option (disable Nagle's algorithm) on the TCP socket.
-    const int on{1};
-    if (sock->SetSockOpt(IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on)) == SOCKET_ERROR) {
-        LogPrint(BCLog::NET, "Unable to set TCP_NODELAY on a newly created socket, continuing anyway\n");
+    if (protocol == IPPROTO_TCP) {
+        // Set the no-delay option (disable Nagle's algorithm) on the TCP socket.
+        const int on{1};
+        if (sock->SetSockOpt(IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on)) == SOCKET_ERROR) {
+            LogPrint(BCLog::NET, "Unable to set TCP_NODELAY on a newly created socket, continuing anyway\n");
+        }
     }
+
     return sock;
 }
 
-std::function<std::unique_ptr<Sock>(const sa_family_t&)> CreateSock = CreateSockOS;
+std::function<std::unique_ptr<Sock>(int, int, int)> CreateSock = CreateSockOS;
 
 template<typename... Args>
 static void LogConnectFailure(bool manual_connection, const char* fmt, const Args&... args) {
@@ -609,7 +611,7 @@ static bool ConnectToSocket(const Sock& sock, struct sockaddr* sockaddr, socklen
 
 std::unique_ptr<Sock> ConnectDirectly(const CService& dest, bool manual_connection)
 {
-    auto sock = CreateSock(dest.GetSAFamily());
+    auto sock = CreateSock(dest.GetSAFamily(), SOCK_STREAM, IPPROTO_TCP);
     if (!sock) {
         LogPrintLevel(BCLog::NET, BCLog::Level::Error, "Cannot create a socket for connecting to %s\n", dest.ToStringAddrPort());
         return {};
@@ -632,15 +634,12 @@ std::unique_ptr<Sock> ConnectDirectly(const CService& dest, bool manual_connecti
 
 std::unique_ptr<Sock> Proxy::Connect() const
 {
-    if (!IsValid()) {
-        LogPrintf("Cannot connect to invalid Proxy\n");
-        return {};
-    }
+    if (!IsValid()) return {};
 
     if (!m_is_unix_socket) return ConnectDirectly(proxy, /*manual_connection=*/true);
 
-#if HAVE_SOCKADDR_UN
-    auto sock = CreateSock(AF_UNIX);
+#ifdef HAVE_SOCKADDR_UN
+    auto sock = CreateSock(AF_UNIX, SOCK_STREAM, 0);
     if (!sock) {
         LogPrintLevel(BCLog::NET, BCLog::Level::Error, "Cannot create a socket for connecting to %s\n", m_unix_socket_path);
         return {};
@@ -656,7 +655,6 @@ std::unique_ptr<Sock> Proxy::Connect() const
     socklen_t len = sizeof(addrun);
 
     if(!ConnectToSocket(*sock, (struct sockaddr*)&addrun, len, path, /*manual_connection=*/true)) {
-        LogPrintf("Cannot connect to socket for %s\n", path);
         return {};
     }
 

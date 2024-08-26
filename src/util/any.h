@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_UTIL_ANY_H
-#define BITCOIN_UTIL_ANY_H
+#ifndef BGL_UTIL_ANY_H
+#define BGL_UTIL_ANY_H
 
 #include <any>
 
@@ -23,4 +23,4 @@ T* AnyPtr(const std::any& any) noexcept
 
 } // namespace util
 
-#endif // BITCOIN_UTIL_ANY_H
+#endif // BGL_UTIL_ANY_H

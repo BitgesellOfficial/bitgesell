@@ -23,6 +23,7 @@
 #include <netbase.h>
 #include <netmessagemaker.h>
 #include <node/blockstorage.h>
+#include <node/timeoffsets.h>
 #include <node/txreconciliation.h>
 #include <policy/fees.h>
 #include <policy/policy.h>
@@ -34,7 +35,6 @@
 #include <scheduler.h>
 #include <streams.h>
 #include <sync.h>
-#include <timedata.h>
 #include <tinyformat.h>
 #include <txmempool.h>
 #include <txorphanage.h>
@@ -118,6 +118,7 @@ static const unsigned int MAX_HEADERS_RESULTS = 2000;
 static const int MAX_CMPCTBLOCK_DEPTH = 5;
 /** Maximum depth of blocks we're willing to respond to GETBLOCKTXN requests for. */
 static const int MAX_BLOCKTXN_DEPTH = 10;
+static_assert(MAX_BLOCKTXN_DEPTH <= MIN_BLOCKS_TO_KEEP, "MAX_BLOCKTXN_DEPTH too high");
 /** Size of the "block download window": how far ahead of our current height do we fetch?
  *  Larger windows tolerate larger download speed differences between peer, but increase the potential
  *  degree of disordering of blocks on disk (which make reindexing and pruning harder). We'll probably
@@ -390,6 +391,10 @@ struct Peer {
     /** Whether this peer wants invs or headers (when possible) for block announcements */
     bool m_prefers_headers GUARDED_BY(NetEventsInterface::g_msgproc_mutex){false};
 
+    /** Time offset computed during the version handshake based on the
+     * timestamp the peer sent in the version message. */
+    std::atomic<std::chrono::seconds> m_time_offset{0s};
+
     explicit Peer(NodeId id, ServiceFlags our_services)
         : m_id{id}
         , m_our_services{our_services}
@@ -484,7 +489,7 @@ class PeerManagerImpl final : public PeerManager
 public:
     PeerManagerImpl(CConnman& connman, AddrMan& addrman,
                     BanMan* banman, ChainstateManager& chainman,
-                    CTxMemPool& pool, Options opts);
+                    CTxMemPool& pool, node::Warnings& warnings, Options opts);
 
     /** Overridden from CValidationInterface. */
     void BlockConnected(ChainstateRole role, const std::shared_ptr<const CBlock>& pblock, const CBlockIndex* pindexConnected) override
@@ -513,7 +518,7 @@ public:
     std::optional<std::string> FetchBlock(NodeId peer_id, const CBlockIndex& block_index) override
         EXCLUSIVE_LOCKS_REQUIRED(!m_peer_mutex);
     bool GetNodeStateStats(NodeId nodeid, CNodeStateStats& stats) const override EXCLUSIVE_LOCKS_REQUIRED(!m_peer_mutex);
-    bool IgnoresIncomingTxs() override { return m_opts.ignore_incoming_txs; }
+    PeerManagerInfo GetInfo() const override EXCLUSIVE_LOCKS_REQUIRED(!m_peer_mutex);
     void SendPings() override EXCLUSIVE_LOCKS_REQUIRED(!m_peer_mutex);
     void RelayTransaction(const uint256& txid, const uint256& wtxid) override EXCLUSIVE_LOCKS_REQUIRED(!m_peer_mutex);
     void SetBestBlock(int height, std::chrono::seconds time) override
@@ -586,7 +591,7 @@ private:
      * @param[in]   maybe_add_extra_compact_tx    Whether this tx should be added to vExtraTxnForCompact.
      *                                            Set to false if the tx has already been rejected before,
      *                                            e.g. is an orphan, to avoid adding duplicate entries.
-     * Updates m_txrequest, m_recent_rejects, m_orphanage, and vExtraTxnForCompact. */
+     * Updates m_txrequest, m_recent_rejects, m_recent_rejects_reconsiderable, m_orphanage, and vExtraTxnForCompact. */
     void ProcessInvalidTx(NodeId nodeid, const CTransactionRef& tx, const TxValidationState& result,
                           bool maybe_add_extra_compact_tx)
         EXCLUSIVE_LOCKS_REQUIRED(!m_peer_mutex, g_msgproc_mutex, cs_main);
@@ -594,6 +599,42 @@ private:
     /** Handle a transaction whose result was MempoolAcceptResult::ResultType::VALID.
      * Updates m_txrequest, m_orphanage, and vExtraTxnForCompact. Also queues the tx for relay. */
     void ProcessValidTx(NodeId nodeid, const CTransactionRef& tx, const std::list<CTransactionRef>& replaced_transactions)
+        EXCLUSIVE_LOCKS_REQUIRED(!m_peer_mutex, g_msgproc_mutex, cs_main);
+
+    struct PackageToValidate {
+        const Package m_txns;
+        const std::vector<NodeId> m_senders;
+        /** Construct a 1-parent-1-child package. */
+        explicit PackageToValidate(const CTransactionRef& parent,
+                                   const CTransactionRef& child,
+                                   NodeId parent_sender,
+                                   NodeId child_sender) :
+            m_txns{parent, child},
+            m_senders {parent_sender, child_sender}
+        {}
+
+        std::string ToString() const {
+            Assume(m_txns.size() == 2);
+            return strprintf("parent %s (wtxid=%s, sender=%d) + child %s (wtxid=%s, sender=%d)",
+                             m_txns.front()->GetHash().ToString(),
+                             m_txns.front()->GetWitnessHash().ToString(),
+                             m_senders.front(),
+                             m_txns.back()->GetHash().ToString(),
+                             m_txns.back()->GetWitnessHash().ToString(),
+                             m_senders.back());
+        }
+    };
+
+    /** Handle the results of package validation: calls ProcessValidTx and ProcessInvalidTx for
+     * individual transactions, and caches rejection for the package as a group.
+     */
+    void ProcessPackageResult(const PackageToValidate& package_to_validate, const PackageMempoolAcceptResult& package_result)
+        EXCLUSIVE_LOCKS_REQUIRED(!m_peer_mutex, g_msgproc_mutex, cs_main);
+
+    /** Look for a child of this transaction in the orphanage to form a 1-parent-1-child package,
+     * skipping any combinations that have already been tried. Return the resulting package along with
+     * the senders of its respective transactions, or std::nullopt if no package is found. */
+    std::optional<PackageToValidate> Find1P1CPackage(const CTransactionRef& ptx, NodeId nodeid)
         EXCLUSIVE_LOCKS_REQUIRED(!m_peer_mutex, g_msgproc_mutex, cs_main);
 
     /**
@@ -749,6 +790,9 @@ private:
     /** Next time to check for stale tip */
     std::chrono::seconds m_stale_tip_check_time GUARDED_BY(cs_main){0s};
 
+    node::Warnings& m_warnings;
+    TimeOffsets m_outbound_time_offsets{m_warnings};
+
     const Options m_opts;
 
     bool RejectIncomingTxs(const CNode& peer) const;
@@ -806,7 +850,16 @@ private:
     /** Stalling timeout for blocks in IBD */
     std::atomic<std::chrono::seconds> m_block_stalling_timeout{BLOCK_STALLING_TIMEOUT_DEFAULT};
 
-    bool AlreadyHaveTx(const GenTxid& gtxid)
+    /** Check whether we already have this gtxid in:
+     *  - mempool
+     *  - orphanage
+     *  - m_recent_rejects
+     *  - m_recent_rejects_reconsiderable (if include_reconsiderable = true)
+     *  - m_recent_confirmed_transactions
+     * Also responsible for resetting m_recent_rejects and m_recent_rejects_reconsiderable if the
+     * chain tip has changed.
+     *  */
+    bool AlreadyHaveTx(const GenTxid& gtxid, bool include_reconsiderable)
         EXCLUSIVE_LOCKS_REQUIRED(cs_main, !m_recent_confirmed_transactions_mutex);
 
     /**
@@ -844,7 +897,31 @@ private:
      * Memory used: 1.3 MB
      */
     CRollingBloomFilter m_recent_rejects GUARDED_BY(::cs_main){120'000, 0.000'001};
+    /** Block hash of chain tip the last time we reset m_recent_rejects and
+     * m_recent_rejects_reconsiderable. */
     uint256 hashRecentRejectsChainTip GUARDED_BY(cs_main);
+
+    /**
+     * Filter for:
+     * (1) wtxids of transactions that were recently rejected by the mempool but are
+     * eligible for reconsideration if submitted with other transactions.
+     * (2) packages (see GetPackageHash) we have already rejected before and should not retry.
+     *
+     * Similar to m_recent_rejects, this filter is used to save bandwidth when e.g. all of our peers
+     * have larger mempools and thus lower minimum feerates than us.
+     *
+     * When a transaction's error is TxValidationResult::TX_RECONSIDERABLE (in a package or by
+     * itself), add its wtxid to this filter. When a package fails for any reason, add the combined
+     * hash to this filter.
+     *
+     * Upon receiving an announcement for a transaction, if it exists in this filter, do not
+     * download the txdata. When considering packages, if it exists in this filter, drop it.
+     *
+     * Reset this filter when the chain tip changes.
+     *
+     * Parameters are picked to be the same as m_recent_rejects, with the same rationale.
+     */
+    CRollingBloomFilter m_recent_rejects_reconsiderable GUARDED_BY(::cs_main){120'000, 0.000'001};
 
     /*
      * Filter for transactions that have been recently confirmed.
@@ -1006,7 +1083,7 @@ private:
     /** Orphan/conflicted/etc transactions that are kept for compact block reconstruction.
      *  The last -blockreconstructionextratxn/DEFAULT_BLOCK_RECONSTRUCTION_EXTRA_TXN of
      *  these are kept in a ring buffer */
-    std::vector<std::pair<uint256, CTransactionRef>> vExtraTxnForCompact GUARDED_BY(g_msgproc_mutex);
+    std::vector<CTransactionRef> vExtraTxnForCompact GUARDED_BY(g_msgproc_mutex);
     /** Offset into vExtraTxnForCompact to insert the next tx */
     size_t vExtraTxnForCompactIt GUARDED_BY(g_msgproc_mutex) = 0;
 
@@ -1792,8 +1869,17 @@ bool PeerManagerImpl::GetNodeStateStats(NodeId nodeid, CNodeStateStats& stats) c
             stats.presync_height = peer->m_headers_sync->GetPresyncHeight();
         }
     }
+    stats.time_offset = peer->m_time_offset;
 
     return true;
+}
+
+PeerManagerInfo PeerManagerImpl::GetInfo() const
+{
+    return PeerManagerInfo{
+        .median_outbound_time_offset = m_outbound_time_offsets.Median(),
+        .ignores_incoming_txs = m_opts.ignore_incoming_txs,
+    };
 }
 
 void PeerManagerImpl::AddToCompactExtraTransactions(const CTransactionRef& tx)
@@ -1802,7 +1888,7 @@ void PeerManagerImpl::AddToCompactExtraTransactions(const CTransactionRef& tx)
         return;
     if (!vExtraTxnForCompact.size())
         vExtraTxnForCompact.resize(m_opts.max_extra_txs);
-    vExtraTxnForCompact[vExtraTxnForCompactIt] = std::make_pair(tx->GetWitnessHash(), tx);
+    vExtraTxnForCompact[vExtraTxnForCompactIt] = tx;
     vExtraTxnForCompactIt = (vExtraTxnForCompactIt + 1) % m_opts.max_extra_txs;
 }
 
@@ -1957,14 +2043,14 @@ std::optional<std::string> PeerManagerImpl::FetchBlock(NodeId peer_id, const CBl
 
 std::unique_ptr<PeerManager> PeerManager::make(CConnman& connman, AddrMan& addrman,
                                                BanMan* banman, ChainstateManager& chainman,
-                                               CTxMemPool& pool, Options opts)
+                                               CTxMemPool& pool, node::Warnings& warnings, Options opts)
 {
-    return std::make_unique<PeerManagerImpl>(connman, addrman, banman, chainman, pool, opts);
+    return std::make_unique<PeerManagerImpl>(connman, addrman, banman, chainman, pool, warnings, opts);
 }
 
 PeerManagerImpl::PeerManagerImpl(CConnman& connman, AddrMan& addrman,
                                  BanMan* banman, ChainstateManager& chainman,
-                                 CTxMemPool& pool, Options opts)
+                                 CTxMemPool& pool, node::Warnings& warnings, Options opts)
     : m_rng{opts.deterministic_rng},
       m_fee_filter_rounder{CFeeRate{DEFAULT_MIN_RELAY_TX_FEE}, m_rng},
       m_chainparams(chainman.GetParams()),
@@ -1973,6 +2059,7 @@ PeerManagerImpl::PeerManagerImpl(CConnman& connman, AddrMan& addrman,
       m_banman(banman),
       m_chainman(chainman),
       m_mempool(pool),
+      m_warnings{warnings},
       m_opts{opts}
 {
     // While Erlay support is incomplete, it must be enabled explicitly via -txreconciliation.
@@ -2066,7 +2153,7 @@ void PeerManagerImpl::BlockDisconnected(const std::shared_ptr<const CBlock> &blo
  */
 void PeerManagerImpl::NewPoWValidBlock(const CBlockIndex *pindex, const std::shared_ptr<const CBlock>& pblock)
 {
-    auto pcmpctblock = std::make_shared<const CBlockHeaderAndShortTxIDs>(*pblock);
+    auto pcmpctblock = std::make_shared<const CBlockHeaderAndShortTxIDs>(*pblock, GetRand<uint64_t>());
 
     LOCK(cs_main);
 
@@ -2194,7 +2281,7 @@ void PeerManagerImpl::BlockChecked(const CBlock& block, const BlockValidationSta
 //
 
 
-bool PeerManagerImpl::AlreadyHaveTx(const GenTxid& gtxid)
+bool PeerManagerImpl::AlreadyHaveTx(const GenTxid& gtxid, bool include_reconsiderable)
 {
     if (m_chainman.ActiveChain().Tip()->GetBlockHash() != hashRecentRejectsChainTip) {
         // If the chain tip has changed previously rejected transactions
@@ -2203,11 +2290,30 @@ bool PeerManagerImpl::AlreadyHaveTx(const GenTxid& gtxid)
         // txs a second chance.
         hashRecentRejectsChainTip = m_chainman.ActiveChain().Tip()->GetBlockHash();
         m_recent_rejects.reset();
+        m_recent_rejects_reconsiderable.reset();
     }
 
     const uint256& hash = gtxid.GetHash();
 
-    if (m_orphanage.HaveTx(gtxid)) return true;
+    if (gtxid.IsWtxid()) {
+        // Normal query by wtxid.
+        if (m_orphanage.HaveTx(Wtxid::FromUint256(hash))) return true;
+    } else {
+        // Never query by txid: it is possible that the transaction in the orphanage has the same
+        // txid but a different witness, which would give us a false positive result. If we decided
+        // not to request the transaction based on this result, an attacker could prevent us from
+        // downloading a transaction by intentionally creating a malleated version of it.  While
+        // only one (or none!) of these transactions can ultimately be confirmed, we have no way of
+        // discerning which one that is, so the orphanage can store multiple transactions with the
+        // same txid.
+        //
+        // While we won't query by txid, we can try to "guess" what the wtxid is based on the txid.
+        // A non-segwit transaction's txid == wtxid. Query this txid "casted" to a wtxid. This will
+        // help us find non-segwit transactions, saving bandwidth, and should have no false positives.
+        if (m_orphanage.HaveTx(Wtxid::FromUint256(hash))) return true;
+    }
+
+    if (include_reconsiderable && m_recent_rejects_reconsiderable.contains(hash)) return true;
 
     {
         LOCK(m_recent_confirmed_transactions_mutex);
@@ -2333,38 +2439,48 @@ void PeerManagerImpl::ProcessGetBlockData(CNode& pfrom, Peer& peer, const CInv& 
         }
     }
 
-    LOCK(cs_main);
-    const CBlockIndex* pindex = m_chainman.m_blockman.LookupBlockIndex(inv.hash);
-    if (!pindex) {
-        return;
+    const CBlockIndex* pindex{nullptr};
+    const CBlockIndex* tip{nullptr};
+    bool can_direct_fetch{false};
+    FlatFilePos block_pos{};
+    {
+        LOCK(cs_main);
+        pindex = m_chainman.m_blockman.LookupBlockIndex(inv.hash);
+        if (!pindex) {
+            return;
+        }
+        if (!BlockRequestAllowed(pindex)) {
+            LogPrint(BCLog::NET, "%s: ignoring request from peer=%i for old block that isn't in the main chain\n", __func__, pfrom.GetId());
+            return;
+        }
+        // disconnect node in case we have reached the outbound limit for serving historical blocks
+        if (m_connman.OutboundTargetReached(true) &&
+            (((m_chainman.m_best_header != nullptr) && (m_chainman.m_best_header->GetBlockTime() - pindex->GetBlockTime() > HISTORICAL_BLOCK_AGE)) || inv.IsMsgFilteredBlk()) &&
+            !pfrom.HasPermission(NetPermissionFlags::Download) // nodes with the download permission may exceed target
+        ) {
+            LogPrint(BCLog::NET, "historical block serving limit reached, disconnect peer=%d\n", pfrom.GetId());
+            pfrom.fDisconnect = true;
+            return;
+        }
+        tip = m_chainman.ActiveChain().Tip();
+        // Avoid leaking prune-height by never sending blocks below the NODE_NETWORK_LIMITED threshold
+        if (!pfrom.HasPermission(NetPermissionFlags::NoBan) && (
+                (((peer.m_our_services & NODE_NETWORK_LIMITED) == NODE_NETWORK_LIMITED) && ((peer.m_our_services & NODE_NETWORK) != NODE_NETWORK) && (tip->nHeight - pindex->nHeight > (int)NODE_NETWORK_LIMITED_MIN_BLOCKS + 2 /* add two blocks buffer extension for possible races */) )
+           )) {
+            LogPrint(BCLog::NET, "Ignore block request below NODE_NETWORK_LIMITED threshold, disconnect peer=%d\n", pfrom.GetId());
+            //disconnect node and prevent it from stalling (would otherwise wait for the missing block)
+            pfrom.fDisconnect = true;
+            return;
+        }
+        // Pruned nodes may have deleted the block, so check whether
+        // it's available before trying to send.
+        if (!(pindex->nStatus & BLOCK_HAVE_DATA)) {
+            return;
+        }
+        can_direct_fetch = CanDirectFetch();
+        block_pos = pindex->GetBlockPos();
     }
-    if (!BlockRequestAllowed(pindex)) {
-        LogPrint(BCLog::NET, "%s: ignoring request from peer=%i for old block that isn't in the main chain\n", __func__, pfrom.GetId());
-        return;
-    }
-    // disconnect node in case we have reached the outbound limit for serving historical blocks
-    if (m_connman.OutboundTargetReached(true) &&
-        (((m_chainman.m_best_header != nullptr) && (m_chainman.m_best_header->GetBlockTime() - pindex->GetBlockTime() > HISTORICAL_BLOCK_AGE)) || inv.IsMsgFilteredBlk()) &&
-        !pfrom.HasPermission(NetPermissionFlags::Download) // nodes with the download permission may exceed target
-    ) {
-        LogPrint(BCLog::NET, "historical block serving limit reached, disconnect peer=%d\n", pfrom.GetId());
-        pfrom.fDisconnect = true;
-        return;
-    }
-    // Avoid leaking prune-height by never sending blocks below the NODE_NETWORK_LIMITED threshold
-    if (!pfrom.HasPermission(NetPermissionFlags::NoBan) && (
-            (((peer.m_our_services & NODE_NETWORK_LIMITED) == NODE_NETWORK_LIMITED) && ((peer.m_our_services & NODE_NETWORK) != NODE_NETWORK) && (m_chainman.ActiveChain().Tip()->nHeight - pindex->nHeight > (int)NODE_NETWORK_LIMITED_MIN_BLOCKS + 2 /* add two blocks buffer extension for possible races */) )
-       )) {
-        LogPrint(BCLog::NET, "Ignore block request below NODE_NETWORK_LIMITED threshold, disconnect peer=%d\n", pfrom.GetId());
-        //disconnect node and prevent it from stalling (would otherwise wait for the missing block)
-        pfrom.fDisconnect = true;
-        return;
-    }
-    // Pruned nodes may have deleted the block, so check whether
-    // it's available before trying to send.
-    if (!(pindex->nStatus & BLOCK_HAVE_DATA)) {
-        return;
-    }
+
     std::shared_ptr<const CBlock> pblock;
     if (a_recent_block && a_recent_block->GetHash() == pindex->GetBlockHash()) {
         pblock = a_recent_block;
@@ -2372,16 +2488,28 @@ void PeerManagerImpl::ProcessGetBlockData(CNode& pfrom, Peer& peer, const CInv& 
         // Fast-path: in this case it is possible to serve the block directly from disk,
         // as the network format matches the format on disk
         std::vector<uint8_t> block_data;
-        if (!m_chainman.m_blockman.ReadRawBlockFromDisk(block_data, pindex->GetBlockPos())) {
-            assert(!"cannot load block from disk");
+        if (!m_chainman.m_blockman.ReadRawBlockFromDisk(block_data, block_pos)) {
+            if (WITH_LOCK(m_chainman.GetMutex(), return m_chainman.m_blockman.IsBlockPruned(*pindex))) {
+                LogPrint(BCLog::NET, "Block was pruned before it could be read, disconnect peer=%s\n", pfrom.GetId());
+            } else {
+                LogError("Cannot load block from disk, disconnect peer=%d\n", pfrom.GetId());
+            }
+            pfrom.fDisconnect = true;
+            return;
         }
         MakeAndPushMessage(pfrom, NetMsgType::BLOCK, Span{block_data});
         // Don't set pblock as we've sent the block
     } else {
         // Send block from disk
         std::shared_ptr<CBlock> pblockRead = std::make_shared<CBlock>();
-        if (!m_chainman.m_blockman.ReadBlockFromDisk(*pblockRead, *pindex)) {
-            assert(!"cannot load block from disk");
+        if (!m_chainman.m_blockman.ReadBlockFromDisk(*pblockRead, block_pos)) {
+            if (WITH_LOCK(m_chainman.GetMutex(), return m_chainman.m_blockman.IsBlockPruned(*pindex))) {
+                LogPrint(BCLog::NET, "Block was pruned before it could be read, disconnect peer=%s\n", pfrom.GetId());
+            } else {
+                LogError("Cannot load block from disk, disconnect peer=%d\n", pfrom.GetId());
+            }
+            pfrom.fDisconnect = true;
+            return;
         }
         pblock = pblockRead;
     }
@@ -2419,11 +2547,11 @@ void PeerManagerImpl::ProcessGetBlockData(CNode& pfrom, Peer& peer, const CInv& 
             // they won't have a useful mempool to match against a compact block,
             // and we don't feel like constructing the object for them, so
             // instead we respond with the full, non-compact block.
-            if (CanDirectFetch() && pindex->nHeight >= m_chainman.ActiveChain().Height() - MAX_CMPCTBLOCK_DEPTH) {
+            if (can_direct_fetch && pindex->nHeight >= tip->nHeight - MAX_CMPCTBLOCK_DEPTH) {
                 if (a_recent_compact_block && a_recent_compact_block->header.GetHash() == pindex->GetBlockHash()) {
                     MakeAndPushMessage(pfrom, NetMsgType::CMPCTBLOCK, *a_recent_compact_block);
                 } else {
-                    CBlockHeaderAndShortTxIDs cmpctblock{*pblock};
+                    CBlockHeaderAndShortTxIDs cmpctblock{*pblock, GetRand<uint64_t>()};
                     MakeAndPushMessage(pfrom, NetMsgType::CMPCTBLOCK, cmpctblock);
                 }
             } else {
@@ -2440,7 +2568,7 @@ void PeerManagerImpl::ProcessGetBlockData(CNode& pfrom, Peer& peer, const CInv& 
             // and we want it right after the last block so they don't
             // wait for other stuff first.
             std::vector<CInv> vInv;
-            vInv.emplace_back(MSG_BLOCK, m_chainman.ActiveChain().Tip()->GetBlockHash());
+            vInv.emplace_back(MSG_BLOCK, tip->GetBlockHash());
             MakeAndPushMessage(pfrom, NetMsgType::INV, vInv);
             peer.m_continuation_block.SetNull();
         }
@@ -3097,7 +3225,14 @@ void PeerManagerImpl::ProcessInvalidTx(NodeId nodeid, const CTransactionRef& ptx
         // See also comments in https://github.com/bitcoin/bitcoin/pull/18044#discussion_r443419034
         // for concerns around weakening security of unupgraded nodes
         // if we start doing this too early.
-        m_recent_rejects.insert(ptx->GetWitnessHash().ToUint256());
+        if (state.GetResult() == TxValidationResult::TX_RECONSIDERABLE) {
+            // If the result is TX_RECONSIDERABLE, add it to m_recent_rejects_reconsiderable
+            // because we should not download or submit this transaction by itself again, but may
+            // submit it as part of a package later.
+            m_recent_rejects_reconsiderable.insert(ptx->GetWitnessHash().ToUint256());
+        } else {
+            m_recent_rejects.insert(ptx->GetWitnessHash().ToUint256());
+        }
         m_txrequest.ForgetTxHash(ptx->GetWitnessHash());
         // If the transaction failed for TX_INPUTS_NOT_STANDARD,
         // then we know that the witness was irrelevant to the policy
@@ -3107,6 +3242,8 @@ void PeerManagerImpl::ProcessInvalidTx(NodeId nodeid, const CTransactionRef& ptx
         // processing of this transaction in the event that child
         // transactions are later received (resulting in
         // parent-fetching by txid via the orphan-handling logic).
+        // We only add the txid if it differs from the wtxid, to avoid wasting entries in the
+        // rolling bloom filter.
         if (state.GetResult() == TxValidationResult::TX_INPUTS_NOT_STANDARD && ptx->HasWitness()) {
             m_recent_rejects.insert(ptx->GetHash().ToUint256());
             m_txrequest.ForgetTxHash(ptx->GetHash());
@@ -3120,7 +3257,7 @@ void PeerManagerImpl::ProcessInvalidTx(NodeId nodeid, const CTransactionRef& ptx
 
     // If the tx failed in ProcessOrphanTx, it should be removed from the orphanage unless the
     // tx was still missing inputs. If the tx was not in the orphanage, EraseTx does nothing and returns 0.
-    if (Assume(state.GetResult() != TxValidationResult::TX_MISSING_INPUTS) && m_orphanage.EraseTx(ptx->GetHash()) > 0) {
+    if (Assume(state.GetResult() != TxValidationResult::TX_MISSING_INPUTS) && m_orphanage.EraseTx(ptx->GetWitnessHash()) > 0) {
         LogDebug(BCLog::TXPACKAGES, "   removed orphan tx %s (wtxid=%s)\n", ptx->GetHash().ToString(), ptx->GetWitnessHash().ToString());
     }
 }
@@ -3138,7 +3275,7 @@ void PeerManagerImpl::ProcessValidTx(NodeId nodeid, const CTransactionRef& tx, c
 
     m_orphanage.AddChildrenToWorkSet(*tx);
     // If it came from the orphanage, remove it. No-op if the tx is not in txorphanage.
-    m_orphanage.EraseTx(tx->GetHash());
+    m_orphanage.EraseTx(tx->GetWitnessHash());
 
     LogDebug(BCLog::MEMPOOL, "AcceptToMemoryPool: peer=%d: accepted %s (wtxid=%s) (poolsz %u txn, %u kB)\n",
              nodeid,
@@ -3151,6 +3288,116 @@ void PeerManagerImpl::ProcessValidTx(NodeId nodeid, const CTransactionRef& tx, c
     for (const CTransactionRef& removedTx : replaced_transactions) {
         AddToCompactExtraTransactions(removedTx);
     }
+}
+
+void PeerManagerImpl::ProcessPackageResult(const PackageToValidate& package_to_validate, const PackageMempoolAcceptResult& package_result)
+{
+    AssertLockNotHeld(m_peer_mutex);
+    AssertLockHeld(g_msgproc_mutex);
+    AssertLockHeld(cs_main);
+
+    const auto& package = package_to_validate.m_txns;
+    const auto& senders = package_to_validate.m_senders;
+
+    if (package_result.m_state.IsInvalid()) {
+        m_recent_rejects_reconsiderable.insert(GetPackageHash(package));
+    }
+    // We currently only expect to process 1-parent-1-child packages. Remove if this changes.
+    if (!Assume(package.size() == 2)) return;
+
+    // Iterate backwards to erase in-package descendants from the orphanage before they become
+    // relevant in AddChildrenToWorkSet.
+    auto package_iter = package.rbegin();
+    auto senders_iter = senders.rbegin();
+    while (package_iter != package.rend()) {
+        const auto& tx = *package_iter;
+        const NodeId nodeid = *senders_iter;
+        const auto it_result{package_result.m_tx_results.find(tx->GetWitnessHash())};
+
+        // It is not guaranteed that a result exists for every transaction.
+        if (it_result != package_result.m_tx_results.end()) {
+            const auto& tx_result = it_result->second;
+            switch (tx_result.m_result_type) {
+                case MempoolAcceptResult::ResultType::VALID:
+                {
+                    ProcessValidTx(nodeid, tx, tx_result.m_replaced_transactions);
+                    break;
+                }
+                case MempoolAcceptResult::ResultType::INVALID:
+                case MempoolAcceptResult::ResultType::DIFFERENT_WITNESS:
+                {
+                    // Don't add to vExtraTxnForCompact, as these transactions should have already been
+                    // added there when added to the orphanage or rejected for TX_RECONSIDERABLE.
+                    // This should be updated if package submission is ever used for transactions
+                    // that haven't already been validated before.
+                    ProcessInvalidTx(nodeid, tx, tx_result.m_state, /*maybe_add_extra_compact_tx=*/false);
+                    break;
+                }
+                case MempoolAcceptResult::ResultType::MEMPOOL_ENTRY:
+                {
+                    // AlreadyHaveTx() should be catching transactions that are already in mempool.
+                    Assume(false);
+                    break;
+                }
+            }
+        }
+        package_iter++;
+        senders_iter++;
+    }
+}
+
+std::optional<PeerManagerImpl::PackageToValidate> PeerManagerImpl::Find1P1CPackage(const CTransactionRef& ptx, NodeId nodeid)
+{
+    AssertLockNotHeld(m_peer_mutex);
+    AssertLockHeld(g_msgproc_mutex);
+    AssertLockHeld(cs_main);
+
+    const auto& parent_wtxid{ptx->GetWitnessHash()};
+
+    Assume(m_recent_rejects_reconsiderable.contains(parent_wtxid.ToUint256()));
+
+    // Prefer children from this peer. This helps prevent censorship attempts in which an attacker
+    // sends lots of fake children for the parent, and we (unluckily) keep selecting the fake
+    // children instead of the real one provided by the honest peer.
+    const auto cpfp_candidates_same_peer{m_orphanage.GetChildrenFromSamePeer(ptx, nodeid)};
+
+    // These children should be sorted from newest to oldest. In the (probably uncommon) case
+    // of children that replace each other, this helps us accept the highest feerate (probably the
+    // most recent) one efficiently.
+    for (const auto& child : cpfp_candidates_same_peer) {
+        Package maybe_cpfp_package{ptx, child};
+        if (!m_recent_rejects_reconsiderable.contains(GetPackageHash(maybe_cpfp_package))) {
+            return PeerManagerImpl::PackageToValidate{ptx, child, nodeid, nodeid};
+        }
+    }
+
+    // If no suitable candidate from the same peer is found, also try children that were provided by
+    // a different peer. This is useful because sometimes multiple peers announce both transactions
+    // to us, and we happen to download them from different peers (we wouldn't have known that these
+    // 2 transactions are related). We still want to find 1p1c packages then.
+    //
+    // If we start tracking all announcers of orphans, we can restrict this logic to parent + child
+    // pairs in which both were provided by the same peer, i.e. delete this step.
+    const auto cpfp_candidates_different_peer{m_orphanage.GetChildrenFromDifferentPeer(ptx, nodeid)};
+
+    // Find the first 1p1c that hasn't already been rejected. We randomize the order to not
+    // create a bias that attackers can use to delay package acceptance.
+    //
+    // Create a random permutation of the indices.
+    std::vector<size_t> tx_indices(cpfp_candidates_different_peer.size());
+    std::iota(tx_indices.begin(), tx_indices.end(), 0);
+    Shuffle(tx_indices.begin(), tx_indices.end(), m_rng);
+
+    for (const auto index : tx_indices) {
+        // If we already tried a package and failed for any reason, the combined hash was
+        // cached in m_recent_rejects_reconsiderable.
+        const auto [child_tx, child_sender] = cpfp_candidates_different_peer.at(index);
+        Package maybe_cpfp_package{ptx, child_tx};
+        if (!m_recent_rejects_reconsiderable.contains(GetPackageHash(maybe_cpfp_package))) {
+            return PeerManagerImpl::PackageToValidate{ptx, child_tx, nodeid, child_sender};
+        }
+    }
+    return std::nullopt;
 }
 
 bool PeerManagerImpl::ProcessOrphanTx(Peer& peer)
@@ -3168,9 +3415,7 @@ bool PeerManagerImpl::ProcessOrphanTx(Peer& peer)
 
         if (result.m_result_type == MempoolAcceptResult::ResultType::VALID) {
             LogPrint(BCLog::TXPACKAGES, "   accepted orphan tx %s (wtxid=%s)\n", orphanHash.ToString(), orphan_wtxid.ToString());
-            Assume(result.m_replaced_transactions.has_value());
-            std::list<CTransactionRef> empty_replacement_list;
-            ProcessValidTx(peer.m_id, porphanTx, result.m_replaced_transactions.value_or(empty_replacement_list));
+            ProcessValidTx(peer.m_id, porphanTx, result.m_replaced_transactions);
             return true;
         } else if (state.GetResult() != TxValidationResult::TX_MISSING_INPUTS) {
             LogPrint(BCLog::TXPACKAGES, "   invalid orphan tx %s (wtxid=%s) from peer=%d. %s\n",
@@ -3666,12 +3911,12 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
                   peer->m_starting_height, addrMe.ToStringAddrPort(), fRelay, pfrom.GetId(),
                   remoteAddr, (mapped_as ? strprintf(", mapped_as=%d", mapped_as) : ""));
 
-        int64_t nTimeOffset = nTime - GetTime();
-        pfrom.nTimeOffset = nTimeOffset;
+        peer->m_time_offset = NodeSeconds{std::chrono::seconds{nTime}} - Now<NodeSeconds>();
         if (!pfrom.IsInboundConn()) {
             // Don't use timedata samples from inbound peers to make it
-            // harder for others to tamper with our adjusted time.
-            AddTimeData(pfrom.addr, nTimeOffset);
+            // harder for others to create false warnings about our clock being out of sync.
+            m_outbound_time_offsets.Add(peer->m_time_offset);
+            m_outbound_time_offsets.WarnIfOutOfSync();
         }
 
         // If the peer is old enough to have the old alert system, send it the final alert.
@@ -4013,7 +4258,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
                     return;
                 }
                 const GenTxid gtxid = ToGenTxid(inv);
-                const bool fAlreadyHave = AlreadyHaveTx(gtxid);
+                const bool fAlreadyHave = AlreadyHaveTx(gtxid, /*include_reconsiderable=*/true);
                 LogPrint(BCLog::NET, "got inv: %s  %s peer=%d\n", inv.ToString(), fAlreadyHave ? "have" : "new", pfrom.GetId());
 
                 AddKnownTx(*peer, inv.hash);
@@ -4162,6 +4407,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
             return;
         }
 
+        FlatFilePos block_pos{};
         {
             LOCK(cs_main);
 
@@ -4172,13 +4418,19 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
             }
 
             if (pindex->nHeight >= m_chainman.ActiveChain().Height() - MAX_BLOCKTXN_DEPTH) {
-                CBlock block;
-                const bool ret{m_chainman.m_blockman.ReadBlockFromDisk(block, *pindex)};
-                assert(ret);
-
-                SendBlockTransactions(pfrom, *peer, block, req);
-                return;
+                block_pos = pindex->GetBlockPos();
             }
+        }
+
+        if (!block_pos.IsNull()) {
+            CBlock block;
+            const bool ret{m_chainman.m_blockman.ReadBlockFromDisk(block, block_pos)};
+            // If height is above MAX_BLOCKTXN_DEPTH then this block cannot get
+            // pruned after we release cs_main above, so this read should never fail.
+            assert(ret);
+
+            SendBlockTransactions(pfrom, *peer, block, req);
+            return;
         }
 
         // If an older block is requested (should never happen in practice,
@@ -4318,7 +4570,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         // already; and an adversary can already relay us old transactions
         // (older than our recency filter) if trying to DoS us, without any need
         // for witness malleation.
-        if (AlreadyHaveTx(GenTxid::Wtxid(wtxid))) {
+        if (AlreadyHaveTx(GenTxid::Wtxid(wtxid), /*include_reconsiderable=*/true)) {
             if (pfrom.HasPermission(NetPermissionFlags::ForceRelay)) {
                 // Always relay transactions received from peers with forcerelay
                 // permission, even if they were already in the mempool, allowing
@@ -4330,6 +4582,20 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
                     LogPrintf("Force relaying tx %s (wtxid=%s) from peer=%d\n",
                               tx.GetHash().ToString(), tx.GetWitnessHash().ToString(), pfrom.GetId());
                     RelayTransaction(tx.GetHash(), tx.GetWitnessHash());
+                }
+            }
+
+            if (m_recent_rejects_reconsiderable.contains(wtxid)) {
+                // When a transaction is already in m_recent_rejects_reconsiderable, we shouldn't submit
+                // it by itself again. However, look for a matching child in the orphanage, as it is
+                // possible that they succeed as a package.
+                LogPrint(BCLog::TXPACKAGES, "found tx %s (wtxid=%s) in reconsiderable rejects, looking for child in orphanage\n",
+                         txid.ToString(), wtxid.ToString());
+                if (auto package_to_validate{Find1P1CPackage(ptx, pfrom.GetId())}) {
+                    const auto package_result{ProcessNewPackage(m_chainman.ActiveChainstate(), m_mempool, package_to_validate->m_txns, /*test_accept=*/false, /*client_maxfeerate=*/std::nullopt)};
+                    LogDebug(BCLog::TXPACKAGES, "package evaluation for %s: %s\n", package_to_validate->ToString(),
+                             package_result.m_state.IsValid() ? "package accepted" : "package rejected");
+                    ProcessPackageResult(package_to_validate.value(), package_result);
                 }
             }
             // If a tx is detected by m_recent_rejects it is ignored. Because we haven't
@@ -4354,7 +4620,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         const TxValidationState& state = result.m_state;
 
         if (result.m_result_type == MempoolAcceptResult::ResultType::VALID) {
-            ProcessValidTx(pfrom.GetId(), ptx, result.m_replaced_transactions.value());
+            ProcessValidTx(pfrom.GetId(), ptx, result.m_replaced_transactions);
             pfrom.m_last_tx_time = GetTime<std::chrono::seconds>();
         }
         else if (state.GetResult() == TxValidationResult::TX_MISSING_INPUTS)
@@ -4371,10 +4637,23 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
             }
             std::sort(unique_parents.begin(), unique_parents.end());
             unique_parents.erase(std::unique(unique_parents.begin(), unique_parents.end()), unique_parents.end());
+
+            // Distinguish between parents in m_recent_rejects and m_recent_rejects_reconsiderable.
+            // We can tolerate having up to 1 parent in m_recent_rejects_reconsiderable since we
+            // submit 1p1c packages. However, fail immediately if any are in m_recent_rejects.
+            std::optional<uint256> rejected_parent_reconsiderable;
             for (const uint256& parent_txid : unique_parents) {
                 if (m_recent_rejects.contains(parent_txid)) {
                     fRejectedParents = true;
                     break;
+                } else if (m_recent_rejects_reconsiderable.contains(parent_txid) && !m_mempool.exists(GenTxid::Txid(parent_txid))) {
+                    // More than 1 parent in m_recent_rejects_reconsiderable: 1p1c will not be
+                    // sufficient to accept this package, so just give up here.
+                    if (rejected_parent_reconsiderable.has_value()) {
+                        fRejectedParents = true;
+                        break;
+                    }
+                    rejected_parent_reconsiderable = parent_txid;
                 }
             }
             if (!fRejectedParents) {
@@ -4388,7 +4667,9 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
                     // protocol for getting all unconfirmed parents.
                     const auto gtxid{GenTxid::Txid(parent_txid)};
                     AddKnownTx(*peer, parent_txid);
-                    if (!AlreadyHaveTx(gtxid)) AddTxAnnouncement(pfrom, gtxid, current_time);
+                    // Exclude m_recent_rejects_reconsiderable: the missing parent may have been
+                    // previously rejected for being too low feerate. This orphan might CPFP it.
+                    if (!AlreadyHaveTx(gtxid, /*include_reconsiderable=*/false)) AddTxAnnouncement(pfrom, gtxid, current_time);
                 }
 
                 if (m_orphanage.AddTx(ptx, pfrom.GetId())) {
@@ -4420,6 +4701,19 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         if (state.IsInvalid()) {
             ProcessInvalidTx(pfrom.GetId(), ptx, state, /*maybe_add_extra_compact_tx=*/true);
         }
+        // When a transaction fails for TX_RECONSIDERABLE, look for a matching child in the
+        // orphanage, as it is possible that they succeed as a package.
+        if (state.GetResult() == TxValidationResult::TX_RECONSIDERABLE) {
+            LogPrint(BCLog::TXPACKAGES, "tx %s (wtxid=%s) failed but reconsiderable, looking for child in orphanage\n",
+                     txid.ToString(), wtxid.ToString());
+            if (auto package_to_validate{Find1P1CPackage(ptx, pfrom.GetId())}) {
+                const auto package_result{ProcessNewPackage(m_chainman.ActiveChainstate(), m_mempool, package_to_validate->m_txns, /*test_accept=*/false, /*client_maxfeerate=*/std::nullopt)};
+                LogDebug(BCLog::TXPACKAGES, "package evaluation for %s: %s\n", package_to_validate->ToString(),
+                         package_result.m_state.IsValid() ? "package accepted" : "package rejected");
+                ProcessPackageResult(package_to_validate.value(), package_result);
+            }
+        }
+
         return;
     }
 
@@ -4951,7 +5245,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
         std::vector<unsigned char> vData;
         vRecv >> vData;
 
-        // Nodes must NEVER send a data item > 520 bytes (the max size for a script data object,
+        // Nodes must NEVER send a data item > MAX_SCRIPT_ELEMENT_SIZE bytes (the max size for a script data object,
         // and thus, the maximum size any matched object can have) in a filteradd message
         bool bad = false;
         if (vData.size() > MAX_SCRIPT_ELEMENT_SIZE) {
@@ -5165,16 +5459,19 @@ void PeerManagerImpl::ConsiderEviction(CNode& pto, Peer& peer, std::chrono::seco
         // unless it's invalid, in which case we should find that out and
         // disconnect from them elsewhere).
         if (state.pindexBestKnownBlock != nullptr && state.pindexBestKnownBlock->nChainWork >= m_chainman.ActiveChain().Tip()->nChainWork) {
+            // The outbound peer has sent us a block with at least as much work as our current tip, so reset the timeout if it was set
             if (state.m_chain_sync.m_timeout != 0s) {
                 state.m_chain_sync.m_timeout = 0s;
                 state.m_chain_sync.m_work_header = nullptr;
                 state.m_chain_sync.m_sent_getheaders = false;
             }
         } else if (state.m_chain_sync.m_timeout == 0s || (state.m_chain_sync.m_work_header != nullptr && state.pindexBestKnownBlock != nullptr && state.pindexBestKnownBlock->nChainWork >= state.m_chain_sync.m_work_header->nChainWork)) {
-            // Our best block known by this peer is behind our tip, and we're either noticing
-            // that for the first time, OR this peer was able to catch up to some earlier point
-            // where we checked against our tip.
-            // Either way, set a new timeout based on current tip.
+            // At this point we know that the outbound peer has either never sent us a block/header or they have, but its tip is behind ours
+            // AND
+            // we are noticing this for the first time (m_timeout is 0)
+            // OR we noticed this at some point within the last CHAIN_SYNC_TIMEOUT + HEADERS_RESPONSE_TIME seconds and set a timeout
+            // for them, they caught up to our tip at the time of setting the timer but not to our current one (we've also advanced).
+            // Either way, set a new timeout based on our current tip.
             state.m_chain_sync.m_timeout = time_in_seconds + CHAIN_SYNC_TIMEOUT;
             state.m_chain_sync.m_work_header = m_chainman.ActiveChain().Tip();
             state.m_chain_sync.m_sent_getheaders = false;
@@ -5496,7 +5793,7 @@ void PeerManagerImpl::MaybeSendFeefilter(CNode& pto, Peer& peer, std::chrono::mi
     if (current_time > peer.m_next_send_feefilter) {
         CAmount filterToSend = m_fee_filter_rounder.round(currentFilter);
         // We always have a fee filter of at least the min relay fee
-        filterToSend = std::max(filterToSend, m_mempool.m_min_relay_feerate.GetFeePerK());
+        filterToSend = std::max(filterToSend, m_mempool.m_opts.min_relay_feerate.GetFeePerK());
         if (filterToSend != peer.m_fee_filter_sent) {
             MakeAndPushMessage(pto, NetMsgType::FEEFILTER, filterToSend);
             peer.m_fee_filter_sent = filterToSend;
@@ -5738,7 +6035,7 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
                         CBlock block;
                         const bool ret{m_chainman.m_blockman.ReadBlockFromDisk(block, *pBestIndex)};
                         assert(ret);
-                        CBlockHeaderAndShortTxIDs cmpctblock{block};
+                        CBlockHeaderAndShortTxIDs cmpctblock{block, GetRand<uint64_t>()};
                         MakeAndPushMessage(*pto, NetMsgType::CMPCTBLOCK, cmpctblock);
                     }
                     state.pindexBestHeaderSent = pBestIndex;
@@ -5998,10 +6295,13 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
             // before the background chainstate to prioritize getting to network tip.
             FindNextBlocksToDownload(*peer, get_inflight_budget(), vToDownload, staller);
             if (m_chainman.BackgroundSyncInProgress() && !IsLimitedPeer(*peer)) {
+                // If the background tip is not an ancestor of the snapshot block,
+                // we need to start requesting blocks from their last common ancestor.
+                const CBlockIndex *from_tip = LastCommonAncestor(m_chainman.GetBackgroundSyncTip(), m_chainman.GetSnapshotBaseBlock());
                 TryDownloadingHistoricalBlocks(
                     *peer,
                     get_inflight_budget(),
-                    vToDownload, m_chainman.GetBackgroundSyncTip(),
+                    vToDownload, from_tip,
                     Assert(m_chainman.GetSnapshotBaseBlock()));
             }
             for (const CBlockIndex *pindex : vToDownload) {
@@ -6029,7 +6329,9 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
                 entry.second.GetHash().ToString(), entry.first);
         }
         for (const GenTxid& gtxid : requestable) {
-            if (!AlreadyHaveTx(gtxid)) {
+            // Exclude m_recent_rejects_reconsiderable: we may be requesting a missing parent
+            // that was previously rejected for being too low feerate.
+            if (!AlreadyHaveTx(gtxid, /*include_reconsiderable=*/false)) {
                 LogPrint(BCLog::NET, "Requesting %s %s peer=%d\n", gtxid.IsWtxid() ? "wtx" : "tx",
                     gtxid.GetHash().ToString(), pto->GetId());
                 vGetData.emplace_back(gtxid.IsWtxid() ? MSG_WTX : (MSG_TX | GetFetchFlags(*peer)), gtxid.GetHash());

@@ -3,15 +3,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
+#include <config/BGL-config.h> // IWYU pragma: keep
 
 #include <chainparamsbase.h>
 #include <clientversion.h>
 #include <common/args.h>
 #include <common/system.h>
-#include <common/url.h>
 #include <compat/compat.h>
 #include <compat/stdin.h>
 #include <policy/feerate.h>
@@ -45,13 +42,15 @@
 #include <event2/keyvalq_struct.h>
 #include <support/events.h>
 
+using util::Join;
+using util::ToString;
+
 // The server returns time values from a mockable system clock, but it is not
 // trivial to get the mocked time from the server, nor is it needed for now, so
 // just use a plain system_clock.
 using CliClock = std::chrono::system_clock;
 
 const std::function<std::string(const char*)> G_TRANSLATION_FUN = nullptr;
-UrlDecodeFn* const URL_DECODE = urlDecode;
 
 static const char DEFAULT_RPCCONNECT[] = "127.0.0.1";
 static const int DEFAULT_HTTP_CLIENT_TIMEOUT=900;
@@ -260,11 +259,10 @@ public:
 class AddrinfoRequestHandler : public BaseRequestHandler
 {
 private:
-    static constexpr std::array m_networks{"ipv4", "ipv6", "onion", "i2p"};
     int8_t NetworkStringToId(const std::string& str) const
     {
-        for (size_t i = 0; i < m_networks.size(); ++i) {
-            if (str == m_networks.at(i)) return i;
+        for (size_t i = 0; i < NETWORKS.size(); ++i) {
+            if (str == NETWORKS[i]) return i;
         }
         return UNKNOWN_NETWORK;
     }
@@ -287,7 +285,7 @@ public:
             throw std::runtime_error("-addrinfo requires BGLd server to be running v22.0 and up");
         }
         // Count the number of peers known to our node, by network.
-        std::array<uint64_t, m_networks.size()> counts{{}};
+        std::array<uint64_t, NETWORKS.size()> counts{{}};
         for (const UniValue& node : nodes) {
             std::string network_name{node["network"].get_str()};
             const int8_t network_id{NetworkStringToId(network_name)};
@@ -302,8 +300,8 @@ public:
             total += counts.at(i);
         }
         addresses.pushKV("total", total);
-        result.pushKV("addresses_known", addresses);
-        return JSONRPCReplyObj(result, NullUniValue, 1);
+        result.pushKV("addresses_known", std::move(addresses));
+        return JSONRPCReplyObj(std::move(result), NullUniValue, /*id=*/1, JSONRPCVersion::V2);
     }
 };
 
@@ -353,7 +351,7 @@ public:
         connections.pushKV("in", batch[ID_NETWORKINFO]["result"]["connections_in"]);
         connections.pushKV("out", batch[ID_NETWORKINFO]["result"]["connections_out"]);
         connections.pushKV("total", batch[ID_NETWORKINFO]["result"]["connections"]);
-        result.pushKV("connections", connections);
+        result.pushKV("connections", std::move(connections));
 
         result.pushKV("networks", batch[ID_NETWORKINFO]["result"]["networks"]);
         result.pushKV("difficulty", batch[ID_BLOCKCHAININFO]["result"]["difficulty"]);
@@ -372,7 +370,7 @@ public:
         }
         result.pushKV("relayfee", batch[ID_NETWORKINFO]["result"]["relayfee"]);
         result.pushKV("warnings", batch[ID_NETWORKINFO]["result"]["warnings"]);
-        return JSONRPCReplyObj(result, NullUniValue, 1);
+        return JSONRPCReplyObj(std::move(result), NullUniValue,  /*id=*/1, JSONRPCVersion::V2);
     }
 };
 
@@ -381,14 +379,13 @@ class NetinfoRequestHandler : public BaseRequestHandler
 {
 private:
     static constexpr uint8_t MAX_DETAIL_LEVEL{4};
-    static constexpr std::array m_networks{"ipv4", "ipv6", "onion", "i2p"};
-    std::array<std::array<uint16_t, m_networks.size() + 1>, 3> m_counts{{{}}}; //!< Peer counts by (in/out/total, networks/total)
+    std::array<std::array<uint16_t, NETWORKS.size() + 1>, 3> m_counts{{{}}}; //!< Peer counts by (in/out/total, networks/total)
     uint8_t m_block_relay_peers_count{0};
     uint8_t m_manual_peers_count{0};
     int8_t NetworkStringToId(const std::string& str) const
     {
-        for (size_t i = 0; i < m_networks.size(); ++i) {
-            if (str == m_networks.at(i)) return i;
+        for (size_t i = 0; i < NETWORKS.size(); ++i) {
+            if (str == NETWORKS[i]) return i;
         }
         return UNKNOWN_NETWORK;
     }
@@ -497,10 +494,10 @@ public:
             const bool is_outbound{!peer["inbound"].get_bool()};
             const bool is_tx_relay{peer["relaytxes"].isNull() ? true : peer["relaytxes"].get_bool()};
             const std::string conn_type{peer["connection_type"].get_str()};
-            ++m_counts.at(is_outbound).at(network_id);        // in/out by network
-            ++m_counts.at(is_outbound).at(m_networks.size()); // in/out overall
-            ++m_counts.at(2).at(network_id);                  // total by network
-            ++m_counts.at(2).at(m_networks.size());           // total overall
+            ++m_counts.at(is_outbound).at(network_id);      // in/out by network
+            ++m_counts.at(is_outbound).at(NETWORKS.size()); // in/out overall
+            ++m_counts.at(2).at(network_id);                // total by network
+            ++m_counts.at(2).at(NETWORKS.size());           // total overall
             if (conn_type == "block-relay-only") ++m_block_relay_peers_count;
             if (conn_type == "manual") ++m_manual_peers_count;
             if (DetailsRequested()) {
@@ -553,7 +550,7 @@ public:
                     peer.is_outbound ? "out" : "in",
                     ConnectionTypeForNetinfo(peer.conn_type),
                     peer.network,
-                    peer.transport_protocol_type.starts_with('v') ? peer.transport_protocol_type[1] : ' ',
+                    (peer.transport_protocol_type.size() == 2 && peer.transport_protocol_type[0] == 'v') ? peer.transport_protocol_type[1] : ' ',
                     PingTimeToString(peer.min_ping),
                     PingTimeToString(peer.ping),
                     peer.last_send ? ToString(time_now - peer.last_send) : "",
@@ -606,7 +603,7 @@ public:
             for (int8_t n : reachable_networks) {
                 result += strprintf("%8i", m_counts.at(i).at(n)); // network peers count
             }
-            result += strprintf("   %5i", m_counts.at(i).at(m_networks.size())); // total peers count
+            result += strprintf("   %5i", m_counts.at(i).at(NETWORKS.size())); // total peers count
             if (i == 1) { // the outbound row has two extra columns for block relay and manual peer counts
                 result += strprintf("   %5i", m_block_relay_peers_count);
                 if (m_manual_peers_count) result += strprintf("   %5i", m_manual_peers_count);
@@ -628,7 +625,7 @@ public:
             }
         }
 
-        return JSONRPCReplyObj(UniValue{result}, NullUniValue, 1);
+        return JSONRPCReplyObj(UniValue{result}, NullUniValue, /*id=*/1, JSONRPCVersion::V2);
     }
 
     const std::string m_help_doc{
@@ -715,7 +712,7 @@ public:
         UniValue result(UniValue::VOBJ);
         result.pushKV("address", address_str);
         result.pushKV("blocks", reply.get_obj()["result"]);
-        return JSONRPCReplyObj(result, NullUniValue, 1);
+        return JSONRPCReplyObj(std::move(result), NullUniValue, /*id=*/1, JSONRPCVersion::V2);
     }
 protected:
     std::string address_str;
@@ -749,8 +746,41 @@ static UniValue CallRPC(BaseRequestHandler* rh, const std::string& strMethod, co
     //     2. port in -rpcconnect (ie following : in ipv4 or ]: in ipv6)
     //     3. default port for chain
     uint16_t port{BaseParams().RPCPort()};
-    SplitHostPort(gArgs.GetArg("-rpcconnect", DEFAULT_RPCCONNECT), port, host);
-    port = static_cast<uint16_t>(gArgs.GetIntArg("-rpcport", port));
+    {
+        uint16_t rpcconnect_port{0};
+        const std::string rpcconnect_str = gArgs.GetArg("-rpcconnect", DEFAULT_RPCCONNECT);
+        if (!SplitHostPort(rpcconnect_str, rpcconnect_port, host)) {
+            // Uses argument provided as-is
+            // (rather than value parsed)
+            // to aid the user in troubleshooting
+            throw std::runtime_error(strprintf("Invalid port provided in -rpcconnect: %s", rpcconnect_str));
+        } else {
+            if (rpcconnect_port != 0) {
+                // Use the valid port provided in rpcconnect
+                port = rpcconnect_port;
+            } // else, no port was provided in rpcconnect (continue using default one)
+        }
+
+        if (std::optional<std::string> rpcport_arg = gArgs.GetArg("-rpcport")) {
+            // -rpcport was specified
+            const uint16_t rpcport_int{ToIntegral<uint16_t>(rpcport_arg.value()).value_or(0)};
+            if (rpcport_int == 0) {
+                // Uses argument provided as-is
+                // (rather than value parsed)
+                // to aid the user in troubleshooting
+                throw std::runtime_error(strprintf("Invalid port provided in -rpcport: %s", rpcport_arg.value()));
+            }
+
+            // Use the valid port provided
+            port = rpcport_int;
+
+            // If there was a valid port provided in rpcconnect,
+            // rpcconnect_port is non-zero.
+            if (rpcconnect_port != 0) {
+                tfm::format(std::cerr, "Warning: Port specified in both -rpcconnect and -rpcport. Using -rpcport %u\n", port);
+            }
+        }
+    }
 
     // Obtain event base
     raii_event_base base = obtain_event_base();
@@ -829,7 +859,10 @@ static UniValue CallRPC(BaseRequestHandler* rh, const std::string& strMethod, co
         if (response.error != -1) {
             responseErrorMessage = strprintf(" (error code %d - \"%s\")", response.error, http_errorstring(response.error));
         }
-        throw CConnectionFailed(strprintf("Could not connect to the server %s:%d%s\n\nMake sure the BGLd server is running and that you are connecting to the correct RPC port.", host, port, responseErrorMessage));
+        throw CConnectionFailed(strprintf("Could not connect to the server %s:%d%s\n\n"
+                    "Make sure the BGLd server is running and that you are connecting to the correct RPC port.\n"
+                    "Use \"BGL-cli -help\" for more info.",
+                    host, port, responseErrorMessage));
     } else if (response.status == HTTP_UNAUTHORIZED) {
         if (failedToGetAuthCookie) {
             throw std::runtime_error(strprintf(
@@ -838,6 +871,8 @@ static UniValue CallRPC(BaseRequestHandler* rh, const std::string& strMethod, co
         } else {
             throw std::runtime_error("Authorization failed: Incorrect rpcuser or rpcpassword");
         }
+    } else if (response.status == HTTP_SERVICE_UNAVAILABLE) {
+        throw std::runtime_error(strprintf("Server response: %s", response.body));
     } else if (response.status >= 400 && response.status != HTTP_BAD_REQUEST && response.status != HTTP_NOT_FOUND && response.status != HTTP_INTERNAL_SERVER_ERROR)
         throw std::runtime_error(strprintf("server returned HTTP error %d", response.status));
     else if (response.body.empty())
@@ -847,7 +882,7 @@ static UniValue CallRPC(BaseRequestHandler* rh, const std::string& strMethod, co
     UniValue valReply(UniValue::VSTR);
     if (!valReply.read(response.body))
         throw std::runtime_error("couldn't parse reply from server");
-    const UniValue reply = rh->ProcessReply(valReply);
+    UniValue reply = rh->ProcessReply(valReply);
     if (reply.empty())
         throw std::runtime_error("expected reply to have result, error and id properties");
 
@@ -941,7 +976,7 @@ static void GetWalletBalances(UniValue& result)
         const UniValue& balance = getbalances.find_value("result")["mine"]["trusted"];
         balances.pushKV(wallet_name, balance);
     }
-    result.pushKV("balances", balances);
+    result.pushKV("balances", std::move(balances));
 }
 
 /**

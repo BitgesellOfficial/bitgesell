@@ -3,15 +3,13 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 //
 
-#if defined(HAVE_CONFIG_H)
-#include <config/BGL-config.h>
-#endif
+#include <config/BGL-config.h> // IWYU pragma: keep
 #include <test/util/setup_common.h>
 #include <common/run_command.h>
 #include <univalue.h>
 
 #ifdef ENABLE_EXTERNAL_SIGNER
-#include <boost/process.hpp>
+#include <util/subprocess.h>
 #endif // ENABLE_EXTERNAL_SIGNER
 
 #include <boost/test/unit_test.hpp>
@@ -27,15 +25,6 @@ BOOST_AUTO_TEST_CASE(dummy)
 
 #ifdef ENABLE_EXTERNAL_SIGNER
 
-bool checkMessage(const std::runtime_error& ex)
-{
-    // On Linux & Mac: "No such file or directory"
-    // On Windows: "The system cannot find the file specified."
-    const std::string what(ex.what());
-    BOOST_CHECK(what.find("file") != std::string::npos);
-    return true;
-}
-
 BOOST_AUTO_TEST_CASE(run_command)
 {
     {
@@ -43,20 +32,16 @@ BOOST_AUTO_TEST_CASE(run_command)
         BOOST_CHECK(result.isNull());
     }
     {
-        const UniValue result = RunCommandParseJSON("echo \"{\"success\": true}\"");
+        const UniValue result = RunCommandParseJSON("echo {\"success\": true}");
         BOOST_CHECK(result.isObject());
         const UniValue& success = result.find_value("success");
         BOOST_CHECK(!success.isNull());
         BOOST_CHECK_EQUAL(success.get_bool(), true);
     }
     {
-        // An invalid command is handled by Boost
-        const int expected_error{2};
-        BOOST_CHECK_EXCEPTION(RunCommandParseJSON("invalid_command"), boost::process::process_error, [&](const boost::process::process_error& e) {
-            BOOST_CHECK(std::string(e.what()).find("RunCommandParseJSON error:") == std::string::npos);
-            BOOST_CHECK_EQUAL(e.code().value(), expected_error);
-            return true;
-        });
+        // An invalid command is handled by cpp-subprocess
+        const std::string expected{"execve failed: "};
+        BOOST_CHECK_EXCEPTION(RunCommandParseJSON("invalid_command"), subprocess::CalledProcessError, HasReason(expected));
     }
     {
         // Return non-zero exit code, no output to stderr

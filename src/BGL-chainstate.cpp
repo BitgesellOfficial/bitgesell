@@ -16,6 +16,7 @@
 #include <kernel/checks.h>
 #include <kernel/context.h>
 #include <kernel/validation_cache_sizes.h>
+#include <kernel/warning.h>
 
 #include <consensus/validation.h>
 #include <core_io.h>
@@ -26,7 +27,9 @@
 #include <script/sigcache.h>
 #include <util/chaintype.h>
 #include <util/fs.h>
+#include <util/signalinterrupt.h>
 #include <util/task_runner.h>
+#include <util/translation.h>
 #include <validation.h>
 #include <validationinterface.h>
 
@@ -85,9 +88,13 @@ int main(int argc, char* argv[])
         {
             std::cout << "Progress: " << title.original << ", " << progress_percent << ", " << resume_possible << std::endl;
         }
-        void warning(const bilingual_str& warning) override
+        void warningSet(kernel::Warning id, const bilingual_str& message) override
         {
-            std::cout << "Warning: " << warning.original << std::endl;
+            std::cout << "Warning " << static_cast<int>(id) << " set: " << message.original << std::endl;
+        }
+        void warningUnset(kernel::Warning id) override
+        {
+            std::cout << "Warning " << static_cast<int>(id) << " unset" << std::endl;
         }
         void flushError(const bilingual_str& message) override
         {
@@ -150,7 +157,7 @@ int main(int argc, char* argv[])
     {
         LOCK(chainman.GetMutex());
         std::cout
-        << "\t" << "Reindexing: " << std::boolalpha << node::fReindex.load() << std::noboolalpha << std::endl
+        << "\t" << "Blockfiles Indexed: " << std::boolalpha << chainman.m_blockman.m_blockfiles_indexed.load() << std::noboolalpha << std::endl
         << "\t" << "Snapshot Active: " << std::boolalpha << chainman.IsSnapshotActive() << std::noboolalpha << std::endl
         << "\t" << "Active Height: " << chainman.ActiveHeight() << std::endl
         << "\t" << "Active IBD: " << std::boolalpha << chainman.IsInitialBlockDownload() << std::noboolalpha << std::endl;

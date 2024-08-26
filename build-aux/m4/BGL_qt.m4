@@ -79,18 +79,9 @@ AC_DEFUN([BGL_QT_INIT],[
 
   AC_ARG_WITH([qtdbus],
     [AS_HELP_STRING([--with-qtdbus],
-    [enable DBus support (default is yes if qt is enabled and QtDBus is found, except on Android)])],
+    [enable DBus support (default is yes if qt is enabled and QtDBus is found)])],
     [use_dbus=$withval],
     [use_dbus=auto])
-
-  dnl Android doesn't support D-Bus and certainly doesn't use it for notifications
-  case $host in
-    *android*)
-      if test "x$use_dbus" != xyes; then
-        use_dbus=no
-      fi
-    ;;
-  esac
 
   AC_SUBST(QT_TRANSLATION_DIR,$qt_translation_path)
 ])
@@ -131,17 +122,12 @@ AC_DEFUN([BGL_QT_CONFIGURE],[
       if test -d "$qt_plugin_path/accessible"; then
         QT_LIBS="$QT_LIBS -L$qt_plugin_path/accessible"
       fi
-      if test -d "$qt_plugin_path/platforms/android"; then
-        QT_LIBS="$QT_LIBS -L$qt_plugin_path/platforms/android -lqtfreetype -lEGL"
-      fi
     fi
 
-    AC_DEFINE(QT_STATICPLUGIN, 1, [Define this symbol if qt plugins are static])
-    if test "x$TARGET_OS" != xandroid; then
-      _BGL_QT_CHECK_STATIC_PLUGIN([Q_IMPORT_PLUGIN(QMinimalIntegrationPlugin)],[-lqminimal])
-      AC_DEFINE(QT_QPA_PLATFORM_MINIMAL, 1, [Define this symbol if the minimal qt platform exists])
-    fi
-    if test "x$TARGET_OS" = xwindows; then
+    AC_DEFINE([QT_STATICPLUGIN], [1], [Define this symbol if qt plugins are static])
+    _BGL_QT_CHECK_STATIC_PLUGIN([QMinimalIntegrationPlugin], [-lqminimal])
+    AC_DEFINE([QT_QPA_PLATFORM_MINIMAL], [1], [Define this symbol if the minimal qt platform exists])
+    if test "$TARGET_OS" = "windows"; then
       dnl Linking against wtsapi32 is required. See #17749 and
       dnl https://bugreports.qt.io/browse/QTBUG-27097.
       AX_CHECK_LINK_FLAG([-lwtsapi32], [QT_LIBS="$QT_LIBS -lwtsapi32"], [AC_MSG_ERROR([could not link against -lwtsapi32])])
@@ -159,9 +145,6 @@ AC_DEFUN([BGL_QT_CONFIGURE],[
       _BGL_QT_CHECK_STATIC_PLUGIN([QCocoaIntegrationPlugin], [-lqcocoa])
       _BGL_QT_CHECK_STATIC_PLUGIN([QMacStylePlugin], [-lqmacstyle])
       AC_DEFINE([QT_QPA_PLATFORM_COCOA], [1], [Define this symbol if the qt platform is cocoa])
-    elif test "$TARGET_OS" = "android"; then
-      QT_LIBS="-Wl,--export-dynamic,--undefined=JNI_OnLoad -lplugins_platforms_qtforandroid${qt_lib_suffix} -ljnigraphics -landroid -lqtfreetype${qt_lib_suffix} $QT_LIBS"
-      AC_DEFINE([QT_QPA_PLATFORM_ANDROID], [1], [Define this symbol if the qt platform is android])
     fi
   fi
   CPPFLAGS=$TEMP_CPPFLAGS
@@ -226,7 +209,7 @@ AC_DEFUN([BGL_QT_CONFIGURE],[
   BGL_QT_PATH_PROGS([LUPDATE], [lupdate-qt5 lupdate5 lupdate],$qt_bin_path, yes)
   BGL_QT_PATH_PROGS([LCONVERT], [lconvert-qt5 lconvert5 lconvert], $qt_bin_path, yes)
 
-  MOC_DEFS='-DHAVE_CONFIG_H -I$(srcdir)'
+  MOC_DEFS='-I$(srcdir)'
   case $host in
     *darwin*)
      BGL_QT_CHECK([
@@ -351,8 +334,6 @@ AC_DEFUN([_BGL_QT_CHECK_STATIC_LIBS], [
     PKG_CHECK_MODULES([QT_SERVICE], [${qt_lib_prefix}ServiceSupport${qt_lib_suffix}], [QT_LIBS="$QT_SERVICE_LIBS $QT_LIBS"])
   elif test "x$TARGET_OS" = xwindows; then
     PKG_CHECK_MODULES([QT_WINDOWSUIAUTOMATION], [${qt_lib_prefix}WindowsUIAutomationSupport${qt_lib_suffix}], [QT_LIBS="$QT_WINDOWSUIAUTOMATION_LIBS $QT_LIBS"])
-  elif test "x$TARGET_OS" = xandroid; then
-    PKG_CHECK_MODULES([QT_EGL], [${qt_lib_prefix}EglSupport], [QT_LIBS="$QT_EGL_LIBS $QT_LIBS"])
   fi
 ])
 

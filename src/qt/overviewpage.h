@@ -50,8 +50,8 @@ protected:
 
 private:
     Ui::OverviewPage *ui;
-    ClientModel *clientModel;
-    WalletModel *walletModel;
+    ClientModel* clientModel{nullptr};
+    WalletModel* walletModel{nullptr};
     bool m_privacy{false};
 
     const PlatformStyle* m_platform_style;
@@ -65,7 +65,7 @@ private Q_SLOTS:
     void handleTransactionClicked(const QModelIndex &index);
     void updateAlerts(const QString &warnings);
     void updateWatchOnlyLabels(bool showWatchOnly);
-    void setMonospacedFont(bool use_embedded_font);
+    void setMonospacedFont(const QFont&);
 };
 
 #endif // BGL_QT_OVERVIEWPAGE_H

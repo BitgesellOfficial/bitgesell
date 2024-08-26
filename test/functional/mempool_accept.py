@@ -18,6 +18,7 @@ from test_framework.messages import (
     CTxInWitness,
     CTxOut,
     MAX_BLOCK_WEIGHT,
+    WITNESS_SCALE_FACTOR,
     MAX_MONEY,
     SEQUENCE_FINAL,
     tx_from_hex,
@@ -28,6 +29,8 @@ from test_framework.script import (
     OP_HASH160,
     OP_RETURN,
     OP_TRUE,
+    SIGHASH_ALL,
+    sign_input_legacy,
 )
 from test_framework.script_util import (
     DUMMY_MIN_OP_RETURN_SCRIPT,
@@ -226,7 +229,7 @@ class MempoolAcceptanceTest(BGLTestFramework):
 
         self.log.info('A really large transaction')
         tx = tx_from_hex(raw_tx_reference)
-        tx.vin = [tx.vin[0]] * math.ceil(MAX_BLOCK_WEIGHT // 4 / len(tx.vin[0].serialize()))
+        tx.vin = [tx.vin[0]] * math.ceil((MAX_BLOCK_WEIGHT // WITNESS_SCALE_FACTOR) / len(tx.vin[0].serialize()))
         self.check_mempool_result(
             result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'bad-txns-oversize'}],
             rawtxs=[tx.serialize().hex()],
@@ -285,7 +288,7 @@ class MempoolAcceptanceTest(BGLTestFramework):
 
         self.log.info('Some nonstandard transactions')
         tx = tx_from_hex(raw_tx_reference)
-        tx.nVersion = 3  # A version currently non-standard
+        tx.version = 4  # A version currently non-standard
         self.check_mempool_result(
             result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'version'}],
             rawtxs=[tx.serialize().hex()],
@@ -383,6 +386,25 @@ class MempoolAcceptanceTest(BGLTestFramework):
         self.check_mempool_result(
             result_expected=[{'txid': tx.rehash(), 'allowed': True, 'vsize': tx.get_vsize(), 'fees': { 'base': Decimal('0.00001000')}}],
             rawtxs=[tx.serialize().hex()],
+            maxfeerate=0,
+        )
+
+        self.log.info('Spending a confirmed bare multisig is okay')
+        address = self.wallet.get_address()
+        tx = tx_from_hex(raw_tx_reference)
+        privkey, pubkey = generate_keypair()
+        tx.vout[0].scriptPubKey = keys_to_multisig_script([pubkey] * 3, k=1)  # Some bare multisig script (1-of-3)
+        tx.rehash()
+        self.generateblock(node, address, [tx.serialize().hex()])
+        tx_spend = CTransaction()
+        tx_spend.vin.append(CTxIn(COutPoint(tx.sha256, 0), b""))
+        tx_spend.vout.append(CTxOut(tx.vout[0].nValue - int(fee*COIN), script_to_p2wsh_script(CScript([OP_TRUE]))))
+        tx_spend.rehash()
+        sign_input_legacy(tx_spend, 0, tx.vout[0].scriptPubKey, privkey, sighash_type=SIGHASH_ALL)
+        tx_spend.vin[0].scriptSig = bytes(CScript([OP_0])) + tx_spend.vin[0].scriptSig
+        self.check_mempool_result(
+            result_expected=[{'txid': tx_spend.rehash(), 'allowed': True, 'vsize': tx_spend.get_vsize(), 'fees': { 'base': Decimal('0.00000700')}}],
+            rawtxs=[tx_spend.serialize().hex()],
             maxfeerate=0,
         )
 
