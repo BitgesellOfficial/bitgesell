@@ -181,8 +181,12 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
  </translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your BGLs from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Reţineti: criptarea portofelului dvs. nu vă poate proteja în totalitate BGL-urile împotriva furtului de malware care vă infectează computerul.</translation>
+        <source>Continue</source>
+        <translation type="unfinished">Continua</translation>
+    </message>
+    <message>
+        <source>Remember that encrypting your wallet cannot fully protect your bitgesells from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Reţineti: criptarea portofelului dvs. nu vă poate proteja în totalitate bitgesell-urile împotriva furtului de malware care vă infectează computerul.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -377,7 +381,11 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <source>%1 kB</source>
         <translation type="unfinished">%1kB</translation>
     </message>
-    </context>
+    <message>
+        <source>default wallet</source>
+        <translation type="unfinished">portofel implicit</translation>
+    </message>
+</context>
 <context>
     <name>BitgesellGUI</name>
     <message>
@@ -619,7 +627,7 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     </message>
     <message>
         <source>Load Partially Signed Bitgesell Transaction</source>
-        <translation type="unfinished">Încărcați Tranzacția Bitcoin Parțial Semnată</translation>
+        <translation type="unfinished">Încărcați Tranzacția Bitgesell Parțial Semnată</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
@@ -676,10 +684,6 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Închideți toate portofelele</translation>
     </message>
     <message>
-<<<<<<< HEAD:src/qt/locale/BGL_ro.ts
-        <source>Show the %1 help message to get a list with possible Bitgesell command-line options</source>
-        <translation type="unfinished">Arată mesajul de ajutor %1 pentru a obţine o listă cu opţiunile posibile de linii de comandă Bitgesell</translation>
-=======
         <source>Migrate Wallet</source>
         <translation type="unfinished">Transfera Portofelul</translation>
     </message>
@@ -688,9 +692,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Transfera un portofel</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Bitcoin command-line options</source>
-        <translation type="unfinished">Arată mesajul de ajutor %1 pentru a obţine o listă cu opţiunile posibile de linii de comandă Bitcoin</translation>
->>>>>>> 31b33019b7... qt: Pull recent translations from Transifex:src/qt/locale/bitcoin_ro.ts
+        <source>Show the %1 help message to get a list with possible Bitgesell command-line options</source>
+        <translation type="unfinished">Arată mesajul de ajutor %1 pentru a obţine o listă cu opţiunile posibile de linii de comandă Bitgesell</translation>
     </message>
     <message>
         <source>&amp;Mask values</source>
@@ -699,10 +702,6 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Mask the values in the Overview tab</source>
         <translation type="unfinished">Mascați valorile din fila Prezentare generală</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">portofel implicit</translation>
     </message>
     <message>
         <source>No wallets available</source>
@@ -1049,21 +1048,27 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Atenționare la deschiderea portofelului</translation>
     </message>
     <message>
-        <source>default wallet</source>
-        <translation type="unfinished">portofel implicit</translation>
-    </message>
-    <message>
         <source>Open Wallet</source>
         <extracomment>Title of window indicating the progress of opening of a wallet.</extracomment>
         <translation type="unfinished">Deschide portofel</translation>
     </message>
-    </context>
+    <message>
+        <source>Opening Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
+        <extracomment>Descriptive text of the open wallet progress window which indicates to the user which wallet is currently being opened.</extracomment>
+        <translation type="unfinished">Deschidere Portofel&lt;b&gt;%1&lt;/b&gt;</translation>
+    </message>
+</context>
 <context>
     <name>RestoreWalletActivity</name>
     <message>
         <source>Restore Wallet</source>
         <extracomment>Title of progress window which is displayed when wallets are being restored.</extracomment>
         <translation type="unfinished">Restaurare portofel</translation>
+    </message>
+    <message>
+        <source>Restoring Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
+        <extracomment>Descriptive text of the restore wallets progress window which indicates to the user that wallets are currently being restored.</extracomment>
+        <translation type="unfinished">Restabilirea Portofelului&lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Restore wallet failed</source>
@@ -2133,6 +2138,10 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Activitatea retelei a fost oprita.</translation>
     </message>
     <message>
+        <source>None</source>
+        <translation type="unfinished">Niciuna</translation>
+    </message>
+    <message>
         <source>Executing command without any wallet</source>
         <translation type="unfinished">Executarea comenzii fara nici un portofel.</translation>
     </message>
@@ -2647,10 +2656,6 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">&amp;Semnează mesaj</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitgesells sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">Puteţi semna mesaje/contracte cu adresele dvs. pentru a demostra ca puteti primi bitgeselli trimisi la ele. Aveţi grijă să nu semnaţi nimic vag sau aleator, deoarece atacurile de tip phishing vă pot păcăli să le transferaţi identitatea. Semnaţi numai declaraţiile detaliate cu care sînteti de acord.</translation>
-    </message>
-    <message>
         <source>The Bitgesell address to sign the message with</source>
         <translation type="unfinished">Adresa cu care semnaţi mesajul</translation>
     </message>
@@ -2725,10 +2730,6 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
     <message>
         <source>Please check the address and try again.</source>
         <translation type="unfinished">Vă rugăm verificaţi adresa şi încercaţi din nou.</translation>
-    </message>
-    <message>
-        <source>The entered address does not refer to a key.</source>
-        <translation type="unfinished">Adresa introdusă nu se referă la o cheie.</translation>
     </message>
     <message>
         <source>Wallet unlock was cancelled.</source>
@@ -3199,11 +3200,6 @@ Mergi la Fisiere&gt;Deschide Portofel ca sa incarci un portofel.
         <translation type="unfinished">Confirma cresterea comisionului</translation>
     </message>
     <message>
-        <source>Copied to clipboard</source>
-        <comment>Fee-bump PSBT saved</comment>
-        <translation type="unfinished">Copiat in Notite</translation>
-    </message>
-    <message>
         <source>Can't sign transaction.</source>
         <translation type="unfinished">Nu s-a reuşit semnarea tranzacţiei</translation>
     </message>
@@ -3214,10 +3210,6 @@ Mergi la Fisiere&gt;Deschide Portofel ca sa incarci un portofel.
     <message>
         <source>Can't display address</source>
         <translation type="unfinished">Nu se poate afisa adresa</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">portofel implicit</translation>
     </message>
 </context>
 <context>
@@ -3269,10 +3261,6 @@ Mergi la Fisiere&gt;Deschide Portofel ca sa incarci un portofel.
     <message>
         <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
         <translation type="unfinished">Distribuit sub licenţa de programe MIT, vezi fişierul însoţitor %s sau %s</translation>
-    </message>
-    <message>
-        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
-        <translation type="unfinished">Vă rugăm verificaţi dacă data/timpul calculatorului dvs. sînt corecte! Dacă ceasul calcultorului este gresit, %s nu va funcţiona corect.</translation>
     </message>
     <message>
         <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>

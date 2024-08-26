@@ -176,7 +176,11 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
         <translation type="unfinished">Gapjyk üçin öňki we täze parol sözlemiňi ýaz.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your BGLs from being stolen by malware infecting your computer.</source>
+        <source>Continue</source>
+        <translation type="unfinished">Dowam et</translation>
+    </message>
+    <message>
+        <source>Remember that encrypting your wallet cannot fully protect your bitgesells from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">Gapjygyňy şifrlemek kompýuteriňe zyýanly programma ýokuşmak arkaly bitkoinleriň ogurlanmagyndan doly gorap bilmejekdigini ýatdan çykarma.</translation>
     </message>
     <message>
@@ -407,7 +411,11 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
             <numerusform>%n ýyl</numerusform>
         </translation>
     </message>
-    </context>
+    <message>
+        <source>default wallet</source>
+        <translation type="unfinished">deslapky bellenen gapjyk</translation>
+    </message>
+</context>
 <context>
     <name>BGL-core</name>
     <message>
@@ -658,7 +666,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
         <translation type="unfinished">Döwrebap</translation>
     </message>
     <message>
-        <source>Load Partially Signed BGL Transaction</source>
+        <source>Load Partially Signed Bitgesell Transaction</source>
         <translation type="unfinished">Bölekleýýin gol çekilen bitkoin geleşigini ýükle</translation>
     </message>
     <message>
@@ -666,7 +674,7 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
         <translation type="unfinished">&amp;alyş-çalyş panelinden BGÇBA ýükle…</translation>
     </message>
     <message>
-        <source>Load Partially Signed BGL Transaction from clipboard</source>
+        <source>Load Partially Signed Bitgesell Transaction from clipboard</source>
         <translation type="unfinished">Bölekleýin gol çekilen bitkoin geleşigini alyş-çalyş panelinden ýükle</translation>
     </message>
     <message>
@@ -726,10 +734,6 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     <message>
         <source>Mask the values in the Overview tab</source>
         <translation type="unfinished">Gözden geçir bölüminde sanlaryň üstüni ört</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">deslapky bellenen gapjyk</translation>
     </message>
     <message>
         <source>No wallets available</source>
@@ -1081,10 +1085,6 @@ Diňe "miras" görnüşli salgylar bilen gol çekmek mümkin.</translation>
     <message>
         <source>Open wallet warning</source>
         <translation type="unfinished">Gapjyk açmak duýduryşy</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">deslapky bellenen gapjyk</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -2349,6 +2349,10 @@ Size bu ýalňyşlyk gelýän bolsa, siz täjirden BIP21-e gabat gelýän URI-ni
         <extracomment>Context menu action to copy the address of a peer.</extracomment>
         <translation type="unfinished">&amp;Salgyny göçür</translation>
     </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished">ýok</translation>
+    </message>
     </context>
 <context>
     <name>ReceiveCoinsDialog</name>
@@ -2604,13 +2608,6 @@ Size bu ýalňyşlyk gelýän bolsa, siz täjirden BIP21-e gabat gelýän URI-ni
         <translation type="unfinished">Ýalňyşlyk</translation>
     </message>
     </context>
-<context>
-    <name>WalletModel</name>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">deslapky bellenen gapjyk</translation>
-    </message>
-</context>
 <context>
     <name>WalletView</name>
     <message>

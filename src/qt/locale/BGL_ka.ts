@@ -176,7 +176,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">შეიყვანეთ ძველი საიდუმლო ფრაზა და ახალი საიდუმლო ფრაზა საფულისთვის</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your BGLs from being stolen by malware infecting your computer.</source>
+        <source>Continue</source>
+        <translation type="unfinished">გაგრძელება</translation>
+    </message>
+    <message>
+        <source>Remember that encrypting your wallet cannot fully protect your bitgesells from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">გახსოვდეთ, რომ თქვენი საფულის დაშიფვრა ვერ უზრუნველყოფს სრულად დაიცვას თქვენი ბიტკოინების მოპარვა კომპიუტერში მავნე პროგრამებით.</translation>
     </message>
     <message>
@@ -368,7 +372,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
             <numerusform />
         </translation>
     </message>
-    </context>
+    <message>
+        <source>default wallet</source>
+        <translation type="unfinished">ნაგულისხმევი საფულე</translation>
+    </message>
+</context>
 <context>
     <name>BitgesellGUI</name>
     <message>
@@ -433,8 +441,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ქსელური აქტივობა გათიშულია.</translation>
     </message>
     <message>
-        <source>Send coins to a BGL address</source>
-        <translation type="unfinished">მონეტების გაგზავნა BGL-მისამართზე</translation>
+        <source>Proxy is &lt;b&gt;enabled&lt;/b&gt;: %1</source>
+        <translation type="unfinished">მარიონეტული &lt;b&gt;ჩართულია&lt;/b&gt; :%1</translation>
+    </message>
+    <message>
+        <source>Send coins to a Bitgesell address</source>
+        <translation type="unfinished">მონეტების გაგზავნა Bitcoin-მისამართზე</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -644,10 +656,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Close all wallets</source>
         <translation type="unfinished">ყველა საფულის დახურვა</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">ნაგულისხმევი საფულე</translation>
     </message>
     <message>
         <source>No wallets available</source>
@@ -925,10 +933,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Open wallet failed</source>
         <translation type="unfinished">საფულის გახსნა ვერ მოხერხდა</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">ნაგულისხმევი საფულე</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -2337,10 +2341,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">შეამოწმეთ მისამართი და სცადეთ ხელახლა.</translation>
     </message>
     <message>
-        <source>The entered address does not refer to a key.</source>
-        <translation type="unfinished">შეყვანილი მისამართი არ არის კავშირში გასაღებთან.</translation>
-    </message>
-    <message>
         <source>Wallet unlock was cancelled.</source>
         <translation type="unfinished">საფულის განბლოკვა შეწყვეტილია.</translation>
     </message>
@@ -2784,11 +2784,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Send Coins</source>
         <translation type="unfinished">მონეტების გაგზავნა</translation>
     </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">ნაგულისხმევი საფულე</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>WalletView</name>
     <message>
@@ -2846,10 +2842,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>-maxmempool must be at least %d MB</source>
         <translation type="unfinished">-maxmempool უნდა იყოს მინიმუმ %d MB</translation>
-    </message>
-    <message>
-        <source>A fatal internal error occurred, see debug.log for details</source>
-        <translation type="unfinished">მოხდა ფატალური შიდა შეცდომა. გამართვის დეტალებისთვის იხილეთ debug.log</translation>
     </message>
     <message>
         <source>Corrupted block database detected</source>

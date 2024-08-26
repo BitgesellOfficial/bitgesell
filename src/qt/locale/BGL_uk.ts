@@ -7,7 +7,7 @@
     </message>
     <message>
         <source>Create a new address</source>
-        <translation type="unfinished">Створити нову адресу</translation>
+        <translation type="unfinished">Додати нову адрессу</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -39,7 +39,7 @@
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Експортувати</translation>
+        <translation type="unfinished">Експортувати</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
@@ -184,7 +184,15 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Введіть стару та нову парольну фразу для гаманця.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your BGLs from being stolen by malware infecting your computer.</source>
+        <source>Continue</source>
+        <translation type="unfinished">Продовжити</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation type="unfinished">Назад</translation>
+    </message>
+    <message>
+        <source>Remember that encrypting your wallet cannot fully protect your bitgesells from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">Пам’ятайте, що шифрування гаманця не може повністю захистити ваші біткоїни від крадіжки, у випадку якщо ваш комп’ютер буде інфіковано шкідливими програмами.</translation>
     </message>
     <message>
@@ -461,6 +469,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>%1 GB</source>
         <translation type="unfinished">%1 ГБ</translation>
     </message>
+    <message>
+        <source>default wallet</source>
+        <translation type="unfinished">гаманець за замовчуванням</translation>
+    </message>
 </context>
 <context>
     <name>BitgesellGUI</name>
@@ -563,7 +575,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;Backup Wallet…</source>
-        <translation type="unfinished">&amp;Резервне копіювання гаманця…</translation>
+        <translation type="unfinished">&amp;Резервне копіювання гаманця</translation>
     </message>
     <message>
         <source>&amp;Change Passphrase…</source>
@@ -595,15 +607,15 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Close Wallet…</source>
-        <translation type="unfinished">Закрити гаманець…</translation>
+        <translation type="unfinished">Закрити Гаманець…</translation>
     </message>
     <message>
         <source>Create Wallet…</source>
-        <translation type="unfinished">Створити гаманець…</translation>
+        <translation type="unfinished">Створити Гаманець…</translation>
     </message>
     <message>
         <source>Close All Wallets…</source>
-        <translation type="unfinished">Закрити всі гаманці…</translation>
+        <translation type="unfinished">Закрити Всі Гаманці…</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -623,7 +635,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Syncing Headers (%1%)…</source>
-        <translation type="unfinished">Триває синхронізація заголовків (%1%)…</translation>
+        <translation type="unfinished">Синхронізація заголовків (%1%)…</translation>
     </message>
     <message>
         <source>Synchronizing with network…</source>
@@ -655,7 +667,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;Command-line options</source>
-        <translation type="unfinished">Параметри &amp;командного рядка</translation>
+        <translation type="unfinished">П&amp;араметри командного рядка</translation>
     </message>
     <message numerus="yes">
         <source>Processed %n block(s) of transaction history.</source>
@@ -699,7 +711,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Load Partially Signed Bitgesell Transaction</source>
-        <translation type="unfinished">Завантажити частково підписану біткоїн-транзакцію (PSBT) з файлу</translation>
+        <translation type="unfinished">Завантажити частково підписану біткоїн-транзакцію (PSBT)</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
@@ -719,11 +731,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;Sending addresses</source>
-        <translation type="unfinished">Адреси для &amp;відправлення</translation>
+        <translation type="unfinished">&amp;Адреси для відправлення</translation>
     </message>
     <message>
         <source>&amp;Receiving addresses</source>
-        <translation type="unfinished">Адреси для &amp;отримання</translation>
+        <translation type="unfinished">&amp;Адреси для отримання</translation>
     </message>
     <message>
         <source>Open a bitgesell: URI</source>
@@ -774,10 +786,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Mask the values in the Overview tab</source>
         <translation type="unfinished">Приховати значення на вкладці Огляд</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">гаманець за замовчуванням</translation>
     </message>
     <message>
         <source>No wallets available</source>
@@ -1188,10 +1196,6 @@ The migration process will create a backup of the wallet before migrating. This 
     <message>
         <source>Open wallet warning</source>
         <translation type="unfinished">Попередження відкриття гаманця</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">гаманець за замовчуванням</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -2355,6 +2359,10 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">Кількість підключень</translation>
     </message>
     <message>
+        <source>Local Addresses</source>
+        <translation type="unfinished">Локальні адреси</translation>
+    </message>
+    <message>
         <source>Block chain</source>
         <translation type="unfinished">Блокчейн</translation>
     </message>
@@ -2403,16 +2411,16 @@ If you are receiving this error you should request the merchant provide a BIP21 
         <translation type="unfinished">Виберіть учасника для перегляду детальнішої інформації</translation>
     </message>
     <message>
+        <source>Hide Peers Detail</source>
+        <translation type="unfinished">Приховати відомості про учасника</translation>
+    </message>
+    <message>
         <source>The transport layer version: %1</source>
         <translation type="unfinished">Версія транспортного рівня: %1</translation>
     </message>
     <message>
         <source>Transport</source>
         <translation type="unfinished">Траспорт</translation>
-    </message>
-    <message>
-        <source>The BIP324 session ID string in hex, if any.</source>
-        <translation type="unfinished">Ідентифікатор сесії BIP324 у hex форматі, якщо є.</translation>
     </message>
     <message>
         <source>Session ID</source>
@@ -2711,6 +2719,10 @@ If you are receiving this error you should request the merchant provide a BIP21 
     <message>
         <source>Network activity disabled</source>
         <translation type="unfinished">Мережева активність вимкнена.</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished">Відсутні</translation>
     </message>
     <message>
         <source>Executing command without any wallet</source>
@@ -3446,10 +3458,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">&amp;Підписати повідомлення</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitgesells sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">Ви можете підписувати повідомлення/угоди своїми адресами, щоб довести можливість отримання біткоїнів, що будуть надіслані на них. Остерігайтеся підписувати будь-що нечітке чи неочікуване, так як за допомогою фішинг-атаки вас можуть спробувати ввести в оману для отримання вашого підпису під чужими словами. Підписуйте лише чіткі твердження, з якими ви повністю згодні.</translation>
-    </message>
-    <message>
         <source>The Bitgesell address to sign the message with</source>
         <translation type="unfinished">Біткоїн-адреса для підпису цього повідомлення</translation>
     </message>
@@ -3532,10 +3540,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Please check the address and try again.</source>
         <translation type="unfinished">Перевірте адресу та спробуйте ще раз.</translation>
-    </message>
-    <message>
-        <source>The entered address does not refer to a key.</source>
-        <translation type="unfinished">Введена адреса не відноситься до ключа.</translation>
     </message>
     <message>
         <source>Wallet unlock was cancelled.</source>
@@ -4119,11 +4123,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">PSBT-транзакцію скопійовано</translation>
     </message>
     <message>
-        <source>Copied to clipboard</source>
-        <comment>Fee-bump PSBT saved</comment>
-        <translation type="unfinished">Скопійовано в буфер обміну</translation>
-    </message>
-    <message>
         <source>Can't sign transaction.</source>
         <translation type="unfinished">Не можливо підписати транзакцію.</translation>
     </message>
@@ -4135,16 +4134,12 @@ Go to File &gt; Open Wallet to load a wallet.
         <source>Can't display address</source>
         <translation type="unfinished">Неможливо показати адресу</translation>
     </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">гаманець за замовчуванням</translation>
-    </message>
 </context>
 <context>
     <name>WalletView</name>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Експортувати</translation>
+        <translation type="unfinished">Експортувати</translation>
     </message>
     <message>
         <source>Export the data in the current tab to a file</source>
@@ -4196,7 +4191,7 @@ Go to File &gt; Open Wallet to load a wallet.
     </message>
     <message>
         <source>%s request to listen on port %u. This port is considered "bad" and thus it is unlikely that any peer will connect to it. See doc/p2p-bad-ports.md for details and a full list.</source>
-        <translation type="unfinished">%s прохання прослухати на порту %u . Цей порт вважається «поганим» і тому навряд чи до нього підключиться який-небудь бенкет. Перегляньте doc/p2p-bad-ports.md для отримання детальної інформації та повного списку.</translation>
+        <translation type="unfinished">Запит %s на прослуховування порту %u. Цей порт вважається «поганим» і тому навряд чи до нього підключиться який-небудь учасник. Перегляньте doc/p2p-bad-ports.md для отримання подробиць та повного списку.</translation>
     </message>
     <message>
         <source>Cannot downgrade wallet from version %i to version %i. Wallet version unchanged.</source>
@@ -4269,10 +4264,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>No wallet file format provided. To use createfromdump, -format=&lt;format&gt; must be provided.</source>
         <translation type="unfinished">Не вказано формат файлу гаманця. Щоб використовувати createfromdump, потрібно вказати -format=&lt;format&gt;.</translation>
-    </message>
-    <message>
-        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
-        <translation type="unfinished">Перевірте правильність дати та часу свого комп'ютера. Якщо ваш годинник налаштовано невірно, %s не буде працювати належним чином.</translation>
     </message>
     <message>
         <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
@@ -4381,10 +4372,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>-maxmempool must be at least %d MB</source>
         <translation type="unfinished">-maxmempool має бути не менше %d МБ</translation>
-    </message>
-    <message>
-        <source>A fatal internal error occurred, see debug.log for details</source>
-        <translation type="unfinished">Сталася критична внутрішня помилка, дивіться подробиці в debug.log</translation>
     </message>
     <message>
         <source>Cannot resolve -%s address: '%s'</source>
@@ -4975,10 +4962,6 @@ Unable to restore backup of wallet.</source>
     <message>
         <source>Transaction too large</source>
         <translation type="unfinished">Транзакція занадто велика</translation>
-    </message>
-    <message>
-        <source>Unable to allocate memory for -maxsigcachesize: '%s' MiB</source>
-        <translation type="unfinished">Не вдалося виділити пам'ять для -maxsigcachesize: '%s' МіБ</translation>
     </message>
     <message>
         <source>Unable to bind to %s on this computer (bind returned error %s)</source>

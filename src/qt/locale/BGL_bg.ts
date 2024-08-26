@@ -183,7 +183,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Въведете старата и новата паролна фраза за портфейла.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your BGLs from being stolen by malware infecting your computer.</source>
+        <source>Continue</source>
+        <translation type="unfinished">Продължи</translation>
+    </message>
+    <message>
+        <source>Remember that encrypting your wallet cannot fully protect your bitgesells from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">Не забравяйте, че криптирането на вашия портфейл не може напълно да защити вашите биткойни от кражба от зловреден софтуер, заразяващ компютъра ви.</translation>
     </message>
     <message>
@@ -405,6 +409,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>%1 GB</source>
         <translation type="unfinished">%1 Гигабайт</translation>
     </message>
+    <message>
+        <source>default wallet</source>
+        <translation type="unfinished">Портфейл по подразбиране</translation>
+    </message>
 </context>
 <context>
     <name>BitgesellGUI</name>
@@ -499,7 +507,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>&amp;Encrypt Wallet…</source>
-        <translation type="unfinished">Шифровай портфейла</translation>
+        <translation type="unfinished">&amp;Крипритай уолет..</translation>
     </message>
     <message>
         <source>Encrypt the private keys that belong to your wallet</source>
@@ -650,7 +658,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
-        <translation type="unfinished">Заредете PSBT от &amp;клипборд...</translation>
+        <translation type="unfinished">Заредете PSBT (частично подписана Bitcoin трансакция) от &amp;клипборд...</translation>
     </message>
     <message>
         <source>Load Partially Signed Bitgesell Transaction from clipboard</source>
@@ -721,10 +729,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Mask the values in the Overview tab</source>
         <translation type="unfinished">Маскирай стойностите в раздела Преглед</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">Портфейл по подразбиране</translation>
     </message>
     <message>
         <source>No wallets available</source>
@@ -808,7 +812,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Pre-syncing Headers (%1%)…</source>
-        <translation type="unfinished">Предварителна синхронизация на Headers (%1%)…</translation>
+        <translation type="unfinished">Предварителна синхронизация на хедъри (%1%)…</translation>
     </message>
     <message>
         <source>Error creating wallet</source>
@@ -1115,10 +1119,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Open wallet warning</source>
         <translation type="unfinished">Внимание, отворен портфейл</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">Портфейл по подразбиране</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -2145,6 +2145,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;Копирай адрес</translation>
     </message>
     <message>
+        <source>None</source>
+        <translation type="unfinished">нито един</translation>
+    </message>
+    <message>
         <source>Executing command without any wallet</source>
         <translation type="unfinished">Извършване на команда без портфейл</translation>
     </message>
@@ -2566,10 +2570,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Моля проверете адреса и опитайте отново.</translation>
     </message>
     <message>
-        <source>The entered address does not refer to a key.</source>
-        <translation type="unfinished">Въведеният адрес не може да се съпостави с валиден ключ.</translation>
-    </message>
-    <message>
         <source>Wallet unlock was cancelled.</source>
         <translation type="unfinished">Отключването на портфейла беше отменено.</translation>
     </message>
@@ -2949,11 +2949,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Send Coins</source>
         <translation type="unfinished">Изпращане</translation>
     </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">Портфейл по подразбиране</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>WalletView</name>
     <message>

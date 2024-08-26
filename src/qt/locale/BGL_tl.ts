@@ -3,7 +3,7 @@
     <name>AddressBookPage</name>
     <message>
         <source>Right-click to edit address or label</source>
-        <translation type="unfinished">pindutin lamang ang kanang pindutan upang i-edit ang address o label</translation>
+        <translation type="unfinished">pindutin lamang ang kanang pindutan upang i-edit ang address o label.</translation>
     </message>
     <message>
         <source>Create a new address</source>
@@ -23,7 +23,7 @@
     </message>
     <message>
         <source>C&amp;lose</source>
-        <translation type="unfinished">Isara</translation>
+        <translation type="unfinished">(Do you mean: Close?) :isara, sarado </translation>
     </message>
     <message>
         <source>Delete the currently selected address from the list</source>
@@ -55,7 +55,7 @@
     </message>
     <message>
         <source>C&amp;hoose</source>
-        <translation type="unfinished">&amp;Pumili</translation>
+        <translation type="unfinished">(do you mean: CHOOSE?) ;Pumili,Piliin.</translation>
     </message>
     <message>
         <source>These are your Bitgesell addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
@@ -327,7 +327,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
             <numerusform />
         </translation>
     </message>
-    </context>
+    <message>
+        <source>default wallet</source>
+        <translation type="unfinished">pitaka na ♦default♦</translation>
+    </message>
+</context>
 <context>
     <name>BGL-core</name>
     <message>
@@ -376,6 +380,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>About &amp;Qt</source>
         <translation type="unfinished">Tungkol sa &amp;♦Qt♦</translation>
+    </message>
+    <message>
+        <source>Show information about Qt</source>
+        <translation type="unfinished">Ipakita ang impormasyon tungkol sa Qt</translation>
     </message>
     <message>
         <source>Modify configuration options for %1</source>
@@ -620,10 +628,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Mask the values in the Overview tab</source>
         <translation type="unfinished">I-mask ang  mga halaga sa loob ng ♦Overview tab♦</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">pitaka na ♦default♦</translation>
     </message>
     <message>
         <source>No wallets available</source>
@@ -931,10 +935,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Open wallet warning</source>
         <translation type="unfinished">Babala sa pagbukas ng pitaka</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">pitaka na ♦default♦</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -1462,13 +1462,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Nagkamali</translation>
     </message>
     </context>
-<context>
-    <name>WalletModel</name>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">pitaka na ♦default♦</translation>
-    </message>
-</context>
 <context>
     <name>WalletView</name>
     <message>

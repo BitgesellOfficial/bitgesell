@@ -1,6 +1,5 @@
 <!DOCTYPE RCC><RCC version="1.0">
     <qresource prefix="/translations">
-        <file alias="af">locale/BGL_af.qm</file>
         <file alias="am">locale/BGL_am.qm</file>
         <file alias="ar">locale/BGL_ar.qm</file>
         <file alias="az">locale/BGL_az.qm</file>
@@ -104,6 +103,7 @@
         <file alias="szl">locale/BGL_szl.qm</file>
         <file alias="ta">locale/BGL_ta.qm</file>
         <file alias="te">locale/BGL_te.qm</file>
+        <file alias="th">locale/BGL_th.qm</file>
         <file alias="tk">locale/BGL_tk.qm</file>
         <file alias="tl">locale/BGL_tl.qm</file>
         <file alias="tr">locale/BGL_tr.qm</file>

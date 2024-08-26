@@ -2,8 +2,8 @@
 <context>
     <name>AddressBookPage</name>
     <message>
-        <source>Create a new address</source>
-        <translation type="unfinished">Luo uusi osoite</translation>
+        <source>Right-click to edit address or label</source>
+        <translation type="unfinished">Valitse hiiren kakkospainikkeella muokataksesi osoitetta tai nimikettä</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -54,15 +54,7 @@
         <translation type="unfinished">V&amp;alitse</translation>
     </message>
     <message>
-        <source>These are your Bitgesell addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">Nämä ovat Bitgesell-osoitteesi maksujen lähettämistä varten. Tarkista aina määrä ja vastaanotto-osoite ennen kolikoiden lähettämistä.</translation>
-    </message>
-    <message>
-        <source>These are your BGL addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
-        <translation>Nämä ovat sinun BGL osoitteesi maksujen vastaanottamista varten. Käytä 'Luo uusi vastaanotto-osoite' painiketta vastaantto tabissä luodaksesi uuden osoitteen.</translation>
-    </message>
-    <message>
-        <source>These are your BGL addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
+        <source>These are your Bitgesell addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Nämä ovat BGL-osoitteesi maksujen vastaanottoa varten. Käytä painiketta "Luo uusi vastaanotto-osoite" vastaanottovälilehdessä luodaksesi uusia osoitteita.
 Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translation>
@@ -184,8 +176,16 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <translation type="unfinished">Syötä vanha ja uusi salasanalause lompakolle.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your BGLs from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Muista, että salaamalla lompakkosi et täysin pysty suojaamaan BGLeja varkaudelta, jotka aiheutuvat koneellasi olevista haittaohjelmista.</translation>
+        <source>Continue</source>
+        <translation type="unfinished">Jatka</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation type="unfinished">Takaisin</translation>
+    </message>
+    <message>
+        <source>Remember that encrypting your wallet cannot fully protect your bitgesells from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Muista, että salaamalla lompakkosi et täysin pysty suojaamaan bitcoineja varkaudelta, jotka aiheutuvat koneellasi olevista haittaohjelmista.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -425,7 +425,11 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
             <numerusform>%n vuotta</numerusform>
         </translation>
     </message>
-    </context>
+    <message>
+        <source>default wallet</source>
+        <translation type="unfinished">oletuslompakko</translation>
+    </message>
+</context>
 <context>
     <name>BitgesellGUI</name>
     <message>
@@ -737,10 +741,6 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
     <message>
         <source>Mask the values in the Overview tab</source>
         <translation type="unfinished">Naamioi arvot Yhteenveto-välilehdessä</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">oletuslompakko</translation>
     </message>
     <message>
         <source>No wallets available</source>
@@ -1107,19 +1107,11 @@ If this wallet contains any watchonly scripts, a new wallet will be created whic
 If this wallet contains any solvable but not watched scripts, a different and new wallet will be created which contains those scripts.
 
 The migration process will create a backup of the wallet before migrating. This backup file will be named &lt;wallet name&gt;-&lt;timestamp&gt;.legacy.bak and can be found in the directory for this wallet. In the event of an incorrect migration, the backup can be restored with the "Restore Wallet" functionality.</source>
-        <translation type="unfinished"> 
-Migrer le portefeuille convertira ce portefeuille en un ou plusieurs portefeuilles de descripteurs. Une nouvelle sauvegarde du portefeuille devra être effectuée.
-Si ce portefeuille contient des scripts watchonly, un nouveau portefeuille sera créé avec ces scripts watchonly.
-Si ce portefeuille contient des scripts solvables mais non surveillés, un portefeuille différent et nouveau sera créé avec ces scripts.
-
-Le processus de migration créera une sauvegarde du portefeuille avant de migrer. Ce fichier de sauvegarde sera nommé -.legacy.bak et se trouvera dans le répertoire de ce portefeuille. En cas de migration incorrecte, la sauvegarde peut être restaurée avec la fonctionnalité "Restaurer le portefeuille".
-
-
-Lompakon siirtäminen muuntaa tämän lompakon yhdeksi tai useammaksi kuvailluksi lompakoksi. Uusi lompakon varmuuskopio on tehtävä.
+        <translation type="unfinished">Lompakon siirtäminen muuntaa tämän lompakon yhdeksi tai useammaksi kuvailluksi lompakoksi. Uusi lompakon varmuuskopio on tehtävä.
 Jos tämä lompakko sisältää vain katseltavia skriptejä, luodaan uusi lompakko, joka sisältää nämä katseltavat skriptit.
 Jos tämä lompakko sisältää ratkaistavia mutta ei katsottuja skriptejä, luodaan eri ja uusi lompakko, joka sisältää nämä skriptit.
 
-Siirtoprosessi luo varmuuskopion lompakosta ennen siirtoa. Tämä varmuuskopiotiedosto nimetään -.legacy.bak ja se löytyy tämän lompakon hakemistosta. Virheellisen siirron sattuessa varmuuskopio voidaan palauttaa "Palauta lompakko" -toiminnolla.</translation>
+Siirtoprosessi luo varmuuskopion lompakosta ennen siirtoa. Tämä varmuuskopiotiedosto nimetään &lt;wallet name&gt;-&lt;timestamp&gt;.legacy.bak ja se löytyy tämän lompakon hakemistosta. Virheellisen siirron sattuessa varmuuskopio voidaan palauttaa "Palauta lompakko" -toiminnolla.</translation>
     </message>
     <message>
         <source>Migrate Wallet</source>
@@ -1132,6 +1124,14 @@ Siirtoprosessi luo varmuuskopion lompakosta ennen siirtoa. Tämä varmuuskopioti
     <message>
         <source>The wallet '%1' was migrated successfully.</source>
         <translation type="unfinished">Lompakko '%1' siirrettiin onnistuneesti.</translation>
+    </message>
+    <message>
+        <source>Watchonly scripts have been migrated to a new wallet named '%1'.</source>
+        <translation type="unfinished">Pelkästään katseltavissa olevat skriptit on siirretty uuteen lompakkoon nimeltä '%1'.</translation>
+    </message>
+    <message>
+        <source>Solvable but not watched scripts have been migrated to a new wallet named '%1'.</source>
+        <translation type="unfinished">Ratkaistavat mutta ei katsotut skriptit on siirretty uuteen lompakkoon nimeltä '%1'.</translation>
     </message>
     <message>
         <source>Migration failed</source>
@@ -1151,10 +1151,6 @@ Siirtoprosessi luo varmuuskopion lompakosta ennen siirtoa. Tämä varmuuskopioti
     <message>
         <source>Open wallet warning</source>
         <translation type="unfinished">Avoimen lompakon varoitus</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">oletuslompakko</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -1550,7 +1546,7 @@ Siirtoprosessi luo varmuuskopion lompakosta ennen siirtoa. Tämä varmuuskopioti
     </message>
     <message>
         <source>Unknown. Pre-syncing Headers (%1, %2%)…</source>
-        <translation type="unfinished">Tuntematon. Esi synkronointi otsikot (%1, %2%)...</translation>
+        <translation type="unfinished">Tuntematon. Esi-synkronointi otsikot (%1, %2%)...</translation>
     </message>
 </context>
 <context>
@@ -2358,10 +2354,6 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
         <translation type="unfinished">Kuljetus</translation>
     </message>
     <message>
-        <source>The BIP324 session ID string in hex, if any.</source>
-        <translation type="unfinished">BIP324-istunnon tunnusmerkkijono heksadesimaalimuodossa, jos sellainen on.</translation>
-    </message>
-    <message>
         <source>Session ID</source>
         <translation type="unfinished">Istunnon tunniste</translation>
     </message>
@@ -2656,12 +2648,32 @@ Jos saat tämän virheen, pyydä kauppiasta antamaan BIP21-yhteensopiva URI.</tr
         <translation type="unfinished">Verkkoliikenne pysäytetty</translation>
     </message>
     <message>
+        <source>None</source>
+        <translation type="unfinished">Ei yhtään</translation>
+    </message>
+    <message>
         <source>Executing command without any wallet</source>
         <translation type="unfinished">Suoritetaan komento ilman lomakkoa</translation>
     </message>
     <message>
         <source>Executing command using "%1" wallet</source>
         <translation type="unfinished">Suoritetaan komento käyttäen lompakkoa "%1"</translation>
+    </message>
+    <message>
+        <source>Welcome to the %1 RPC console.
+Use up and down arrows to navigate history, and %2 to clear screen.
+Use %3 and %4 to increase or decrease the font size.
+Type %5 for an overview of available commands.
+For more information on using this console, type %6.
+
+%7WARNING: Scammers have been active, telling users to type commands here, stealing their wallet contents. Do not use this console without fully understanding the ramifications of a command.%8</source>
+        <extracomment>RPC console welcome message. Placeholders %7 and %8 are style tags for the warning content, and they are not space separated from the rest of the text intentionally.</extracomment>
+        <translation type="unfinished">Tervetuloa %1 RPC-konsoliin.
+Käytä ylä- ja alanuolinäppäintä historiassa navigoimiseen ja näppäintä %2 näytön tyhjentämiseen.
+Käytä näppäimiä %3 ja %4 fonttikoon suurentamiseen ja pienentämiseen.
+Näet yleiskuvan käytettävistä komennoista kirjoittamalla %5.
+Lisätietoja konsolin käytöstä saat kirjoittamalla %6.
+%7VAROITUS: Huijarit ovat aktiivisesti yrittäneet varastaa käyttäjien lompakoiden sisältöä pyytämällä heitä kirjoittamaan komentoja tänne. Älä käytä tätä konsolia, jos et täysin ymmärrän komennon seurauksia.%8</translation>
     </message>
     <message>
         <source>Executing…</source>
@@ -3355,10 +3367,6 @@ Huom: Koska maksu lasketaan per tavu, "100 satoshin per kB" maksunopeus 500 virt
         <translation type="unfinished">&amp;Allekirjoita viesti</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitgesells sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">Voit allekirjoittaa viestit / sopimukset omalla osoitteellasi todistaaksesi että voit vastaanottaa siihen lähetetyt bitgesellit. Varo allekirjoittamasta mitään epämääräistä, sillä phishing-hyökkääjät voivat huijata sinua luovuttamaan henkilöllisyytesi allekirjoituksella. Allekirjoita ainoastaan täysin yksityiskohtainen selvitys siitä, mihin olet sitoutumassa.</translation>
-    </message>
-    <message>
         <source>The Bitgesell address to sign the message with</source>
         <translation type="unfinished">Bitgesell-osoite jolla viesti allekirjoitetaan</translation>
     </message>
@@ -3441,10 +3449,6 @@ Huom: Koska maksu lasketaan per tavu, "100 satoshin per kB" maksunopeus 500 virt
     <message>
         <source>Please check the address and try again.</source>
         <translation type="unfinished">Tarkista osoite ja yritä uudelleen.</translation>
-    </message>
-    <message>
-        <source>The entered address does not refer to a key.</source>
-        <translation type="unfinished">Syötetty osoite ei viittaa tunnettuun avaimeen.</translation>
     </message>
     <message>
         <source>Wallet unlock was cancelled.</source>
@@ -4017,11 +4021,6 @@ Varoitus: Tämä voi maksaa ylimääräisen maksun vähentämällä vaihtotuloja
         <translation type="unfinished">PSBT kopioitu</translation>
     </message>
     <message>
-        <source>Copied to clipboard</source>
-        <comment>Fee-bump PSBT saved</comment>
-        <translation type="unfinished">Kopioi leikepöydälle</translation>
-    </message>
-    <message>
         <source>Can't sign transaction.</source>
         <translation type="unfinished">Siirtoa ei voida allekirjoittaa.</translation>
     </message>
@@ -4032,10 +4031,6 @@ Varoitus: Tämä voi maksaa ylimääräisen maksun vähentämällä vaihtotuloja
     <message>
         <source>Can't display address</source>
         <translation type="unfinished">Osoitetta ei voida näyttää</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">oletuslompakko</translation>
     </message>
 </context>
 <context>
@@ -4114,10 +4109,6 @@ ilman, että käytetään mitään snapshot-tietoja. Ilmoita tästä tapauksesta
         <translation type="unfinished">Useampi onion bind -osoite on tarjottu. Automaattisesti luotua Torin onion-palvelua varten käytetään %s.</translation>
     </message>
     <message>
-        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
-        <translation type="unfinished">Tarkistathan että tietokoneesi päivämäärä ja kellonaika ovat oikeassa! Jos kellosi on väärässä, %s ei toimi oikein.</translation>
-    </message>
-    <message>
         <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
         <translation type="unfinished">Ole hyvä ja avusta, jos %s on mielestäsi hyödyllinen. Vieraile %s saadaksesi lisää tietoa ohjelmistosta.</translation>
     </message>
@@ -4188,10 +4179,6 @@ ilman, että käytetään mitään snapshot-tietoja. Ilmoita tästä tapauksesta
     <message>
         <source>-maxmempool must be at least %d MB</source>
         <translation type="unfinished">-maxmempool on oltava vähintään %d MB</translation>
-    </message>
-    <message>
-        <source>A fatal internal error occurred, see debug.log for details</source>
-        <translation type="unfinished">Kriittinen sisäinen virhe kohdattiin, katso debug.log lisätietoja varten</translation>
     </message>
     <message>
         <source>Cannot resolve -%s address: '%s'</source>
@@ -4608,10 +4595,6 @@ Ei voinut palauttaa lompakon varmuuskopiota..</translation>
     <message>
         <source>Transaction too large</source>
         <translation type="unfinished">Siirtosumma liian iso</translation>
-    </message>
-    <message>
-        <source>Unable to allocate memory for -maxsigcachesize: '%s' MiB</source>
-        <translation type="unfinished">Ei voida varata muistia kohteelle %sMiB</translation>
     </message>
     <message>
         <source>Unable to bind to %s on this computer (bind returned error %s)</source>

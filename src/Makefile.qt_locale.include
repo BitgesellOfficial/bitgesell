@@ -1,5 +1,4 @@
 QT_TS = \
-  qt/locale/BGL_af.ts \
   qt/locale/BGL_am.ts \
   qt/locale/BGL_ar.ts \
   qt/locale/BGL_az.ts \
@@ -103,6 +102,7 @@ QT_TS = \
   qt/locale/BGL_szl.ts \
   qt/locale/BGL_ta.ts \
   qt/locale/BGL_te.ts \
+  qt/locale/BGL_th.ts \
   qt/locale/BGL_tk.ts \
   qt/locale/BGL_tl.ts \
   qt/locale/BGL_tr.ts \

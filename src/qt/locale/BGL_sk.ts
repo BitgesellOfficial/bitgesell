@@ -167,8 +167,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Zadajte starú a novú frázu pre túto peňaženku.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your BGLs from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Pamätajte, že zašifrovanie peňaženky neochráni úplne vaše BGLy pred ukradnutím škodlivými programami vo vašom počítači.</translation>
+        <source>Continue</source>
+        <translation type="unfinished">Pokračovať</translation>
+    </message>
+    <message>
+        <source>Remember that encrypting your wallet cannot fully protect your bitgesells from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Pamätajte, že zašifrovanie peňaženky neochráni úplne vaše bitgeselly pred ukradnutím škodlivými programami vo vašom počítači.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -387,7 +391,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
             <numerusform>%n rokov</numerusform>
         </translation>
     </message>
-    </context>
+    <message>
+        <source>default wallet</source>
+        <translation type="unfinished">predvolená peňaženka</translation>
+    </message>
+</context>
 <context>
     <name>BitgesellGUI</name>
     <message>
@@ -637,7 +645,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Node window</source>
-        <translation type="unfinished">Okno uzlov</translation>
+        <translation type="unfinished">Uzlové okno</translation>
     </message>
     <message>
         <source>Open node debugging and diagnostic console</source>
@@ -692,10 +700,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Mask the values in the Overview tab</source>
         <translation type="unfinished">Skryť hodnoty v karte "Prehľad"</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">predvolená peňaženka</translation>
     </message>
     <message>
         <source>No wallets available</source>
@@ -1048,10 +1052,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Open wallet warning</source>
         <translation type="unfinished">Varovanie otvárania peňaženky</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">predvolená peňaženka</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -2253,7 +2253,7 @@ Ak ste dostali túto chybu mali by ste požiadať obchodníka o URI kompatibiln�
     </message>
     <message>
         <source>Node window</source>
-        <translation type="unfinished">Okno uzlov</translation>
+        <translation type="unfinished">Uzlové okno</translation>
     </message>
     <message>
         <source>Current block height</source>
@@ -2459,6 +2459,10 @@ Ak ste dostali túto chybu mali by ste požiadať obchodníka o URI kompatibiln�
     <message>
         <source>Network activity disabled</source>
         <translation type="unfinished">Sieťová aktivita zakázaná</translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished">Žiadne</translation>
     </message>
     <message>
         <source>Executing command without any wallet</source>
@@ -3146,10 +3150,6 @@ Poznámka: Keďže poplatok je počítaný za bajt, poplatok pri sadzbe "100 sat
         <translation type="unfinished">&amp;Podpísať Správu</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitgesells sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">Môžete podpísať správy svojou adresou a dokázať, že viete prijímať mince zaslané na túto adresu. Buďte však opatrní a podpíšte len podrobné prehlásenia, s ktorými plne súhlasíte, nakoľko útoky typu "phishing" Vás môžu lákať k podpísaniu nejasných alebo príliš všeobecných tvrdení čím prevezmú vašu identitu.</translation>
-    </message>
-    <message>
         <source>The Bitgesell address to sign the message with</source>
         <translation type="unfinished">Bitgesell adresa pre podpísanie správy s</translation>
     </message>
@@ -3232,10 +3232,6 @@ Poznámka: Keďže poplatok je počítaný za bajt, poplatok pri sadzbe "100 sat
     <message>
         <source>Please check the address and try again.</source>
         <translation type="unfinished">Prosím skontrolujte adresu a skúste znova.</translation>
-    </message>
-    <message>
-        <source>The entered address does not refer to a key.</source>
-        <translation type="unfinished">Vložená adresa nezodpovedá žiadnemu kľúču.</translation>
     </message>
     <message>
         <source>Wallet unlock was cancelled.</source>
@@ -3801,10 +3797,6 @@ Choďte do Súbor &gt; Otvoriť Peňaženku, pre načítanie peňaženky.
         <source>Can't display address</source>
         <translation type="unfinished">Nemôžem zobraziť adresu</translation>
     </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">predvolená peňaženka</translation>
-    </message>
 </context>
 <context>
     <name>WalletView</name>
@@ -3925,10 +3917,6 @@ Choďte do Súbor &gt; Otvoriť Peňaženku, pre načítanie peňaženky.
         <translation type="unfinished">Nezadaný formát súboru peňaženky. Pre použitie createfromdump musíte zadať -format=&lt;format&gt;.</translation>
     </message>
     <message>
-        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
-        <translation type="unfinished">Prosím skontrolujte systémový čas a dátum. Keď je váš čas nesprávny, %s nebude fungovať správne.</translation>
-    </message>
-    <message>
         <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
         <translation type="unfinished">Keď si myslíte, že %s je užitočný, podporte nás. Pre viac informácií o software navštívte %s.</translation>
     </message>
@@ -4019,10 +4007,6 @@ Choďte do Súbor &gt; Otvoriť Peňaženku, pre načítanie peňaženky.
     <message>
         <source>-maxmempool must be at least %d MB</source>
         <translation type="unfinished">-maxmempool musí byť najmenej %d MB</translation>
-    </message>
-    <message>
-        <source>A fatal internal error occurred, see debug.log for details</source>
-        <translation type="unfinished">Nastala fatálna interná chyba, pre viac informácií pozrite debug.log</translation>
     </message>
     <message>
         <source>Cannot resolve -%s address: '%s'</source>

@@ -188,7 +188,15 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">지갑의 이전 비밀번호와 새로운 비밀번호를 입력하세요.</translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your BGLs from being stolen by malware infecting your computer.</source>
+        <source>Continue</source>
+        <translation type="unfinished">계속하기</translation>
+    </message>
+    <message>
+        <source>Back</source>
+        <translation type="unfinished">뒤로가기</translation>
+    </message>
+    <message>
+        <source>Remember that encrypting your wallet cannot fully protect your bitgesells from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">지갑을 암호화 해도 컴퓨터에 바이러스가 있을시 안전하지 않다는 것을 참고하세요.</translation>
     </message>
     <message>
@@ -428,6 +436,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>%1 GB</source>
         <translation type="unfinished">%1 기가바이트</translation>
+    </message>
+    <message>
+        <source>default wallet</source>
+        <translation type="unfinished">기본 지갑</translation>
     </message>
 </context>
 <context>
@@ -736,10 +748,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Mask the values in the Overview tab</source>
         <translation type="unfinished">개요 탭에서 값을 마스킹합니다.</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">기본 지갑</translation>
     </message>
     <message>
         <source>No wallets available</source>
@@ -1094,10 +1102,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Open wallet warning</source>
         <translation type="unfinished">지갑 열기 경고</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">기본 지갑</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -2507,6 +2511,10 @@ BIP70의 광범위한 보안 결함으로 인해 모든 가맹점에서는 지�
         <translation type="unfinished">네트워크 활동이 정지되었습니다.</translation>
     </message>
     <message>
+        <source>None</source>
+        <translation type="unfinished">없음</translation>
+    </message>
+    <message>
         <source>Executing command without any wallet</source>
         <translation type="unfinished">지갑 없이 명령 실행</translation>
     </message>
@@ -2528,8 +2536,7 @@ For more information on using this console, type %6.
 3%3과 4%4을 사용하여 글꼴 크기 증가 또는 감소하세요
 사용 가능한 명령의 개요를 보려면 5%5를 입력하십시오.
 이 콘솔 사용에 대한 자세한 내용을 보려면 6%6을 입력하십시오.
-7%7 경고: 사기꾼들은 사용자들에게 여기에 명령을 입력하라고 말하고 활발히 금품을 훔칩니다. 완전히 이해하지 않고 이 콘솔을 사용하지 마십시오. 8%8
-</translation>
+7%7 경고: 사기꾼들은 사용자들에게 여기에 명령을 입력하라고 말하고 활발히 금품을 훔칩니다. 완전히 이해하지 않고 이 콘솔을 사용하지 마십시오. 8%8</translation>
     </message>
     <message>
         <source>Executing…</source>
@@ -3186,10 +3193,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">메시지 서명(&amp;S)</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitgesells sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">당신이 해당 주소로 비트코인을 받을 수 있다는 것을 증명하기 위해 메시지/합의문을 그 주소로 서명할 수 있습니다. 피싱 공격이 당신을 속일 수 있으므로 임의의 내용이나 모호한 내용에 서명하지 않도록 주의하세요. 당신이 동의하는 명확한 조항들에만 서명하세요.</translation>
-    </message>
-    <message>
         <source>The Bitgesell address to sign the message with</source>
         <translation type="unfinished">메세지를 서명할 비트코인 주소</translation>
     </message>
@@ -3272,10 +3275,6 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Please check the address and try again.</source>
         <translation type="unfinished">주소를 확인하고 다시 시도하십시오.</translation>
-    </message>
-    <message>
-        <source>The entered address does not refer to a key.</source>
-        <translation type="unfinished">입력한 주소는 지갑내 키를 참조하지 않습니다.</translation>
     </message>
     <message>
         <source>Wallet unlock was cancelled.</source>
@@ -3836,11 +3835,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">PSBT 복사됨</translation>
     </message>
     <message>
-        <source>Copied to clipboard</source>
-        <comment>Fee-bump PSBT saved</comment>
-        <translation type="unfinished">클립보드로 복사됨</translation>
-    </message>
-    <message>
         <source>Can't sign transaction.</source>
         <translation type="unfinished">거래에 서명 할 수 없습니다.</translation>
     </message>
@@ -3851,10 +3845,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Can't display address</source>
         <translation type="unfinished">주소를 표시할 수 없습니다.</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">기본 지갑</translation>
     </message>
 </context>
 <context>
@@ -3968,10 +3958,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">shshhdchb bdfjj fb  rciivfjb doffbfbdjdj</translation>
     </message>
     <message>
-        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
-        <translation type="unfinished">컴퓨터의 날짜와 시간이 올바른지 확인하십시오! 시간이 잘못되면 %s은 제대로 동작하지 않습니다.</translation>
-    </message>
-    <message>
         <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
         <translation type="unfinished">%s가 유용하다고 생각한다면 프로젝트에 공헌해주세요. 이 소프트웨어에 대한 보다 자세한 정보는 %s를 방문해 주십시오.</translation>
     </message>
@@ -4044,10 +4030,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">-maxmempool은 최소한 %d MB 이어야 합니다</translation>
     </message>
     <message>
-        <source>A fatal internal error occurred, see debug.log for details</source>
-        <translation type="unfinished">치명적 내부 오류 발생. 상세한 내용을 debug.log 에서 확인하십시오</translation>
-    </message>
-    <message>
         <source>Cannot resolve -%s address: '%s'</source>
         <translation type="unfinished">%s 주소를 확인할 수 없습니다: '%s'</translation>
     </message>
@@ -4093,13 +4075,11 @@ Go to File &gt; Open Wallet to load a wallet.
     </message>
     <message>
         <source>Dump file %s does not exist.</source>
-        <translation type="unfinished">파일 버리기 1%s 존재 안함
-</translation>
+        <translation type="unfinished">파일 버리기 %s 존재 안함</translation>
     </message>
     <message>
         <source>Error creating %s</source>
-        <translation type="unfinished">만들기 오류 1%s
-</translation>
+        <translation type="unfinished">만들기 오류 %s</translation>
     </message>
     <message>
         <source>Error initializing block database</source>
@@ -4168,6 +4148,14 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Failed to verify database</source>
         <translation type="unfinished">데이터베이스를 검증 실패</translation>
+    </message>
+    <message>
+        <source>Fee rate (%s) is lower than the minimum fee rate setting (%s)</source>
+        <translation type="unfinished">수수료율 (%s)이 최소 수수료율 설정 (%s)보다 낮습니다.</translation>
+    </message>
+    <message>
+        <source>Ignoring duplicate -wallet %s.</source>
+        <translation type="unfinished">중복 -지갑 %s를 무시합니다.</translation>
     </message>
     <message>
         <source>Importing…</source>
@@ -4264,6 +4252,10 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>SQLiteDatabase: Failed to prepare statement to verify database: %s</source>
         <translation type="unfinished">에스큐엘라이트 데이터베이스 : 데이터베이스를 확인하는 실행문 준비에 실패하였습니다 : %s.</translation>
+    </message>
+    <message>
+        <source>SQLiteDatabase: Failed to read database verification error: %s</source>
+        <translation type="unfinished">에스큐엘라이트 데이터베이스 : 데이터베이스 읽기를 실패하였습니다: %s</translation>
     </message>
     <message>
         <source>SQLiteDatabase: Unexpected application id. Expected %u, got %u</source>
@@ -4368,6 +4360,10 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Unknown -blockfilterindex value %s.</source>
         <translation type="unfinished">알 수 없는 -blockfileterindex 값 %s.</translation>
+    </message>
+    <message>
+        <source>Unknown address type '%s'</source>
+        <translation type="unfinished">알 수 없는 주소 형식 '%s'</translation>
     </message>
     <message>
         <source>Unknown change type '%s'</source>

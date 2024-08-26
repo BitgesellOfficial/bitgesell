@@ -316,7 +316,11 @@ Sinatzea 'legacy' motako helbideekin soilik da posible</translation>
             <numerusform />
         </translation>
     </message>
-    </context>
+    <message>
+        <source>default wallet</source>
+        <translation type="unfinished">Diruzorro lehenetsia</translation>
+    </message>
+</context>
 <context>
     <name>BitgesellGUI</name>
     <message>
@@ -586,10 +590,6 @@ Sinatzea 'legacy' motako helbideekin soilik da posible</translation>
     <message>
         <source>Close all wallets</source>
         <translation type="unfinished">Diruzorro guztiak itxi</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">Diruzorro lehenetsia</translation>
     </message>
     <message>
         <source>No wallets available</source>
@@ -864,10 +864,6 @@ Sinatzea 'legacy' motako helbideekin soilik da posible</translation>
     <message>
         <source>Open wallet warning</source>
         <translation type="unfinished">Diruzorroa irekitzen abisua</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">Diruzorro lehenetsia</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -2163,11 +2159,7 @@ Sinatzea 'legacy' motako helbideekin soilik da posible</translation>
         <source>PSBT copied</source>
         <translation type="unfinished">PSBT kopiatua</translation>
     </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">Diruzorro lehenetsia</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>WalletView</name>
     <message>

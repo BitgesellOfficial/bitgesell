@@ -46,6 +46,14 @@
         <translation type="unfinished">&amp;Usuń</translation>
     </message>
     <message>
+        <source>Choose the address to send coins to</source>
+        <translation type="unfinished">Wybierz adres, na który chcesz wysłać monety</translation>
+    </message>
+    <message>
+        <source>Choose the address to receive coins with</source>
+        <translation type="unfinished">Wybierz adres, na który chcesz otrzymywać monety</translation>
+    </message>
+    <message>
         <source>C&amp;hoose</source>
         <translation type="unfinished">Wybierz</translation>
     </message>
@@ -138,8 +146,12 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
         <translation type="unfinished">Wprowadź stare i nowe hasło portfela. </translation>
     </message>
     <message>
-        <source>Remember that encrypting your wallet cannot fully protect your BGLs from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">Pamiętaj, że zaszyfrowanie portfela nie pomoże w zapobiegnięciu kradzieży twoich BGLów jeśli komputer zostanie zainfekowany przez złośliwe oprogramowanie.</translation>
+        <source>Continue</source>
+        <translation type="unfinished">Kontynuuj</translation>
+    </message>
+    <message>
+        <source>Remember that encrypting your wallet cannot fully protect your bitgesells from being stolen by malware infecting your computer.</source>
+        <translation type="unfinished">Pamiętaj, że zaszyfrowanie portfela nie pomoże w zapobiegnięciu kradzieży twoich bitgesellów jeśli komputer zostanie zainfekowany przez złośliwe oprogramowanie.</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -383,7 +395,11 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
             <numerusform>%n lata</numerusform>
         </translation>
     </message>
-    </context>
+    <message>
+        <source>default wallet</source>
+        <translation type="unfinished">domyślny portfel</translation>
+    </message>
+</context>
 <context>
     <name>BitgesellGUI</name>
     <message>
@@ -691,10 +707,6 @@ Podpisywanie jest możliwe tylko z adresami typu 'legacy'.</translation>
     <message>
         <source>Mask the values in the Overview tab</source>
         <translation type="unfinished">Schowaj wartości w zakładce Podsumowanie</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">domyślny portfel</translation>
     </message>
     <message>
         <source>No wallets available</source>
@@ -1102,10 +1114,6 @@ Proces migracji utworzy kopię zapasową portfela przed migracją. Plik kopii za
     <message>
         <source>Open wallet warning</source>
         <translation type="unfinished">Ostrzeżenie przy otworzeniu potrfela</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">domyślny portfel</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -2300,10 +2308,6 @@ Jeśli pojawia się ten błąd, poproś sprzedawcę o podanie URI zgodnego z BIP
         <translation type="unfinished">Transfer</translation>
     </message>
     <message>
-        <source>The BIP324 session ID string in hex, if any.</source>
-        <translation type="unfinished">ID sesji BIP324 jest szestnastkowym ciągiem znaków, jeśli istnieje.</translation>
-    </message>
-    <message>
         <source>Session ID</source>
         <translation type="unfinished">ID sesji</translation>
     </message>
@@ -2400,6 +2404,10 @@ Jeśli pojawia się ten błąd, poproś sprzedawcę o podanie URI zgodnego z BIP
     <message>
         <source>Permissions</source>
         <translation type="unfinished">Uprawnienia</translation>
+    </message>
+    <message>
+        <source>The direction and type of peer connection: %1</source>
+        <translation type="unfinished">Kierunek i typ połączenia równorzędnego: %1</translation>
     </message>
     <message>
         <source>Direction/Type</source>
@@ -2598,6 +2606,10 @@ Jeśli pojawia się ten błąd, poproś sprzedawcę o podanie URI zgodnego z BIP
         <translation type="unfinished">Aktywność sieciowa wyłączona</translation>
     </message>
     <message>
+        <source>None</source>
+        <translation type="unfinished">Żaden</translation>
+    </message>
+    <message>
         <source>Executing command without any wallet</source>
         <translation type="unfinished">Wykonuję komendę bez portfela</translation>
     </message>
@@ -2608,6 +2620,23 @@ Jeśli pojawia się ten błąd, poproś sprzedawcę o podanie URI zgodnego z BIP
     <message>
         <source>Executing command using "%1" wallet</source>
         <translation type="unfinished">Wykonuję komendę używając portfela "%1"</translation>
+    </message>
+    <message>
+        <source>Welcome to the %1 RPC console.
+Use up and down arrows to navigate history, and %2 to clear screen.
+Use %3 and %4 to increase or decrease the font size.
+Type %5 for an overview of available commands.
+For more information on using this console, type %6.
+
+%7WARNING: Scammers have been active, telling users to type commands here, stealing their wallet contents. Do not use this console without fully understanding the ramifications of a command.%8</source>
+        <extracomment>RPC console welcome message. Placeholders %7 and %8 are style tags for the warning content, and they are not space separated from the rest of the text intentionally.</extracomment>
+        <translation type="unfinished">Witaj w %1 konsoli RPC.
+Użyj strzałek do góry oraz w dół, aby nawigować po historii oraz %2 w celu wyczyszczenia ekranu.
+Użyj %3 oraz %4 aby zwiększyć lub zmniejszyć rozmiar czcionki.
+Wpisz %5 w celu wyświetlenia dostępnych komend.
+Aby uzyskać więcej informacji na temat używania tej konsoli wpisz %6.
+
+%7UWAGA: Oszuści są wszędzie i potrafią namawiać użytkowników do wpisywania złych komend w celu wykradania zawartości ich porfeli. Nie używaj tej konsoli jeżeli nie znasz wszystkich konsekwencji danej komendy.%8</translation>
     </message>
     <message>
         <source>Executing…</source>
@@ -3297,10 +3326,6 @@ Uwaga: Ponieważ opłata jest naliczana za każdy bajt, opłata "100 satoshi za 
         <translation type="unfinished">Podpi&amp;sz Wiadomość</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive bitgesells sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">Możesz podpisywać wiadomości swoimi adresami aby udowodnić, że jesteś ich właścicielem. Uważaj, aby nie podpisywać niczego co wzbudza Twoje podejrzenia, ponieważ ktoś może stosować phishing próbując nakłonić Cię do ich podpisania. Akceptuj i podpisuj tylko w pełni zrozumiałe komunikaty i wiadomości.</translation>
-    </message>
-    <message>
         <source>The Bitgesell address to sign the message with</source>
         <translation type="unfinished">Adres Bitgesell, za pomocą którego podpisać wiadomość</translation>
     </message>
@@ -3384,10 +3409,6 @@ Zwróć uwagę, że poprawnie zweryfikowana wiadomość potwierdza to, że nadaw
     <message>
         <source>Please check the address and try again.</source>
         <translation type="unfinished">Proszę sprawdzić adres i spróbować ponownie.</translation>
-    </message>
-    <message>
-        <source>The entered address does not refer to a key.</source>
-        <translation type="unfinished">Wprowadzony adres nie odnosi się do klucza.</translation>
     </message>
     <message>
         <source>Wallet unlock was cancelled.</source>
@@ -3871,8 +3892,7 @@ Zwróć uwagę, że poprawnie zweryfikowana wiadomość potwierdza to, że nadaw
 Go to File &gt; Open Wallet to load a wallet.
 - OR -</source>
         <translation type="unfinished">Portfel nie został wybrany.
-Przejdź do Plik &gt; Otwórz Portfel aby wgrać portfel.
-</translation>
+Przejdź do Plik &gt; Otwórz Portfel aby wgrać portfel.</translation>
     </message>
     <message>
         <source>Create a new wallet</source>
@@ -3951,11 +3971,6 @@ Przejdź do Plik &gt; Otwórz Portfel aby wgrać portfel.
         <translation type="unfinished">Skopiowano PSBT</translation>
     </message>
     <message>
-        <source>Copied to clipboard</source>
-        <comment>Fee-bump PSBT saved</comment>
-        <translation type="unfinished">Skopiowane do schowka</translation>
-    </message>
-    <message>
         <source>Can't sign transaction.</source>
         <translation type="unfinished">Nie można podpisać transakcji.</translation>
     </message>
@@ -3966,10 +3981,6 @@ Przejdź do Plik &gt; Otwórz Portfel aby wgrać portfel.
     <message>
         <source>Can't display address</source>
         <translation type="unfinished">Nie można wyświetlić adresu</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">domyślny portfel</translation>
     </message>
 </context>
 <context>
@@ -4072,7 +4083,7 @@ Przejdź do Plik &gt; Otwórz Portfel aby wgrać portfel.
     </message>
     <message>
         <source>No dump file provided. To use createfromdump, -dumpfile=&lt;filename&gt; must be provided.</source>
-        <translation type="unfinished">Nie dostarczono pliku zrzutu. Aby użyć funkcji createfromdump, należy podać -dumpfile=1.</translation>
+        <translation type="unfinished">Nie dostarczono pliku zrzutu. Aby użyć funkcji createfromdump, należy podać -dumpfile=&lt;filename&gt;.</translation>
     </message>
     <message>
         <source>No dump file provided. To use dump, -dumpfile=&lt;filename&gt; must be provided.</source>
@@ -4080,11 +4091,7 @@ Przejdź do Plik &gt; Otwórz Portfel aby wgrać portfel.
     </message>
     <message>
         <source>No wallet file format provided. To use createfromdump, -format=&lt;format&gt; must be provided.</source>
-        <translation type="unfinished">Nie dostarczono pliku zrzutu. Aby użyć funkcji createfromdump, należy podać -dumpfile=1.</translation>
-    </message>
-    <message>
-        <source>Please check that your computer's date and time are correct! If your clock is wrong, %s will not work properly.</source>
-        <translation type="unfinished">Proszę sprawdzić czy data i czas na Twoim komputerze są poprawne! Jeżeli ustawienia zegara będą złe, %s nie będzie działał prawidłowo.</translation>
+        <translation type="unfinished">Nie dostarczono pliku zrzutu. Aby użyć funkcji createfromdump, należy podać -dumpfile=&lt;format&gt;.</translation>
     </message>
     <message>
         <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
@@ -4177,10 +4184,6 @@ Przejdź do Plik &gt; Otwórz Portfel aby wgrać portfel.
     <message>
         <source>-maxmempool must be at least %d MB</source>
         <translation type="unfinished">-maxmempool musi być przynajmniej %d MB</translation>
-    </message>
-    <message>
-        <source>A fatal internal error occurred, see debug.log for details</source>
-        <translation type="unfinished">Błąd: Wystąpił fatalny błąd wewnętrzny, sprawdź szczegóły w debug.log</translation>
     </message>
     <message>
         <source>Cannot resolve -%s address: '%s'</source>
@@ -4608,8 +4611,7 @@ Nie można przywrócić kopii zapasowej portfela</translation>
     </message>
     <message>
         <source>Specified blocks directory "%s" does not exist.</source>
-        <translation type="unfinished">Podany folder bloków "%s" nie istnieje.
-</translation>
+        <translation type="unfinished">Podany folder bloków "%s" nie istnieje.</translation>
     </message>
     <message>
         <source>Specified data directory "%s" does not exist.</source>
@@ -4674,10 +4676,6 @@ Nie można przywrócić kopii zapasowej portfela</translation>
     <message>
         <source>Transaction too large</source>
         <translation type="unfinished">Transakcja zbyt duża</translation>
-    </message>
-    <message>
-        <source>Unable to allocate memory for -maxsigcachesize: '%s' MiB</source>
-        <translation type="unfinished">Nie mogę zalokować pamięci dla -maxsigcachesize: '%s' MiB</translation>
     </message>
     <message>
         <source>Unable to bind to %s on this computer (bind returned error %s)</source>

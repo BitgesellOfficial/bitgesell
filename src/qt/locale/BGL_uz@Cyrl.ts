@@ -376,6 +376,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>%1 GB</source>
         <translation type="unfinished">%1 ГБ</translation>
     </message>
+    <message>
+        <source>default wallet</source>
+        <translation type="unfinished">standart hamyon</translation>
+    </message>
 </context>
 <context>
     <name>BitgesellGUI</name>
@@ -649,7 +653,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Open Wallet</source>
-        <translation type="unfinished">Ochiq hamyon</translation>
+        <translation type="unfinished">Hamyonni ochish</translation>
     </message>
     <message>
         <source>Open a wallet</source>
@@ -670,10 +674,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Mask the values in the Overview tab</source>
         <translation type="unfinished">Umumiy ko'rinish menyusidagi qiymatlarni maskirovka qilish</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">standart hamyon</translation>
     </message>
     <message>
         <source>No wallets available</source>
@@ -908,7 +908,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>L&amp;ock unspent</source>
-        <translation type="unfinished">Sarflanmagan miqdorlarni q&amp;ulflash</translation>
+        <translation type="unfinished">Sarflanmagan tranzaksiyalarni q&amp;ulflash</translation>
     </message>
     <message>
         <source>&amp;Unlock unspent</source>
@@ -1002,10 +1002,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Open wallet warning</source>
         <translation type="unfinished">Hamyonni ochish ogohlantirishi</translation>
-    </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">standart hamyon</translation>
     </message>
     <message>
         <source>Open Wallet</source>
@@ -1836,6 +1832,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">&amp;Manzilni nusxalash</translation>
     </message>
     <message>
+        <source>None</source>
+        <translation type="unfinished">Йўқ</translation>
+    </message>
+    <message>
         <source>via %1</source>
         <translation type="unfinished">%1 орқали</translation>
     </message>
@@ -2484,11 +2484,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <source>Send Coins</source>
         <translation type="unfinished">Тангаларни жунат</translation>
     </message>
-    <message>
-        <source>default wallet</source>
-        <translation type="unfinished">standart hamyon</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>WalletView</name>
     <message>
