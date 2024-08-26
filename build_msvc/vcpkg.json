@@ -1,5 +1,5 @@
 {
-  "name": "BGL-core",
+  "name": "bgl-core",
   "version-string": "1",
   "dependencies": [
     "berkeleydb",
