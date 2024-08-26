@@ -55,12 +55,12 @@ class MempoolLimitTest(BGLTestFramework):
         self.generate(node, 1)
 
         # tx_A needs to be RBF'd, set minfee at set size
-        A_weight = 1000
+        A_vsize = 250
         mempoolmin_feerate = node.getmempoolinfo()["mempoolminfee"]
         tx_A = self.wallet.send_self_transfer(
             from_node=node,
-            fee=(mempoolmin_feerate / 1000) * (A_weight // 4) + Decimal('0.000001'),
-            target_weight=A_weight,
+            fee_rate=mempoolmin_feerate,
+            target_vsize=A_vsize,
             utxo_to_spend=rbf_utxo,
             confirmed_only=True
         )
@@ -68,16 +68,16 @@ class MempoolLimitTest(BGLTestFramework):
         # RBF's tx_A, is not yet submitted
         tx_B = self.wallet.create_self_transfer(
             fee=tx_A["fee"] * 4,
-            target_weight=A_weight,
+            target_vsize=A_vsize,
             utxo_to_spend=rbf_utxo,
             confirmed_only=True
         )
 
         # Spends tx_B's output, too big for cpfp carveout (because that would also increase the descendant limit by 1)
-        non_cpfp_carveout_weight = 40001 # EXTRA_DESCENDANT_TX_SIZE_LIMIT + 1
+        non_cpfp_carveout_vsize = 10001  # EXTRA_DESCENDANT_TX_SIZE_LIMIT + 1
         tx_C = self.wallet.create_self_transfer(
-            target_weight=non_cpfp_carveout_weight,
-            fee = (mempoolmin_feerate / 1000) * (non_cpfp_carveout_weight // 4) + Decimal('0.000001'),
+            target_vsize=non_cpfp_carveout_vsize,
+            fee_rate=mempoolmin_feerate,
             utxo_to_spend=tx_B["new_utxo"],
             confirmed_only=True
         )
@@ -103,14 +103,14 @@ class MempoolLimitTest(BGLTestFramework):
         # UTXOs to be spent by the ultimate child transaction
         parent_utxos = []
 
-        evicted_weight = 8000
+        evicted_vsize = 2000
         # Mempool transaction which is evicted due to being at the "bottom" of the mempool when the
         # mempool overflows and evicts by descendant score. It's important that the eviction doesn't
         # happen in the middle of package evaluation, as it can invalidate the coins cache.
         mempool_evicted_tx = self.wallet.send_self_transfer(
             from_node=node,
-            fee=(mempoolmin_feerate / 1000) * (evicted_weight // 4) + Decimal('0.000001'),
-            target_weight=evicted_weight,
+            fee_rate=mempoolmin_feerate,
+            target_vsize=evicted_vsize,
             confirmed_only=True
         )
         # Already in mempool when package is submitted.
@@ -132,14 +132,16 @@ class MempoolLimitTest(BGLTestFramework):
 
         # Series of parents that don't need CPFP and are submitted individually. Each one is large and
         # high feerate, which means they should trigger eviction but not be evicted.
-        parent_weight = 100000
+        parent_vsize = 25000
         num_big_parents = 3
-        # assert_greater_than(parent_weight * num_big_parents, current_info["maxmempool"] - current_info["bytes"])
-        parent_fee = (100 * mempoolmin_feerate / 1000) * (parent_weight // 4)
+        # Need to be large enough to trigger eviction
+        # (note that the mempool usage of a tx is about three times its vsize)
+        assert_greater_than(parent_vsize * num_big_parents * 3, current_info["maxmempool"] - current_info["bytes"])
+        parent_feerate = 100 * mempoolmin_feerate
 
         big_parent_txids = []
         for i in range(num_big_parents):
-            parent = self.wallet.create_self_transfer(fee=parent_fee, target_weight=parent_weight, confirmed_only=True)
+            parent = self.wallet.create_self_transfer(fee_rate=parent_feerate, target_vsize=parent_vsize, confirmed_only=True)
             parent_utxos.append(parent["new_utxo"])
             package_hex.append(parent["hex"])
             big_parent_txids.append(parent["txid"])
@@ -311,8 +313,9 @@ class MempoolLimitTest(BGLTestFramework):
             entry = node.getmempoolentry(txid)
             worst_feerate_btcvb = min(worst_feerate_btcvb, entry["fees"]["descendant"] / entry["descendantsize"])
         # Needs to be large enough to trigger eviction
-        target_weight_each = 200000
-        # assert_greater_than(target_weight_each * 2, node.getmempoolinfo()["maxmempool"] - node.getmempoolinfo()["bytes"])
+        # (note that the mempool usage of a tx is about three times its vsize)
+        target_vsize_each = 50000
+        assert_greater_than(target_vsize_each * 2 * 3, node.getmempoolinfo()["maxmempool"] - node.getmempoolinfo()["bytes"])
         # Should be a true CPFP: parent's feerate is just below mempool min feerate
         parent_fee = (mempoolmin_feerate / 1000) * (target_weight_each // 4) - Decimal("0.00001")
         # Parent + child is above mempool minimum feerate
@@ -320,8 +323,8 @@ class MempoolLimitTest(BGLTestFramework):
         # However, when eviction is triggered, these transactions should be at the bottom.
         # This assertion assumes parent and child are the same size.
         miniwallet.rescan_utxos()
-        tx_parent_just_below = miniwallet.create_self_transfer(fee=parent_fee, target_weight=target_weight_each)
-        tx_child_just_above = miniwallet.create_self_transfer(utxo_to_spend=tx_parent_just_below["new_utxo"], fee=child_fee, target_weight=target_weight_each)
+        tx_parent_just_below = miniwallet.create_self_transfer(fee_rate=parent_feerate, target_vsize=target_vsize_each)
+        tx_child_just_above = miniwallet.create_self_transfer(utxo_to_spend=tx_parent_just_below["new_utxo"], fee_rate=child_feerate, target_vsize=target_vsize_each)
         # This package ranks below the lowest descendant package in the mempool
         # assert_greater_than(worst_feerate_btcvb, (parent_fee + child_fee) / (tx_parent_just_below["tx"].get_vsize() + tx_child_just_above["tx"].get_vsize()))
         # assert_greater_than(mempoolmin_feerate, (parent_fee) / (tx_parent_just_below["tx"].get_vsize()))
