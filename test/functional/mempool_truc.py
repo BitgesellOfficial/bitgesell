@@ -23,6 +23,7 @@ from test_framework.wallet import (
 
 MAX_REPLACEMENT_CANDIDATES = 100
 TRUC_MAX_VSIZE = 10000
+TRUC_CHILD_MAX_VSIZE = 1000
 
 def cleanup(extra_args=None):
     def decorator(func):
@@ -55,15 +56,9 @@ class MempoolAcceptV3(BGLTestFramework):
     def test_truc_max_vsize(self):
         node = self.nodes[0]
         self.log.info("Test TRUC-specific maximum transaction vsize")
-<<<<<<< HEAD
-        tx_v3_heavy = self.wallet.create_self_transfer(target_weight=(V3_MAX_VSIZE + 1) * WITNESS_SCALE_FACTOR, version=3)
-        assert_greater_than_or_equal(tx_v3_heavy["tx"].get_vsize(), V3_MAX_VSIZE)
-        expected_error_heavy = f"TRUC-violation, v3 tx {tx_v3_heavy['txid']} (wtxid={tx_v3_heavy['wtxid']}) is too big"
-=======
         tx_v3_heavy = self.wallet.create_self_transfer(target_weight=(TRUC_MAX_VSIZE + 1) * WITNESS_SCALE_FACTOR, version=3)
         assert_greater_than_or_equal(tx_v3_heavy["tx"].get_vsize(), TRUC_MAX_VSIZE)
         expected_error_heavy = f"TRUC-violation, version=3 tx {tx_v3_heavy['txid']} (wtxid={tx_v3_heavy['wtxid']}) is too big"
->>>>>>> 19a9b90617... use version=3 instead of v3 in debug strings
         assert_raises_rpc_error(-26, expected_error_heavy, node.sendrawtransaction, tx_v3_heavy["hex"])
         self.check_mempool([])
 
@@ -79,10 +74,10 @@ class MempoolAcceptV3(BGLTestFramework):
         self.check_mempool([tx_v3_parent_normal["txid"]])
         tx_v3_child_heavy = self.wallet.create_self_transfer(
             utxo_to_spend=tx_v3_parent_normal["new_utxo"],
-            target_weight=4004,
+            target_vsize=TRUC_CHILD_MAX_VSIZE + 1,
             version=3
         )
-        assert_greater_than_or_equal(tx_v3_child_heavy["tx"].get_vsize(), 1000)
+        assert_greater_than_or_equal(tx_v3_child_heavy["tx"].get_vsize(), TRUC_CHILD_MAX_VSIZE)
         expected_error_child_heavy = f"TRUC-violation, version=3 child tx {tx_v3_child_heavy['txid']} (wtxid={tx_v3_child_heavy['wtxid']}) is too big"
         assert_raises_rpc_error(-26, expected_error_child_heavy, node.sendrawtransaction, tx_v3_child_heavy["hex"])
         self.check_mempool([tx_v3_parent_normal["txid"]])
@@ -94,10 +89,10 @@ class MempoolAcceptV3(BGLTestFramework):
             from_node=node,
             fee_rate=DEFAULT_FEE,
             utxo_to_spend=tx_v3_parent_normal["new_utxo"],
-            target_weight=3987,
+            target_vsize=TRUC_CHILD_MAX_VSIZE - 3,
             version=3
         )
-        assert_greater_than_or_equal(1000, tx_v3_child_almost_heavy["tx"].get_vsize())
+        assert_greater_than_or_equal(TRUC_CHILD_MAX_VSIZE, tx_v3_child_almost_heavy["tx"].get_vsize())
         self.check_mempool([tx_v3_parent_normal["txid"], tx_v3_child_almost_heavy["txid"]])
         assert_equal(node.getmempoolentry(tx_v3_parent_normal["txid"])["descendantcount"], 2)
         tx_v3_child_almost_heavy_rbf = self.wallet.send_self_transfer(
@@ -107,7 +102,8 @@ class MempoolAcceptV3(BGLTestFramework):
             target_weight=3500,
             version=3
         )
-        assert_greater_than_or_equal(tx_v3_child_almost_heavy["tx"].get_vsize() + tx_v3_child_almost_heavy_rbf["tx"].get_vsize(), 1000)
+        assert_greater_than_or_equal(tx_v3_child_almost_heavy["tx"].get_vsize() + tx_v3_child_almost_heavy_rbf["tx"].get_vsize(),
+                                     TRUC_CHILD_MAX_VSIZE)
         self.check_mempool([tx_v3_parent_normal["txid"], tx_v3_child_almost_heavy_rbf["txid"]])
         assert_equal(node.getmempoolentry(tx_v3_parent_normal["txid"])["descendantcount"], 2)
 
@@ -205,8 +201,8 @@ class MempoolAcceptV3(BGLTestFramework):
         self.check_mempool([])
         tx_v2_from_v3 = self.wallet.send_self_transfer(from_node=node, utxo_to_spend=tx_v3_block["new_utxo"], version=2)
         tx_v3_from_v2 = self.wallet.send_self_transfer(from_node=node, utxo_to_spend=tx_v2_block["new_utxo"], version=3)
-        tx_v3_child_large = self.wallet.send_self_transfer(from_node=node, utxo_to_spend=tx_v3_block2["new_utxo"], target_weight=5000, version=3)
-        assert_greater_than(node.getmempoolentry(tx_v3_child_large["txid"])["vsize"], 1000)
+        tx_v3_child_large = self.wallet.send_self_transfer(from_node=node, utxo_to_spend=tx_v3_block2["new_utxo"], target_vsize=1250, version=3)
+        assert_greater_than(node.getmempoolentry(tx_v3_child_large["txid"])["vsize"], TRUC_CHILD_MAX_VSIZE)
         self.check_mempool([tx_v2_from_v3["txid"], tx_v3_from_v2["txid"], tx_v3_child_large["txid"]])
         node.invalidateblock(block[0])
         self.check_mempool([tx_v3_block["txid"], tx_v2_block["txid"], tx_v3_block2["txid"], tx_v2_from_v3["txid"], tx_v3_from_v2["txid"], tx_v3_child_large["txid"]])
@@ -238,7 +234,7 @@ class MempoolAcceptV3(BGLTestFramework):
 
         # Parent and child are within v3 limits, but parent's 10kvB descendant limit is exceeded
         assert_greater_than_or_equal(TRUC_MAX_VSIZE, tx_v3_parent_large1["tx"].get_vsize())
-        assert_greater_than_or_equal(1000, tx_v3_child_large1["tx"].get_vsize())
+        assert_greater_than_or_equal(TRUC_CHILD_MAX_VSIZE, tx_v3_child_large1["tx"].get_vsize())
         assert_greater_than(tx_v3_parent_large1["tx"].get_vsize() + tx_v3_child_large1["tx"].get_vsize(), 10000)
 
         assert_raises_rpc_error(-26, f"too-long-mempool-chain, exceeds descendant size limit for tx {tx_v3_parent_large1['txid']}", node.sendrawtransaction, tx_v3_child_large1["hex"])
@@ -260,8 +256,8 @@ class MempoolAcceptV3(BGLTestFramework):
         )
 
         # Parent and child are within TRUC limits
-        assert_greater_than_or_equal(V3_MAX_VSIZE, tx_v3_parent_large2["tx"].get_vsize())
-        assert_greater_than_or_equal(1000, tx_v3_child_large2["tx"].get_vsize())
+        assert_greater_than_or_equal(TRUC_MAX_VSIZE, tx_v3_parent_large2["tx"].get_vsize())
+        assert_greater_than_or_equal(TRUC_CHILD_MAX_VSIZE, tx_v3_child_large2["tx"].get_vsize())
         assert_greater_than(tx_v3_parent_large2["tx"].get_vsize() + tx_v3_child_large2["tx"].get_vsize(), 10000)
 
         assert_raises_rpc_error(-26, f"too-long-mempool-chain, exceeds ancestor size limit", node.sendrawtransaction, tx_v3_child_large2["hex"])
@@ -288,7 +284,7 @@ class MempoolAcceptV3(BGLTestFramework):
         )
         tx_v3_child_heavy = self.wallet.create_self_transfer_multi(
             utxos_to_spend=[tx_v3_parent_normal["new_utxo"]],
-            target_weight=4004,
+            target_vsize=TRUC_CHILD_MAX_VSIZE + 1,
             fee_per_output=10000,
             version=3
         )
