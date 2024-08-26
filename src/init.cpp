@@ -427,20 +427,6 @@ static void registerSignalHandler(int signal, void(*handler)(int))
 }
 #endif
 
-static boost::signals2::connection rpc_notify_block_change_connection;
-static void OnRPCStarted()
-{
-    rpc_notify_block_change_connection = uiInterface.NotifyBlockTip_connect(std::bind(RPCNotifyBlockChange, std::placeholders::_2));
-}
-
-static void OnRPCStopped()
-{
-    rpc_notify_block_change_connection.disconnect();
-    RPCNotifyBlockChange(nullptr);
-    g_best_block_cv.notify_all();
-    LogDebug(BCLog::RPC, "RPC stopped.\n");
-}
-
 void SetupServerArgs(ArgsManager& argsman, bool can_listen_ipc)
 {
     SetupHelpOptions(argsman);
@@ -721,8 +707,6 @@ static void StartupNotify(const ArgsManager& args)
 static bool AppInitServers(NodeContext& node)
 {
     const ArgsManager& args = *Assert(node.args);
-    RPCServer::OnStarted(&OnRPCStarted);
-    RPCServer::OnStopped(&OnRPCStopped);
     if (!InitHTTPServer(*Assert(node.shutdown))) {
         return false;
     }
