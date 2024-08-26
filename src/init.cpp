@@ -282,7 +282,7 @@ void Shutdown(NodeContext& node)
 
     StopHTTPRPC();
     StopREST();
-    StopRPC();
+    StopRPC(&node);
     StopHTTPServer();
     for (const auto& client : node.chain_clients) {
         client->flush();
