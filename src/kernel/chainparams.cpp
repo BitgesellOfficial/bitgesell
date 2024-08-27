@@ -26,6 +26,8 @@
 #include <cstring>
 #include <type_traits>
 
+using namespace util::hex_literals;
+
 // Workaround MSVC bug triggering C7595 when calling consteval constructors in
 // initializer lists.
 // A fix may be on the way:
@@ -71,7 +73,7 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
 static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, uint32_t nBits, int32_t nVersion, const CAmount& genesisReward)
 {
     const char* pszTimestamp = "Your support helps ecosystem keep growing. bgl1qkecxxg8ekyruwkkhea7ye5c0ganmhdl7d5nna3";
-    const CScript genesisOutputScript = CScript() << ParseHex("04489d8efd89b673459f3ebbe435956c90255d31408dec347e01649c067267a16347c653e7b721d2aacd8290d3c29665280b52605aab9ee7fecd9db31237467411") << OP_CHECKSIG;
+    const CScript genesisOutputScript = CScript() << "04489d8efd89b673459f3ebbe435956c90255d31408dec347e01649c067267a16347c653e7b721d2aacd8290d3c29665280b52605aab9ee7fecd9db31237467411"_hex_v_u8 << OP_CHECKSIG;
     return CreateGenesisBlock(pszTimestamp, genesisOutputScript, nTime, nNonce, nBits, nVersion, genesisReward);
 }
 
@@ -353,7 +355,7 @@ public:
         m_assumed_chain_state_size = 0;
 
         const char* testnet4_genesis_msg = "03/May/2024 000000000000000000001ebd58c244970b3aa9d783bb001011fbe8ea8e98e00e";
-        const CScript testnet4_genesis_script = CScript() << ParseHex("000000000000000000000000000000000000000000000000000000000000000000") << OP_CHECKSIG;
+        const CScript testnet4_genesis_script = CScript() << "000000000000000000000000000000000000000000000000000000000000000000"_hex_v_u8 << OP_CHECKSIG;
         genesis = CreateGenesisBlock(testnet4_genesis_msg,
                 testnet4_genesis_script,
                 1714777860,
@@ -414,7 +416,7 @@ public:
         vSeeds.clear();
 
         if (!options.challenge) {
-            bin = ParseHex("512103ad5e0edad18cb1f0fc0d28a3d4f1f3e445640337489abb10404f2d1e086be430210359ef5021964fe22d6f8e05b2463c9540ce96883fe3b278760f048f5189f2e6c452ae");
+            bin = "512103ad5e0edad18cb1f0fc0d28a3d4f1f3e445640337489abb10404f2d1e086be430210359ef5021964fe22d6f8e05b2463c9540ce96883fe3b278760f048f5189f2e6c452ae"_hex_v_u8;
             //vSeeds.emplace_back("178.128.221.177");
             //vSeeds.emplace_back("2a01:7c8:d005:390::5");
             //vSeeds.emplace_back("ntv3mtqw5wt63red.onion:38333");
