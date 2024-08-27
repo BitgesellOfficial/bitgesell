@@ -1,5 +1,5 @@
 // Copyright 2014 BitPay Inc.
-// Copyright 2015 BGL Core Developers
+// Copyright 2015 Bitcoin Core Developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or https://opensource.org/licenses/mit-license.php.
 
@@ -239,4 +239,3 @@ const UniValue& UniValue::find_value(std::string_view key) const
     }
     return NullUniValue;
 }
-

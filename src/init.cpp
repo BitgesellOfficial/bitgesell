@@ -8,7 +8,6 @@
 #include <init.h>
 
 #include <kernel/checks.h>
-#include <node/mempool_persist.h>
 #include <kernel/validation_cache_sizes.h>
 
 #include <addrman.h>
@@ -52,6 +51,7 @@
 #include <node/kernel_notifications.h>
 #include <node/mempool_args.h>
 #include <node/mempool_persist_args.h>
+#include <node/mempool_persist.h>
 #include <node/miner.h>
 #include <node/peerman_args.h>
 #include <node/validation_cache_args.h>
@@ -119,8 +119,6 @@
 using common::AmountErrMsg;
 using common::InvalidPortErrMsg;
 using common::ResolveErrMsg;
-using node::DumpMempool;
-using node::LoadMempool;
 using kernel::ValidationCacheSizes;
 
 using node::ApplyArgsManOptions;
@@ -137,6 +135,8 @@ using node::NodeContext;
 using node::ShouldPersistMempool;
 using node::ImportBlocks;
 using node::VerifyLoadedChainstate;
+using node::DumpMempool;
+using node::LoadMempool;
 using util::Join;
 using util::ReplaceAll;
 using util::ToString;

@@ -336,6 +336,9 @@ bool UniValue::read(std::string_view str_in)
                 stack.push_back(newTop);
             }
 
+            if (stack.size() > MAX_JSON_DEPTH)
+                return false;
+
             if (utyp == VOBJ)
                 setExpect(OBJ_NAME);
             else
@@ -459,4 +462,3 @@ bool UniValue::read(std::string_view str_in)
 
     return true;
 }
-
