@@ -49,7 +49,7 @@ class RpcCreateMultiSigTest(BGLTestFramework):
             self.final = getnewdestination('bech32')[2]
 
     def run_test(self):
-        node0, node1, node2 = self.nodes
+        node0, node1, _node2 = self.nodes
         self.wallet = MiniWallet(test_node=node0)
 
         if self.is_bdb_compiled():
@@ -161,20 +161,10 @@ class RpcCreateMultiSigTest(BGLTestFramework):
         assert bal2 == self.moved
         assert_equal(bal0 + bal1 + bal2 + balw, total)
 
-    def do_multisig(self):
-        node0, node1, node2 = self.nodes
-
-        if self.is_bdb_compiled():
-            if 'wmulti' not in node1.listwallets():
-                try:
-                    node1.loadwallet('wmulti')
-                except JSONRPCException as e:
-                    path = os.path.join(self.options.tmpdir, "node1", "regtest", "wallets", "wmulti")
-                    if e.error['code'] == -18 and "Wallet file verification failed. Failed to load database path '{}'. Path does not exist.".format(path) in e.error['message']:
-                        node1.createwallet(wallet_name='wmulti', disable_private_keys=True)
-                    else:
-                        raise
-            wmulti = node1.get_wallet_rpc('wmulti')
+    def do_multisig(self, nkeys, nsigs, output_type, wallet_multi):
+        node0, _node1, node2 = self.nodes
+        pub_keys = self.pub[0: nkeys]
+        priv_keys = self.priv[0: nkeys]
 
         # Construct the expected descriptor
         desc = 'multi({},{})'.format(self.nsigs, ','.join(self.pub))
