@@ -11,7 +11,7 @@ When following your systems build instructions, make sure to install the `Qt` de
 To run:
 
 ```sh
-./src/qt/BGL-qt
+./build/src/qt/BGL-qt
 ```
 
 ## Files and Directories
