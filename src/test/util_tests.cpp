@@ -7,6 +7,7 @@
 #include <hash.h> // For Hash()
 #include <key.h>  // For CKey
 #include <script/parsing.h>
+#include <span.h>
 #include <sync.h>
 #include <test/util/random.h>
 #include <test/util/setup_common.h>
@@ -45,6 +46,8 @@
 #include <boost/test/unit_test.hpp>
 
 using namespace std::literals;
+using namespace util::hex_literals;
+using util::ConstevalHexDigit;
 using util::Join;
 using util::RemovePrefix;
 using util::RemovePrefixView;
@@ -148,7 +151,22 @@ BOOST_AUTO_TEST_CASE(parse_hex)
     std::vector<unsigned char> result;
     std::vector<unsigned char> expected(ParseHex_expected, ParseHex_expected + sizeof(ParseHex_expected));
     // Basic test vector
-    result = ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f");
+    std::vector<unsigned char> expected(std::begin(HEX_PARSE_OUTPUT), std::end(HEX_PARSE_OUTPUT));
+    constexpr std::array<std::byte, 65> hex_literal_array{operator""_hex<util::detail::Hex(HEX_PARSE_INPUT)>()};
+    auto hex_literal_span{MakeUCharSpan(hex_literal_array)};
+    BOOST_CHECK_EQUAL_COLLECTIONS(hex_literal_span.begin(), hex_literal_span.end(), expected.begin(), expected.end());
+
+    const std::vector<std::byte> hex_literal_vector{operator""_hex_v<util::detail::Hex(HEX_PARSE_INPUT)>()};
+    hex_literal_span = MakeUCharSpan(hex_literal_vector);
+    BOOST_CHECK_EQUAL_COLLECTIONS(hex_literal_span.begin(), hex_literal_span.end(), expected.begin(), expected.end());
+
+    constexpr std::array<uint8_t, 65> hex_literal_array_uint8{operator""_hex_u8<util::detail::Hex(HEX_PARSE_INPUT)>()};
+    BOOST_CHECK_EQUAL_COLLECTIONS(hex_literal_array_uint8.begin(), hex_literal_array_uint8.end(), expected.begin(), expected.end());
+
+    result = operator""_hex_v_u8<util::detail::Hex(HEX_PARSE_INPUT)>();
+    BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(), expected.begin(), expected.end());
+
+    result = ParseHex(HEX_PARSE_INPUT);
     BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(), expected.begin(), expected.end());
     result = TryParseHex<uint8_t>("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f").value();
     BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(), expected.begin(), expected.end());
@@ -172,10 +190,12 @@ BOOST_AUTO_TEST_CASE(parse_hex)
     BOOST_CHECK(result.size() == 2 && result[0] == 0xff && result[1] == 0xaa);
 
     // Empty string is supported
-    result = ParseHex("");
-    BOOST_CHECK(result.size() == 0);
-    result = TryParseHex<uint8_t>("").value();
-    BOOST_CHECK(result.size() == 0);
+    static_assert(""_hex.empty());
+    static_assert(""_hex_u8.empty());
+    BOOST_CHECK_EQUAL(""_hex_v.size(), 0);
+    BOOST_CHECK_EQUAL(""_hex_v_u8.size(), 0);
+    BOOST_CHECK_EQUAL(ParseHex("").size(), 0);
+    BOOST_CHECK_EQUAL(TryParseHex<uint8_t>("").value().size(), 0);
 
     // Spaces between nibbles is treated as invalid
     BOOST_CHECK_EQUAL(ParseHex("AAF F").size(), 0);
@@ -196,6 +216,14 @@ BOOST_AUTO_TEST_CASE(parse_hex)
     // Truncated input is treated as invalid
     BOOST_CHECK_EQUAL(ParseHex("12 3").size(), 0);
     BOOST_CHECK(!TryParseHex("12 3").has_value());
+}
+
+BOOST_AUTO_TEST_CASE(consteval_hex_digit)
+{
+    BOOST_CHECK_EQUAL(ConstevalHexDigit('0'), 0);
+    BOOST_CHECK_EQUAL(ConstevalHexDigit('9'), 9);
+    BOOST_CHECK_EQUAL(ConstevalHexDigit('a'), 0xa);
+    BOOST_CHECK_EQUAL(ConstevalHexDigit('f'), 0xf);
 }
 
 BOOST_AUTO_TEST_CASE(util_HexStr)
