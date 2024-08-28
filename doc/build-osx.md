@@ -1,6 +1,6 @@
 # macOS Build Guide
 
-**Updated for MacOS [14.4](https://www.apple.com/macos/sonoma/)**
+**Updated for MacOS [14](https://www.apple.com/macos/sonoma/)**
 
 This guide describes how to build BGLd, command-line utilities, and GUI on macOS
 
@@ -97,8 +97,8 @@ brew install berkeley-db@4
 
 ###### Qt
 
-Bitgesell Core includes a GUI built with the cross-platform Qt Framework. To compile the GUI, we need to install
-the necessary parts of Qt, the libqrencode and pass `-DBUILD_GUI=ON`. Skip if you don't intend to use the GUI.
+Bitcoin Core includes a GUI built with the cross-platform Qt Framework. To compile the GUI, we need to install
+Qt, libqrencode and pass `-DBUILD_GUI=ON`. Skip if you don't intend to use the GUI.
 
 ``` bash
 brew install qt@5
@@ -115,15 +115,56 @@ The GUI will be able to encode addresses in QR codes unless this feature is expl
 brew install qrencode
 ```
 
-Otherwise, if you don't need QR encoding support, use the `-DWITH_QRENCODE=OFF` option to disable this feature in order to compile the GUI.
+Otherwise, if you don't need QR encoding support, you can pass `-DWITH_QRENCODE=OFF` to disable this feature.
 
 ---
 
-Then install [Homebrew](https://brew.sh).
+#### Port Mapping Dependencies
 
-## Dependencies
-```shell
-brew install automake libtool boost miniupnpc libnatpmp pkg-config python qt@5 libevent qrencode
+###### miniupnpc
+
+miniupnpc may be used for UPnP port mapping.
+Skip if you do not need this functionality.
+
+``` bash
+brew install miniupnpc
+```
+
+###### libnatpmp
+
+libnatpmp may be used for NAT-PMP port mapping.
+Skip if you do not need this functionality.
+
+``` bash
+brew install libnatpmp
+```
+
+Check out the [further configuration](#further-configuration) section for more information.
+
+---
+
+#### ZMQ Dependencies
+
+Support for ZMQ notifications requires the following dependency.
+Skip if you do not need ZMQ functionality.
+
+``` bash
+brew install zeromq
+```
+
+Check out the [further configuration](#further-configuration) section for more information.
+
+For more information on ZMQ, see: [zmq.md](zmq.md)
+
+---
+
+#### Test Suite Dependencies
+
+There is an included test suite that is useful for testing code changes when developing.
+To run the test suite (recommended), you will need to have Python 3 installed:
+
+``` bash
+brew install python
 ```
 
 ---
@@ -193,12 +234,8 @@ cmake --build build --target deploy
     make deploy
     ```
 
-## `disable-wallet` mode
-When the intention is to run only a P2P node without a wallet, BGL Core may be
-compiled in `disable-wallet` mode with:
-```shell
-./configure --disable-wallet
-```
+Bitcoin Core should now be available at `./build/src/BGLd`.
+If you compiled support for the GUI, it should be available at `./build/src/qt/BGL-qt`.
 
 In this case there is no dependency on [*Berkeley DB*](#berkeley-db) and [*SQLite*](#sqlite).
 
