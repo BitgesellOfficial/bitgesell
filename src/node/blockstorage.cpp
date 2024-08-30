@@ -1211,7 +1211,7 @@ public:
     }
 };
 
-void ImportBlocks(ChainstateManager& chainman, std::vector<fs::path> vImportFiles)
+void ImportBlocks(ChainstateManager& chainman, std::span<const fs::path> import_paths)
 {
     ImportingNow imp{chainman.m_blockman.m_importing};
 
@@ -1246,7 +1246,7 @@ void ImportBlocks(ChainstateManager& chainman, std::vector<fs::path> vImportFile
     }
 
     // -loadblock=
-    for (const fs::path& path : vImportFiles) {
+    for (const fs::path& path : import_paths) {
         AutoFile file{fsbridge::fopen(path, "rb")};
         if (!file.IsNull()) {
             LogPrintf("Importing blocks file %s...\n", fs::PathToString(path));
