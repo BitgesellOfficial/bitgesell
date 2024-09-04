@@ -225,18 +225,19 @@ struct DepGraphFormatter
                         --diff;
                     }
                 }
-                // If we reach this point, we can interpret the remaining skip value as how far
-                // from the end of reordering the new transaction should be placed (wrapping
-                // around), so remove the preliminary position it was put in above (which was to
-                // make sure that if a deserialization exception occurs, the new transaction still
-                // has some entry in reordering).
-                reordering.pop_back();
-                ClusterIndex insert_distance = diff % (reordering.size() + 1);
-                // And then update reordering to reflect this new transaction's insertion.
-                for (auto& pos : reordering) {
-                    pos += (pos >= reordering.size() - insert_distance);
-                }
-                reordering.push_back(reordering.size() - insert_distance);
+            } catch (const std::ios_base::failure&) {
+                // Continue even if a read error was encountered.
+                read_error = true;
+            }
+            // Construct a new transaction whenever we made it past the new_feerate construction.
+            if (new_feerate.IsEmpty()) break;
+            assert(reordering.size() < SetType::Size());
+            auto topo_idx = topo_depgraph.AddTransaction(new_feerate);
+            topo_depgraph.AddDependencies(new_ancestors, topo_idx);
+            diff %= total_size + 1;
+            // Insert the new transaction at distance diff back from the end.
+            for (auto& pos : reordering) {
+                pos += (pos >= total_size - diff);
             }
         } catch (const std::ios_base::failure&) {}
 
