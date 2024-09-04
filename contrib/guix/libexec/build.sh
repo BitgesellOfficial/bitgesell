@@ -211,7 +211,6 @@ CONFIGFLAGS="-DREDUCE_EXPORTS=ON -DBUILD_BENCH=OFF -DBUILD_GUI_TESTS=OFF -DBUILD
 # CFLAGS
 HOST_CFLAGS="-O2 -g"
 case "$HOST" in
-    *linux*)  HOST_CFLAGS+=" -ffile-prefix-map=${DISTSRC}/src=." ;;
     *mingw*)  HOST_CFLAGS+=" -fno-ident" ;;
     *darwin*) unset HOST_CFLAGS ;;
 esac
