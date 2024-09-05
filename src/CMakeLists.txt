@@ -4,7 +4,7 @@
 
 include(GNUInstallDirs)
 
-configure_file(${PROJECT_SOURCE_DIR}/cmake/BGL-config.h.in config/BGL-config.h @ONLY)
+configure_file(${PROJECT_SOURCE_DIR}/cmake/BGL-config.h.in config/BGL-config.h USE_SOURCE_PERMISSIONS @ONLY)
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 # TODO: After the transition from Autotools to CMake, the obj/ subdirectory
