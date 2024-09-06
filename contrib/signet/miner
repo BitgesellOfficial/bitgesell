@@ -72,28 +72,21 @@ def signet_txs(block, challenge):
 
     return spend, to_spend
 
-def do_createpsbt(block, signme, spendme):
-    psbt = PSBT()
-    psbt.g = PSBTMap( {PSBT_GLOBAL_UNSIGNED_TX: signme.serialize(),
-                       PSBT_SIGNET_BLOCK: block.serialize()
-                     } )
-    psbt.i = [ PSBTMap( {PSBT_IN_NON_WITNESS_UTXO: spendme.serialize(),
-                         PSBT_IN_SIGHASH_TYPE: bytes([1,0,0,0])})
-             ]
-    psbt.o = [ PSBTMap() ]
-    return psbt.to_base64()
-
-def do_decode_psbt(b64psbt):
+def decode_challenge_psbt(b64psbt):
     psbt = PSBT.from_base64(b64psbt)
 
     assert len(psbt.tx.vin) == 1
     assert len(psbt.tx.vout) == 1
     assert PSBT_SIGNET_BLOCK in psbt.g.map
+    return psbt
 
+def get_block_from_psbt(psbt):
+    return from_binary(CBlock, psbt.g.map[PSBT_SIGNET_BLOCK])
+
+def get_solution_from_psbt(psbt):
     scriptSig = psbt.i[0].map.get(PSBT_IN_FINAL_SCRIPTSIG, b"")
     scriptWitness = psbt.i[0].map.get(PSBT_IN_FINAL_SCRIPTWITNESS, b"\x00")
-
-    return from_binary(CBlock, psbt.g.map[PSBT_SIGNET_BLOCK]), ser_string(scriptSig) + scriptWitness
+    return ser_string(scriptSig) + scriptWitness
 
 def finish_block(block, signet_solution, grind_cmd):
     block.vtx[0].vout[-1].scriptPubKey += CScriptOp.encode_op_pushdata(SIGNET_HEADER + signet_solution)
@@ -197,7 +190,9 @@ def do_genpsbt(args):
     print(psbt)
 
 def do_solvepsbt(args):
-    block, signet_solution = do_decode_psbt(sys.stdin.read())
+    psbt = decode_challenge_psbt(sys.stdin.read())
+    block = get_block_from_psbt(psbt)
+    signet_solution = get_solution_from_psbt(psbt)
     block = finish_block(block, signet_solution, args.grind_cmd)
     print(block.serialize().hex())
 
@@ -267,9 +262,85 @@ def next_block_delta(last_nbits, last_hash, ultimate_target, do_poisson, max_int
 
     return this_interval
 
-def next_block_is_mine(last_hash, my_blocks):
-    det_rand = int(last_hash[-16:-8], 16)
-    return my_blocks[0] <= (det_rand % my_blocks[2]) < my_blocks[1]
+        if self.poisson:
+            det_rand = int(last_hash[-8:], 16) * 2**-32
+            this_interval_variance = -math.log1p(-det_rand)
+        else:
+            this_interval_variance = 1
+
+        this_interval = avg_interval * this_interval_variance
+        this_interval = max(1, min(this_interval, self.max_interval))
+
+        return this_interval
+
+    def next_block_is_mine(self, last_hash):
+        det_rand = int(last_hash[-16:-8], 16)
+        return self.multi_low <= (det_rand % self.multi_period) < self.multi_high
+
+    def next_block_time(self, now, bestheader, is_first_block):
+        if self.set_block_time is not None:
+            logging.debug("Setting start time to %d", self.set_block_time)
+            self.mine_time = self.set_block_time
+            self.action_time = now
+            self.is_mine = True
+        elif bestheader["height"] == 0:
+            time_delta = self.INTERVAL * 100 # plenty of time to mine 100 blocks
+            logging.info("Backdating time for first block to %d minutes ago" % (time_delta/60))
+            self.mine_time = now - time_delta
+            self.action_time = now
+            self.is_mine = True
+        else:
+            time_delta = self.next_block_delta(int(bestheader["bits"], 16), bestheader["hash"])
+            self.mine_time = bestheader["time"] + time_delta
+
+            self.is_mine = self.next_block_is_mine(bestheader["hash"])
+
+            self.action_time = self.mine_time
+            if not self.is_mine:
+                self.action_time += self.backup_delay
+
+            if self.standby_delay > 0:
+                self.action_time += self.standby_delay
+            elif is_first_block:
+                # for non-standby, always mine immediately on startup,
+                # even if the next block shouldn't be ours
+                self.action_time = now
+
+        # don't want fractional times so round down
+        self.mine_time = int(self.mine_time)
+        self.action_time = int(self.action_time)
+
+        # can't mine a block 2h in the future; 1h55m for some safety
+        self.action_time = max(self.action_time, self.mine_time - 6900)
+
+    def gbt(self, bcli, bestblockhash, now):
+        tmpl = json.loads(bcli("getblocktemplate", '{"rules":["signet","segwit"]}'))
+        if tmpl["previousblockhash"] != bestblockhash:
+            logging.warning("GBT based off unexpected block (%s not %s), retrying", tmpl["previousblockhash"], bci["bestblockhash"])
+            time.sleep(1)
+            return None
+
+        if tmpl["mintime"] > self.mine_time:
+            logging.info("Updating block time from %d to %d", self.mine_time, tmpl["mintime"])
+            self.mine_time = tmpl["mintime"]
+            if self.mine_time > now:
+                logging.error("GBT mintime is in the future: %d is %d seconds later than %d", self.mine_time, (self.mine_time-now), now)
+                return None
+
+        return tmpl
+
+    def mine(self, bcli, grind_cmd, tmpl, reward_spk):
+        psbt = generate_psbt(tmpl, reward_spk, blocktime=self.mine_time, poolid=self.poolid)
+        input_stream = os.linesep.join([psbt, "true", "ALL"]).encode('utf8')
+        psbt_signed = json.loads(bcli("-stdin", "walletprocesspsbt", input=input_stream))
+        if not psbt_signed.get("complete",False):
+            logging.debug("Generated PSBT: %s" % (psbt,))
+            sys.stderr.write("PSBT signing failed\n")
+            return None
+        psbt = decode_challenge_psbt(psbt_signed["psbt"])
+        block = get_block_from_psbt(psbt)
+        signet_solution = get_solution_from_psbt(psbt)
+        return finish_block(block, signet_solution, grind_cmd)
 
 def do_generate(args):
     if args.set_block_time is not None:
@@ -477,9 +548,9 @@ def do_calibrate(args):
     print("nbits=%08x for %ds average mining time" % (target_to_nbits(want_targ), want_time))
     return 0
 
-def bitcoin_cli(basecmd, args, **kwargs):
+def BGL_cli(basecmd, args, **kwargs):
     cmd = basecmd + ["-signet"] + args
-    logging.debug("Calling bitcoin-cli: %r", cmd)
+    logging.debug("Calling BGL-cli: %r", cmd)
     out = subprocess.run(cmd, stdout=subprocess.PIPE, **kwargs, check=True).stdout
     if isinstance(out, bytes):
         out = out.decode('utf8')
@@ -487,7 +558,7 @@ def bitcoin_cli(basecmd, args, **kwargs):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--cli", default="bitcoin-cli", type=str, help="bitcoin-cli command")
+    parser.add_argument("--cli", default="BGL-cli", type=str, help="BGL-cli command")
     parser.add_argument("--debug", action="store_true", help="Print debugging info")
     parser.add_argument("--quiet", action="store_true", help="Only print warnings/errors")
 
@@ -532,7 +603,7 @@ def main():
 
     args = parser.parse_args(sys.argv[1:])
 
-    args.bcli = lambda *a, input=b"", **kwargs: bitcoin_cli(shlex.split(args.cli), list(a), input=input, **kwargs)
+    args.bcli = lambda *a, input=b"", **kwargs: BGL_cli(shlex.split(args.cli), list(a), input=input, **kwargs)
 
     if hasattr(args, "address") and hasattr(args, "descriptor"):
         args.derived_addresses = {}
