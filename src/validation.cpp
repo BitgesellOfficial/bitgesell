@@ -5215,7 +5215,7 @@ bool ChainstateManager::ShouldCheckBlockIndex() const
 {
     // Assert to verify Flatten() has been called.
     if (!*Assert(m_options.check_block_index)) return false;
-    if (GetRand(*m_options.check_block_index) >= 1) return false;
+    if (FastRandomContext().randrange(*m_options.check_block_index) >= 1) return false;
     return true;
 }
 
@@ -5250,8 +5250,6 @@ void ChainstateManager::CheckBlockIndex()
         if (!best_hdr_chain.Contains(&block_index)) {
             // Only genesis, which must be part of the best header chain, can have a nullptr parent.
             assert(block_index.pprev);
-        forward.emplace(block_index.pprev, &block_index);
-        forward.emplace(block_index.pprev, &block_index);
             forward.emplace(block_index.pprev, &block_index);
         }
     }
