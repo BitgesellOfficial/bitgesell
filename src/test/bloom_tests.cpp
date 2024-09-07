@@ -464,8 +464,7 @@ static std::vector<unsigned char> RandomData()
 
 BOOST_AUTO_TEST_CASE(rolling_bloom)
 {
-    SeedInsecureRand(SeedRand::ZEROS);
-    g_mock_deterministic_tests = true;
+    SeedRandomForTest(SeedRand::ZEROS);
 
     // last-100-entry, 1% false positive:
     CRollingBloomFilter rb1(100, 0.01);
@@ -531,7 +530,6 @@ BOOST_AUTO_TEST_CASE(rolling_bloom)
     for (int i = 0; i < DATASIZE; i++) {
         BOOST_CHECK(rb2.contains(data[i]));
     }
-    g_mock_deterministic_tests = false;
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -55,7 +55,7 @@ template <typename Data>
 bool SerializeFileDB(const std::string& prefix, const fs::path& path, const Data& data, int version)
 {
     // Generate random temporary filename
-    const uint16_t randv{GetRand<uint16_t>()};
+    const uint16_t randv{FastRandomContext().rand<uint16_t>()};
     std::string tmpfn = strprintf("%s.%04x", prefix, randv);
 
     // open temp output file

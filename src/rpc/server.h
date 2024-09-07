@@ -48,7 +48,7 @@ bool RPCIsInWarmup(std::string *outStatus);
 class RPCTimerBase
 {
 public:
-    virtual ~RPCTimerBase() {}
+    virtual ~RPCTimerBase() = default;
 };
 
 /**
@@ -57,7 +57,7 @@ public:
 class RPCTimerInterface
 {
 public:
-    virtual ~RPCTimerInterface() {}
+    virtual ~RPCTimerInterface() = default;
     /** Implementation name */
     virtual const char *Name() = 0;
     /** Factory function for timers.
@@ -180,15 +180,5 @@ void StartRPC();
 void InterruptRPC();
 void StopRPC();
 UniValue JSONRPCExec(const JSONRPCRequest& jreq, bool catch_errors);
-
-// Drop witness when serializing for RPC?
-bool RPCSerializationWithoutWitness();
-
-template<typename T>
-auto RPCTxSerParams(T&& t)
-{
-    if (RPCSerializationWithoutWitness()) return TX_NO_WITNESS(t);
-    return TX_WITH_WITNESS(t);
-}
 
 #endif // BGL_RPC_SERVER_H

@@ -10,7 +10,7 @@ set(CMAKE_CXX_EXTENSIONS False)
 
 # TODO: Figure out how to avoid the terminfo check
 find_package(LLVM REQUIRED CONFIG)
-find_program(CLANG_TIDY_EXE NAMES "clang-tidy-${LLVM_VERSION_MAJOR}" "clang-tidy" HINTS ${LLVM_TOOLS_BINARY_DIR})
+find_program(CLANG_TIDY_EXE NAMES "clang-tidy-${LLVM_VERSION_MAJOR}" "clang-tidy-17" HINTS ${LLVM_TOOLS_BINARY_DIR})
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Found clang-tidy: ${CLANG_TIDY_EXE}")
 
