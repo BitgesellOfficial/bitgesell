@@ -27,7 +27,6 @@ from test_framework.p2p import (
     P2PDataStore,
     P2PInterface,
 )
-
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
@@ -57,7 +56,6 @@ class SenderOfAddrV2(P2PInterface):
 
 
 class InvalidMessagesTest(BGLTestFramework):
-
     def set_test_params(self):
         self.num_nodes = 1
         self.setup_clean_chain = True
@@ -65,8 +63,7 @@ class InvalidMessagesTest(BGLTestFramework):
 
     def run_test(self):
         self.test_buffer()
-        #BGL - Broken Test...
-        #self.test_duplicate_version_msg()
+        self.test_duplicate_version_msg()
         self.test_magic_bytes()
         self.test_checksum()
         self.test_size()
@@ -186,7 +183,7 @@ class InvalidMessagesTest(BGLTestFramework):
         node = self.nodes[0]
         conn = node.add_p2p_connection(SenderOfAddrV2())
 
-        # Make sure BGLd signals support for ADDRv2, otherwise this test
+        # Make sure bitcoind signals support for ADDRv2, otherwise this test
         # will bombard an old node with messages it does not recognize which
         # will produce unexpected results.
         conn.wait_for_sendaddrv2()
@@ -264,7 +261,9 @@ class InvalidMessagesTest(BGLTestFramework):
         msg_type = msg.msgtype.decode('ascii')
         self.log.info("Test {} message of size {} is logged as misbehaving".format(msg_type, size))
         with self.nodes[0].assert_debug_log(['Misbehaving', '{} message size = {}'.format(msg_type, size)]):
-            self.nodes[0].add_p2p_connection(P2PInterface()).send_and_ping(msg)
+            conn = self.nodes[0].add_p2p_connection(P2PInterface())
+            conn.send_message(msg)
+            conn.wait_for_disconnect()
         self.nodes[0].disconnect_p2ps()
 
     def test_oversized_inv_msg(self):
@@ -325,7 +324,8 @@ class InvalidMessagesTest(BGLTestFramework):
         # delete arbitrary block header somewhere in the middle to break link
         del block_headers[random.randrange(1, len(block_headers)-1)]
         with self.nodes[0].assert_debug_log(expected_msgs=MISBEHAVING_NONCONTINUOUS_HEADERS_MSGS):
-            peer.send_and_ping(msg_headers(block_headers))
+            peer.send_message(msg_headers(block_headers))
+            peer.wait_for_disconnect()
         self.nodes[0].disconnect_p2ps()
 
     def test_resource_exhaustion(self):
