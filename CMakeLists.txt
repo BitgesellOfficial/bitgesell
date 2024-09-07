@@ -1,43 +1,13 @@
-# Copyright (c) 2023-present The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or https://opensource.org/license/mit/.
+cmake_minimum_required(VERSION 3.16)
 
-# Ubuntu 22.04 LTS Jammy Jellyfish, https://wiki.ubuntu.com/Releases, EOSS in June 2027:
-#  - CMake 3.22.1, https://packages.ubuntu.com/jammy/cmake
-#
-# Centos Stream 9, https://www.centos.org/cl-vs-cs/#end-of-life, EOL in May 2027:
-#  - CMake 3.26.5, https://mirror.stream.centos.org/9-stream/AppStream/x86_64/os/Packages/
-cmake_minimum_required(VERSION 3.22)
-
-if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
-  message(FATAL_ERROR "In-source builds are not allowed.")
-endif()
-
-#=============================
-# Project / Package metadata
-#=============================
-set(PACKAGE_NAME "Bitgesell Core")
-set(CLIENT_VERSION_MAJOR 27)
-set(CLIENT_VERSION_MINOR 99)
-set(CLIENT_VERSION_BUILD 0)
-set(CLIENT_VERSION_RC 0)
-set(CLIENT_VERSION_IS_RELEASE "false")
-set(COPYRIGHT_YEAR "2024")
-
-# During the enabling of the CXX and CXXOBJ languages, we modify
-# CMake's compiler/linker invocation strings by appending the content
-# of the user-defined `APPEND_*` variables, which allows overriding
-# any flag. We also ensure that the APPEND_* flags are considered
-# during CMake's tests, which use the `try_compile()` command.
-#
-# CMake's docs state that the `CMAKE_TRY_COMPILE_PLATFORM_VARIABLES`
-# variable "is meant to be set by CMake's platform information modules
-# for the current toolchain, or by a toolchain file." We do our best
-# to set it before the `project()` command.
-set(CMAKE_TRY_COMPILE_PLATFORM_VARIABLES
-  CMAKE_CXX_COMPILE_OBJECT
-  CMAKE_OBJCXX_COMPILE_OBJECT
-  CMAKE_CXX_LINK_EXECUTABLE
+project(libsecp256k1
+  # The package (a.k.a. release) version is based on semantic versioning 2.0.0 of
+  # the API. All changes in experimental modules are treated as
+  # backwards-compatible and therefore at most increase the minor version.
+  VERSION 0.5.2
+  DESCRIPTION "Optimized C library for ECDSA signatures and secret/public key operations on curve secp256k1."
+  HOMEPAGE_URL "https://github.com/bitcoin-core/secp256k1"
+  LANGUAGES C
 )
 
 project(BitcoinCore
@@ -111,8 +81,19 @@ if(WITH_BDB)
 endif()
 cmake_dependent_option(BUILD_WALLET_TOOL "Build BGL-wallet tool." ${BUILD_TESTS} "ENABLE_WALLET" OFF)
 
-option(BUILD_UTIL_CHAINSTATE "Build experimental BGL-chainstate executable." OFF)
-option(BUILD_KERNEL_LIB "Build experimental BGLkernel library." ${BUILD_UTIL_CHAINSTATE})
+# The library version is based on libtool versioning of the ABI. The set of
+# rules for updating the version can be found here:
+# https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
+# All changes in experimental modules are treated as if they don't affect the
+# interface and therefore only increase the revision.
+set(${PROJECT_NAME}_LIB_VERSION_CURRENT 4)
+set(${PROJECT_NAME}_LIB_VERSION_REVISION 2)
+set(${PROJECT_NAME}_LIB_VERSION_AGE 2)
+
+set(CMAKE_C_STANDARD 90)
+set(CMAKE_C_EXTENSIONS OFF)
+
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 option(ENABLE_WALLET "Enable wallet." ON)
 option(WITH_SQLITE "Enable SQLite wallet support." ${ENABLE_WALLET})
@@ -571,8 +552,17 @@ if(DEFINED ENV{LDFLAGS})
   deduplicate_flags(CMAKE_EXE_LINKER_FLAGS)
 endif()
 
-if(BUILD_TESTS)
-  enable_testing()
+set(SECP256K1_APPEND_LDFLAGS "" CACHE STRING "Linker flags that are appended to the command line after all other flags added by the build system. This variable is intended for debugging and special builds.")
+if(SECP256K1_APPEND_LDFLAGS)
+  # Appending to this low-level rule variable is the only way to
+  # guarantee that the flags appear at the end of the command line.
+  string(APPEND CMAKE_C_CREATE_SHARED_LIBRARY " ${SECP256K1_APPEND_LDFLAGS}")
+  string(APPEND CMAKE_C_LINK_EXECUTABLE " ${SECP256K1_APPEND_LDFLAGS}")
+endif()
+
+add_subdirectory(src)
+if(SECP256K1_BUILD_EXAMPLES)
+  add_subdirectory(examples)
 endif()
 # TODO: The `CMAKE_SKIP_BUILD_RPATH` variable setting can be deleted
 #       in the future after reordering Guix script commands to
@@ -642,16 +632,52 @@ else()
   set(cross_status "FALSE")
 endif()
 message("Cross compiling ....................... ${cross_status}")
-message("C++ compiler .......................... ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, ${CMAKE_CXX_COMPILER}")
-include(FlagsSummary)
-flags_summary()
-message("Attempt to harden executables ......... ${ENABLE_HARDENING}")
-message("Use ccache for compiling .............. ${WITH_CCACHE}")
-message("\n")
-if(configure_warnings)
-    message("  ******\n")
-    foreach(warning IN LISTS configure_warnings)
-      message(WARNING "${warning}")
-    endforeach()
-    message("  ******\n")
+message("Valgrind .............................. ${SECP256K1_VALGRIND}")
+get_directory_property(definitions COMPILE_DEFINITIONS)
+string(REPLACE ";" " " definitions "${definitions}")
+message("Preprocessor defined macros ........... ${definitions}")
+message("C compiler ............................ ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}, ${CMAKE_C_COMPILER}")
+message("CFLAGS ................................ ${CMAKE_C_FLAGS}")
+get_directory_property(compile_options COMPILE_OPTIONS)
+string(REPLACE ";" " " compile_options "${compile_options}")
+message("Compile options ....................... " ${compile_options})
+if(NOT is_multi_config)
+  message("Build type:")
+  message(" - CMAKE_BUILD_TYPE ................... ${CMAKE_BUILD_TYPE}")
+  string(TOUPPER "${CMAKE_BUILD_TYPE}" build_type)
+  message(" - CFLAGS ............................. ${CMAKE_C_FLAGS_${build_type}}")
+  message(" - LDFLAGS for executables ............ ${CMAKE_EXE_LINKER_FLAGS_${build_type}}")
+  message(" - LDFLAGS for shared libraries ....... ${CMAKE_SHARED_LINKER_FLAGS_${build_type}}")
+else()
+  message("Supported configurations .............. ${CMAKE_CONFIGURATION_TYPES}")
+  message("RelWithDebInfo configuration:")
+  message(" - CFLAGS ............................. ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+  message(" - LDFLAGS for executables ............ ${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO}")
+  message(" - LDFLAGS for shared libraries ....... ${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO}")
+  message("Debug configuration:")
+  message(" - CFLAGS ............................. ${CMAKE_C_FLAGS_DEBUG}")
+  message(" - LDFLAGS for executables ............ ${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
+  message(" - LDFLAGS for shared libraries ....... ${CMAKE_SHARED_LINKER_FLAGS_DEBUG}")
+endif()
+if(SECP256K1_APPEND_CFLAGS)
+  message("SECP256K1_APPEND_CFLAGS ............... ${SECP256K1_APPEND_CFLAGS}")
+endif()
+if(SECP256K1_APPEND_LDFLAGS)
+  message("SECP256K1_APPEND_LDFLAGS .............. ${SECP256K1_APPEND_LDFLAGS}")
+endif()
+message("")
+if(print_msan_notice)
+  message(
+    "Note:\n"
+    "  MemorySanitizer detected, tried to add -fno-sanitize-memory-param-retval to compile options\n"
+    "  to avoid false positives in ctime_tests. Pass -DSECP256K1_BUILD_CTIME_TESTS=OFF to avoid this.\n"
+  )
+endif()
+if(SECP256K1_EXPERIMENTAL)
+  message(
+    "  ******\n"
+    "  WARNING: experimental build\n"
+    "  Experimental features do not have stable APIs or properties, and may not be safe for production use.\n"
+    "  ******\n"
+  )
 endif()
