@@ -8,19 +8,15 @@ configure_file(${PROJECT_SOURCE_DIR}/cmake/BGL-config.h.in config/BGL-config.h U
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_custom_target(generate_build_info
-  BYPRODUCTS ${PROJECT_BINARY_DIR}/src/bitcoin-build-info.h
-  COMMAND ${CMAKE_COMMAND} -DBUILD_INFO_HEADER_PATH=${PROJECT_BINARY_DIR}/src/bitcoin-build-info.h -DSOURCE_DIR=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/cmake/script/GenerateBuildInfo.cmake
-  COMMENT "Generating bitcoin-build-info.h"
+  BYPRODUCTS ${PROJECT_BINARY_DIR}/src/BGL-build-info.h
+  COMMAND ${CMAKE_COMMAND} -DBUILD_INFO_HEADER_PATH=${PROJECT_BINARY_DIR}/src/BGL-build-info.h -DSOURCE_DIR=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/cmake/script/GenerateBuildInfo.cmake
+  COMMENT "Generating BGL-build-info.h"
   VERBATIM
 )
 add_library(BGL_clientversion OBJECT EXCLUDE_FROM_ALL
   clientversion.cpp
 )
-target_compile_definitions(BGL_clientversion
-  PRIVATE
-    HAVE_BUILD_INFO
-)
-target_link_libraries(BGL_clientversion
+target_link_libraries(bitgesell_clientversion
   PRIVATE
     core_interface
 )
