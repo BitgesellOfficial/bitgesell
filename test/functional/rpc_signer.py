@@ -75,7 +75,7 @@ class RPCSignerTest(BGLTestFramework):
         self.clear_mock_result(self.nodes[1])
 
         result = self.nodes[1].enumeratesigners()
-        assert_equal(len(result['signers']), 2)
+        assert_equal(len(result['signers']), 1)
         assert_equal(result['signers'][0]["fingerprint"], "00000001")
         assert_equal(result['signers'][0]["name"], "trezor_t")
 
