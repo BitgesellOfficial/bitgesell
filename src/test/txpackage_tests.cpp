@@ -952,7 +952,7 @@ BOOST_FIXTURE_TEST_CASE(package_rbf_tests, TestChain100Setup)
     CKey grandchild_key{GenerateRandomKey()};
     CScript child_spk = GetScriptForDestination(WitnessV0KeyHash(grandchild_key.GetPubKey()));
 
-    const CAmount coinbase_value{50 * COIN};
+    const CAmount coinbase_value{200 * COIN};
     // Test that de-duplication works. This is not actually package rbf.
     {
         // 1 parent paying 200sat, 1 child paying 300sat
