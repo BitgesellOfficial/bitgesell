@@ -517,15 +517,24 @@ def main():
         test_list += BASE_SCRIPTS
 
     # Remove the test cases that the user has explicitly asked to exclude.
+    # The user can specify a test case with or without the .py extension.
     if args.exclude:
-        exclude_tests = [test.split('.py')[0] for test in args.exclude.split(',')]
-        for exclude_test in exclude_tests:
-            # Remove <test_name>.py and <test_name>.py --arg from the test list
-            exclude_list = [test for test in test_list if test.split('.py')[0] == exclude_test]
+        def print_warning_missing_test(test_name):
+            print("{}WARNING!{} Test '{}' not found in current test list.".format(BOLD[1], BOLD[0], test_name))
+        def remove_tests(exclude_list):
+            if not exclude_list:
+                print_warning_missing_test(exclude_test)
             for exclude_item in exclude_list:
                 test_list.remove(exclude_item)
-            if not exclude_list:
-                print("{}WARNING!{} Test '{}' not found in current test list.".format(BOLD[1], BOLD[0], exclude_test))
+
+        exclude_tests = [test.strip() for test in args.exclude.split(",")]
+        for exclude_test in exclude_tests:
+            # A space in the name indicates it has arguments such as "wallet_basic.py --descriptors"
+            if ' ' in exclude_test:
+                remove_tests([test for test in test_list if test.replace('.py', '') == exclude_test.replace('.py', '')])
+            else:
+                # Exclude all variants of a test
+                remove_tests([test for test in test_list if test.split('.py')[0] == exclude_test.split('.py')[0]])
 
     if args.filter:
         test_list = list(filter(re.compile(args.filter).search, test_list))
