@@ -6,8 +6,6 @@
 #define BGL_IPC_CAPNP_COMMON_TYPES_H
 
 #include <clientversion.h>
-#include <interfaces/types.h>
-#include <primitives/transaction.h>
 #include <serialize.h>
 #include <streams.h>
 #include <univalue.h>
@@ -19,24 +17,6 @@
 
 namespace ipc {
 namespace capnp {
-//! Construct a ParamStream wrapping a data stream with serialization parameters
-//! needed to pass transaction objects between bitcoin processes.
-//! In the future, more params may be added here to serialize other objects that
-//! require serialization parameters. Params should just be chosen to serialize
-//! objects completely and ensure that serializing and deserializing objects
-//! with the specified parameters produces equivalent objects. It's also
-//! harmless to specify serialization parameters here that are not used.
-template <typename S>
-auto Wrap(S& s)
-{
-    return ParamsStream{s, TX_WITH_WITNESS};
-}
-
-//! Detect if type has a deserialize_type constructor, which is
-//! used to deserialize types like CTransaction that can't be unserialized into
-//! existing objects because they are immutable.
-template <typename T>
-concept Deserializable = std::is_constructible_v<T, ::deserialize_type, ::DataStream&>;
 } // namespace capnp
 } // namespace ipc
 
@@ -44,18 +24,16 @@ concept Deserializable = std::is_constructible_v<T, ::deserialize_type, ::DataSt
 namespace mp {
 //! Overload multiprocess library's CustomBuildField hook to allow any
 //! serializable object to be stored in a capnproto Data field or passed to a
-//! canproto interface. Use Priority<1> so this hook has medium priority, and
+//! capnproto interface. Use Priority<1> so this hook has medium priority, and
 //! higher priority hooks could take precedence over this one.
 template <typename LocalType, typename Value, typename Output>
-void CustomBuildField(
-    TypeList<LocalType>, Priority<1>, InvokeContext& invoke_context, Value&& value, Output&& output,
-    // Enable if serializeable and if LocalType is not cv or reference
-    // qualified. If LocalType is cv or reference qualified, it is important to
-    // fall back to lower-priority Priority<0> implementation of this function
-    // that strips cv references, to prevent this CustomBuildField overload from
-    // taking precedence over more narrow overloads for specific LocalTypes.
-    std::enable_if_t<ipc::capnp::Serializable<LocalType>::value &&
-                     std::is_same_v<LocalType, std::remove_cv_t<std::remove_reference_t<LocalType>>>>* enable = nullptr)
+void CustomBuildField(TypeList<LocalType>, Priority<1>, InvokeContext& invoke_context, Value&& value, Output&& output)
+// Enable if serializeable and if LocalType is not cv or reference qualified. If
+// LocalType is cv or reference qualified, it is important to fall back to
+// lower-priority Priority<0> implementation of this function that strips cv
+// references, to prevent this CustomBuildField overload from taking precedence
+// over more narrow overloads for specific LocalTypes.
+requires Serializable<LocalType, DataStream> && std::is_same_v<LocalType, std::remove_cv_t<std::remove_reference_t<LocalType>>>
 {
     DataStream stream;
     auto wrapper{ipc::capnp::Wrap(stream)};
@@ -66,11 +44,11 @@ void CustomBuildField(
 
 //! Overload multiprocess library's CustomReadField hook to allow any object
 //! with an Unserialize method to be read from a capnproto Data field or
-//! returned from canproto interface. Use Priority<1> so this hook has medium
+//! returned from capnproto interface. Use Priority<1> so this hook has medium
 //! priority, and higher priority hooks could take precedence over this one.
 template <typename LocalType, typename Input, typename ReadDest>
 decltype(auto) CustomReadField(TypeList<LocalType>, Priority<1>, InvokeContext& invoke_context, Input&& input, ReadDest&& read_dest)
-requires Unserializable<LocalType, DataStream> && (!ipc::capnp::Deserializable<LocalType>)
+requires Unserializable<LocalType, DataStream>
 {
     return read_dest.update([&](auto& value) {
         if (!input.has()) return;
@@ -79,41 +57,6 @@ requires Unserializable<LocalType, DataStream> && (!ipc::capnp::Deserializable<L
         auto wrapper{ipc::capnp::Wrap(stream)};
         value.Unserialize(wrapper);
     });
-}
-
-//! Overload multiprocess library's CustomReadField hook to allow any object
-//! with a deserialize constructor to be read from a capnproto Data field or
-//! returned from capnproto interface. Use Priority<1> so this hook has medium
-//! priority, and higher priority hooks could take precedence over this one.
-template <typename LocalType, typename Input, typename ReadDest>
-decltype(auto) CustomReadField(TypeList<LocalType>, Priority<1>, InvokeContext& invoke_context, Input&& input, ReadDest&& read_dest)
-requires ipc::capnp::Deserializable<LocalType>
-{
-    assert(input.has());
-    auto data = input.get();
-    SpanReader stream({data.begin(), data.end()});
-    auto wrapper{ipc::capnp::Wrap(stream)};
-    return read_dest.construct(::deserialize, wrapper);
-}
-
-//! Overload CustomBuildField and CustomReadField to serialize std::chrono
-//! parameters and return values as numbers.
-template <class Rep, class Period, typename Value, typename Output>
-void CustomBuildField(TypeList<std::chrono::duration<Rep, Period>>, Priority<1>, InvokeContext& invoke_context, Value&& value,
-                      Output&& output)
-{
-    static_assert(std::numeric_limits<decltype(output.get())>::lowest() <= std::numeric_limits<Rep>::lowest(),
-                  "capnp type does not have enough range to hold lowest std::chrono::duration value");
-    static_assert(std::numeric_limits<decltype(output.get())>::max() >= std::numeric_limits<Rep>::max(),
-                  "capnp type does not have enough range to hold highest std::chrono::duration value");
-    output.set(value.count());
-}
-
-template <class Rep, class Period, typename Input, typename ReadDest>
-decltype(auto) CustomReadField(TypeList<std::chrono::duration<Rep, Period>>, Priority<1>, InvokeContext& invoke_context,
-                               Input&& input, ReadDest&& read_dest)
-{
-    return read_dest.construct(input.get());
 }
 
 //! Overload CustomBuildField and CustomReadField to serialize UniValue
