@@ -1,5 +1,12 @@
 <TS version="2.1" language="th">
 <context>
+    <name>AskPassphraseDialog</name>
+    <message>
+        <source>Back</source>
+        <translation type="unfinished">ย้อนกลับ</translation>
+    </message>
+    </context>
+<context>
     <name>QObject</name>
     <message>
         <source>%1 didn't yet exit safely…</source>
@@ -54,7 +61,7 @@
     </message>
     <message>
         <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation type="unfinished">เซ็นชื่อด้วยข้อความ ที่เก็บ Bitcoin เพื่อแสดงว่าท่านเป็นเจ้าของ bitcoin นี้จริง</translation>
+        <translation type="unfinished">เซ็นชื่อด้วยข้อความ ที่เก็บ Bitcoin เพื่อแสดงว่าท่านเป็นเจ้าของ bitgesell นี้จริง</translation>
     </message>
     <message>
         <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
@@ -81,8 +88,8 @@
         <translation type="unfinished">กำลังเชื่อมต่อ ไปยัง peers…</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
-        <translation type="unfinished">ขอการชำระเงิน (สร้างรหัส QR และ bitcoin: URIs)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">ขอการชำระเงิน (สร้างรหัส QR และ BGL: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
