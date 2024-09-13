@@ -18,7 +18,7 @@ PATH_BASE_CONTRIB_SIGNET = os.path.abspath(os.path.dirname(os.path.realpath(__fi
 PATH_BASE_TEST_FUNCTIONAL = os.path.abspath(os.path.join(PATH_BASE_CONTRIB_SIGNET, "..", "..", "test", "functional"))
 sys.path.insert(0, PATH_BASE_TEST_FUNCTIONAL)
 
-from test_framework.blocktools import get_witness_script, script_BIP34_coinbase_height # noqa: E402
+from test_framework.blocktools import get_witness_script, script_BIP34_coinbase_height, SIGNET_HEADER # noqa: E402
 from test_framework.messages import CBlock, CBlockHeader, COutPoint, CTransaction, CTxIn, CTxInWitness, CTxOut, from_binary, from_hex, ser_string, ser_uint256, tx_from_hex, MAX_SEQUENCE_NONFINAL # noqa: E402
 from test_framework.psbt import PSBT, PSBTMap, PSBT_GLOBAL_UNSIGNED_TX, PSBT_IN_FINAL_SCRIPTSIG, PSBT_IN_FINAL_SCRIPTWITNESS, PSBT_IN_NON_WITNESS_UTXO, PSBT_IN_SIGHASH_TYPE # noqa: E402
 from test_framework.script import CScriptOp # noqa: E402
@@ -28,7 +28,6 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S')
 
-SIGNET_HEADER = b"\xec\xc7\xda\xa2"
 PSBT_SIGNET_BLOCK = b"\xfc\x06signetb"    # proprietary PSBT global field holding the block being signed
 RE_MULTIMINER = re.compile(r"^(\d+)(-(\d+))?/(\d+)$")
 
@@ -83,15 +82,20 @@ def decode_challenge_psbt(b64psbt):
 def get_block_from_psbt(psbt):
     return from_binary(CBlock, psbt.g.map[PSBT_SIGNET_BLOCK])
 
-def get_solution_from_psbt(psbt):
+def get_solution_from_psbt(psbt, emptyok=False):
     scriptSig = psbt.i[0].map.get(PSBT_IN_FINAL_SCRIPTSIG, b"")
     scriptWitness = psbt.i[0].map.get(PSBT_IN_FINAL_SCRIPTWITNESS, b"\x00")
+    if emptyok and len(scriptSig) == 0 and scriptWitness == b"\x00":
+        return None
     return ser_string(scriptSig) + scriptWitness
 
 def finish_block(block, signet_solution, grind_cmd):
-    block.vtx[0].vout[-1].scriptPubKey += CScriptOp.encode_op_pushdata(SIGNET_HEADER + signet_solution)
-    block.vtx[0].rehash()
-    block.hashMerkleRoot = block.calc_merkle_root()
+    if signet_solution is None:
+        pass # Don't need to add a signet commitment if there's no signet signature needed
+    else:
+        block.vtx[0].vout[-1].scriptPubKey += CScriptOp.encode_op_pushdata(SIGNET_HEADER + signet_solution)
+        block.vtx[0].rehash()
+        block.hashMerkleRoot = block.calc_merkle_root()
     if grind_cmd is None:
         block.solve()
     else:
@@ -103,10 +107,7 @@ def finish_block(block, signet_solution, grind_cmd):
         block.rehash()
     return block
 
-def generate_psbt(tmpl, reward_spk, *, blocktime=None):
-    signet_spk = tmpl["signet_challenge"]
-    signet_spk_bin = bytes.fromhex(signet_spk)
-
+def new_block(tmpl, reward_spk, *, blocktime=None, poolid=None):
     scriptSig = script_BIP34_coinbase_height(tmpl["height"])
     if poolid is not None:
         scriptSig = CScript(b"" + scriptSig + CScriptOp.encode_op_pushdata(poolid))
@@ -135,31 +136,23 @@ def generate_psbt(tmpl, reward_spk, *, blocktime=None):
     block.vtx[0].wit.vtxinwit = [cbwit]
     block.vtx[0].vout.append(CTxOut(0, bytes(get_witness_script(witroot, witnonce))))
 
+    block.vtx[0].rehash()
+    block.hashMerkleRoot = block.calc_merkle_root()
+
+    return block
+
+def generate_psbt(block, signet_spk):
+    signet_spk_bin = bytes.fromhex(signet_spk)
     signme, spendme = signet_txs(block, signet_spk_bin)
-
-    return do_createpsbt(block, signme, spendme)
-
-def get_reward_address(args, height):
-    if args.address is not None:
-        return args.address
-
-    if '*' not in args.descriptor:
-        addr = json.loads(args.bcli("deriveaddresses", args.descriptor))[0]
-        args.address = addr
-        return addr
-
-    remove = [k for k in args.derived_addresses.keys() if k+20 <= height]
-    for k in remove:
-        del args.derived_addresses[k]
-
-    addr = args.derived_addresses.get(height, None)
-    if addr is None:
-        addrs = json.loads(args.bcli("deriveaddresses", args.descriptor, "[%d,%d]" % (height, height+20)))
-        addr = addrs[0]
-        for k, a in enumerate(addrs):
-            args.derived_addresses[height+k] = a
-
-    return addr
+    psbt = PSBT()
+    psbt.g = PSBTMap( {PSBT_GLOBAL_UNSIGNED_TX: signme.serialize(),
+                       PSBT_SIGNET_BLOCK: block.serialize()
+                     } )
+    psbt.i = [ PSBTMap( {PSBT_IN_NON_WITNESS_UTXO: spendme.serialize(),
+                         PSBT_IN_SIGHASH_TYPE: bytes([1,0,0,0])})
+             ]
+    psbt.o = [ PSBTMap() ]
+    return psbt.to_base64()
 
 def get_poolid(args):
     if args.poolid is not None:
@@ -185,14 +178,16 @@ def get_reward_addr_spk(args, height):
 
 def do_genpsbt(args):
     tmpl = json.load(sys.stdin)
+    signet_spk = tmpl["signet_challenge"]
     _, reward_spk = get_reward_addr_spk(args, tmpl["height"])
-    psbt = generate_psbt(tmpl, reward_spk)
+    block = new_block(tmpl, reward_spk, poolid=poolid)
+    psbt = generate_psbt(block, signet_spk)
     print(psbt)
 
 def do_solvepsbt(args):
     psbt = decode_challenge_psbt(sys.stdin.read())
     block = get_block_from_psbt(psbt)
-    signet_solution = get_solution_from_psbt(psbt)
+    signet_solution = get_solution_from_psbt(psbt, emptyok=True)
     block = finish_block(block, signet_solution, args.grind_cmd)
     print(block.serialize().hex())
 
@@ -235,14 +230,22 @@ def seconds_to_hms(s):
         out = "-" + out
     return out
 
-def next_block_delta(last_nbits, last_hash, ultimate_target, do_poisson, max_interval):
-    # strategy:
-    #  1) work out how far off our desired target we are
-    #  2) cap it to a factor of 4 since that's the best we can do in a single retarget period
-    #  3) use that to work out the desired average interval in this retarget period
-    #  4) if doing poisson, use the last hash to pick a uniformly random number in [0,1), and work out a random multiplier to vary the average by
-    #  5) cap the resulting interval between 1 second and 1 hour to avoid extremes
+def trivial_challenge(spkhex):
+    """
+    BIP325 allows omitting the signet commitment when scriptSig and
+    scriptWitness are both empty. This is the case for trivial
+    challenges such as OP_TRUE or a single data push.
+    """
+    spk = bytes.fromhex(spkhex)
+    if len(spk) == 1 and 0x51 <= spk[0] <= 0x60:
+        # OP_TRUE/OP_1...OP_16
+        return True
+    elif 2 <= len(spk) <= 76 and spk[0] + 1 == len(spk):
+        # Single fixed push of 1-75 bytes
+        return True
+    return False
 
+class Generate:
     INTERVAL = 600.0*2016/2015 # 10 minutes, adjusted for the off-by-one bug
 
     current_target = nbits_to_target(last_nbits)
@@ -330,16 +333,22 @@ def next_block_delta(last_nbits, last_hash, ultimate_target, do_poisson, max_int
         return tmpl
 
     def mine(self, bcli, grind_cmd, tmpl, reward_spk):
-        psbt = generate_psbt(tmpl, reward_spk, blocktime=self.mine_time, poolid=self.poolid)
-        input_stream = os.linesep.join([psbt, "true", "ALL"]).encode('utf8')
-        psbt_signed = json.loads(bcli("-stdin", "walletprocesspsbt", input=input_stream))
-        if not psbt_signed.get("complete",False):
-            logging.debug("Generated PSBT: %s" % (psbt,))
-            sys.stderr.write("PSBT signing failed\n")
-            return None
-        psbt = decode_challenge_psbt(psbt_signed["psbt"])
-        block = get_block_from_psbt(psbt)
-        signet_solution = get_solution_from_psbt(psbt)
+        block = new_block(tmpl, reward_spk, blocktime=self.mine_time, poolid=self.poolid)
+
+        signet_spk = tmpl["signet_challenge"]
+        if trivial_challenge(signet_spk):
+            signet_solution = None
+        else:
+            psbt = generate_psbt(block, signet_spk)
+            input_stream = os.linesep.join([psbt, "true", "ALL"]).encode('utf8')
+            psbt_signed = json.loads(bcli("-stdin", "walletprocesspsbt", input=input_stream))
+            if not psbt_signed.get("complete",False):
+               logging.debug("Generated PSBT: %s" % (psbt,))
+               sys.stderr.write("PSBT signing failed\n")
+               return None
+            psbt = decode_challenge_psbt(psbt_signed["psbt"])
+            signet_solution = get_solution_from_psbt(psbt)
+
         return finish_block(block, signet_solution, grind_cmd)
 
 def do_generate(args):
