@@ -457,12 +457,6 @@ public:
         return ret;
     }
 
-    /** Get wrapped FILE* without transfer of ownership.
-     * @note Ownership of the FILE* will remain with this class. Use this only if the scope of the
-     * AutoFile outlives use of the passed pointer.
-     */
-    std::FILE* Get() const { return m_file; }
-
     /** Return true if the wrapped FILE* is nullptr, false otherwise.
      */
     bool IsNull() const { return m_file == nullptr; }
@@ -496,6 +490,10 @@ public:
         ::Unserialize(*this, obj);
         return *this;
     }
+
+    bool Commit();
+    bool IsError();
+    bool Truncate(unsigned size);
 };
 
 class CAutoFile : public AutoFile
