@@ -36,7 +36,10 @@ add_library(BGL_util STATIC EXCLUDE_FROM_ALL
   ../sync.cpp
 )
 
-target_link_libraries(BGL_util
+# Workaround for https://gitlab.kitware.com/cmake/cmake/-/issues/24058
+set_target_properties(BGL_util PROPERTIES OPTIMIZE_DEPENDENCIES OFF)
+
+target_link_libraries(bitcoin_util
   PRIVATE
     core_interface
     BGL_clientversion
