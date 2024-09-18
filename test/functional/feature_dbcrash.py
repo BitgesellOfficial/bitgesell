@@ -65,7 +65,7 @@ class ChainstateWriteCrashTest(BGLTestFramework):
 
         # Node3 is a normal node with default args, except will mine full blocks
         # and txs with "dust" outputs
-        self.node3_args = ["-blockmaxweight=4000000", "-dustrelayfee=0"]
+        self.node3_args = ["-blockmaxweight=400000", "-dustrelayfee=0"]
         self.extra_args = [self.node0_args, self.node1_args, self.node2_args, self.node3_args]
 
     def setup_network(self):
