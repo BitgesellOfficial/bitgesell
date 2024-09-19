@@ -492,7 +492,6 @@ public:
     }
 
     bool Commit();
-    bool IsError();
     bool Truncate(unsigned size);
 };
 
