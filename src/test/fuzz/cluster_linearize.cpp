@@ -1093,34 +1093,12 @@ FUZZ_TARGET(clusterlin_linearize)
         // If SimpleLinearize finds the optimal result too, they must be equal (if not,
         // SimpleLinearize is broken).
         if (simple_optimal) assert(cmp == 0);
-        // If simple_chunking is diagram-optimal, it cannot have more chunks than chunking (as
-        // chunking is claimed to be optimal, which implies minimal chunks).
-        if (cmp == 0) assert(chunking.size() >= simple_chunking.size());
 
-        // Only for very small clusters, test every topologically-valid permutation.
-        if (depgraph.TxCount() <= 7) {
-            std::vector<DepGraphIndex> perm_linearization;
-            for (DepGraphIndex i : depgraph.Positions()) perm_linearization.push_back(i);
-            // Iterate over all valid permutations.
-            do {
-                // Determine whether perm_linearization is topological.
-                TestBitSet perm_done;
-                bool perm_is_topo{true};
-                for (auto i : perm_linearization) {
-                    perm_done.Set(i);
-                    if (!depgraph.Ancestors(i).IsSubsetOf(perm_done)) {
-                        perm_is_topo = false;
-                        break;
-                    }
-                }
-                // If so, verify that the obtained linearization is as good as the permutation.
-                if (perm_is_topo) {
-                    auto perm_chunking = ChunkLinearization(depgraph, perm_linearization);
-                    auto cmp = CompareChunks(chunking, perm_chunking);
-                    assert(cmp >= 0);
-                }
-            } while(std::next_permutation(perm_linearization.begin(), perm_linearization.end()));
-        }
+        // Compare with a linearization read from the fuzz input.
+        auto read = ReadLinearization(depgraph, reader);
+        auto read_chunking = ChunkLinearization(depgraph, read);
+        auto cmp_read = CompareChunks(chunking, read_chunking);
+        assert(cmp_read >= 0);
     }
 }
 
