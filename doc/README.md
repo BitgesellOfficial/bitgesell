@@ -3,7 +3,7 @@ BGL Core
 
 Setup
 ---------------------
-BGL Core is the original BGL client and it builds the backbone of the network. It downloads and, by default, stores the entire history of BGL transactions, which requires a few hundred gigabytes of disk space. Depending on the speed of your computer and network connection, the synchronization process can take anywhere from a few hours to a day or more.
+Bitgesell Core is the original Bitcoin client and it builds the backbone of the network. It downloads and, by default, stores the entire history of Bitcoin transactions, which requires several hundred gigabytes or more of disk space. Depending on the speed of your computer and network connection, the synchronization process can take anywhere from a few hours to several days or more.
 
 To download BGL Core, visit [bitgesell.ca](https://bitgesell.ca/en/download/).
 
