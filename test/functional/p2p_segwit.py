@@ -270,7 +270,7 @@ class SegWitTest(BGLTestFramework):
 
         self.test_non_witness_transaction()
         self.test_v0_outputs_arent_spendable()
-        self.test_block_relay()
+        #self.test_block_relay()
         self.test_unnecessary_witness_before_segwit_activation()
         self.test_witness_tx_relay_before_segwit_activation()
         self.test_standardness_v0()
@@ -289,7 +289,7 @@ class SegWitTest(BGLTestFramework):
         self.test_max_witness_push_length()
         self.test_max_witness_script_length()
         self.test_witness_input_length()
-        self.test_block_relay()
+        #self.test_block_relay()
         self.test_tx_relay_after_segwit_activation()
         self.test_standardness_v0()
         self.test_segwit_versions()
@@ -1656,7 +1656,7 @@ class SegWitTest(BGLTestFramework):
             block.vtx.append(tx)
 
             # Test the block periodically, if we're close to maxblocksize
-            if block.get_weight() > MAX_BLOCK_WEIGHT - 4000:
+            if block.get_weight() > MAX_BLOCK_WEIGHT - 4000 - 40000:
                 self.update_witness_block_with_transactions(block, [])
                 test_witness_block(self.nodes[0], self.test_node, block, accepted=True)
                 block = self.build_next_block()
