@@ -133,6 +133,9 @@ def check_ELF_FORTIFY(binary) -> bool:
     # bitcoin-util does not currently contain any fortified functions
     if 'Bitgesell Core BGL-util utility version ' in binary.strings:
         return True
+    # bitcoin wrapper does not currently contain any fortified functions
+    if '--monolithic' in binary.strings:
+        return True
 
     chk_funcs = set()
 

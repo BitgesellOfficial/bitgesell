@@ -87,6 +87,7 @@ endif()
 #=============================
 include(CMakeDependentOption)
 # When adding a new option, end the <help_text> with a full stop for consistency.
+option(BUILD_BGL_BIN "Build BGL executable." ON)
 option(BUILD_DAEMON "Build BGLd executable." ON)
 option(BUILD_GUI "Build BGL-qt executable." OFF)
 option(BUILD_CLI "Build BGL-cli executable." ON)
@@ -196,6 +197,7 @@ target_link_libraries(core_interface INTERFACE
 
 if(BUILD_FOR_FUZZING)
   message(WARNING "BUILD_FOR_FUZZING=ON will disable all other targets and force BUILD_FUZZ_BINARY=ON.")
+  set(BUILD_BGL_BIN OFF)
   set(BUILD_DAEMON OFF)
   set(BUILD_CLI OFF)
   set(BUILD_TX OFF)
@@ -551,6 +553,7 @@ message("\n")
 message("Configure summary")
 message("=================")
 message("Executables:")
+message("  BGL ............................. ${BUILD_BGL_BIN}")
 message("  BGLd ............................ ${BUILD_DAEMON}")
 if(BUILD_DAEMON AND ENABLE_IPC)
   set(BGL_daemon_status ON)
