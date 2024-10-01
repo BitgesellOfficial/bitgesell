@@ -115,6 +115,8 @@ add_library(BGL_common STATIC EXCLUDE_FROM_ALL
   common/init.cpp
   common/interfaces.cpp
   common/messages.cpp
+  common/netif.cpp
+  common/pcp.cpp
   common/run_command.cpp
   common/settings.cpp
   common/signmessage.cpp
