@@ -93,11 +93,17 @@ class InitTest(BGLTestFramework):
 
         files_to_disturb = {
             'blocks/index/*.ldb': 'Error opening block database.',
-            'chainstate/*.ldb': 'Error opening block database.',
+            'chainstate/*.ldb': 'Error opening coins database.',
             'blocks/blk*.dat': 'Error loading block database.',
         }
 
-        for file_patt, err_fragment in files_to_disturb.items():
+        files_to_perturb = {
+            'blocks/index/*.ldb': 'Error loading block database.',
+            'chainstate/*.ldb': 'Error opening coins database.',
+            'blocks/blk*.dat': 'Corrupted block database detected.',
+        }
+
+        for file_patt, err_fragment in files_to_delete.items():
             target_files = list(node.chain_path.glob(file_patt))
 
             for target_file in target_files:
