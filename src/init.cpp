@@ -1646,7 +1646,6 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
             error.original + ".\nPlease restart with -reindex or -reindex-chainstate to recover.",
             "", CClientUIInterface::MSG_ERROR | CClientUIInterface::BTN_ABORT);
         if (!do_retry) {
-            LogError("Aborted block database rebuild. Exiting.\n");
             return false;
         }
         do_reindex = true;
