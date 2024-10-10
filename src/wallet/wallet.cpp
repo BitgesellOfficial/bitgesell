@@ -5,7 +5,7 @@
 
 #include <wallet/wallet.h>
 
-#include <config/BGL-config.h> // IWYU pragma: keep
+#include <BGL-build-config.h> // IWYU pragma: keep
 #include <addresstype.h>
 #include <blockfilter.h>
 #include <chain.h>

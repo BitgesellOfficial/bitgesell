@@ -11,7 +11,7 @@
 #include <qt/walletmodel.h>
 
 #include <common/signmessage.h> // For MessageSign(), MessageVerify()
-#include <config/BGL-config.h> // IWYU pragma: keep
+#include <BGL-build-config.h> // IWYU pragma: keep
 #include <key_io.h>
 #include <wallet/wallet.h>
 

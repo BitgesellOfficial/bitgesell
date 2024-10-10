@@ -5,7 +5,7 @@
 
 #include <util/fs_helpers.h>
 
-#include <config/BGL-config.h> // IWYU pragma: keep
+#include <BGL-build-config.h> // IWYU pragma: keep
 
 #include <logging.h>
 #include <sync.h>

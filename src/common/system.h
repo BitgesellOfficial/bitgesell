@@ -6,8 +6,7 @@
 #ifndef BGL_COMMON_SYSTEM_H
 #define BGL_COMMON_SYSTEM_H
 
-
-#include <config/BGL-config.h> // IWYU pragma: keep
+#include <BGL-build-config.h> // IWYU pragma: keep
 
 #include <cstdint>
 #include <string>

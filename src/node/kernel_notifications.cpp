@@ -4,7 +4,7 @@
 
 #include <node/kernel_notifications.h>
 
-#include <config/BGL-config.h> // IWYU pragma: keep
+#include <BGL-build-config.h> // IWYU pragma: keep
 
 #include <chain.h>
 #include <common/args.h>

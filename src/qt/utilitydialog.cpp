@@ -2,7 +2,11 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+<<<<<<< HEAD
 #include <config/BGL-config.h> // IWYU pragma: keep
+=======
+#include <bitcoin-build-config.h> // IWYU pragma: keep
+>>>>>>> 1786be7b4a... scripted-diff: drop config/ subdir for bitcoin-config.h, rename to bitcoin-build-config.h
 
 #include <qt/utilitydialog.h>
 

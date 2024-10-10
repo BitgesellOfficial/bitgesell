@@ -5,7 +5,7 @@
 #ifndef BGL_QT_NOTIFICATOR_H
 #define BGL_QT_NOTIFICATOR_H
 
-#include <config/BGL-config.h> // IWYU pragma: keep
+#include <BGL-build-config.h> // IWYU pragma: keep
 
 #include <QIcon>
 #include <QObject>

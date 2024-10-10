@@ -15,7 +15,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 
-#include <config/BGL-config.h> // IWYU pragma: keep
+#include <BGL-build-config.h> // IWYU pragma: keep
 
 #ifdef USE_QRCODE
 #include <qrencode.h>

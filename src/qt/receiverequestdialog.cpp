@@ -14,7 +14,7 @@
 #include <QDialog>
 #include <QString>
 
-#include <config/BGL-config.h> // IWYU pragma: keep
+#include <BGL-build-config.h> // IWYU pragma: keep
 
 ReceiveRequestDialog::ReceiveRequestDialog(QWidget *parent) :
     QDialog(parent, GUIUtil::dialog_flags),

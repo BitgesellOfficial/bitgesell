@@ -5,7 +5,7 @@
 #ifndef BGL_UTIL_TRACE_H
 #define BGL_UTIL_TRACE_H
 
-#include <config/BGL-config.h> // IWYU pragma: keep
+#include <BGL-build-config.h> // IWYU pragma: keep
 
 #ifdef ENABLE_TRACING
 

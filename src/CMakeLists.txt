@@ -4,7 +4,7 @@
 
 include(GNUInstallDirs)
 
-configure_file(${PROJECT_SOURCE_DIR}/cmake/BGL-config.h.in config/BGL-config.h USE_SOURCE_PERMISSIONS @ONLY)
+configure_file(${PROJECT_SOURCE_DIR}/cmake/BGL-build-config.h.in BGL-build-config.h USE_SOURCE_PERMISSIONS @ONLY)
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_custom_target(generate_build_info

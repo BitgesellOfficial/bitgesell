@@ -61,7 +61,7 @@
 #include <validation.h>
 #include <validationinterface.h>
 
-#include <config/BGL-config.h> // IWYU pragma: keep
+#include <BGL-build-config.h> // IWYU pragma: keep
 
 #include <any>
 #include <memory>

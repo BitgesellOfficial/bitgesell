@@ -5,7 +5,7 @@
 #ifndef BGL_WALLET_TEST_UTIL_H
 #define BGL_WALLET_TEST_UTIL_H
 
-#include <config/BGL-config.h> // IWYU pragma: keep
+#include <BGL-build-config.h> // IWYU pragma: keep
 
 #include <addresstype.h>
 #include <wallet/db.h>

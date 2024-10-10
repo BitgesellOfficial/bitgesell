@@ -4,7 +4,7 @@
 
 #include <util/check.h>
 
-#include <config/BGL-config.h> // IWYU pragma: keep
+#include <BGL-build-config.h> // IWYU pragma: keep
 
 #include <clientversion.h>
 #include <tinyformat.h>

@@ -5,7 +5,7 @@
 #ifndef BGL_RPC_REGISTER_H
 #define BGL_RPC_REGISTER_H
 
-#include <config/BGL-config.h> // IWYU pragma: keep
+#include <BGL-build-config.h> // IWYU pragma: keep
 
 /** These are in one header file to avoid creating tons of single-function
  * headers for everything under src/rpc/ */
