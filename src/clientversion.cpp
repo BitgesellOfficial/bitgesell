@@ -20,7 +20,7 @@ using util::Join;
  * for both bitcoind and bitcoin-qt, to make it harder for attackers to
  * target servers or GUI users specifically.
  */
-const std::string CLIENT_NAME("SatoshiBGL");
+const std::string UA_NAME("SatoshiBGL");
 
 
 #include <BGL-build-info.h>
