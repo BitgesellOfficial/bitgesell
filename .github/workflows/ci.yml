@@ -96,7 +96,7 @@ jobs:
           git rebase --exec "echo Running test-one-commit on \$( git log -1 ) && CC=clang CXX=clang++ cmake -B build -DWERROR=ON -DWITH_ZMQ=ON -DBUILD_GUI=ON -DBUILD_BENCH=ON -DBUILD_FUZZ_BINARY=ON -DWITH_BDB=ON -DWITH_USDT=ON -DCMAKE_CXX_FLAGS='-Wno-error=unused-member-function' && cmake --build build -j $(nproc) && ctest --output-on-failure --stop-on-failure --test-dir build -j $(nproc) && ./build/test/functional/test_runner.py -j $(( $(nproc) * 2 ))" ${{ env.TEST_BASE }}
 
   macos-native-arm64:
-    name: 'macOS 14 native, arm64, no depends, sqlite only, gui'
+    name: ${{ matrix.job-name }}
     # Use latest image, but hardcode version to avoid silent upgrades (and breaks).
     # See: https://github.com/actions/runner-images#available-images.
     runs-on: macos-14
@@ -110,9 +110,20 @@ jobs:
 
     timeout-minutes: 120
 
+    strategy:
+      fail-fast: false
+      matrix:
+        job-type: [standard, fuzz]
+        include:
+          - job-type: standard
+            file-env: './ci/test/00_setup_env_mac_native.sh'
+            job-name: 'macOS 14 native, arm64, no depends, sqlite only, gui'
+          - job-type: fuzz
+            file-env: './ci/test/00_setup_env_mac_native_fuzz.sh'
+            job-name: 'macOS 14 native, arm64, fuzz'
+
     env:
       DANGER_RUN_CI_ON_HOST: 1
-      FILE_ENV: './ci/test/00_setup_env_mac_native.sh'
       BASE_ROOT_DIR: ${{ github.workspace }}
 
     steps:
@@ -141,44 +152,14 @@ jobs:
         id: ccache-cache
         uses: actions/cache/restore@v4
         with:
-          dockerfile: ./ci/linux-debian.Dockerfile
-          tag: linux-debian-image
+          path: ${{ env.CCACHE_DIR }}
+          key: ${{ github.job }}-${{ matrix.job-type }}-ccache-${{ github.run_id }}
+          restore-keys: ${{ github.job }}-${{ matrix.job-type }}-ccache-
 
-      - run: cat tests.log || true
-        if: ${{ always() }}
-      - run: cat noverify_tests.log || true
-        if: ${{ always() }}
-      - run: cat exhaustive_tests.log || true
-        if: ${{ always() }}
-      - run: cat ctime_tests.log || true
-        if: ${{ always() }}
-      - run: cat bench.log || true
-        if: ${{ always() }}
-      - run: cat config.log || true
-        if: ${{ always() }}
-      - run: cat test_env.log || true
-        if: ${{ always() }}
-      - name: CI env
-        run: env
-        if: ${{ always() }}
-
-  s390x_debian:
-    name: "s390x (big-endian): Linux (Debian stable, QEMU)"
-    runs-on: ubuntu-latest
-    needs: docker_cache
-
-    env:
-      WRAPPER_CMD: 'qemu-s390x'
-      SECP256K1_TEST_ITERS: 16
-      HOST: 's390x-linux-gnu'
-      WITH_VALGRIND: 'no'
-      ECDH: 'yes'
-      RECOVERY: 'yes'
-      EXTRAKEYS: 'yes'
-      SCHNORRSIG: 'yes'
-      MUSIG: 'yes'
-      ELLSWIFT: 'yes'
-      CTIMETESTS: 'no'
+      - name: CI script
+        run: ./ci/test_run_all.sh
+        env:
+          FILE_ENV: ${{ matrix.file-env }}
 
     steps:
       - name: Checkout
@@ -187,51 +168,15 @@ jobs:
       - name: CI script
         uses: ./.github/actions/run-in-docker-action
         with:
-          dockerfile: ./ci/linux-debian.Dockerfile
-          tag: linux-debian-image
+          path: ${{ env.CCACHE_DIR }}
+          # https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
+          key: ${{ github.job }}-${{ matrix.job-type }}-ccache-${{ github.run_id }}
 
-      - run: cat tests.log || true
-        if: ${{ always() }}
-      - run: cat noverify_tests.log || true
-        if: ${{ always() }}
-      - run: cat exhaustive_tests.log || true
-        if: ${{ always() }}
-      - run: cat ctime_tests.log || true
-        if: ${{ always() }}
-      - run: cat bench.log || true
-        if: ${{ always() }}
-      - run: cat config.log || true
-        if: ${{ always() }}
-      - run: cat test_env.log || true
-        if: ${{ always() }}
-      - name: CI env
-        run: env
-        if: ${{ always() }}
-
-  arm32_debian:
-    name: "ARM32: Linux (Debian stable, QEMU)"
-    runs-on: ubuntu-latest
-    needs: docker_cache
-
-    strategy:
-      fail-fast: false
-      matrix:
-        configuration:
-          - env_vars: {}
-          - env_vars: { EXPERIMENTAL: 'yes', ASM: 'arm32' }
-
-    env:
-      WRAPPER_CMD: 'qemu-arm'
-      SECP256K1_TEST_ITERS: 16
-      HOST: 'arm-linux-gnueabihf'
-      WITH_VALGRIND: 'no'
-      ECDH: 'yes'
-      RECOVERY: 'yes'
-      EXTRAKEYS: 'yes'
-      SCHNORRSIG: 'yes'
-      MUSIG: 'yes'
-      ELLSWIFT: 'yes'
-      CTIMETESTS: 'no'
+  win64-native:
+    name: ${{ matrix.job-name }}
+    # Use latest image, but hardcode version to avoid silent upgrades (and breaks).
+    # See: https://github.com/actions/runner-images#available-images.
+    runs-on: windows-2022
 
     steps:
       - name: Checkout
@@ -304,6 +249,18 @@ jobs:
       MUSIG: 'yes'
       ELLSWIFT: 'yes'
       CTIMETESTS: 'no'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        job-type: [standard, fuzz]
+        include:
+          - job-type: standard
+            generate-options: '-DBUILD_GUI=ON -DWITH_BDB=ON -DWITH_ZMQ=ON -DBUILD_BENCH=ON -DWERROR=ON'
+            job-name: 'Win64 native, VS 2022'
+          - job-type: fuzz
+            generate-options: '-DVCPKG_MANIFEST_NO_DEFAULT_FEATURES=ON -DVCPKG_MANIFEST_FEATURES="sqlite" -DBUILD_GUI=OFF -DBUILD_FOR_FUZZING=ON -DWERROR=ON'
+            job-name: 'Win64 native fuzz, VS 2022'
 
     steps:
       - name: Checkout
@@ -474,35 +431,13 @@ jobs:
           path: ~/AppData/Local/vcpkg/archives
           key: ${{ github.job }}-vcpkg-binary-${{ hashFiles('cmake_version', 'msbuild_version', 'toolset_version', 'vcpkg.json') }}
 
-    env:
-      WRAPPER_CMD: 'wine'
-      WITH_VALGRIND: 'no'
-      ECDH: 'yes'
-      RECOVERY: 'yes'
-      EXTRAKEYS: 'yes'
-      SCHNORRSIG: 'yes'
-      MUSIG: 'yes'
-      ELLSWIFT: 'yes'
-      CTIMETESTS: 'no'
-
-    strategy:
-      fail-fast: false
-      matrix:
-        configuration:
-          - job_name: 'x86_64 (mingw32-w64): Windows (Debian stable, Wine)'
-            env_vars:
-              HOST: 'x86_64-w64-mingw32'
-          - job_name: 'i686 (mingw32-w64): Windows (Debian stable, Wine)'
-            env_vars:
-              HOST: 'i686-w64-mingw32'
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Generate build system
+        run: |
+          cmake -B build --preset vs2022-static -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT\scripts\buildsystems\vcpkg.cmake" ${{ matrix.generate-options }}
 
       - name: Save vcpkg binary cache
         uses: actions/cache/save@v4
-        if: github.event_name != 'pull_request' && steps.vcpkg-binary-cache.outputs.cache-hit != 'true'
+        if: github.event_name != 'pull_request' && steps.vcpkg-binary-cache.outputs.cache-hit != 'true' && matrix.job-type == 'standard'
         with:
           dockerfile: ./ci/linux-debian.Dockerfile
           tag: linux-debian-image
@@ -556,121 +491,9 @@ jobs:
           brew install --quiet automake libtool gcc
           ln -s $(brew --prefix gcc)/bin/gcc-?? /usr/local/bin/gcc
 
-      - name: Install and cache Valgrind
-        uses: ./.github/actions/install-homebrew-valgrind
-
-      - name: CI script
-        env: ${{ matrix.env_vars }}
-        run: ./ci/ci.sh
-
-      - run: cat tests.log || true
-        if: ${{ always() }}
-      - run: cat noverify_tests.log || true
-        if: ${{ always() }}
-      - run: cat exhaustive_tests.log || true
-        if: ${{ always() }}
-      - run: cat ctime_tests.log || true
-        if: ${{ always() }}
-      - run: cat bench.log || true
-        if: ${{ always() }}
-      - run: cat config.log || true
-        if: ${{ always() }}
-      - run: cat test_env.log || true
-        if: ${{ always() }}
-      - name: CI env
-        run: env
-        if: ${{ always() }}
-
-  arm64-macos-native:
-    name: "ARM64: macOS Sonoma"
-    # See: https://github.com/actions/runner-images#available-images.
-    runs-on: macos-14
-
-    env:
-      CC: 'clang'
-      HOMEBREW_NO_AUTO_UPDATE: 1
-      HOMEBREW_NO_INSTALL_CLEANUP: 1
-      WITH_VALGRIND: 'no'
-      CTIMETESTS: 'no'
-
-    strategy:
-      fail-fast: false
-      matrix:
-        env_vars:
-          - { WIDEMUL: 'int64',  RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
-          - { WIDEMUL: 'int128_struct', ECMULTGENPRECISION: 2, ECMULTWINDOW: 4 }
-          - { WIDEMUL: 'int128',                  ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
-          - { WIDEMUL: 'int128', RECOVERY: 'yes' }
-          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
-          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes', CC: 'gcc' }
-          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes', CPPFLAGS: '-DVERIFY' }
-          - BUILD: 'distcheck'
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install Homebrew packages
-        run: |
-          brew install --quiet automake libtool gcc
-          ln -s $(brew --prefix gcc)/bin/gcc-?? /usr/local/bin/gcc
-
-      - name: CI script
-        env: ${{ matrix.env_vars }}
-        run: ./ci/ci.sh
-
-      - run: cat tests.log || true
-        if: ${{ always() }}
-      - run: cat noverify_tests.log || true
-        if: ${{ always() }}
-      - run: cat exhaustive_tests.log || true
-        if: ${{ always() }}
-      - run: cat ctime_tests.log || true
-        if: ${{ always() }}
-      - run: cat bench.log || true
-        if: ${{ always() }}
-      - run: cat config.log || true
-        if: ${{ always() }}
-      - run: cat test_env.log || true
-        if: ${{ always() }}
-      - name: CI env
-        run: env
-        if: ${{ always() }}
-
-  win64-native:
-    name: ${{ matrix.configuration.job_name }}
-    # See: https://github.com/actions/runner-images#available-images.
-    runs-on: windows-2022
-
-    strategy:
-      fail-fast: false
-      matrix:
-        configuration:
-          - job_name: 'x64 (MSVC): Windows (VS 2022, shared)'
-            cmake_options: '-A x64 -DBUILD_SHARED_LIBS=ON'
-          - job_name: 'x64 (MSVC): Windows (VS 2022, static)'
-            cmake_options: '-A x64 -DBUILD_SHARED_LIBS=OFF'
-          - job_name: 'x64 (MSVC): Windows (VS 2022, int128_struct)'
-            cmake_options: '-A x64 -DSECP256K1_TEST_OVERRIDE_WIDE_MULTIPLY=int128_struct'
-          - job_name: 'x64 (MSVC): Windows (VS 2022, int128_struct with __(u)mulh)'
-            cmake_options: '-A x64 -DSECP256K1_TEST_OVERRIDE_WIDE_MULTIPLY=int128_struct'
-            cpp_flags: '/DSECP256K1_MSVC_MULH_TEST_OVERRIDE'
-          - job_name: 'x86 (MSVC): Windows (VS 2022)'
-            cmake_options: '-A Win32'
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Generate buildsystem
-        run: cmake -E env CFLAGS="/WX ${{ matrix.configuration.cpp_flags }}" cmake -B build -DSECP256K1_ENABLE_MODULE_RECOVERY=ON -DSECP256K1_BUILD_EXAMPLES=ON ${{ matrix.configuration.cmake_options }}
-
-      - name: Build
-        run: cmake --build build --config RelWithDebInfo -- /p:UseMultiToolTask=true /maxCpuCount
-
-      - name: Binaries info
-        # Use the bash shell included with Git for Windows.
-        shell: bash
+      - name: Run test suite
+        if: matrix.job-type == 'standard'
+        working-directory: build
         run: |
           cd build/bin/RelWithDebInfo && file *tests.exe bench*.exe libsecp256k1-*.dll || true
 
@@ -679,6 +502,7 @@ jobs:
           ctest --output-on-failure --stop-on-failure -j $env:NUMBER_OF_PROCESSORS -C Release
 
       - name: Run functional tests
+        if: matrix.job-type == 'standard'
         working-directory: build
         env:
           BGLD: '${{ github.workspace }}\build\src\Release\BGLd.exe'
@@ -688,6 +512,23 @@ jobs:
           TEST_RUNNER_EXTRA: ${{ github.event_name != 'pull_request' && '--extended' || '' }}
         shell: cmd
         run: py -3 test\functional\test_runner.py --jobs %NUMBER_OF_PROCESSORS% --ci --quiet --tmpdirprefix=%RUNNER_TEMP% --combinedlogslen=99999999 --timeout-factor=%TEST_RUNNER_TIMEOUT_FACTOR% %TEST_RUNNER_EXTRA%
+
+      - name: Clone corpora
+        if: matrix.job-type == 'fuzz'
+        run: |
+          git clone --depth=1 https://github.com/bitcoin-core/qa-assets "$env:RUNNER_TEMP\qa-assets"
+          Set-Location "$env:RUNNER_TEMP\qa-assets"
+          Write-Host "Using qa-assets repo from commit ..."
+          git log -1
+
+      - name: Run fuzz tests
+        if: matrix.job-type == 'fuzz'
+        working-directory: build
+        env:
+          BITCOINFUZZ: '${{ github.workspace }}\build\src\test\fuzz\Release\fuzz.exe'
+        shell: cmd
+        run: |
+          py -3 test\fuzz\test_runner.py --par %NUMBER_OF_PROCESSORS% --loglevel DEBUG %RUNNER_TEMP%\qa-assets\fuzz_corpora
 
   asan-lsan-ubsan-integer-no-depends-usdt:
     name: 'ASan + LSan + UBSan + integer, no depends, USDT'
