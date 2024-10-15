@@ -3112,7 +3112,7 @@ void PeerManagerImpl::ProcessInvalidTx(NodeId nodeid, const CTransactionRef& ptx
                     }
                 }
 
-                if (m_orphanage.AddTx(ptx, nodeid)) {
+                if (m_orphanage.AddTx(ptx, nodeid) && RecursiveDynamicUsage(*ptx) < 100000) {
                     AddToCompactExtraTransactions(ptx);
                 }
 
