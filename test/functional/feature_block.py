@@ -89,6 +89,7 @@ class FullBlockTest(BGLTestFramework):
         self.extra_args = [[
             '-acceptnonstdtxn=1',  # This is a consensus block test, we don't care about tx policy
             '-testactivationheight=bip34@2',
+            '-par=1', # Until https://github.com/bitcoin/bitcoin/issues/30960 is fixed
         ]]
 
     def run_test(self):
