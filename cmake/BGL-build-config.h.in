@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or https://opensource.org/license/mit/.
 
-#ifndef BITCOIN_CONFIG_H
-#define BITCOIN_CONFIG_H
+#ifndef BGL_CONFIG_H
+#define BGL_CONFIG_H
 
 /* Version Build */
 #define CLIENT_VERSION_BUILD @CLIENT_VERSION_BUILD@
@@ -150,4 +150,4 @@
 /* Define if sqlite support should be compiled in */
 #cmakedefine USE_SQLITE 1
 
-#endif //BITCOIN_CONFIG_H
+#endif //BGL_CONFIG_H
