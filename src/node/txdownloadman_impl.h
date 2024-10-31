@@ -143,9 +143,29 @@ public:
     /** Number of wtxid relay peers we have in m_peer_info. */
     uint32_t m_num_wtxid_peers{0};
 
-    struct PeerInfo {
-        /** Information relevant to scheduling tx requests. */
-        const TxDownloadConnectionInfo m_connection_info;
+    void ActiveTipChange();
+    void BlockConnected(const std::shared_ptr<const CBlock>& pblock);
+    void BlockDisconnected();
+
+    /** Check whether we already have this gtxid in:
+     *  - mempool
+     *  - orphanage
+     *  - m_recent_rejects
+     *  - m_recent_rejects_reconsiderable (if include_reconsiderable = true)
+     *  - m_recent_confirmed_transactions
+     *  */
+    bool AlreadyHaveTx(const GenTxid& gtxid, bool include_reconsiderable);
+
+    void ConnectedPeer(NodeId nodeid, const TxDownloadConnectionInfo& info);
+    void DisconnectedPeer(NodeId nodeid);
+
+    /** Consider adding this tx hash to txrequest. Should be called whenever a new inv has been received.
+     * Also called internally when a transaction is missing parents so that we can request them.
+     */
+    bool AddTxAnnouncement(NodeId peer, const GenTxid& gtxid, std::chrono::microseconds now, bool p2p_inv);
+
+    /** Get getdata requests to send. */
+    std::vector<GenTxid> GetRequestsToSend(NodeId nodeid, std::chrono::microseconds current_time);
 
         PeerInfo(const TxDownloadConnectionInfo& info) : m_connection_info{info} {}
     };
