@@ -368,20 +368,37 @@ if(BUILD_CLI)
     BGL_util
     $<TARGET_NAME_IF_EXISTS:libevent::libevent>
   )
-  list(APPEND installable_targets BGL-cli)
+  unset(${PROJECT_NAME}_windows)
+endif()
+unset(${PROJECT_NAME}_soversion)
+
+if(SECP256K1_BUILD_BENCHMARK)
+  add_executable(bench bench.c)
+  target_link_libraries(bench secp256k1)
+  add_executable(bench_internal bench_internal.c)
+  target_link_libraries(bench_internal secp256k1_precomputed secp256k1_asm)
+  add_executable(bench_ecmult bench_ecmult.c)
+  target_link_libraries(bench_ecmult secp256k1_precomputed secp256k1_asm)
 endif()
 
+if(SECP256K1_BUILD_TESTS)
+  add_executable(noverify_tests tests.c)
+  target_link_libraries(noverify_tests secp256k1_precomputed secp256k1_asm)
+  add_test(NAME secp256k1_noverify_tests COMMAND noverify_tests)
+  if(NOT CMAKE_BUILD_TYPE STREQUAL "Coverage")
+    add_executable(tests tests.c)
+    target_compile_definitions(tests PRIVATE VERIFY)
+    target_link_libraries(tests secp256k1_precomputed secp256k1_asm)
+    add_test(NAME secp256k1_tests COMMAND tests)
+  endif()
+endif()
 
-if(BUILD_TX)
-  add_executable(BGL-tx BGL-tx.cpp)
-  add_windows_resources(BGL-tx BGL-tx-res.rc)
-  target_link_libraries(BGL-tx
-    core_interface
-    BGL_common
-    BGL_util
-    univalue
-  )
-  list(APPEND installable_targets BGL-tx)
+if(SECP256K1_BUILD_EXHAUSTIVE_TESTS)
+  # Note: do not include secp256k1_precomputed in exhaustive_tests (it uses runtime-generated tables).
+  add_executable(exhaustive_tests tests_exhaustive.c)
+  target_link_libraries(exhaustive_tests secp256k1_asm)
+  target_compile_definitions(exhaustive_tests PRIVATE $<$<NOT:$<CONFIG:Coverage>>:VERIFY>)
+  add_test(NAME secp256k1_exhaustive_tests COMMAND exhaustive_tests)
 endif()
 
 
@@ -419,10 +436,26 @@ if(BUILD_UTIL_CHAINSTATE)
   set_target_properties(BGL-chainstate PROPERTIES
     SKIP_BUILD_RPATH OFF
   )
-  target_link_libraries(BGL-chainstate
-    PRIVATE
-      core_interface
-      BGLkernel
+  if(SECP256K1_ENABLE_MODULE_ECDH)
+    list(APPEND ${PROJECT_NAME}_headers "${PROJECT_SOURCE_DIR}/include/secp256k1_ecdh.h")
+  endif()
+  if(SECP256K1_ENABLE_MODULE_RECOVERY)
+    list(APPEND ${PROJECT_NAME}_headers "${PROJECT_SOURCE_DIR}/include/secp256k1_recovery.h")
+  endif()
+  if(SECP256K1_ENABLE_MODULE_EXTRAKEYS)
+    list(APPEND ${PROJECT_NAME}_headers "${PROJECT_SOURCE_DIR}/include/secp256k1_extrakeys.h")
+  endif()
+  if(SECP256K1_ENABLE_MODULE_SCHNORRSIG)
+    list(APPEND ${PROJECT_NAME}_headers "${PROJECT_SOURCE_DIR}/include/secp256k1_schnorrsig.h")
+  endif()
+  if(SECP256K1_ENABLE_MODULE_MUSIG)
+    list(APPEND ${PROJECT_NAME}_headers "${PROJECT_SOURCE_DIR}/include/secp256k1_musig.h")
+  endif()
+  if(SECP256K1_ENABLE_MODULE_ELLSWIFT)
+    list(APPEND ${PROJECT_NAME}_headers "${PROJECT_SOURCE_DIR}/include/secp256k1_ellswift.h")
+  endif()
+  install(FILES ${${PROJECT_NAME}_headers}
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   )
 endif()
 

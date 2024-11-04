@@ -1,51 +1,19 @@
-# Copyright (c) 2023-present The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or https://opensource.org/license/mit/.
-
-# Ubuntu 22.04 LTS Jammy Jellyfish, https://wiki.ubuntu.com/Releases, EOSS in June 2027:
-#  - CMake 3.22.1, https://packages.ubuntu.com/jammy/cmake
-#
-# Centos Stream 9, https://www.centos.org/cl-vs-cs/#end-of-life, EOL in May 2027:
-#  - CMake 3.26.5, https://mirror.stream.centos.org/9-stream/AppStream/x86_64/os/Packages/
-cmake_minimum_required(VERSION 3.22)
-
-if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
-  message(FATAL_ERROR "In-source builds are not allowed.")
-endif()
+cmake_minimum_required(VERSION 3.16)
 
 #=============================
 # Project / Package metadata
 #=============================
-set(CLIENT_NAME "Bitcoin Core")
-set(CLIENT_VERSION_MAJOR 28)
-set(CLIENT_VERSION_MINOR 99)
-set(CLIENT_VERSION_BUILD 0)
-set(CLIENT_VERSION_RC 0)
-set(CLIENT_VERSION_IS_RELEASE "false")
-set(COPYRIGHT_YEAR "2024")
-
-# During the enabling of the CXX and CXXOBJ languages, we modify
-# CMake's compiler/linker invocation strings by appending the content
-# of the user-defined `APPEND_*` variables, which allows overriding
-# any flag. We also ensure that the APPEND_* flags are considered
-# during CMake's tests, which use the `try_compile()` command.
-#
-# CMake's docs state that the `CMAKE_TRY_COMPILE_PLATFORM_VARIABLES`
-# variable "is meant to be set by CMake's platform information modules
-# for the current toolchain, or by a toolchain file." We do our best
-# to set it before the `project()` command.
-set(CMAKE_TRY_COMPILE_PLATFORM_VARIABLES
-  CMAKE_CXX_COMPILE_OBJECT
-  CMAKE_OBJCXX_COMPILE_OBJECT
-  CMAKE_CXX_LINK_EXECUTABLE
+project(libsecp256k1
+  # The package (a.k.a. release) version is based on semantic versioning 2.0.0 of
+  # the API. All changes in experimental modules are treated as
+  # backwards-compatible and therefore at most increase the minor version.
+  VERSION 0.6.0
+  DESCRIPTION "Optimized C library for ECDSA signatures and secret/public key operations on curve secp256k1."
+  HOMEPAGE_URL "https://github.com/bitcoin-core/secp256k1"
+  LANGUAGES C
 )
-
-project(BitcoinCore
-  VERSION ${CLIENT_VERSION_MAJOR}.${CLIENT_VERSION_MINOR}.${CLIENT_VERSION_BUILD}
-  DESCRIPTION "Bitgesell client software"
-  HOMEPAGE_URL "https://bitgesell.org/"
-  LANGUAGES NONE
-)
+enable_testing()
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 set(CLIENT_VERSION_STRING ${PROJECT_VERSION})
 if(CLIENT_VERSION_RC GREATER 0)
@@ -115,25 +83,23 @@ cmake_dependent_option(BUILD_WALLET_TOOL "Build BGL-wallet tool." ${BUILD_TESTS}
 # https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 # All changes in experimental modules are treated as if they don't affect the
 # interface and therefore only increase the revision.
-set(${PROJECT_NAME}_LIB_VERSION_CURRENT 4)
-set(${PROJECT_NAME}_LIB_VERSION_REVISION 2)
-set(${PROJECT_NAME}_LIB_VERSION_AGE 2)
+set(${PROJECT_NAME}_LIB_VERSION_CURRENT 5)
+set(${PROJECT_NAME}_LIB_VERSION_REVISION 0)
+set(${PROJECT_NAME}_LIB_VERSION_AGE 0)
 
+#=============================
+# Language setup
+#=============================
 set(CMAKE_C_STANDARD 90)
 set(CMAKE_C_EXTENSIONS OFF)
 
-list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-
-option(ENABLE_WALLET "Enable wallet." ON)
-option(WITH_SQLITE "Enable SQLite wallet support." ${ENABLE_WALLET})
-if(WITH_SQLITE)
-  if(VCPKG_TARGET_TRIPLET)
-    # Use of the `unofficial::` namespace is a vcpkg package manager convention.
-    find_package(unofficial-sqlite3 CONFIG REQUIRED)
-  else()
-    find_package(SQLite3 3.7.17 REQUIRED)
-  endif()
-  set(USE_SQLITE ON)
+#=============================
+# Configurable options
+#=============================
+option(BUILD_SHARED_LIBS "Build shared libraries." ON)
+option(SECP256K1_DISABLE_SHARED "Disable shared library. Overrides BUILD_SHARED_LIBS." OFF)
+if(SECP256K1_DISABLE_SHARED)
+  set(BUILD_SHARED_LIBS OFF)
 endif()
 option(WITH_BDB "Enable Berkeley DB (BDB) wallet support." OFF)
 cmake_dependent_option(WARN_INCOMPATIBLE_BDB "Warn when using a Berkeley DB (BDB) version other than 4.8." ON "WITH_BDB" OFF)
@@ -153,18 +119,38 @@ if(WITH_BDB)
 endif()
 cmake_dependent_option(BUILD_WALLET_TOOL "Build BGL-wallet tool." ${BUILD_TESTS} "ENABLE_WALLET" OFF)
 
-option(ENABLE_HARDENING "Attempt to harden the resulting executables." ON)
-option(REDUCE_EXPORTS "Attempt to reduce exported symbols in the resulting executables." OFF)
-option(WITH_CCACHE "Attempt to use ccache for compiling." ON)
+option(SECP256K1_INSTALL "Enable installation." ${PROJECT_IS_TOP_LEVEL})
+
+## Modules
+
+# We declare all options before processing them, to make sure we can express
+# dependendencies while processing.
+option(SECP256K1_ENABLE_MODULE_ECDH "Enable ECDH module." ON)
+option(SECP256K1_ENABLE_MODULE_RECOVERY "Enable ECDSA pubkey recovery module." OFF)
+option(SECP256K1_ENABLE_MODULE_EXTRAKEYS "Enable extrakeys module." ON)
+option(SECP256K1_ENABLE_MODULE_SCHNORRSIG "Enable schnorrsig module." ON)
+option(SECP256K1_ENABLE_MODULE_MUSIG "Enable musig module." ON)
+option(SECP256K1_ENABLE_MODULE_ELLSWIFT "Enable ElligatorSwift module." ON)
 
 option(WITH_ZMQ "Enable ZMQ notifications." OFF)
 if(WITH_ZMQ)
   find_package(ZeroMQ 4.0.0 MODULE REQUIRED)
 endif()
 
-option(WITH_USDT "Enable tracepoints for Userspace, Statically Defined Tracing." OFF)
-if(WITH_USDT)
-  find_package(USDT MODULE REQUIRED)
+if(SECP256K1_ENABLE_MODULE_MUSIG)
+  if(DEFINED SECP256K1_ENABLE_MODULE_SCHNORRSIG AND NOT SECP256K1_ENABLE_MODULE_SCHNORRSIG)
+    message(FATAL_ERROR "Module dependency error: You have disabled the schnorrsig module explicitly, but it is required by the musig module.")
+  endif()
+  set(SECP256K1_ENABLE_MODULE_SCHNORRSIG ON)
+  add_compile_definitions(ENABLE_MODULE_MUSIG=1)
+endif()
+
+if(SECP256K1_ENABLE_MODULE_SCHNORRSIG)
+  if(DEFINED SECP256K1_ENABLE_MODULE_EXTRAKEYS AND NOT SECP256K1_ENABLE_MODULE_EXTRAKEYS)
+    message(FATAL_ERROR "Module dependency error: You have disabled the extrakeys module explicitly, but it is required by the schnorrsig module.")
+  endif()
+  set(SECP256K1_ENABLE_MODULE_EXTRAKEYS ON)
+  add_compile_definitions(ENABLE_MODULE_SCHNORRSIG=1)
 endif()
 
 cmake_dependent_option(ENABLE_EXTERNAL_SIGNER "Enable external signer support." ON "NOT WIN32" OFF)
@@ -549,21 +535,8 @@ else()
   )
 endif()
 
-target_compile_definitions(core_interface INTERFACE ${DEPENDS_COMPILE_DEFINITIONS})
-target_compile_definitions(core_interface_relwithdebinfo INTERFACE ${DEPENDS_COMPILE_DEFINITIONS_RELWITHDEBINFO})
-target_compile_definitions(core_interface_debug INTERFACE ${DEPENDS_COMPILE_DEFINITIONS_DEBUG})
-
-# If the {CXX,LD}FLAGS environment variables are defined during building depends
-# and configuring this build system, their content might be duplicated.
-if(DEFINED ENV{CXXFLAGS})
-  deduplicate_flags(CMAKE_CXX_FLAGS)
-endif()
-if(DEFINED ENV{LDFLAGS})
-  deduplicate_flags(CMAKE_EXE_LINKER_FLAGS)
-endif()
-
-set(SECP256K1_APPEND_LDFLAGS "" CACHE STRING "Linker flags that are appended to the command line after all other flags added by the build system. This variable is intended for debugging and special builds.")
-if(SECP256K1_APPEND_LDFLAGS)
+set(SECP256K1_APPEND_CFLAGS "" CACHE STRING "Compiler flags that are appended to the command line after all other flags added by the build system. This variable is intended for debugging and special builds.")
+if(SECP256K1_APPEND_CFLAGS)
   # Appending to this low-level rule variable is the only way to
   # guarantee that the flags appear at the end of the command line.
   string(APPEND CMAKE_C_CREATE_SHARED_LIBRARY " ${SECP256K1_APPEND_LDFLAGS}")
@@ -578,6 +551,15 @@ if(SECP256K1_APPEND_LDFLAGS)
   string(APPEND CMAKE_C_LINK_EXECUTABLE " ${SECP256K1_APPEND_LDFLAGS}")
 endif()
 
+if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+endif()
+if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+endif()
+if(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+endif()
 add_subdirectory(src)
 if(SECP256K1_BUILD_EXAMPLES)
   add_subdirectory(examples)
@@ -622,15 +604,20 @@ message("  BGL-qt (GUI) .................... ${BUILD_GUI}")
 if(BUILD_GUI AND WITH_MULTIPROCESS)
   set(BGL_gui_status ON)
 else()
-  set(BGL_gui_status OFF)
+  set(library_type "Static")
 endif()
-message("  BGL-gui (GUI, multiprocess) ..... ${BGL_gui_status}")
-message("  BGL-cli ......................... ${BUILD_CLI}")
-message("  BGL-tx .......................... ${BUILD_TX}")
-message("  BGL-util ........................ ${BUILD_UTIL}")
-message("  BGL-wallet ...................... ${BUILD_WALLET_TOOL}")
-message("  BGL-chainstate (experimental) ... ${BUILD_UTIL_CHAINSTATE}")
-message("  libBGLkernel (experimental) ..... ${BUILD_KERNEL_LIB}")
+
+message("  library type ........................ ${library_type}")
+message("Optional modules:")
+message("  ECDH ................................ ${SECP256K1_ENABLE_MODULE_ECDH}")
+message("  ECDSA pubkey recovery ............... ${SECP256K1_ENABLE_MODULE_RECOVERY}")
+message("  extrakeys ........................... ${SECP256K1_ENABLE_MODULE_EXTRAKEYS}")
+message("  schnorrsig .......................... ${SECP256K1_ENABLE_MODULE_SCHNORRSIG}")
+message("  musig ............................... ${SECP256K1_ENABLE_MODULE_MUSIG}")
+message("  ElligatorSwift ...................... ${SECP256K1_ENABLE_MODULE_ELLSWIFT}")
+message("Parameters:")
+message("  ecmult window size .................. ${SECP256K1_ECMULT_WINDOW_SIZE}")
+message("  ecmult gen table size ............... ${SECP256K1_ECMULT_GEN_KB} KiB")
 message("Optional features:")
 message("  wallet support ...................... ${ENABLE_WALLET}")
 if(ENABLE_WALLET)

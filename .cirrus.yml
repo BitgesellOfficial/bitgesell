@@ -1,125 +1,62 @@
 env:
   ### cirrus config
   CIRRUS_CLONE_DEPTH: 1
-  CIRRUS_LOG_TIMESTAMP: true
-  MAKEJOBS: "-j10"
-  TEST_RUNNER_PORT_MIN: "14000"  # Must be larger than 12321, which is used for the http cache. See https://cirrus-ci.org/guide/writing-tasks/#http-cache
-  CI_FAILFAST_TEST_LEAVE_DANGLING: "1"  # Cirrus CI does not care about dangling processes and setting this variable avoids killing the CI script itself on error
+  ### compiler options
+  HOST:
+  WRAPPER_CMD:
+  # Specific warnings can be disabled with -Wno-error=foo.
+  # -pedantic-errors is not equivalent to -Werror=pedantic and thus not implied by -Werror according to the GCC manual.
+  WERROR_CFLAGS: -Werror -pedantic-errors
+  MAKEFLAGS: -j4
+  BUILD: check
+  ### secp256k1 config
+  ECMULTWINDOW: 15
+  ECMULTGENKB: 22
+  ASM: no
+  WIDEMUL: auto
+  WITH_VALGRIND: yes
+  EXTRAFLAGS:
+  ### secp256k1 modules
+  EXPERIMENTAL: no
+  ECDH: no
+  RECOVERY: no
+  EXTRAKEYS: no
+  SCHNORRSIG: no
+  MUSIG: no
+  ELLSWIFT: no
+  ### test options
+  SECP256K1_TEST_ITERS: 64
+  BENCH: yes
+  SECP256K1_BENCH_ITERS: 2
+  CTIMETESTS: yes
+  # Compile and run the tests
+  EXAMPLES: yes
 
-# A self-hosted machine(s) can be used via Cirrus CI. It can be configured with
-# multiple users to run tasks in parallel. No sudo permission is required.
-#
-# https://cirrus-ci.org/guide/persistent-workers/
-#
-# Generally, a persistent worker must run Ubuntu 23.04+ or Debian 12+.
-#
-# The following specific types should exist, with the following requirements:
-# - small: For an x86_64 machine, with at least 2 vCPUs and 8 GB of memory.
-# - medium: For an x86_64 machine, with at least 4 vCPUs and 16 GB of memory.
-# - arm64: For an aarch64 machine, with at least 2 vCPUs and 8 GB of memory.
-#
-# CI jobs for the latter configuration can be run on x86_64 hardware
-# by installing qemu-user-static, which works out of the box with
-# podman or docker. Background: https://stackoverflow.com/a/72890225/313633
-#
-# The above machine types are matched to each task by their label. Refer to the
-# Cirrus CI docs for more details.
-#
-# When a contributor maintains a fork of the repo, any pull request they make
-# to their own fork, or to the main repository, will trigger two CI runs:
-# one for the branch push and one for the pull request.
-# This can be avoided by setting SKIP_BRANCH_PUSH=true as a custom env variable
-# in Cirrus repository settings, accessible from
-# https://cirrus-ci.com/github/my-organization/my-repository
-#
-# On machines that are persisted between CI jobs, RESTART_CI_DOCKER_BEFORE_RUN=1
-# ensures that previous containers and artifacts are cleared before each run.
-# This requires installing Podman instead of Docker.
-#
-# Futhermore:
-# - podman-docker-4.1+ is required due to the bugfix in 4.1
-#   (https://github.com/bitcoin/bitcoin/pull/21652#issuecomment-1657098200)
-# - The ./ci/ dependencies (with cirrus-cli) should be installed. One-liner example
-#   for a single user setup with sudo permission:
-#
-#   ```
-#   apt update && apt install git screen python3 bash podman-docker uidmap slirp4netns curl -y && curl -L -o cirrus "https://github.com/cirruslabs/cirrus-cli/releases/latest/download/cirrus-linux-$(dpkg --print-architecture)" && mv cirrus /usr/local/bin/cirrus && chmod +x /usr/local/bin/cirrus
-#   ```
-#
-# - There are no strict requirements on the hardware. Having fewer CPU threads
-#   than recommended merely causes the CI script to run slower.
-#   To avoid rare and intermittent OOM due to short memory usage spikes,
-#   it is recommended to add (and persist) swap:
-#
-#   ```
-#   fallocate -l 16G /swapfile_ci && chmod 600 /swapfile_ci && mkswap /swapfile_ci && swapon /swapfile_ci && ( echo '/swapfile_ci none swap sw 0 0' | tee -a /etc/fstab )
-#   ```
-#
-# - To register the persistent worker, open a `screen` session and run:
-#
-#   ```
-#   RESTART_CI_DOCKER_BEFORE_RUN=1 screen cirrus worker run --labels type=todo_fill_in_type --token todo_fill_in_token
-#   ```
+cat_logs_snippet: &CAT_LOGS
+  always:
+    cat_tests_log_script:
+      - cat tests.log || true
+    cat_noverify_tests_log_script:
+      - cat noverify_tests.log || true
+    cat_exhaustive_tests_log_script:
+      - cat exhaustive_tests.log || true
+    cat_ctime_tests_log_script:
+      - cat ctime_tests.log || true
+    cat_bench_log_script:
+      - cat bench.log || true
+    cat_config_log_script:
+      - cat config.log || true
+    cat_test_env_script:
+      - cat test_env.log || true
+    cat_ci_env_script:
+      - env
 
-# https://cirrus-ci.org/guide/tips-and-tricks/#sharing-configuration-between-tasks
-filter_template: &FILTER_TEMPLATE
-  # Allow forks to specify SKIP_BRANCH_PUSH=true and skip CI runs when a branch is pushed,
-  # but still run CI when a PR is created.
-  # https://cirrus-ci.org/guide/writing-tasks/#conditional-task-execution
-  skip: $SKIP_BRANCH_PUSH == "true" && $CIRRUS_PR == ""
-  stateful: false  # https://cirrus-ci.org/guide/writing-tasks/#stateful-tasks
-
-base_template: &BASE_TEMPLATE
-  << : *FILTER_TEMPLATE
-  merge_base_script:
-    # Require git (used in fingerprint_script).
-    - git --version || ( apt-get update && apt-get install -y git )
-    - if [ "$CIRRUS_PR" = "" ]; then exit 0; fi
-    - git fetch $CIRRUS_REPO_CLONE_URL $CIRRUS_BASE_BRANCH
-    - git config --global user.email "ci@ci.ci"
-    - git config --global user.name "ci"
-    - git merge FETCH_HEAD  # Merge base to detect silent merge conflicts
-
-env_matrix_snippet: &ENV_MATRIX_VALGRIND
-  - env:
-      ENABLE_FIELDS: "7,32,58"
-  - env:
-      BUILD: distcheck
-  - env:
-      EXEC_CMD: valgrind --error-exitcode=42
-      TESTRUNS: 1
-      BUILD:
-
-env_matrix_snippet: &ENV_MATRIX_SAN_VALGRIND
-  - env:
-      ENABLE_FIELDS: "11,64,37"
-  - env:
-      BUILD: distcheck
-  - env:
-      EXEC_CMD: valgrind --error-exitcode=42
-      TESTRUNS: 1
-      BUILD:
-  - env:
-      CXXFLAGS:  "-fsanitize=undefined -fno-omit-frame-pointer"
-      LDFLAGS: "-fsanitize=undefined -fno-omit-frame-pointer"
-      UBSAN_OPTIONS: "print_stacktrace=1:halt_on_error=1"
-      BENCH: no
-
-task:
-  name: 'lint'
-  << : *BASE_TEMPLATE
-  container:
-    dockerfile: ci/linux-debian.Dockerfile
-    memory: 2G
-    cpu: 4
-  matrix:
-    << : *ENV_MATRIX_SAN_VALGRIND
-  matrix:
-    - env:
-        CXX: g++
-    - env:
-        CXX: clang++ -gdwarf-4
-  << : *MERGE_BASE
+linux_arm64_container_snippet: &LINUX_ARM64_CONTAINER
+  env_script:
+    - env | tee /tmp/env
+  build_script:
+    - DOCKER_BUILDKIT=1 docker build --file "ci/linux-debian.Dockerfile" --tag="ci_secp256k1_arm"
+    - docker image prune --force  # Cleanup stale layers
   test_script:
     - ./ci/cirrus.sh
   << : *CAT_LOGS
@@ -135,6 +72,7 @@ task:
     RECOVERY: yes
     EXTRAKEYS: yes
     SCHNORRSIG: yes
+    MUSIG: yes
     ELLSWIFT: yes
   matrix:
     << : *ENV_MATRIX_VALGRIND
@@ -195,6 +133,7 @@ task:
     RECOVERY: yes
     EXTRAKEYS: yes
     SCHNORRSIG: yes
+    MUSIG: yes
     ELLSWIFT: yes
     WRAPPER_CMD: 'valgrind --error-exitcode=42'
     SECP256K1_TEST_ITERS: 2
