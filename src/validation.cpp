@@ -2604,8 +2604,9 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
         for (const auto& tx : block.vtx) {
             for (size_t o = 0; o < tx->vout.size(); o++) {
                 if (view.HaveCoin(COutPoint(tx->GetHash(), o))) {
-                    state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-txns-BIP30",
-                                  "tried to overwrite transaction");
+                    LogPrintf("ERROR: ConnectBlock(): tried to overwrite transaction\n");
+                    return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-txns-BIP30",
+                                         "tried to overwrite transaction");
                 }
             }
         }
@@ -2663,13 +2664,14 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
                 state.Invalid(BlockValidationResult::BLOCK_CONSENSUS,
                               tx_state.GetRejectReason(),
                               tx_state.GetDebugMessage() + " in transaction " + tx.GetHash().ToString());
-                break;
+                LogError("%s: Consensus::CheckTxInputs: %s, %s\n", __func__, tx.GetHash().ToString(), state.ToString());
+                return false;
             }
             nFees += txfee;
             if (!MoneyRange(nFees)) {
-                state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-txns-accumulated-fee-outofrange",
-                              "accumulated fee in the block out of range");
-                break;
+                LogPrintf("ERROR: %s: accumulated fee in the block out of range.\n", __func__);
+                return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-txns-accumulated-fee-outofrange",
+                                     "accumulated fee in the block out of range");
             }
 
             // Check that transaction is BIP68 final
@@ -2681,9 +2683,9 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
             }
 
             if (!SequenceLocks(tx, nLockTimeFlags, prevheights, *pindex)) {
-                state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-txns-nonfinal",
-                              "contains a non-BIP68-final transaction " + tx.GetHash().ToString());
-                break;
+                LogPrintf("ERROR: %s: contains a non-BIP68-final transaction\n", __func__);
+                return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-txns-nonfinal",
+                                     "contains a non-BIP68-final transaction " + tx.GetHash().ToString());
             }
         }
 
@@ -2693,8 +2695,8 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
         // * witness (when witness enabled in flags and excludes coinbase)
         nSigOpsCost += GetTransactionSigOpCost(tx, view, flags);
         if (nSigOpsCost > MAX_BLOCK_SIGOPS_COST) {
-            state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-blk-sigops", "too many sigops");
-            break;
+            LogPrintf("ERROR: ConnectBlock(): too many sigops\n");
+            return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-blk-sigops", "too many sigops");
         }
 
         if (!tx.IsCoinBase())
@@ -2727,9 +2729,10 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
              Ticks<MillisecondsDouble>(m_chainman.time_connect) / m_chainman.num_blocks_total);
 
     CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, params.GetConsensus());
-    if (block.vtx[0]->GetValueOut() > blockReward && state.IsValid()) {
-        state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-cb-amount",
-                      strprintf("coinbase pays too much (actual=%d vs limit=%d)", block.vtx[0]->GetValueOut(), blockReward));
+    if (block.vtx[0]->GetValueOut() > blockReward) {
+        LogPrintf("ERROR: ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)\n", block.vtx[0]->GetValueOut(), blockReward);
+        return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-cb-amount",
+                             strprintf("coinbase pays too much (actual=%d vs limit=%d)", block.vtx[0]->GetValueOut(), blockReward));
     }
 
     auto parallel_result = control.Complete();
