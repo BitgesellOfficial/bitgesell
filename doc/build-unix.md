@@ -183,8 +183,8 @@ Setup and Build Example: Arch Linux
 -----------------------------------
 This example lists the steps necessary to setup and build a command line only distribution of the latest changes on Arch Linux:
 
-    pacman --sync --needed cmake boost gcc git libevent make pkgconf python sqlite
-    git clone https://github.com/BitgesellOfficial/bitgesell.git
+    pacman --sync --needed cmake boost gcc git libevent make python sqlite
+    git clone git clone https://github.com/BitgesellOfficial/bitgesell.git
     cd bitgesell/
     cmake -B build
     cmake --build build

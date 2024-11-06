@@ -291,13 +291,14 @@ target_link_libraries(BGL_node
     core_interface
     BGL_common
     BGL_util
+    $<TARGET_NAME_IF_EXISTS:BGL_zmq>
     leveldb
     minisketch
     univalue
     Boost::headers
-    $<TARGET_NAME_IF_EXISTS:libevent::libevent>
+    libevent::core
+    libevent::extra
     $<TARGET_NAME_IF_EXISTS:libevent::pthreads>
-    $<TARGET_NAME_IF_EXISTS:BGL_zmq>
     $<TARGET_NAME_IF_EXISTS:USDT::headers>
 )
 
@@ -367,7 +368,8 @@ if(BUILD_CLI)
     BGL_cli
     BGL_common
     BGL_util
-    $<TARGET_NAME_IF_EXISTS:libevent::libevent>
+    libevent::core
+    libevent::extra
   )
   unset(${PROJECT_NAME}_windows)
 endif()
