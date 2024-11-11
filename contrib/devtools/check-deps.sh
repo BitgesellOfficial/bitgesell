@@ -8,7 +8,7 @@ declare -A LIBS
 LIBS[cli]="libBGL_cli.a"
 LIBS[common]="libBGL_common.a"
 LIBS[consensus]="libBGL_consensus.a"
-LIBS[crypto]="crypto/libBGL_crypto.a crypto/libBGL_crypto_x86_shani.a crypto/libBGL_crypto_sse41.a crypto/libBGL_crypto_avx2.a"
+LIBS[crypto]="crypto/libBGL_crypto.a"
 LIBS[node]="libBGL_node.a"
 LIBS[util]="util/libBGL_util.a"
 LIBS[wallet]="wallet/libBGL_wallet.a"
