@@ -280,24 +280,6 @@ mkdir -p "$DISTSRC"
             ;;
     esac
 
-    case "$HOST" in
-        *darwin*)
-            cmake --build build --target deploy ${V:+--verbose}
-            mv build/dist/Bitcoin-Core.zip "${OUTDIR}/${DISTNAME}-${HOST}-unsigned.zip"
-            mkdir -p "unsigned-app-${HOST}"
-            cp  --target-directory="unsigned-app-${HOST}" \
-                contrib/macdeploy/detached-sig-create.sh
-            mv --target-directory="unsigned-app-${HOST}" build/dist
-            (
-                cd "unsigned-app-${HOST}"
-                find . -print0 \
-                    | sort --zero-terminated \
-                    | tar --create --no-recursion --mode='u+rw,go+r-w,a+X' --null --files-from=- \
-                    | gzip -9n > "${OUTDIR}/${DISTNAME}-${HOST}-codesigning.tar.gz" \
-                    || ( rm -f "${OUTDIR}/${DISTNAME}-${HOST}-codesigning.tar.gz" && exit 1 )
-            )
-            ;;
-    esac
     (
         cd installed
 
@@ -326,7 +308,7 @@ mkdir -p "$DISTSRC"
 
         cp -r "${DISTSRC}/share/rpcauth" "${DISTNAME}/share/"
 
-        # Finally, deterministically produce {non-,}debug binary tarballs ready
+        # Deterministically produce {non-,}debug binary tarballs ready
         # for release
         case "$HOST" in
             *mingw*)
@@ -365,6 +347,7 @@ mkdir -p "$DISTSRC"
         esac
     )  # $DISTSRC/installed
 
+    # Finally make tarballs for codesigning
     case "$HOST" in
         *mingw*)
             cp -rf --target-directory=. contrib/windeploy
@@ -377,6 +360,23 @@ mkdir -p "$DISTSRC"
                     | tar --create --no-recursion --mode='u+rw,go+r-w,a+X' --null --files-from=- \
                     | gzip -9n > "${OUTDIR}/${DISTNAME}-win64-codesigning.tar.gz" \
                     || ( rm -f "${OUTDIR}/${DISTNAME}-win64-codesigning.tar.gz" && exit 1 )
+            )
+            ;;
+        *darwin*)
+            cmake --build build --target deploy ${V:+--verbose}
+            mv build/dist/Bitcoin-Core.zip "${OUTDIR}/${DISTNAME}-${HOST}-unsigned.zip"
+            mkdir -p "unsigned-app-${HOST}"
+            cp  --target-directory="unsigned-app-${HOST}" \
+                contrib/macdeploy/detached-sig-create.sh
+            mv --target-directory="unsigned-app-${HOST}" build/dist
+            cp -r --target-directory="unsigned-app-${HOST}" "${INSTALLPATH}"
+            (
+                cd "unsigned-app-${HOST}"
+                find . -print0 \
+                    | sort --zero-terminated \
+                    | tar --create --no-recursion --mode='u+rw,go+r-w,a+X' --null --files-from=- \
+                    | gzip -9n > "${OUTDIR}/${DISTNAME}-${HOST}-codesigning.tar.gz" \
+                    || ( rm -f "${OUTDIR}/${DISTNAME}-${HOST}-codesigning.tar.gz" && exit 1 )
             )
             ;;
     esac
