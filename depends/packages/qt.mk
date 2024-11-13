@@ -273,6 +273,6 @@ define $(package)_stage_cmds
 endef
 
 define $(package)_postprocess_cmds
-  rm -rf doc/ native/lib/ && \
-  rm -f lib/lib*.la
+  rm -rf doc/ native/lib/ lib/pkgconfig/ && \
+  rm -f lib/lib*.la lib/Qt5*.la
 endef
