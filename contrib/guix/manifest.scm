@@ -475,6 +475,8 @@ inspecting signatures in Mach-O binaries.")
                   "--enable-cet",
                   "--enable-bind-now",
                   "--disable-werror",
+                  "--disable-timezone-tools",
+                  "--disable-profile",
                   building-on)))
     ((#:phases phases)
         `(modify-phases ,phases
