@@ -25,7 +25,7 @@ Contributors are recommended to provide the following in addition to the new cod
 These are not the only factors taken into account when considering to add new functionality.
 The proposed new libsecp256k1 code must be of high quality, including API documentation and tests, as well as featuring a misuse-resistant API design.
 
-We recommend reaching out to other contributors (see [Communication Channels](#communication-channels)) and get feedback before implementing new functionality.
+You may also participate in the [Bitcoin Core PR Review Club](https://bitcoincore.reviews/).
 
 ## Communication channels
 
