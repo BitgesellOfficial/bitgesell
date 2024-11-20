@@ -44,7 +44,7 @@ See [dependencies.md](dependencies.md) for a complete overview.
 To install, run the following from your terminal:
 
 ``` bash
-brew install cmake boost pkg-config libevent
+brew install cmake boost pkgconf libevent
 ```
 
 ### 4. Clone Bitcoin repository
