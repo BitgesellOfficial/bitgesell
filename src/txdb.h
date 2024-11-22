@@ -21,14 +21,8 @@
 class COutPoint;
 class uint256;
 
-//! -dbcache default (MiB)
-static const int64_t nDefaultDbCache = 450;
 //! -dbbatchsize default (bytes)
 static const int64_t nDefaultDbBatchSize = 16 << 20;
-//! max. -dbcache (MiB)
-static const int64_t nMaxDbCache = sizeof(void*) > 4 ? 16384 : 1024;
-//! min. -dbcache (MiB)
-static const int64_t nMinDbCache = 4;
 
 //! User-controlled performance and debug options.
 struct CoinsViewOptions {
