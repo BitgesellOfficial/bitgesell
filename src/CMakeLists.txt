@@ -297,8 +297,8 @@ target_link_libraries(BGL_node
     minisketch
     univalue
     Boost::headers
-    libevent::core
-    libevent::extra
+    $<TARGET_NAME_IF_EXISTS:libevent::core>
+    $<TARGET_NAME_IF_EXISTS:libevent::extra>
     $<TARGET_NAME_IF_EXISTS:libevent::pthreads>
     $<TARGET_NAME_IF_EXISTS:USDT::headers>
 )
