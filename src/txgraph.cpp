@@ -51,7 +51,7 @@ class Cluster
 {
     friend class TxGraphImpl;
     using GraphIndex = TxGraph::GraphIndex;
-    using SetType = BitSet<CLUSTER_COUNT_LIMIT>;
+    using SetType = BitSet<MAX_CLUSTER_COUNT_LIMIT>;
     /** The DepGraph for this cluster, holding all feerates, and ancestors/descendants. */
     DepGraph<SetType> m_depgraph;
     /** m_mapping[i] gives the GraphIndex for the position i transaction in m_depgraph. Values for
@@ -164,6 +164,8 @@ class TxGraphImpl final : public TxGraph
 private:
     /** Internal RNG. */
     FastRandomContext m_rng;
+    /** This TxGraphImpl's maximum cluster count limit. */
+    const DepGraphIndex m_max_cluster_count;
 
     /** Information about one group of Clusters to be merged. */
     struct GroupEntry
@@ -185,6 +187,9 @@ private:
         std::vector<GroupEntry> m_groups;
         /** Which clusters are to be merged. GroupEntry::m_cluster_offset indexes into this. */
         std::vector<Cluster*> m_group_clusters;
+        /** Whether at least one of the groups cannot be applied because it would result in a
+         *  Cluster that violates the cluster count limit. */
+        bool m_group_oversized;
     };
 
     /** The collection of all Clusters in main or staged. */
@@ -243,8 +248,13 @@ private:
     std::vector<GraphIndex> m_unlinked;
 
 public:
-    /** Construct a new TxGraphImpl. */
-    explicit TxGraphImpl() noexcept {}
+    /** Construct a new TxGraphImpl with the specified maximum cluster count. */
+    explicit TxGraphImpl(DepGraphIndex max_cluster_count) noexcept :
+        m_max_cluster_count(max_cluster_count)
+    {
+        Assume(max_cluster_count >= 1);
+        Assume(max_cluster_count <= MAX_CLUSTER_COUNT_LIMIT);
+    }
 
     // Cannot move or copy (would invalidate TxGraphImpl* in Ref, MiningOrder, EvictionOrder).
     TxGraphImpl(const TxGraphImpl&) = delete;
@@ -320,6 +330,7 @@ public:
     std::vector<Ref*> GetAncestors(const Ref& arg) noexcept final;
     std::vector<Ref*> GetDescendants(const Ref& arg) noexcept final;
     GraphIndex GetTransactionCount() noexcept final;
+    bool IsOversized() noexcept final;
 
     void SanityCheck() const final;
 };
@@ -741,7 +752,7 @@ void TxGraphImpl::GroupClusters() noexcept
 
     // Before computing which Clusters need to be merged together, first apply all removals and
     // split the Clusters into connected components. If we would group first, we might end up
-    // with inefficient Clusters which just end up being split again anyway.
+    // with inefficient and/or oversized Clusters which just end up being split again anyway.
     SplitAll();
 
     /** Annotated clusters: an entry for each Cluster, together with the representative for the
@@ -901,11 +912,11 @@ void TxGraphImpl::GroupClusters() noexcept
 
     // Translate the resulting cluster groups to the m_group_data structure, and the dependencies
     // back to m_deps_to_add.
-    clusterset.m_group_data = GroupData{};
-    clusterset.m_group_data->m_group_clusters.reserve(an_clusters.size());
-    clusterset.m_group_data->m_group_oversized = false;
-    clusterset.m_deps_to_add.clear();
-    clusterset.m_deps_to_add.reserve(an_deps.size());
+    m_group_data = GroupData{};
+    m_group_data->m_group_clusters.reserve(an_clusters.size());
+    m_group_data->m_group_oversized = false;
+    m_deps_to_add.clear();
+    m_deps_to_add.reserve(an_deps.size());
     auto an_deps_it = an_deps.begin();
     auto an_clusters_it = an_clusters.begin();
     while (an_clusters_it != an_clusters.end()) {
@@ -917,9 +928,10 @@ void TxGraphImpl::GroupClusters() noexcept
         new_entry.m_cluster_count = 0;
         new_entry.m_deps_offset = clusterset.m_deps_to_add.size();
         new_entry.m_deps_count = 0;
+        uint32_t total_count{0};
         // Add all its clusters to it (copying those from an_clusters to m_group_clusters).
         while (an_clusters_it != an_clusters.end() && an_clusters_it->second == rep) {
-            clusterset.m_group_data->m_group_clusters.push_back(an_clusters_it->first);
+            m_group_data->m_group_clusters.push_back(an_clusters_it->first);
             total_count += an_clusters_it->first->GetTxCount();
             ++an_clusters_it;
             ++new_entry.m_cluster_count;
@@ -932,7 +944,7 @@ void TxGraphImpl::GroupClusters() noexcept
         }
         // Detect oversizedness.
         if (total_count > m_max_cluster_count) {
-            clusterset.m_group_data->m_group_oversized = true;
+            m_group_data->m_group_oversized = true;
         }
     }
     Assume(an_deps_it == an_deps.end());
@@ -974,9 +986,9 @@ void TxGraphImpl::ApplyDependencies() noexcept
     GroupClusters();
     Assume(clusterset.m_group_data.has_value());
     // Nothing to do if there are no dependencies to be added.
-    if (clusterset.m_deps_to_add.empty()) return;
+    if (m_deps_to_add.empty()) return;
     // Dependencies cannot be applied if it would result in oversized clusters.
-    if (clusterset.m_group_data->m_group_oversized) return;
+    if (m_group_data->m_group_oversized) return;
 
     // For each group of to-be-merged Clusters.
     for (const auto& group_data : clusterset.m_group_data->m_groups) {
@@ -1153,7 +1165,7 @@ std::vector<TxGraph::Ref*> TxGraphImpl::GetAncestors(const Ref& arg) noexcept
     // Apply all removals and dependencies, as the result might be incorrect otherwise.
     ApplyDependencies();
     // Ancestry cannot be known if unapplied dependencies remain.
-    Assume(m_clusterset.m_deps_to_add.empty());
+    Assume(m_deps_to_add.empty());
     // Find the Cluster the argument is in, and return the empty vector if it isn't in any.
     auto cluster = m_entries[GetRefIndex(arg)].m_locator.cluster;
     if (cluster == nullptr) return {};
@@ -1169,7 +1181,7 @@ std::vector<TxGraph::Ref*> TxGraphImpl::GetDescendants(const Ref& arg) noexcept
     // Apply all removals and dependencies, as the result might be incorrect otherwise.
     ApplyDependencies();
     // Ancestry cannot be known if unapplied dependencies remain.
-    Assume(m_clusterset.m_deps_to_add.empty());
+    Assume(m_deps_to_add.empty());
     // Find the Cluster the argument is in, and return the empty vector if it isn't in any.
     auto cluster = m_entries[GetRefIndex(arg)].m_locator.cluster;
     if (cluster == nullptr) return {};
@@ -1185,7 +1197,7 @@ std::vector<TxGraph::Ref*> TxGraphImpl::GetCluster(const Ref& arg) noexcept
     // Apply all removals and dependencies, as the result might be incorrect otherwise.
     ApplyDependencies();
     // Cluster linearization cannot be known if unapplied dependencies remain.
-    Assume(m_clusterset.m_deps_to_add.empty());
+    Assume(m_deps_to_add.empty());
     // Find the Cluster the argument is in, and return the empty vector if it isn't in any.
     auto cluster = m_entries[GetRefIndex(arg)].m_locator.cluster;
     if (cluster == nullptr) return {};
@@ -1222,7 +1234,7 @@ FeePerWeight TxGraphImpl::GetChunkFeerate(const Ref& arg) noexcept
     // Apply all removals and dependencies, as the result might be inaccurate otherwise.
     ApplyDependencies();
     // Chunk feerates cannot be accurately known if unapplied dependencies remain.
-    Assume(m_clusterset.m_deps_to_add.empty());
+    Assume(m_deps_to_add.empty());
     // Find the cluster the argument is in, and return the empty FeePerWeight if it isn't in any.
     auto cluster = m_entries[GetRefIndex(arg)].m_locator.cluster;
     if (cluster == nullptr) return {};
@@ -1238,8 +1250,8 @@ bool TxGraphImpl::IsOversized() noexcept
     // Find which Clusters will need to be merged together, as that is where the oversize
     // property is assessed.
     GroupClusters();
-    Assume(m_clusterset.m_group_data.has_value());
-    return m_clusterset.m_group_data->m_group_oversized;
+    Assume(m_group_data.has_value());
+    return m_group_data->m_group_oversized;
 }
 
 void Cluster::SetFee(TxGraphImpl& graph, DepGraphIndex idx, int64_t fee) noexcept
@@ -1278,6 +1290,8 @@ void Cluster::SanityCheck(const TxGraphImpl& graph) const
     assert(m_depgraph.PositionRange() == m_mapping.size());
     // The linearization for this Cluster must contain every transaction once.
     assert(m_depgraph.TxCount() == m_linearization.size());
+    // The number of transactions in a Cluster cannot exceed m_max_cluster_count.
+    assert(m_linearization.size() <= graph.m_max_cluster_count);
     // m_quality and m_setindex are checked in TxGraphImpl::SanityCheck.
 
     // Compute the chunking of m_linearization.
@@ -1422,7 +1436,7 @@ TxGraph::Ref::Ref(Ref&& other) noexcept
     std::swap(m_index, other.m_index);
 }
 
-std::unique_ptr<TxGraph> MakeTxGraph() noexcept
+std::unique_ptr<TxGraph> MakeTxGraph(unsigned max_cluster_count) noexcept
 {
-    return std::make_unique<TxGraphImpl>();
+    return std::make_unique<TxGraphImpl>(max_cluster_count);
 }
