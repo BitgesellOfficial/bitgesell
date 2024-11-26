@@ -20,4 +20,4 @@ export BGL_CONFIG="\
  -DCMAKE_CXX_COMPILER='clang++;-m32' \
  -DAPPEND_CPPFLAGS='-DBOOST_MULTI_INDEX_ENABLE_SAFE_MODE' \
 "
-export BGLD=BGL-node  # Used in functional tests
+export BGL_CMD="BGL -m" # Used in functional tests
