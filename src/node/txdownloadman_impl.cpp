@@ -395,26 +395,17 @@ node::RejectedTxTodo TxDownloadManagerImpl::MempoolRejectedTx(const CTransaction
                 std::erase_if(unique_parents, [&](const auto& txid){
                     return AlreadyHaveTx(GenTxid::Txid(txid), /*include_reconsiderable=*/false);
                 });
-                const auto now{GetTime<std::chrono::microseconds>()};
-                const auto& wtxid = ptx->GetWitnessHash();
-                // Potentially flip add_extra_compact_tx to false if tx is already in orphanage, which
-                // means it was already added to vExtraTxnForCompact.
-                add_extra_compact_tx &= !m_orphanage.HaveTx(wtxid);
+                const auto current_time{GetTime<std::chrono::microseconds>()};
 
-                auto add_orphan_reso_candidate = [&](const CTransactionRef& orphan_tx, const std::vector<Txid>& unique_parents, NodeId nodeid, std::chrono::microseconds now) {
-                    const auto& wtxid = orphan_tx->GetWitnessHash();
-                    if (auto delay{OrphanResolutionCandidate(nodeid, wtxid, unique_parents.size())}) {
-                        const auto& info = m_peer_info.at(nodeid).m_connection_info;
-                        m_orphanage.AddTx(orphan_tx, nodeid);
-
-                        // Treat finding orphan resolution candidate as equivalent to the peer announcing all missing parents
-                        // In the future, orphan resolution may include more explicit steps
-                        for (const auto& parent_txid : unique_parents) {
-                            m_txrequest.ReceivedInv(nodeid, GenTxid::Txid(parent_txid), info.m_preferred, now + *delay);
-                        }
-                        LogDebug(BCLog::TXPACKAGES, "added peer=%d as a candidate for resolving orphan %s\n", nodeid, wtxid.ToString());
-                    }
-                };
+                for (const uint256& parent_txid : unique_parents) {
+                    // Here, we only have the txid (and not wtxid) of the
+                    // inputs, so we only request in txid mode, even for
+                    // wtxidrelay peers.
+                    // Eventually we should replace this with an improved
+                    // protocol for getting all unconfirmed parents.
+                    const auto gtxid{GenTxid::Txid(parent_txid)};
+                    AddTxAnnouncement(nodeid, gtxid, current_time, /*p2p_inv=*/false);
+                }
 
                 // If there is no candidate for orphan resolution, AddTx will not be called. This means
                 // that if a peer is overloading us with invs and orphans, they will eventually not be
