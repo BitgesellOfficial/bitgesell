@@ -114,7 +114,7 @@ bool GenerateAuthCookie(std::string* cookie_out, std::optional<fs::perms> cookie
     }
     file.open(filepath_tmp);
     if (!file.is_open()) {
-        LogInfo("Unable to open cookie authentication file %s for writing\n", fs::PathToString(filepath_tmp));
+        LogWarning("Unable to open cookie authentication file %s for writing", fs::PathToString(filepath_tmp));
         return false;
     }
     file << cookie;
@@ -122,14 +122,14 @@ bool GenerateAuthCookie(std::string* cookie_out, std::optional<fs::perms> cookie
 
     fs::path filepath = GetAuthCookieFile(false);
     if (!RenameOver(filepath_tmp, filepath)) {
-        LogInfo("Unable to rename cookie authentication file %s to %s\n", fs::PathToString(filepath_tmp), fs::PathToString(filepath));
+        LogWarning("Unable to rename cookie authentication file %s to %s", fs::PathToString(filepath_tmp), fs::PathToString(filepath));
         return false;
     }
     if (cookie_perms) {
         std::error_code code;
         fs::permissions(filepath, cookie_perms.value(), fs::perm_options::replace, code);
         if (code) {
-            LogInfo("Unable to set permissions on cookie authentication file %s\n", fs::PathToString(filepath_tmp));
+            LogWarning("Unable to set permissions on cookie authentication file %s", fs::PathToString(filepath));
             return false;
         }
     }
