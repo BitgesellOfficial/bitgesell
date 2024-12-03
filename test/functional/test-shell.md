@@ -24,13 +24,16 @@ user inputs. Such environments include the Python3 command line interpreter or
 
 ## 2. Importing `TestShell` from the BGL Core repository
 
-We can import the `TestShell` by adding the path of the BGL Core
+We can import the `TestShell` by adding the path of the configured Bitgesell Core
 `test_framework` module to the beginning of the PATH variable, and then
-importing the `TestShell` class from the `test_shell` sub-package.
+importing the `TestShell` class from the `test_shell` sub-package. Since
+the build system creates a copy of the `test_framework` module into a new `build/`
+directory along with the required configuration file, the path to the build copy
+must be used.
 
 ```
 >>> import sys
->>> sys.path.insert(0, "/path/to/BGL/test/functional")
+>>> sys.path.insert(0, "/path/to/bitgesell/build/test/functional")
 >>> from test_framework.test_shell import TestShell
 ```
 
@@ -128,7 +131,7 @@ test-framework**. Modules such as
 [key.py](/test/functional/test_framework/key.py),
 [script.py](/test/functional/test_framework/script.py) and
 [messages.py](/test/functional/test_framework/messages.py) are particularly
-useful in constructing objects which can be passed to the bitcoind nodes managed
+useful in constructing objects which can be passed to the BGLd nodes managed
 by a running `TestShell` object.
 
 ## 5. Shutting the `TestShell` down
@@ -155,13 +158,13 @@ To prevent the logs from being removed after a shutdown, simply set the
 The following utility consolidates logs from the BGLd nodes and the
 underlying `BGLTestFramework`:
 
-* `/path/to/BGL/test/functional/combine_logs.py
-  '/path/to/BGL_func_test_XXXXXXX'`
+* `/path/to/bitgesell/build/test/functional/combine_logs.py
+  '/path/to/bitgesell_func_test_XXXXXXX'`
 
 ## 6. Custom `TestShell` parameters
 
 The `TestShell` object initializes with the default settings inherited from the
-`BitcoinTestFramework` class. The user can override these in
+`BGLTestFramework` class. The user can override these in
 `TestShell().setup(key=value)`.
 
 **Note:** `TestShell().reset()` will reset test parameters to default values and
@@ -169,10 +172,10 @@ can be called after the TestShell is shut down.
 
 | Test parameter key | Default Value | Description |
 |---|---|---|
-| `bind_to_localhost_only` | `True` | Binds BGLd RPC services to `127.0.0.1` if set to `True`.|
-| `cachedir` | `"/path/to/BGL/test/cache"` | Sets the BGLd datadir directory. |
+| `bind_to_localhost_only` | `True` | Binds BGLd P2P services to `127.0.0.1` if set to `True`.|
+| `cachedir` | `"/path/to/BGL/build/test/cache"` | Sets the BGLd datadir directory. |
 | `chain`  | `"regtest"` | Sets the chain-type for the underlying test BGLd processes. |
-| `configfile` | `"/path/to/BGL/test/config.ini"` | Sets the location of the test framework config file. |
+| `configfile` | `"/path/to/BGL/build/test/config.ini"` | Sets the location of the test framework config file. |
 | `coveragedir` | `None` | Records BGLd RPC test coverage into this directory if set. |
 | `loglevel` | `INFO` | Logs events at this level and higher. Can be set to `DEBUG`, `INFO`, `WARNING`, `ERROR` or `CRITICAL`. |
 | `nocleanup` | `False` | Cleans up temporary test directory if set to `True` during `shutdown`. |
@@ -182,7 +185,7 @@ can be called after the TestShell is shut down.
 | `rpc_timeout` | `60` | Sets the RPC server timeout for the underlying BGLd processes. |
 | `setup_clean_chain` | `False` | A 200-block-long chain is initialized from cache by default. Instead, `setup_clean_chain` initializes an empty blockchain if set to `True`. |
 | `randomseed` | Random Integer | `TestShell().options.randomseed` is a member of `TestShell` which can be accessed during a test to seed a random generator. User can override default with a constant value for reproducible test runs. |
-| `supports_cli` | `False` | Whether the bitcoin-cli utility is compiled and available for the test. |
+| `supports_cli` | `False` | Whether the BGL-cli utility is compiled and available for the test. |
 | `tmpdir` | `"/var/folders/.../"` | Sets directory for test logs. Will be deleted upon a successful test run unless `nocleanup` is set to `True` |
 | `trace_rpc` | `False` | Logs all RPC calls if set to `True`. |
 | `usecli` | `False` | Uses the BGL-cli interface for all BGLd commands instead of directly calling the RPC server. Requires `supports_cli`. |
