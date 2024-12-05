@@ -518,6 +518,7 @@ fn lint_markdown() -> LintResult {
         "--ignore-path",
         md_ignore_path_str.as_str(),
         "--gitignore",
+        "--gituntracked",
         "--root-dir",
         ".",
     ])
