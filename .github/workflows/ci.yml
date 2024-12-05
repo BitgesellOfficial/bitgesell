@@ -536,17 +536,16 @@ jobs:
     timeout-minutes: 120
     env:
       FILE_ENV: "./ci/test/00_setup_env_native_asan.sh"
-      DANGER_CI_ON_HOST_CACHE_FOLDERS: 1
+      DANGER_CI_ON_HOST_FOLDERS: 1
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Add cl.exe to PATH
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: C++ (public headers)
+      - name: Set CI directories
         run: |
-          cl.exe -c -WX -TP include/*.h
+          echo "CCACHE_DIR=${{ runner.temp }}/ccache_dir" >> "$GITHUB_ENV"
+          echo "BASE_ROOT_DIR=${{ runner.temp }}" >> "$GITHUB_ENV"
+          echo "BASE_BUILD_DIR=${{ runner.temp }}/build-asan" >> "$GITHUB_ENV"
 
   cxx_fpermissive_debian:
     name: "C++ -fpermissive (entire project)"
