@@ -197,7 +197,7 @@ FUZZ_TARGET(ephemeral_package_eval, .init = initialize_tx_pool)
 
     // All RBF-spendable outpoints outside of the unsubmitted package
     std::set<COutPoint> mempool_outpoints;
-    std::map<COutPoint, CAmount> outpoints_value;
+    std::unordered_map<COutPoint, CAmount, SaltedOutpointHasher> outpoints_value;
     for (const auto& outpoint : g_outpoints_coinbase_init_mature) {
         Assert(mempool_outpoints.insert(outpoint).second);
         outpoints_value[outpoint] = 50 * COIN;
@@ -352,7 +352,7 @@ FUZZ_TARGET(tx_package_eval, .init = initialize_tx_pool)
 
     // All RBF-spendable outpoints outside of the unsubmitted package
     std::set<COutPoint> mempool_outpoints;
-    std::map<COutPoint, CAmount> outpoints_value;
+    std::unordered_map<COutPoint, CAmount, SaltedOutpointHasher> outpoints_value;
     for (const auto& outpoint : g_outpoints_coinbase_init_mature) {
         Assert(mempool_outpoints.insert(outpoint).second);
         outpoints_value[outpoint] = 50 * COIN;
