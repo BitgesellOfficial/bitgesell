@@ -525,7 +525,16 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         if binary is None:
             binary = [get_bin_from_version(v, 'BGLd', self.options.BGLd) for v in versions]
         if binary_cli is None:
-            binary_cli = [get_bin_from_version(v, 'BGL-cli', self.options.BGLcli) for v in versions]
+            binary_cli = [get_bin_from_version(v, 'bitcoin-cli', self.options.bitcoincli) for v in versions]
+        # Fail test if any of the needed release binaries is missing
+        bins_missing = False
+        for bin_path in binary + binary_cli:
+            if shutil.which(bin_path) is None:
+                self.log.error(f"Binary not found: {bin_path}")
+                bins_missing = True
+        if bins_missing:
+            raise AssertionError("At least one release binary is missing. "
+                                 "Previous releases binaries can be downloaded via `test/get_previous_releases.py -b`.")
         assert_equal(len(extra_confs), num_nodes)
         assert_equal(len(extra_args), num_nodes)
         assert_equal(len(versions), num_nodes)
