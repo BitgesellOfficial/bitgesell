@@ -1227,6 +1227,93 @@ class WalletMigrationTest(BGLTestFramework):
         assert_equal(watchonly.getaddressinfo(some_keys_addr)["ismine"], True)
         assert_equal(watchonly.getaddressinfo(all_keys_addr)["ismine"], False)
 
+    def test_taproot(self):
+        # It turns out that due to how signing logic works, legacy wallets that have the private key for a Taproot
+        # output key will be able to sign and spend those scripts, even though they would not be detected as ISMINE_SPENDABLE.
+        self.log.info("Test migration of Taproot scripts")
+        def_wallet = self.master_node.get_wallet_rpc(self.default_wallet_name)
+        wallet = self.create_legacy_wallet("taproot")
+
+        privkey, _ = generate_keypair(compressed=True, wif=True)
+
+        rawtr_desc = descsum_create(f"rawtr({privkey})")
+        rawtr_addr = self.master_node.deriveaddresses(rawtr_desc)[0]
+        rawtr_spk = self.master_node.validateaddress(rawtr_addr)["scriptPubKey"]
+        tr_desc = descsum_create(f"tr({privkey})")
+        tr_addr = self.master_node.deriveaddresses(tr_desc)[0]
+        tr_spk = self.master_node.validateaddress(tr_addr)["scriptPubKey"]
+        tr_script_desc = descsum_create(f"tr(9ffbe722b147f3035c87cb1c60b9a5947dd49c774cc31e94773478711a929ac0,pk({privkey}))")
+        tr_script_addr = self.master_node.deriveaddresses(tr_script_desc)[0]
+        tr_script_spk = self.master_node.validateaddress(tr_script_addr)["scriptPubKey"]
+
+        wallet.importaddress(rawtr_spk)
+        wallet.importaddress(tr_spk)
+        wallet.importaddress(tr_script_spk)
+        wallet.importprivkey(privkey)
+
+        txid = def_wallet.send([{rawtr_addr: 1},{tr_addr: 2}, {tr_script_addr: 3}])["txid"]
+        rawtr_vout = find_vout_for_address(self.master_node, txid, rawtr_addr)
+        tr_vout = find_vout_for_address(self.master_node, txid, tr_addr)
+        tr_script_vout = find_vout_for_address(self.master_node, txid, tr_script_addr)
+        self.generate(self.master_node, 6)
+        assert_equal(wallet.getbalances()["watchonly"]["trusted"], 6)
+
+        # Check that the rawtr can be spent by the legacy wallet
+        send_res = wallet.send(outputs=[{rawtr_addr: 0.5}], include_watching=True, change_address=def_wallet.getnewaddress(), inputs=[{"txid": txid, "vout": rawtr_vout}])
+        assert_equal(send_res["complete"], True)
+        self.generate(self.old_node, 6)
+        assert_equal(wallet.getbalances()["watchonly"]["trusted"], 5.5)
+        assert_equal(wallet.getbalances()["mine"]["trusted"], 0)
+
+        # Check that the tr() cannot be spent by the legacy wallet
+        send_res = wallet.send(outputs=[{def_wallet.getnewaddress(): 4}], include_watching=True, inputs=[{"txid": txid, "vout": tr_vout}, {"txid": txid, "vout": tr_script_vout}])
+        assert_equal(send_res["complete"], False)
+
+        res, wallet = self.migrate_and_get_rpc("taproot")
+
+        # The rawtr should be migrated
+        assert_equal(wallet.getbalances()["mine"], {"trusted": 0.5, "untrusted_pending": 0, "immature": 0})
+        assert_equal(wallet.getaddressinfo(rawtr_addr)["ismine"], True)
+        assert_equal(wallet.getaddressinfo(tr_addr)["ismine"], False)
+        assert_equal(wallet.getaddressinfo(tr_script_addr)["ismine"], False)
+
+        # The tr() with some keys should be in the watchonly wallet
+        assert "taproot_watchonly" in self.master_node.listwallets()
+        watchonly = self.master_node.get_wallet_rpc("taproot_watchonly")
+        assert_equal(watchonly.getbalances()["mine"], {"trusted": 5, "untrusted_pending": 0, "immature": 0})
+        assert_equal(watchonly.getaddressinfo(rawtr_addr)["ismine"], False)
+        assert_equal(watchonly.getaddressinfo(tr_addr)["ismine"], True)
+        assert_equal(watchonly.getaddressinfo(tr_script_addr)["ismine"], True)
+
+    def test_solvable_no_privs(self):
+        self.log.info("Test migrating a multisig that we do not have any private keys for")
+        wallet = self.create_legacy_wallet("multisig_noprivs")
+
+        _, pubkey = generate_keypair(compressed=True, wif=True)
+
+        add_ms_res = wallet.addmultisigaddress(nrequired=1, keys=[pubkey.hex()])
+        addr = add_ms_res["address"]
+
+        # The multisig address should be ISMINE_NO but we should have the script info
+        addr_info = wallet.getaddressinfo(addr)
+        assert_equal(addr_info["ismine"], False)
+        assert "hex" in addr_info
+
+        migrate_res, wallet = self.migrate_and_get_rpc("multisig_noprivs")
+        assert_equal(migrate_res["solvables_name"], "multisig_noprivs_solvables")
+        solvables = self.master_node.get_wallet_rpc(migrate_res["solvables_name"])
+
+        # The multisig should not be in the spendable wallet
+        addr_info = wallet.getaddressinfo(addr)
+        assert_equal(addr_info["ismine"], False)
+        assert "hex" not in addr_info
+
+        # The multisig address should be in the solvables wallet
+        addr_info = solvables.getaddressinfo(addr)
+        assert_equal(addr_info["ismine"], True)
+        assert_equal(addr_info["solvable"], True)
+        assert "hex" in addr_info
+
     def run_test(self):
         self.master_node = self.nodes[0]
         self.old_node = self.nodes[1]
@@ -1257,6 +1344,8 @@ class WalletMigrationTest(BGLTestFramework):
         self.test_p2wsh()
         self.test_disallowed_p2wsh()
         self.test_miniscript()
+        self.test_taproot()
+        self.test_solvable_no_privs()
 
 if __name__ == '__main__':
     WalletMigrationTest(__file__).main()
