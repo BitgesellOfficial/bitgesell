@@ -155,6 +155,20 @@ BOOST_AUTO_TEST_CASE(parse_hex)
 
     // Basic test vector
     std::vector<unsigned char> expected(std::begin(HEX_PARSE_OUTPUT), std::end(HEX_PARSE_OUTPUT));
+    constexpr std::array<std::byte, 65> hex_literal_array{operator""_hex<util::detail::Hex(HEX_PARSE_INPUT)>()};
+    auto hex_literal_span{MakeUCharSpan(hex_literal_array)};
+    BOOST_CHECK_EQUAL_COLLECTIONS(hex_literal_span.begin(), hex_literal_span.end(), expected.begin(), expected.end());
+
+    const std::vector<std::byte> hex_literal_vector{operator""_hex_v<util::detail::Hex(HEX_PARSE_INPUT)>()};
+    auto hex_literal_vec_span = MakeUCharSpan(hex_literal_vector);
+    BOOST_CHECK_EQUAL_COLLECTIONS(hex_literal_vec_span.begin(), hex_literal_vec_span.end(), expected.begin(), expected.end());
+
+    constexpr std::array<uint8_t, 65> hex_literal_array_uint8{operator""_hex_u8<util::detail::Hex(HEX_PARSE_INPUT)>()};
+    BOOST_CHECK_EQUAL_COLLECTIONS(hex_literal_array_uint8.begin(), hex_literal_array_uint8.end(), expected.begin(), expected.end());
+
+    result = operator""_hex_v_u8<util::detail::Hex(HEX_PARSE_INPUT)>();
+    BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(), expected.begin(), expected.end());
+
     result = ParseHex(HEX_PARSE_INPUT);
     BOOST_CHECK_EQUAL_COLLECTIONS(result.begin(), result.end(), expected.begin(), expected.end());
 
@@ -224,7 +238,7 @@ BOOST_AUTO_TEST_CASE(util_HexStr)
     {
         constexpr std::string_view out_exp{"04678afdb0"};
         constexpr std::span in_s{HEX_PARSE_OUTPUT, out_exp.size() / 2};
-        const Span<const uint8_t> in_u{MakeUCharSpan(in_s)};
+        const std::span<const uint8_t> in_u{MakeUCharSpan(in_s)};
         const std::span<const std::byte> in_b{MakeByteSpan(in_s)};
 
         BOOST_CHECK_EQUAL(HexStr(in_u), out_exp);
@@ -1817,7 +1831,7 @@ BOOST_AUTO_TEST_CASE(util_WriteBinaryFile)
 {
     fs::path tmpfolder = m_args.GetDataDirBase();
     fs::path tmpfile = tmpfolder / "write_binary.dat";
-    std::string expected_text = "bitcoin";
+    std::string expected_text = "bitgesell";
     auto valid = WriteBinaryFile(tmpfile, expected_text);
     std::string actual_text;
     std::ifstream file{tmpfile};
