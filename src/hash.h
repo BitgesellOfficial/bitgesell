@@ -33,14 +33,14 @@ private:
 public:
     static const size_t OUTPUT_SIZE = CSHA256::OUTPUT_SIZE;
 
-    void Finalize(Span<unsigned char> output) {
+    void Finalize(std::span<unsigned char> output) {
         assert(output.size() == OUTPUT_SIZE);
         unsigned char buf[CSHA256::OUTPUT_SIZE];
         sha.Finalize(buf);
         sha.Reset().Write(buf, CSHA256::OUTPUT_SIZE).Finalize(output.data());
     }
 
-    CHash256& Write(Span<const unsigned char> input) {
+    CHash256& Write(std::span<const unsigned char> input) {
         sha.Write(input.data(), input.size());
         return *this;
     }
@@ -118,14 +118,14 @@ private:
 public:
     static const size_t OUTPUT_SIZE = CRIPEMD160::OUTPUT_SIZE;
 
-    void Finalize(Span<unsigned char> output) {
+    void Finalize(std::span<unsigned char> output) {
         assert(output.size() == OUTPUT_SIZE);
         unsigned char buf[CSHA256::OUTPUT_SIZE];
         sha.Finalize(buf);
         CRIPEMD160().Write(buf, CSHA256::OUTPUT_SIZE).Finalize(output.data());
     }
 
-    CHash160& Write(Span<const unsigned char> input) {
+    CHash160& Write(std::span<const unsigned char> input) {
         sha.Write(input.data(), input.size());
         return *this;
     }
@@ -177,7 +177,7 @@ public:
     int GetType() const { return nType; }
     int GetVersion() const { return nVersion; }
 
-    void write(Span<const std::byte> src)
+    void write(std::span<const std::byte> src)
     {
         ctx.Write(UCharCast(src.data()), src.size());
     }
@@ -292,7 +292,7 @@ private:
 public:
     explicit CHashVerifier(Source* source_) : CHashWriterKeccak(source_->GetType(), source_->GetVersion()), source(source_) {}
 
-    void read(Span<std::byte> dst)
+    void read(std::span<std::byte> dst)
     {
         source->read(dst);
         this->write(dst);
@@ -327,7 +327,7 @@ private:
 public:
     explicit HashedSourceWriter(Source& source LIFETIMEBOUND) : CHashWriterKeccak(source.GetType(), source.GetVersion()), m_source{source} {}
 
-    void write(Span<const std::byte> src)
+    void write(std::span<const std::byte> src)
     {
         m_source.write(src);
         CHashWriterKeccak::write(src);
@@ -362,7 +362,7 @@ uint256 SerializeHashSHA256(const T& obj, int nType=SER_GETHASH, int nVersion=PR
 /** Single-SHA256 a 32-byte input (represented as uint256). */
 [[nodiscard]] uint256 SHA256Uint256(const uint256& input);
 
-unsigned int MurmurHash3(unsigned int nHashSeed, Span<const unsigned char> vDataToHash);
+unsigned int MurmurHash3(unsigned int nHashSeed, std::span<const unsigned char> vDataToHash);
 
 void BIP32Hash(const ChainCode &chainCode, unsigned int nChild, unsigned char header, const unsigned char data[32], unsigned char output[64]);
 
@@ -375,7 +375,7 @@ void BIP32Hash(const ChainCode &chainCode, unsigned int nChild, unsigned char he
 CHashWriterSHA256 TaggedHash(const std::string& tag);
 
 /** Compute the 160-bit RIPEMD-160 hash of an array. */
-inline uint160 RIPEMD160(Span<const unsigned char> data)
+inline uint160 RIPEMD160(std::span<const unsigned char> data)
 {
     uint160 result;
     CRIPEMD160().Write(data.data(), data.size()).Finalize(result.begin());
