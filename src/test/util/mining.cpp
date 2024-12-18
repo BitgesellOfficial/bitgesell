@@ -24,7 +24,8 @@ COutPoint generatetoaddress(const NodeContext& node, const std::string& address)
 {
     const auto dest = DecodeDestination(address);
     assert(IsValidDestination(dest));
-    const auto coinbase_script = GetScriptForDestination(dest);
+    BlockAssembler::Options assembler_options;
+    assembler_options.coinbase_output_script = GetScriptForDestination(dest);
 
     return MineBlock(node, coinbase_script);
 }
