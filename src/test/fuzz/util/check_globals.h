@@ -5,9 +5,12 @@
 #ifndef BGL_TEST_FUZZ_UTIL_CHECK_GLOBALS_H
 #define BGL_TEST_FUZZ_UTIL_CHECK_GLOBALS_H
 
+#include <atomic>
 #include <memory>
 #include <optional>
 #include <string>
+
+extern std::atomic<bool> g_used_system_time;
 
 struct CheckGlobalsImpl;
 struct CheckGlobals {
