@@ -20491,6 +20491,31 @@ v  2024-12-19 23:25:11 +0100 e196190a284fc6ffd21a39cfae957fdd8b4657b6 cmake: Rem
 pr 2024-12-20 16:15:10 +0100 4cdf50c4ba81c3a7283f6f1a189849d3366e1bee Merge bitcoin/bitcoin#31544: cmake: Remove unused `BUILD_TESTING` variable from "dev-mode" preset
 pr 2024-12-20 16:17:05 +0100 273440d5c9dc2f333d71a2c3cb709daca9dfe544 Merge bitcoin/bitcoin#31535: doc: Install `py3-zmq` port on OpenBSD for `interface_zmq.py`
 pr 2024-12-20 16:19:05 +0100 fc7b21484703da606c5c69b23daee8c39506d90c Merge bitcoin/bitcoin#31529: guix: latest 2.31 glibc
+cr 2024-12-21 18:39:19 +0100 b0b8d96d93ea4971e7941ddca03f4393deaac293 depends: Update capnproto to 1.1.0
+v  2024-12-22 14:08:58 +0100 5709718b830161b7c2ba0db545ef0cfa98423597 coins: warn on shutdown for big UTXO set flushes
+v  2024-12-23 12:41:35 +0100 e36640859089baabc46f68217843f96a3ebdc20c descriptor: remove unreachable verification for `pkh`
+cr 2024-12-24 15:01:47 +0100 366ae00b779acd59a61719422f0597acb17fb3e0 descriptor: Assume `ParseScript` is not being called with a P2WPKH context
+v  2024-12-24 15:51:56 +0100 fa62c8b1f04a5386ffa171aeff713d55bd874cbe rpc: Extend scope of validation mutex in generateblock
+cr 2024-12-25 10:29:34 +0100 fa63b8232f38e78d3c6413fa7d51809f376de75c test: generateblocks called by multiple threads
+v  2024-12-26 18:11:25 +0100 226d03dd610dd65938554bcf0abfe79f7ca7fb4d validation: Send correct notification during snapshot completion
+v  2024-12-26 18:11:28 +0100 bc43ecaf6dc0830a27296d3a29428814fed07bb1 test: add functional test for balance after snapshot completion
+pr 2024-12-27 15:09:29 +0100 f95fb793726b67becd55599553bd2bb35eeee70b Merge bitcoin/bitcoin#28521: net, net_processing: additional and consistent disconnect logging
+pr 2024-12-27 15:54:11 +0100 9355578a77978a0c2f189bd7315a2883142d8119 Merge bitcoin/bitcoin#31534: coins: warn on shutdown for big UTXO set flushes
+v  2024-12-27 21:55:58 +0100 b29d68f942e333d2cfdd6be8d49fe484e0d15e11 test: descriptor: fix test for `MaxSatisfactionWeight`
+pr 2024-12-30 19:22:31 +0100 ad174c281758da610c535b02bb37c0826a5b56f2 Merge bitcoin/bitcoin#31497: Remove unused variable assignment
+pr 2024-12-30 19:31:08 +0100 67bfe28995ebeff1f1802e02572a49a2dbef666d Merge bitcoin/bitcoin#31531: rpc: Add signet_challenge field to getblockchaininfo and getmininginfo
+pr 2024-12-30 19:45:00 +0100 a137b0bd6b210c50675efd6dc252a8958f22a530 Merge bitcoin/bitcoin#31215: rpc: increase the defaults for -rpcthreads and -rpcworkqueue
+pr 2024-12-30 20:05:55 +0100 e6f14241f6d34ab44fb53e3e239e6083f8231e5f Merge bitcoin/bitcoin#31540: refactor: std::span compat fixes
+pr 2024-12-30 20:12:57 +0100 17db84dbb8db21e6c6e0d7ecf87cb4cad782e6ac Merge bitcoin/bitcoin#31251: test: report detailed msg during utf8 response decoding error
+pr 2024-12-30 20:19:07 +0100 69e35f5c60adc7c132884fe4f0ff83292955e20c Merge bitcoin/bitcoin#31403: test: Call generate RPCs through test framework only
+pr 2024-12-30 20:28:01 +0100 ba0cb7d5a54ffccc9dd2d801bff2ce1d898361da Merge bitcoin/bitcoin#31468: test: Avoid intermittent error in assert_equal(pruneheight_new, 248)
+pr 2024-12-30 20:34:22 +0100 fa3de038f744996fec06414562ac49d53dae7d8f Merge bitcoin/bitcoin#31537: qa: Limit `-maxconnections` in tests
+pr 2024-12-30 20:40:27 +0100 df5c643f92d4a6b1ef4dfe4b9c54f902990bb54b Merge bitcoin/bitcoin#31556: validation: Send correct notification during snapshot completion
+pr 2024-12-30 20:49:21 +0100 87c9ebd8892047e3088e8cbe7b4a15e56599d0f1 Merge bitcoin/bitcoin#31563: rpc: Extend scope of validation mutex in generateblock
+pr 2024-12-30 21:04:51 +0100 9b9752217f2d84293de86e30071e0b3bcf5eea66 Merge bitcoin/bitcoin#31570: test: descriptor: fix test for `MaxSatisfactionWeight`
+pr 2024-12-30 22:40:11 +0100 228aba2c4d9ac0b2ca3edd3c2cdf0a92e55f669b Merge bitcoin/bitcoin#31555: descriptor: remove unreachable verification for `pkh`
+v  2024-12-31 04:04:20 +0100 34e8ee23b83eeecb1c4022b48e7b8db45a60ffdd txmempool: fix typos in comments
+cr 2024-12-31 11:14:02 +0100 2bdaf52ed1259fd3bec22b680e12563fcee0a8b3 doc: Update NetBSD Build Guide
 
 
 
