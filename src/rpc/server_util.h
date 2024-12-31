@@ -7,8 +7,11 @@
 
 #include <any>
 
+#include <consensus/params.h>
+
 class AddrMan;
 class ArgsManager;
+class CBlockIndex;
 class CBlockPolicyEstimator;
 class CConnman;
 class CTxMemPool;
@@ -39,5 +42,7 @@ PeerManager& EnsurePeerman(const node::NodeContext& node);
 AddrMan& EnsureAddrman(const node::NodeContext& node);
 AddrMan& EnsureAnyAddrman(const std::any& context);
 
-#endif // BGL_RPC_SERVER_UTIL_H
+/** Return an empty block index on top of the tip, with height, time and nBits set */
+void NextEmptyBlockIndex(CBlockIndex& tip, const Consensus::Params& consensusParams, CBlockIndex& next_index);
 
+#endif // BGL_RPC_SERVER_UTIL_H
