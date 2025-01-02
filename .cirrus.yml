@@ -146,7 +146,7 @@ task:
   << : *CAT_LOGS
 
 task:
-  name: 'CentOS, dash, gui'
+  name: 'CentOS, depends, gui'
   << : *GLOBAL_TASK_TEMPLATE
   persistent_worker:
     labels:
