@@ -153,6 +153,18 @@ bool TxOrphanage::HaveTx(const Wtxid& wtxid) const
     return m_orphans.count(wtxid);
 }
 
+CTransactionRef TxOrphanage::GetTx(const Wtxid& wtxid) const
+{
+    auto it = m_orphans.find(wtxid);
+    return it != m_orphans.end() ? it->second.tx : nullptr;
+}
+
+bool TxOrphanage::HaveTxFromPeer(const Wtxid& wtxid, NodeId peer) const
+{
+    auto it = m_orphans.find(wtxid);
+    return (it != m_orphans.end() && it->second.announcers.contains(peer));
+}
+
 CTransactionRef TxOrphanage::GetTxToReconsider(NodeId peer)
 {
     auto work_set_it = m_peer_work_set.find(peer);
