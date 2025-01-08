@@ -551,6 +551,7 @@ public:
     std::pair<std::vector<FeeFrac>, std::vector<FeeFrac>> GetMainStagingDiagrams() noexcept final;
 
     std::unique_ptr<BlockBuilder> GetBlockBuilder() noexcept final;
+    std::pair<std::vector<Ref*>, FeePerWeight> GetWorstMainChunk() noexcept final;
 
     void SanityCheck() const final;
 };
@@ -2433,17 +2434,10 @@ std::pair<std::vector<TxGraph::Ref*>, FeePerWeight> TxGraphImpl::GetWorstMainChu
         const auto& chunk_data = *m_main_chunkindex.rbegin();
         const auto& chunk_end_entry = m_entries[chunk_data.m_graph_index];
         Cluster* cluster = chunk_end_entry.m_locator[0].cluster;
-        if (chunk_data.m_chunk_count == LinearizationIndex(-1) || chunk_data.m_chunk_count == 1)  {
-            // Special case for singletons.
-            ret.first.resize(1);
-            Assume(chunk_end_entry.m_ref != nullptr);
-            ret.first[0] = chunk_end_entry.m_ref;
-        } else {
-            ret.first.resize(chunk_data.m_chunk_count);
-            auto start_pos = chunk_end_entry.m_main_lin_index + 1 - chunk_data.m_chunk_count;
-            cluster->GetClusterRefs(*this, ret.first, start_pos);
-            std::reverse(ret.first.begin(), ret.first.end());
-        }
+        ret.first.resize(chunk_data.m_chunk_count);
+        auto start_pos = chunk_end_entry.m_main_lin_index + 1 - chunk_data.m_chunk_count;
+        cluster->GetClusterRefs(*this, ret.first, start_pos);
+        std::reverse(ret.first.begin(), ret.first.end());
         ret.second = chunk_end_entry.m_main_chunk_feerate;
     }
     return ret;
