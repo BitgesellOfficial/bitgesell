@@ -409,6 +409,13 @@ bool SignPSBTInput(const SigningProvider& provider, PartiallySignedTransaction& 
     } else {
         return false;
     }
+    // Set the PSBT sighash field when sighash is not DEFAULT or ALL
+    // DEFAULT is allowed for non-taproot inputs since DEFAULT may be passed for them (e.g. the psbt being signed also has taproot inputs)
+    // Note that signing already aliases DEFAULT to ALL for non-taproot inputs.
+    if (utxo.scriptPubKey.IsPayToTaproot() ? sighash != SIGHASH_DEFAULT :
+                                            (sighash != SIGHASH_DEFAULT && sighash != SIGHASH_ALL)) {
+        input.sighash_type = sighash;
+    }
 
     // Check all existing signatures use the sighash type
     if (sighash == SIGHASH_DEFAULT) {
@@ -506,7 +513,8 @@ bool FinalizePSBT(PartiallySignedTransaction& psbtx)
     bool complete = true;
     const PrecomputedTransactionData txdata = PrecomputePSBTData(psbtx);
     for (unsigned int i = 0; i < psbtx.tx->vin.size(); ++i) {
-        complete &= SignPSBTInput(DUMMY_SIGNING_PROVIDER, psbtx, i, &txdata, SIGHASH_ALL, nullptr, true);
+        PSBTInput& input = psbtx.inputs.at(i);
+        complete &= (SignPSBTInput(DUMMY_SIGNING_PROVIDER, psbtx, i, &txdata, input.sighash_type, nullptr, true) == PSBTError::OK);
     }
 
     return complete;
