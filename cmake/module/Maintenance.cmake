@@ -23,7 +23,7 @@ function(add_maintenance_targets)
     return()
   endif()
 
-  foreach(target IN ITEMS BGLd BGL-qt BGL-cli BGL-tx BGL-util BGL-wallet test_BGL bench_BGL)
+  foreach(target IN ITEMS BGL BGLd BGL-qt BGL-cli BGL-tx BGL-util BGL-wallet test_BGL bench_BGL)
     if(TARGET ${target})
       list(APPEND executables $<TARGET_FILE:${target}>)
     endif()
@@ -43,7 +43,7 @@ function(add_maintenance_targets)
 endfunction()
 
 function(add_windows_deploy_target)
-  if(MINGW AND TARGET BGL-qt AND TARGET BGLd AND TARGET BGL-cli AND TARGET BGL-tx AND TARGET BGL-wallet AND TARGET BGL-util AND TARGET test_BGL)
+  if(MINGW AND TARGET BGL AND TARGET BGL-qt AND TARGET BGLd AND TARGET BGL-cli AND TARGET BGL-tx AND TARGET BGL-wallet AND TARGET BGL-util AND TARGET test_BGL)
     find_program(MAKENSIS_EXECUTABLE makensis)
     if(NOT MAKENSIS_EXECUTABLE)
       add_custom_target(deploy
@@ -59,6 +59,7 @@ function(add_windows_deploy_target)
     add_custom_command(
       OUTPUT ${PROJECT_BINARY_DIR}/BGL-win64-setup.exe
       COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/release
+      COMMAND ${CMAKE_STRIP} $<TARGET_FILE:BGL> -o ${PROJECT_BINARY_DIR}/release/$<TARGET_FILE_NAME:BGL>
       COMMAND ${CMAKE_STRIP} $<TARGET_FILE:BGL-qt> -o ${PROJECT_BINARY_DIR}/release/$<TARGET_FILE_NAME:BGL-qt>
       COMMAND ${CMAKE_STRIP} $<TARGET_FILE:BGLd> -o ${PROJECT_BINARY_DIR}/release/$<TARGET_FILE_NAME:BGLd>
       COMMAND ${CMAKE_STRIP} $<TARGET_FILE:BGL-cli> -o ${PROJECT_BINARY_DIR}/release/$<TARGET_FILE_NAME:BGL-cli>
