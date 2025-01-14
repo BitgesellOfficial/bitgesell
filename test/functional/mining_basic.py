@@ -28,8 +28,8 @@ from test_framework.messages import (
     COIN,
     DEFAULT_BLOCK_RESERVED_WEIGHT,
     MAX_BLOCK_WEIGHT,
-    MINIMUM_BLOCK_RESERVED_WEIGHT,
     ser_uint256,
+    WITNESS_SCALE_FACTOR
 )
 from test_framework.p2p import P2PDataStore
 from test_framework.test_framework import BGLTestFramework
@@ -278,35 +278,6 @@ class MiningTest(BGLTestFramework):
             expected_weight=MAX_BLOCK_WEIGHT - DEFAULT_BLOCK_RESERVED_WEIGHT,
         )
 
-        self.log.info("Test -blockreservedweight startup option.")
-        # Lowering the -blockreservedweight by 4000 will allow for two more transactions.
-        self.restart_node(0, extra_args=[f"-datacarriersize={LARGE_VSIZE}", "-blockreservedweight=4000"])
-        self.verify_block_template(
-            expected_tx_count=12,
-            expected_weight=MAX_BLOCK_WEIGHT - 4000,
-        )
-
-        self.log.info("Test that node will fail to start when user provide invalid -blockreservedweight")
-        self.stop_node(0)
-        self.nodes[0].assert_start_raises_init_error(
-            extra_args=[f"-blockreservedweight={MAX_BLOCK_WEIGHT + 1}"],
-            expected_msg=f"Error: Specified -blockreservedweight ({MAX_BLOCK_WEIGHT + 1}) exceeds consensus maximum block weight ({MAX_BLOCK_WEIGHT})",
-        )
-
-        self.log.info(f"Test that node will fail to start when user provide -blockreservedweight below {MINIMUM_BLOCK_RESERVED_WEIGHT}")
-        self.stop_node(0)
-        self.nodes[0].assert_start_raises_init_error(
-            extra_args=[f"-blockreservedweight={MINIMUM_BLOCK_RESERVED_WEIGHT - 1}"],
-            expected_msg=f"Error: Specified -blockreservedweight ({MINIMUM_BLOCK_RESERVED_WEIGHT - 1}) is lower than minimum safety value of ({MINIMUM_BLOCK_RESERVED_WEIGHT})",
-        )
-
-        self.log.info("Test that node will fail to start when user provide invalid -blockmaxweight")
-        self.stop_node(0)
-        self.nodes[0].assert_start_raises_init_error(
-            extra_args=[f"-blockmaxweight={MAX_BLOCK_WEIGHT + 1}"],
-            expected_msg=f"Error: Specified -blockmaxweight ({MAX_BLOCK_WEIGHT + 1}) exceeds consensus maximum block weight ({MAX_BLOCK_WEIGHT})",
-        )
-
 
     def run_test(self):
         node = self.nodes[0]
@@ -533,6 +504,7 @@ class MiningTest(BGLTestFramework):
         assert_equal(node.submitblock(hexdata=block.serialize().hex()), 'duplicate')  # valid
 
         self.test_blockmintxfee_parameter()
+        self.test_block_max_weight()
         self.test_timewarp()
         self.test_pruning()
 
