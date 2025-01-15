@@ -1085,6 +1085,11 @@ static bool LockDataDirectory(bool probeOnly)
     } // no default case, so the compiler can warn about missing cases
     assert(false);
 }
+static bool LockDirectories(bool probeOnly)
+{
+    return LockDirectory(gArgs.GetDataDirNet(), probeOnly) && \
+           LockDirectory(gArgs.GetBlocksDirPath(), probeOnly);
+}
 
 bool AppInitSanityChecks(const kernel::Context& kernel)
 {
