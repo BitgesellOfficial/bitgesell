@@ -81,12 +81,8 @@ option(BUILD_DAEMON "Build BGLd executable." ON)
 option(BUILD_GUI "Build BGL-qt executable." OFF)
 option(BUILD_CLI "Build BGL-cli executable." ON)
 
-option(BUILD_TESTS "Build test_BGL executable." ON)
-option(BUILD_TX "Build BGL-tx executable." ${BUILD_TESTS})
-option(BUILD_UTIL "Build BGL-util executable." ${BUILD_TESTS})
-
-option(BUILD_UTIL_CHAINSTATE "Build experimental BGL-chainstate executable." OFF)
-option(BUILD_KERNEL_LIB "Build experimental BGLkernel library." ${BUILD_UTIL_CHAINSTATE})
+include(CheckIncludeFile)
+check_include_file("unistd.h" HAVE_UNISTD_H)
 
 option(ENABLE_WALLET "Enable wallet." ON)
 option(WITH_SQLITE "Enable SQLite wallet support." ${ENABLE_WALLET})
