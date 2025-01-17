@@ -282,7 +282,7 @@ if(ENABLE_IPC)
     BGL_ipc
   )
   import_plugins(BGL-gui)
-  install_binary_component(BGL-gui)
+  install_binary_component(BGL-gui INTERNAL)
   if(WIN32)
     set_target_properties(BGL-gui PROPERTIES WIN32_EXECUTABLE TRUE)
   endif()

@@ -83,4 +83,4 @@ add_test(NAME bench_sanity_check
   COMMAND bench_BGL -sanity-check
 )
 
-install_binary_component(bench_BGL)
+install_binary_component(bench_BGL INTERNAL)

@@ -367,7 +367,7 @@ if(ENABLE_IPC AND BUILD_DAEMON)
     BGL_ipc
     $<TARGET_NAME_IF_EXISTS:BGL_wallet>
   )
-  install_binary_component(BGL-node)
+  install_binary_component(BGL-node INTERNAL)
 endif()
 
 if(ENABLE_IPC AND BUILD_TESTS)
@@ -469,6 +469,7 @@ if(BUILD_UTIL_CHAINSTATE)
       core_interface
       BGLkernel
   )
+  install_binary_component(BGL-chainstate INTERNAL)
 endif()
 
 

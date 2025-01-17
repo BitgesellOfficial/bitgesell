@@ -211,4 +211,4 @@ endfunction()
 
 add_all_test_targets()
 
-install_binary_component(test_BGL)
+install_binary_component(test_BGL INTERNAL)
