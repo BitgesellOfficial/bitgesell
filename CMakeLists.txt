@@ -71,6 +71,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/module)
+include(ProcessConfigurations)
 
 # Flatten static lib dependencies.
 # Without this, if libfoo.a depends on libbar.a, libfoo's objects can't begin
@@ -225,8 +226,6 @@ if(BUILD_FOR_FUZZING)
     FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
   )
 endif()
-
-include(ProcessConfigurations)
 
 include(TryAppendCXXFlags)
 include(TryAppendLinkerFlag)
