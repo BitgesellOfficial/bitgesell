@@ -111,9 +111,12 @@ template CNetAddr::SerParams ConsumeDeserializationParams(FuzzedDataProvider&) n
 template CAddress::SerParams ConsumeDeserializationParams(FuzzedDataProvider&) noexcept;
 
 FuzzedSock::FuzzedSock(FuzzedDataProvider& fuzzed_data_provider)
-    : m_fuzzed_data_provider{fuzzed_data_provider}, m_selectable{fuzzed_data_provider.ConsumeBool()}
+    : Sock{fuzzed_data_provider.ConsumeIntegralInRange<SOCKET>(INVALID_SOCKET - 1, INVALID_SOCKET)},
+      m_fuzzed_data_provider{fuzzed_data_provider},
+      m_selectable{fuzzed_data_provider.ConsumeBool()},
+      m_time{MockableSteadyClock::INITIAL_MOCK_TIME}
 {
-    m_socket = fuzzed_data_provider.ConsumeIntegralInRange<SOCKET>(INVALID_SOCKET - 1, INVALID_SOCKET);
+    ElapseTime(std::chrono::seconds(0)); // start mocking the steady clock.
 }
 
 FuzzedSock::~FuzzedSock()
@@ -123,6 +126,12 @@ FuzzedSock::~FuzzedSock()
     // Avoid closing an arbitrary file descriptor (m_socket is just a random very high number which
     // theoretically may concide with a real opened file descriptor).
     m_socket = INVALID_SOCKET;
+}
+
+void FuzzedSock::ElapseTime(std::chrono::milliseconds duration) const
+{
+    m_time += duration;
+    MockableSteadyClock::SetMockTime(m_time);
 }
 
 FuzzedSock& FuzzedSock::operator=(Sock&& other)
@@ -389,6 +398,7 @@ bool FuzzedSock::Wait(std::chrono::milliseconds timeout, Event requested, Event*
         // FuzzedDataProvider runs out of data.
         *occurred = m_fuzzed_data_provider.ConsumeBool() ? 0 : requested;
     }
+    ElapseTime(timeout);
     return true;
 }
 
@@ -401,6 +411,7 @@ bool FuzzedSock::WaitMany(std::chrono::milliseconds timeout, EventsPerSock& even
         // FuzzedDataProvider runs out of data.
         events.occurred = m_fuzzed_data_provider.ConsumeBool() ? 0 : events.requested;
     }
+    ElapseTime(timeout);
     return true;
 }
 
