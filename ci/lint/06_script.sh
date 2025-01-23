@@ -22,6 +22,9 @@ else
   COMMIT_RANGE="SKIP_EMPTY_NOT_A_PR"
 fi
 
+echo
+git log --no-merges --oneline "$COMMIT_RANGE"
+echo
 RUST_BACKTRACE=1 "${LINT_RUNNER_PATH}/test_runner"
 
 if [ "$CIRRUS_REPO_FULL_NAME" = "BGL/BGL" ] && [ "$CIRRUS_PR" = "" ] ; then
