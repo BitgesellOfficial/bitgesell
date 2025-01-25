@@ -558,7 +558,6 @@ void CNode::CloseSocketDisconnect()
     fDisconnect = true;
     LOCK(m_sock_mutex);
     if (m_sock) {
-        LogDebug(BCLog::NET, "disconnecting peer=%d\n", id);
         m_sock.reset();
     }
     m_i2p_sam_session.reset();
@@ -694,6 +693,18 @@ bool CNode::ReceiveMsgBytes(Span<const uint8_t> msg_bytes, bool& complete)
     }
 
     return true;
+}
+
+std::string CNode::LogIP(bool log_ip) const
+{
+    return log_ip ? strprintf(" peeraddr=%s", addr.ToStringAddrPort()) : "";
+}
+
+std::string CNode::DisconnectMsg(bool log_ip) const
+{
+    return strprintf("disconnecting peer=%d%s",
+                     GetId(),
+                     LogIP(log_ip));
 }
 
 V1Transport::V1Transport(const NodeId node_id) noexcept
@@ -1635,7 +1646,7 @@ std::pair<size_t, bool> CConnman::SocketSendData(CNode& node) const
                 // error
                 int nErr = WSAGetLastError();
                 if (nErr != WSAEWOULDBLOCK && nErr != WSAEMSGSIZE && nErr != WSAEINTR && nErr != WSAEINPROGRESS) {
-                    LogDebug(BCLog::NET, "socket send error for peer=%d: %s\n", node.GetId(), NetworkErrorString(nErr));
+                    LogDebug(BCLog::NET, "socket send error, %s: %s\n", node.DisconnectMsg(fLogIPs), NetworkErrorString(nErr));
                     node.CloseSocketDisconnect();
                 }
             }
@@ -1879,7 +1890,7 @@ void CConnman::DisconnectNodes()
             // Disconnect any connected nodes
             for (CNode* pnode : m_nodes) {
                 if (!pnode->fDisconnect) {
-                    LogDebug(BCLog::NET, "Network not active, dropping peer=%d\n", pnode->GetId());
+                    LogDebug(BCLog::NET, "Network not active, %s\n", pnode->DisconnectMsg(fLogIPs));
                     pnode->fDisconnect = true;
                 }
             }
@@ -1971,26 +1982,43 @@ bool CConnman::InactivityCheck(const CNode& node) const
 
     if (!ShouldRunInactivityChecks(node, now)) return false;
 
-    if (last_recv.count() == 0 || last_send.count() == 0) {
-        LogDebug(BCLog::NET, "socket no message in first %i seconds, %d %d peer=%d\n", count_seconds(m_peer_connect_timeout), last_recv.count() != 0, last_send.count() != 0, node.GetId());
+    bool has_received{last_recv.count() != 0};
+    bool has_sent{last_send.count() != 0};
+
+    if (!has_received || !has_sent) {
+        std::string has_never;
+        if (!has_received) has_never += ", never received from peer";
+        if (!has_sent) has_never += ", never sent to peer";
+        LogDebug(BCLog::NET,
+            "socket no message in first %i seconds%s, %s\n",
+            count_seconds(m_peer_connect_timeout),
+            has_never,
+            node.DisconnectMsg(fLogIPs)
+        );
         return true;
     }
 
     if (now > last_send + TIMEOUT_INTERVAL) {
-        LogDebug(BCLog::NET, "socket sending timeout: %is peer=%d\n", count_seconds(now - last_send), node.GetId());
+        LogDebug(BCLog::NET,
+            "socket sending timeout: %is, %s\n", count_seconds(now - last_send),
+            node.DisconnectMsg(fLogIPs)
+        );
         return true;
     }
 
     if (now > last_recv + TIMEOUT_INTERVAL) {
-        LogDebug(BCLog::NET, "socket receive timeout: %is peer=%d\n", count_seconds(now - last_recv), node.GetId());
+        LogDebug(BCLog::NET,
+            "socket receive timeout: %is, %s\n", count_seconds(now - last_recv),
+            node.DisconnectMsg(fLogIPs)
+        );
         return true;
     }
 
     if (!node.fSuccessfullyConnected) {
         if (node.m_transport->GetInfo().transport_type == TransportProtocolType::DETECTING) {
-            LogDebug(BCLog::NET, "V2 handshake timeout peer=%d\n", node.GetId());
+            LogDebug(BCLog::NET, "V2 handshake timeout, %s\n", node.DisconnectMsg(fLogIPs));
         } else {
-            LogDebug(BCLog::NET, "version handshake timeout peer=%d\n", node.GetId());
+            LogDebug(BCLog::NET, "version handshake timeout, %s\n", node.DisconnectMsg(fLogIPs));
         }
         return true;
     }
@@ -2118,6 +2146,10 @@ void CConnman::SocketHandlerConnected(const std::vector<CNode*>& nodes,
             {
                 bool notify = false;
                 if (!pnode->ReceiveMsgBytes({pchBuf, (size_t)nBytes}, notify)) {
+                    LogDebug(BCLog::NET,
+                        "receiving message bytes failed, %s\n",
+                        pnode->DisconnectMsg(fLogIPs)
+                    );
                     pnode->CloseSocketDisconnect();
                 }
                 RecordBytesRecv(nBytes);
@@ -2130,7 +2162,7 @@ void CConnman::SocketHandlerConnected(const std::vector<CNode*>& nodes,
             {
                 // socket closed gracefully
                 if (!pnode->fDisconnect) {
-                    LogDebug(BCLog::NET, "socket closed for peer=%d\n", pnode->GetId());
+                    LogDebug(BCLog::NET, "socket closed, %s\n", pnode->DisconnectMsg(fLogIPs));
                 }
                 pnode->CloseSocketDisconnect();
             }
@@ -2141,7 +2173,7 @@ void CConnman::SocketHandlerConnected(const std::vector<CNode*>& nodes,
                 if (nErr != WSAEWOULDBLOCK && nErr != WSAEMSGSIZE && nErr != WSAEINTR && nErr != WSAEINPROGRESS)
                 {
                     if (!pnode->fDisconnect) {
-                        LogDebug(BCLog::NET, "socket recv error for peer=%d: %s\n", pnode->GetId(), NetworkErrorString(nErr));
+                        LogDebug(BCLog::NET, "socket recv error, %s: %s\n", pnode->DisconnectMsg(fLogIPs), NetworkErrorString(nErr));
                     }
                     pnode->CloseSocketDisconnect();
                 }
@@ -2488,9 +2520,9 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect, Spa
     auto start = GetTime<std::chrono::microseconds>();
 
     // Minimum time before next feeler connection (in microseconds).
-    auto next_feeler = start + FastRandomContext().rand_exp_duration(FEELER_INTERVAL);
-    auto next_extra_block_relay = start + FastRandomContext().rand_exp_duration(EXTRA_BLOCK_RELAY_ONLY_PEER_INTERVAL);
-    auto next_extra_network_peer{start + FastRandomContext().rand_exp_duration(EXTRA_NETWORK_PEER_INTERVAL)};
+    auto next_feeler = start + rng.rand_exp_duration(FEELER_INTERVAL);
+    auto next_extra_block_relay = start + rng.rand_exp_duration(EXTRA_BLOCK_RELAY_ONLY_PEER_INTERVAL);
+    auto next_extra_network_peer{start + rng.rand_exp_duration(EXTRA_NETWORK_PEER_INTERVAL)};
     const bool dnsseed = gArgs.GetBoolArg("-dnsseed", DEFAULT_DNSSEED);
     bool add_fixed_seeds = gArgs.GetBoolArg("-fixedseeds", DEFAULT_FIXEDSEEDS);
     const bool use_seednodes{gArgs.IsArgSet("-seednode")};
@@ -2672,10 +2704,10 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect, Spa
             // Because we can promote these connections to block-relay-only
             // connections, they do not get their own ConnectionType enum
             // (similar to how we deal with extra outbound peers).
-            next_extra_block_relay = now + FastRandomContext().rand_exp_duration(EXTRA_BLOCK_RELAY_ONLY_PEER_INTERVAL);
+            next_extra_block_relay = now + rng.rand_exp_duration(EXTRA_BLOCK_RELAY_ONLY_PEER_INTERVAL);
             conn_type = ConnectionType::BLOCK_RELAY;
         } else if (now > next_feeler) {
-            next_feeler = now + FastRandomContext().rand_exp_duration(FEELER_INTERVAL);
+            next_feeler = now + rng.rand_exp_duration(FEELER_INTERVAL);
             conn_type = ConnectionType::FEELER;
             fFeeler = true;
         } else if (nOutboundFullRelay == m_max_outbound_full_relay &&
@@ -2688,7 +2720,7 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect, Spa
             // This is not attempted if the user changed -maxconnections to a value
             // so low that less than MAX_OUTBOUND_FULL_RELAY_CONNECTIONS are made,
             // to prevent interactions with otherwise protected outbound peers.
-            next_extra_network_peer = now + FastRandomContext().rand_exp_duration(EXTRA_NETWORK_PEER_INTERVAL);
+            next_extra_network_peer = now + rng.rand_exp_duration(EXTRA_NETWORK_PEER_INTERVAL);
         } else {
             // skip to next iteration of while loop
             continue;
@@ -3411,6 +3443,7 @@ void CConnman::StopNodes()
     std::vector<CNode*> nodes;
     WITH_LOCK(m_nodes_mutex, nodes.swap(m_nodes));
     for (CNode* pnode : nodes) {
+        LogDebug(BCLog::NET, "%s\n", pnode->DisconnectMsg(fLogIPs));
         pnode->CloseSocketDisconnect();
         DeleteNode(pnode);
     }
@@ -3487,7 +3520,8 @@ std::vector<CAddress> CConnman::GetAddresses(CNode& requestor, size_t max_addres
         // nodes to be "terrible" (see IsTerrible()) if the timestamps are older than 30 days,
         // max. 24 hours of "penalty" due to cache shouldn't make any meaningful difference
         // in terms of the freshness of the response.
-        cache_entry.m_cache_entry_expiration = current_time + std::chrono::hours(21) + GetRandMicros(std::chrono::hours(6));
+        cache_entry.m_cache_entry_expiration = current_time +
+            21h + FastRandomContext().randrange<std::chrono::microseconds>(6h);
     }
     return cache_entry.m_addrs_response_cache;
 }

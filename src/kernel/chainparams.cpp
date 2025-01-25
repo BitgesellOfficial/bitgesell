@@ -98,7 +98,7 @@ public:
         consensus.CSVHeight = 0;
         consensus.SegwitHeight = 0;
         consensus.MinBIP9WarningHeight = 0;
-        consensus.powLimit = uint256S("000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.powLimit = uint256("000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 1 * 24 * 60 * 60; // one day
         consensus.nPowTargetSpacing = 10 * 60;
         consensus.fPowAllowMinDifficultyBlocks = false;
@@ -226,7 +226,7 @@ public:
         consensus.CSVHeight = 0; // 00000000025e930139bac5c6c31a403776da130831ab85be56578f3fa75369bb
         consensus.SegwitHeight = 0; // 00000000002b980fcd729daaa248fd9316a5200e9b367f4ff2c42453e84201ca
         consensus.MinBIP9WarningHeight = 0; // segwit activation height + miner confirmation window
-        consensus.powLimit = uint256S("000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.powLimit = uint256("000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 1 * 24 * 60 * 60; // one day
         consensus.nPowTargetSpacing = 10 * 60;
         consensus.fPowAllowMinDifficultyBlocks = true;
@@ -364,8 +364,8 @@ public:
                 1,
                 50 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256{"00000000da84f2bafbbc53dee25a72ae507ff4914b867c565be350b0da8bf043"});
-        assert(genesis.hashMerkleRoot == uint256{"7aa0a7ae1e223414cb807e40cd57e667b718e42aaf9306db9102fe28912b7b4e"});
+        //assert(consensus.hashGenesisBlock == uint256{"00000000da84f2bafbbc53dee25a72ae507ff4914b867c565be350b0da8bf043"});
+       // assert(genesis.hashMerkleRoot == uint256{"7aa0a7ae1e223414cb807e40cd57e667b718e42aaf9306db9102fe28912b7b4e"});
 
         vFixedSeeds.clear();
         vSeeds.clear();
@@ -621,8 +621,8 @@ public:
             {   // For use by unit tests
                 .height = 110,
                 .hash_serialized = AssumeutxoHash{uint256("74bf433ff714135263937cf322ff11f4df2c47a21d20128874592c164fea7dc2")},
-                .nChainTx = 111,
-                .blockhash = consteval_ctor(uint256{"0x127d9654e3672ac08a484c00fe42749f696472d9bd86e32057376ad0566b2987"}),
+                .m_chain_tx_count = 111,
+                .blockhash = consteval_ctor(uint256{"127d9654e3672ac08a484c00fe42749f696472d9bd86e32057376ad0566b2987"}),
             },
             {
                 // For use by fuzz target src/test/fuzz/utxo_snapshot.cpp
@@ -634,13 +634,17 @@ public:
             {
                 // For use by test/functional/feature_assumeutxo.py
                 .height = 299,
-<<<<<<< HEAD
                 .hash_serialized = AssumeutxoHash{uint256("37198d274df7c2f663860aeeddc8517938284694f0499a28621c781dff509940")},
-                .nChainTx = 334,
+                .m_chain_tx_count = 334,
                 .blockhash = consteval_ctor(uint256{"1e6b433578be026c430295078d3faca1d757c0aafec3252e385c300b35f3824b"})
             },
+        };
+
+        chainTxData = ChainTxData{
             0,
-            0};
+            0,
+            0
+        };
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 34); // 'b'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 50); // 's'

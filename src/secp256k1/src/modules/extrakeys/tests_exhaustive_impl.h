@@ -7,7 +7,7 @@
 #ifndef SECP256K1_MODULE_EXTRAKEYS_TESTS_EXHAUSTIVE_H
 #define SECP256K1_MODULE_EXTRAKEYS_TESTS_EXHAUSTIVE_H
 
-#include "src/modules/extrakeys/main_impl.h"
+#include "./main_impl.h"
 #include "../../../include/secp256k1_extrakeys.h"
 
 static void test_exhaustive_extrakeys(const secp256k1_context *ctx, const secp256k1_ge* group) {

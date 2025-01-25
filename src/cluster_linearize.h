@@ -5,11 +5,15 @@
 #ifndef BGL_CLUSTER_LINEARIZE_H
 #define BGL_CLUSTER_LINEARIZE_H
 
+#include <algorithm>
+#include <numeric>
+#include <optional>
 #include <stdint.h>
 #include <vector>
 #include <utility>
 
 #include <random.h>
+#include <span.h>
 #include <util/feefrac.h>
 #include <util/vecdeque.h>
 
@@ -767,7 +771,9 @@ public:
             // processing loop below, and during the add_fn/split_fn calls, we do not need to deal
             // with the best=empty case.
             if (best.feerate.IsEmpty()) best = SetInfo(m_sorted_depgraph, component);
-            queue.emplace_back(/*inc=*/SetInfo<SetType>{}, /*und=*/std::move(component));
+            queue.emplace_back(/*inc=*/SetInfo<SetType>{},
+                               /*und=*/std::move(component),
+                               /*pot_feerate=*/FeeFrac{});
         } while (to_cover.Any());
 
         /** Local copy of the iteration limit. */
@@ -782,7 +788,8 @@ public:
         }
 
         /** Internal function to add an item to the queue of elements to explore if there are any
-         *  transactions left to split on, and to update best/imp.
+         *  transactions left to split on, possibly improving it before doing so, and to update
+         *  best/imp.
          *
          * - inc: the "inc" value for the new work item (must be topological).
          * - und: the "und" value for the new work item ((inc | und) must be topological).
@@ -854,7 +861,9 @@ public:
             // space runs out (see below), we know that no reallocation of the queue should ever
             // occur.
             Assume(queue.size() < queue.capacity());
-            queue.emplace_back(/*inc=*/std::move(inc), /*und=*/std::move(und));
+            queue.emplace_back(/*inc=*/std::move(inc),
+                               /*und=*/std::move(und),
+                               /*pot_feerate=*/std::move(pot.feerate));
         };
 
         /** Internal process function. It takes an existing work item, and splits it in two: one
@@ -996,6 +1005,8 @@ public:
  * @param[in] rng_seed            A random number seed to control search order. This prevents peers
  *                                from predicting exactly which clusters would be hard for us to
  *                                linearize.
+ * @param[in] old_linearization   An existing linearization for the cluster (which must be
+ *                                topologically valid), or empty.
  * @return                        A pair of:
  *                                - The resulting linearization. It is guaranteed to be at least as
  *                                  good (in the feerate diagram sense) as old_linearization.
@@ -1005,7 +1016,7 @@ public:
  * Complexity: possibly O(N * min(max_iterations + N, sqrt(2^N))) where N=depgraph.TxCount().
  */
 template<typename SetType>
-std::pair<std::vector<ClusterIndex>, bool> Linearize(const DepGraph<SetType>& depgraph, uint64_t max_iterations, uint64_t rng_seed) noexcept
+std::pair<std::vector<ClusterIndex>, bool> Linearize(const DepGraph<SetType>& depgraph, uint64_t max_iterations, uint64_t rng_seed, Span<const ClusterIndex> old_linearization = {}) noexcept
 {
     Assume(old_linearization.empty() || old_linearization.size() == depgraph.TxCount());
     if (depgraph.TxCount() == 0) return {{}, true};

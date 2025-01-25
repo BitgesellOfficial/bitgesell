@@ -10,6 +10,7 @@
 #include <policy/policy.h>
 #include <primitives/block.h>
 #include <txmempool.h>
+#include <util/feefrac.h>
 
 #include <memory>
 #include <optional>
@@ -39,6 +40,9 @@ struct CBlockTemplate
     std::vector<CAmount> vTxFees;
     std::vector<int64_t> vTxSigOpsCost;
     std::vector<unsigned char> vchCoinbaseCommitment;
+    /* A vector of package fee rates, ordered by the sequence in which
+     * packages are selected for inclusion in the block template.*/
+    std::vector<FeeFrac> m_package_feerates;
 };
 
 // Container for tracking updates to ancestor feerate as we include (parent)
@@ -97,21 +101,25 @@ struct CompareTxIterByAncestorCount {
     }
 };
 
+
+struct CTxMemPoolModifiedEntry_Indices final : boost::multi_index::indexed_by<
+    boost::multi_index::ordered_unique<
+        modifiedentry_iter,
+        CompareCTxMemPoolIter
+    >,
+    // sorted by modified ancestor fee rate
+    boost::multi_index::ordered_non_unique<
+        // Reuse same tag from CTxMemPool's similar index
+        boost::multi_index::tag<ancestor_score>,
+        boost::multi_index::identity<CTxMemPoolModifiedEntry>,
+        CompareTxMemPoolEntryByAncestorFee
+    >
+>
+{};
+
 typedef boost::multi_index_container<
     CTxMemPoolModifiedEntry,
-    boost::multi_index::indexed_by<
-        boost::multi_index::ordered_unique<
-            modifiedentry_iter,
-            CompareCTxMemPoolIter
-        >,
-        // sorted by modified ancestor fee rate
-        boost::multi_index::ordered_non_unique<
-            // Reuse same tag from CTxMemPool's similar index
-            boost::multi_index::tag<ancestor_score>,
-            boost::multi_index::identity<CTxMemPoolModifiedEntry>,
-            CompareTxMemPoolEntryByAncestorFee
-        >
-    >
+    CTxMemPoolModifiedEntry_Indices
 > indexed_modified_transaction_set;
 
 typedef indexed_modified_transaction_set::nth_index<0>::type::iterator modtxiter;
@@ -168,19 +176,11 @@ public:
     /** Construct a new block template */
     std::unique_ptr<CBlockTemplate> CreateNewBlock();
 
-    /** Temporary overload for tests */
-    std::unique_ptr<CBlockTemplate> CreateNewBlock(const CScript& scriptPubKeyIn)
-    {
-        m_options.coinbase_output_script = scriptPubKeyIn;
-        return CreateNewBlock();
-    };
-
     inline static std::optional<int64_t> m_last_block_num_txs{};
     inline static std::optional<int64_t> m_last_block_weight{};
 
 private:
-    // TODO: make const again
-    Options m_options;
+    const Options m_options;
 
     // utility functions
     /** Clear the block's state and prepare for assembling a new block */

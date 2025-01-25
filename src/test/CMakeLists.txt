@@ -16,7 +16,7 @@ generate_header_from_raw(data/asmap.raw test::data)
 
 # Do not use generator expressions in test sources because the
 # SOURCES property is processed to gather test suite macros.
-add_executable(test_bitcoin
+add_executable(test_BGL
   main.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/data/asmap.raw.h
   ${CMAKE_CURRENT_BINARY_DIR}/data/base58_encode_decode.json.h
@@ -145,12 +145,12 @@ add_executable(test_bitcoin
   versionbits_tests.cpp
 )
 
-target_link_libraries(test_bitcoin
+target_link_libraries(test_BGL
   core_interface
   test_util
-  bitcoin_cli
-  bitcoin_node
-  bitcoin_consensus
+  BGL_cli
+  BGL_node
+  BGL_consensus
   minisketch
   secp256k1
   Boost::headers
@@ -162,17 +162,17 @@ if(ENABLE_WALLET)
 endif()
 
 if(WITH_MULTIPROCESS)
-  target_link_libraries(bitcoin_ipc_test
+  target_link_libraries(BGL_ipc_test
     PRIVATE
       core_interface
       univalue
   )
 
-  target_sources(test_bitcoin
+  target_sources(test_BGL
     PRIVATE
       ipc_tests.cpp
   )
-  target_link_libraries(test_bitcoin bitcoin_ipc_test bitcoin_ipc)
+  target_link_libraries(test_BGL BGL_ipc_test BGL_ipc)
 endif()
 
 function(add_boost_test source_file)
@@ -191,7 +191,7 @@ function(add_boost_test source_file)
   )
   if(test_suite_name)
     add_test(NAME ${test_suite_name}
-      COMMAND test_bitcoin --run_test=${test_suite_name} --catch_system_error=no --log_level=test_suite -- DEBUG_LOG_OUT
+      COMMAND test_BGL --run_test=${test_suite_name} --catch_system_error=no --log_level=test_suite -- DEBUG_LOG_OUT
     )
     set_property(TEST ${test_suite_name} PROPERTY
       SKIP_REGULAR_EXPRESSION "no test cases matching filter"
@@ -200,8 +200,8 @@ function(add_boost_test source_file)
 endfunction()
 
 function(add_all_test_targets)
-  get_target_property(test_source_dir test_bitcoin SOURCE_DIR)
-  get_target_property(test_sources test_bitcoin SOURCES)
+  get_target_property(test_source_dir test_BGL SOURCE_DIR)
+  get_target_property(test_sources test_BGL SOURCES)
   foreach(test_source ${test_sources})
     cmake_path(IS_RELATIVE test_source result)
     if(result)
@@ -213,6 +213,6 @@ endfunction()
 
 add_all_test_targets()
 
-install(TARGETS test_bitcoin
+install(TARGETS test_BGL
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )

@@ -7,13 +7,15 @@
 
 #include <chain.h>
 #include <consensus/validation.h>
+#include <logging.h>
+#include <txmempool.h>
 #include <validation.h>
 #include <validationinterface.h>
 
 namespace node {
 // TxDownloadManager wrappers
-TxDownloadManager::TxDownloadManager() :
-    m_impl{std::make_unique<TxDownloadManagerImpl>()}
+TxDownloadManager::TxDownloadManager(const TxDownloadOptions& options) :
+    m_impl{std::make_unique<TxDownloadManagerImpl>(options)}
 {}
 TxDownloadManager::~TxDownloadManager() = default;
 
@@ -23,9 +25,13 @@ void TxDownloadManager::ActiveTipChange()
 }
 void TxDownloadManager::BlockConnected(const std::shared_ptr<const CBlock>& pblock)
 {
-    return m_impl->RecentRejectsReconsiderableFilter();
+    m_impl->BlockConnected(pblock);
 }
-void TxDownloadManager::ActiveTipChange()
+void TxDownloadManager::BlockDisconnected()
+{
+    m_impl->BlockDisconnected();
+}
+void TxDownloadManager::ConnectedPeer(NodeId nodeid, const TxDownloadConnectionInfo& info)
 {
     m_impl->ConnectedPeer(nodeid, info);
 }
@@ -49,25 +55,25 @@ void TxDownloadManager::MempoolAcceptedTx(const CTransactionRef& tx)
 {
     m_impl->MempoolAcceptedTx(tx);
 }
-void TxDownloadManager::ConnectedPeer(NodeId nodeid, const TxDownloadConnectionInfo& info)
+RejectedTxTodo TxDownloadManager::MempoolRejectedTx(const CTransactionRef& ptx, const TxValidationState& state, NodeId nodeid, bool first_time_failure)
 {
-    m_impl->ConnectedPeer(nodeid, info);
+    return m_impl->MempoolRejectedTx(ptx, state, nodeid, first_time_failure);
 }
-void TxDownloadManager::DisconnectedPeer(NodeId nodeid)
+void TxDownloadManager::MempoolRejectedPackage(const Package& package)
 {
-    m_impl->DisconnectedPeer(nodeid);
+    m_impl->MempoolRejectedPackage(package);
 }
-void TxDownloadManager::ConnectedPeer(NodeId nodeid, const TxDownloadConnectionInfo& info)
+std::pair<bool, std::optional<PackageToValidate>> TxDownloadManager::ReceivedTx(NodeId nodeid, const CTransactionRef& ptx)
 {
-    m_impl->ConnectedPeer(nodeid, info);
+    return m_impl->ReceivedTx(nodeid, ptx);
 }
-void TxDownloadManager::DisconnectedPeer(NodeId nodeid)
+bool TxDownloadManager::HaveMoreWork(NodeId nodeid) const
 {
-    m_impl->DisconnectedPeer(nodeid);
+    return m_impl->HaveMoreWork(nodeid);
 }
-bool TxDownloadManager::AlreadyHaveTx(const GenTxid& gtxid, bool include_reconsiderable)
+CTransactionRef TxDownloadManager::GetTxToReconsider(NodeId nodeid)
 {
-    return m_impl->AlreadyHaveTx(gtxid, include_reconsiderable);
+    return m_impl->GetTxToReconsider(nodeid);
 }
 void TxDownloadManager::CheckIsEmpty() const
 {
@@ -302,7 +308,7 @@ node::RejectedTxTodo TxDownloadManagerImpl::MempoolRejectedTx(const CTransaction
     // Whether we should call AddToCompactExtraTransactions at the end
     bool add_extra_compact_tx{first_time_failure};
     // Hashes to pass to AddKnownTx later
-    std::vector<uint256> unique_parents;
+    std::vector<Txid> unique_parents;
     // Populated if failure is reconsiderable and eligible package is found.
     std::optional<node::PackageToValidate> package_to_validate;
 

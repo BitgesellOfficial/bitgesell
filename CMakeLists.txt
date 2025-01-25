@@ -1,19 +1,52 @@
-cmake_minimum_required(VERSION 3.16)
+
+# Copyright (c) 2023-present The Bitcoin Core developers
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or https://opensource.org/license/mit/.
+
+# Ubuntu 22.04 LTS Jammy Jellyfish, https://wiki.ubuntu.com/Releases, EOSS in June 2027:
+#  - CMake 3.22.1, https://packages.ubuntu.com/jammy/cmake
+#
+# Centos Stream 9, https://www.centos.org/cl-vs-cs/#end-of-life, EOL in May 2027:
+#  - CMake 3.26.5, https://mirror.stream.centos.org/9-stream/AppStream/x86_64/os/Packages/
+cmake_minimum_required(VERSION 3.22)
+
+if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+  message(FATAL_ERROR "In-source builds are not allowed.")
+endif()
 
 #=============================
 # Project / Package metadata
 #=============================
-project(libsecp256k1
-  # The package (a.k.a. release) version is based on semantic versioning 2.0.0 of
-  # the API. All changes in experimental modules are treated as
-  # backwards-compatible and therefore at most increase the minor version.
-  VERSION 0.6.0
-  DESCRIPTION "Optimized C library for ECDSA signatures and secret/public key operations on curve secp256k1."
-  HOMEPAGE_URL "https://github.com/bitcoin-core/secp256k1"
-  LANGUAGES C
+set(CLIENT_NAME "Bitgesell Core")
+set(CLIENT_VERSION_MAJOR 28)
+set(CLIENT_VERSION_MINOR 99)
+set(CLIENT_VERSION_BUILD 0)
+set(CLIENT_VERSION_RC 0)
+set(CLIENT_VERSION_IS_RELEASE "false")
+set(COPYRIGHT_YEAR "2024")
+
+# During the enabling of the CXX and CXXOBJ languages, we modify
+# CMake's compiler/linker invocation strings by appending the content
+# of the user-defined `APPEND_*` variables, which allows overriding
+# any flag. We also ensure that the APPEND_* flags are considered
+# during CMake's tests, which use the `try_compile()` command.
+#
+# CMake's docs state that the `CMAKE_TRY_COMPILE_PLATFORM_VARIABLES`
+# variable "is meant to be set by CMake's platform information modules
+# for the current toolchain, or by a toolchain file." We do our best
+# to set it before the `project()` command.
+set(CMAKE_TRY_COMPILE_PLATFORM_VARIABLES
+  CMAKE_CXX_COMPILE_OBJECT
+  CMAKE_OBJCXX_COMPILE_OBJECT
+  CMAKE_CXX_LINK_EXECUTABLE
 )
-enable_testing()
-list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
+project(BitgesellCore
+  VERSION ${CLIENT_VERSION_MAJOR}.${CLIENT_VERSION_MINOR}.${CLIENT_VERSION_BUILD}
+  DESCRIPTION "Bigesell client software"
+  HOMEPAGE_URL "https://Bitgesellcore.org/"
+  LANGUAGES
+)
 
 set(CLIENT_VERSION_STRING ${PROJECT_VERSION})
 if(CLIENT_VERSION_RC GREATER 0)
@@ -22,7 +55,7 @@ endif()
 
 set(COPYRIGHT_HOLDERS "The %s developers")
 set(COPYRIGHT_HOLDERS_FINAL "The ${CLIENT_NAME} developers")
-set(CLIENT_BUGREPORT "https://github.com/bitgesellofficial/bitgesell/issues")
+set(CLIENT_BUGREPORT "https://github.com/bitcoin/bitcoin/issues")
 
 #=============================
 # Language setup
@@ -35,8 +68,9 @@ endif()
 enable_language(CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/module)
 
 #=============================
 # Configurable options
@@ -46,6 +80,13 @@ include(CMakeDependentOption)
 option(BUILD_DAEMON "Build BGLd executable." ON)
 option(BUILD_GUI "Build BGL-qt executable." OFF)
 option(BUILD_CLI "Build BGL-cli executable." ON)
+
+option(BUILD_TESTS "Build test_BGL executable." ON)
+option(BUILD_TX "Build BGL-tx executable." ${BUILD_TESTS})
+option(BUILD_UTIL "Build BGL-util executable." ${BUILD_TESTS})
+
+option(BUILD_UTIL_CHAINSTATE "Build experimental BGL-chainstate executable." OFF)
+option(BUILD_KERNEL_LIB "Build experimental BGLkernel library." ${BUILD_UTIL_CHAINSTATE})
 
 option(ENABLE_WALLET "Enable wallet." ON)
 option(WITH_SQLITE "Enable SQLite wallet support." ${ENABLE_WALLET})
@@ -57,49 +98,6 @@ if(WITH_SQLITE)
     find_package(SQLite3 3.7.17 REQUIRED)
   endif()
   set(USE_SQLITE ON)
-  set(ENABLE_WALLET ON)
-endif()
-option(WITH_BDB "Enable Berkeley DB (BDB) wallet support." OFF)
-cmake_dependent_option(WARN_INCOMPATIBLE_BDB "Warn when using a Berkeley DB (BDB) version other than 4.8." ON "WITH_BDB" OFF)
-if(WITH_BDB)
-  find_package(BerkeleyDB 4.8 MODULE REQUIRED)
-  set(USE_BDB ON)
-  set(ENABLE_WALLET ON)
-  if(NOT BerkeleyDB_VERSION VERSION_EQUAL 4.8)
-    message(WARNING "Found Berkeley DB (BDB) other than 4.8.\n"
-                    "BDB (legacy) wallets opened by this build will not be portable!"
-    )
-    if(WARN_INCOMPATIBLE_BDB)
-      message(WARNING "If this is intended, pass \"-DWARN_INCOMPATIBLE_BDB=OFF\".\n"
-                      "Passing \"-DWITH_BDB=OFF\" will suppress this warning."
-      )
-    endif()
-  endif()
-endif()
-cmake_dependent_option(BUILD_WALLET_TOOL "Build BGL-wallet tool." ${BUILD_TESTS} "ENABLE_WALLET" OFF)
-
-# The library version is based on libtool versioning of the ABI. The set of
-# rules for updating the version can be found here:
-# https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-# All changes in experimental modules are treated as if they don't affect the
-# interface and therefore only increase the revision.
-set(${PROJECT_NAME}_LIB_VERSION_CURRENT 5)
-set(${PROJECT_NAME}_LIB_VERSION_REVISION 0)
-set(${PROJECT_NAME}_LIB_VERSION_AGE 0)
-
-#=============================
-# Language setup
-#=============================
-set(CMAKE_C_STANDARD 90)
-set(CMAKE_C_EXTENSIONS OFF)
-
-#=============================
-# Configurable options
-#=============================
-option(BUILD_SHARED_LIBS "Build shared libraries." ON)
-option(SECP256K1_DISABLE_SHARED "Disable shared library. Overrides BUILD_SHARED_LIBS." OFF)
-if(SECP256K1_DISABLE_SHARED)
-  set(BUILD_SHARED_LIBS OFF)
 endif()
 option(WITH_BDB "Enable Berkeley DB (BDB) wallet support." OFF)
 cmake_dependent_option(WARN_INCOMPATIBLE_BDB "Warn when using a Berkeley DB (BDB) version other than 4.8." ON "WITH_BDB" OFF)
@@ -119,38 +117,19 @@ if(WITH_BDB)
 endif()
 cmake_dependent_option(BUILD_WALLET_TOOL "Build BGL-wallet tool." ${BUILD_TESTS} "ENABLE_WALLET" OFF)
 
-option(SECP256K1_INSTALL "Enable installation." ${PROJECT_IS_TOP_LEVEL})
-
-## Modules
-
-# We declare all options before processing them, to make sure we can express
-# dependendencies while processing.
-option(SECP256K1_ENABLE_MODULE_ECDH "Enable ECDH module." ON)
-option(SECP256K1_ENABLE_MODULE_RECOVERY "Enable ECDSA pubkey recovery module." OFF)
-option(SECP256K1_ENABLE_MODULE_EXTRAKEYS "Enable extrakeys module." ON)
-option(SECP256K1_ENABLE_MODULE_SCHNORRSIG "Enable schnorrsig module." ON)
-option(SECP256K1_ENABLE_MODULE_MUSIG "Enable musig module." ON)
-option(SECP256K1_ENABLE_MODULE_ELLSWIFT "Enable ElligatorSwift module." ON)
+option(ENABLE_HARDENING "Attempt to harden the resulting executables." ON)
+option(REDUCE_EXPORTS "Attempt to reduce exported symbols in the resulting executables." OFF)
+option(WERROR "Treat compiler warnings as errors." OFF)
+option(WITH_CCACHE "Attempt to use ccache for compiling." ON)
 
 option(WITH_ZMQ "Enable ZMQ notifications." OFF)
 if(WITH_ZMQ)
   find_package(ZeroMQ 4.0.0 MODULE REQUIRED)
 endif()
 
-if(SECP256K1_ENABLE_MODULE_MUSIG)
-  if(DEFINED SECP256K1_ENABLE_MODULE_SCHNORRSIG AND NOT SECP256K1_ENABLE_MODULE_SCHNORRSIG)
-    message(FATAL_ERROR "Module dependency error: You have disabled the schnorrsig module explicitly, but it is required by the musig module.")
-  endif()
-  set(SECP256K1_ENABLE_MODULE_SCHNORRSIG ON)
-  add_compile_definitions(ENABLE_MODULE_MUSIG=1)
-endif()
-
-if(SECP256K1_ENABLE_MODULE_SCHNORRSIG)
-  if(DEFINED SECP256K1_ENABLE_MODULE_EXTRAKEYS AND NOT SECP256K1_ENABLE_MODULE_EXTRAKEYS)
-    message(FATAL_ERROR "Module dependency error: You have disabled the extrakeys module explicitly, but it is required by the schnorrsig module.")
-  endif()
-  set(SECP256K1_ENABLE_MODULE_EXTRAKEYS ON)
-  add_compile_definitions(ENABLE_MODULE_SCHNORRSIG=1)
+option(WITH_USDT "Enable tracepoints for Userspace, Statically Defined Tracing." OFF)
+if(WITH_USDT)
+  find_package(USDT MODULE REQUIRED)
 endif()
 
 cmake_dependent_option(ENABLE_EXTERNAL_SIGNER "Enable external signer support." ON "NOT WIN32" OFF)
@@ -195,6 +174,16 @@ option(BUILD_FUZZ_BINARY "Build fuzz binary." OFF)
 option(BUILD_FOR_FUZZING "Build for fuzzing. Enabling this will disable all other targets and override BUILD_FUZZ_BINARY." OFF)
 
 option(INSTALL_MAN "Install man pages." ON)
+
+set(APPEND_CPPFLAGS "" CACHE STRING "Preprocessor flags that are appended to the command line after all other flags added by the build system. This variable is intended for debugging and special builds.")
+set(APPEND_CFLAGS "" CACHE STRING "C compiler flags that are appended to the command line after all other flags added by the build system. This variable is intended for debugging and special builds.")
+set(APPEND_CXXFLAGS "" CACHE STRING "(Objective) C++ compiler flags that are appended to the command line after all other flags added by the build system. This variable is intended for debugging and special builds.")
+set(APPEND_LDFLAGS "" CACHE STRING "Linker flags that are appended to the command line after all other flags added by the build system. This variable is intended for debugging and special builds.")
+# Appending to this low-level rule variables is the only way to
+# guarantee that the flags appear at the end of the command line.
+string(APPEND CMAKE_CXX_COMPILE_OBJECT " ${APPEND_CPPFLAGS} ${APPEND_CXXFLAGS}")
+string(APPEND CMAKE_CXX_CREATE_SHARED_LIBRARY " ${APPEND_LDFLAGS}")
+string(APPEND CMAKE_CXX_LINK_EXECUTABLE " ${APPEND_LDFLAGS}")
 
 set(configure_warnings)
 
@@ -382,6 +371,17 @@ if(SANITIZERS)
 endif()
 target_link_options(sanitize_interface INTERFACE ${SANITIZER_LDFLAGS})
 
+if(BUILD_FUZZ_BINARY)
+  include(CheckSourceCompilesAndLinks)
+  check_cxx_source_links_with_flags("${SANITIZER_LDFLAGS}" "
+      #include <cstdint>
+      #include <cstddef>
+      extern \"C\" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) { return 0; }
+      // No main() function.
+    " FUZZ_BINARY_LINKS_WITHOUT_MAIN_FUNCTION
+  )
+endif()
+
 include(AddBoostIfNeeded)
 add_boost_if_needed()
 
@@ -553,34 +553,21 @@ else()
   )
 endif()
 
-set(SECP256K1_APPEND_CFLAGS "" CACHE STRING "Compiler flags that are appended to the command line after all other flags added by the build system. This variable is intended for debugging and special builds.")
-if(SECP256K1_APPEND_CFLAGS)
-  # Appending to this low-level rule variable is the only way to
-  # guarantee that the flags appear at the end of the command line.
-  string(APPEND CMAKE_C_CREATE_SHARED_LIBRARY " ${SECP256K1_APPEND_LDFLAGS}")
-  string(APPEND CMAKE_C_LINK_EXECUTABLE " ${SECP256K1_APPEND_LDFLAGS}")
+target_compile_definitions(core_interface INTERFACE ${DEPENDS_COMPILE_DEFINITIONS})
+target_compile_definitions(core_interface_relwithdebinfo INTERFACE ${DEPENDS_COMPILE_DEFINITIONS_RELWITHDEBINFO})
+target_compile_definitions(core_interface_debug INTERFACE ${DEPENDS_COMPILE_DEFINITIONS_DEBUG})
+
+# If the {CXX,LD}FLAGS environment variables are defined during building depends
+# and configuring this build system, their content might be duplicated.
+if(DEFINED ENV{CXXFLAGS})
+  deduplicate_flags(CMAKE_CXX_FLAGS)
+endif()
+if(DEFINED ENV{LDFLAGS})
+  deduplicate_flags(CMAKE_EXE_LINKER_FLAGS)
 endif()
 
-set(SECP256K1_APPEND_LDFLAGS "" CACHE STRING "Linker flags that are appended to the command line after all other flags added by the build system. This variable is intended for debugging and special builds.")
-if(SECP256K1_APPEND_LDFLAGS)
-  # Appending to this low-level rule variable is the only way to
-  # guarantee that the flags appear at the end of the command line.
-  string(APPEND CMAKE_C_CREATE_SHARED_LIBRARY " ${SECP256K1_APPEND_LDFLAGS}")
-  string(APPEND CMAKE_C_LINK_EXECUTABLE " ${SECP256K1_APPEND_LDFLAGS}")
-endif()
-
-if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
-endif()
-if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
-endif()
-if(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
-  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
-endif()
-add_subdirectory(src)
-if(SECP256K1_BUILD_EXAMPLES)
-  add_subdirectory(examples)
+if(BUILD_TESTS)
+  enable_testing()
 endif()
 
 if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.29)
@@ -594,8 +581,13 @@ endif()
 # Relevant discussions:
 # - https://github.com/hebasto/bitcoin/pull/236#issuecomment-2183120953
 # - https://github.com/bitcoin/bitcoin/pull/30312#issuecomment-2191235833
-set(CMAKE_SKIP_BUILD_RPATH TRUE)
-set(CMAKE_SKIP_INSTALL_RPATH TRUE)
+# NetBSD always requires runtime paths to be set for executables.
+if(CMAKE_SYSTEM_NAME STREQUAL "NetBSD")
+  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+else()
+  set(CMAKE_SKIP_BUILD_RPATH TRUE)
+  set(CMAKE_SKIP_INSTALL_RPATH TRUE)
+endif()
 add_subdirectory(test)
 add_subdirectory(doc)
 
@@ -622,20 +614,15 @@ message("  BGL-qt (GUI) .................... ${BUILD_GUI}")
 if(BUILD_GUI AND WITH_MULTIPROCESS)
   set(BGL_gui_status ON)
 else()
-  set(library_type "Static")
+  set(BGL_gui_status OFF)
 endif()
-
-message("  library type ........................ ${library_type}")
-message("Optional modules:")
-message("  ECDH ................................ ${SECP256K1_ENABLE_MODULE_ECDH}")
-message("  ECDSA pubkey recovery ............... ${SECP256K1_ENABLE_MODULE_RECOVERY}")
-message("  extrakeys ........................... ${SECP256K1_ENABLE_MODULE_EXTRAKEYS}")
-message("  schnorrsig .......................... ${SECP256K1_ENABLE_MODULE_SCHNORRSIG}")
-message("  musig ............................... ${SECP256K1_ENABLE_MODULE_MUSIG}")
-message("  ElligatorSwift ...................... ${SECP256K1_ENABLE_MODULE_ELLSWIFT}")
-message("Parameters:")
-message("  ecmult window size .................. ${SECP256K1_ECMULT_WINDOW_SIZE}")
-message("  ecmult gen table size ............... ${SECP256K1_ECMULT_GEN_KB} KiB")
+message("  BGL-gui (GUI, multiprocess) ..... ${BGL_gui_status}")
+message("  BGL-cli ......................... ${BUILD_CLI}")
+message("  BGL-tx .......................... ${BUILD_TX}")
+message("  BGL-util ........................ ${BUILD_UTIL}")
+message("  BGL-wallet ...................... ${BUILD_WALLET_TOOL}")
+message("  BGL-chainstate (experimental) ... ${BUILD_UTIL_CHAINSTATE}")
+message("  libBGLkernel (experimental) ..... ${BUILD_KERNEL_LIB}")
 message("Optional features:")
 message("  wallet support ...................... ${ENABLE_WALLET}")
 if(ENABLE_WALLET)
@@ -646,6 +633,7 @@ message("  external signer ..................... ${ENABLE_EXTERNAL_SIGNER}")
 message("  ZeroMQ .............................. ${WITH_ZMQ}")
 message("  USDT tracing ........................ ${WITH_USDT}")
 message("  QR code (GUI) ....................... ${WITH_QRENCODE}")
+message("  DBus (GUI, Linux only) .............. ${WITH_DBUS}")
 message("Tests:")
 message("  test_BGL ........................ ${BUILD_TESTS}")
 message("  test_BGL-qt ..................... ${BUILD_GUI_TESTS}")
@@ -658,52 +646,20 @@ else()
   set(cross_status "FALSE")
 endif()
 message("Cross compiling ....................... ${cross_status}")
-message("Valgrind .............................. ${SECP256K1_VALGRIND}")
-get_directory_property(definitions COMPILE_DEFINITIONS)
-string(REPLACE ";" " " definitions "${definitions}")
-message("Preprocessor defined macros ........... ${definitions}")
-message("C compiler ............................ ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}, ${CMAKE_C_COMPILER}")
-message("CFLAGS ................................ ${CMAKE_C_FLAGS}")
-get_directory_property(compile_options COMPILE_OPTIONS)
-string(REPLACE ";" " " compile_options "${compile_options}")
-message("Compile options ....................... " ${compile_options})
-if(NOT is_multi_config)
-  message("Build type:")
-  message(" - CMAKE_BUILD_TYPE ................... ${CMAKE_BUILD_TYPE}")
-  string(TOUPPER "${CMAKE_BUILD_TYPE}" build_type)
-  message(" - CFLAGS ............................. ${CMAKE_C_FLAGS_${build_type}}")
-  message(" - LDFLAGS for executables ............ ${CMAKE_EXE_LINKER_FLAGS_${build_type}}")
-  message(" - LDFLAGS for shared libraries ....... ${CMAKE_SHARED_LINKER_FLAGS_${build_type}}")
-else()
-  message("Supported configurations .............. ${CMAKE_CONFIGURATION_TYPES}")
-  message("RelWithDebInfo configuration:")
-  message(" - CFLAGS ............................. ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
-  message(" - LDFLAGS for executables ............ ${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO}")
-  message(" - LDFLAGS for shared libraries ....... ${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO}")
-  message("Debug configuration:")
-  message(" - CFLAGS ............................. ${CMAKE_C_FLAGS_DEBUG}")
-  message(" - LDFLAGS for executables ............ ${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
-  message(" - LDFLAGS for shared libraries ....... ${CMAKE_SHARED_LINKER_FLAGS_DEBUG}")
+message("C++ compiler .......................... ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, ${CMAKE_CXX_COMPILER}")
+include(FlagsSummary)
+flags_summary()
+message("Attempt to harden executables ......... ${ENABLE_HARDENING}")
+message("Treat compiler warnings as errors ..... ${WERROR}")
+message("Use ccache for compiling .............. ${WITH_CCACHE}")
+message("\n")
+if(configure_warnings)
+    message("  ******\n")
+    foreach(warning IN LISTS configure_warnings)
+      message(WARNING "${warning}")
+    endforeach()
+    message("  ******\n")
 endif()
-if(SECP256K1_APPEND_CFLAGS)
-  message("SECP256K1_APPEND_CFLAGS ............... ${SECP256K1_APPEND_CFLAGS}")
-endif()
-if(SECP256K1_APPEND_LDFLAGS)
-  message("SECP256K1_APPEND_LDFLAGS .............. ${SECP256K1_APPEND_LDFLAGS}")
-endif()
-message("")
-if(print_msan_notice)
-  message(
-    "Note:\n"
-    "  MemorySanitizer detected, tried to add -fno-sanitize-memory-param-retval to compile options\n"
-    "  to avoid false positives in ctime_tests. Pass -DSECP256K1_BUILD_CTIME_TESTS=OFF to avoid this.\n"
-  )
-endif()
-if(SECP256K1_EXPERIMENTAL)
-  message(
-    "  ******\n"
-    "  WARNING: experimental build\n"
-    "  Experimental features do not have stable APIs or properties, and may not be safe for production use.\n"
-    "  ******\n"
-  )
-endif()
+
+# We want all build properties to be encapsulated properly.
+include(WarnAboutGlobalProperties)

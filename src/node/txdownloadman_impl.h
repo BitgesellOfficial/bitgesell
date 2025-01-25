@@ -11,6 +11,7 @@
 #include <kernel/chain.h>
 #include <net.h>
 #include <primitives/transaction.h>
+#include <policy/packages.h>
 #include <txorphanage.h>
 #include <txrequest.h>
 
@@ -167,19 +168,19 @@ public:
     /** Get getdata requests to send. */
     std::vector<GenTxid> GetRequestsToSend(NodeId nodeid, std::chrono::microseconds current_time);
 
-        PeerInfo(const TxDownloadConnectionInfo& info) : m_connection_info{info} {}
-    };
+    /** Marks a tx as ReceivedResponse in txrequest. */
+    void ReceivedNotFound(NodeId nodeid, const std::vector<uint256>& txhashes);
 
-    /** Information for all of the peers we may download transactions from. This is not necessarily
-     * all peers we are connected to (no block-relay-only and temporary connections). */
-    std::map<NodeId, PeerInfo> m_peer_info;
+    /** Look for a child of this transaction in the orphanage to form a 1-parent-1-child package,
+     * skipping any combinations that have already been tried. Return the resulting package along with
+     * the senders of its respective transactions, or std::nullopt if no package is found. */
+    std::optional<PackageToValidate> Find1P1CPackage(const CTransactionRef& ptx, NodeId nodeid);
 
-    /** Number of wtxid relay peers we have in m_peer_info. */
-    uint32_t m_num_wtxid_peers{0};
+    void MempoolAcceptedTx(const CTransactionRef& tx);
+    RejectedTxTodo MempoolRejectedTx(const CTransactionRef& ptx, const TxValidationState& state, NodeId nodeid, bool first_time_failure);
+    void MempoolRejectedPackage(const Package& package);
 
-    void ActiveTipChange();
-    void BlockConnected(const std::shared_ptr<const CBlock>& pblock);
-    void BlockDisconnected();
+    std::pair<bool, std::optional<PackageToValidate>> ReceivedTx(NodeId nodeid, const CTransactionRef& ptx);
 
     bool HaveMoreWork(NodeId nodeid);
     CTransactionRef GetTxToReconsider(NodeId nodeid);

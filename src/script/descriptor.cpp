@@ -8,6 +8,7 @@
 #include <key_io.h>
 #include <pubkey.h>
 #include <script/miniscript.h>
+#include <script/parsing.h>
 #include <script/script.h>
 #include <script/signingprovider.h>
 #include <script/solver.h>
@@ -17,7 +18,6 @@
 #include <span.h>
 #include <util/bip32.h>
 #include <util/check.h>
-#include <util/spanparsing.h>
 #include <util/strencodings.h>
 #include <util/vector.h>
 
@@ -27,6 +27,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+
+using util::Split;
 
 namespace {
 
@@ -2328,8 +2330,6 @@ std::unique_ptr<DescriptorImpl> InferScript(const CScript& script, ParseScriptCo
 /** Check a descriptor checksum, and update desc to be the checksum-less part. */
 bool CheckChecksum(Span<const char>& sp, bool require_checksum, std::string& error, std::string* out_checksum = nullptr)
 {
-    using namespace spanparsing;
-
     auto check_split = Split(sp, '#');
     if (check_split.size() > 2) {
         error = "Multiple '#' symbols";

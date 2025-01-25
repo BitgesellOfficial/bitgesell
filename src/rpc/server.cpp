@@ -3,11 +3,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-<<<<<<< HEAD
-#include <config/BGL-config.h> // IWYU pragma: keep
-=======
-#include <bitcoin-build-config.h> // IWYU pragma: keep
->>>>>>> 1786be7b4a... scripted-diff: drop config/ subdir for bitcoin-config.h, rename to bitcoin-build-config.h
+#include <BGL-build-config.h> // IWYU pragma: keep
 
 #include <rpc/server.h>
 
@@ -307,9 +303,6 @@ void StopRPC()
         LogDebug(BCLog::RPC, "Stopping RPC\n");
         WITH_LOCK(g_deadline_timers_mutex, deadlineTimers.clear());
         DeleteAuthCookie();
-        node::NodeContext& node = EnsureAnyNodeContext(context);
-        // The notifications interface doesn't exist between initialization step 4a and 7.
-        if (node.notifications) WITH_LOCK(node.notifications->m_tip_block_mutex, node.notifications->m_tip_block_cv.notify_all());
         LogDebug(BCLog::RPC, "RPC stopped.\n");
     });
 }

@@ -32,6 +32,7 @@
 #include "modinv32_impl.h"
 #ifdef SECP256K1_WIDEMUL_INT128
 #include "modinv64_impl.h"
+#include "int128_impl.h"
 #endif
 
 #define CONDITIONAL_TEST(cnt, nam) if (COUNT < (cnt)) { printf("Skipping %s (iteration count too low)\n", nam); } else
@@ -240,10 +241,10 @@ static void run_proper_context_tests(int use_prealloc) {
     secp256k1_context *my_ctx, *my_ctx_fresh;
     void *my_ctx_prealloc = NULL;
     unsigned char seed[32] = {0x17};
->>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c:src/tests.c
 
     secp256k1_gej pubj;
     secp256k1_ge pub;
+    secp256k1_scalar msg, key, nonce;
     secp256k1_scalar sigr, sigs;
 
     /* Fresh reference context for comparison */
@@ -342,7 +343,6 @@ static void run_proper_context_tests(int use_prealloc) {
 
     /* try verifying */
     CHECK(secp256k1_ecdsa_sig_verify(&sigr, &sigs, &pub, &msg));
-    CHECK(secp256k1_ecdsa_sig_verify(&sigr, &sigs, &pub, &msg));
 
     /* cleanup */
     if (use_prealloc) {
@@ -356,7 +356,6 @@ static void run_proper_context_tests(int use_prealloc) {
     /* Defined as no-op. */
     secp256k1_context_destroy(NULL);
     secp256k1_context_preallocated_destroy(NULL);
-
 }
 
 static void run_scratch_tests(void) {
@@ -364,7 +363,6 @@ static void run_scratch_tests(void) {
 
     size_t checkpoint;
     size_t checkpoint_2;
-    secp256k1_context *none = secp256k1_context_create(SECP256K1_CONTEXT_NONE);
     secp256k1_scratch_space *scratch;
     secp256k1_scratch_space local_scratch;
 
@@ -728,7 +726,6 @@ static void run_tagged_sha256_tests(void) {
     memcpy(msg, "msg", 3);
     CHECK(secp256k1_tagged_sha256(CTX, hash32, tag, 3, msg, 3) == 1);
     CHECK(secp256k1_memcmp_var(hash32, hash_expected, sizeof(hash32)) == 0);
-    secp256k1_context_destroy(none);
 }
 
 /***** MODINV TESTS *****/
@@ -746,7 +743,8 @@ static uint64_t modinv2p64(uint64_t x) {
     return w;
 }
 
-/* compute out = (a*b) mod m; if b=NULL, treat b=1.
+
+/* compute out = (a*b) mod m; if b=NULL, treat b=1; if m=NULL, treat m=infinity.
  *
  * Out is a 512-bit number (represented as 32 uint16_t's in LE order). The other
  * arguments are 256-bit numbers (represented as 16 uint16_t's in LE order). */
@@ -788,45 +786,47 @@ static void mulmod256(uint16_t* out, const uint16_t* a, const uint16_t* b, const
         }
     }
 
-    /* Compute the highest set bit in m. */
-    for (i = 255; i >= 0; --i) {
-        if ((m[i >> 4] >> (i & 15)) & 1) {
-            m_bitlen = i;
-            break;
-        }
-    }
-
-    /* Try do mul -= m<<i, for i going down to 0, whenever the result is not negative */
-    for (i = mul_bitlen - m_bitlen; i >= 0; --i) {
-        uint16_t mul2[32];
-        int64_t cs;
-
-        /* Compute mul2 = mul - m<<i. */
-        cs = 0; /* accumulator */
-        for (j = 0; j < 32; ++j) { /* j loops over the output limbs in mul2. */
-            /* Compute sub: the 16 bits in m that will be subtracted from mul2[j]. */
-            uint16_t sub = 0;
-            int p;
-            for (p = 0; p < 16; ++p) { /* p loops over the bit positions in mul2[j]. */
-                int bitpos = j * 16 - i + p; /* bitpos is the correspond bit position in m. */
-                if (bitpos >= 0 && bitpos < 256) {
-                    sub |= ((m[bitpos >> 4] >> (bitpos & 15)) & 1) << p;
-                }
+    if (m) {
+        /* Compute the highest set bit in m. */
+        for (i = 255; i >= 0; --i) {
+            if ((m[i >> 4] >> (i & 15)) & 1) {
+                m_bitlen = i;
+                break;
             }
-            /* Add mul[j]-sub to accumulator, and shift bottom 16 bits out to mul2[j]. */
-            cs += mul[j];
-            cs -= sub;
-            mul2[j] = (cs & 0xFFFF);
-            cs >>= 16;
         }
-        /* If remainder of subtraction is 0, set mul = mul2. */
-        if (cs == 0) {
-            memcpy(mul, mul2, sizeof(mul));
+
+        /* Try do mul -= m<<i, for i going down to 0, whenever the result is not negative */
+        for (i = mul_bitlen - m_bitlen; i >= 0; --i) {
+            uint16_t mul2[32];
+            int64_t cs;
+
+            /* Compute mul2 = mul - m<<i. */
+            cs = 0; /* accumulator */
+            for (j = 0; j < 32; ++j) { /* j loops over the output limbs in mul2. */
+                /* Compute sub: the 16 bits in m that will be subtracted from mul2[j]. */
+                uint16_t sub = 0;
+                int p;
+                for (p = 0; p < 16; ++p) { /* p loops over the bit positions in mul2[j]. */
+                    int bitpos = j * 16 - i + p; /* bitpos is the correspond bit position in m. */
+                    if (bitpos >= 0 && bitpos < 256) {
+                        sub |= ((m[bitpos >> 4] >> (bitpos & 15)) & 1) << p;
+                    }
+                }
+                /* Add mul[j]-sub to accumulator, and shift bottom 16 bits out to mul2[j]. */
+                cs += mul[j];
+                cs -= sub;
+                mul2[j] = (cs & 0xFFFF);
+                cs >>= 16;
+            }
+            /* If remainder of subtraction is 0, set mul = mul2. */
+            if (cs == 0) {
+                memcpy(mul, mul2, sizeof(mul));
+            }
         }
-    }
-    /* Sanity check: test that all limbs higher than m's highest are zero */
-    for (i = (m_bitlen >> 4) + 1; i < 32; ++i) {
-        CHECK(mul[i] == 0);
+        /* Sanity check: test that all limbs higher than m's highest are zero */
+        for (i = (m_bitlen >> 4) + 1; i < 32; ++i) {
+            CHECK(mul[i] == 0);
+        }
     }
     memcpy(out, mul, 32);
 }
@@ -2011,7 +2011,6 @@ static void run_int128_tests(void) {
 /***** SCALAR TESTS *****/
 
 static void scalar_test(void) {
->>>>>>> 763079a3f1... Squashed 'src/secp256k1/' changes from 21ffe4b22a9..bdf39000b9c:src/tests.c
     secp256k1_scalar s;
     secp256k1_scalar s1;
     secp256k1_scalar s2;
@@ -4267,17 +4266,12 @@ static void run_ecmult_chain(void) {
                 0xB95CBCA2, 0xC77DA786, 0x539BE8FD, 0x53354D2D,
                 0x3B4F566A, 0xE6580454, 0x07ED6015, 0xEE1B2A88
             );
-
-            secp256k1_gej_neg(&rp, &rp);
-            secp256k1_gej_add_var(&rp, &rp, &x, NULL);
-            CHECK(secp256k1_gej_is_infinity(&rp));
+            CHECK(secp256k1_gej_eq_var(&rp, &x));
         }
     }
     /* redo the computation, but directly with the resulting ae and ge coefficients: */
     secp256k1_ecmult(&x2, &a, &ae, &ge);
-    secp256k1_gej_neg(&x2, &x2);
-    secp256k1_gej_add_var(&x2, &x2, &x, NULL);
-    CHECK(secp256k1_gej_is_infinity(&x2));
+    CHECK(secp256k1_gej_eq_var(&x, &x2));
 }
 
 static void test_point_times_order(const secp256k1_gej *point) {
@@ -5025,9 +5019,7 @@ static int test_ecmult_multi_random(secp256k1_scratch *scratch) {
     CHECK(ecmult_multi(&CTX->error_callback, scratch, &computed, g_scalar_ptr, ecmult_multi_callback, &data, filled));
     mults += num_nonzero + g_nonzero;
     /* Compare with expected result. */
-    secp256k1_gej_neg(&computed, &computed);
-    secp256k1_gej_add_var(&computed, &computed, &expected, NULL);
-    CHECK(secp256k1_gej_is_infinity(&computed));
+    CHECK(secp256k1_gej_eq_var(&computed, &expected));
     return mults;
 }
 
@@ -7406,7 +7398,7 @@ static void run_ecdsa_edge_cases(void) {
 The tests check for known attacks (range checks in (r,s), arithmetic errors, malleability).
 */
 static void test_ecdsa_wycheproof(void) {
-    #include "wycheproof/ecdsa_secp256k1_sha256_bitcoin_test.h"
+    #include "./wycheproof/ecdsa_secp256k1_sha256_BGL_test.h"
 
     int t;
     for (t = 0; t < SECP256K1_ECDSA_WYCHEPROOF_NUMBER_TESTVECTORS; t++) {

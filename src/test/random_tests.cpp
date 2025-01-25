@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE(shuffle_stat_test)
 BOOST_AUTO_TEST_CASE(xoroshiro128plusplus_reference_values)
 {
     // numbers generated from reference implementation
-    XoRoShiRo128PlusPlus rng(0);
+    InsecureRandomContext rng(0);
     BOOST_TEST(0x6f68e1e7e2646ee1 == rng());
     BOOST_TEST(0xbf971b7f454094ad == rng());
     BOOST_TEST(0x48f2de556f30de38 == rng());

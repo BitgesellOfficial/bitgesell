@@ -6,6 +6,7 @@
 #include <chainparams.h>
 #include <key.h>
 #include <pubkey.h>
+#include <span.h>
 #include <test/util/random.h>
 #include <test/util/setup_common.h>
 #include <util/strencodings.h>
@@ -13,6 +14,7 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <vector>
 
 #include <boost/test/unit_test.hpp>
@@ -66,10 +68,13 @@ void TestBIP324PacketVector(
     BOOST_CHECK(std::ranges::equal(mid_send_garbage, cipher.GetSendGarbageTerminator()));
     BOOST_CHECK(std::ranges::equal(mid_recv_garbage, cipher.GetReceiveGarbageTerminator()));
 
+    // Vector of encrypted empty messages, encrypted in order to seek to the right position.
+    std::vector<std::vector<std::byte>> dummies(in_idx);
+
     // Seek to the numbered packet.
     for (uint32_t i = 0; i < in_idx; ++i) {
-        std::vector<std::byte> dummy(cipher.EXPANSION);
-        cipher.Encrypt({}, {}, false, dummy);
+        dummies[i].resize(cipher.EXPANSION);
+        cipher.Encrypt({}, {}, true, dummies[i]);
     }
 
     // Construct contents and encrypt it.

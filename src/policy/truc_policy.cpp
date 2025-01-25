@@ -222,7 +222,7 @@ std::optional<std::pair<std::string, CTransactionRef>> SingleTRUCChecks(const CT
         const bool child_will_be_replaced = !children.empty() &&
             std::any_of(children.cbegin(), children.cend(),
                 [&direct_conflicts](const CTxMemPoolEntry& child){return direct_conflicts.count(child.GetTx().GetHash()) > 0;});
-        if (parent_entry->GetCountWithDescendants() + 1 > V3_DESCENDANT_LIMIT && !child_will_be_replaced) {
+        if (parent_entry->GetCountWithDescendants() + 1 > TRUC_DESCENDANT_LIMIT && !child_will_be_replaced) {
             // Allow sibling eviction for TRUC transaction: if another child already exists, even if
             // we don't conflict inputs with it, consider evicting it under RBF rules. We rely on TRUC rules
             // only permitting 1 descendant, as otherwise we would need to have logic for deciding

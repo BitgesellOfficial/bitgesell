@@ -1057,8 +1057,6 @@ static UniValue ProcessImportLegacy(ImportData& import_data, std::map<CKeyID, CP
 
 static UniValue ProcessImportDescriptor(ImportData& import_data, std::map<CKeyID, CPubKey>& pubkey_map, std::map<CKeyID, CKey>& privkey_map, std::set<CScript>& script_pub_keys, bool& have_solving_data, const UniValue& data, std::vector<std::pair<CKeyID, bool>>& ordered_pubkeys)
 {
-    const bool internal = data.exists("internal") ? data["internal"].get_bool() : false;
-
     UniValue warnings(UniValue::VARR);
 
     const std::string& descriptor = data["desc"].get_str();
@@ -1095,15 +1093,23 @@ static UniValue ProcessImportDescriptor(ImportData& import_data, std::map<CKeyID
 
     const UniValue& priv_keys = data.exists("keys") ? data["keys"].get_array() : UniValue();
 
-    // Expand all descriptors to get public keys and scripts, and private keys if available.
-    for (int i = range_start; i <= range_end; ++i) {
-        FlatSigningProvider out_keys;
-        std::vector<CScript> scripts_temp;
-        parsed_desc->Expand(i, keys, scripts_temp, out_keys);
-        std::copy(scripts_temp.begin(), scripts_temp.end(), std::inserter(script_pub_keys, script_pub_keys.end()));
-        for (const auto& key_pair : out_keys.pubkeys) {
-            ordered_pubkeys.emplace_back(key_pair.first, internal);
+    for (size_t j = 0; j < parsed_descs.size(); ++j) {
+        const auto& parsed_desc = parsed_descs.at(j);
+        bool desc_internal = internal.has_value() && internal.value();
+        if (parsed_descs.size() == 2) {
+            desc_internal = j == 1;
+        } else if (parsed_descs.size() > 2) {
+            CHECK_NONFATAL(!desc_internal);
         }
+        // Expand all descriptors to get public keys and scripts, and private keys if available.
+        for (int i = range_start; i <= range_end; ++i) {
+            FlatSigningProvider out_keys;
+            std::vector<CScript> scripts_temp;
+            parsed_desc->Expand(i, keys, scripts_temp, out_keys);
+            std::copy(scripts_temp.begin(), scripts_temp.end(), std::inserter(script_pub_keys, script_pub_keys.end()));
+            for (const auto& key_pair : out_keys.pubkeys) {
+                ordered_pubkeys.emplace_back(key_pair.first, desc_internal);
+            }
 
             for (const auto& x : out_keys.scripts) {
                 import_data.import_scripts.emplace(x.second);
