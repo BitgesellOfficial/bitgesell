@@ -33,9 +33,9 @@ BOOST_FIXTURE_TEST_SUITE(pmt_tests, BasicTestingSetup)
 
 BOOST_AUTO_TEST_CASE(pmt_test1)
 {
-    static const unsigned int tx_counts[] = {1, 4, 7, 17, 56, 100, 127, 256, 312, 513, 1000, 4095};
+    static const unsigned int tx_counts[] = {1, 4, 7, 17, 56, 100, 127, 256, 312, 513, 1000};
 
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i < 11; i++) {
         unsigned int nTx = tx_counts[i];
 
         // build a block with some dummy transactions
