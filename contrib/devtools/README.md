@@ -117,8 +117,8 @@ For example:
 BUILDDIR=$PWD/my-build-dir contrib/devtools/gen-BGL-conf.sh
 ```
 
-security-check.py and test-security-check.py
-============================================
+security-check.py
+=================
 
 Perform basic security checks on a series of executables.
 
