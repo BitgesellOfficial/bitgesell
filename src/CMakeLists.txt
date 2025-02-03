@@ -96,7 +96,7 @@ add_dependencies(BGL_clientversion generate_build_info)
 
 add_subdirectory(crypto)
 add_subdirectory(util)
-if(WITH_MULTIPROCESS)
+if(ENABLE_IPC)
   add_subdirectory(ipc)
 endif()
 
@@ -342,7 +342,7 @@ if(BUILD_DAEMON)
   )
   install_binary_component(BGLd HAS_MANPAGE)
 endif()
-if(WITH_MULTIPROCESS AND BUILD_DAEMON)
+if(ENABLE_IPC AND BUILD_DAEMON)
   add_executable(BGL-node
     BGLd.cpp
     init/BGL-node.cpp
@@ -356,7 +356,7 @@ if(WITH_MULTIPROCESS AND BUILD_DAEMON)
   install_binary_component(BGL-node)
 endif()
 
-if(WITH_MULTIPROCESS AND BUILD_TESTS)
+if(ENABLE_IPC AND BUILD_TESTS)
     # bitcoin_ipc_test library target is defined here in src/CMakeLists.txt
     # instead of src/test/CMakeLists.txt so capnp files in src/test/ are able to
     # reference capnp files in src/ipc/capnp/ by relative path. The Cap'n Proto

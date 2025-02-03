@@ -269,7 +269,7 @@ if(WIN32)
   set_target_properties(BGL-qt PROPERTIES WIN32_EXECUTABLE TRUE)
 endif()
 
-if(WITH_MULTIPROCESS)
+if(ENABLE_IPC)
   add_executable(BGL-gui
     main.cpp
     ../init/BGL-gui.cpp

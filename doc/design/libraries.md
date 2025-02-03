@@ -8,7 +8,7 @@
 | *libBGL_crypto*      | Hardware-optimized functions for data encryption, hashing, message authentication, and key derivation. |
 | *libBGL_kernel*      | Consensus engine and support library used for validation by *libBGL_node*. |
 | *libBGLqt*           | GUI functionality used by *BGL-qt* and *BGL-gui* executables. |
-| *libBGL_ipc*         | IPC functionality used by *BGL-node*, *BGL-wallet*, *BGL-gui* executables to communicate when [`-DWITH_MULTIPROCESS=ON`](multiprocess.md) is used. |
+| *libBGL_ipc*         | IPC functionality used by *BGL-node*, *BGL-wallet*, *BGL-gui* executables to communicate when [`-DENABLE_IPC=ON`](multiprocess.md) is used. |
 | *libBGL_node*        | P2P and RPC server functionality used by *BGLd* and *BGL-qt* executables. |
 | *libBGL_util*        | Home for common functionality shared by different executables and libraries. Similar to *libBGL_common*, but lower-level (see [Dependencies](#dependencies)). |
 | *libBGL_wallet*      | Wallet functionality used by *BGLd* and *BGL-wallet* executables. |
