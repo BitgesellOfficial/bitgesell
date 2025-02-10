@@ -217,6 +217,59 @@ class TxDownloadTest(BGLTestFramework):
             self.nodes[0].setmocktime(mock_time + NONPREF_PEER_TX_DELAY)
             peer.wait_until(lambda: peer.tx_getdata_count >= 1, timeout=1)
 
+    def test_preferred_tiebreaker_inv(self):
+        self.log.info("Test that preferred peers are always selected over non-preferred when ready")
+
+        self.restart_node(0)
+        self.nodes[0].setmocktime(int(time.time()))
+
+        # Peer that is immediately asked, but never responds.
+        # This will set us up to have two ready requests, one
+        # of which is preferred and one which is not
+        unresponsive_peer = self.nodes[0].add_outbound_p2p_connection(
+           TestP2PConn(), wait_for_verack=True, p2p_idx=0, connection_type="outbound-full-relay")
+        unresponsive_peer.send_message(msg_inv([CInv(t=MSG_WTX, h=0xff00ff00)]))
+        unresponsive_peer.sync_with_ping()
+        unresponsive_peer.wait_until(lambda: unresponsive_peer.tx_getdata_count >= 1, timeout=1)
+
+        # A bunch of incoming (non-preferred) connections that advertise the same tx
+        non_pref_peers = []
+        NUM_INBOUND = 10
+        for _ in range(NUM_INBOUND):
+            non_pref_peers.append(self.nodes[0].add_p2p_connection(TestP2PConn()))
+            non_pref_peers[-1].send_message(msg_inv([CInv(t=MSG_WTX, h=0xff00ff00)]))
+            non_pref_peers[-1].sync_with_ping()
+
+        # Check that no request made due to in-flight
+        self.nodes[0].bumpmocktime(NONPREF_PEER_TX_DELAY)
+        with p2p_lock:
+            for peer in non_pref_peers:
+                    assert_equal(peer.tx_getdata_count, 0)
+
+        # Now add another outbound (preferred) which is immediately ready for consideration
+        # upon advertisement
+        pref_peer = self.nodes[0].add_outbound_p2p_connection(
+           TestP2PConn(), wait_for_verack=True, p2p_idx=1, connection_type="outbound-full-relay")
+        pref_peer.send_message(msg_inv([CInv(t=MSG_WTX, h=0xff00ff00)]))
+        pref_peer.sync_with_ping()
+
+        assert_equal(len(self.nodes[0].getpeerinfo()), NUM_INBOUND + 2)
+
+        # Still have to wait for in-flight to timeout
+        with p2p_lock:
+            assert_equal(pref_peer.tx_getdata_count, 0)
+
+        # Timeout in-flight
+        self.nodes[0].bumpmocktime(GETDATA_TX_INTERVAL - NONPREF_PEER_TX_DELAY)
+
+        # Preferred peers are *always* selected next if ready
+        pref_peer.wait_until(lambda: pref_peer.tx_getdata_count >= 1, timeout=10)
+
+        # And none for non-preferred
+        for non_pref_peer in non_pref_peers:
+            with p2p_lock:
+                assert_equal(non_pref_peer.tx_getdata_count, 0)
+
     def test_txid_inv_delay(self, glob_wtxid=False):
         self.log.info('Check that inv from a txid-relay peers are delayed by {} s, with a wtxid peer {}'.format(TXID_RELAY_DELAY, glob_wtxid))
         self.restart_node(0, extra_args=['-whitelist=noban@127.0.0.1'])
