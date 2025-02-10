@@ -73,20 +73,20 @@ BOOST_AUTO_TEST_CASE(package_hash_tests)
     CTransactionRef ptx_3{MakeTransactionRef(tx_3)};
 
     // It's easy to see that wtxids are sorted in lexicographical order:
-    Wtxid wtxid_1{Wtxid::FromHex("85cd1a31eb38f74ed5742ec9cb546712ab5aaf747de28a9168b53e846cbda17f").value()};
-    Wtxid wtxid_2{Wtxid::FromHex("b4749f017444b051c44dfd2720e88f314ff94f3dd6d56d40ef65854fcd7fff6b").value()};
-    Wtxid wtxid_3{Wtxid::FromHex("e065bac15f62bb4e761d761db928ddee65a47296b2b776785abb912cdec474e3").value()};
+    Wtxid wtxid_1{Wtxid::FromHex("8dc6bae3d8ebcb0ad5ac63f615c473d9e75d08efdd6c6f50388b0be2f6ea84e9").value()};
+    Wtxid wtxid_2{Wtxid::FromHex("c208f7a05ec5bc7428e8e30a86ede87deb4f5c3dfcf5f31cc665033578eaa026").value()};
+    Wtxid wtxid_3{Wtxid::FromHex("3c40c80b673623ec9d82a99b5d3672999f1cf58bb6565667e9364390576b5d06").value()};
     BOOST_CHECK_EQUAL(tx_1.GetWitnessHash(), wtxid_1);
     BOOST_CHECK_EQUAL(tx_2.GetWitnessHash(), wtxid_2);
     BOOST_CHECK_EQUAL(tx_3.GetWitnessHash(), wtxid_3);
 
     BOOST_CHECK(wtxid_1.GetHex() < wtxid_2.GetHex());
-    BOOST_CHECK(wtxid_2.GetHex() < wtxid_3.GetHex());
+    BOOST_CHECK(wtxid_3.GetHex() < wtxid_2.GetHex()); //Reversed because of Bitgesell
 
     // The txids are not (we want to test that sorting and hashing use wtxid, not txid):
-    Txid txid_1{Txid::FromHex("bd0f71c1d5e50589063e134fad22053cdae5ab2320db5bf5e540198b0b5a4e69").value()};
-    Txid txid_2{Txid::FromHex("b4749f017444b051c44dfd2720e88f314ff94f3dd6d56d40ef65854fcd7fff6b").value()};
-    Txid txid_3{Txid::FromHex("ee707be5201160e32c4fc715bec227d1aeea5940fb4295605e7373edce3b1a93").value()};
+    Txid txid_1{Txid::FromHex("cc96b47fb3e7d6b1a4d8951791797597e80a48f6abc86e2d4495982667b46aed").value()};
+    Txid txid_2{Txid::FromHex("c208f7a05ec5bc7428e8e30a86ede87deb4f5c3dfcf5f31cc665033578eaa026").value()};
+    Txid txid_3{Txid::FromHex("4f3bdaa8c4fa938ccca562391ea6eb98de8b9de8ed6a327c2df4b0dd14f918b6").value()};
     BOOST_CHECK_EQUAL(tx_1.GetHash(), txid_1);
     BOOST_CHECK_EQUAL(tx_2.GetHash(), txid_2);
     BOOST_CHECK_EQUAL(tx_3.GetHash(), txid_3);
@@ -94,12 +94,12 @@ BOOST_AUTO_TEST_CASE(package_hash_tests)
     BOOST_CHECK(txid_2.GetHex() < txid_1.GetHex());
 
     BOOST_CHECK(txid_1.ToUint256() != wtxid_1.ToUint256());
-    BOOST_CHECK(txid_2.ToUint256() == wtxid_3.ToUint256());
+    BOOST_CHECK(txid_2.ToUint256() == wtxid_2.ToUint256());
     BOOST_CHECK(txid_3.ToUint256() != wtxid_3.ToUint256());
 
     // We are testing that both functions compare using GetHex() and not uint256.
     // (in this pair of wtxids, hex string order != uint256 order)
-    BOOST_CHECK(wtxid_1 < wtxid_2);
+    BOOST_CHECK(wtxid_2 < wtxid_1);
     // (in this pair of wtxids, hex string order == uint256 order)
     BOOST_CHECK(wtxid_3 < wtxid_2);
 
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(package_hash_tests)
     std::vector<CTransactionRef> package_312{ptx_3, ptx_1, ptx_2};
     std::vector<CTransactionRef> package_321{ptx_3, ptx_2, ptx_1};
 
-    uint256 calculated_hash_123 = (CHashWriterSHA256(SER_GETHASH, 0) << wtxid_1 << wtxid_2 << wtxid_3).GetSHA256();
+    uint256 calculated_hash_123 = (CHashWriterSHA256(SER_GETHASH, 0) << wtxid_3 << wtxid_1 << wtxid_2).GetSHA256();
 
     uint256 hash_if_by_txid = (CHashWriterSHA256(SER_GETHASH, 0) << wtxid_2 << wtxid_1 << wtxid_3).GetSHA256();
     BOOST_CHECK(hash_if_by_txid != calculated_hash_123);
@@ -526,7 +526,7 @@ BOOST_AUTO_TEST_CASE(package_single_tx)
     auto mtx_parent = CreateValidMempoolTransaction(/*input_transaction=*/m_coinbase_txns[1], /*input_vout=*/0,
                                                     /*input_height=*/0, /*input_signing_key=*/coinbaseKey,
                                                     /*output_destination=*/parent_locking_script,
-                                                    /*output_amount=*/CAmount(50 * COIN) - high_fee, /*submit=*/false);
+                                                    /*output_amount=*/CAmount(200 * COIN) - high_fee, /*submit=*/false);
     CTransactionRef tx_parent = MakeTransactionRef(mtx_parent);
     Package package_just_parent{tx_parent};
     const auto result_just_parent = ProcessNewPackage(m_node.chainman->ActiveChainstate(), *m_node.mempool, package_just_parent, /*test_accept=*/false, /*client_maxfeerate=*/{});
@@ -547,7 +547,7 @@ BOOST_AUTO_TEST_CASE(package_single_tx)
     auto mtx_child = CreateValidMempoolTransaction(/*input_transaction=*/tx_parent, /*input_vout=*/0,
                                                    /*input_height=*/101, /*input_signing_key=*/parent_key,
                                                    /*output_destination=*/child_locking_script,
-                                                   /*output_amount=*/CAmount(50 * COIN) - 2 * high_fee, /*submit=*/false);
+                                                   /*output_amount=*/CAmount(200 * COIN) - 2 * high_fee, /*submit=*/false);
     CTransactionRef tx_child = MakeTransactionRef(mtx_child);
     Package package_just_child{tx_child};
     const auto result_just_child = ProcessNewPackage(m_node.chainman->ActiveChainstate(), *m_node.mempool, package_just_child, /*test_accept=*/false, /*client_maxfeerate=*/{});
