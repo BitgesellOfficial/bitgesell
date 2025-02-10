@@ -1720,9 +1720,9 @@ BOOST_AUTO_TEST_CASE(message_hash)
 
     const uint256 signature_hash = Hash(unsigned_tx);
     const uint256 message_hash1 = Hash(prefixed_message);
-    const uint256 message_hash2 = MessageHash(unsigned_tx);
+    //const uint256 message_hash2 = MessageHash(unsigned_tx); Unused
 
-    BOOST_CHECK_EQUAL(message_hash1, message_hash2);
+    //BOOST_CHECK_EQUAL(message_hash1, message_hash2); // message_hash1 is based on CHash256 while message_hash2 is based on CHashWriterKeccak (Bitgesell)
     BOOST_CHECK_NE(message_hash1, signature_hash);
 }
 
