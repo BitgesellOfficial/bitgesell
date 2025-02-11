@@ -2,7 +2,6 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or https://opensource.org/license/mit/.
 
-include(GNUInstallDirs)
 include(AddWindowsResources)
 
 configure_file(${PROJECT_SOURCE_DIR}/cmake/BGL-build-config.h.in BGL-build-config.h USE_SOURCE_PERMISSIONS @ONLY)
@@ -170,8 +169,8 @@ target_link_libraries(BGL_common
     $<$<PLATFORM_ID:Windows>:ws2_32>
 )
 
+include(InstallBinaryComponent)
 
-set(installable_targets)
 if(ENABLE_WALLET)
   add_subdirectory(wallet)
 
@@ -189,7 +188,11 @@ if(ENABLE_WALLET)
       BGL_util
       Boost::headers
     )
+<<<<<<< HEAD
     list(APPEND installable_targets BGL-wallet)
+=======
+    install_binary_component(bitcoin-wallet HAS_MANPAGE)
+>>>>>>> 2e0c92558e (cmake: add and use install_binary_component)
   endif()
 endif()
 
@@ -318,7 +321,11 @@ if(BUILD_DAEMON)
     BGL_node
     $<TARGET_NAME_IF_EXISTS:BGL_wallet>
   )
+<<<<<<< HEAD
   list(APPEND installable_targets BGLd)
+=======
+  install_binary_component(bitcoind HAS_MANPAGE)
+>>>>>>> 2e0c92558e (cmake: add and use install_binary_component)
 endif()
 if(WITH_MULTIPROCESS AND BUILD_DAEMON)
   add_executable(BGL-node
@@ -331,7 +338,11 @@ if(WITH_MULTIPROCESS AND BUILD_DAEMON)
     BGL_ipc
     $<TARGET_NAME_IF_EXISTS:BGL_wallet>
   )
+<<<<<<< HEAD
   list(APPEND installable_targets BGL-node)
+=======
+  install_binary_component(bitcoin-node)
+>>>>>>> 2e0c92558e (cmake: add and use install_binary_component)
 endif()
 
 if(WITH_MULTIPROCESS AND BUILD_TESTS)
@@ -374,7 +385,11 @@ if(BUILD_CLI)
     libevent::core
     libevent::extra
   )
+<<<<<<< HEAD
   list(APPEND installable_targets BGL-cli)
+=======
+  install_binary_component(bitcoin-cli HAS_MANPAGE)
+>>>>>>> 2e0c92558e (cmake: add and use install_binary_component)
 endif()
 
 
@@ -387,7 +402,11 @@ if(BUILD_TX)
     BGL_util
     univalue
   )
+<<<<<<< HEAD
   list(APPEND installable_targets BGL-tx)
+=======
+  install_binary_component(bitcoin-tx HAS_MANPAGE)
+>>>>>>> 2e0c92558e (cmake: add and use install_binary_component)
 endif()
 
 
@@ -399,7 +418,11 @@ if(BUILD_UTIL)
     BGL_common
     BGL_util
   )
+<<<<<<< HEAD
   list(APPEND installable_targets BGL-util)
+=======
+  install_binary_component(bitcoin-util HAS_MANPAGE)
+>>>>>>> 2e0c92558e (cmake: add and use install_binary_component)
 endif()
 
 
@@ -444,18 +467,4 @@ endif()
 
 if(BUILD_FUZZ_BINARY)
   add_subdirectory(test/fuzz)
-endif()
-
-
-install(TARGETS ${installable_targets}
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
-unset(installable_targets)
-
-if(INSTALL_MAN)
-  # TODO: these stubs are no longer needed. man pages should be generated at install time.
-  install(DIRECTORY ../doc/man/
-    DESTINATION ${CMAKE_INSTALL_MANDIR}/man1
-    FILES_MATCHING PATTERN *.1
-  )
 endif()

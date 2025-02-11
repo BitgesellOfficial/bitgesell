@@ -82,6 +82,4 @@ add_test(NAME bench_sanity_check_high_priority
   COMMAND bench_BGL -sanity-check -priority-level=high
 )
 
-install(TARGETS bench_BGL
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+install_binary_component(bench_BGL)
