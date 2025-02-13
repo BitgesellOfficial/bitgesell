@@ -134,13 +134,13 @@ class TxDownloadTest(BGLTestFramework):
         mock_time = int(time.time() + 1)
         self.nodes[0].setmocktime(mock_time)
         for i in range(MAX_PEER_TX_REQUEST_IN_FLIGHT):
-            p.send_message(msg_inv([CInv(t=MSG_WTX, h=txids[i])]))
+            p.send_without_ping(msg_inv([CInv(t=MSG_WTX, h=txids[i])]))
         p.sync_with_ping()
         mock_time += NONPREF_PEER_TX_DELAY
         self.nodes[0].setmocktime(mock_time)
         p.wait_until(lambda: p.tx_getdata_count >= MAX_PEER_TX_REQUEST_IN_FLIGHT)
         for i in range(MAX_PEER_TX_REQUEST_IN_FLIGHT, len(txids)):
-            p.send_message(msg_inv([CInv(t=MSG_WTX, h=txids[i])]))
+            p.send_without_ping(msg_inv([CInv(t=MSG_WTX, h=txids[i])]))
         p.sync_with_ping()
         self.log.info("No more than {} requests should be seen within {} seconds after announcement".format(MAX_PEER_TX_REQUEST_IN_FLIGHT, NONPREF_PEER_TX_DELAY + OVERLOADED_PEER_TX_DELAY - 1))
         self.nodes[0].setmocktime(mock_time + NONPREF_PEER_TX_DELAY + OVERLOADED_PEER_TX_DELAY - 1)
@@ -157,7 +157,7 @@ class TxDownloadTest(BGLTestFramework):
         peer1 = self.nodes[0].add_p2p_connection(TestP2PConn())
         peer2 = self.nodes[0].add_p2p_connection(TestP2PConn())
         for p in [peer1, peer2]:
-            p.send_message(msg_inv([CInv(t=MSG_WTX, h=WTXID)]))
+            p.send_without_ping(msg_inv([CInv(t=MSG_WTX, h=WTXID)]))
         # One of the peers is asked for the tx
         peer2.wait_until(lambda: sum(p.tx_getdata_count for p in [peer1, peer2]) == 1)
         with p2p_lock:
@@ -173,7 +173,7 @@ class TxDownloadTest(BGLTestFramework):
         peer1 = self.nodes[0].add_p2p_connection(TestP2PConn())
         peer2 = self.nodes[0].add_p2p_connection(TestP2PConn())
         for p in [peer1, peer2]:
-            p.send_message(msg_inv([CInv(t=MSG_WTX, h=WTXID)]))
+            p.send_without_ping(msg_inv([CInv(t=MSG_WTX, h=WTXID)]))
         # One of the peers is asked for the tx
         peer2.wait_until(lambda: sum(p.tx_getdata_count for p in [peer1, peer2]) == 1)
         with p2p_lock:
@@ -189,7 +189,7 @@ class TxDownloadTest(BGLTestFramework):
         peer1 = self.nodes[0].add_p2p_connection(TestP2PConn())
         peer2 = self.nodes[0].add_p2p_connection(TestP2PConn())
         for p in [peer1, peer2]:
-            p.send_message(msg_inv([CInv(t=MSG_WTX, h=WTXID)]))
+            p.send_without_ping(msg_inv([CInv(t=MSG_WTX, h=WTXID)]))
         # One of the peers is asked for the tx
         peer2.wait_until(lambda: sum(p.tx_getdata_count for p in [peer1, peer2]) == 1)
         with p2p_lock:
@@ -292,19 +292,19 @@ class TxDownloadTest(BGLTestFramework):
         self.log.info('Test how large inv batches are handled with relay permission')
         self.restart_node(0, extra_args=['-whitelist=relay@127.0.0.1'])
         peer = self.nodes[0].add_p2p_connection(TestP2PConn())
-        peer.send_message(msg_inv([CInv(t=MSG_WTX, h=wtxid) for wtxid in range(MAX_PEER_TX_ANNOUNCEMENTS + 1)]))
+        peer.send_without_ping(msg_inv([CInv(t=MSG_WTX, h=wtxid) for wtxid in range(MAX_PEER_TX_ANNOUNCEMENTS + 1)]))
         peer.wait_until(lambda: peer.tx_getdata_count == MAX_PEER_TX_ANNOUNCEMENTS + 1)
 
         self.log.info('Test how large inv batches are handled without relay permission')
         self.restart_node(0)
         peer = self.nodes[0].add_p2p_connection(TestP2PConn())
-        peer.send_message(msg_inv([CInv(t=MSG_WTX, h=wtxid) for wtxid in range(MAX_PEER_TX_ANNOUNCEMENTS + 1)]))
+        peer.send_without_ping(msg_inv([CInv(t=MSG_WTX, h=wtxid) for wtxid in range(MAX_PEER_TX_ANNOUNCEMENTS + 1)]))
         peer.wait_until(lambda: peer.tx_getdata_count == MAX_PEER_TX_ANNOUNCEMENTS)
         peer.sync_with_ping()
 
     def test_spurious_notfound(self):
         self.log.info('Check that spurious notfound is ignored')
-        self.nodes[0].p2ps[0].send_message(msg_notfound(vec=[CInv(MSG_TX, 1)]))
+        self.nodes[0].p2ps[0].send_without_ping(msg_notfound(vec=[CInv(MSG_TX, 1)]))
 
     def test_rejects_filter_reset(self):
         self.log.info('Check that rejected tx is not requested again')

@@ -210,8 +210,9 @@ class CompactFiltersTest(BGLTestFramework):
         ]
         for request in requests:
             peer_1 = self.nodes[1].add_p2p_connection(P2PInterface())
-            peer_1.send_message(request)
-            peer_1.wait_for_disconnect()
+            with self.nodes[1].assert_debug_log(expected_msgs=["requested unsupported block filter type"]):
+                peer_1.send_without_ping(request)
+                peer_1.wait_for_disconnect()
 
         self.log.info("Check that invalid requests result in disconnection.")
         requests = [
@@ -240,8 +241,9 @@ class CompactFiltersTest(BGLTestFramework):
         ]
         for request in requests:
             peer_0 = self.nodes[0].add_p2p_connection(P2PInterface())
-            peer_0.send_message(request)
-            peer_0.wait_for_disconnect()
+            with self.nodes[0].assert_debug_log(expected_msgs=[expected_log_msg]):
+                peer_0.send_without_ping(request)
+                peer_0.wait_for_disconnect()
 
         self.log.info("Test -peerblockfilters without -blockfilterindex raises an error")
         self.stop_node(0)
