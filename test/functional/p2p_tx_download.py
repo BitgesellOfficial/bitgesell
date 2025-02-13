@@ -206,10 +206,15 @@ class TxDownloadTest(BGLTestFramework):
             self.log.info('Check invs from non-preferred peers are downloaded after {} s'.format(NONPREF_PEER_TX_DELAY))
         mock_time = int(time.time() + 1)
         self.nodes[0].setmocktime(mock_time)
-        peer = self.nodes[0].add_p2p_connection(TestP2PConn())
-        peer.send_message(msg_inv([CInv(t=MSG_WTX, h=0xff00ff00)]))
-        peer.sync_with_ping()
-        if preferred:
+
+        if connection_type == ConnectionType.OUTBOUND:
+            peer = self.nodes[0].add_outbound_p2p_connection(
+               TestP2PConn(), wait_for_verack=True, p2p_idx=1, connection_type="outbound-full-relay")
+        else:
+            peer = self.nodes[0].add_p2p_connection(TestP2PConn())
+
+        peer.send_and_ping(msg_inv([CInv(t=MSG_WTX, h=0xff00ff00)]))
+        if connection_type != ConnectionType.INBOUND:
             peer.wait_until(lambda: peer.tx_getdata_count >= 1, timeout=1)
         else:
             with p2p_lock:
@@ -228,8 +233,7 @@ class TxDownloadTest(BGLTestFramework):
         # of which is preferred and one which is not
         unresponsive_peer = self.nodes[0].add_outbound_p2p_connection(
            TestP2PConn(), wait_for_verack=True, p2p_idx=0, connection_type="outbound-full-relay")
-        unresponsive_peer.send_message(msg_inv([CInv(t=MSG_WTX, h=0xff00ff00)]))
-        unresponsive_peer.sync_with_ping()
+        unresponsive_peer.send_and_ping(msg_inv([CInv(t=MSG_WTX, h=0xff00ff00)]))
         unresponsive_peer.wait_until(lambda: unresponsive_peer.tx_getdata_count >= 1, timeout=1)
 
         # A bunch of incoming (non-preferred) connections that advertise the same tx
@@ -237,8 +241,7 @@ class TxDownloadTest(BGLTestFramework):
         NUM_INBOUND = 10
         for _ in range(NUM_INBOUND):
             non_pref_peers.append(self.nodes[0].add_p2p_connection(TestP2PConn()))
-            non_pref_peers[-1].send_message(msg_inv([CInv(t=MSG_WTX, h=0xff00ff00)]))
-            non_pref_peers[-1].sync_with_ping()
+            non_pref_peers[-1].send_and_ping(msg_inv([CInv(t=MSG_WTX, h=0xff00ff00)]))
 
         # Check that no request made due to in-flight
         self.nodes[0].bumpmocktime(NONPREF_PEER_TX_DELAY)
@@ -250,8 +253,7 @@ class TxDownloadTest(BGLTestFramework):
         # upon advertisement
         pref_peer = self.nodes[0].add_outbound_p2p_connection(
            TestP2PConn(), wait_for_verack=True, p2p_idx=1, connection_type="outbound-full-relay")
-        pref_peer.send_message(msg_inv([CInv(t=MSG_WTX, h=0xff00ff00)]))
-        pref_peer.sync_with_ping()
+        pref_peer.send_and_ping(msg_inv([CInv(t=MSG_WTX, h=0xff00ff00)]))
 
         assert_equal(len(self.nodes[0].getpeerinfo()), NUM_INBOUND + 2)
 
@@ -280,8 +282,7 @@ class TxDownloadTest(BGLTestFramework):
             # Add a second wtxid-relay connection otherwise TXID_RELAY_DELAY is waived in
             # lack of wtxid-relay peers
             self.nodes[0].add_p2p_connection(TestP2PConn(wtxidrelay=True))
-        peer.send_message(msg_inv([CInv(t=MSG_TX, h=0xff11ff11)]))
-        peer.sync_with_ping()
+        peer.send_and_ping(msg_inv([CInv(t=MSG_TX, h=0xff11ff11)]))
         with p2p_lock:
             assert_equal(peer.tx_getdata_count, 0 if glob_wtxid else 1)
         self.nodes[0].setmocktime(mock_time + TXID_RELAY_DELAY)
