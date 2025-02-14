@@ -123,14 +123,14 @@ if(NOT BUILD_SHARED_LIBS)
   set(all_kernel_static_link_libs "")
   get_target_static_link_libs(BGLkernel all_kernel_static_link_libs)
 
-  install(TARGETS ${all_kernel_static_link_libs} ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT BGLkernel)
+  install(TARGETS ${all_kernel_static_link_libs} ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT libBGLkernel)
   list(TRANSFORM all_kernel_static_link_libs PREPEND "-l")
   # LIBS_PRIVATE is substituted in the pkg-config file.
   list(JOIN all_kernel_static_link_libs " " LIBS_PRIVATE)
 endif()
 
 configure_file(${PROJECT_SOURCE_DIR}/libBGLkernel.pc.in ${PROJECT_BINARY_DIR}/libBGLkernel.pc @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/libBGLkernel.pc DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT BGLkernel)
+install(FILES ${PROJECT_BINARY_DIR}/libBGLkernel.pc DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT libBGLkernel)
 
 # Add a convenience libbitcoinkernel target as a synonym for bitcoinkernel.
 add_custom_target(libBGLkernel)
@@ -139,11 +139,11 @@ add_dependencies(libBGLkernel BGLkernel)
 install(TARGETS BGLkernel
   RUNTIME
     DESTINATION ${CMAKE_INSTALL_BINDIR}
-    COMPONENT BGLkernel
+    COMPONENT libBGLkernel
   LIBRARY
     DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    COMPONENT BGLkernel
+    COMPONENT libBGLkernel
   ARCHIVE
     DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    COMPONENT BGLkernel
+    COMPONENT libBGLkernel
 )
