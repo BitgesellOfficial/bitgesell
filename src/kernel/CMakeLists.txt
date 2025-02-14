@@ -132,6 +132,10 @@ endif()
 configure_file(${PROJECT_SOURCE_DIR}/libBGLkernel.pc.in ${PROJECT_BINARY_DIR}/libBGLkernel.pc @ONLY)
 install(FILES ${PROJECT_BINARY_DIR}/libBGLkernel.pc DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT BGLkernel)
 
+# Add a convenience libbitcoinkernel target as a synonym for bitcoinkernel.
+add_custom_target(libBGLkernel)
+add_dependencies(libBGLkernel BGLkernel)
+
 install(TARGETS BGLkernel
   RUNTIME
     DESTINATION ${CMAKE_INSTALL_BINDIR}
