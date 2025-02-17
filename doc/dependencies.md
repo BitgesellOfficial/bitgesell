@@ -1,12 +1,13 @@
 # Dependencies
 
-These are the dependencies used by BGL Core.
-You can find installation instructions in the `build-*.md` file for your platform.
-"Runtime" and "Version Used" are both in reference to the release binaries.
+These are the dependencies used by Bitgesell Core.
+You can find installation instructions in the `/doc/build-*.md` file for your platform, or self-compile
+them using [depends](/depends/README.md). "Runtime" and "Version Used" are both in reference to the
+release binaries.
 
 ## Compiler
 
-Bitcoin Core requires one of the following compilers.
+Bitgesell Core requires one of the following compilers.
 
 | Dependency | Minimum required |
 | --- | --- |
