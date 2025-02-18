@@ -1044,10 +1044,20 @@ bool AppInitParameterInteraction(const ArgsManager& args)
         }
     }
 
-    if (args.IsArgSet("-blockmaxweight")) {
+    {
         const auto max_block_weight = args.GetIntArg("-blockmaxweight", DEFAULT_BLOCK_MAX_WEIGHT);
         if (max_block_weight > MAX_BLOCK_WEIGHT) {
             return InitError(strprintf(_("Specified -blockmaxweight (%d) exceeds consensus maximum block weight (%d)"), max_block_weight, MAX_BLOCK_WEIGHT));
+        }
+    }
+
+    {
+        const auto block_reserved_weight = args.GetIntArg("-blockreservedweight", DEFAULT_BLOCK_RESERVED_WEIGHT);
+        if (block_reserved_weight > MAX_BLOCK_WEIGHT) {
+            return InitError(strprintf(_("Specified -blockreservedweight (%d) exceeds consensus maximum block weight (%d)"), block_reserved_weight, MAX_BLOCK_WEIGHT));
+        }
+        if (block_reserved_weight < MINIMUM_BLOCK_RESERVED_WEIGHT) {
+            return InitError(strprintf(_("Specified -blockreservedweight (%d) is lower than minimum safety value of (%d)"), block_reserved_weight, MINIMUM_BLOCK_RESERVED_WEIGHT));
         }
     }
 
