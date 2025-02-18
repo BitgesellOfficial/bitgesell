@@ -84,7 +84,7 @@ brew install berkeley-db@4
 
 ###### Qt
 
-Bitcoin Core includes a GUI built with the cross-platform Qt Framework. To compile the GUI, we need to install
+Bitgesell Core includes a GUI built with the cross-platform Qt Framework. To compile the GUI, we need to install
 Qt, libqrencode and pass `-DBUILD_GUI=ON`. Skip if you don't intend to use the GUI.
 
 ``` bash
@@ -197,8 +197,8 @@ cmake --build build --target deploy
     make deploy
     ```
 
-Bitcoin Core should now be available at `./build/src/BGLd`.
-If you compiled support for the GUI, it should be available at `./build/src/qt/BGL-qt`.
+Bitgesell Core should now be available at `./build/bin/BGLd`.
+If you compiled support for the GUI, it should be available at `./build/bin/BGL-qt`.
 
 In this case there is no dependency on [*Berkeley DB*](#berkeley-db) and [*SQLite*](#sqlite).
 
@@ -226,10 +226,10 @@ tail -f $HOME/Library/Application\ Support/BGL/debug.log
 
 ## Other commands:
 ```shell
-./build/src/BGLd -daemon      # Starts the bitcoin daemon.
-./build/src/BGL-cli --help    # Outputs a list of command-line options.
-./build/src/BGL-cli help      # Outputs a list of RPC commands when the daemon is running.
-./build/src/qt/BGL-qt -server # Starts the bitcoin-qt server mode, allows bitcoin-cli control
+./build/bin/BGLd -daemon      # Starts the bitcoin daemon.
+./build/bin/BGL-cli --help    # Outputs a list of command-line options.
+./build/bin/BGL-cli help      # Outputs a list of RPC commands when the daemon is running.
+./build/bin/BGL-qt -server # Starts the bitcoin-qt server mode, allows bitcoin-cli control
 ```
 
 ## Notes

@@ -18,7 +18,7 @@ and lock analysis.
 
 After compiling BGL-core, the benchmarks can be run with:
 
-    build/src/bench/bench_BGL
+    build/bin/bench_BGL
 
 The output will look similar to:
 ```
@@ -40,7 +40,7 @@ The output will look similar to:
 Help
 ---------------------
 
-    build/src/bench/bench_BGL -h
+    build/bin/bench_BGL -h
 
 To print the various options, like listing the benchmarks without running them
 or using a regex filter to only run certain benchmarks.

@@ -16,7 +16,7 @@ The examples in this document assume the build directory is named
 ### Compiling/running unit tests
 
 Unit tests will be automatically compiled if dependencies were met
-during the generation of the Bitcoin Core build system
+during the generation of the Bitgesell Core build system
 and tests weren't explicitly disabled.
 
 The unit tests can be run with `ctest --test-dir build`, which includes unit
@@ -24,7 +24,7 @@ tests from subtrees.
 
 Run `test_BGL --list_content` for the full list of tests.
 
-To run the unit tests manually, launch `build/src/test/test_BGL`. To recompile
+To run the unit tests manually, launch `build/bin/test_BGL`. To recompile
 after a test file was modified, run `cmake --build build` and then run the test again. If you
 modify a non-test file, use `cmake --build build --target test_BGL` to recompile only what's needed
 to run the unit tests.
@@ -33,7 +33,7 @@ To add more BGLd tests, add `BOOST_AUTO_TEST_CASE` functions to the existing
 .cpp files in the `test/` directory or add new .cpp files that
 implement new `BOOST_AUTO_TEST_SUITE` sections.
 
-To run the GUI unit tests manually, launch `build/src/qt/test/test_BGL-qt`
+To run the GUI unit tests manually, launch `build/bin/test_BGL-qt`
 
 To add more BGL-qt tests, add them to the `src/qt/test/` directory and
 the `src/qt/test/test_main.cpp` file.
@@ -50,19 +50,19 @@ test_BGL --help
 For example, to run only the tests in the `getarg_tests` file, with full logging:
 
 ```bash
-build/src/test/test_BGL --log_level=all --run_test=getarg_tests
+build/bin/test_BGL --log_level=all --run_test=getarg_tests
 ```
 
 or
 
 ```bash
-build/src/test/test_BGL -l all -t getarg_tests
+build/bin/test_BGL -l all -t getarg_tests
 ```
 
 or to run only the doubledash test in `getarg_tests`
 
 ```bash
-build/src/test/test_BGL --run_test=getarg_tests/doubledash
+build/bin/test_BGL --run_test=getarg_tests/doubledash
 ```
 
 The `--log_level=` (or `-l`) argument controls the verbosity of the test output.
@@ -71,8 +71,15 @@ The `test_BGL` runner also accepts some of the command line arguments accepted b
 `BGLd`. Use `--` to separate these sets of arguments:
 
 ```bash
-build/src/test/test_BGL --log_level=all --run_test=getarg_tests -- -printtoconsole=1
-generated pathname within `test_common bitgesell/`, which in turn is within
+build/bin/test_BGL --log_level=all --run_test=getarg_tests -- -printtoconsole=1
+```
+
+The `-printtoconsole=1` after the two dashes sends debug logging, which
+normally goes only to `debug.log` within the data directory, to the
+standard terminal output as well.
+
+Running `test_BGL` creates a temporary working (data) directory with a randomly
+generated pathname within `test_common BGL/`, which in turn is within
 the system's temporary directory (see
 [`temp_directory_path`](https://en.cppreference.com/w/cpp/filesystem/temp_directory_path)).
 This data directory looks like a simplified form of the standard `BGLd` data
@@ -90,8 +97,8 @@ what the test wrote to `debug.log` after it completes, for example.
 so no leftover state is used.)
 
 ```bash
-$ build/src/test/test_BGL --run_test=getarg_tests/doubledash -- -testdatadir=/somewhere/mydatadir
-Test directory (will not be deleted): "/somewhere/mydatadir/test_common bitgesell/getarg_tests/doubledash/datadir"
+$ build/bin/test_BGL --run_test=getarg_tests/doubledash -- -testdatadir=/somewhere/mydatadir
+Test directory (will not be deleted): "/somewhere/mydatadir/test_common BGL/getarg_tests/doubledash/datadir"
 Running 1 test case...
 
 *** No errors detected
@@ -130,13 +137,13 @@ For debugging you can launch the `test_BGL` executable with `gdb` or `lldb` and
 start debugging, just like you would with any other program:
 
 ```bash
-gdb build/src/test/test_BGL
+gdb build/bin/test_BGL
 ```
 
 #### Segmentation faults
 
 If you hit a segmentation fault during a test run, you can diagnose where the fault
-is happening by running `gdb ./build/src/test/test_BGL` and then using the `bt` command
+is happening by running `gdb ./build/bin/test_BGL` and then using the `bt` command
 within gdb.
 
 Another tool that can be used to resolve segmentation faults is
@@ -154,7 +161,7 @@ Running the tests and hitting a segmentation fault should now produce a file cal
 
 You can then explore the core dump using
 ```bash
-gdb build/src/test/test_BGL core
+gdb build/bin/test_BGL core
 
 (gdb) bt  # produce a backtrace for where a segfault occurred
 ```

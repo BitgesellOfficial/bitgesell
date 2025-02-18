@@ -475,10 +475,10 @@ which includes known Valgrind warnings in our dependencies that cannot be fixed
 in-tree. Example use:
 
 ```shell
-$ valgrind --suppressions=contrib/valgrind.supp build/src/test/test_BGL
+$ valgrind --suppressions=contrib/valgrind.supp build/bin/test_BGL
 $ valgrind --suppressions=contrib/valgrind.supp --leak-check=full \
-      --show-leak-kinds=all build/src/test/test_BGL --log_level=test_suite
-$ valgrind -v --leak-check=full build/src/BGLd -printtoconsole
+      --show-leak-kinds=all build/bin/test_BGL --log_level=test_suite
+$ valgrind -v --leak-check=full build/bin/BGLd -printtoconsole
 $ ./build/test/functional/test_runner.py --valgrind
 ```
 
