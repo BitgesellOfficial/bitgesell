@@ -9,12 +9,12 @@ import tempfile
 import argparse
 
 BINARIES = [
-'src/BGLd',
-'src/BGL-cli',
-'src/BGL-tx',
-'src/BGL-wallet',
-'src/BGL-util',
-'src/qt/BGL-qt',
+'bin/BGLd',
+'bin/BGL-cli',
+'bin/BGL-tx',
+'bin/BGL-wallet',
+'bin/BGL-util',
+'bin/BGL-qt',
 ]
 
 parser = argparse.ArgumentParser(
