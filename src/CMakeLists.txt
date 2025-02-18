@@ -13,7 +13,7 @@ add_custom_target(generate_build_info
   COMMENT "Generating BGL-build-info.h"
   VERBATIM
 )
-add_library(BGL_clientversion OBJECT EXCLUDE_FROM_ALL
+add_library(BGL_clientversion STATIC EXCLUDE_FROM_ALL
   clientversion.cpp
 )
 target_link_libraries(BGL_clientversion
@@ -187,11 +187,7 @@ if(ENABLE_WALLET)
       BGL_util
       Boost::headers
     )
-<<<<<<< HEAD
-    list(APPEND installable_targets BGL-wallet)
-=======
-    install_binary_component(bitcoin-wallet HAS_MANPAGE)
->>>>>>> 2e0c92558e (cmake: add and use install_binary_component)
+    install_binary_component(BGL-wallet HAS_MANPAGE)
   endif()
 endif()
 
@@ -321,11 +317,7 @@ if(BUILD_DAEMON)
     BGL_node
     $<TARGET_NAME_IF_EXISTS:BGL_wallet>
   )
-<<<<<<< HEAD
-  list(APPEND installable_targets BGLd)
-=======
-  install_binary_component(bitcoind HAS_MANPAGE)
->>>>>>> 2e0c92558e (cmake: add and use install_binary_component)
+  install_binary_component(BGLd HAS_MANPAGE)
 endif()
 if(WITH_MULTIPROCESS AND BUILD_DAEMON)
   add_executable(BGL-node
@@ -338,11 +330,7 @@ if(WITH_MULTIPROCESS AND BUILD_DAEMON)
     BGL_ipc
     $<TARGET_NAME_IF_EXISTS:BGL_wallet>
   )
-<<<<<<< HEAD
-  list(APPEND installable_targets BGL-node)
-=======
-  install_binary_component(bitcoin-node)
->>>>>>> 2e0c92558e (cmake: add and use install_binary_component)
+  install_binary_component(BGL-node)
 endif()
 
 if(WITH_MULTIPROCESS AND BUILD_TESTS)
@@ -385,11 +373,7 @@ if(BUILD_CLI)
     libevent::core
     libevent::extra
   )
-<<<<<<< HEAD
-  list(APPEND installable_targets BGL-cli)
-=======
-  install_binary_component(bitcoin-cli HAS_MANPAGE)
->>>>>>> 2e0c92558e (cmake: add and use install_binary_component)
+  install_binary_component(BGL-cli HAS_MANPAGE)
 endif()
 
 
@@ -402,11 +386,7 @@ if(BUILD_TX)
     BGL_util
     univalue
   )
-<<<<<<< HEAD
-  list(APPEND installable_targets BGL-tx)
-=======
-  install_binary_component(bitcoin-tx HAS_MANPAGE)
->>>>>>> 2e0c92558e (cmake: add and use install_binary_component)
+  install_binary_component(BGL-tx HAS_MANPAGE)
 endif()
 
 
@@ -418,11 +398,7 @@ if(BUILD_UTIL)
     BGL_common
     BGL_util
   )
-<<<<<<< HEAD
-  list(APPEND installable_targets BGL-util)
-=======
-  install_binary_component(bitcoin-util HAS_MANPAGE)
->>>>>>> 2e0c92558e (cmake: add and use install_binary_component)
+  install_binary_component(BGL-util HAS_MANPAGE)
 endif()
 
 
