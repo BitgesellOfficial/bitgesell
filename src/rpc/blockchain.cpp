@@ -288,13 +288,8 @@ static RPCHelpMan waitfornewblock()
     NodeContext& node = EnsureAnyNodeContext(request.context);
     Mining& miner = EnsureMining(node);
 
-    // Abort if RPC came out of warmup too early
-    BlockRef current_block{CHECK_NONFATAL(miner.getTip()).value()};
-    std::optional<BlockRef> block = timeout ? miner.waitTipChanged(current_block.hash, std::chrono::milliseconds(timeout)) :
-                                              miner.waitTipChanged(current_block.hash);
-
-    // Return current block upon shutdown
-    if (block) current_block = *block;
+    auto block{CHECK_NONFATAL(miner.getTip()).value()};
+    block = timeout ? miner.waitTipChanged(block.hash, std::chrono::milliseconds(timeout)) : miner.waitTipChanged(block.hash);
 
     UniValue ret(UniValue::VOBJ);
     ret.pushKV("hash", current_block.hash.GetHex());
@@ -341,8 +336,7 @@ static RPCHelpMan waitforblock()
     BlockRef current_block{CHECK_NONFATAL(miner.getTip()).value()};
 
     const auto deadline{std::chrono::steady_clock::now() + 1ms * timeout};
-    while (current_block.hash != hash) {
-        std::optional<BlockRef> block;
+    while (block.hash != hash) {
         if (timeout) {
             auto now{std::chrono::steady_clock::now()};
             if (now >= deadline) break;
@@ -403,8 +397,7 @@ static RPCHelpMan waitforblockheight()
 
     const auto deadline{std::chrono::steady_clock::now() + 1ms * timeout};
 
-    while (current_block.height < height) {
-        std::optional<BlockRef> block;
+    while (block.height < height) {
         if (timeout) {
             auto now{std::chrono::steady_clock::now()};
             if (now >= deadline) break;
