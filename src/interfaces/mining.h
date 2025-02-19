@@ -98,8 +98,7 @@ public:
      *                        for the chain tip to differ from this.
      * @param[in] timeout     how long to wait for a new tip (default is forever)
      *
-     * @retval BlockRef hash and height of the current chain tip after this call.
-     * @retval std::nullopt if the node is shut down.
+     * @returns               Hash and height of the current chain tip after this call.
      */
     virtual std::optional<BlockRef> waitTipChanged(uint256 current_tip, MillisecondsDouble timeout = MillisecondsDouble::max()) = 0;
 
