@@ -169,6 +169,14 @@ QT_TRANSLATE_NOOP("BGL-core", ""
 "SQLiteDatabase: Unknown sqlite wallet schema version %d. Only version %d is "
 "supported"),
 QT_TRANSLATE_NOOP("BGL-core", ""
+"Specified -blockmaxweight (%d) exceeds consensus maximum block weight (%d)"),
+QT_TRANSLATE_NOOP("BGL-core", ""
+"Specified -blockreservedweight (%d) exceeds consensus maximum block weight "
+"(%d)"),
+QT_TRANSLATE_NOOP("BGL-core", ""
+"Specified -blockreservedweight (%d) is lower than minimum safety value of "
+"(%d)"),
+QT_TRANSLATE_NOOP("BGL-core", ""
 "The block database contains a block which appears to be from the future. "
 "This may be due to your computer's date and time being set incorrectly. Only "
 "rebuild the block database if you are sure that your computer's date and "
