@@ -59,8 +59,8 @@ Implementation details
   * Optional runtime blinding which attempts to frustrate differential power analysis.
   * The precomputed tables add and eventually subtract points for which no known scalar (secret key) is known, preventing even an attacker with control over the secret key used to control the data internally.
 
-Obtaining and verifying
------------------------
+Bitgesell Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
+information or see https://opensource.org/license/MIT.
 
 The git tag for each release (e.g. `v0.6.0`) is GPG-signed by one of the maintainers.
 For a fully verified build of this project, it is recommended to obtain this repository
