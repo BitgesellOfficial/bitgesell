@@ -74,6 +74,4 @@ specifically aimed at exploring the possible input space.
 Going Further
 --------------------
 
-To monitor BGL Core performance more in depth (like reindex or IBD): https://github.com/chaincodelabs/BGLperf
-
-To generate Flame Graphs for BGL Core: https://github.com/eklitzke/BGL/blob/flamegraphs/doc/flamegraphs.md
+To monitor Bitcoin Core performance more in depth (like reindex or IBD): https://github.com/bitcoin-dev-tools/benchcoin
