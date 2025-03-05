@@ -50,7 +50,7 @@
     </message>
     </context>
 <context>
-    <name>BitcoinGUI</name>
+    <name>BitgesellGUI</name>
     <message>
         <source>Change the passphrase used for wallet encryption</source>
         <translation type="unfinished">เปลี่ยนรหัสผ่านที่ใช้สำหรับการเข้ารหัสกระเป๋าเงิน</translation>
@@ -60,12 +60,12 @@
         <translation type="unfinished">เข้ารหัสกุญแจส่วนตัวที่เป็นของกระเป๋าสตางค์ของคุณ</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation type="unfinished">เซ็นชื่อด้วยข้อความ ที่เก็บ Bitcoin เพื่อแสดงว่าท่านเป็นเจ้าของ bitgesell นี้จริง</translation>
+        <source>Sign messages with your Bitgesell addresses to prove you own them</source>
+        <translation type="unfinished">เซ็นชื่อด้วยข้อความ ที่เก็บ Bitgesell เพื่อแสดงว่าท่านเป็นเจ้าของ bitgesell นี้จริง</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Bitcoin addresses</source>
-        <translation type="unfinished">ตรวจสอบ ข้อความ เพื่อให้แน่ใจว่า การเซ็นต์ชื่อ ด้วยที่เก็บ Bitcoin แล้ว</translation>
+        <source>Verify messages to ensure they were signed with specified Bitgesell addresses</source>
+        <translation type="unfinished">ตรวจสอบ ข้อความ เพื่อให้แน่ใจว่า การเซ็นต์ชื่อ ด้วยที่เก็บ Bitgesell แล้ว</translation>
     </message>
     <message>
         <source>&amp;File</source>
@@ -193,10 +193,10 @@
         <translation type="unfinished">โหลดสำรองข้อมูลวอลเล็ต</translation>
     </message>
     <message numerus="yes">
-        <source>%n active connection(s) to Bitcoin network.</source>
+        <source>%n active connection(s) to Bitgesell network.</source>
         <extracomment>A substring of the tooltip.</extracomment>
         <translation type="unfinished">
-            <numerusform>%n active connection(s) to Bitcoin network.</numerusform>
+            <numerusform>%n active connection(s) to Bitgesell network.</numerusform>
         </translation>
     </message>
     <message>

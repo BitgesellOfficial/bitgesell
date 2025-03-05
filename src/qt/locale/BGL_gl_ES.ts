@@ -439,8 +439,8 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
         <translation type="unfinished">&amp;Cambiar a frase de contrasinal...</translation>
     </message>
     <message>
-        <source>Sign messages with your Bitcoin addresses to prove you own them</source>
-        <translation type="unfinished">Asina mensaxes cos teus enderezos de Bitcoin para probar que che pertencen</translation>
+        <source>Sign messages with your Bitgesell addresses to prove you own them</source>
+        <translation type="unfinished">Asina mensaxes cos teus enderezos de Bitgesell para probar que che pertencen</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>

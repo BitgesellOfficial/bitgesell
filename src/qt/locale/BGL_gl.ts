@@ -452,7 +452,7 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
     </message>
     <message>
         <source>Sign messages with your Bitgesells addresses to prove you own them</source>
-        <translation type="unfinished">Asina mensaxes cos teus enderezos Bitcoin para probar que che pertencen</translation>
+        <translation type="unfinished">Asina mensaxes cos teus enderezos Bitgesell para probar que che pertencen</translation>
     </message>
     <message>
         <source>&amp;Verify message…</source>
@@ -1049,14 +1049,6 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
     <message>
         <source>Expert</source>
         <translation type="unfinished">Experto</translation>
-    </message>
-    <message>
-        <source>Automatically open the Bitgesell client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation type="unfinished">Abrir automáticamente o porto do cliente Bitgesell no router. Esto so funciona se o teu router soporta UPnP e está habilitado.</translation>
-    </message>
-    <message>
-        <source>Map port using &amp;UPnP</source>
-        <translation type="unfinished">Mapear porto empregando &amp;UPnP</translation>
     </message>
     <message>
         <source>Proxy &amp;IP:</source>
@@ -2042,10 +2034,6 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
         <translation type="unfinished">Detectada base de datos de bloques corrupta.</translation>
     </message>
     <message>
-        <source>Do you want to rebuild the block database now?</source>
-        <translation type="unfinished">Queres reconstruír a base de datos de bloques agora?</translation>
-    </message>
-    <message>
         <source>Done loading</source>
         <translation type="unfinished">Carga completa</translation>
     </message>
@@ -2076,10 +2064,6 @@ Firmar é posible unicamente con enderezos de tipo 'legacy'.</translation>
     <message>
         <source>Insufficient funds</source>
         <translation type="unfinished">Fondos insuficientes</translation>
-    </message>
-    <message>
-        <source>Not enough file descriptors available.</source>
-        <translation type="unfinished">Non hai suficientes descritores de arquivo dispoñibles.</translation>
     </message>
     <message>
         <source>Signing transaction failed</source>

@@ -574,16 +574,16 @@ L-iffirmar huwa possibbli biss b'indirizzi tat-tip 'legacy'.</translation>
         <translation type="unfinished">Aġġornat</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction</source>
-        <translation type="unfinished">Tagħbija Transazzjoni Bitcoin iffirmata parzjalment</translation>
+        <source>Load Partially Signed Bitgesell Transaction</source>
+        <translation type="unfinished">Tagħbija Transazzjoni Bitgesell iffirmata parzjalment</translation>
     </message>
     <message>
         <source>Load PSBT from &amp;clipboard…</source>
         <translation type="unfinished">Tagħbija PSBT minn &amp;clipboard...</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
-        <translation type="unfinished">Tagħbija Transazzjoni Bitcoin iffirmata parzjalment mill-clipboard</translation>
+        <source>Load Partially Signed Bitgesell Transaction from clipboard</source>
+        <translation type="unfinished">Tagħbija Transazzjoni Bitgesell iffirmata parzjalment mill-clipboard</translation>
     </message>
     <message>
         <source>Node window</source>

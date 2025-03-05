@@ -646,7 +646,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">עדכני</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction</source>
+        <source>Load Partially Signed Bitgesell Transaction</source>
         <translation type="unfinished">העלה עיסקת ביטקוין חתומה חלקית</translation>
     </message>
     <message>
@@ -654,7 +654,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">העלאת PSBT מהקליפבורד...</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
+        <source>Load Partially Signed Bitgesell Transaction from clipboard</source>
         <translation type="unfinished">טעינת עסקת ביטקוין חתומה חלקית מלוח הגזירים</translation>
     </message>
     <message>
@@ -1487,14 +1487,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>&amp;Spend unconfirmed change</source>
         <translation type="unfinished">עודף &amp;בלתי מאושר מההשקעה</translation>
-    </message>
-    <message>
-        <source>Automatically open the Bitgesell client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation type="unfinished">פתיחת הפתחה של ביטקוין בנתב באופן אוטומטי. עובד רק אם UPnP מופעל ונתמך בנתב.</translation>
-    </message>
-    <message>
-        <source>Map port using &amp;UPnP</source>
-        <translation type="unfinished">מיפוי פתחה באמצעות UPnP</translation>
     </message>
     <message>
         <source>Accept connections from outside.</source>
@@ -3400,10 +3392,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">%s משובש. נסו להשתמש בכלי הארנק bitgesell-wallet כדי להציל או לשחזר מגיבוי..</translation>
     </message>
     <message>
-        <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
-        <translation type="unfinished">לא ניתן לנעול את תיקיית הנתונים %s‏. %s כנראה כבר רץ.</translation>
-    </message>
-    <message>
         <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
         <translation type="unfinished">מופץ תחת רשיון התוכנה של MIT, ראה קובץ מלווה  %s או %s</translation>
     </message>
@@ -3484,10 +3472,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">לא מצליח להגדיר את  -peerblockfilters ללא-blockfilterindex.</translation>
     </message>
     <message>
-        <source>Cannot write to data directory '%s'; check permissions.</source>
-        <translation type="unfinished">לא ניתן לכתוב אל תיקיית הנתונים ‚%s’, נא לבדוק את ההרשאות.</translation>
-    </message>
-    <message>
         <source>Config setting for %s only applied on %s network when in [%s] section.</source>
         <translation type="unfinished">הגדרות הקונפיג עבור %s מיושמות רק  %s הרשת כאשר בקבוצה [%s] .</translation>
     </message>
@@ -3510,10 +3494,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Disk space is too low!</source>
         <translation type="unfinished">אין מספיק מקום בכונן!</translation>
-    </message>
-    <message>
-        <source>Do you want to rebuild the block database now?</source>
-        <translation type="unfinished">האם לבנות מחדש את מסד נתוני המקטעים?</translation>
     </message>
     <message>
         <source>Done loading</source>
@@ -3618,10 +3598,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Need to specify a port with -whitebind: '%s'</source>
         <translation type="unfinished">יש לציין פתחה עם ‎-whitebind:‏ '%s'</translation>
-    </message>
-    <message>
-        <source>Not enough file descriptors available.</source>
-        <translation type="unfinished">אין מספיק מידע על הקובץ</translation>
     </message>
     <message>
         <source>Prune cannot be configured with a negative value.</source>

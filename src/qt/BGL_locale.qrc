@@ -2,6 +2,8 @@
     <qresource prefix="/translations">
         <file alias="am">locale/BGL_am.qm</file>
         <file alias="ar">locale/BGL_ar.qm</file>
+        <file alias="ast_ES">locale/BGL_ast_ES.qm</file>
+        <file alias="ay">locale/BGL_ay.qm</file>
         <file alias="az">locale/BGL_az.qm</file>
         <file alias="az@latin">locale/BGL_az@latin.qm</file>
         <file alias="be">locale/BGL_be.qm</file>
@@ -24,7 +26,6 @@
         <file alias="es_CL">locale/BGL_es_CL.qm</file>
         <file alias="es_CO">locale/BGL_es_CO.qm</file>
         <file alias="es_DO">locale/BGL_es_DO.qm</file>
-        <file alias="es_MX">locale/BGL_es_MX.qm</file>
         <file alias="es_SV">locale/BGL_es_SV.qm</file>
         <file alias="es_VE">locale/BGL_es_VE.qm</file>
         <file alias="et">locale/BGL_et.qm</file>
@@ -80,18 +81,22 @@
         <file alias="ne">locale/BGL_ne.qm</file>
         <file alias="nl">locale/BGL_nl.qm</file>
         <file alias="no">locale/BGL_no.qm</file>
+        <file alias="or">locale/BGL_or.qm</file>
         <file alias="pa">locale/BGL_pa.qm</file>
         <file alias="pam">locale/BGL_pam.qm</file>
         <file alias="pl">locale/BGL_pl.qm</file>
+        <file alias="ps">locale/BGL_ps.qm</file>
         <file alias="pt">locale/BGL_pt.qm</file>
         <file alias="pt_BR">locale/BGL_pt_BR.qm</file>
         <file alias="ro">locale/BGL_ro.qm</file>
         <file alias="ru">locale/BGL_ru.qm</file>
+        <file alias="sa">locale/BGL_sa.qm</file>
         <file alias="sc">locale/BGL_sc.qm</file>
         <file alias="sd">locale/BGL_sd.qm</file>
         <file alias="si">locale/BGL_si.qm</file>
         <file alias="sk">locale/BGL_sk.qm</file>
         <file alias="sl">locale/BGL_sl.qm</file>
+        <file alias="sm">locale/BGL_sm.qm</file>
         <file alias="sn">locale/BGL_sn.qm</file>
         <file alias="so">locale/BGL_so.qm</file>
         <file alias="sq">locale/BGL_sq.qm</file>
@@ -106,6 +111,7 @@
         <file alias="th">locale/BGL_th.qm</file>
         <file alias="tk">locale/BGL_tk.qm</file>
         <file alias="tl">locale/BGL_tl.qm</file>
+        <file alias="tn">locale/BGL_tn.qm</file>
         <file alias="tr">locale/BGL_tr.qm</file>
         <file alias="ug">locale/BGL_ug.qm</file>
         <file alias="uk">locale/BGL_uk.qm</file>
@@ -113,7 +119,9 @@
         <file alias="uz">locale/BGL_uz.qm</file>
         <file alias="uz@Cyrl">locale/BGL_uz@Cyrl.qm</file>
         <file alias="uz@Latn">locale/BGL_uz@Latn.qm</file>
+        <file alias="ve">locale/BGL_ve.qm</file>
         <file alias="vi">locale/BGL_vi.qm</file>
+        <file alias="yi">locale/BGL_yi.qm</file>
         <file alias="yo">locale/BGL_yo.qm</file>
         <file alias="yue">locale/BGL_yue.qm</file>
         <file alias="zh-Hans">locale/BGL_zh-Hans.qm</file>

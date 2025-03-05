@@ -222,7 +222,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
 </context>
 <context>
-    <name>BitcoinApplication</name>
+    <name>BitgesellApplication</name>
     <message>
         <source>A fatal error occurred. %1 can no longer continue safely and will quit.</source>
         <translation type="unfinished">Isang fatal error ang naganap.  %1 ay hindi na maaaring magpatuloy nang ligtas at magtitigil.</translation>
@@ -1123,14 +1123,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>&amp;Spend unconfirmed change</source>
         <translation type="unfinished">Gastusin ang sukli na hindi pa nakumpirma</translation>
-    </message>
-    <message>
-        <source>Automatically open the Bitgesell client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation type="unfinished">Kusang buksan ang Bitgesell client port sa router. Gumagana lamang ito kapag ang iyong router ay sumusuporta ng UPnP at ito ay pinagana.</translation>
-    </message>
-    <message>
-        <source>Map port using &amp;UPnP</source>
-        <translation type="unfinished">Isamapa ang port gamit ang UPnP</translation>
     </message>
     <message>
         <source>Accept connections from outside.</source>
@@ -2036,8 +2028,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Lumikha ng Unsigned</translation>
     </message>
     <message>
-        <source>Creates a Partially Signed Bitcoin Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
-        <translation type="unfinished">Lumilikha ng isang Bahagyang Signed Bitcoin Transaction (PSBT) para magamit sa hal. isang offline na%1 wallet, o isang wallet na hardware na katugma sa PSBT.</translation>
+        <source>Creates a Partially Signed Bitgesell Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <translation type="unfinished">Lumilikha ng isang Bahagyang Signed Bitgesell Transaction (PSBT) para magamit sa hal. isang offline na%1 wallet, o isang wallet na hardware na katugma sa PSBT.</translation>
     </message>
     <message>
         <source>%1 to '%2'</source>
@@ -2765,10 +2757,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Ang mga %s developers</translation>
     </message>
     <message>
-        <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
-        <translation type="unfinished">Hindi makakuha ng lock sa direktoryo ng data %s. Malamang na tumatakbo ang %s.</translation>
-    </message>
-    <message>
         <source>Distributed under the MIT software license, see the accompanying file %s or %s</source>
         <translation type="unfinished">Naipamahagi sa ilalim ng lisensya ng MIT software, tingnan ang kasamang file %s o %s</translation>
     </message>
@@ -2841,20 +2829,12 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Hindi malutas - %s address: ' %s'</translation>
     </message>
     <message>
-        <source>Cannot write to data directory '%s'; check permissions.</source>
-        <translation type="unfinished">Hindi makapagsulat sa direktoryo ng data '%s'; suriin ang mga pahintulot.</translation>
-    </message>
-    <message>
         <source>Config setting for %s only applied on %s network when in [%s] section.</source>
         <translation type="unfinished">Ang config setting para sa %s ay inilalapat lamang sa %s network kapag sa [%s] na seksyon.</translation>
     </message>
     <message>
         <source>Corrupted block database detected</source>
         <translation type="unfinished">Sirang block database ay napansin</translation>
-    </message>
-    <message>
-        <source>Do you want to rebuild the block database now?</source>
-        <translation type="unfinished">Nais mo bang muling itayo ang block database?</translation>
     </message>
     <message>
         <source>Done loading</source>
@@ -2935,10 +2915,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Need to specify a port with -whitebind: '%s'</source>
         <translation type="unfinished">Kailangang tukuyin ang port na may -whitebind: '%s'</translation>
-    </message>
-    <message>
-        <source>Not enough file descriptors available.</source>
-        <translation type="unfinished">Hindi sapat ang mga file descriptors na magagamit.</translation>
     </message>
     <message>
         <source>Prune cannot be configured with a negative value.</source>

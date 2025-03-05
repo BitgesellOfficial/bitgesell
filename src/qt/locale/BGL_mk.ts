@@ -606,7 +606,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Во тек</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction</source>
+        <source>Load Partially Signed Bitgesell Transaction</source>
         <translation type="unfinished">Вчитајте делумно потпишана биткоин-трансакција</translation>
     </message>
     <message>
@@ -614,7 +614,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Вчитајте PSBT од &amp;клипбордот...</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
+        <source>Load Partially Signed Bitgesell Transaction from clipboard</source>
         <translation type="unfinished">Вчитајте делумно потпишана биткоин-трансакција од клипбордот</translation>
     </message>
     <message>

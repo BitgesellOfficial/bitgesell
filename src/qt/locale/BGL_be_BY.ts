@@ -1092,10 +1092,6 @@
 <context>
     <name>bitgesell-core</name>
     <message>
-        <source>Do you want to rebuild the block database now?</source>
-        <translation type="unfinished">Ці жадаеце вы перабудаваць зараз базу звестак блокаў?</translation>
-    </message>
-    <message>
         <source>Done loading</source>
         <translation type="unfinished">Загрузка выканана</translation>
     </message>
@@ -1118,10 +1114,6 @@
     <message>
         <source>Insufficient funds</source>
         <translation type="unfinished">Недастаткова сродкаў</translation>
-    </message>
-    <message>
-        <source>Not enough file descriptors available.</source>
-        <translation type="unfinished">Не хапае файлавых дэскрыптараў.</translation>
     </message>
     <message>
         <source>Signing transaction failed</source>

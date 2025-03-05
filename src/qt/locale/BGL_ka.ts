@@ -446,7 +446,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Send coins to a Bitgesell address</source>
-        <translation type="unfinished">მონეტების გაგზავნა Bitcoin-მისამართზე</translation>
+        <translation type="unfinished">მონეტების გაგზავნა Bitgesell-მისამართზე</translation>
     </message>
     <message>
         <source>Backup wallet to another location</source>
@@ -1258,14 +1258,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>If you disable the spending of unconfirmed change, the change from a transaction cannot be used until that transaction has at least one confirmation. This also affects how your balance is computed.</source>
         <translation type="unfinished">დაუდასტურებელი ხურდის გამოყენების აკრძალვის შემდეგ მათი გამოყენება შეუძლებელი იქნება, სანამ ტრანსაქციას არ ექნება ერთი დასტური მაინც. ეს აისახება თქვენი ნაშთის დათვლაზეც.</translation>
-    </message>
-    <message>
-        <source>Automatically open the BGL client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation type="unfinished">როუტერში BGL-კლიენტის პორტის ავტომატური გახსნა. მუშაობს, თუ თქვენს როუტერს ჩართული აქვს UPnP.</translation>
-    </message>
-    <message>
-        <source>Map port using &amp;UPnP</source>
-        <translation type="unfinished">პორტის გადამისამართება &amp;UPnP-ით</translation>
     </message>
     <message>
         <source>Proxy &amp;IP:</source>
@@ -2852,10 +2844,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">დისკის სივრცე ძალიან დაბალია!</translation>
     </message>
     <message>
-        <source>Do you want to rebuild the block database now?</source>
-        <translation type="unfinished">გავუშვათ ბლოკთა ბაზის ხელახლა აგება ეხლა?</translation>
-    </message>
-    <message>
         <source>Done loading</source>
         <translation type="unfinished">ჩატვირთვა დასრულებულია</translation>
     </message>
@@ -2906,10 +2894,6 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>No addresses available</source>
         <translation type="unfinished">არცერთი მისამართი არ არსებობს</translation>
-    </message>
-    <message>
-        <source>Not enough file descriptors available.</source>
-        <translation type="unfinished">არ არის საკმარისი ფაილ-დესკრიპტორები.</translation>
     </message>
     <message>
         <source>Signing transaction failed</source>

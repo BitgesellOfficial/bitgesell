@@ -193,7 +193,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Remember that encrypting your wallet cannot fully protect your bitgesells from being stolen by malware infecting your computer.</source>
-        <translation type="unfinished">ウォレットを暗号化しても、コンピュータに感染したマルウェアなどによる Bitcoin の盗難を完全に防ぐことはできないことにご注意ください。</translation>
+        <translation type="unfinished">ウォレットを暗号化しても、コンピュータに感染したマルウェアなどによる Bitgesell の盗難を完全に防ぐことはできないことにご注意ください。</translation>
     </message>
     <message>
         <source>Wallet to be encrypted</source>
@@ -680,7 +680,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ブロックは最新</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction</source>
+        <source>Load Partially Signed Bitgesell Transaction</source>
         <translation type="unfinished">部分的に署名されたビットコインのトランザクションを読み込み</translation>
     </message>
     <message>
@@ -688,7 +688,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">PSBTをクリップボードから読む…</translation>
     </message>
     <message>
-        <source>Load Partially Signed Bitcoin Transaction from clipboard</source>
+        <source>Load Partially Signed Bitgesell Transaction from clipboard</source>
         <translation type="unfinished">部分的に署名されたビットコインのトランザクションをクリップボードから読み込み</translation>
     </message>
     <message>
@@ -1590,6 +1590,11 @@ The migration process will create a backup of the wallet before migrating. This 
         <translation type="unfinished">剪定を有効にすると、取引の保存に必要なディスク容量が大幅に削減されます。すべてのブロックは完全に検証されます。この設定を元に戻すには、ブロックチェーン全体を再ダウンロードする必要があります。</translation>
     </message>
     <message>
+        <source>Maximum database cache size. Make sure you have enough RAM. A larger cache can contribute to faster sync, after which the benefit is less pronounced for most use cases. Lowering the cache size will reduce memory usage. Unused mempool memory is shared for this cache.</source>
+        <extracomment>Tooltip text for Options window setting that sets the size of the database cache. Explains the corresponding effects of increasing/decreasing this value.</extracomment>
+        <translation type="unfinished">データベースのキャッシュの最大値です。 十分なRAMがあることを確認してください。キャッシュを大きくすると同期が速くなりますが、その後はほとんどのユースケースでメリットが目立たなくなります。 キャッシュサイズを小さくすると、メモリ使用量が減少します。 未使用のメモリプールメモリは、このキャッシュと共有されます。</translation>
+    </message>
+    <message>
         <source>Size of &amp;database cache</source>
         <translation type="unfinished">データベースキャッシュのサイズ(&amp;d)</translation>
     </message>
@@ -1600,6 +1605,14 @@ The migration process will create a backup of the wallet before migrating. This 
     <message>
         <source>Full path to a %1 compatible script (e.g. C:\Downloads\hwi.exe or /Users/you/Downloads/hwi.py). Beware: malware can steal your coins!</source>
         <translation type="unfinished">%1 対応スクリプトのフルパス（例：C:\Downloads\hwi.exe や /Users/you/Downloads/hwi.py）。マルウェアにコインを盗まれないようご注意ください。</translation>
+    </message>
+    <message>
+        <source>Automatically open the Bitgesell client port on the router. This only works when your router supports PCP or NAT-PMP and it is enabled. The external port could be random.</source>
+        <translation type="unfinished">自動的にルーター上の Bitgesell クライアントのポートを開放します。これは、あなたのルーターが PCP または NAT-PMP をサポートし、有効になっている場合にのみ機能します。外部ポートはランダムで構いません。</translation>
+    </message>
+    <message>
+        <source>Map port using PCP or NA&amp;T-PMP</source>
+        <translation type="unfinished">PCPまたはNA&amp;T-PMPを使ってポートを割り当てる</translation>
     </message>
     <message>
         <source>IP address of the proxy (e.g. IPv4: 127.0.0.1 / IPv6: ::1)</source>
@@ -1648,11 +1661,6 @@ The migration process will create a backup of the wallet before migrating. This 
     <message>
         <source>Reverting this setting requires re-downloading the entire blockchain.</source>
         <translation type="unfinished">この設定を元に戻すには、ブロック チェーン全体を再ダウンロードする必要があります。</translation>
-    </message>
-    <message>
-        <source>Maximum database cache size. A larger cache can contribute to faster sync, after which the benefit is less pronounced for most use cases. Lowering the cache size will reduce memory usage. Unused mempool memory is shared for this cache.</source>
-        <extracomment>Tooltip text for Options window setting that sets the size of the database cache. Explains the corresponding effects of increasing/decreasing this value.</extracomment>
-        <translation type="unfinished">データベースのキャッシュの最大値です。 キャッシュを大きくすると同期が速くなりますが、その後はほとんどのユースケースでメリットが目立たなくなります。 キャッシュサイズを小さくすると、メモリ使用量が減少します。 未使用のメモリプールメモリは、このキャッシュと共有されます。</translation>
     </message>
     <message>
         <source>Set the number of script verification threads. Negative values correspond to the number of cores you want to leave free to the system.</source>
@@ -1720,22 +1728,6 @@ The migration process will create a backup of the wallet before migrating. This 
     <message>
         <source>&amp;External signer script path</source>
         <translation type="unfinished">HWIのパス(&amp;E)</translation>
-    </message>
-    <message>
-        <source>Automatically open the Bitgesell client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation type="unfinished">自動的にルーター上の Bitgesell クライアントのポートを開放します。あなたのルーターが UPnP に対応していて、それが有効になっている場合のみ動作します。</translation>
-    </message>
-    <message>
-        <source>Map port using &amp;UPnP</source>
-        <translation type="unfinished">UPnP を使ってポートを割り当てる(&amp;U)</translation>
-    </message>
-    <message>
-        <source>Automatically open the Bitgesell client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
-        <translation type="unfinished">自動的にルーター上の Bitgesell クライアントのポートを開放します。あなたのルーターが NAT-PMP に対応していて、それが有効になっている場合のみ動作します。外部ポートはランダムで構いません。</translation>
-    </message>
-    <message>
-        <source>Map port using NA&amp;T-PMP</source>
-        <translation type="unfinished">NAT-PMP を使ってポートを割り当てる(&amp;T)</translation>
     </message>
     <message>
         <source>Accept connections from outside.</source>
@@ -2299,6 +2291,14 @@ BIP70には広範なセキュリティー上の問題があるので、ウォレ
         <translation type="unfinished">接続数</translation>
     </message>
     <message>
+        <source>Local Addresses</source>
+        <translation type="unfinished">ローカルアドレス</translation>
+    </message>
+    <message>
+        <source>Network addresses that your Bitgesell node is currently using to communicate with other nodes.</source>
+        <translation type="unfinished">Bitgesellノードが現在他のノード通信するために使用しているネットワークアドレス</translation>
+    </message>
+    <message>
         <source>Block chain</source>
         <translation type="unfinished">ブロック チェーン</translation>
     </message>
@@ -2345,6 +2345,10 @@ BIP70には広範なセキュリティー上の問題があるので、ウォレ
     <message>
         <source>Select a peer to view detailed information.</source>
         <translation type="unfinished">詳しい情報を見たいピアを選択してください。</translation>
+    </message>
+    <message>
+        <source>Hide Peers Detail</source>
+        <translation type="unfinished">ピアの詳細を非表示</translation>
     </message>
     <message>
         <source>The transport layer version: %1</source>
@@ -3129,7 +3133,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
         <translation type="unfinished">未署名で作成(&amp;e)</translation>
     </message>
     <message>
-        <source>Creates a Partially Signed Bitcoin Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
+        <source>Creates a Partially Signed Bitgesell Transaction (PSBT) for use with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <translation type="unfinished">オフラインの %1 ウォレット、あるいはPSBTに対応したハードウェアウォレットで使用するためのPSBT(部分的に署名された取引)を作成します。</translation>
     </message>
     <message>
@@ -3187,7 +3191,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Please, review your transaction proposal. This will produce a Partially Signed Bitgesell Transaction (PSBT) which you can save or copy and then sign with e.g. an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can only create a PSBT. This string is displayed when private keys are disabled and an external signer is not available.</extracomment>
-        <translation type="unfinished">取引の提案を確認してください。これにより、部分的に署名されたBitcoin取引（PSBT）が作成されます。これを保存するかコピーして例えばオフラインの %1 ウォレットやPSBTを扱えるハードウェアウォレットで残りの署名が出来ます。</translation>
+        <translation type="unfinished">取引の提案を確認してください。これにより、部分的に署名されたBitgesell取引（PSBT）が作成されます。これを保存するかコピーして例えばオフラインの %1 ウォレットやPSBTを扱えるハードウェアウォレットで残りの署名が出来ます。</translation>
     </message>
     <message>
         <source>%1 from wallet '%2'</source>
@@ -3201,7 +3205,7 @@ Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satos
     <message>
         <source>Please, review your transaction. You can create and send this transaction or create a Partially Signed Bitgesell Transaction (PSBT), which you can save or copy and then sign with, e.g., an offline %1 wallet, or a PSBT-compatible hardware wallet.</source>
         <extracomment>Text to inform a user attempting to create a transaction of their current options. At this stage, a user can send their transaction or create a PSBT. This string is displayed when both private keys and PSBT controls are enabled.</extracomment>
-        <translation type="unfinished">取引を確認してください。 この取引を作成して送信するか、部分的に署名されたBitcoin取引（Partially Signed Bitcoin Transaction: PSBT）を作成できます。これを保存またはコピーして、オフラインの %1 ウォレットやPSBT互換のハードウェアウォレットなどで署名できます。</translation>
+        <translation type="unfinished">取引を確認してください。 この取引を作成して送信するか、部分的に署名されたBitgesell取引（Partially Signed Bitgesell Transaction: PSBT）を作成できます。これを保存またはコピーして、オフラインの %1 ウォレットやPSBT互換のハードウェアウォレットなどで署名できます。</translation>
     </message>
     <message>
         <source>Please, review your transaction.</source>
@@ -4130,10 +4134,6 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">ウォレットをバージョン%iからバージョン%iにダウングレードできません。ウォレットのバージョンは変更されていません。</translation>
     </message>
     <message>
-        <source>Cannot obtain a lock on data directory %s. %s is probably already running.</source>
-        <translation type="unfinished">データ ディレクトリ %s のロックを取得することができません。%s がおそらく既に実行中です。</translation>
-    </message>
-    <message>
         <source>Cannot upgrade a non HD split wallet from version %i to version %i without upgrading to support pre-split keypool. Please use version %i or no version specified.</source>
         <translation type="unfinished">事前分割キープールをサポートするようアップグレードせずに、非HD分割ウォレットをバージョン%iからバージョン%iにアップグレードすることはできません。バージョン%iを使用するか、バージョンを指定しないでください。</translation>
     </message>
@@ -4152,6 +4152,10 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Error reading %s! Transaction data may be missing or incorrect. Rescanning wallet.</source>
         <translation type="unfinished">%s が読めません！ 取引データが欠落しているか誤っている可能性があります。ウォレットを再スキャンしています。</translation>
+    </message>
+    <message>
+        <source>Error starting/committing db txn for wallet transactions removal process</source>
+        <translation type="unfinished">ウォレットトランザクション削除プロセスのdb txnの開始/コミット中にエラーが発生しました</translation>
     </message>
     <message>
         <source>Error: Dumpfile format record is incorrect. Got "%s", expected "format".</source>
@@ -4182,6 +4186,10 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">peers.dat (%s) が無効または破損しています。 これがバグだと思われる場合は、 %s に報告してください。 回避策として、ファイル (%s) を邪魔にならない場所に移動 (名前の変更、移動、または削除) して、次回の起動時に新しいファイルを作成することができます。</translation>
     </message>
     <message>
+        <source>Invalid value detected for '-wallet' or '-nowallet'. '-wallet' requires a string value, while '-nowallet' accepts only '1' to disable all wallets</source>
+        <translation type="unfinished">'-wallet' または '-nowallet' で無効な値が検出されました。'-wallet' には文字列が必要ですが、'-nowallet' はすべてのウォレットを無効にするために '1' のみを受け入れます。</translation>
+    </message>
+    <message>
         <source>More than one onion bind address is provided. Using %s for the automatically created Tor onion service.</source>
         <translation type="unfinished">2つ以上のonionアドレスが与えられました。%sを自動的に作成されたTorのonionサービスとして使用します。</translation>
     </message>
@@ -4196,6 +4204,10 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>No wallet file format provided. To use createfromdump, -format=&lt;format&gt; must be provided.</source>
         <translation type="unfinished">ウォレットファイルフォーマットが指定されていません。createfromdumpを使用するには、-format=&lt;format&gt;を指定する必要があります。</translation>
+    </message>
+    <message>
+        <source>Option '-upnp' is set but UPnP support was dropped in version 29.0. Consider using '-natpmp' instead.</source>
+        <translation type="unfinished">オプション '-upnp' が設定されていますが、バージョン 29.0 ではUPnPのサポートが廃止されました。代わりに '-natpmp' の使用を検討してください。</translation>
     </message>
     <message>
         <source>Please contribute if you find %s useful. Visit %s for further information about the software.</source>
@@ -4306,6 +4318,10 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation type="unfinished">-maxmempool は最低でも %d MB 必要です</translation>
     </message>
     <message>
+        <source>Cannot obtain a lock on directory %s. %s is probably already running.</source>
+        <translation type="unfinished">ディレクトリ%sのロックを取得することができません。おそらく%sは実行中です。</translation>
+    </message>
+    <message>
         <source>Cannot resolve -%s address: '%s'</source>
         <translation type="unfinished">-%s アドレス '%s' を解決できません</translation>
     </message>
@@ -4316,10 +4332,6 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Cannot set -peerblockfilters without -blockfilterindex.</source>
         <translation type="unfinished">-blockfilterindex のオプション無しでは  -peerblockfilters を設定できません。</translation>
-    </message>
-    <message>
-        <source>Cannot write to data directory '%s'; check permissions.</source>
-        <translation type="unfinished">データディレクトリ '%s' に書き込むことができません。アクセス権を確認してください。</translation>
     </message>
     <message>
         <source>%s is set very high! Fees this large could be paid on a single transaction.</source>
@@ -4490,6 +4502,10 @@ Unable to restore backup of wallet.</source>
         <translation type="unfinished">ブロック検証が中断されました</translation>
     </message>
     <message>
+        <source>Cannot write to directory '%s'; check permissions.</source>
+        <translation type="unfinished">ディレクトリ'%s'に書き込むことができません。アクセス権を確認してください。</translation>
+    </message>
+    <message>
         <source>Config setting for %s only applied on %s network when in [%s] section.</source>
         <translation type="unfinished">%s の設定は、 [%s] セクションに書かれた場合のみ %s ネットワークへ適用されます。</translation>
     </message>
@@ -4514,10 +4530,6 @@ Unable to restore backup of wallet.</source>
         <translation type="unfinished">ディスク容量が不足しています!</translation>
     </message>
     <message>
-        <source>Do you want to rebuild the block database now?</source>
-        <translation type="unfinished">ブロック データベースを今すぐ再構築しますか？</translation>
-    </message>
-    <message>
         <source>Done loading</source>
         <translation type="unfinished">読み込み完了</translation>
     </message>
@@ -4528,10 +4540,6 @@ Unable to restore backup of wallet.</source>
     <message>
         <source>Elliptic curve cryptography sanity check failure. %s is shutting down.</source>
         <translation type="unfinished">楕円曲線暗号の健全性チェックに失敗しました。%sを終了します。</translation>
-    </message>
-    <message>
-        <source>Error committing db txn for wallet transactions removal</source>
-        <translation type="unfinished">ウォレットトランザクションの削除のためdb txnのコミット中にエラーが発生しました</translation>
     </message>
     <message>
         <source>Error creating %s</source>
@@ -4566,8 +4574,16 @@ Unable to restore backup of wallet.</source>
         <translation type="unfinished">ブロックデータベースの読み込み時にエラーが発生しました</translation>
     </message>
     <message>
+        <source>Error loading databases</source>
+        <translation type="unfinished">データベースの読み込みエラー</translation>
+    </message>
+    <message>
         <source>Error opening block database</source>
         <translation type="unfinished">ブロックデータベースのオープン時にエラーが発生しました</translation>
+    </message>
+    <message>
+        <source>Error opening coins database</source>
+        <translation type="unfinished">コインデータベースの開始エラー</translation>
     </message>
     <message>
         <source>Error reading configuration file: %s</source>
@@ -4580,10 +4596,6 @@ Unable to restore backup of wallet.</source>
     <message>
         <source>Error reading next record from wallet database</source>
         <translation type="unfinished">ウォレットデータベースから次のレコードの読み取りでエラー</translation>
-    </message>
-    <message>
-        <source>Error starting db txn for wallet transactions removal</source>
-        <translation type="unfinished">ウォレットトランザクションの削除のためのdb txnの開始でエラーが発生しました</translation>
     </message>
     <message>
         <source>Error: Cannot extract destination from the generated scriptpubkey</source>
@@ -4658,6 +4670,10 @@ Unable to restore backup of wallet.</source>
         <translation type="unfinished">エラー:  監視専用アドレス帳データを削除できません</translation>
     </message>
     <message>
+        <source>Error: Unable to write data to disk for wallet %s</source>
+        <translation type="unfinished">エラー: ウォレット%sに対してディスクにデータを書き込めません</translation>
+    </message>
+    <message>
         <source>Error: Unable to write record to new wallet</source>
         <translation type="unfinished">エラー: 新しいウォレットにレコードを書き込めません</translation>
     </message>
@@ -4668,10 +4684,6 @@ Unable to restore backup of wallet.</source>
     <message>
         <source>Error: Unable to write watchonly wallet best block locator record</source>
         <translation type="unfinished">エラー：監視専用ウォレットのベストブロックロケーターレコードを書き込めません</translation>
-    </message>
-    <message>
-        <source>Error: address book copy failed for wallet %s</source>
-        <translation type="unfinished">エラー: ウォレット%sのアドレス帳のコピーに失敗しました</translation>
     </message>
     <message>
         <source>Error: database transaction cannot be executed for wallet %s</source>
@@ -4838,10 +4850,6 @@ Unable to restore backup of wallet.</source>
         <translation type="unfinished">アドレスが使えません</translation>
     </message>
     <message>
-        <source>Not enough file descriptors available.</source>
-        <translation type="unfinished">使用可能なファイルディスクリプターが不足しています。</translation>
-    </message>
-    <message>
         <source>Not found pre-selected input %s</source>
         <translation type="unfinished">事前選択されたインプット%sが見つかりません</translation>
     </message>
@@ -4960,6 +4968,10 @@ Unable to restore backup of wallet.</source>
     <message>
         <source>The transaction amount is too small to pay the fee</source>
         <translation type="unfinished">取引金額が小さすぎるので手数料を支払えません</translation>
+    </message>
+    <message>
+        <source>The transactions removal process can only be executed within a db txn</source>
+        <translation type="unfinished">トランザクション削除プロセスは、db txn 内でのみ実行できます。</translation>
     </message>
     <message>
         <source>The wallet will avoid paying less than the minimum relay fee.</source>
@@ -5090,12 +5102,28 @@ Unable to restore backup of wallet.</source>
         <translation type="unfinished">サポートされていないログカテゴリ %s=%s 。</translation>
     </message>
     <message>
+        <source>Do you want to rebuild the databases now?</source>
+        <translation type="unfinished">データベースを今すぐ再構築しますか？</translation>
+    </message>
+    <message>
         <source>Error: Could not add watchonly tx %s to watchonly wallet</source>
         <translation type="unfinished">エラー:  監視対象取引%sを監視専用ウォレットに追加できませんでした</translation>
     </message>
     <message>
         <source>Error: Could not delete watchonly transactions. </source>
         <translation type="unfinished">エラー:  監視対象取引を削除できませんでした</translation>
+    </message>
+    <message>
+        <source>Error: Wallet does not exist</source>
+        <translation type="unfinished">エラー: ウォレットが存在しません</translation>
+    </message>
+    <message>
+        <source>Error: cannot remove legacy wallet records</source>
+        <translation type="unfinished">エラー: レガシーウォレットのレコードを削除できません</translation>
+    </message>
+    <message>
+        <source>Not enough file descriptors available. %d available, %d required.</source>
+        <translation type="unfinished">使用可能なファイルディスクリプターが不足しています。使用可能なのは%dで、必要なのは%dです。</translation>
     </message>
     <message>
         <source>User Agent comment (%s) contains unsafe characters.</source>
