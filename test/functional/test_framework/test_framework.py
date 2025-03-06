@@ -88,6 +88,10 @@ class Binaries:
         "Return argv array that should be used to invoke bitcoin-wallet"
         return self._argv(self.paths.BGLwallet)
 
+    def chainstate_argv(self):
+        "Return argv array that should be used to invoke bitcoin-chainstate"
+        return self._argv(self.paths.bitcoinchainstate)
+
     def _argv(self, bin_path):
         """Return argv array that should be used to invoke the command.
         Normally this will return binary paths directly from the paths object,
@@ -291,6 +295,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             "BGLd": ("BGLd", "BGLD"),
             "BGL-cli": ("BGLcli", "BGLCLI"),
             "BGL-util": ("BGLutil", "BGLUTIL"),
+            "BGL-chainstate": ("BGLchainstate", "BGLCHAINSTATE"),
             "BGL-wallet": ("BGLwallet", "BGLWALLET"),
         }
         for binary, [attribute_name, env_variable_name] in binaries.items():
@@ -1022,6 +1027,11 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         if not self.is_BGL_util_compiled():
             raise SkipTest("BGL-util has not been compiled")
 
+    def skip_if_no_bitcoin_chainstate(self):
+        """Skip the running test if bitcoin-chainstate has not been compiled."""
+        if not self.is_bitcoin_chainstate_compiled():
+            raise SkipTest("bitcoin-chainstate has not been compiled")
+
     def skip_if_no_cli(self):
         """Skip the running test if BGL-cli has not been compiled."""
         if not self.is_cli_compiled():
@@ -1072,6 +1082,10 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
     def is_BGL_util_compiled(self):
         """Checks whether BGL-util was compiled."""
         return self.config["components"].getboolean("ENABLE_BGL_UTIL")
+
+    def is_bitcoin_chainstate_compiled(self):
+        """Checks whether bitcoin-chainstate was compiled."""
+        return self.config["components"].getboolean("ENABLE_BITCOIN_CHAINSTATE")
 
     def is_zmq_compiled(self):
         """Checks whether the zmq module was compiled."""
