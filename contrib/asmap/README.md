@@ -9,6 +9,7 @@ Example usage:
 python3 asmap-tool.py encode /path/to/input.file /path/to/output.file
 python3 asmap-tool.py decode /path/to/input.file /path/to/output.file
 python3 asmap-tool.py diff /path/to/first.file /path/to/second.file
+python3 asmap-tool.py diff-addrs /path/to/first.file /path/to/second.file addrs.file
 ```
 These commands may take a few minutes to run with `python3`,
 depending on the amount of data involved and your machine specs.
