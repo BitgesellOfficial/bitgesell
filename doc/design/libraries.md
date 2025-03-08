@@ -94,7 +94,7 @@ class BGL-qt,BGLd,BGL-cli,BGL-wallet bold
 
 - *libBGL_kernel* should only depend on *libBGL_util* and *libBGL_consensus*.
 
-- The only thing that should depend on *libBGL_kernel* internally should be *libBGL_node*. GUI and wallet libraries *libBGLqt* and *libBGL_wallet* in particular should not depend on *libBGL_kernel* and the unneeded functionality it would pull in, like block validation. To the extent that GUI and wallet code need scripting and signing functionality, they should be get able it from *libBGL_consensus*, *libBGL_common*, and *libBGL_util*, instead of *libBGL_kernel*.
+- The only thing that should depend on *libBGL_kernel* internally should be *libBGL_node*. GUI and wallet libraries *libBGLqt* and *libBGL_wallet* in particular should not depend on *libBGL_kernel* and the unneeded functionality it would pull in, like block validation. To the extent that GUI and wallet code need scripting and signing functionality, they should be able to get it from *libBGL_consensus*, *libBGL_common*, *libBGL_crypto*, and *libBGL_util*, instead of *libBGL_kernel*.
 
 - GUI, node, and wallet code internal implementations should all be independent of each other, and the *libBGLqt*, *libBGL_node*, *libBGL_wallet* libraries should never reference each other's symbols. They should only call each other through [`src/interfaces/`](../../src/interfaces/) abstract interfaces.
 
