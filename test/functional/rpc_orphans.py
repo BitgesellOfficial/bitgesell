@@ -16,11 +16,11 @@ from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
 )
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 from test_framework.wallet import MiniWallet
 
 
-class OrphanRPCsTest(BitcoinTestFramework):
+class OrphanRPCsTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
 

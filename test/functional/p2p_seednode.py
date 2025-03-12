@@ -9,12 +9,12 @@ Test seednode interaction with the AddrMan
 import random
 import time
 
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 
 ADD_NEXT_SEEDNODE = 10
 
 
-class P2PSeedNodes(BitcoinTestFramework):
+class P2PSeedNodes(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
         self.disable_autoconnect = False

@@ -8,14 +8,14 @@ Test the -port option and its interactions with
 """
 
 from test_framework.test_framework import (
-    BitcoinTestFramework,
+    BGLTestFramework,
 )
 from test_framework.util import (
     p2p_port,
 )
 
 
-class PortTest(BitcoinTestFramework):
+class PortTest(BGLTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
         # Avoid any -bind= on the command line.
@@ -28,7 +28,7 @@ class PortTest(BitcoinTestFramework):
         port1 = p2p_port(self.num_nodes)
         port2 = p2p_port(self.num_nodes + 5)
 
-        self.log.info("When starting with -port, bitcoind binds to it and uses port + 1 for an onion bind")
+        self.log.info("When starting with -port, BGLd binds to it and uses port + 1 for an onion bind")
         with node.assert_debug_log(expected_msgs=[f'Bound to 0.0.0.0:{port1}', f'Bound to 127.0.0.1:{port1 + 1}']):
             self.restart_node(0, extra_args=["-listen", f"-port={port1}"])
 

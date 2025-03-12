@@ -5,13 +5,13 @@
 
 from decimal import Decimal
 
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 from test_framework.util import assert_equal, assert_raises_rpc_error
 from test_framework.messages import COIN
 from test_framework.wallet import MiniWallet, MiniWalletMode, getnewdestination
 
 
-class GetBlocksActivityTest(BitcoinTestFramework):
+class GetBlocksActivityTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
         self.setup_clean_chain = True

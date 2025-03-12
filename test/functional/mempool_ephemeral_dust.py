@@ -9,7 +9,7 @@ from test_framework.messages import (
     COIN,
     CTxOut,
 )
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 from test_framework.mempool_util import assert_mempool_contents
 from test_framework.util import (
     assert_equal,
@@ -20,7 +20,7 @@ from test_framework.wallet import (
     MiniWallet,
 )
 
-class EphemeralDustTest(BitcoinTestFramework):
+class EphemeralDustTest(BGLTestFramework):
     def set_test_params(self):
         # Mempools should match via 1P1C p2p relay
         self.num_nodes = 2
