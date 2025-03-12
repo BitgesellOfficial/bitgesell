@@ -6,8 +6,8 @@
 #       library, as more and more modules are decoupled from the
 #       consensus engine, this list will shrink to only those
 #       which are absolutely necessary.
-add_library(bitcoinkernel
-  bitcoinkernel.cpp
+add_library(BGLkernel
+  BGLkernel.cpp
   chain.cpp
   checks.cpp
   chainparams.cpp
@@ -78,11 +78,11 @@ add_library(bitcoinkernel
   ../validationinterface.cpp
   ../versionbits.cpp
 )
-target_link_libraries(bitcoinkernel
+target_link_libraries(BGLkernel
   PRIVATE
     core_interface
-    bitcoin_clientversion
-    bitcoin_crypto
+    BGL_clientversion
+    BGL_crypto
     leveldb
     secp256k1
     $<TARGET_NAME_IF_EXISTS:USDT::headers>
@@ -96,7 +96,7 @@ target_link_libraries(bitcoinkernel
 #
 # Note this is a quick hack that will be removed as we
 # incrementally define what to export from the library.
-set_target_properties(bitcoinkernel PROPERTIES
+set_target_properties(BGLkernel PROPERTIES
   CXX_VISIBILITY_PRESET default
 )
 
@@ -119,7 +119,7 @@ if(NOT BUILD_SHARED_LIBS)
   endfunction()
 
   set(all_kernel_static_link_libs "")
-  get_target_static_link_libs(bitcoinkernel all_kernel_static_link_libs)
+  get_target_static_link_libs(BGLkernel all_kernel_static_link_libs)
 
   install(TARGETS ${all_kernel_static_link_libs} ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT Kernel)
   list(TRANSFORM all_kernel_static_link_libs PREPEND "-l")
@@ -127,11 +127,11 @@ if(NOT BUILD_SHARED_LIBS)
   list(JOIN all_kernel_static_link_libs " " LIBS_PRIVATE)
 endif()
 
-configure_file(${PROJECT_SOURCE_DIR}/libbitcoinkernel.pc.in ${PROJECT_BINARY_DIR}/libbitcoinkernel.pc @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/libbitcoinkernel.pc DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT Kernel)
+configure_file(${PROJECT_SOURCE_DIR}/libBGLkernel.pc.in ${PROJECT_BINARY_DIR}/libBGLkernel.pc @ONLY)
+install(FILES ${PROJECT_BINARY_DIR}/libBGLkernel.pc DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig" COMPONENT Kernel)
 
 include(GNUInstallDirs)
-install(TARGETS bitcoinkernel
+install(TARGETS BGLkernel
   RUNTIME
     DESTINATION ${CMAKE_INSTALL_BINDIR}
     COMPONENT Kernel
