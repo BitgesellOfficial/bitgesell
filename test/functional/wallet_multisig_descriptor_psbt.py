@@ -30,10 +30,12 @@ class WalletMultisigDescriptorPSBTTest(BGLTestFramework):
         self.skip_if_no_sqlite()
 
     @staticmethod
-    def _get_xpub(wallet):
+    def _get_xpub(wallet, internal):
         """Extract the wallet's xpubs using `listdescriptors` and pick the one from the `pkh` descriptor since it's least likely to be accidentally reused (legacy addresses)."""
-        descriptor = next(filter(lambda d: d["desc"].startswith("pkh"), wallet.listdescriptors()["descriptors"]))
-        return descriptor["desc"].split("]")[-1].split("/")[0]
+        pkh_descriptor = next(filter(lambda d: d["desc"].startswith("pkh(") and d["internal"] == internal, wallet.listdescriptors()["descriptors"]))
+        # Keep all key origin information (master key fingerprint and all derivation steps) for proper support of hardware devices
+        # See section 'Key origin identification' in 'doc/descriptors.md' for more details...
+        return pkh_descriptor["desc"].split("pkh(")[1].split(")")[0]
 
     @staticmethod
     def _check_psbt(psbt, to, value, multisig):
@@ -47,14 +49,8 @@ class WalletMultisigDescriptorPSBTTest(BGLTestFramework):
                 amount += vout["value"]
         assert_approx(amount, float(value), vspan=0.001)
 
-    def participants_create_multisigs(self, xpubs):
+    def participants_create_multisigs(self, external_xpubs, internal_xpubs):
         """The multisig is created by importing the following descriptors. The resulting wallet is watch-only and every participant can do this."""
-        # some simple validation
-        assert_equal(len(xpubs), self.N)
-        # a sanity-check/assertion, this will throw if the base58 checksum of any of the provided xpubs are invalid
-        for xpub in xpubs:
-            base58_to_byte(xpub)
-
         for i, node in enumerate(self.nodes):
             node.createwallet(wallet_name=f"{self.name}_{i}", blank=True, descriptors=True, disable_private_keys=True)
             multisig = node.get_wallet_rpc(f"{self.name}_{i}")
@@ -93,10 +89,10 @@ class WalletMultisigDescriptorPSBTTest(BGLTestFramework):
         }
 
         self.log.info("Generate and exchange xpubs...")
-        xpubs = [self._get_xpub(signer) for signer in participants["signers"]]
+        external_xpubs, internal_xpubs = [[self._get_xpub(signer, internal) for signer in participants["signers"]] for internal in [False, True]]
 
         self.log.info("Every participant imports the following descriptors to create the watch-only multisig...")
-        participants["multisigs"] = list(self.participants_create_multisigs(xpubs))
+        participants["multisigs"] = list(self.participants_create_multisigs(external_xpubs, internal_xpubs))
 
         self.log.info("Check that every participant's multisig generates the same addresses...")
         for _ in range(10):  # we check that the first 10 generated addresses are the same for all participant's multisigs
