@@ -27,7 +27,6 @@ class WalletMultisigDescriptorPSBTTest(BGLTestFramework):
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
-        self.skip_if_no_sqlite()
 
     @staticmethod
     def _get_xpub(wallet, internal):
