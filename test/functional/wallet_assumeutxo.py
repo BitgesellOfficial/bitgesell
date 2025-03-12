@@ -113,7 +113,7 @@ class AssumeutxoTest(BGLTestFramework):
 
         assert_equal(
             dump_output['txoutset_hash'],
-            "37198d274df7c2f663860aeeddc8517938284694f0499a28621c781dff509940")
+            "033ad9c7cb6c646ed670f0ae19ffd0aa4940959c0edf0700ae429fe4857a1aad")
         assert_equal(dump_output["nchaintx"], 334)
         assert_equal(n0.getblockchaininfo()["blocks"], SNAPSHOT_BASE_HEIGHT)
 
