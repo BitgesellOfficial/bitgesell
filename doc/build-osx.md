@@ -137,7 +137,7 @@ brew install python
 #### Deploy Dependencies
 
 You can [deploy](#3-deploy-optional) a `.zip` containing the Bitgesell Core application.
-It is required that you have `python` installed.
+It is required that you have `python` and `zip` installed.
 
 The wallet support requires one or both of the dependencies ([*SQLite*](#sqlite) and [*Berkeley DB*](#berkeley-db)) in the sections below.
 To build BGL Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mode).
