@@ -44,6 +44,14 @@ endfunction()
 
 function(add_windows_deploy_target)
   if(MINGW AND TARGET BGL-qt AND TARGET BGLd AND TARGET BGL-cli AND TARGET BGL-tx AND TARGET BGL-wallet AND TARGET BGL-util AND TARGET test_BGL)
+    find_program(MAKENSIS_EXECUTABLE makensis)
+    if(NOT MAKENSIS_EXECUTABLE)
+      add_custom_target(deploy
+        COMMAND ${CMAKE_COMMAND} -E echo "Error: NSIS not found"
+      )
+      return()
+    endif()
+
     # TODO: Consider replacing this code with the CPack NSIS Generator.
     #       See https://cmake.org/cmake/help/latest/cpack_gen/nsis.html
     include(GenerateSetupNsi)
@@ -58,7 +66,7 @@ function(add_windows_deploy_target)
       COMMAND ${CMAKE_STRIP} $<TARGET_FILE:BGL-wallet> -o ${PROJECT_BINARY_DIR}/release/$<TARGET_FILE_NAME:BGL-wallet>
       COMMAND ${CMAKE_STRIP} $<TARGET_FILE:BGL-util> -o ${PROJECT_BINARY_DIR}/release/$<TARGET_FILE_NAME:BGL-util>
       COMMAND ${CMAKE_STRIP} $<TARGET_FILE:test_BGL> -o ${PROJECT_BINARY_DIR}/release/$<TARGET_FILE_NAME:test_BGL>
-      COMMAND makensis -V2 ${PROJECT_BINARY_DIR}/BGL-win64-setup.nsi
+      COMMAND ${MAKENSIS_EXECUTABLE} -V2 ${PROJECT_BINARY_DIR}/BGL-win64-setup.nsi
       VERBATIM
     )
     add_custom_target(deploy DEPENDS ${PROJECT_BINARY_DIR}/BGL-win64-setup.exe)
