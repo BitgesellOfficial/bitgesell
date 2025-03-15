@@ -22,6 +22,16 @@ signet_blocks = [
     '0000002059a132b847b873909b2f70faead803c02999d13cc1c85615b20593bc1d00000082e59ecb50fc3f72ba6fceba81ad9b9aa7bbf3ad3305aa0eb9bd35186873cc717985b563ffff221d2d6b611a01020000000001010000000000000000000000000000000000000000000000000000000000000000ffffffff025a51feffffff0200c817a8040000001600149fd480719d3ec5cc3e848859d6d62c64b958b92f0000000000000000776a24aa21a9ede2f61c3f71d1defd3fa999dfa36953755c690689799962b48bebd836974e8cf94c4fecc7daa2490047304402207622fdf1ef37b7d06c72378dc56ff40dc4da5fed45d59528c4bc905eef2da10e02205c2249157c5dfe607b59a24840e3c2011c83162941dbbab959ad8cf07a2422f201000120000000000000000000000000000000000000000000000000000000000000000000000000'
 ]
 
+class SignetParams:
+    def __init__(self, challenge=None):
+        # Prune to prevent disk space warning on CI systems with limited space,
+        # when using networks other than regtest.
+        if challenge is None:
+            self.challenge = SIGNET_DEFAULT_CHALLENGE
+            self.shared_args = ["-prune=550"]
+        else:
+            self.challenge = challenge
+            self.shared_args = ["-prune=550", f"-signetchallenge={challenge}"]
 
 class SignetBasicTest(BGLTestFramework):
     def set_test_params(self):
