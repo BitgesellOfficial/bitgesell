@@ -159,29 +159,6 @@ task:
   << : *CAT_LOGS
 
 task:
-  name: 'Win64-cross'
-  << : *GLOBAL_TASK_TEMPLATE
-  persistent_worker:
-    labels:
-      type: small
-  env:
-    ECDH: yes
-    RECOVERY: yes
-    EXTRAKEYS: yes
-    SCHNORRSIG: yes
-    MUSIG: yes
-    ELLSWIFT: yes
-    WRAPPER_CMD: 'valgrind --error-exitcode=42'
-    SECP256K1_TEST_ITERS: 2
-  matrix:
-     - env: { CC: 'gcc' }
-     - env: { CC: 'clang' }
-     - env: { CC: 'gcc-snapshot' }
-     - env: { CC: 'clang-snapshot' }
-  << : *LINUX_ARM64_CONTAINER
-  << : *CAT_LOGS
-
-task:
   name: 'CentOS, depends, gui'
   << : *GLOBAL_TASK_TEMPLATE
   persistent_worker:
