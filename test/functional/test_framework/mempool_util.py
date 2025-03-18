@@ -53,7 +53,7 @@ def fill_mempool(test_framework, node, *, tx_sync_fun=None):
     assert_equal(relayfee, Decimal('0.00001000'))
 
     tx_batch_size = 1
-    num_of_batches = 632
+    num_of_batches = 75
     # Generate UTXOs to flood the mempool
     # 1 to create a tx initially that will be evicted from the mempool later
     # 75 transactions each with a fee rate higher than the previous one
