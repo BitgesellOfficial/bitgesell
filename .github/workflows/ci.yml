@@ -49,6 +49,12 @@ env:
   # Compile and run the examples.
   EXAMPLES: 'yes'
 
+defaults:
+  run:
+    # Enforce fail-fast behavior for all platforms.
+    # See: https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#exit-codes-and-error-action-preference
+    shell: bash
+
 jobs:
   test-each-commit:
     name: 'test each commit'
@@ -282,111 +288,21 @@ jobs:
           dockerfile: ./ci/linux-debian.Dockerfile
           tag: linux-debian-image
 
-      - run: cat tests.log || true
-        if: ${{ always() }}
-      - run: cat noverify_tests.log || true
-        if: ${{ always() }}
-      - run: cat exhaustive_tests.log || true
-        if: ${{ always() }}
-      - run: cat ctime_tests.log || true
-        if: ${{ always() }}
-      - run: cat bench.log || true
-        if: ${{ always() }}
-      - run: cat config.log || true
-        if: ${{ always() }}
-      - run: cat test_env.log || true
-        if: ${{ always() }}
-      - name: CI env
-        run: env
-        if: ${{ always() }}
+      - name: Get tool information
+        shell: pwsh
+        run: |
+          cmake -version | Tee-Object -FilePath "cmake_version"
+          Write-Output "---"
+          msbuild -version | Tee-Object -FilePath "msbuild_version"
+          $env:VCToolsVersion | Tee-Object -FilePath "toolset_version"
+          py -3 --version
+          Write-Host "PowerShell version $($PSVersionTable.PSVersion.ToString())"
+          bash --version
 
-  valgrind_debian:
-    name: "Valgrind (memcheck)"
-    runs-on: ubuntu-latest
-    needs: docker_cache
-
-    strategy:
-      fail-fast: false
-      matrix:
-        configuration:
-          - env_vars: { CC: 'clang',                                      ASM: 'auto' }
-          - env_vars: { CC: 'i686-linux-gnu-gcc', HOST: 'i686-linux-gnu', ASM: 'auto' }
-          - env_vars: { CC: 'clang',                                      ASM: 'no', ECMULTGENKB: 2, ECMULTWINDOW: 2 }
-          - env_vars: { CC: 'i686-linux-gnu-gcc', HOST: 'i686-linux-gnu', ASM: 'no', ECMULTGENKB: 2, ECMULTWINDOW: 2 }
-
-    env:
-      # The `--error-exitcode` is required to make the test fail if valgrind found errors,
-      # otherwise it will return 0 (https://www.valgrind.org/docs/manual/manual-core.html).
-      WRAPPER_CMD: 'valgrind --error-exitcode=42'
-      ECDH: 'yes'
-      RECOVERY: 'yes'
-      EXTRAKEYS: 'yes'
-      SCHNORRSIG: 'yes'
-      MUSIG: 'yes'
-      ELLSWIFT: 'yes'
-      CTIMETESTS: 'no'
-      SECP256K1_TEST_ITERS: 2
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: CI script
-        env: ${{ matrix.configuration.env_vars }}
-        uses: ./.github/actions/run-in-docker-action
-        with:
-          dockerfile: ./ci/linux-debian.Dockerfile
-          tag: linux-debian-image
-
-      - run: cat tests.log || true
-        if: ${{ always() }}
-      - run: cat noverify_tests.log || true
-        if: ${{ always() }}
-      - run: cat exhaustive_tests.log || true
-        if: ${{ always() }}
-      - run: cat ctime_tests.log || true
-        if: ${{ always() }}
-      - run: cat bench.log || true
-        if: ${{ always() }}
-      - run: cat config.log || true
-        if: ${{ always() }}
-      - run: cat test_env.log || true
-        if: ${{ always() }}
-      - name: CI env
-        run: env
-        if: ${{ always() }}
-
-  sanitizers_debian:
-    name: "UBSan, ASan, LSan"
-    runs-on: ubuntu-latest
-    needs: docker_cache
-
-    strategy:
-      fail-fast: false
-      matrix:
-        configuration:
-          - env_vars: { CC: 'clang',                                      ASM: 'auto' }
-          - env_vars: { CC: 'i686-linux-gnu-gcc', HOST: 'i686-linux-gnu', ASM: 'auto' }
-          - env_vars: { CC: 'clang',                                      ASM: 'no', ECMULTGENKB: 2, ECMULTWINDOW: 2 }
-          - env_vars: { CC: 'i686-linux-gnu-gcc', HOST: 'i686-linux-gnu', ASM: 'no', ECMULTGENKB: 2, ECMULTWINDOW: 2 }
-
-    env:
-      ECDH: 'yes'
-      RECOVERY: 'yes'
-      EXTRAKEYS: 'yes'
-      SCHNORRSIG: 'yes'
-      MUSIG: 'yes'
-      ELLSWIFT: 'yes'
-      CTIMETESTS: 'no'
-      CFLAGS: '-fsanitize=undefined,address -g'
-      UBSAN_OPTIONS: 'print_stacktrace=1:halt_on_error=1'
-      ASAN_OPTIONS: 'strict_string_checks=1:detect_stack_use_after_return=1:detect_leaks=1'
-      LSAN_OPTIONS: 'use_unaligned=1'
-      SECP256K1_TEST_ITERS: 32
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Using vcpkg with MSBuild
+        run: |
+          echo "set(VCPKG_BUILD_TYPE release)" >> "${VCPKG_INSTALLATION_ROOT}/triplets/x64-windows.cmake"
+          echo "set(VCPKG_BUILD_TYPE release)" >> "${VCPKG_INSTALLATION_ROOT}/triplets/x64-windows-static.cmake"
 
       - name: vcpkg tools cache
         uses: actions/cache@v4
@@ -442,7 +358,7 @@ jobs:
 
       - name: Generate build system
         run: |
-          cmake -B build --preset vs2022-static -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT\scripts\buildsystems\vcpkg.cmake" ${{ matrix.generate-options }}
+          cmake -B build --preset vs2022-static -DCMAKE_TOOLCHAIN_FILE="${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake" ${{ matrix.generate-options }}
 
       - name: Save vcpkg binary cache
         uses: actions/cache/save@v4
@@ -497,18 +413,13 @@ jobs:
       - name: Build
         working-directory: build
         run: |
-          brew install --quiet automake libtool gcc
-          ln -s $(brew --prefix gcc)/bin/gcc-?? /usr/local/bin/gcc
+          cmake --build . -j $NUMBER_OF_PROCESSORS --config Release
 
       - name: Run test suite
         if: matrix.job-type == 'standard'
         working-directory: build
         run: |
-          cd build/bin/RelWithDebInfo && file *tests.exe bench*.exe libsecp256k1-*.dll || true
-
-      - name: Check
-        run: |
-          ctest --output-on-failure --stop-on-failure -j $env:NUMBER_OF_PROCESSORS -C Release
+          ctest --output-on-failure --stop-on-failure -j $NUMBER_OF_PROCESSORS -C Release
 
       - name: Run functional tests
         if: matrix.job-type == 'standard'
@@ -519,15 +430,14 @@ jobs:
           BGLUTIL: '${{ github.workspace }}\build\bin\Release\BGL-util.exe'
           BGLWALLET: '${{ github.workspace }}\build\bin\Release\BGL-wallet.exe'
           TEST_RUNNER_EXTRA: ${{ github.event_name != 'pull_request' && '--extended' || '' }}
-        shell: cmd
-        run: py -3 test\functional\test_runner.py --jobs %NUMBER_OF_PROCESSORS% --ci --quiet --tmpdirprefix=%RUNNER_TEMP% --combinedlogslen=99999999 --timeout-factor=%TEST_RUNNER_TIMEOUT_FACTOR% %TEST_RUNNER_EXTRA%
+        run: py -3 test/functional/test_runner.py --jobs $NUMBER_OF_PROCESSORS --ci --quiet --tmpdirprefix="${RUNNER_TEMP}" --combinedlogslen=99999999 --timeout-factor=${TEST_RUNNER_TIMEOUT_FACTOR} ${TEST_RUNNER_EXTRA}
 
       - name: Clone corpora
         if: matrix.job-type == 'fuzz'
         run: |
-          git clone --depth=1 https://github.com/bitcoin-core/qa-assets "$env:RUNNER_TEMP\qa-assets"
-          Set-Location "$env:RUNNER_TEMP\qa-assets"
-          Write-Host "Using qa-assets repo from commit ..."
+          git clone --depth=1 https://github.com/bitcoin-core/qa-assets "${RUNNER_TEMP}/qa-assets"
+          cd "${RUNNER_TEMP}/qa-assets"
+          echo "Using qa-assets repo from commit ..."
           git log -1
 
       - name: Run fuzz tests
@@ -535,9 +445,8 @@ jobs:
         working-directory: build
         env:
           BGLFUZZ: '${{ github.workspace }}\build\bin\Release\fuzz.exe'
-        shell: cmd
         run: |
-          py -3 test\fuzz\test_runner.py --par %NUMBER_OF_PROCESSORS% --loglevel DEBUG %RUNNER_TEMP%\qa-assets\fuzz_corpora
+          py -3 test/fuzz/test_runner.py --par $NUMBER_OF_PROCESSORS --loglevel DEBUG "${RUNNER_TEMP}/qa-assets/fuzz_corpora"
 
   asan-lsan-ubsan-integer-no-depends-usdt:
     name: 'ASan + LSan + UBSan + integer, no depends, USDT'
