@@ -67,6 +67,8 @@ class MempoolAcceptanceTest(BGLTestFramework):
             if "fees" in r:
                 r["fees"].pop("effective-feerate")
                 r["fees"].pop("effective-includes")
+            if "reject-details" in r:
+                r.pop("reject-details")
         assert_equal(result_expected, result_test)
         assert_equal(self.nodes[0].getmempoolinfo()['size'], self.mempool_size)  # Must not change mempool state
 
@@ -292,9 +294,9 @@ class MempoolAcceptanceTest(BGLTestFramework):
         _, pubkey = generate_keypair()
         tx.vout[0].scriptPubKey = keys_to_multisig_script([pubkey] * 3, k=2)  # Some bare multisig script (2-of-3)
         self.check_mempool_result(
-            result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'max-fee-exceeded'}],
+            result_expected=[{'txid': tx.rehash(), 'allowed': False, 'reject-reason': 'bare-multisig'}],
             rawtxs=[tx.serialize().hex()],
-        ) # bare-multisig to max-fee-exceeded. However, should try to find how to get the fee down
+        )
         tx = tx_from_hex(raw_tx_reference)
         tx.vin[0].scriptSig = CScript([OP_HASH160])  # Some not-pushonly scriptSig
         self.check_mempool_result(
