@@ -36,7 +36,7 @@ def cleanup(extra_args=None):
         return wrapper
     return decorator
 
-class MempoolAcceptV3(BGLTestFramework):
+class MempoolTRUC(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
         self.extra_args = [[]]
@@ -70,7 +70,7 @@ class MempoolAcceptV3(BGLTestFramework):
         self.check_mempool([tx_v3_parent_normal["txid"]])
         tx_v3_child_heavy = self.wallet.create_self_transfer(
             utxo_to_spend=tx_v3_parent_normal["new_utxo"],
-            target_vsize=1001,
+            target_vsize=TRUC_CHILD_MAX_VSIZE + 1,
             version=3
         )
         assert_greater_than_or_equal(tx_v3_child_heavy["tx"].get_vsize(), TRUC_CHILD_MAX_VSIZE)
@@ -85,7 +85,7 @@ class MempoolAcceptV3(BGLTestFramework):
             from_node=node,
             fee_rate=DEFAULT_FEE,
             utxo_to_spend=tx_v3_parent_normal["new_utxo"],
-            target_vsize=997,
+            target_vsize=TRUC_CHILD_MAX_VSIZE - 3,
             version=3
         )
         assert_greater_than_or_equal(TRUC_CHILD_MAX_VSIZE, tx_v3_child_almost_heavy["tx"].get_vsize())
@@ -173,7 +173,7 @@ class MempoolAcceptV3(BGLTestFramework):
         tx_v2_from_v3 = self.wallet.send_self_transfer(from_node=node, utxo_to_spend=tx_v3_block["new_utxo"], version=2)
         tx_v3_from_v2 = self.wallet.send_self_transfer(from_node=node, utxo_to_spend=tx_v2_block["new_utxo"], version=3)
         tx_v3_child_large = self.wallet.send_self_transfer(from_node=node, utxo_to_spend=tx_v3_block2["new_utxo"], target_vsize=1250, version=3)
-        assert_greater_than(node.getmempoolentry(tx_v3_child_large["txid"])["vsize"], 1000)
+        assert_greater_than(node.getmempoolentry(tx_v3_child_large["txid"])["vsize"], TRUC_CHILD_MAX_VSIZE)
         self.check_mempool([tx_v2_from_v3["txid"], tx_v3_from_v2["txid"], tx_v3_child_large["txid"]])
         node.invalidateblock(block[0])
         self.check_mempool([tx_v3_block["txid"], tx_v2_block["txid"], tx_v3_block2["txid"], tx_v2_from_v3["txid"], tx_v3_from_v2["txid"], tx_v3_child_large["txid"]])
@@ -255,7 +255,7 @@ class MempoolAcceptV3(BGLTestFramework):
         )
         tx_v3_child_heavy = self.wallet.create_self_transfer_multi(
             utxos_to_spend=[tx_v3_parent_normal["new_utxo"]],
-            target_vsize=1001,
+            target_vsize=TRUC_CHILD_MAX_VSIZE + 1,
             fee_per_output=10000,
             version=3
         )
