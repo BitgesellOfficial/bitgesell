@@ -538,12 +538,9 @@ FUZZ_TARGET(txgraph)
     // Sanity check again (because invoking inspectors may modify internal unobservable state).
     real->SanityCheck();
 
-    // Remove all remaining transactions, because Refs cannot be destroyed otherwise (this will be
-    // addressed in a follow-up commit).
-    for (auto& sim : sims) {
-        for (auto i : sim.graph.Positions()) {
-            auto ref = sim.GetRef(i);
-            real->RemoveTransaction(*ref);
-        }
-    }
+    // Kill the TxGraph object.
+    real.reset();
+    // Kill the simulated graphs, with all remaining Refs in it. If any, this verifies that Refs
+    // can outlive the TxGraph that created them.
+    sims.clear();
 }
