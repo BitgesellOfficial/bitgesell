@@ -473,7 +473,7 @@ void BGLGUI::createActions()
 
                 connect(action, &QAction::triggered, [this, wallet_name] {
                     auto activity = new MigrateWalletActivity(m_wallet_controller, this);
-                    connect(activity, &MigrateWalletActivity::migrated, this, &BitcoinGUI::setCurrentWallet);
+                    connect(activity, &MigrateWalletActivity::migrated, this, &BGLGUI::setCurrentWallet);
                     activity->migrate(wallet_name);
                 });
             }

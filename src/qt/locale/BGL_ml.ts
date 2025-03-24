@@ -501,15 +501,11 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ടാബുകളുടെ ടൂൾബാർ</translation>
     </message>
     <message>
-<<<<<<< HEAD:src/qt/locale/BGL_ml.ts
         <source>Request payments (generates QR codes and BGL: URIs)</source>
-=======
         <source>Synchronizing with network…</source>
         <translation type="unfinished"> നെറ്റ്‌വർക്കുമായി സമന്വയിപ്പിക്കുന്നു...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
->>>>>>> 31b33019b7... qt: Pull recent translations from Transifex:src/qt/locale/bitcoin_ml.ts
         <translation type="unfinished">പേയ്‌മെന്റുകൾ അഭ്യർത്ഥിക്കുക (QR കോഡുകളും ബിറ്റ്കോയിനും സൃഷ്ടിക്കുന്നു: URI- കൾ)</translation>
     </message>
     <message>
@@ -675,19 +671,19 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Date: %1
 </source>
-        <translation type="unfinished">തീയതി: %1 
+        <translation type="unfinished">തീയതി: %1
 </translation>
     </message>
     <message>
         <source>Amount: %1
 </source>
-        <translation type="unfinished">തുക : %1 
+        <translation type="unfinished">തുക : %1
 </translation>
     </message>
     <message>
         <source>Wallet: %1
 </source>
-        <translation type="unfinished">വാലറ്റ്: %1 
+        <translation type="unfinished">വാലറ്റ്: %1
 </translation>
     </message>
     <message>
@@ -699,13 +695,13 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Label: %1
 </source>
-        <translation type="unfinished">കുറിപ്പ് : %1 
+        <translation type="unfinished">കുറിപ്പ് : %1
 </translation>
     </message>
     <message>
         <source>Address: %1
 </source>
-        <translation type="unfinished">മേൽവിലാസം : %1 
+        <translation type="unfinished">മേൽവിലാസം : %1
 </translation>
     </message>
     <message>

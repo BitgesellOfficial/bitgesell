@@ -106,6 +106,16 @@ QFont fixedPitchFont(bool use_embedded_font)
     return QFontDatabase::systemFont(QFontDatabase::FixedFont);
 }
 
+// Generate an example address
+static std::string ExampleAddress(const CChainParams &params)
+{
+    std::vector<uint8_t> v = ParseHex("b6706320f9b107c75ad7cf7c4cd30f4767bbb7fe");
+    std::vector<unsigned char> tmp = {0};
+    tmp.reserve(1 + 32 * 8 / 5);
+    ConvertBits<8, 5, true>([&](unsigned char c) { tmp.push_back(c); }, v.begin(), v.end());
+    return bech32::Encode(bech32::Encoding::BECH32, params.Bech32HRP(), tmp);
+}
+
 // Return a pre-generated dummy bech32m address (P2TR) with invalid checksum.
 static std::string DummyAddress(const CChainParams &params)
 {
