@@ -666,6 +666,7 @@ bool BlockManager::ReadBlockUndo(CBlockUndo& blockundo, const CBlockIndex& index
         LogError("OpenUndoFile failed for %s while reading block undo", pos.ToString());
         return false;
     }
+    BufferedReader filein{std::move(file)};
 
     try {
         // Read block
@@ -997,15 +998,14 @@ bool BlockManager::ReadBlock(CBlock& block, const FlatFilePos& pos) const
     block.SetNull();
 
     // Open history file to read
-    AutoFile filein{OpenBlockFile(pos, /*fReadOnly=*/true)};
-    if (filein.IsNull()) {
-        LogError("OpenBlockFile failed for %s while reading block", pos.ToString());
+    std::vector<uint8_t> block_data;
+    if (!ReadRawBlock(block_data, pos)) {
         return false;
     }
 
     try {
         // Read block
-        filein >> TX_WITH_WITNESS(block);
+        SpanReader{block_data} >> TX_WITH_WITNESS(block);
     } catch (const std::exception& e) {
         LogError("Deserialize or I/O error - %s at %s while reading block", e.what(), pos.ToString());
         return false;
