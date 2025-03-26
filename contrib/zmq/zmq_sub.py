@@ -6,8 +6,8 @@
 """
     ZMQ example using python3's asyncio
 
-    BGL should be started with the command line arguments:
-        BGLd -testnet -daemon \
+    Bitcoin should be started with the command line arguments:
+        bitcoind -testnet4 -daemon \
                 -zmqpubrawtx=tcp://127.0.0.1:28332 \
                 -zmqpubrawblock=tcp://127.0.0.1:28332 \
                 -zmqpubhashtx=tcp://127.0.0.1:28332 \
