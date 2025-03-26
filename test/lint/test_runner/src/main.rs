@@ -240,7 +240,7 @@ fn lint_scripted_diff() -> LintResult {
 
 fn lint_commit_msg() -> LintResult {
     let mut good = true;
-    let commit_hashes = check_output(git().args(&[
+    let commit_hashes = check_output(git().args([
         "-c",
         "log.showSignature=false",
         "log",
