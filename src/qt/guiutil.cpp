@@ -973,15 +973,6 @@ bool HasPixmap(const QLabel* label)
     return !label->pixmap(Qt::ReturnByValue).isNull();
 }
 
-QImage GetImage(const QLabel* label)
-{
-    if (!HasPixmap(label)) {
-        return QImage();
-    }
-
-    return label->pixmap(Qt::ReturnByValue).toImage();
-}
-
 QString MakeHtmlLink(const QString& source, const QString& link)
 {
     return QString(source).replace(
