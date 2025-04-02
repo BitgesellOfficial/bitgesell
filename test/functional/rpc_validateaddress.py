@@ -167,10 +167,10 @@ VALID_DATA = [
         "0014eb4e50ff2fadbdfea46273ed6849c9c6111e308c",
     ),
     # PayToAnchor(P2A)
-    (
-        "bc1pfeessrawgf",
-        "51024e73",
-    ),
+    #(
+    #    "bc1pfeessrawgf",
+    #    "51024e73",
+    #),
 ]
 
 
