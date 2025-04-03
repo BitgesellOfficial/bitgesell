@@ -39,6 +39,7 @@ from test_framework.messages import (
     COIN,
     from_hex,
     msg_block,
+    keccak256,
 )
 from test_framework.p2p import P2PInterface
 from test_framework.script import hash256, OP_TRUE
