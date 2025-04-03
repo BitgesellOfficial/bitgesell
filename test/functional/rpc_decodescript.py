@@ -195,7 +195,7 @@ class DecodeScriptTest(BGLTestFramework):
         # in the disassembly, the witness program is shown as single decimal due to its small size
         witprog_as_decimal = int.from_bytes(bytes.fromhex(witprog_hex), 'little')
         assert_equal(f'1 {witprog_as_decimal}', rpc_result['asm'])
-        assert_equal('bcrt1pfeesnyr2tx', rpc_result['address'])
+        assert_equal('rbgl1pfeespx2vff', rpc_result['address'])
 
     def decoderawtransaction_asm_sighashtype(self):
         """Test decoding scripts via RPC command "decoderawtransaction".
