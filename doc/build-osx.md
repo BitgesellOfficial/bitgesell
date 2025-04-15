@@ -201,7 +201,12 @@ cmake --build build --target deploy
 Bitgesell Core should now be available at `./build/bin/BGLd`.
 If you compiled support for the GUI, it should be available at `./build/bin/BGL-qt`.
 
-In this case there is no dependency on [*Berkeley DB*](#berkeley-db) and [*SQLite*](#sqlite).
+There is also a multifunction command line interface at `./build/bin/BGL`
+supporting subcommands like `BGL node`, `BGL gui`, `BGL rpc`, and
+others that can be listed with `BGL help`.
+
+The first time you run `BGLd` or `BGL-qt`, it will start downloading the blockchain.
+This process could take many hours, or even days on slower than average systems.
 
 Mining is also possible in disable-wallet mode using the `getblocktemplate` RPC call.
 

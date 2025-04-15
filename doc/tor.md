@@ -25,9 +25,11 @@ CLI `-addrinfo` returns the number of addresses known to your node per
 network. This can be useful to see how many onion peers your node knows,
 e.g. for `-onlynet=onion`.
 
-You can use the `getnodeaddresses` RPC to fetch a number of onion peers known to your node; run `bitcoin-cli help getnodeaddresses` for details.
+You can use the `getnodeaddresses` RPC to fetch a number of onion peers known to your node; run `BGL-cli help getnodeaddresses` for details.
 
-## 1. Run BGL Core behind a Tor proxy
+`BGL rpc` can also be substituted for `BGL-cli`.
+
+## 1. Run Bitgesell Core behind a Tor proxy
 
 The first step is running BGL Core behind a Tor proxy. This will already anonymize all
 outgoing connections, but more is possible.
@@ -62,7 +64,9 @@ In a typical situation, this suffices to run behind a Tor proxy:
 
 	./BGLd -proxy=127.0.0.1:9050
 
-## 2. Automatically create a BGL Core onion service
+`BGL node` or `BGL gui` can also be substituted for `BGLd`.
+
+## 2. Automatically create a Bitgesell Core onion service
 
 BGL Core makes use of Tor's control socket API to create and destroy
 ephemeral onion services programmatically. This means that if Tor is running and
