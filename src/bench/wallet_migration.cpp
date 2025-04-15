@@ -28,24 +28,21 @@ static void WalletMigration(benchmark::Bench& bench)
     int NUM_WATCH_ONLY_ADDR = 20;
 
     // Setup legacy wallet
-    DatabaseOptions options;
-    options.use_unsafe_sync = true;
-    options.verify = false;
-    DatabaseStatus status;
-    bilingual_str error;
-    auto database = MakeWalletDatabase(fs::PathToString(test_setup->m_path_root / "legacy"), options, status, error);
-    uint64_t create_flags = 0;
-    auto wallet = TestLoadWallet(std::move(database), context, create_flags);
+    std::unique_ptr<CWallet> wallet = std::make_unique<CWallet>(test_setup->m_node.chain.get(), "", CreateMockableWalletDatabase());
+    wallet->chainStateFlushed(ChainstateRole::NORMAL, CBlockLocator{});
+    LegacyDataSPKM* legacy_spkm = wallet->GetOrCreateLegacyDataSPKM();
+    WalletBatch batch{wallet->GetDatabase()};
 
     // Add watch-only addresses
     std::vector<CScript> scripts_watch_only;
     for (int w = 0; w < NUM_WATCH_ONLY_ADDR; ++w) {
         CKey key = GenerateRandomKey();
         LOCK(wallet->cs_wallet);
-        const CScript& script = scripts_watch_only.emplace_back(GetScriptForDestination(GetDestinationForKey(key.GetPubKey(), OutputType::LEGACY)));
-        bool res = wallet->ImportScriptPubKeys(strprintf("watch_%d", w), {script},
-                                    /*have_solving_data=*/false, /*apply_label=*/true, /*timestamp=*/1);
-        assert(res);
+        const auto& dest = GetDestinationForKey(key.GetPubKey(), OutputType::LEGACY);
+        const CScript& script = scripts_watch_only.emplace_back(GetScriptForDestination(dest));
+        assert(legacy_spkm->LoadWatchOnly(script));
+        assert(wallet->SetAddressBook(dest, strprintf("watch_%d", w), /*purpose=*/std::nullopt));
+        batch.WriteWatchOnly(script, CKeyMetadata());
     }
 
     // Generate transactions and local addresses
@@ -56,6 +53,7 @@ static void WalletMigration(benchmark::Bench& bench)
         mtx.vout.emplace_back(COIN, scripts_watch_only.at(j % NUM_WATCH_ONLY_ADDR));
         mtx.vin.resize(2);
         wallet->AddToWallet(MakeTransactionRef(mtx), TxStateInactive{}, /*update_wtx=*/nullptr, /*fFlushOnClose=*/false, /*rescanning_old_block=*/true);
+        batch.WriteKey(pubkey, key.GetPrivKey(), CKeyMetadata());
     }
 
     // Unload so the migration process loads it
