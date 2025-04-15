@@ -155,7 +155,7 @@ class TestNode():
         self.running = False
         self.process = None
         self.rpc_connected = False
-        self.rpc = None
+        self._rpc = None # Should usually not be accessed directly in tests to allow for --usecli mode
         self.reuse_http_connections = True # Must be set before calling get_rpc_proxy() i.e. before restarting node
         self.url = None
         self.log = logging.getLogger('TestFramework.node%d' % i)
@@ -224,8 +224,8 @@ class TestNode():
         if self.use_cli:
             return getattr(self.cli, name)
         else:
-            assert self.rpc_connected and self.rpc is not None, self._node_msg("Error: no RPC connection")
-            return getattr(self.rpc, name)
+            assert self.rpc_connected and self._rpc is not None, self._node_msg("Error: no RPC connection")
+            return getattr(self._rpc, name)
 
     def start(self, extra_args=None, *, cwd=None, stdout=None, stderr=None, env=None, **kwargs):
         """Start the node."""
@@ -329,8 +329,8 @@ class TestNode():
                 self.rpc_connected = True
                 if self.use_cli:
                     return
-                self.rpc = rpc
-                self.url = self.rpc.rpc_url
+                self._rpc = rpc
+                self.url = self._rpc.rpc_url
                 return
             except JSONRPCException as e:
                 # Suppress these as they are expected during initialization.
@@ -407,9 +407,9 @@ class TestNode():
         if self.use_cli:
             return self.cli("-rpcwallet={}".format(wallet_name))
         else:
-            assert self.rpc_connected and self.rpc, self._node_msg("RPC not connected")
+            assert self.rpc_connected and self._rpc, self._node_msg("RPC not connected")
             wallet_path = "wallet/{}".format(urllib.parse.quote(wallet_name))
-            return self.rpc / wallet_path
+            return self._rpc / wallet_path
 
     def version_is_at_least(self, ver):
         return self.version is None or self.version >= ver
@@ -464,7 +464,7 @@ class TestNode():
         self.running = False
         self.process = None
         self.rpc_connected = False
-        self.rpc = None
+        self._rpc = None
         self.log.debug("Node stopped")
         return True
 
