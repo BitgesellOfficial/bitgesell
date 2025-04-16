@@ -8,6 +8,7 @@ import configparser
 from enum import Enum
 import argparse
 from datetime import datetime, timezone
+import json
 import logging
 import os
 import platform
@@ -1083,3 +1084,8 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
 
     def has_blockfile(self, node, filenum: str):
         return (node.blocks_path/ f"blk{filenum}.dat").is_file()
+
+    def convert_to_json_for_cli(self, text):
+        if self.options.usecli:
+            return json.dumps(text)
+        return text
