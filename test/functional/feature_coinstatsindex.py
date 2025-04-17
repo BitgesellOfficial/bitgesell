@@ -318,7 +318,7 @@ class CoinStatsIndexTest(BGLTestFramework):
 
         # Restart with index that still has its best block on the old chain
         self.restart_node(1, extra_args=self.extra_args[1])
-        #self.sync_index_node()
+        self.sync_index_node()
         res1 = index_node.gettxoutsetinfo(hash_type='muhash', hash_or_height=None, use_index=True)
         assert_equal(res["muhash"], res1["muhash"])
 

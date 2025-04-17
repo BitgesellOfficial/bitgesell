@@ -183,7 +183,7 @@ class InvalidMessagesTest(BGLTestFramework):
         node = self.nodes[0]
         conn = node.add_p2p_connection(SenderOfAddrV2())
 
-        # Make sure bitcoind signals support for ADDRv2, otherwise this test
+        # Make sure BGLd signals support for ADDRv2, otherwise this test
         # will bombard an old node with messages it does not recognize which
         # will produce unexpected results.
         conn.wait_for_sendaddrv2()

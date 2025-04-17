@@ -139,6 +139,28 @@ def generate_psbt(tmpl, reward_spk, *, blocktime=None):
 
     return do_createpsbt(block, signme, spendme)
 
+def get_reward_address(args, height):
+    if args.address is not None:
+        return args.address
+
+    if '*' not in args.descriptor:
+        addr = json.loads(args.bcli("deriveaddresses", args.descriptor))[0]
+        args.address = addr
+        return addr
+
+    remove = [k for k in args.derived_addresses.keys() if k+20 <= height]
+    for k in remove:
+        del args.derived_addresses[k]
+
+    addr = args.derived_addresses.get(height, None)
+    if addr is None:
+        addrs = json.loads(args.bcli("deriveaddresses", args.descriptor, "[%d,%d]" % (height, height+20)))
+        addr = addrs[0]
+        for k, a in enumerate(addrs):
+            args.derived_addresses[height+k] = a
+
+    return addr
+
 def get_poolid(args):
     if args.poolid is not None:
         return args.poolid.encode('utf8')

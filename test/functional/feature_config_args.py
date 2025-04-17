@@ -73,8 +73,8 @@ class ConfArgsTest(BGLTestFramework):
     def test_config_file_parser(self):
         self.log.info('Test config file parser')
 
-        # Check that startup fails if conf= is set in bitcoin.conf or in an included conf file
-        bad_conf_file_path = self.nodes[0].datadir_path / "bitcoin_bad.conf"
+        # Check that startup fails if conf= is set in BGL.conf or in an included conf file
+        bad_conf_file_path = self.nodes[0].datadir_path / "BGL_bad.conf"
         util.write_config(bad_conf_file_path, n=0, chain='', extra_config='conf=some.conf\n')
         conf_in_config_file_err = 'Error: Error reading configuration file: conf cannot be set in the configuration file; use includeconf= if you want to include additional config files'
         self.nodes[0].assert_start_raises_init_error(
@@ -466,16 +466,7 @@ class ConfArgsTest(BGLTestFramework):
         self.test_args_log()
         self.test_seed_peers()
         self.test_networkactive()
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-        self.test_dir_config()
         self.test_negated_config()
->>>>>>> 95a0104f2e... test: Add tests for directories in place of config files
-=======
-        self.test_negated_config()
->>>>>>> e4b6b1822c... test: Add tests for -noconf
         self.test_config_file_parser()
         self.test_config_file_log()
         self.test_invalid_command_line_options()

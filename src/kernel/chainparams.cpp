@@ -116,8 +116,8 @@ public:
         // and on relaxed conditions for window/treshold (that are set for now)
         // the blocks would signal that bit=2 unknown rule was activated
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].bit = 2;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
-        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].nStartTime = 1621589357; // May 21th, 2021
+        consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].nTimeout = 1623715200; // June 15th, 2021
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT_DISCARDED].min_activation_height = 66000; // Approximately July 1st, 2021
         // Deployment of Taproot (BIPs 340-342)
         consensus.vDeployments[Consensus::DEPLOYMENT_TAPROOT].bit = 2;
@@ -461,7 +461,7 @@ public:
         consensus.BIP66Height = 1;
         consensus.CSVHeight = 1;
         consensus.SegwitHeight = 1;
-        consensus.nPowTargetTimespan = 1 * 24 * 60 * 60; // two weeks
+        consensus.nPowTargetTimespan = 1 * 24 * 60 * 60; // one day
         consensus.nPowTargetSpacing = 10 * 60;
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.enforce_BIP94 = false;
@@ -634,9 +634,9 @@ public:
             {
                 // For use by test/functional/feature_assumeutxo.py
                 .height = 299,
-                .hash_serialized = AssumeutxoHash{uint256("033ad9c7cb6c646ed670f0ae19ffd0aa4940959c0edf0700ae429fe4857a1aad")},
+                .hash_serialized = AssumeutxoHash{uint256("37198d274df7c2f663860aeeddc8517938284694f0499a28621c781dff509940")},
                 .m_chain_tx_count = 334,
-                .blockhash = consteval_ctor(uint256{"23b4c64b3edad76868f8db6cb410e9f405d8d49f19367172c75bbfa9bfeed9ee"})
+                .blockhash = consteval_ctor(uint256{"1e6b433578be026c430295078d3faca1d757c0aafec3252e385c300b35f3824b"})
             },
         };
 

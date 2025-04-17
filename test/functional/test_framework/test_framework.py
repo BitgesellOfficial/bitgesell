@@ -172,8 +172,8 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         parser.add_argument("--nocleanup", dest="nocleanup", default=False, action="store_true",
                             help="Leave BGLds and test.* datadir on exit or error")
         parser.add_argument("--noshutdown", dest="noshutdown", default=False, action="store_true",
-                            help="Don't stop BGLs after the test execution")
-        parser.add_argument("--cachedir", dest="cachedir", default=os.path.abspath(os.path.dirname(test_file) + "/../cache"),
+                            help="Don't stop BGLds after the test execution")
+        parser.add_argument("--cachedir", dest="cachedir", default=os.path.abspath(os.path.dirname(os.path.realpath(__file__)) + "/../../cache"),
                             help="Directory for caching pregenerated datadirs (default: %(default)s)")
         parser.add_argument("--tmpdir", dest="tmpdir", help="Root directory for datadirs")
         parser.add_argument("-l", "--loglevel", dest="loglevel", default="INFO",

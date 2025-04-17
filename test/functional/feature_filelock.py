@@ -29,7 +29,7 @@ class FilelockTest(BGLTestFramework):
         datadir = self.nodes[0].chain_path
         self.log.info(f"Using datadir {datadir}")
 
-        self.log.info("Check that we can't start a second bitcoind instance using the same datadir")
+        self.log.info("Check that we can't start a second BGLd instance using the same datadir")
         expected_msg = f"Error: Cannot obtain a lock on data directory {datadir}. {self.config['environment']['CLIENT_NAME']} is probably already running."
         self.nodes[1].assert_start_raises_init_error(extra_args=[f'-datadir={self.nodes[0].datadir_path}', '-noserver'], expected_msg=expected_msg)
 
