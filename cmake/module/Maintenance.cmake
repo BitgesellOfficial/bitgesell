@@ -23,7 +23,7 @@ function(add_maintenance_targets)
     return()
   endif()
 
-  foreach(target IN ITEMS BGL BGLd BGL-qt BGL-cli BGL-tx BGL-util BGL-wallet test_BGL bench_BGL)
+  foreach(target IN ITEMS BGL BGLd BGL-node BGL-qt BGL-gui BGL-cli BGL-tx BGL-util BGL-wallet test_BGL bench_BGL)
     if(TARGET ${target})
       list(APPEND executables $<TARGET_FILE:${target}>)
     endif()
