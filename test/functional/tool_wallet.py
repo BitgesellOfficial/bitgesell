@@ -529,68 +529,13 @@ class ToolWalletTest(BGLTestFramework):
         else:
             assert False, "Big transaction was not found in wallet dump"
 
-    def test_dump_unclean_lsns(self):
-        if not self.options.bdbro:
-            return
-        self.log.info("Test that a legacy wallet that has not been compacted is not dumped by bdbro")
+    def test_no_create_legacy(self):
+        self.log.info("Test that legacy wallets cannot be created")
 
-        self.start_node(0, extra_args=["-flushwallet=0"])
-        self.nodes[0].createwallet("unclean_lsn")
-        wallet = self.nodes[0].get_wallet_rpc("unclean_lsn")
-        # First unload and load normally to make sure everything is written
-        wallet.unloadwallet()
-        self.nodes[0].loadwallet("unclean_lsn")
-        # Next cause a bunch of writes by filling the keypool
-        wallet.keypoolrefill(wallet.getwalletinfo()["keypoolsize"] + 100)
-        # Lastly kill bitcoind so that the LSNs don't get reset
-        self.nodes[0].kill_process()
-
-        wallet_dump = self.nodes[0].datadir_path / "unclean_lsn.dump"
-        self.assert_raises_tool_error("LSNs are not reset, this database is not completely flushed. Please reopen then close the database with a version that has BDB support", "-wallet=unclean_lsn", f"-dumpfile={wallet_dump}", "dump")
-
-        # File can be dumped after reload it normally
-        self.start_node(0)
-        self.nodes[0].loadwallet("unclean_lsn")
-        self.stop_node(0)
-        self.assert_tool_output("The dumpfile may contain private keys. To ensure the safety of your BGL, do not share the dumpfile.\n", "-wallet=unclean_lsn", f"-dumpfile={wallet_dump}", "dump")
-
-    def test_compare_legacy_dump_with_framework_bdb_parser(self):
-        self.log.info("Verify that legacy wallet database dump matches the one from the test framework's BDB parser")
-        wallet_name = "bdb_ro_test"
-        self.start_node(0)
-        # add some really large labels (above twice the largest valid page size) to create BDB overflow pages
-        self.nodes[0].createwallet(wallet_name)
-        wallet_rpc = self.nodes[0].get_wallet_rpc(wallet_name)
-        generated_labels = {}
-        for i in range(10):
-            address = getnewdestination()[2]
-            large_label = ''.join([random.choice(string.ascii_letters) for _ in range(150000)])
-            wallet_rpc.setlabel(address, large_label)
-            generated_labels[address] = large_label
-        # fill the keypool to create BDB internal pages
-        wallet_rpc.keypoolrefill(1000)
-        self.stop_node(0)
-
-        wallet_dumpfile = self.nodes[0].datadir_path / "bdb_ro_test.dump"
-        self.assert_tool_output("The dumpfile may contain private keys. To ensure the safety of your BGL, do not share the dumpfile.\n", "-wallet={}".format(wallet_name), "-dumpfile={}".format(wallet_dumpfile), "dump")
-
-        expected_dump = self.read_dump(wallet_dumpfile)
-        # remove extra entries from wallet tool dump that are not actual key/value pairs from the database
-        del expected_dump['BITGESELL_CORE_WALLET_DUMP']
-        del expected_dump['format']
-        del expected_dump['checksum']
-        bdb_ro_parser_dump_raw = dump_bdb_kv(self.nodes[0].wallets_path / wallet_name / "wallet.dat")
-        bdb_ro_parser_dump = OrderedDict()
-        assert any([len(bytes.fromhex(value)) >= 150000 for value in expected_dump.values()])
-        for key, value in sorted(bdb_ro_parser_dump_raw.items()):
-            bdb_ro_parser_dump[key.hex()] = value.hex()
-        assert_equal(bdb_ro_parser_dump, expected_dump)
-
-        # check that all labels were created with the correct address
-        for address, label in generated_labels.items():
-            key_bytes = b'\x04name' + ser_string(address.encode())
-            assert key_bytes in bdb_ro_parser_dump_raw
-            assert_equal(bdb_ro_parser_dump_raw[key_bytes], ser_string(label.encode()))
+        self.assert_raises_tool_error("The -legacy option must be set to \"false\"", "-wallet=legacy", "-legacy", "create")
+        assert not (self.nodes[0].wallets_path / "legacy").exists()
+        self.assert_raises_tool_error("The -descriptors option must be set to \"true\"", "-wallet=legacy", "-descriptors=false", "create")
+        assert not (self.nodes[0].wallets_path / "legacy").exists()
 
     def run_test(self):
         self.wallet_path = self.nodes[0].wallets_path / self.default_wallet_name / self.wallet_data_filename
@@ -608,6 +553,7 @@ class ToolWalletTest(BGLTestFramework):
         self.test_dump_createfromdump()
         self.test_chainless_conflicts()
         self.test_dump_very_large_records()
+        self.test_no_create_legacy()
 
 if __name__ == '__main__':
     ToolWalletTest(__file__).main()
