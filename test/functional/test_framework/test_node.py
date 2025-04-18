@@ -325,22 +325,21 @@ class TestNode():
                 self.rpc_connected = True
                 self.url = self.rpc.rpc_url
                 return
-            except JSONRPCException as e:  # Initialization phase
+            except JSONRPCException as e:
+                # Suppress these as they are expected during initialization.
                 # -28 RPC in warmup
-                # -342 Service unavailable, RPC server started but is shutting down due to error
-                if e.error['code'] != -28 and e.error['code'] != -342:
+                # -342 Service unavailable, could be starting up or shutting down
+                if e.error['code'] not in [-28, -342]:
                     raise  # unknown JSON RPC exception
-                suppressed_errors[f"JSONRPCException {e.error['code']}"] += 1
-                latest_error = repr(e)
             except OSError as e:
-                if e.errno == errno.ETIMEDOUT:
-                    pass  # Treat identical to ConnectionResetError
-                elif e.errno == errno.ECONNREFUSED:
-                    pass  # Port not yet open?
-                else:
+                # Suppress similarly to the above JSONRPCException errors.
+                if e.errno not in [
+                    errno.ECONNRESET,   # This might happen when the RPC server is in warmup,
+                                        # but shut down before the call to getblockcount succeeds.
+                    errno.ETIMEDOUT,    # Treat identical to ECONNRESET
+                    errno.ECONNREFUSED  # Port not yet open?
+                ]:
                     raise  # unknown OS error
-                suppressed_errors[f"OSError {errno.errorcode[e.errno]}"] += 1
-                latest_error = repr(e)
             except ValueError as e:
                 # Suppress if cookie file isn't generated yet and no rpcuser or rpcpassword; bitcoind may be starting.
                 if "No RPC credentials" not in str(e):
