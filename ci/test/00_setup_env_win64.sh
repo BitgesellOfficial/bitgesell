@@ -22,4 +22,4 @@ export RUN_UNIT_TESTS=false
 export RUN_FUNCTIONAL_TESTS=false
 export GOAL="deploy"
 export BGL_CONFIG="-DREDUCE_EXPORTS=ON -DBUILD_GUI_TESTS=OFF \
--DCMAKE_CXX_FLAGS='-Wno-error=maybe-uninitialized -Wno-error=array-bounds'"
+-DCMAKE_CXX_FLAGS='-Wno-error=maybe-uninitialized'"
