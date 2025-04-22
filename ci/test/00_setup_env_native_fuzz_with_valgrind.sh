@@ -17,8 +17,6 @@ export FUZZ_TESTS_CONFIG="--valgrind"
 export GOAL="all"
 export BGL_CONFIG="\
  -DBUILD_FOR_FUZZING=ON \
- -DSANITIZERS=fuzzer \
- -DCMAKE_C_COMPILER=clang-16 \
- -DCMAKE_CXX_COMPILER=clang++-16 \
+ -DCMAKE_CXX_FLAGS='-Wno-error=array-bounds' \
 "
 export LLVM_SYMBOLIZER_PATH="/usr/bin/llvm-symbolizer-16"
