@@ -287,7 +287,7 @@ class NetTracepointTest(BGLTestFramework):
                          fn_name="trace_inbound_message")
         ctx.enable_probe(probe="net:outbound_message",
                          fn_name="trace_outbound_message")
-        bpf = BPF(text=net_tracepoints_program, usdt_contexts=[ctx], debug=0, cflags=["-Wno-error=implicit-function-declaration"])
+        bpf = BPF(text=net_tracepoints_program, usdt_contexts=[ctx], debug=0, cflags=bpf_cflags())
 
         EXPECTED_INOUTBOUND_VERSION_MSG = 1
         checked_inbound_version_msg = 0
@@ -346,7 +346,7 @@ class NetTracepointTest(BGLTestFramework):
         ctx = USDT(pid=self.nodes[0].process.pid)
         ctx.enable_probe(probe="net:inbound_connection",
                          fn_name="trace_inbound_connection")
-        bpf = BPF(text=net_tracepoints_program, usdt_contexts=[ctx], debug=0, cflags=["-Wno-error=implicit-function-declaration"])
+        bpf = BPF(text=net_tracepoints_program, usdt_contexts=[ctx], debug=0, cflags=bpf_cflags())
 
         inbound_connections = []
         EXPECTED_INBOUND_CONNECTIONS = 2
@@ -383,7 +383,7 @@ class NetTracepointTest(BGLTestFramework):
         ctx = USDT(pid=self.nodes[0].process.pid)
         ctx.enable_probe(probe="net:outbound_connection",
                          fn_name="trace_outbound_connection")
-        bpf = BPF(text=net_tracepoints_program, usdt_contexts=[ctx], debug=0, cflags=["-Wno-error=implicit-function-declaration"])
+        bpf = BPF(text=net_tracepoints_program, usdt_contexts=[ctx], debug=0, cflags=bpf_cflags())
 
         # that the handle_* function succeeds.
         EXPECTED_OUTBOUND_CONNECTIONS = 2
@@ -424,7 +424,7 @@ class NetTracepointTest(BGLTestFramework):
         ctx = USDT(pid=self.nodes[0].process.pid)
         ctx.enable_probe(probe="net:evicted_inbound_connection",
                          fn_name="trace_evicted_inbound_connection")
-        bpf = BPF(text=net_tracepoints_program, usdt_contexts=[ctx], debug=0, cflags=["-Wno-error=implicit-function-declaration"])
+        bpf = BPF(text=net_tracepoints_program, usdt_contexts=[ctx], debug=0, cflags=bpf_cflags())
 
         EXPECTED_EVICTED_CONNECTIONS = 2
         evicted_connections = []
@@ -461,7 +461,7 @@ class NetTracepointTest(BGLTestFramework):
         ctx = USDT(pid=self.nodes[0].process.pid)
         ctx.enable_probe(probe="net:misbehaving_connection",
                          fn_name="trace_misbehaving_connection")
-        bpf = BPF(text=net_tracepoints_program, usdt_contexts=[ctx], debug=0, cflags=["-Wno-error=implicit-function-declaration"])
+        bpf = BPF(text=net_tracepoints_program, usdt_contexts=[ctx], debug=0, cflags=bpf_cflags())
 
         EXPECTED_MISBEHAVING_CONNECTIONS = 2
         misbehaving_connections = []
@@ -495,7 +495,7 @@ class NetTracepointTest(BGLTestFramework):
         ctx = USDT(pid=self.nodes[0].process.pid)
         ctx.enable_probe(probe="net:closed_connection",
                          fn_name="trace_closed_connection")
-        bpf = BPF(text=net_tracepoints_program, usdt_contexts=[ctx], debug=0, cflags=["-Wno-error=implicit-function-declaration"])
+        bpf = BPF(text=net_tracepoints_program, usdt_contexts=[ctx], debug=0, cflags=bpf_cflags())
 
         EXPECTED_CLOSED_CONNECTIONS = 2
         closed_connections = []
