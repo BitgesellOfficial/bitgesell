@@ -72,7 +72,6 @@ class RawTransactionsTest(BGLTestFramework):
         # whitelist peers to speed up tx relay / mempool sync
         self.noban_tx_relay = True
         self.supports_cli = False
-        self.uses_wallet = None
 
     def setup_network(self):
         super().setup_network()
