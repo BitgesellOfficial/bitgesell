@@ -32,6 +32,8 @@ class ChainstateManager;
 namespace Consensus { struct Params; };
 
 namespace node {
+class KernelNotifications;
+
 static const bool DEFAULT_PRINT_MODIFIED_FEE = false;
 
 struct CBlockTemplate
@@ -229,6 +231,20 @@ void RegenerateCommitments(CBlock& block, ChainstateManager& chainman);
 
 /** Apply -blockmintxfee and -blockmaxweight options from ArgsManager to BlockAssembler options. */
 void ApplyArgsManOptions(const ArgsManager& gArgs, BlockAssembler::Options& options);
+
+/* Compute the block's merkle root, insert or replace the coinbase transaction and the merkle root into the block */
+void AddMerkleRootAndCoinbase(CBlock& block, CTransactionRef coinbase, uint32_t version, uint32_t timestamp, uint32_t nonce);
+
+/**
+ * Return a new block template when fees rise to a certain threshold or after a
+ * new tip; return nullopt if timeout is reached.
+ */
+std::unique_ptr<CBlockTemplate> WaitAndCreateNewBlock(ChainstateManager& chainman,
+                                                      KernelNotifications& kernel_notifications,
+                                                      CTxMemPool* mempool,
+                                                      const std::unique_ptr<CBlockTemplate>& block_template,
+                                                      const BlockWaitOptions& options,
+                                                      const BlockAssembler::Options& assemble_options);
 } // namespace node
 
 #endif // BGL_NODE_MINER_H
