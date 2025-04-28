@@ -50,7 +50,7 @@ class WalletLabelsTest(BGLTestFramework):
         assert_equal(response[0]['error']['message'], "Invalid label name")
 
         for rpc_call in rpc_calls:
-            assert_raises_rpc_error(-11, "Invalid label name", *rpc_call, "*")
+            assert_raises_rpc_error(-11, "Invalid label name", *rpc_call, label="*")
 
     def run_test(self):
         # Check that there's no UTXO on the node
