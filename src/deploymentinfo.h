@@ -14,7 +14,7 @@ struct VBDeploymentInfo {
     /** Deployment name */
     const char *name;
     /** Whether GBT clients can safely ignore this rule in simplified usage */
-    bool gbt_force;
+    bool gbt_optional_rule;
 };
 
 extern const VBDeploymentInfo VersionBitsDeploymentInfo[Consensus::MAX_VERSION_BITS_DEPLOYMENTS];
