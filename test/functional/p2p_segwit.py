@@ -232,7 +232,6 @@ class SegWitTest(BGLTestFramework):
             ["-acceptnonstdtxn=1", f"-testactivationheight=segwit@{SEGWIT_HEIGHT}", "-par=1"],
             ["-acceptnonstdtxn=0", f"-testactivationheight=segwit@{SEGWIT_HEIGHT}"],
         ]
-        self.supports_cli = False
 
     # Helper functions
 

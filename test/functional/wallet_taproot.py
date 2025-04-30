@@ -192,7 +192,6 @@ class WalletTaprootTest(BGLTestFramework):
         self.num_nodes = 2
         self.setup_clean_chain = True
         self.extra_args = [['-keypool=100'], ['-keypool=100']]
-        self.supports_cli = False
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()

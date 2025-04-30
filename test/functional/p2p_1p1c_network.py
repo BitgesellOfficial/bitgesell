@@ -43,7 +43,6 @@ class PackageRelayTest(BGLTestFramework):
         self.extra_args = [[
             "-maxmempool=5",
         ]] * self.num_nodes
-        self.supports_cli = False
 
     def raise_network_minfee(self):
         fill_mempool(self, self.nodes[0])
