@@ -173,6 +173,7 @@ public:
 //--------------------------------------------------------------------
 namespace util
 {
+#ifdef __USING_WINDOWS__
   inline void quote_argument(const std::wstring &argument, std::wstring &command_line,
                       bool force)
   {
@@ -183,7 +184,7 @@ namespace util
     //
 
     if (force == false && argument.empty() == false &&
-        argument.find_first_of(L" \t\n\v\"") == argument.npos) {
+        argument.find_first_of(L" \t\n\v") == argument.npos) {
       command_line.append(argument);
     }
     else {
@@ -233,7 +234,6 @@ namespace util
     }
   }
 
-#ifdef __USING_WINDOWS__
   inline std::string get_last_error(DWORD errorMessageID)
   {
     if (errorMessageID == 0)
