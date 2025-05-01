@@ -67,7 +67,7 @@ Documentation for C++ subprocessing library.
 
 extern "C" {
 #ifdef __USING_WINDOWS__
-  #include <Windows.h>
+  #include <windows.h>
   #include <io.h>
   #include <cwchar>
 
