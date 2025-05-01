@@ -44,4 +44,5 @@ target_link_libraries(BGL_util
     BGL_crypto
     $<$<PLATFORM_ID:Windows>:ws2_32>
     $<$<PLATFORM_ID:Windows>:iphlpapi>
+    $<$<PLATFORM_ID:Windows>:bcrypt>
 )
