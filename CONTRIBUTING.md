@@ -80,7 +80,9 @@ In addition, libsecp256k1 tries to maintain the following coding conventions:
 
 #### Coverage
 
-This library aims to have full coverage of reachable lines and branches.
+  1. Fork repository ([only for the first time](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo))
+  1. Create topic branch
+  1. Commit patches
 
 To create a test coverage report, configure with `--enable-coverage` (use of GCC is necessary):
 
@@ -103,8 +105,12 @@ Make sure each individual commit is hygienic: that it builds successfully on its
 own without warnings, errors, regressions, or test failures.
 This means tests must be updated in the same commit that changes the behavior.
 
-There are tests of several functions in which a small group replaces secp256k1.
-These tests are *exhaustive* since they provide all elements and scalars of the small group as input arguments (see [src/tests_exhaustive.c](src/tests_exhaustive.c)).
+Commit messages should be verbose by default consisting of a short subject line
+(50 chars max), a blank line and detailed explanatory text as separate
+paragraph(s), unless the title alone is self-explanatory (like "Correct typo
+in init.cpp") in which case a single title line is sufficient. Commit messages should be
+helpful to people reading your code in the future, so explain the reasoning for
+your decisions. Further explanation [here](https://cbea.ms/git-commit/).
 
 ### Benchmarks
 
@@ -113,7 +119,7 @@ the pull request affects. Valid areas as:
 
   - `consensus` for changes to consensus critical code
   - `doc` for changes to the documentation
-  - `qt` or `gui` for changes to bitcoin-qt
+  - `qt` or `gui` for changes to BGL-qt
   - `log` for changes to log messages
   - `mining` for changes to the mining code
   - `net` or `p2p` for changes to the peer-to-peer network code
@@ -153,7 +159,7 @@ for more information on helping with translations.
 ### Work in Progress Changes and Requests for Comments
 
 If a pull request is not to be considered for merging (yet), please
-prefix the title with [WIP] or use [Tasks Lists](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#task-lists)
+prefix the title with [WIP] or use [Tasks Lists](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#task-lists)
 in the body of the pull request to indicate tasks are pending.
 
 ### Address Feedback
@@ -372,7 +378,7 @@ about:
   - It may be because your code is too complex for all but a few people, and those people
     may not have realized your pull request even exists. A great way to find people who
     are qualified and care about the code you are touching is the
-    [Git Blame feature](https://docs.github.com/en/github/managing-files-in-a-repository/managing-files-on-github/tracking-changes-in-a-file). Simply
+    [Git Blame feature](https://docs.github.com/en/repositories/working-with-files/using-files/viewing-and-understanding-files). Simply
     look up who last modified the code you are changing and see if you can find
     them and give them a nudge. Don't be incessant about the nudging, though.
   - Finally, if all else fails, ask on IRC or elsewhere for someone to give your pull request
