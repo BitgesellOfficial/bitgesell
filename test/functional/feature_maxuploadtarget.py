@@ -51,7 +51,6 @@ class MaxUploadTest(BGLTestFramework):
         self.num_nodes = 1
         self.extra_args = [[
             f"-maxuploadtarget={UPLOAD_TARGET_MB}M",
-            "-datacarriersize=100000",
         ]]
         self.supports_cli = False
 
