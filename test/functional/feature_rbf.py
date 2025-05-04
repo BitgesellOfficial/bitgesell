@@ -109,7 +109,13 @@ class ReplaceByFeeTest(BGLTestFramework):
         tx_hex = tx.serialize().hex()
 
         # This will raise an exception due to insufficient fee
-        assert_raises_rpc_error(-26, "insufficient fee", self.nodes[0].sendrawtransaction, tx.serialize().hex(), 0)
+        reject_reason = "insufficient fee"
+        reject_details = f"{reject_reason}, rejecting replacement {tx.txid_hex}; new feerate 0.00300000 BTC/kvB <= old feerate 0.00300000 BTC/kvB"
+        res = self.nodes[0].testmempoolaccept(rawtxs=[tx_hex])[0]
+        assert_equal(res["reject-reason"], reject_reason)
+        assert_equal(res["reject-details"], reject_details)
+        assert_raises_rpc_error(-26, f"{reject_details}", self.nodes[0].sendrawtransaction, tx_hex, 0)
+
 
         # Extra 0.1 BTC fee
         tx.vout[0].nValue -= int(0.1 * COIN)
@@ -153,7 +159,14 @@ class ReplaceByFeeTest(BGLTestFramework):
         dbl_tx_hex = dbl_tx.serialize().hex()
 
         # This will raise an exception due to insufficient fee
-        assert_raises_rpc_error(-26, "insufficient fee", self.nodes[0].sendrawtransaction, dbl_tx_hex, 0)
+        reject_reason = "insufficient fee"
+        reject_details = f"{reject_reason}, rejecting replacement {dbl_tx.txid_hex}, less fees than conflicting txs; 3.00 < 4.00"
+        res = self.nodes[0].testmempoolaccept(rawtxs=[dbl_tx_hex])[0]
+        assert_equal(res["reject-reason"], reject_reason)
+        assert_equal(res["reject-details"], reject_details)
+        assert_raises_rpc_error(-26, f"{reject_details}", self.nodes[0].sendrawtransaction, dbl_tx_hex, 0)
+
+
 
         # Accepted with sufficient fee
         dbl_tx.vout[0].nValue = int(0.1 * COIN)
@@ -287,7 +300,13 @@ class ReplaceByFeeTest(BGLTestFramework):
         )["hex"]
 
         # This will raise an exception
-        assert_raises_rpc_error(-26, "bad-txns-spends-conflicting-tx", self.nodes[0].sendrawtransaction, tx2_hex, 0)
+        reject_reason = "bad-txns-spends-conflicting-tx"
+        reject_details = f"{reject_reason}, {tx2.txid_hex} spends conflicting transaction {tx1a['tx'].txid_hex}"
+        res = self.nodes[0].testmempoolaccept(rawtxs=[tx2_hex])[0]
+        assert_equal(res["reject-reason"], reject_reason)
+        assert_equal(res["reject-details"], reject_details)
+        assert_raises_rpc_error(-26, f"{reject_details}", self.nodes[0].sendrawtransaction, tx2_hex, 0)
+
 
         # Spend tx1a's output to test the indirect case.
         tx1b_utxo = self.wallet.send_self_transfer(
@@ -325,7 +344,13 @@ class ReplaceByFeeTest(BGLTestFramework):
         )["hex"]
 
         # This will raise an exception
-        assert_raises_rpc_error(-26, "replacement-adds-unconfirmed", self.nodes[0].sendrawtransaction, tx2_hex, 0)
+        reject_reason = "replacement-adds-unconfirmed"
+        reject_details = f"{reject_reason}, replacement {tx2.txid_hex} adds unconfirmed input, idx 1"
+        res = self.nodes[0].testmempoolaccept(rawtxs=[tx2_hex])[0]
+        assert_equal(res["reject-reason"], reject_reason)
+        assert_equal(res["reject-details"], reject_details)
+        assert_raises_rpc_error(-26, f"{reject_details}", self.nodes[0].sendrawtransaction, tx2_hex, 0)
+
 
     def test_too_many_replacements(self):
         """Replacements that evict too many transactions are rejected"""
@@ -367,7 +392,13 @@ class ReplaceByFeeTest(BGLTestFramework):
         double_tx_hex = double_tx.serialize().hex()
 
         # This will raise an exception
-        assert_raises_rpc_error(-26, "too many potential replacements", self.nodes[0].sendrawtransaction, double_tx_hex, 0)
+        reject_reason = "too many potential replacements"
+        reject_details = f"{reject_reason}, rejecting replacement {double_tx.txid_hex}; too many potential replacements ({MAX_REPLACEMENT_LIMIT + 1} > {MAX_REPLACEMENT_LIMIT})"
+        res = self.nodes[0].testmempoolaccept(rawtxs=[double_tx_hex])[0]
+        assert_equal(res["reject-reason"], reject_reason)
+        assert_equal(res["reject-details"], reject_details)
+        assert_raises_rpc_error(-26, f"{reject_details}", self.nodes[0].sendrawtransaction, double_tx_hex, 0)
+
 
         # If we remove an input, it should pass
         double_tx.vin.pop()

@@ -332,8 +332,9 @@ class MempoolTracepointTest(BGLTestFramework):
         bpf.perf_buffer_poll(timeout=200)
 
         self.log.info("Ensuring mempool:rejected event was handled successfully...")
-        assert_equal(EXPECTED_REJECTED_EVENTS, handled_rejected_events)
-        assert_equal(bytes(event.hash)[::-1].hex(), tx["tx"].hash)
+        assert_equal(1, len(events))
+        event = events[0]
+        assert_equal(bytes(event.hash)[::-1].hex(), tx["tx"].txid_hex)
         assert_equal(event.reason.decode("UTF-8"), "min relay fee not met")
 
         bpf.cleanup()
