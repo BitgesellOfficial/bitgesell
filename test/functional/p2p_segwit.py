@@ -324,7 +324,6 @@ class SegWitTest(BGLTestFramework):
         tx = CTransaction()
         tx.vin.append(CTxIn(COutPoint(txid, 0), b""))
         tx.vout.append(CTxOut(49 * 100000000, CScript([OP_TRUE, OP_DROP] * 15 + [OP_TRUE])))
-        tx.calc_sha256()
 
         # Check that serializing it with or without witness is the same
         # This is a sanity check of our testing framework.
@@ -482,7 +481,6 @@ class SegWitTest(BGLTestFramework):
         tx.vin = [CTxIn(COutPoint(self.utxo[0].sha256, self.utxo[0].n), b'')]
         tx.vout = [CTxOut(value, script_pubkey), CTxOut(value, p2sh_script_pubkey)]
         tx.vout.append(CTxOut(value, CScript([OP_TRUE])))
-        tx.rehash()
         txid = tx.sha256
 
         # Add it to a block
@@ -500,14 +498,12 @@ class SegWitTest(BGLTestFramework):
         p2wsh_tx.vout = [CTxOut(value, CScript([OP_TRUE]))]
         p2wsh_tx.wit.vtxinwit.append(CTxInWitness())
         p2wsh_tx.wit.vtxinwit[0].scriptWitness.stack = [CScript([OP_TRUE])]
-        p2wsh_tx.rehash()
 
         p2sh_p2wsh_tx = CTransaction()
         p2sh_p2wsh_tx.vin = [CTxIn(COutPoint(txid, 1), CScript([script_pubkey]))]
         p2sh_p2wsh_tx.vout = [CTxOut(value, CScript([OP_TRUE]))]
         p2sh_p2wsh_tx.wit.vtxinwit.append(CTxInWitness())
         p2sh_p2wsh_tx.wit.vtxinwit[0].scriptWitness.stack = [CScript([OP_TRUE])]
-        p2sh_p2wsh_tx.rehash()
 
         for tx in [p2wsh_tx, p2sh_p2wsh_tx]:
 
@@ -538,7 +534,6 @@ class SegWitTest(BGLTestFramework):
         tx.vout.append(CTxOut(self.utxo[0].nValue - 1000, CScript([OP_TRUE, OP_DROP] * 15 + [OP_TRUE])))
         tx.wit.vtxinwit.append(CTxInWitness())
         tx.wit.vtxinwit[0].scriptWitness.stack = [b'a']
-        tx.rehash()
 
         tx_hash = tx.sha256
         tx_value = tx.vout[0].nValue
@@ -584,7 +579,6 @@ class SegWitTest(BGLTestFramework):
         p2sh_tx = CTransaction()
         p2sh_tx.vin = [CTxIn(COutPoint(self.utxo[0].sha256, self.utxo[0].n), b"")]
         p2sh_tx.vout = [CTxOut(self.utxo[0].nValue - 1000, p2sh_script_pubkey)]
-        p2sh_tx.rehash()
 
         # Mine it on test_node to create the confirmed output.
         test_transaction_acceptance(self.nodes[0], self.test_node, p2sh_tx, with_witness=True, accepted=True)
@@ -597,7 +591,6 @@ class SegWitTest(BGLTestFramework):
         tx.vout = [CTxOut(p2sh_tx.vout[0].nValue - 10000, script_pubkey)]
         tx.vout.append(CTxOut(8000, script_pubkey))  # Might burn this later
         tx.vin[0].nSequence = MAX_BIP125_RBF_SEQUENCE  # Just to have the option to bump this tx from the mempool
-        tx.rehash()
 
         # This is always accepted, since the mempool policy is to consider segwit as always active
         # and thus allow segwit outputs
@@ -612,7 +605,6 @@ class SegWitTest(BGLTestFramework):
         tx2.vout = [CTxOut(7000, script_pubkey)]
         tx2.wit.vtxinwit.append(CTxInWitness())
         tx2.wit.vtxinwit[0].scriptWitness.stack = [witness_script]
-        tx2.rehash()
 
         test_transaction_acceptance(self.nodes[1], self.std_node, tx2, with_witness=True, accepted=True)
 
@@ -625,7 +617,6 @@ class SegWitTest(BGLTestFramework):
         tx3.vout = [CTxOut(tx.vout[0].nValue - 1000, CScript([OP_TRUE, OP_DROP] * 15 + [OP_TRUE]))]
         tx3.wit.vtxinwit.append(CTxInWitness())
         tx3.wit.vtxinwit[0].scriptWitness.stack = [witness_script]
-        tx3.rehash()
         if not self.segwit_active:
             # Just check mempool acceptance, but don't add the transaction to the mempool, since witness is disallowed
             # in blocks and the tx is impossible to mine right now.
@@ -647,7 +638,6 @@ class SegWitTest(BGLTestFramework):
             tx3_out = tx3.vout[0]
             tx3 = tx
             tx3.vout = [tx3_out]
-            tx3.rehash()
             testres3_replaced = self.nodes[0].testmempoolaccept([tx3.serialize_with_witness().hex()])
             testres3_replaced[0]["fees"].pop("effective-feerate")
             testres3_replaced[0]["fees"].pop("effective-includes")
@@ -694,7 +684,6 @@ class SegWitTest(BGLTestFramework):
         tx = CTransaction()
         tx.vin.append(CTxIn(COutPoint(self.utxo[0].sha256, self.utxo[0].n), b""))
         tx.vout.append(CTxOut(self.utxo[0].nValue - 1000, script_pubkey))
-        tx.rehash()
 
         # Verify mempool acceptance and block validity
         test_transaction_acceptance(self.nodes[0], self.test_node, tx, with_witness=False, accepted=True)
@@ -707,7 +696,6 @@ class SegWitTest(BGLTestFramework):
         spend_tx = CTransaction()
         spend_tx.vin.append(CTxIn(COutPoint(tx.sha256, 0), script_sig))
         spend_tx.vout.append(CTxOut(tx.vout[0].nValue - 1000, CScript([OP_TRUE])))
-        spend_tx.rehash()
 
         # This transaction should not be accepted into the mempool pre- or
         # post-segwit.  Mempool acceptance will use SCRIPT_VERIFY_WITNESS which
@@ -720,7 +708,6 @@ class SegWitTest(BGLTestFramework):
 
         # Try to put the witness script in the scriptSig, should also fail.
         spend_tx.vin[0].scriptSig = CScript([p2wsh_pubkey, b'a'])
-        spend_tx.rehash()
         with self.nodes[0].assert_debug_log(
                 expected_msgs=[spend_tx.hash, 'was not accepted: mandatory-script-verify-flag-failed (Script evaluated without error but finished with a false/empty top stack element)']):
             test_transaction_acceptance(self.nodes[0], self.test_node, spend_tx, with_witness=False, accepted=False)
@@ -728,7 +715,6 @@ class SegWitTest(BGLTestFramework):
         # Now put the witness script in the witness, should succeed after
         # segwit activates.
         spend_tx.vin[0].scriptSig = script_sig
-        spend_tx.rehash()
         spend_tx.wit.vtxinwit.append(CTxInWitness())
         spend_tx.wit.vtxinwit[0].scriptWitness.stack = [b'a', witness_script]
 
@@ -783,7 +769,6 @@ class SegWitTest(BGLTestFramework):
         witness_script = CScript([OP_TRUE])
         script_pubkey = script_to_p2wsh_script(witness_script)
         tx.vout.append(CTxOut(self.utxo[0].nValue - 1000, script_pubkey))
-        tx.rehash()
 
         # tx2 will spend tx1, and send back to a regular anyone-can-spend address
         tx2 = CTransaction()
@@ -791,7 +776,6 @@ class SegWitTest(BGLTestFramework):
         tx2.vout.append(CTxOut(tx.vout[0].nValue - 1000, witness_script))
         tx2.wit.vtxinwit.append(CTxInWitness())
         tx2.wit.vtxinwit[0].scriptWitness.stack = [witness_script]
-        tx2.rehash()
 
         block_3 = self.build_next_block()
         self.update_witness_block_with_transactions(block_3, [tx, tx2], nonce=1)
@@ -799,7 +783,6 @@ class SegWitTest(BGLTestFramework):
         # even though it has extra data after the incorrect commitment.
         # This block should fail.
         block_3.vtx[0].vout.append(CTxOut(0, CScript([OP_RETURN, WITNESS_COMMITMENT_HEADER + ser_uint256(2), 10])))
-        block_3.vtx[0].rehash()
         block_3.hashMerkleRoot = block_3.calc_merkle_root()
         block_3.solve()
 
@@ -812,7 +795,6 @@ class SegWitTest(BGLTestFramework):
         add_witness_commitment(block_3, nonce=0)
         block_3.vtx[0].vout[0].nValue -= 1
         block_3.vtx[0].vout[-1].nValue += 1
-        block_3.vtx[0].rehash()
         block_3.hashMerkleRoot = block_3.calc_merkle_root()
         assert len(block_3.vtx[0].vout) == 4  # 3 OP_returns
         block_3.solve()
@@ -824,7 +806,6 @@ class SegWitTest(BGLTestFramework):
         tx3 = CTransaction()
         tx3.vin.append(CTxIn(COutPoint(tx2.sha256, 0), b""))
         tx3.vout.append(CTxOut(tx.vout[0].nValue - 1000, witness_script))
-        tx3.rehash()
         block_4.vtx.append(tx3)
         block_4.hashMerkleRoot = block_4.calc_merkle_root()
         block_4.solve()
@@ -904,7 +885,6 @@ class SegWitTest(BGLTestFramework):
             parent_tx.vout.append(CTxOut(child_value, script_pubkey))
         parent_tx.vout[0].nValue -= 50000
         assert parent_tx.vout[0].nValue > 0
-        parent_tx.rehash()
 
         child_tx = CTransaction()
         for i in range(NUM_OUTPUTS):
@@ -913,7 +893,6 @@ class SegWitTest(BGLTestFramework):
         for _ in range(NUM_OUTPUTS):
             child_tx.wit.vtxinwit.append(CTxInWitness())
             child_tx.wit.vtxinwit[-1].scriptWitness.stack = [b'a' * 195] * (2 * NUM_DROPS) + [witness_script]
-        child_tx.rehash()
         self.update_witness_block_with_transactions(block, [parent_tx, child_tx])
 
         additional_bytes = MAX_BLOCK_WEIGHT - block.get_weight()
@@ -1003,7 +982,6 @@ class SegWitTest(BGLTestFramework):
         tx.vout.append(CTxOut(1000, CScript([OP_TRUE])))  # non-witness output
         tx.wit.vtxinwit.append(CTxInWitness())
         tx.wit.vtxinwit[0].scriptWitness.stack = [CScript([])]
-        tx.rehash()
         self.update_witness_block_with_transactions(block, [tx])
 
         # Extra witness data should not be allowed.
@@ -1013,7 +991,6 @@ class SegWitTest(BGLTestFramework):
         # Try extra signature data.  Ok if we're not spending a witness output.
         block.vtx[1].wit.vtxinwit = []
         block.vtx[1].vin[0].scriptSig = CScript([OP_0])
-        block.vtx[1].rehash()
         add_witness_commitment(block)
         block.solve()
 
@@ -1041,7 +1018,6 @@ class SegWitTest(BGLTestFramework):
         tx2.vin[1].scriptSig = CScript([OP_TRUE])
         tx2.wit.vtxinwit[0].scriptWitness.stack.pop(0)
         tx2.wit.vtxinwit[1].scriptWitness.stack = []
-        tx2.rehash()
         add_witness_commitment(block)
         block.solve()
 
@@ -1052,7 +1028,6 @@ class SegWitTest(BGLTestFramework):
         # Now get rid of the extra scriptsig on the witness input, and verify
         # success (even with extra scriptsig data in the non-witness input)
         tx2.vin[0].scriptSig = b""
-        tx2.rehash()
         add_witness_commitment(block)
         block.solve()
 
@@ -1074,7 +1049,6 @@ class SegWitTest(BGLTestFramework):
         tx = CTransaction()
         tx.vin.append(CTxIn(COutPoint(self.utxo[0].sha256, self.utxo[0].n), b""))
         tx.vout.append(CTxOut(self.utxo[0].nValue - 1000, script_pubkey))
-        tx.rehash()
 
         tx2 = CTransaction()
         tx2.vin.append(CTxIn(COutPoint(tx.sha256, 0), b""))
@@ -1082,7 +1056,6 @@ class SegWitTest(BGLTestFramework):
         tx2.wit.vtxinwit.append(CTxInWitness())
         # First try a 521-byte stack element
         tx2.wit.vtxinwit[0].scriptWitness.stack = [b'a' * (MAX_SCRIPT_ELEMENT_SIZE + 1), witness_script]
-        tx2.rehash()
 
         self.update_witness_block_with_transactions(block, [tx, tx2])
         test_witness_block(self.nodes[0], self.test_node, block, accepted=False,
@@ -1115,14 +1088,12 @@ class SegWitTest(BGLTestFramework):
         tx = CTransaction()
         tx.vin.append(CTxIn(COutPoint(self.utxo[0].sha256, self.utxo[0].n), b""))
         tx.vout.append(CTxOut(self.utxo[0].nValue - 1000, long_script_pubkey))
-        tx.rehash()
 
         tx2 = CTransaction()
         tx2.vin.append(CTxIn(COutPoint(tx.sha256, 0), b""))
         tx2.vout.append(CTxOut(tx.vout[0].nValue - 1000, CScript([OP_TRUE])))
         tx2.wit.vtxinwit.append(CTxInWitness())
         tx2.wit.vtxinwit[0].scriptWitness.stack = [b'a'] * 44 + [long_witness_script]
-        tx2.rehash()
 
         self.update_witness_block_with_transactions(block, [tx, tx2])
 
@@ -1135,10 +1106,8 @@ class SegWitTest(BGLTestFramework):
         script_pubkey = script_to_p2wsh_script(witness_script)
 
         tx.vout[0] = CTxOut(tx.vout[0].nValue, script_pubkey)
-        tx.rehash()
         tx2.vin[0].prevout.hash = tx.sha256
         tx2.wit.vtxinwit[0].scriptWitness.stack = [b'a'] * 43 + [witness_script]
-        tx2.rehash()
         block.vtx = [block.vtx[0]]
         self.update_witness_block_with_transactions(block, [tx, tx2])
         test_witness_block(self.nodes[0], self.test_node, block, accepted=True)
@@ -1245,7 +1214,6 @@ class SegWitTest(BGLTestFramework):
         tx.vout.append(CTxOut(self.utxo[0].nValue - 1000, CScript([OP_TRUE, OP_DROP] * 15 + [OP_TRUE])))
         tx.wit.vtxinwit.append(CTxInWitness())
         tx.wit.vtxinwit[0].scriptWitness.stack = [b'a']
-        tx.rehash()
 
         tx_hash = tx.sha256
 
@@ -1263,7 +1231,6 @@ class SegWitTest(BGLTestFramework):
         tx2 = CTransaction()
         tx2.vin.append(CTxIn(COutPoint(tx_hash, 0), b""))
         tx2.vout.append(CTxOut(tx.vout[0].nValue - 1000, script_pubkey))
-        tx2.rehash()
 
         tx3 = CTransaction()
         tx3.vin.append(CTxIn(COutPoint(tx2.sha256, 0), b""))
@@ -1274,7 +1241,6 @@ class SegWitTest(BGLTestFramework):
         witness_script2 = CScript([b'a' * 400000])
         tx3.vout.append(CTxOut(tx2.vout[0].nValue - 1000, script_to_p2sh_script(p2sh_script)))
         tx3.wit.vtxinwit[0].scriptWitness.stack = [witness_script2]
-        tx3.rehash()
 
         # Node will not be blinded to the transaction, requesting it any number of times
         # if it is being announced via txid relay.
@@ -1288,7 +1254,6 @@ class SegWitTest(BGLTestFramework):
         # Remove witness stuffing, instead add extra witness push on stack
         tx3.vout[0] = CTxOut(tx2.vout[0].nValue - 1000, CScript([OP_TRUE, OP_DROP] * 15 + [OP_TRUE]))
         tx3.wit.vtxinwit[0].scriptWitness.stack = [CScript([CScriptNum(1)]), witness_script]
-        tx3.rehash()
 
         test_transaction_acceptance(self.nodes[0], self.test_node, tx2, with_witness=True, accepted=True)
         test_transaction_acceptance(self.nodes[0], self.test_node, tx3, with_witness=True, accepted=False)
@@ -1335,7 +1300,6 @@ class SegWitTest(BGLTestFramework):
             split_value = (self.utxo[0].nValue - 4000) // NUM_SEGWIT_VERSIONS
             for _ in range(NUM_SEGWIT_VERSIONS):
                 tx.vout.append(CTxOut(split_value, CScript([OP_TRUE])))
-            tx.rehash()
             block = self.build_next_block()
             self.update_witness_block_with_transactions(block, [tx])
             test_witness_block(self.nodes[0], self.test_node, block, accepted=True)
@@ -1358,7 +1322,6 @@ class SegWitTest(BGLTestFramework):
                 script_pubkey = CScript([CScriptOp(version), witness_hash])
             tx.vin = [CTxIn(COutPoint(self.utxo[0].sha256, self.utxo[0].n), b"")]
             tx.vout = [CTxOut(self.utxo[0].nValue - 1000, script_pubkey)]
-            tx.rehash()
             test_transaction_acceptance(self.nodes[1], self.std_node, tx, with_witness=True, accepted=False)
             test_transaction_acceptance(self.nodes[0], self.test_node, tx, with_witness=True, accepted=True)
             self.utxo.pop(0)
@@ -1375,7 +1338,6 @@ class SegWitTest(BGLTestFramework):
         tx2.vout = [CTxOut(tx.vout[0].nValue - 1000, script_pubkey)]
         tx2.wit.vtxinwit.append(CTxInWitness())
         tx2.wit.vtxinwit[0].scriptWitness.stack = [witness_script]
-        tx2.rehash()
         # Gets accepted to both policy-enforcing nodes and others.
         test_transaction_acceptance(self.nodes[0], self.test_node, tx2, with_witness=True, accepted=True)
         test_transaction_acceptance(self.nodes[1], self.std_node, tx2, with_witness=True, accepted=True)
@@ -1391,7 +1353,6 @@ class SegWitTest(BGLTestFramework):
             total_value += i.nValue
         tx3.wit.vtxinwit[-1].scriptWitness.stack = [witness_script]
         tx3.vout.append(CTxOut(total_value - 1000, script_pubkey))
-        tx3.rehash()
 
         # First we test this transaction against std_node
         # making sure the txid is added to the reject filter
@@ -1431,7 +1392,6 @@ class SegWitTest(BGLTestFramework):
         spend_tx.vout = [CTxOut(block.vtx[0].vout[0].nValue, witness_script)]
         spend_tx.wit.vtxinwit.append(CTxInWitness())
         spend_tx.wit.vtxinwit[0].scriptWitness.stack = [witness_script]
-        spend_tx.rehash()
 
         # Now test a premature spend.
         self.generate(self.nodes[0], 98)
@@ -1467,7 +1427,6 @@ class SegWitTest(BGLTestFramework):
         tx = CTransaction()
         tx.vin.append(CTxIn(COutPoint(utxo.sha256, utxo.n), b""))
         tx.vout.append(CTxOut(utxo.nValue - 1000, script_pkh))
-        tx.rehash()
 
         # Confirm it in a block.
         block = self.build_next_block()
@@ -1555,7 +1514,6 @@ class SegWitTest(BGLTestFramework):
         tx = CTransaction()
         tx.vin.append(CTxIn(COutPoint(self.utxo[0].sha256, self.utxo[0].n), b""))
         tx.vout.append(CTxOut(self.utxo[0].nValue - 1000, script_pubkey))
-        tx.rehash()
 
         test_transaction_acceptance(self.nodes[0], self.test_node, tx, with_witness=True, accepted=True)
         # Mine this transaction in preparation for following tests.
@@ -1650,7 +1608,6 @@ class SegWitTest(BGLTestFramework):
                 sign_p2pk_witness_input(witness_script, tx, i, hashtype, temp_utxos[i].nValue, key)
                 if (hashtype == SIGHASH_SINGLE and i >= num_outputs):
                     used_sighash_single_out_of_bounds = True
-            tx.rehash()
             for i in range(num_outputs):
                 temp_utxos.append(UTXO(tx.sha256, i, split_value))
             temp_utxos = temp_utxos[num_inputs:]
@@ -1698,7 +1655,6 @@ class SegWitTest(BGLTestFramework):
         tx2.wit.vtxinwit.append(CTxInWitness())
         tx2.wit.vtxinwit[0].scriptWitness.stack = [signature, pubkey]
         tx2.vin[0].scriptSig = b""
-        tx2.rehash()
 
         self.update_witness_block_with_transactions(block, [tx2])
         test_witness_block(self.nodes[0], self.test_node, block, accepted=True)
@@ -1742,7 +1698,6 @@ class SegWitTest(BGLTestFramework):
         tx = CTransaction()
         tx.vin.append(CTxIn(COutPoint(self.utxo[0].sha256, self.utxo[0].n), b""))
         tx.vout.append(CTxOut(self.utxo[0].nValue - 1000, script_pubkey))
-        tx.rehash()
         test_transaction_acceptance(self.nodes[0], self.test_node, tx, False, True)
         self.generate(self.nodes[0], 1)
 
@@ -1756,7 +1711,6 @@ class SegWitTest(BGLTestFramework):
         tx2.vout.append(CTxOut(tx.vout[0].nValue - 1000, script_pubkey))
         tx2.wit.vtxinwit.append(CTxInWitness())
         tx2.wit.vtxinwit[0].scriptWitness.stack = [b'a' * 400]
-        tx2.rehash()
         # This will be rejected due to a policy check:
         # No witness is allowed, since it is not a witness program but a p2sh program
         test_transaction_acceptance(self.nodes[1], self.std_node, tx2, True, False, 'bad-witness-nonstandard')
@@ -1768,7 +1722,6 @@ class SegWitTest(BGLTestFramework):
         tx3 = CTransaction()
         tx3.vin.append(CTxIn(COutPoint(tx2.sha256, 0), CScript([p2sh_program])))
         tx3.vout.append(CTxOut(tx2.vout[0].nValue - 1000, CScript([OP_TRUE, OP_DROP] * 15 + [OP_TRUE])))
-        tx3.rehash()
         test_transaction_acceptance(self.nodes[0], self.test_node, tx2, False, True)
         test_transaction_acceptance(self.nodes[0], self.test_node, tx3, False, True)
 
@@ -1802,7 +1755,6 @@ class SegWitTest(BGLTestFramework):
             p2wsh_scripts.append(p2wsh)
             tx.vout.append(CTxOut(outputvalue, p2wsh))
             tx.vout.append(CTxOut(outputvalue, script_to_p2sh_script(p2wsh)))
-        tx.rehash()
         txid = tx.sha256
         test_transaction_acceptance(self.nodes[0], self.test_node, tx, with_witness=False, accepted=True)
 
@@ -1816,13 +1768,11 @@ class SegWitTest(BGLTestFramework):
             p2wsh_tx.vin.append(CTxIn(COutPoint(txid, i * 2)))
             p2wsh_tx.vout.append(CTxOut(outputvalue - 5000, CScript([OP_0, hash160(b"")])))
             p2wsh_tx.wit.vtxinwit.append(CTxInWitness())
-            p2wsh_tx.rehash()
             p2wsh_txs.append(p2wsh_tx)
             p2sh_tx = CTransaction()
             p2sh_tx.vin.append(CTxIn(COutPoint(txid, i * 2 + 1), CScript([p2wsh_scripts[i]])))
             p2sh_tx.vout.append(CTxOut(outputvalue - 5000, CScript([OP_0, hash160(b"")])))
             p2sh_tx.wit.vtxinwit.append(CTxInWitness())
-            p2sh_tx.rehash()
             p2sh_txs.append(p2sh_tx)
 
         # Testing native P2WSH
@@ -1913,7 +1863,6 @@ class SegWitTest(BGLTestFramework):
             tx.vout.append(CTxOut(split_value, script_pubkey))
         tx.vout[-2].scriptPubKey = script_pubkey_toomany
         tx.vout[-1].scriptPubKey = script_pubkey_justright
-        tx.rehash()
 
         block_1 = self.build_next_block()
         self.update_witness_block_with_transactions(block_1, [tx])
@@ -1930,7 +1879,6 @@ class SegWitTest(BGLTestFramework):
             total_value += tx.vout[i].nValue
         tx2.wit.vtxinwit[-1].scriptWitness.stack = [witness_script_toomany]
         tx2.vout.append(CTxOut(total_value, CScript([OP_TRUE])))
-        tx2.rehash()
 
         block_2 = self.build_next_block()
         self.update_witness_block_with_transactions(block_2, [tx2])
@@ -1944,7 +1892,6 @@ class SegWitTest(BGLTestFramework):
         tx2.vin.pop()
         tx2.wit.vtxinwit.pop()
         tx2.vout[0].nValue -= tx.vout[-2].nValue
-        tx2.rehash()
         block_3 = self.build_next_block()
         self.update_witness_block_with_transactions(block_3, [tx2])
         test_witness_block(self.nodes[0], self.test_node, block_3, accepted=False)
@@ -1952,7 +1899,6 @@ class SegWitTest(BGLTestFramework):
         # If we drop the last checksig in this output, the tx should succeed.
         block_4 = self.build_next_block()
         tx2.vout[-1].scriptPubKey = CScript([OP_CHECKSIG] * (checksig_count - 1))
-        tx2.rehash()
         self.update_witness_block_with_transactions(block_4, [tx2])
         test_witness_block(self.nodes[0], self.test_node, block_4, accepted=True)
 
@@ -1968,7 +1914,6 @@ class SegWitTest(BGLTestFramework):
         tx2.vin.append(CTxIn(COutPoint(tx.sha256, outputs - 1), b""))
         tx2.wit.vtxinwit.append(CTxInWitness())
         tx2.wit.vtxinwit[-1].scriptWitness.stack = [witness_script_justright]
-        tx2.rehash()
         self.update_witness_block_with_transactions(block_5, [tx2])
         test_witness_block(self.nodes[0], self.test_node, block_5, accepted=True)
 
@@ -2039,7 +1984,6 @@ class SegWitTest(BGLTestFramework):
         tx = CTransaction()
         tx.vin.append(CTxIn(COutPoint(self.utxo[0].sha256, self.utxo[0].n), b""))
         tx.vout.append(CTxOut(self.utxo[0].nValue - 1000, script_pubkey))
-        tx.rehash()
 
         # Create a Segwit transaction
         tx2 = CTransaction()
@@ -2047,7 +1991,6 @@ class SegWitTest(BGLTestFramework):
         tx2.vout.append(CTxOut(tx.vout[0].nValue - 1000, script_pubkey))
         tx2.wit.vtxinwit.append(CTxInWitness())
         tx2.wit.vtxinwit[0].scriptWitness.stack = [witness_script]
-        tx2.rehash()
 
         # Announce Segwit transaction with wtxid
         # and wait for getdata

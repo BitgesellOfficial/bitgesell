@@ -216,7 +216,6 @@ class ZMQTest (BGLTestFramework):
 
             # Should receive the coinbase raw transaction.
             tx = tx_from_hex(rawtx.receive().hex())
-            tx.calc_sha256()
             assert_equal(tx.hash, txid.hex())
 
             # Should receive the generated raw block.

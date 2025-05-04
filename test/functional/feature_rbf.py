@@ -106,6 +106,7 @@ class ReplaceByFeeTest(BGLTestFramework):
 
         # Should fail because we haven't changed the fee
         tx.vout[0].scriptPubKey[-1] ^= 1
+        tx_hex = tx.serialize().hex()
 
         # This will raise an exception due to insufficient fee
         assert_raises_rpc_error(-26, "insufficient fee", self.nodes[0].sendrawtransaction, tx.serialize().hex(), 0)
