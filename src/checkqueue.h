@@ -209,34 +209,34 @@ class SCOPED_LOCKABLE CCheckQueueControl
 {
 private:
     CCheckQueue<T, R>& m_queue;
-    UniqueLock<Mutex> m_lock;
     bool fDone;
 
 public:
     CCheckQueueControl() = delete;
     CCheckQueueControl(const CCheckQueueControl&) = delete;
     CCheckQueueControl& operator=(const CCheckQueueControl&) = delete;
-    explicit CCheckQueueControl(CCheckQueue<T>& queueIn) EXCLUSIVE_LOCK_FUNCTION(queueIn.m_control_mutex) : m_queue(queueIn), m_lock(LOCK_ARGS(queueIn.m_control_mutex)), fDone(false) {}
+    explicit CCheckQueueControl(CCheckQueue<T>& queueIn) : m_queue(queueIn), fDone(false)
+    {
+        ENTER_CRITICAL_SECTION(m_queue.m_control_mutex);
+    }
 
     std::optional<R> Complete()
     {
-        if (pqueue == nullptr) return std::nullopt;
-        auto ret = pqueue->Complete();
+        auto ret = m_queue.Complete();
         fDone = true;
         return ret;
     }
 
     void Add(std::vector<T>&& vChecks)
     {
-        if (pqueue != nullptr) {
-            pqueue->Add(std::move(vChecks));
-        }
+        m_queue.Add(std::move(vChecks));
     }
 
     ~CCheckQueueControl() UNLOCK_FUNCTION()
     {
         if (!fDone)
             Complete();
+        LEAVE_CRITICAL_SECTION(m_queue.m_control_mutex);
     }
 };
 

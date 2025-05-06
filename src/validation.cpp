@@ -2655,7 +2655,7 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
     // doesn't invalidate pointers into the vector, and keep txsdata in scope
     // for as long as `control`.
     std::optional<CCheckQueueControl<CScriptCheck>> control;
-    if (fScriptChecks && parallel_script_checks) control.emplace(&m_chainman.GetCheckQueue());
+    if (fScriptChecks && parallel_script_checks) control.emplace(m_chainman.GetCheckQueue());
 
     std::vector<PrecomputedTransactionData> txsdata(block.vtx.size());
 
