@@ -16,6 +16,7 @@
 
 #include <condition_variable>
 #include <mutex>
+#include <semaphore>
 #include <string>
 #include <thread>
 
@@ -304,7 +305,8 @@ inline MutexType* MaybeCheckNotHeld(MutexType* m) LOCKS_EXCLUDED(m) LOCK_RETURNE
  *
  * See https://en.wikipedia.org/wiki/Semaphore_(programming)
  */
-class CSemaphore
+template <std::ptrdiff_t LeastMaxValue = std::counting_semaphore<>::max()>
+class CountingSemaphore
 {
 private:
     std::condition_variable condition;
@@ -348,14 +350,15 @@ public:
     }
 };
 
-using BinarySemaphore = CSemaphore;
-using Semaphore = CSemaphore;
+using BinarySemaphore = CountingSemaphore<1>;
+using Semaphore = CountingSemaphore<>;
 
 /** RAII-style semaphore lock */
-class CSemaphoreGrant
+template <std::ptrdiff_t LeastMaxValue = std::counting_semaphore<>::max()>
+class CountingSemaphoreGrant
 {
 private:
-    CSemaphore* sem;
+    CountingSemaphore<LeastMaxValue>* sem;
     bool fHaveGrant;
 
 public:
@@ -410,7 +413,7 @@ public:
 
     CSemaphoreGrant() noexcept : sem(nullptr), fHaveGrant(false) {}
 
-    explicit CSemaphoreGrant(CSemaphore& sema, bool fTry = false) noexcept : sem(&sema), fHaveGrant(false)
+    explicit CountingSemaphoreGrant(CountingSemaphore<LeastMaxValue>& sema, bool fTry = false) noexcept : sem(&sema), fHaveGrant(false)
     {
         if (fTry) {
             TryAcquire();
@@ -430,7 +433,7 @@ public:
     }
 };
 
-using BinarySemaphoreGrant = CSemaphoreGrant;
-using SemaphoreGrant = CSemaphoreGrant;
+using BinarySemaphoreGrant = CountingSemaphoreGrant<1>;
+using SemaphoreGrant = CountingSemaphoreGrant<>;
 
 #endif // BGL_SYNC_H
