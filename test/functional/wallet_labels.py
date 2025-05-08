@@ -35,6 +35,7 @@ class WalletLabelsTest(BGLTestFramework):
             [node.getnewaddress],
             [node.setlabel, address],
             [node.getaddressesbylabel],
+            [node.importpubkey, pubkey],
             [node.getreceivedbylabel],
             [node.listsinceblock, node.getblockhash(0), 1, False, True, False],
         ]

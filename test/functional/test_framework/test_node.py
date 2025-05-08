@@ -943,3 +943,24 @@ class TestNodeCLI():
             return json.loads(cli_stdout, parse_float=decimal.Decimal)
         except (json.JSONDecodeError, decimal.InvalidOperation):
             return cli_stdout.rstrip("\n")
+
+class RPCOverloadWrapper():
+    def __init__(self, rpc):
+        self.rpc = rpc
+
+    def __getattr__(self, name):
+        return getattr(self.rpc, name)
+
+    def importpubkey(self, pubkey, *, label=None, rescan=None):
+        wallet_info = self.getwalletinfo()
+        if 'descriptors' not in wallet_info or ('descriptors' in wallet_info and not wallet_info['descriptors']):
+            return self.__getattr__('importpubkey')(pubkey, label, rescan)
+        desc = descsum_create('combo(' + pubkey + ')')
+        req = [{
+            'desc': desc,
+            'timestamp': 0 if rescan else 'now',
+            'label': label if label else '',
+        }]
+        import_res = self.importdescriptors(req)
+        if not import_res[0]['success']:
+            raise JSONRPCException(import_res[0]['error'])
