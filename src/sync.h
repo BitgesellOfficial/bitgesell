@@ -305,7 +305,6 @@ inline MutexType* MaybeCheckNotHeld(MutexType* m) LOCKS_EXCLUDED(m) LOCK_RETURNE
  *
  * See https://en.wikipedia.org/wiki/Semaphore_(programming)
  */
-template <std::ptrdiff_t LeastMaxValue = std::counting_semaphore<>::max()>
 class CountingSemaphore
 {
 private:
@@ -314,14 +313,14 @@ private:
     int value;
 
 public:
-    explicit CSemaphore(int init) noexcept : value(init) {}
+    explicit CountingSemaphore(int init) noexcept : value(init) {}
 
     // Disallow default construct, copy, move.
-    CSemaphore() = delete;
-    CSemaphore(const CSemaphore&) = delete;
-    CSemaphore(CSemaphore&&) = delete;
-    CSemaphore& operator=(const CSemaphore&) = delete;
-    CSemaphore& operator=(CSemaphore&&) = delete;
+    CountingSemaphore() = delete;
+    CountingSemaphore(const CountingSemaphore&) = delete;
+    CountingSemaphore(CountingSemaphore&&) = delete;
+    CountingSemaphore& operator=(const CountingSemaphore&) = delete;
+    CountingSemaphore& operator=(CountingSemaphore&&) = delete;
 
     void acquire() noexcept
     {
@@ -350,15 +349,14 @@ public:
     }
 };
 
-using BinarySemaphore = CountingSemaphore<1>;
-using Semaphore = CountingSemaphore<>;
+using BinarySemaphore = CountingSemaphore;
+using Semaphore = CountingSemaphore;
 
 /** RAII-style semaphore lock */
-template <std::ptrdiff_t LeastMaxValue = std::counting_semaphore<>::max()>
 class CountingSemaphoreGrant
 {
 private:
-    CountingSemaphore<LeastMaxValue>* sem;
+    CountingSemaphore* sem;
     bool fHaveGrant;
 
 public:
@@ -389,11 +387,11 @@ public:
     }
 
     // Disallow copy.
-    CSemaphoreGrant(const CSemaphoreGrant&) = delete;
-    CSemaphoreGrant& operator=(const CSemaphoreGrant&) = delete;
+    CountingSemaphoreGrant(const CountingSemaphoreGrant&) = delete;
+    CountingSemaphoreGrant& operator=(const CountingSemaphoreGrant&) = delete;
 
     // Allow move.
-    CSemaphoreGrant(CSemaphoreGrant&& other) noexcept
+    CountingSemaphoreGrant(CountingSemaphoreGrant&& other) noexcept
     {
         sem = other.sem;
         fHaveGrant = other.fHaveGrant;
@@ -401,7 +399,7 @@ public:
         other.sem = nullptr;
     }
 
-    CSemaphoreGrant& operator=(CSemaphoreGrant&& other) noexcept
+    CountingSemaphoreGrant& operator=(CountingSemaphoreGrant&& other) noexcept
     {
         Release();
         sem = other.sem;
@@ -411,9 +409,9 @@ public:
         return *this;
     }
 
-    CSemaphoreGrant() noexcept : sem(nullptr), fHaveGrant(false) {}
+    CountingSemaphoreGrant() noexcept : sem(nullptr), fHaveGrant(false) {}
 
-    explicit CountingSemaphoreGrant(CountingSemaphore<LeastMaxValue>& sema, bool fTry = false) noexcept : sem(&sema), fHaveGrant(false)
+    explicit CountingSemaphoreGrant(CountingSemaphore& sema, bool fTry = false) noexcept : sem(&sema), fHaveGrant(false)
     {
         if (fTry) {
             TryAcquire();
@@ -422,7 +420,7 @@ public:
         }
     }
 
-    ~CSemaphoreGrant()
+    ~CountingSemaphoreGrant()
     {
         Release();
     }
@@ -433,7 +431,7 @@ public:
     }
 };
 
-using BinarySemaphoreGrant = CountingSemaphoreGrant<1>;
-using SemaphoreGrant = CountingSemaphoreGrant<>;
+using BinarySemaphoreGrant = CountingSemaphoreGrant;
+using SemaphoreGrant = CountingSemaphoreGrant;
 
 #endif // BGL_SYNC_H
