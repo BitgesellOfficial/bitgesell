@@ -44,10 +44,8 @@ class WalletReindexTest(BGLTestFramework):
         node.createwallet(wallet_name='watch_only', disable_private_keys=True, blank=True, load_on_startup=True)
         wallet_watch_only = node.get_wallet_rpc('watch_only')
 
-        # For a descriptors wallet: Import address with timestamp=now.
-        # For legacy wallet: There is no way of importing a script/address with a custom time. The wallet always imports it with birthtime=1.
-        # In both cases, disable rescan to not detect the transaction.
-        wallet_watch_only.importaddress(wallet_addr, rescan=False)
+        # Import address with timestamp=now.
+        wallet_watch_only.importdescriptors([{"desc": miner_wallet.getaddressinfo(wallet_addr)["desc"], "timestamp": "now"}])
         assert_equal(len(wallet_watch_only.listtransactions()), 0)
 
         # Depending on the wallet type, the birth time changes.
