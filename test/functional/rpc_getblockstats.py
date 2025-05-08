@@ -12,6 +12,7 @@ from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
     assert_raises_rpc_error,
+    wallet_importprivkey,
 )
 import json
 import os
@@ -45,7 +46,7 @@ class GetblockstatsTest(BGLTestFramework):
         self.nodes[0].setmocktime(mocktime)
         self.nodes[0].createwallet(wallet_name='test')
         privkey = self.nodes[0].get_deterministic_priv_key().key
-        self.nodes[0].importprivkey(privkey)
+        wallet_importprivkey(self.nodes[0], privkey, 0)
 
         self.generate(self.nodes[0], COINBASE_MATURITY + 1)
 
