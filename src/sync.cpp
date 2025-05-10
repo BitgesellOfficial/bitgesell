@@ -10,9 +10,11 @@
 #include <util/threadnames.h>
 
 #include <map>
+#include <mutex>
 #include <set>
 #include <system_error>
 #include <thread>
+#include <type_traits>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -145,14 +147,30 @@ static void double_lock_detected(const void* mutex, const LockStack& lock_stack)
 template <typename MutexType>
 static void push_lock(MutexType* c, const CLockLocation& locklocation)
 {
+    constexpr bool is_recursive_mutex =
+        std::is_base_of<RecursiveMutex, MutexType>::value ||
+        std::is_base_of<std::recursive_mutex, MutexType>::value;
+
     LockData& lockdata = GetLockData();
     std::lock_guard<std::mutex> lock(lockdata.dd_mutex);
 
     LockStack& lock_stack = lockdata.m_lock_stacks[std::this_thread::get_id()];
     lock_stack.emplace_back(c, locklocation);
-    for (const LockStackItem& i : lock_stack) {
-        if (i.first == c)
-            break;
+    for (size_t j = 0; j < lock_stack.size() - 1; ++j) {
+        const LockStackItem& i = lock_stack[j];
+        if (i.first == c) {
+            if (is_recursive_mutex) {
+                break;
+            }
+            // It is not a recursive mutex and it appears in the stack two times:
+            // at position `j` and at the end (which we added just before this loop).
+            // Can't allow locking the same (non-recursive) mutex two times from the
+            // same thread as that results in an undefined behavior.
+            auto lock_stack_copy = lock_stack;
+            lock_stack.pop_back();
+            double_lock_detected(c, lock_stack_copy);
+            // double_lock_detected() does not return.
+        }
 
         const LockPair p1 = std::make_pair(i.first, c);
         if (lockdata.lockorders.count(p1))
@@ -183,7 +201,8 @@ static void pop_lock()
     }
 }
 
-void EnterCritical(const char* pszName, const char* pszFile, int nLine, void* cs, bool fTry)
+template <typename MutexType>
+void EnterCritical(const char* pszName, const char* pszFile, int nLine, MutexType* cs, bool fTry)
 {
     push_lock(cs, CLockLocation(pszName, pszFile, nLine, fTry, util::ThreadGetInternalName()));
 }
@@ -223,7 +242,7 @@ void LeaveCritical()
     pop_lock();
 }
 
-std::string LocksHeld()
+static std::string LocksHeld()
 {
     LockData& lockdata = GetLockData();
     std::lock_guard<std::mutex> lock(lockdata.dd_mutex);
@@ -251,9 +270,7 @@ static bool LockHeld(void* mutex)
 template <typename MutexType>
 void AssertLockHeldInternal(const char* pszName, const char* pszFile, int nLine, MutexType* cs)
 {
-    for (const LockStackItem& i : g_lockstack)
-        if (i.first == cs)
-            return;
+    if (LockHeld(cs)) return;
     tfm::format(std::cerr, "Assertion failed: lock %s not held in %s:%i; locks held:\n%s", pszName, pszFile, nLine, LocksHeld());
     abort();
 }
@@ -263,12 +280,9 @@ template void AssertLockHeldInternal(const char*, const char*, int, RecursiveMut
 template <typename MutexType>
 void AssertLockNotHeldInternal(const char* pszName, const char* pszFile, int nLine, MutexType* cs)
 {
-    for (const LockStackItem& i : g_lockstack) {
-        if (i.first == cs) {
+    if (!LockHeld(cs)) return;
     tfm::format(std::cerr, "Assertion failed: lock %s held in %s:%i; locks held:\n%s", pszName, pszFile, nLine, LocksHeld());
     abort();
-}
-    }
 }
 template void AssertLockNotHeldInternal(const char*, const char*, int, Mutex*);
 template void AssertLockNotHeldInternal(const char*, const char*, int, RecursiveMutex*);
