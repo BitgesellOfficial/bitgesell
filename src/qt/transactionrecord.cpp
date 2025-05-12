@@ -14,7 +14,6 @@
 #include <QDateTime>
 
 using wallet::ISMINE_SPENDABLE;
-using wallet::ISMINE_WATCH_ONLY;
 using wallet::isminetype;
 
 /* Return positive answer if transaction should be shown in list.
@@ -39,61 +38,20 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
     Txid hash = wtx.tx->GetHash();
     std::map<std::string, std::string> mapValue = wtx.value_map;
 
-    if (nNet > 0 || wtx.is_coinbase)
-    {
-        //
-        // Credit
-        //
-        for(unsigned int i = 0; i < wtx.tx->vout.size(); i++)
-        {
-            const CTxOut& txout = wtx.tx->vout[i];
-            isminetype mine = wtx.txout_is_mine[i];
-            if(mine)
-            {
-                TransactionRecord sub(hash, nTime);
-                sub.idx = i; // vout index
-                sub.credit = txout.nValue;
-                sub.involvesWatchAddress = mine & ISMINE_WATCH_ONLY;
-                if (wtx.txout_address_is_mine[i])
-                {
-                    // Received by BGL Address
-                    sub.type = TransactionRecord::RecvWithAddress;
-                    sub.address = EncodeDestination(wtx.txout_address[i]);
-                }
-                else
-                {
-                    // Received by IP connection (deprecated features), or a multisignature or other non-simple transaction
-                    sub.type = TransactionRecord::RecvFromOther;
-                    sub.address = mapValue["from"];
-                }
-                if (wtx.is_coinbase)
-                {
-                    // Generated
-                    sub.type = TransactionRecord::Generated;
-                }
-
-                parts.append(sub);
-            }
-        }
-    }
-    else
-    {
-        bool involvesWatchAddress = false;
-        isminetype fAllFromMe = ISMINE_SPENDABLE;
+    isminetype fAllFromMe = ISMINE_SPENDABLE;
+    bool any_from_me = false;
+    if (wtx.is_coinbase) {
+        fAllFromMe = ISMINE_NO;
+    } else {
         for (const isminetype mine : wtx.txin_is_mine)
         {
-            if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
             if(fAllFromMe > mine) fAllFromMe = mine;
         }
 
-        isminetype fAllToMe = ISMINE_SPENDABLE;
-        for (const isminetype mine : wtx.txout_is_mine)
-        {
-            if(mine & ISMINE_WATCH_ONLY) involvesWatchAddress = true;
-            if(fAllToMe > mine) fAllToMe = mine;
-        }
+    if (fAllFromMe || !any_from_me) {
+        CAmount nTxFee = nDebit - wtx.tx->GetValueOut();
 
-        if (fAllFromMe && fAllToMe)
+        for(unsigned int i = 0; i < wtx.tx->vout.size(); i++)
         {
             // Payment to self
             std::string address;
@@ -127,7 +85,14 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
                     continue;
                 }
 
-                if (!std::get_if<CNoDestination>(&wtx.txout_address[nOut]))
+                //
+                // Debit
+                //
+
+                TransactionRecord sub(hash, nTime);
+                sub.idx = i;
+
+                if (!std::get_if<CNoDestination>(&wtx.txout_address[i]))
                 {
                     // Sent to BGL Address
                     sub.type = TransactionRecord::SendToAddress;
@@ -151,15 +116,43 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
 
                 parts.append(sub);
             }
+
+            isminetype mine = wtx.txout_is_mine[i];
+            if(mine)
+            {
+                //
+                // Credit
+                //
+
+                TransactionRecord sub(hash, nTime);
+                sub.idx = i; // vout index
+                sub.credit = txout.nValue;
+                if (wtx.txout_address_is_mine[i])
+                {
+                    // Received by Bitcoin Address
+                    sub.type = TransactionRecord::RecvWithAddress;
+                    sub.address = EncodeDestination(wtx.txout_address[i]);
+                }
+                else
+                {
+                    // Received by IP connection (deprecated features), or a multisignature or other non-simple transaction
+                    sub.type = TransactionRecord::RecvFromOther;
+                    sub.address = mapValue["from"];
+                }
+                if (wtx.is_coinbase)
+                {
+                    // Generated
+                    sub.type = TransactionRecord::Generated;
+                }
+
+                parts.append(sub);
+            }
         }
-        else
-        {
-            //
-            // Mixed debit transaction, can't break down payees
-            //
-            parts.append(TransactionRecord(hash, nTime, TransactionRecord::Other, "", nNet, 0));
-            parts.last().involvesWatchAddress = involvesWatchAddress;
-        }
+    } else {
+        //
+        // Mixed debit transaction, can't break down payees
+        //
+        parts.append(TransactionRecord(hash, nTime, TransactionRecord::Other, "", nNet, 0));
     }
 
     return parts;
