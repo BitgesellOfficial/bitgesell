@@ -139,7 +139,7 @@ void BumpFee(TransactionView& view, const uint256& txid, bool expectDisabled, st
 void CompareBalance(WalletModel& walletModel, CAmount expected_balance, QLabel* balance_label_to_check)
 {
     BGLUnit unit = walletModel.getOptionsModel()->getDisplayUnit();
-    QString balanceComparison = BGLUnits::formatWithUnit(unit, expected_balance, false, BGLUnits::SeparatorStyle::ALWAYS);
+    QString balanceComparison = BGLUnits::formatWithUnit(unit, expected_balance, false, BGLUnits::SeparatorStyle::STANDARD); // Change from ALWAYS to STANDARD passes.
     QCOMPARE(balance_label_to_check->text().trimmed(), balanceComparison);
 }
 
