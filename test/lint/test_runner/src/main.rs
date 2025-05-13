@@ -199,10 +199,13 @@ fn get_subtrees() -> Vec<&'static str> {
     ]
 }
 
-/// Return the pathspecs to exclude all subtrees
-fn get_pathspecs_exclude_subtrees() -> Vec<String> {
+/// Return the pathspecs to exclude by default
+fn get_pathspecs_default_excludes() -> Vec<String> {
     get_subtrees()
         .iter()
+        .chain(&[
+            "doc/release-notes/release-notes-*", // archived notes
+        ])
         .map(|s| format!(":(exclude){}", s))
         .collect()
 }
@@ -323,7 +326,7 @@ fn lint_py_lint() -> LintResult {
     let files = check_output(
         git()
             .args(["ls-files", "--", "*.py"])
-            .args(get_pathspecs_exclude_subtrees()),
+            .args(get_pathspecs_default_excludes()),
     )?;
 
     let mut cmd = Command::new(bin_name);
@@ -394,7 +397,7 @@ expected to follow the naming "/doc/release-notes-<PR number>.md".
 
 /// Return the pathspecs for whitespace related excludes
 fn get_pathspecs_exclude_whitespace() -> Vec<String> {
-    let mut list = get_pathspecs_exclude_subtrees();
+    let mut list = get_pathspecs_default_excludes();
     list.extend(
         [
             // Permanent excludes
@@ -403,7 +406,6 @@ fn get_pathspecs_exclude_whitespace() -> Vec<String> {
             "contrib/windeploy/win-codesign.cert",
             "doc/README_windows.txt",
             // Temporary excludes, or existing violations
-            "doc/release-notes/release-notes-0.*",
             "contrib/init/bitcoind.openrc",
             "contrib/macdeploy/macdeployqtplus",
             "src/crypto/sha256_sse4.cpp",
@@ -504,7 +506,7 @@ fn lint_includes_build_config() -> LintResult {
                     "*.cpp",
                     "*.h",
                 ])
-                .args(get_pathspecs_exclude_subtrees())
+                .args(get_pathspecs_default_excludes())
                 .args([
                     // These are exceptions which don't use bitcoin-build-config.h, rather CMakeLists.txt adds
                     // these cppflags manually.
