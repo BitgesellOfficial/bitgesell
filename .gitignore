@@ -29,3 +29,7 @@ target/
 /CMakeUserPresets.json
 # Default CMake build directory.
 /build
+
+### Python
+__pycache__/
+*.py[oc]

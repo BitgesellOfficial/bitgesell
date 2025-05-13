@@ -46,6 +46,7 @@ env:
   BENCH: 'yes'
   SECP256K1_BENCH_ITERS: 2
   CTIMETESTS: 'yes'
+  SYMBOL_CHECK: 'yes'
   # Compile and run the examples.
   EXAMPLES: 'yes'
 
@@ -174,10 +175,31 @@ jobs:
           key: ${{ github.job }}-${{ matrix.job-type }}-ccache-${{ github.run_id }}
           restore-keys: ${{ github.job }}-${{ matrix.job-type }}-ccache-
 
-      - name: CI script
-        run: ./ci/test_run_all.sh
-        env:
-          FILE_ENV: ${{ matrix.file-env }}
+      - name: Print logs
+        uses: ./.github/actions/print-logs
+        if: ${{ !cancelled() }}
+
+  i686_debian:
+    name: "i686: Linux (Debian stable)"
+    runs-on: ubuntu-latest
+    needs: docker_cache
+
+    strategy:
+      fail-fast: false
+      matrix:
+        cc:
+          - 'i686-linux-gnu-gcc'
+          - 'clang --target=i686-pc-linux-gnu -isystem /usr/i686-linux-gnu/include'
+
+    env:
+      HOST: 'i686-linux-gnu'
+      ECDH: 'yes'
+      RECOVERY: 'yes'
+      EXTRAKEYS: 'yes'
+      SCHNORRSIG: 'yes'
+      MUSIG: 'yes'
+      ELLSWIFT: 'yes'
+      CC: ${{ matrix.cc }}
 
     steps:
       - name: Checkout
@@ -190,9 +212,67 @@ jobs:
           # https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
           key: ${{ github.job }}-${{ matrix.job-type }}-ccache-${{ github.run_id }}
 
-  windows-native-dll:
-    name: ${{ matrix.job-name }}
-    runs-on: windows-2022
+      - name: Print logs
+        uses: ./.github/actions/print-logs
+        if: ${{ !cancelled() }}
+
+  s390x_debian:
+    name: "s390x (big-endian): Linux (Debian stable, QEMU)"
+    runs-on: ubuntu-latest
+    needs: docker_cache
+
+    env:
+      WRAPPER_CMD: 'qemu-s390x'
+      SECP256K1_TEST_ITERS: 16
+      HOST: 's390x-linux-gnu'
+      WITH_VALGRIND: 'no'
+      ECDH: 'yes'
+      RECOVERY: 'yes'
+      EXTRAKEYS: 'yes'
+      SCHNORRSIG: 'yes'
+      MUSIG: 'yes'
+      ELLSWIFT: 'yes'
+      CTIMETESTS: 'no'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: CI script
+        uses: ./.github/actions/run-in-docker-action
+        with:
+          dockerfile: ./ci/linux-debian.Dockerfile
+          tag: linux-debian-image
+
+      - name: Print logs
+        uses: ./.github/actions/print-logs
+        if: ${{ !cancelled() }}
+
+
+  arm32_debian:
+    name: "ARM32: Linux (Debian stable, QEMU)"
+    runs-on: ubuntu-latest
+    needs: docker_cache
+
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration:
+          - env_vars: {}
+          - env_vars: { EXPERIMENTAL: 'yes', ASM: 'arm32' }
+
+    env:
+      WRAPPER_CMD: 'qemu-arm'
+      SECP256K1_TEST_ITERS: 16
+      HOST: 'arm-linux-gnueabihf'
+      WITH_VALGRIND: 'no'
+      ECDH: 'yes'
+      RECOVERY: 'yes'
+      EXTRAKEYS: 'yes'
+      SCHNORRSIG: 'yes'
+      MUSIG: 'yes'
+      ELLSWIFT: 'yes'
+      CTIMETESTS: 'no'
 
     steps:
       - name: Checkout
@@ -205,23 +285,9 @@ jobs:
           dockerfile: ./ci/linux-debian.Dockerfile
           tag: linux-debian-image
 
-      - run: cat tests.log || true
-        if: ${{ always() }}
-      - run: cat noverify_tests.log || true
-        if: ${{ always() }}
-      - run: cat exhaustive_tests.log || true
-        if: ${{ always() }}
-      - run: cat ctime_tests.log || true
-        if: ${{ always() }}
-      - run: cat bench.log || true
-        if: ${{ always() }}
-      - run: cat config.log || true
-        if: ${{ always() }}
-      - run: cat test_env.log || true
-        if: ${{ always() }}
-      - name: CI env
-        run: env
-        if: ${{ always() }}
+      - name: Print logs
+        uses: ./.github/actions/print-logs
+        if: ${{ !cancelled() }}
 
   arm64_debian:
     name: "ARM64: Linux (Debian stable, QEMU)"
@@ -251,7 +317,25 @@ jobs:
           - env_vars: # clang-snapshot
               CC: 'clang-snapshot --target=aarch64-linux-gnu'
 
-    if: ${{ vars.SKIP_BRANCH_PUSH != 'true' || github.event_name == 'pull_request' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: CI script
+        env: ${{ matrix.configuration.env_vars }}
+        uses: ./.github/actions/run-in-docker-action
+        with:
+          dockerfile: ./ci/linux-debian.Dockerfile
+          tag: linux-debian-image
+
+      - name: Print logs
+        uses: ./.github/actions/print-logs
+        if: ${{ !cancelled() }}
+
+  ppc64le_debian:
+    name: "ppc64le: Linux (Debian stable, QEMU)"
+    runs-on: ubuntu-latest
+    needs: docker_cache
 
     env:
       WRAPPER_CMD: 'qemu-ppc64le'
@@ -265,6 +349,26 @@ jobs:
       MUSIG: 'yes'
       ELLSWIFT: 'yes'
       CTIMETESTS: 'no'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: CI script
+        uses: ./.github/actions/run-in-docker-action
+        with:
+          dockerfile: ./ci/linux-debian.Dockerfile
+          tag: linux-debian-image
+
+      - name: Print logs
+        uses: ./.github/actions/print-logs
+        if: ${{ !cancelled() }}
+
+
+  valgrind_debian:
+    name: "Valgrind (memcheck)"
+    runs-on: ubuntu-latest
+    needs: docker_cache
 
     strategy:
       fail-fast: false
@@ -289,16 +393,9 @@ jobs:
           dockerfile: ./ci/linux-debian.Dockerfile
           tag: linux-debian-image
 
-      - name: Get tool information
-        shell: pwsh
-        run: |
-          cmake -version | Tee-Object -FilePath "cmake_version"
-          Write-Output "---"
-          msbuild -version | Tee-Object -FilePath "msbuild_version"
-          $env:VCToolsVersion | Tee-Object -FilePath "toolset_version"
-          py -3 --version
-          Write-Host "PowerShell version $($PSVersionTable.PSVersion.ToString())"
-          bash --version
+      - name: Print logs
+        uses: ./.github/actions/print-logs
+        if: ${{ !cancelled() }}
 
       - name: Using vcpkg with MSBuild
         run: |
@@ -306,11 +403,44 @@ jobs:
           # Workaround for libevent, which requires CMake 3.1 but is incompatible with CMake >= 4.0.
           sed -i '1s/^/set(ENV{CMAKE_POLICY_VERSION_MINIMUM} 3.5)\n/' "${VCPKG_INSTALLATION_ROOT}/scripts/ports.cmake"
 
-      - name: vcpkg tools cache
-        uses: actions/cache@v4
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration:
+          - env_vars: { CC: 'clang',                                      ASM: 'auto' }
+          - env_vars: { CC: 'i686-linux-gnu-gcc', HOST: 'i686-linux-gnu', ASM: 'auto' }
+          - env_vars: { CC: 'clang',                                      ASM: 'no', ECMULTGENKB: 2, ECMULTWINDOW: 2 }
+          - env_vars: { CC: 'i686-linux-gnu-gcc', HOST: 'i686-linux-gnu', ASM: 'no', ECMULTGENKB: 2, ECMULTWINDOW: 2 }
+
+    env:
+      ECDH: 'yes'
+      RECOVERY: 'yes'
+      EXTRAKEYS: 'yes'
+      SCHNORRSIG: 'yes'
+      MUSIG: 'yes'
+      ELLSWIFT: 'yes'
+      CTIMETESTS: 'no'
+      CFLAGS: '-fsanitize=undefined,address -g'
+      UBSAN_OPTIONS: 'print_stacktrace=1:halt_on_error=1'
+      ASAN_OPTIONS: 'strict_string_checks=1:detect_stack_use_after_return=1:detect_leaks=1'
+      LSAN_OPTIONS: 'use_unaligned=1'
+      SECP256K1_TEST_ITERS: 32
+      SYMBOL_CHECK: 'no'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: CI script
+        env: ${{ matrix.configuration.env_vars }}
+        uses: ./.github/actions/run-in-docker-action
         with:
-          path: C:/vcpkg/downloads/tools
-          key: ${{ github.job }}-vcpkg-tools
+          dockerfile: ./ci/linux-debian.Dockerfile
+          tag: linux-debian-image
+
+      - name: Print logs
+        uses: ./.github/actions/print-logs
+        if: ${{ !cancelled() }}
 
   msan_debian:
     name: "MSan"
@@ -346,6 +476,7 @@ jobs:
       SECP256K1_TEST_ITERS: 32
       ASM: 'no'
       WITH_VALGRIND: 'no'
+      SYMBOL_CHECK: 'no'
 
     steps:
       - name: Checkout
@@ -358,9 +489,10 @@ jobs:
           path: ~/AppData/Local/vcpkg/archives
           key: ${{ github.job }}-vcpkg-binary-${{ hashFiles('cmake_version', 'msbuild_version', 'toolset_version', 'vcpkg.json') }}
 
-      - name: Generate build system
-        run: |
-          cmake -B build --preset vs2022 -DCMAKE_TOOLCHAIN_FILE="${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake" ${{ matrix.generate-options }}
+      - name: Print logs
+        uses: ./.github/actions/print-logs
+        if: ${{ !cancelled() }}
+
 
       - name: Save vcpkg binary cache
         uses: actions/cache/save@v4
@@ -369,23 +501,9 @@ jobs:
           dockerfile: ./ci/linux-debian.Dockerfile
           tag: linux-debian-image
 
-      - run: cat tests.log || true
-        if: ${{ always() }}
-      - run: cat noverify_tests.log || true
-        if: ${{ always() }}
-      - run: cat exhaustive_tests.log || true
-        if: ${{ always() }}
-      - run: cat ctime_tests.log || true
-        if: ${{ always() }}
-      - run: cat bench.log || true
-        if: ${{ always() }}
-      - run: cat config.log || true
-        if: ${{ always() }}
-      - run: cat test_env.log || true
-        if: ${{ always() }}
-      - name: CI env
-        run: env
-        if: ${{ always() }}
+      - name: Print logs
+        uses: ./.github/actions/print-logs
+        if: ${{ !cancelled() }}
 
   x86_64-macos-native:
     name: "x86_64: macOS Ventura, Valgrind"
@@ -396,6 +514,7 @@ jobs:
       CC: 'clang'
       HOMEBREW_NO_AUTO_UPDATE: 1
       HOMEBREW_NO_INSTALL_CLEANUP: 1
+      SYMBOL_CHECK: 'no'
 
     strategy:
       fail-fast: false
@@ -436,13 +555,15 @@ jobs:
           TEST_RUNNER_EXTRA: ${{ github.event_name != 'pull_request' && '--extended' || '' }}
         run: py -3 test/functional/test_runner.py --jobs $NUMBER_OF_PROCESSORS --ci --quiet --tmpdirprefix="${RUNNER_TEMP}" --combinedlogslen=99999999 --timeout-factor=${TEST_RUNNER_TIMEOUT_FACTOR} ${TEST_RUNNER_EXTRA}
 
-      - name: Clone corpora
-        if: matrix.job-type == 'fuzz'
+      - name: Symbol check
         run: |
-          git clone --depth=1 https://github.com/bitcoin-core/qa-assets "${RUNNER_TEMP}/qa-assets"
-          cd "${RUNNER_TEMP}/qa-assets"
-          echo "Using qa-assets repo from commit ..."
-          git log -1
+          python3 --version
+          python3 -m pip install lief
+          python3 ./tools/symbol-check.py .libs/libsecp256k1.dylib
+
+      - name: Print logs
+        uses: ./.github/actions/print-logs
+        if: ${{ !cancelled() }}
 
       - name: Run fuzz tests
         if: matrix.job-type == 'fuzz'
@@ -458,8 +579,25 @@ jobs:
     if: ${{ vars.SKIP_BRANCH_PUSH != 'true' || github.event_name == 'pull_request' }}
 
     env:
-      FILE_ENV: './ci/test/00_setup_env_win64.sh'
-      DANGER_CI_ON_HOST_FOLDERS: 1
+      CC: 'clang'
+      HOMEBREW_NO_AUTO_UPDATE: 1
+      HOMEBREW_NO_INSTALL_CLEANUP: 1
+      WITH_VALGRIND: 'no'
+      CTIMETESTS: 'no'
+      SYMBOL_CHECK: 'no'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        env_vars:
+          - { WIDEMUL: 'int64',  RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
+          - { WIDEMUL: 'int128_struct', ECMULTGENPRECISION: 2, ECMULTWINDOW: 4 }
+          - { WIDEMUL: 'int128',                  ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
+          - { WIDEMUL: 'int128', RECOVERY: 'yes' }
+          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
+          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes', CC: 'gcc' }
+          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes', CPPFLAGS: '-DVERIFY' }
+          - BUILD: 'distcheck'
 
     steps:
       - name: Checkout
@@ -489,12 +627,20 @@ jobs:
       - name: CI script
         run: ./ci/test_run_all.sh
 
-      - name: Save Ccache cache
-        uses: actions/cache/save@v4
-        if: github.event_name != 'pull_request' && steps.ccache-cache.outputs.cache-hit != 'true'
-        with:
-          path: ${{ env.CCACHE_DIR }}
-          key: ${{ github.job }}-ccache-${{ github.run_id }}
+      - name: Symbol check
+        env:
+          VIRTUAL_ENV: '${{ github.workspace }}/venv'
+        run: |
+          python3 --version
+          python3 -m venv $VIRTUAL_ENV
+          export PATH="$VIRTUAL_ENV/bin:$PATH"
+          python3 -m pip install lief
+          python3 ./tools/symbol-check.py .libs/libsecp256k1.dylib
+
+      - name: Print logs
+        uses: ./.github/actions/print-logs
+        if: ${{ !cancelled() }}
+
 
       - name: Upload built executables
         uses: actions/upload-artifact@v4
@@ -511,9 +657,24 @@ jobs:
     runs-on: windows-2022
     needs: windows-cross
 
-    env:
-      PYTHONUTF8: 1
-      TEST_RUNNER_TIMEOUT_FACTOR: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration:
+          - job_name: 'x64 (MSVC): Windows (VS 2022, shared)'
+            cmake_options: '-A x64 -DBUILD_SHARED_LIBS=ON'
+            symbol_check: 'true'
+          - job_name: 'x64 (MSVC): Windows (VS 2022, static)'
+            cmake_options: '-A x64 -DBUILD_SHARED_LIBS=OFF'
+          - job_name: 'x64 (MSVC): Windows (VS 2022, int128_struct)'
+            cmake_options: '-A x64 -DSECP256K1_TEST_OVERRIDE_WIDE_MULTIPLY=int128_struct'
+          - job_name: 'x64 (MSVC): Windows (VS 2022, int128_struct with __(u)mulh)'
+            cmake_options: '-A x64 -DSECP256K1_TEST_OVERRIDE_WIDE_MULTIPLY=int128_struct'
+            cpp_flags: '/DSECP256K1_MSVC_MULH_TEST_OVERRIDE'
+          - job_name: 'x86 (MSVC): Windows (VS 2022)'
+            cmake_options: '-A Win32'
+          - job_name: 'x64 (MSVC): Windows (clang-cl)'
+            cmake_options: '-T ClangCL'
 
     steps:
       - name: Checkout
@@ -524,24 +685,27 @@ jobs:
         with:
           name: x86_64-w64-mingw32-executables-${{ github.run_id }}
 
-      - name: Run bitcoind.exe
-        run: ./bin/bitcoind.exe -version
+      - name: Run BGLd.exe
+        run: ./bin/BGLd.exe -version
 
       - name: Run unit tests
         # Can't use ctest here like other jobs as we don't have a CMake build tree.
         run: |
-          ./bin/test_bitcoin.exe -l test_suite
+          ./bin/test_BGL.exe -l test_suite
           ./src/secp256k1/bin/exhaustive_tests.exe
           ./src/secp256k1/bin/noverify_tests.exe
           ./src/secp256k1/bin/tests.exe
           ./src/univalue/object.exe
           ./src/univalue/unitester.exe
 
-      - name: Run benchmarks
-        run: ./bin/bench_bitcoin.exe -sanity-check
+      - name: Symbol check
+        if: ${{ matrix.configuration.symbol_check }}
+        run: |
+          py -3 --version
+          py -3 -m pip install lief
+          py -3 .\tools\symbol-check.py build\bin\RelWithDebInfo\libsecp256k1-5.dll
 
-      - name: Adjust paths in test/config.ini
-        shell: pwsh
+      - name: Check
         run: |
           (Get-Content "test/config.ini") -replace '(?<=^SRCDIR=).*', '${{ github.workspace }}' -replace '(?<=^BUILDDIR=).*', '${{ github.workspace }}' -replace '(?<=^RPCAUTH=).*', '${{ github.workspace }}/share/rpcauth/rpcauth.py' | Set-Content "test/config.ini"
           Get-Content "test/config.ini"
@@ -601,23 +765,9 @@ jobs:
           dockerfile: ./ci/linux-debian.Dockerfile
           tag: linux-debian-image
 
-      - run: cat tests.log || true
-        if: ${{ always() }}
-      - run: cat noverify_tests.log || true
-        if: ${{ always() }}
-      - run: cat exhaustive_tests.log || true
-        if: ${{ always() }}
-      - run: cat ctime_tests.log || true
-        if: ${{ always() }}
-      - run: cat bench.log || true
-        if: ${{ always() }}
-      - run: cat config.log || true
-        if: ${{ always() }}
-      - run: cat test_env.log || true
-        if: ${{ always() }}
-      - name: CI env
-        run: env
-        if: ${{ always() }}
+      - name: Print logs
+        uses: ./.github/actions/print-logs
+        if: ${{ !cancelled() }}
 
   cxx_headers_debian:
     name: "C++ (public headers)"

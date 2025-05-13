@@ -8,6 +8,7 @@
  *************************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 
@@ -46,7 +47,7 @@ int main(void) {
     secp256k1_context* ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
     if (!fill_random(randomize, sizeof(randomize))) {
         printf("Failed to generate randomness\n");
-        return 1;
+        return EXIT_FAILURE;
     }
     /* Randomizing the context is recommended to protect against side-channel
      * leakage See `secp256k1_context_randomize` in secp256k1.h for more
@@ -57,14 +58,14 @@ int main(void) {
     /*** Key Generation ***/
     if (!fill_random(seckey, sizeof(seckey))) {
         printf("Failed to generate randomness\n");
-        return 1;
+        return EXIT_FAILURE;
     }
     /* If the secret key is zero or out of range (greater than secp256k1's
     * order), we fail. Note that the probability of this occurring is negligible
     * with a properly functioning random number generator. */
     if (!secp256k1_ec_seckey_verify(ctx, seckey)) {
         printf("Generated secret key is invalid. This indicates an issue with the random number generator.\n");
-        return 1;
+        return EXIT_FAILURE;
     }
 
     /* Public key creation using a valid context with a verified secret key should never fail */
@@ -98,13 +99,13 @@ int main(void) {
     /* Deserialize the signature. This will return 0 if the signature can't be parsed correctly. */
     if (!secp256k1_ecdsa_signature_parse_compact(ctx, &sig, serialized_signature)) {
         printf("Failed parsing the signature\n");
-        return 1;
+        return EXIT_FAILURE;
     }
 
     /* Deserialize the public key. This will return 0 if the public key can't be parsed correctly. */
     if (!secp256k1_ec_pubkey_parse(ctx, &pubkey, compressed_pubkey, sizeof(compressed_pubkey))) {
         printf("Failed parsing the public key\n");
-        return 1;
+        return EXIT_FAILURE;
     }
 
     /* Verify a signature. This will return 1 if it's valid and 0 if it's not. */
@@ -131,5 +132,5 @@ int main(void) {
      * will remove any writes that aren't used. */
     memset(seckey, 0, sizeof(seckey));
 
-    return 0;
+    return EXIT_SUCCESS;
 }

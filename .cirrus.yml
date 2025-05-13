@@ -29,6 +29,8 @@ env:
   BENCH: yes
   SECP256K1_BENCH_ITERS: 2
   CTIMETESTS: yes
+  SYMBOL_CHECK: yes
+  VIRTUAL_ENV: /root/venv
   # Compile and run the tests
   EXAMPLES: yes
 
@@ -51,73 +53,13 @@ cat_logs_snippet: &CAT_LOGS
     cat_ci_env_script:
       - env
 
-# https://cirrus-ci.org/guide/tips-and-tricks/#sharing-configuration-between-tasks
-filter_template: &FILTER_TEMPLATE
-  # Allow forks to specify SKIP_BRANCH_PUSH=true and skip CI runs when a branch is pushed,
-  # but still run CI when a PR is created.
-  # https://cirrus-ci.org/guide/writing-tasks/#conditional-task-execution
-  skip: $SKIP_BRANCH_PUSH == "true" && $CIRRUS_PR == ""
-  stateful: false  # https://cirrus-ci.org/guide/writing-tasks/#stateful-tasks
-
-base_template: &BASE_TEMPLATE
-  << : *FILTER_TEMPLATE
-  merge_base_script:
-    # Require git (used in fingerprint_script).
-    - git --version || ( apt-get update && apt-get install -y git )
-    - if [ "$CIRRUS_PR" = "" ]; then exit 0; fi
-    - git fetch --depth=1 $CIRRUS_REPO_CLONE_URL "pull/${CIRRUS_PR}/merge"
-    - git checkout FETCH_HEAD  # Use merged changes to detect silent merge conflicts
-                               # Also, the merge commit is used to lint COMMIT_RANGE="HEAD~..HEAD"
-
-main_template: &MAIN_TEMPLATE
-  timeout_in: 120m  # https://cirrus-ci.org/faq/#instance-timed-out
-  ci_script:
-    - ./ci/test_run_all.sh
-
-global_task_template: &GLOBAL_TASK_TEMPLATE
-  << : *BASE_TEMPLATE
-  << : *MAIN_TEMPLATE
-
-compute_credits_template: &CREDITS_TEMPLATE
-  # https://cirrus-ci.org/pricing/#compute-credits
-  # Only use credits for pull requests to the main repo
-  use_compute_credits: $CIRRUS_REPO_FULL_NAME == 'BitgesellOfficial/bitgesell' && $CIRRUS_PR != ""
-
-task:
-  name: 'lint'
-  << : *BASE_TEMPLATE
-  container:
-    dockerfile: ci/lint_imagefile
-    cpu: 1
-    memory: 1G
-  # For faster CI feedback, immediately schedule the linters
-  << : *CREDITS_TEMPLATE
-  unshallow_script:
-    - git fetch --unshallow --no-tags
-  lint_script:
-    - ./ci/lint_run.sh
-
-task:
-  name: 'tidy'
-  << : *GLOBAL_TASK_TEMPLATE
-  persistent_worker:
-    labels:
-      type: medium
-  env:
-    ECDH: yes
-    RECOVERY: yes
-    EXTRAKEYS: yes
-    SCHNORRSIG: yes
-    MUSIG: yes
-    ELLSWIFT: yes
-  matrix:
-    << : *ENV_MATRIX_VALGRIND
-  matrix:
-    - env:
-        CXX: i686-linux-gnu-g++
-    - env:
-        CXX: clang++ --target=i686-linux-gnu -gdwarf-4
-        CXXFLAGS: -g -O2 -isystem /usr/i686-linux-gnu/include -isystem /usr/i686-linux-gnu/include/c++/10/i686-linux-gnu
+linux_arm64_container_snippet: &LINUX_ARM64_CONTAINER
+  env_script:
+    - export PATH="$VIRTUAL_ENV/bin:$PATH"
+    - env | tee /tmp/env
+  build_script:
+    - DOCKER_BUILDKIT=1 docker build --file "ci/linux-debian.Dockerfile" --tag="ci_secp256k1_arm"
+    - docker image prune --force  # Cleanup stale layers
   test_script:
     - ./ci/cirrus.sh
   << : *CAT_LOGS

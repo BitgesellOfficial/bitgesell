@@ -19,13 +19,17 @@ get_directory_property(precious_variables CACHE_VARIABLES)
 #=============================
 # Project / Package metadata
 #=============================
-set(CLIENT_NAME "Bitgesell Core")
-set(CLIENT_VERSION_MAJOR 29)
-set(CLIENT_VERSION_MINOR 99)
-set(CLIENT_VERSION_BUILD 0)
-set(CLIENT_VERSION_RC 0)
-set(CLIENT_VERSION_IS_RELEASE "false")
-set(COPYRIGHT_YEAR "2025")
+project(libsecp256k1
+  # The package (a.k.a. release) version is based on semantic versioning 2.0.0 of
+  # the API. All changes in experimental modules are treated as
+  # backwards-compatible and therefore at most increase the minor version.
+  VERSION 0.6.1
+  DESCRIPTION "Optimized C library for ECDSA signatures and secret/public key operations on curve secp256k1."
+  HOMEPAGE_URL "https://github.com/bitcoin-core/secp256k1"
+  LANGUAGES C
+)
+enable_testing()
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 # During the enabling of the CXX and CXXOBJ languages, we modify
 # CMake's compiler/linker invocation strings by appending the content
@@ -55,9 +59,14 @@ if(CLIENT_VERSION_RC GREATER 0)
   string(APPEND CLIENT_VERSION_STRING "rc${CLIENT_VERSION_RC}")
 endif()
 
-set(COPYRIGHT_HOLDERS "The %s developers")
-set(COPYRIGHT_HOLDERS_FINAL "The ${CLIENT_NAME} developers")
-set(CLIENT_BUGREPORT "https://github.com/BitgesellOfficial/bitgesell/issues")
+# The library version is based on libtool versioning of the ABI. The set of
+# rules for updating the version can be found here:
+# https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
+# All changes in experimental modules are treated as if they don't affect the
+# interface and therefore only increase the revision.
+set(${PROJECT_NAME}_LIB_VERSION_CURRENT 5)
+set(${PROJECT_NAME}_LIB_VERSION_REVISION 1)
+set(${PROJECT_NAME}_LIB_VERSION_AGE 0)
 
 #=============================
 # Language setup
@@ -99,11 +108,92 @@ option(BUILD_UTIL "Build BGL-util executable." ${BUILD_TESTS})
 option(BUILD_UTIL_CHAINSTATE "Build experimental BGL-chainstate executable." OFF)
 option(BUILD_KERNEL_LIB "Build experimental BGLkernel library." ${BUILD_UTIL_CHAINSTATE})
 
-option(ENABLE_WALLET "Enable wallet." ON)
-if(ENABLE_WALLET)
-  if(VCPKG_TARGET_TRIPLET)
-    # Use of the `unofficial::` namespace is a vcpkg package manager convention.
-    find_package(unofficial-sqlite3 CONFIG REQUIRED)
+# We declare all options before processing them, to make sure we can express
+# dependencies while processing.
+option(SECP256K1_ENABLE_MODULE_ECDH "Enable ECDH module." ON)
+option(SECP256K1_ENABLE_MODULE_RECOVERY "Enable ECDSA pubkey recovery module." OFF)
+option(SECP256K1_ENABLE_MODULE_EXTRAKEYS "Enable extrakeys module." ON)
+option(SECP256K1_ENABLE_MODULE_SCHNORRSIG "Enable schnorrsig module." ON)
+option(SECP256K1_ENABLE_MODULE_MUSIG "Enable musig module." ON)
+option(SECP256K1_ENABLE_MODULE_ELLSWIFT "Enable ElligatorSwift module." ON)
+
+# Processing must be done in a topological sorting of the dependency graph
+# (dependent module first).
+if(SECP256K1_ENABLE_MODULE_ELLSWIFT)
+  add_compile_definitions(ENABLE_MODULE_ELLSWIFT=1)
+endif()
+
+if(SECP256K1_ENABLE_MODULE_MUSIG)
+  if(DEFINED SECP256K1_ENABLE_MODULE_SCHNORRSIG AND NOT SECP256K1_ENABLE_MODULE_SCHNORRSIG)
+    message(FATAL_ERROR "Module dependency error: You have disabled the schnorrsig module explicitly, but it is required by the musig module.")
+  endif()
+  set(SECP256K1_ENABLE_MODULE_SCHNORRSIG ON)
+  add_compile_definitions(ENABLE_MODULE_MUSIG=1)
+endif()
+
+if(SECP256K1_ENABLE_MODULE_SCHNORRSIG)
+  if(DEFINED SECP256K1_ENABLE_MODULE_EXTRAKEYS AND NOT SECP256K1_ENABLE_MODULE_EXTRAKEYS)
+    message(FATAL_ERROR "Module dependency error: You have disabled the extrakeys module explicitly, but it is required by the schnorrsig module.")
+  endif()
+  set(SECP256K1_ENABLE_MODULE_EXTRAKEYS ON)
+  add_compile_definitions(ENABLE_MODULE_SCHNORRSIG=1)
+endif()
+
+if(SECP256K1_ENABLE_MODULE_EXTRAKEYS)
+  add_compile_definitions(ENABLE_MODULE_EXTRAKEYS=1)
+endif()
+
+if(SECP256K1_ENABLE_MODULE_RECOVERY)
+  add_compile_definitions(ENABLE_MODULE_RECOVERY=1)
+endif()
+
+if(SECP256K1_ENABLE_MODULE_ECDH)
+  add_compile_definitions(ENABLE_MODULE_ECDH=1)
+endif()
+
+option(SECP256K1_USE_EXTERNAL_DEFAULT_CALLBACKS "Enable external default callback functions." OFF)
+if(SECP256K1_USE_EXTERNAL_DEFAULT_CALLBACKS)
+  add_compile_definitions(USE_EXTERNAL_DEFAULT_CALLBACKS=1)
+endif()
+
+set(SECP256K1_ECMULT_WINDOW_SIZE 15 CACHE STRING "Window size for ecmult precomputation for verification, specified as integer in range [2..24]. The default value is a reasonable setting for desktop machines (currently 15). [default=15]")
+set_property(CACHE SECP256K1_ECMULT_WINDOW_SIZE PROPERTY STRINGS 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24)
+include(CheckStringOptionValue)
+check_string_option_value(SECP256K1_ECMULT_WINDOW_SIZE)
+add_compile_definitions(ECMULT_WINDOW_SIZE=${SECP256K1_ECMULT_WINDOW_SIZE})
+
+set(SECP256K1_ECMULT_GEN_KB 86 CACHE STRING "The size of the precomputed table for signing in multiples of 1024 bytes (on typical platforms). Larger values result in possibly better signing or key generation performance at the cost of a larger table. Valid choices are 2, 22, 86. The default value is a reasonable setting for desktop machines (currently 86). [default=86]")
+set_property(CACHE SECP256K1_ECMULT_GEN_KB PROPERTY STRINGS 2 22 86)
+check_string_option_value(SECP256K1_ECMULT_GEN_KB)
+if(SECP256K1_ECMULT_GEN_KB EQUAL 2)
+  add_compile_definitions(COMB_BLOCKS=2)
+  add_compile_definitions(COMB_TEETH=5)
+elseif(SECP256K1_ECMULT_GEN_KB EQUAL 22)
+  add_compile_definitions(COMB_BLOCKS=11)
+  add_compile_definitions(COMB_TEETH=6)
+elseif(SECP256K1_ECMULT_GEN_KB EQUAL 86)
+  add_compile_definitions(COMB_BLOCKS=43)
+  add_compile_definitions(COMB_TEETH=6)
+endif()
+
+set(SECP256K1_TEST_OVERRIDE_WIDE_MULTIPLY "OFF" CACHE STRING "Test-only override of the (autodetected by the C code) \"widemul\" setting. Legal values are: \"OFF\", \"int128_struct\", \"int128\" or \"int64\". [default=OFF]")
+set_property(CACHE SECP256K1_TEST_OVERRIDE_WIDE_MULTIPLY PROPERTY STRINGS "OFF" "int128_struct" "int128" "int64")
+check_string_option_value(SECP256K1_TEST_OVERRIDE_WIDE_MULTIPLY)
+if(SECP256K1_TEST_OVERRIDE_WIDE_MULTIPLY)
+  string(TOUPPER "${SECP256K1_TEST_OVERRIDE_WIDE_MULTIPLY}" widemul_upper_value)
+  add_compile_definitions(USE_FORCE_WIDEMUL_${widemul_upper_value}=1)
+endif()
+mark_as_advanced(FORCE SECP256K1_TEST_OVERRIDE_WIDE_MULTIPLY)
+
+set(SECP256K1_ASM "AUTO" CACHE STRING "Assembly to use: \"AUTO\", \"OFF\", \"x86_64\" or \"arm32\" (experimental). [default=AUTO]")
+set_property(CACHE SECP256K1_ASM PROPERTY STRINGS "AUTO" "OFF" "x86_64" "arm32")
+check_string_option_value(SECP256K1_ASM)
+if(SECP256K1_ASM STREQUAL "arm32")
+  enable_language(ASM)
+  include(CheckArm32Assembly)
+  check_arm32_assembly()
+  if(HAVE_ARM32_ASM)
+    add_compile_definitions(USE_EXTERNAL_ASM=1)
   else()
     find_package(SQLite3 3.7.17 REQUIRED)
   endif()
@@ -304,201 +394,46 @@ if(WIN32)
   endif()
 endif()
 
-# Use 64-bit off_t on 32-bit Linux.
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_SIZEOF_VOID_P EQUAL 4)
-  # Ensure 64-bit offsets are used for filesystem accesses for 32-bit compilation.
-  target_compile_definitions(core_interface INTERFACE
-    _FILE_OFFSET_BITS=64
-  )
-endif()
-
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  target_compile_definitions(core_interface INTERFACE OBJC_OLD_DISPATCH_PROTOTYPES=0)
-  # These flags are specific to ld64, and may cause issues with other linkers.
-  # For example: GNU ld will interpret -dead_strip as -de and then try and use
-  # "ad_strip" as the symbol for the entry point.
-  try_append_linker_flag("-Wl,-dead_strip" TARGET core_interface)
-  try_append_linker_flag("-Wl,-dead_strip_dylibs" TARGET core_interface)
-  if(CMAKE_HOST_APPLE)
-    try_append_linker_flag("-Wl,-headerpad_max_install_names" TARGET core_interface)
-  endif()
-endif()
-
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-
-option(Libmultiprocess_ENABLE_CLANG_TIDY "Run clang-tidy with the compiler." OFF)
-if(Libmultiprocess_ENABLE_CLANG_TIDY)
-  find_program(CLANG_TIDY_EXECUTABLE NAMES clang-tidy)
-  if(NOT CLANG_TIDY_EXECUTABLE)
-    message(FATAL_ERROR "Libmultiprocess_ENABLE_CLANG_TIDY is ON but clang-tidy is not found.")
-  endif()
-  set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXECUTABLE}")
-endif()
-
-set(MPGEN_EXECUTABLE "" CACHE FILEPATH "If specified, should be full path to an external mpgen binary to use rather than the one built internally.")
-
-include("cmake/compat_config.cmake")
-include("cmake/pthread_checks.cmake")
-include(GNUInstallDirs)
-
-# Set MP_INCLUDE_DIR as a global property so target_capnp_sources function can
-# use it, and its callers don't need to specify the include directory manually
-# to avoid "error: Import failed: /mp/proxy.capnp" failures from capnproto.
-set_property(GLOBAL PROPERTY MP_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
-
-# Set a convenience variable for subdirectories.
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-  set(MP_STANDALONE TRUE)
-  include(CTest)
+include(TryAppendCFlags)
+if(MSVC)
+  # For both cl and clang-cl compilers.
+  try_append_c_flags(/W3) # Production quality warning level.
+  # Eliminate deprecation warnings for the older, less secure functions.
+  add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 else()
-  set(MP_STANDALONE FALSE)
+  try_append_c_flags(-Wall) # GCC >= 2.95 and probably many other compilers.
+endif()  
+if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+  # Keep the following commands ordered lexicographically.
+  try_append_c_flags(/wd4146) # Disable warning C4146 "unary minus operator applied to unsigned type, result still unsigned".
+  try_append_c_flags(/wd4244) # Disable warning C4244 "'conversion' conversion from 'type1' to 'type2', possible loss of data".
+  try_append_c_flags(/wd4267) # Disable warning C4267 "'var' : conversion from 'size_t' to 'type', possible loss of data".
+else()
+  # Keep the following commands ordered lexicographically.
+  try_append_c_flags(-pedantic)
+  try_append_c_flags(-Wcast-align) # GCC >= 2.95.
+  try_append_c_flags(-Wcast-align=strict) # GCC >= 8.0.
+  try_append_c_flags(-Wconditional-uninitialized) # Clang >= 3.0 only.
+  try_append_c_flags(-Wextra) # GCC >= 3.4, this is the newer name of -W, which we don't use because older GCCs will warn about unused functions.
+  try_append_c_flags(-Wnested-externs)
+  try_append_c_flags(-Wno-long-long) # GCC >= 3.0, -Wlong-long is implied by -pedantic.
+  try_append_c_flags(-Wno-overlength-strings) # GCC >= 4.2, -Woverlength-strings is implied by -pedantic.
+  try_append_c_flags(-Wno-unused-function) # GCC >= 3.0, -Wunused-function is implied by -Wall.
+  try_append_c_flags(-Wreserved-identifier) # Clang >= 13.0 only.
+  try_append_c_flags(-Wshadow)
+  try_append_c_flags(-Wstrict-prototypes)
+  try_append_c_flags(-Wundef)
 endif()
 
-# Prevent include directories from parent project from leaking into this one.
-set_property(DIRECTORY PROPERTY INCLUDE_DIRECTORIES "")
-
-# Generated C++ preprocessor defines
-configure_file(include/mp/config.h.in "${CMAKE_CURRENT_BINARY_DIR}/include/mp/config.h")
-
-# Generated C++ Capn'Proto schema files
-capnp_generate_cpp(MP_PROXY_SRCS MP_PROXY_HDRS include/mp/proxy.capnp)
-
-# util library
-add_library(mputil OBJECT src/mp/util.cpp)
-target_include_directories(mputil PRIVATE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
-target_link_libraries(mputil PUBLIC CapnProto::kj)
-
-# libmultiprocess.a runtime library
-set(MP_PUBLIC_HEADERS
-  ${MP_PROXY_HDRS}
-  include/mp/proxy-io.h
-  include/mp/proxy-types.h
-  include/mp/proxy.h
-  include/mp/type-char.h
-  include/mp/type-chrono.h
-  include/mp/type-context.h
-  include/mp/type-data.h
-  include/mp/type-decay.h
-  include/mp/type-exception.h
-  include/mp/type-function.h
-  include/mp/type-interface.h
-  include/mp/type-map.h
-  include/mp/type-message.h
-  include/mp/type-number.h
-  include/mp/type-optional.h
-  include/mp/type-pair.h
-  include/mp/type-pointer.h
-  include/mp/type-set.h
-  include/mp/type-string.h
-  include/mp/type-struct.h
-  include/mp/type-threadmap.h
-  include/mp/type-tuple.h
-  include/mp/type-vector.h
-  include/mp/type-void.h
-  include/mp/util.h)
-add_library(multiprocess STATIC
-  ${MP_PROXY_SRCS}
-  ${MP_PUBLIC_HEADERS}
-  src/mp/proxy.cpp
-  $<TARGET_OBJECTS:mputil>)
-add_library(Libmultiprocess::multiprocess ALIAS multiprocess)
-target_include_directories(multiprocess PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-target_link_libraries(multiprocess PUBLIC CapnProto::capnp)
-target_link_libraries(multiprocess PUBLIC CapnProto::capnp-rpc)
-target_link_libraries(multiprocess PUBLIC CapnProto::kj)
-target_link_libraries(multiprocess PUBLIC CapnProto::kj-async)
-set_target_properties(multiprocess PROPERTIES
-    PUBLIC_HEADER "${MP_PUBLIC_HEADERS}")
-install(TARGETS multiprocess EXPORT LibTargets
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT lib
-  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mp COMPONENT lib)
-
-# mpgen code generator
-add_executable(mpgen src/mp/gen.cpp $<TARGET_OBJECTS:mputil>)
-add_executable(Libmultiprocess::mpgen ALIAS mpgen)
-target_include_directories(mpgen PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
-target_include_directories(mpgen PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-target_link_libraries(mpgen PRIVATE CapnProto::capnp)
-target_link_libraries(mpgen PRIVATE CapnProto::capnp-rpc)
-target_link_libraries(mpgen PRIVATE CapnProto::capnpc)
-target_link_libraries(mpgen PRIVATE CapnProto::kj)
-target_link_libraries(mpgen PRIVATE Threads::Threads)
-set_target_properties(mpgen PROPERTIES
-    INSTALL_RPATH_USE_LINK_PATH TRUE)
-set_target_properties(mpgen PROPERTIES
-    PUBLIC_HEADER include/mp/proxy.capnp)
-install(TARGETS mpgen EXPORT BinTargets
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT bin
-  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mp COMPONENT bin)
-
-# makefile include to invoke mpgen code generator, for downstream Make projects
-install(FILES "include/mpgen.mk"
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} COMPONENT bin)
-
-# pkg-config module to build against libmultiprocess library, for downstream autoconf projects
-configure_file(pkgconfig/libmultiprocess.pc.in "${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/libmultiprocess.pc" @ONLY)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/libmultiprocess.pc"
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig COMPONENT lib)
-
-# cmake include to invoke mpgen code generator, for downstream CMake projects
-install(
-  FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/TargetCapnpSources.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Libmultiprocess COMPONENT bin)
-
-# CMake target import files, for downstream CMake projects
-install(EXPORT BinTargets
-  NAMESPACE Libmultiprocess::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Libmultiprocess COMPONENT bin)
-install(EXPORT LibTargets
-  NAMESPACE Libmultiprocess::
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Libmultiprocess COMPONENT lib)
-
-# CMake find_package config file, for downstream CMake projects
-include(CMakePackageConfigHelpers)
-configure_package_config_file(
-  ${PROJECT_SOURCE_DIR}/cmake/Config.cmake.in
-  LibmultiprocessConfig.cmake
-  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Libmultiprocess
-  NO_SET_AND_CHECK_MACRO)
-install(
-  FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/LibmultiprocessConfig.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Libmultiprocess
-  COMPONENT common)
-
-# Makefile targets to support "make install-bin" "make install-lib"
-add_custom_target(install-bin
-  COMMAND ${CMAKE_COMMAND} -DCOMPONENT=bin -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_install.cmake
-  COMMAND ${CMAKE_COMMAND} -DCOMPONENT=common -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_install.cmake
-  VERBATIM)
-add_dependencies(install-bin mpgen)
-add_custom_target(install-lib
-  COMMAND ${CMAKE_COMMAND} -DCOMPONENT=lib -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_install.cmake
-  COMMAND ${CMAKE_COMMAND} -DCOMPONENT=common -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_install.cmake
-  VERBATIM)
-add_dependencies(install-lib multiprocess)
-
-# Prefer Unix-style package components over frameworks on macOS.
-# This improves compatibility with Python version managers.
-set(Python3_FIND_FRAMEWORK LAST CACHE STRING "")
-# Search for generic names before more specialized ones. This
-# improves compatibility with Python version managers that use shims.
-set(Python3_FIND_UNVERSIONED_NAMES FIRST CACHE STRING "")
-mark_as_advanced(Python3_FIND_FRAMEWORK Python3_FIND_UNVERSIONED_NAMES)
-find_package(Python3 3.10 COMPONENTS Interpreter)
-if(Python3_EXECUTABLE)
-  set(PYTHON_COMMAND ${Python3_EXECUTABLE})
-else()
-  list(APPEND configure_warnings
-    "Minimum required Python not found. Utils and rpcauth tests are disabled."
-  )
+set(print_msan_notice)
+if(SECP256K1_BUILD_CTIME_TESTS)
+  include(CheckMemorySanitizer)
+  check_memory_sanitizer(msan_enabled)
+  if(msan_enabled)
+    try_append_c_flags(-fno-sanitize-memory-param-retval)
+    set(print_msan_notice YES)
+  endif()
+  unset(msan_enabled)
 endif()
 
 target_compile_definitions(core_interface INTERFACE ${DEPENDS_COMPILE_DEFINITIONS})
