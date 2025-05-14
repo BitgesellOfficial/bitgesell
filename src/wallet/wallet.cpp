@@ -759,7 +759,6 @@ void CWallet::SyncMetaData(std::pair<TxSpends::iterator, TxSpends::iterator> ran
         // fTimeReceivedIsTxTime not copied on purpose
         // nTimeReceived not copied on purpose
         copyTo->nTimeSmart = copyFrom->nTimeSmart;
-        copyTo->fFromMe = copyFrom->fFromMe;
         // nOrderPos not copied on purpose
         // cached members not copied on purpose
     }
@@ -2256,7 +2255,6 @@ void CWallet::CommitTransaction(CTransactionRef tx, mapValue_t mapValue, std::ve
         wtx.mapValue = std::move(mapValue);
         wtx.vOrderForm = std::move(orderForm);
         wtx.fTimeReceivedIsTxTime = true;
-        wtx.fFromMe = true;
         return true;
     });
 
