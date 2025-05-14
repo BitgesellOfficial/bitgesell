@@ -64,6 +64,7 @@ class ValidationTracepointTest(BGLTestFramework):
         self.skip_if_no_BGLd_tracepoints()
         self.skip_if_no_python_bcc()
         self.skip_if_no_bpf_permissions()
+        self.skip_if_running_under_valgrind()
 
     def run_test(self):
         # Tests the validation:block_connected tracepoint by generating blocks
