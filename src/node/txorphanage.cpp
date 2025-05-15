@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <txorphanage.h>
+#include <node/txorphanage.h>
 
 #include <consensus/validation.h>
 #include <logging.h>
@@ -12,7 +12,7 @@
 
 #include <cassert>
 
-
+namespace node{
 bool TxOrphanage::AddTx(const CTransactionRef& tx, NodeId peer)
 {
     const Txid& hash = tx->GetHash();
@@ -385,3 +385,4 @@ void TxOrphanage::SanityCheck() const
         }
     }
 }
+} // namespace node

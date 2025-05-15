@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BGL_TXORPHANAGE_H
-#define BGL_TXORPHANAGE_H
+#ifndef BGL_NODE_TXORPHANAGE_H
+#define BGL_NODE_TXORPHANAGE_H
 
 #include <consensus/validation.h>
 #include <net.h>
@@ -15,6 +15,7 @@
 #include <map>
 #include <set>
 
+namespace node{
 /** Expiration time for orphan transactions */
 static constexpr auto ORPHAN_TX_EXPIRE_TIME{20min};
 /** Minimum time between orphan transactions expire time checks */
@@ -160,5 +161,5 @@ protected:
     /** Timestamp for the next scheduled sweep of expired orphans */
     NodeSeconds m_next_sweep{0s};
 };
-
-#endif // BGL_TXORPHANAGE_H
+} // namespace node
+#endif // BGL_NODE_TXORPHANAGE_H

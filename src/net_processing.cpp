@@ -25,6 +25,7 @@
 #include <node/blockstorage.h>
 #include <node/timeoffsets.h>
 #include <node/txdownloadman.h>
+#include <node/txorphanage.h>
 #include <node/txreconciliation.h>
 #include <node/warnings.h>
 #include <policy/fees.h>
@@ -38,8 +39,7 @@
 #include <sync.h>
 #include <tinyformat.h>
 #include <txmempool.h>
-#include <txorphanage.h>
-#include <txrequest.h>
+#include <uint256.h>
 #include <util/check.h>
 #include <util/strencodings.h>
 #include <util/time.h>
@@ -503,7 +503,7 @@ public:
     std::optional<std::string> FetchBlock(NodeId peer_id, const CBlockIndex& block_index) override
         EXCLUSIVE_LOCKS_REQUIRED(!m_peer_mutex);
     bool GetNodeStateStats(NodeId nodeid, CNodeStateStats& stats) const override EXCLUSIVE_LOCKS_REQUIRED(!m_peer_mutex);
-    std::vector<TxOrphanage::OrphanTxBase> GetOrphanTransactions() override EXCLUSIVE_LOCKS_REQUIRED(!m_tx_download_mutex);
+    std::vector<node::TxOrphanage::OrphanTxBase> GetOrphanTransactions() override EXCLUSIVE_LOCKS_REQUIRED(!m_tx_download_mutex);
     PeerManagerInfo GetInfo() const override EXCLUSIVE_LOCKS_REQUIRED(!m_peer_mutex);
     void SendPings() override EXCLUSIVE_LOCKS_REQUIRED(!m_peer_mutex);
     void RelayTransaction(const Txid& txid, const Wtxid& wtxid) override EXCLUSIVE_LOCKS_REQUIRED(!m_peer_mutex);
@@ -1724,7 +1724,7 @@ bool PeerManagerImpl::GetNodeStateStats(NodeId nodeid, CNodeStateStats& stats) c
     return true;
 }
 
-std::vector<TxOrphanage::OrphanTxBase> PeerManagerImpl::GetOrphanTransactions()
+std::vector<node::TxOrphanage::OrphanTxBase> PeerManagerImpl::GetOrphanTransactions()
 {
     LOCK(m_tx_download_mutex);
     return m_txdownloadman.GetOrphanTransactions();
