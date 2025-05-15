@@ -140,6 +140,8 @@ target_raw_data_sources(test_BGL NAMESPACE test::data
   data/asmap.raw
 )
 
+add_windows_application_manifest(test_BGL)
+
 target_link_libraries(test_BGL
   core_interface
   test_util

@@ -256,6 +256,7 @@ add_executable(BGL-qt
 )
 
 add_windows_resources(BGL-qt res/BGL-qt-res.rc)
+add_windows_application_manifest(BGL-qt)
 
 target_link_libraries(BGL-qt
   core_interface

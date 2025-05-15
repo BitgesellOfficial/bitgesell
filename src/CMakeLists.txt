@@ -206,6 +206,7 @@ if(ENABLE_WALLET)
       wallet/wallettool.cpp
     )
     add_windows_resources(BGL-wallet BGL-wallet-res.rc)
+    add_windows_application_manifest(BGL-wallet)
     target_link_libraries(BGL-wallet
       core_interface
       BGL_wallet
@@ -332,10 +333,10 @@ target_link_libraries(BGL_node
 )
 
 # Bitcoin wrapper executable that can call other executables.
-if(BUILD_BITCOIN_BIN)
-  add_executable(bitcoin bitcoin.cpp)
-  target_link_libraries(bitcoin core_interface bitcoin_util)
-  install_binary_component(bitcoin)
+if(BUILD_BGL_BIN)
+  add_executable(BGL BGL.cpp)
+  target_link_libraries(BGL core_interface BGL_util)
+  install_binary_component(BGL)
 endif()
 
 # Bitcoin Core bitcoind.
@@ -345,6 +346,7 @@ if(BUILD_DAEMON)
     init/BGLd.cpp
   )
   add_windows_resources(BGLd BGLd-res.rc)
+  add_windows_application_manifest(BGLd)
   target_link_libraries(BGLd
     core_interface
     BGL_node
@@ -398,6 +400,7 @@ target_link_libraries(BGL_cli
 if(BUILD_CLI)
   add_executable(BGL-cli BGL-cli.cpp)
   add_windows_resources(BGL-cli BGL-cli-res.rc)
+  add_windows_application_manifest(BGL-cli)
   target_link_libraries(BGL-cli
     core_interface
     BGL_cli
@@ -413,6 +416,7 @@ endif()
 if(BUILD_TX)
   add_executable(BGL-tx BGL-tx.cpp)
   add_windows_resources(BGL-tx BGL-tx-res.rc)
+  add_windows_application_manifest(BGL-tx)
   target_link_libraries(BGL-tx
     core_interface
     BGL_common
@@ -426,6 +430,7 @@ endif()
 if(BUILD_UTIL)
   add_executable(BGL-util BGL-util.cpp)
   add_windows_resources(BGL-util BGL-util-res.rc)
+  add_windows_application_manifest(BGL-util)
   target_link_libraries(BGL-util
     core_interface
     BGL_common
