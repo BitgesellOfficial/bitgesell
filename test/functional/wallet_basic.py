@@ -535,7 +535,6 @@ class WalletTest(BGLTestFramework):
         assert_equal(address_info['address'], "rbgl1qdny83c9q5x3glq86aa68gevelzqwwu9qhdhxqa")
         assert_equal(address_info["scriptPubKey"], "00146cc878e0a0a1a28f80faef74746599f880e770a0")
         assert not address_info["ismine"]
-        assert not address_info["iswatchonly"]
         assert not address_info["isscript"]
         assert not address_info["ischange"]
 

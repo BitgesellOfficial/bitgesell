@@ -282,7 +282,6 @@ class WalletMigrationTest(BGLTestFramework):
         # Transaction to multisig is in multisig1_watchonly and not multisig1
         _, multisig1 = self.migrate_and_get_rpc("multisig1")
         assert_equal(multisig1.getaddressinfo(addr1)["ismine"], False)
-        assert_equal(multisig1.getaddressinfo(addr1)["iswatchonly"], False)
         assert_equal(multisig1.getaddressinfo(addr1)["solvable"], False)
         assert_raises_rpc_error(-5, "Invalid or non-wallet transaction id", multisig1.gettransaction, txid)
         assert_equal(multisig1.getbalance(), 0)
@@ -368,7 +367,7 @@ class WalletMigrationTest(BGLTestFramework):
         assert_raises_rpc_error(-5, "Invalid or non-wallet transaction id", imports0.gettransaction, received_watchonly_txid)
         assert_raises_rpc_error(-5, "Invalid or non-wallet transaction id", imports0.gettransaction, received_sent_watchonly_utxo['txid'])
         assert_raises_rpc_error(-5, "Invalid or non-wallet transaction id", imports0.gettransaction, sent_watchonly_txid)
-        assert_equal(len(imports0.listtransactions(include_watchonly=True)), 2)
+        assert_equal(len(imports0.listtransactions()), 2)
         imports0.gettransaction(received_txid)
         imports0.gettransaction(watchonly_spendable_txid)
         assert_equal(imports0.getbalance(), spendable_bal)
@@ -855,18 +854,14 @@ class WalletMigrationTest(BGLTestFramework):
 
         # Both addresses should only appear in the watchonly wallet
         p2pkh_addr_info = wallet.getaddressinfo(p2pkh_addr)
-        assert_equal(p2pkh_addr_info["iswatchonly"], False)
         assert_equal(p2pkh_addr_info["ismine"], False)
         p2wpkh_addr_info = wallet.getaddressinfo(p2wpkh_addr)
-        assert_equal(p2wpkh_addr_info["iswatchonly"], False)
         assert_equal(p2wpkh_addr_info["ismine"], False)
 
         watchonly_wallet = self.master_node.get_wallet_rpc(migrate_info["watchonly_name"])
         watchonly_p2pkh_addr_info = watchonly_wallet.getaddressinfo(p2pkh_addr)
-        assert_equal(watchonly_p2pkh_addr_info["iswatchonly"], False)
         assert_equal(watchonly_p2pkh_addr_info["ismine"], True)
         watchonly_p2wpkh_addr_info = watchonly_wallet.getaddressinfo(p2wpkh_addr)
-        assert_equal(watchonly_p2wpkh_addr_info["iswatchonly"], False)
         assert_equal(watchonly_p2wpkh_addr_info["ismine"], True)
 
         # There should only be raw or addr descriptors
@@ -1101,7 +1096,6 @@ class WalletMigrationTest(BGLTestFramework):
         assert_equal(wallet.getbalances()['mine']['trusted'], 5)
         addr_info = wallet.getaddressinfo(wsh_pkh_addr)
         assert_equal(addr_info["ismine"], True)
-        assert_equal(addr_info["iswatchonly"], False)
         assert_equal(addr_info["solvable"], True)
 
         wallet.unloadwallet()
@@ -1213,7 +1207,6 @@ class WalletMigrationTest(BGLTestFramework):
         # information about the witnessScript
         comp_wsh_pkh_addr_info = wallet.getaddressinfo(comp_wsh_pkh_addr)
         assert_equal(comp_wsh_pkh_addr_info["ismine"], True)
-        assert_equal(comp_wsh_pkh_addr_info["iswatchonly"], False)
         assert "embedded" in comp_wsh_pkh_addr_info
 
         # After migration, the invalid addresses should still not be detected as ismine and not watchonly.
@@ -1222,7 +1215,6 @@ class WalletMigrationTest(BGLTestFramework):
         for addr in invalid_addrs:
             addr_info = wallet.getaddressinfo(addr)
             assert_equal(addr_info["ismine"], False)
-            assert_equal(addr_info["iswatchonly"], False)
             assert "embedded" not in addr_info
 
         wallet.unloadwallet()
