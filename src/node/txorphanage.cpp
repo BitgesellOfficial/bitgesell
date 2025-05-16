@@ -244,7 +244,7 @@ public:
     void EraseForPeer(NodeId peer) override;
     void EraseForBlock(const CBlock& block) override;
     void LimitOrphans() override;
-    std::vector<std::pair<Wtxid, NodeId>> AddChildrenToWorkSet(const CTransaction& tx, FastRandomContext& rng) override;
+    void AddChildrenToWorkSet(const CTransaction& tx, FastRandomContext& rng) override;
     bool HaveTxToReconsider(NodeId peer) override;
     std::vector<CTransactionRef> GetChildrenFromSamePeer(const CTransactionRef& parent, NodeId nodeid) const override;
     size_t Size() const override { return m_unique_orphans; }
@@ -436,7 +436,7 @@ void TxOrphanageImpl::EraseForPeer(NodeId peer)
  * amount of announcements and space for each peer. The reserved amount is protected from eviction even if there
  * are peers spamming the orphanage.
  */
-void TxOrphanageImpl::LimitOrphans(FastRandomContext& rng)
+void TxOrphanageImpl::LimitOrphans()
 {
     if (!NeedsTrim()) return;
 
