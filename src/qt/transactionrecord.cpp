@@ -7,14 +7,10 @@
 #include <chain.h>
 #include <interfaces/wallet.h>
 #include <key_io.h>
-#include <wallet/types.h>
 
 #include <cstdint>
 
 #include <QDateTime>
-
-using wallet::ISMINE_SPENDABLE;
-using wallet::isminetype;
 
 /* Return positive answer if transaction should be shown in list.
  */
@@ -38,17 +34,18 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
     Txid hash = wtx.tx->GetHash();
     std::map<std::string, std::string> mapValue = wtx.value_map;
 
-    isminetype fAllFromMe = ISMINE_SPENDABLE;
+    bool all_from_me = true;
     bool any_from_me = false;
     if (wtx.is_coinbase) {
-        fAllFromMe = ISMINE_NO;
+        all_from_me = false;
     } else {
-        for (const isminetype mine : wtx.txin_is_mine)
+        for (const bool mine : wtx.txin_is_mine)
         {
-            if(fAllFromMe > mine) fAllFromMe = mine;
+            all_from_me = all_from_me && mine;
+            if (mine) any_from_me = true;
         }
 
-    if (fAllFromMe || !any_from_me) {
+    if (all_from_me || !any_from_me) {
         CAmount nTxFee = nDebit - wtx.tx->GetValueOut();
 
         for(unsigned int i = 0; i < wtx.tx->vout.size(); i++)
@@ -60,28 +57,10 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
                 address += EncodeDestination(*it);
             }
 
-            CAmount nChange = wtx.change;
-            parts.append(TransactionRecord(hash, nTime, TransactionRecord::SendToSelf, address, -(nDebit - nChange), nCredit - nChange));
-            parts.last().involvesWatchAddress = involvesWatchAddress;   // maybe pass to TransactionRecord as constructor argument
-        }
-        else if (fAllFromMe)
-        {
-            //
-            // Debit
-            //
-            CAmount nTxFee = nDebit - wtx.tx->GetValueOut();
-
-            for (unsigned int nOut = 0; nOut < wtx.tx->vout.size(); nOut++)
-            {
-                const CTxOut& txout = wtx.tx->vout[nOut];
-                TransactionRecord sub(hash, nTime);
-                sub.idx = nOut;
-                sub.involvesWatchAddress = involvesWatchAddress;
-
-                if(wtx.txout_is_mine[nOut])
-                {
-                    // Ignore parts sent to self, as this is usually the change
-                    // from a transaction sent back to our own address.
+            if (all_from_me) {
+                // Change is only really possible if we're the sender
+                // Otherwise, someone just sent bitcoins to a change address, which should be shown
+                if (wtx.txout_is_change[i]) {
                     continue;
                 }
 
@@ -117,7 +96,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
                 parts.append(sub);
             }
 
-            isminetype mine = wtx.txout_is_mine[i];
+            bool mine = wtx.txout_is_mine[i];
             if(mine)
             {
                 //
