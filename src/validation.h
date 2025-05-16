@@ -1146,7 +1146,7 @@ public:
     bool IsInitialBlockDownload() const;
 
     /** Guess verification progress (as a fraction between 0.0=genesis and 1.0=current tip). */
-    double GuessVerificationProgress(const CBlockIndex* pindex) const;
+    double GuessVerificationProgress(const CBlockIndex* pindex) const EXCLUSIVE_LOCKS_REQUIRED(GetMutex());
 
     /**
      * Import blocks from an external file
