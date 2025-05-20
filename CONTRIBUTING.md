@@ -99,7 +99,9 @@ To create a HTML report with coloured and annotated source code:
     $ mkdir -p coverage
     $ gcovr --exclude 'src/bench*' --html --html-details -o coverage/coverage.html
 
-#### Exhaustive tests
+Make sure each individual commit is hygienic: that it builds successfully on its
+own without warnings, errors, regressions, or test failures.
+This means tests must be updated in the same commit that changes the behavior.
 
 There are tests of several functions in which a small group replaces secp256k1.
 These tests are *exhaustive* since they provide all elements and scalars of the small group as input arguments (see [src/tests_exhaustive.c](src/tests_exhaustive.c)).
