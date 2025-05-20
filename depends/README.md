@@ -57,7 +57,19 @@ To build dependencies for the current arch+OS:
 
     gmake
 
-## Configuring Bitgesell Core
+### Alpine
+
+    apk add bash build-base cmake curl make patch
+
+Skip the following packages if you don't intend to use the GUI and will build with [`NO_QT=1`](#dependency-options):
+
+    apk add bison linux-headers samurai pkgconf python3
+
+To build dependencies for the current arch+OS:
+
+    make
+
+## Configuring Bitcoin Core
 
 **When configuring Bitgesell Core, CMake by default will ignore the depends output.** In
 order for it to pick up libraries, tools, and settings from the depends build,
