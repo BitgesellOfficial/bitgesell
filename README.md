@@ -111,7 +111,8 @@ Building with CMake (experimental)
 
 To maintain a pristine source tree, CMake encourages to perform an out-of-source build by using a separate dedicated build tree.
 
-### Building on POSIX systems
+The CI (Continuous Integration) systems make sure that every pull request is tested on Windows, Linux, and macOS.
+The CI must pass on all commits before merge to avoid unrelated CI failures on new pull requests.
 
     $ cmake -B build              # Generate a build system in subdirectory "build"
     $ cmake --build build         # Run the actual build process
