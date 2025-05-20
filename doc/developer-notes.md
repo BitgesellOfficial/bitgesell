@@ -1158,16 +1158,6 @@ namespace {
 
   - *Rationale*: Avoids confusion about the namespace context.
 
-- Use include guards to avoid the problem of double inclusion. The header file
-  `foo/bar.h` should use the include guard identifier `BGL_FOO_BAR_H`, e.g.
-
-```c++
-#ifndef BGL_FOO_BAR_H
-#define BGL_FOO_BAR_H
-...
-#endif // BGL_FOO_BAR_H
-```
-
 GUI
 -----
 
