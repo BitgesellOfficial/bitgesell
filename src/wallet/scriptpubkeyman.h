@@ -132,8 +132,6 @@ public:
     //! The action to do when the DB needs rewrite
     virtual void RewriteDB() {}
 
-    virtual std::optional<int64_t> GetOldestKeyPoolTime() const { return GetTime(); }
-
     virtual unsigned int GetKeyPoolSize() const { return 0; }
 
     virtual int64_t GetTimeFirstKey() const { return 0; }
@@ -362,7 +360,6 @@ public:
     //! Retrieve the particular key if it is available. Returns nullopt if the key is not in the wallet, or if the wallet is locked.
     std::optional<CKey> GetKey(const CKeyID& keyid) const EXCLUSIVE_LOCKS_REQUIRED(cs_desc_man);
 
-    std::optional<int64_t> GetOldestKeyPoolTime() const override;
     unsigned int GetKeyPoolSize() const override;
 
     int64_t GetTimeFirstKey() const override;
