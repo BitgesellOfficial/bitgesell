@@ -336,6 +336,7 @@ target_link_libraries(BGL_node
 if(BUILD_BGL_BIN)
   add_executable(BGL BGL.cpp)
   add_windows_resources(BGL BGL-res.rc)
+  add_windows_application_manifest(BGL)
   target_link_libraries(BGL core_interface BGL_util)
   install_binary_component(BGL)
 endif()
