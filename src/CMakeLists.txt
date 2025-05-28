@@ -335,6 +335,7 @@ target_link_libraries(BGL_node
 # Bitcoin wrapper executable that can call other executables.
 if(BUILD_BGL_BIN)
   add_executable(BGL BGL.cpp)
+  add_windows_resources(BGL BGL-res.rc)
   target_link_libraries(BGL core_interface BGL_util)
   install_binary_component(BGL)
 endif()
