@@ -324,6 +324,8 @@ private:
     ChunkIndex m_main_chunkindex;
     /** Number of index-observing objects in existence. */
     size_t m_main_chunkindex_observers{0};
+    /** Cache of discarded ChunkIndex node handles to reuse, avoiding additional allocation. */
+    std::vector<ChunkIndex::node_type> m_main_chunkindex_discarded;
 
     /** A Locator that describes whether, where, and in which Cluster an Entry appears.
      *  Every Entry has MAX_LEVELS locators, as it may appear in one Cluster per level.
