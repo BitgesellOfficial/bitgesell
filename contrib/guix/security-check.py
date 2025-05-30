@@ -236,6 +236,7 @@ def check_MACHO_BRANCH_PROTECTION(binary) -> bool:
     return False
 
 BASE_ELF = [
+    ('FORTIFY', check_ELF_FORTIFY),
     ('PIE', check_PIE),
     ('NX', check_NX),
     ('RELRO', check_ELF_RELRO),
@@ -260,12 +261,12 @@ BASE_MACHO = [
 ]
 
 CHECKS = {
-    lief.EXE_FORMATS.ELF: {
-        lief.ARCHITECTURES.X86: BASE_ELF + [('CONTROL_FLOW', check_ELF_CONTROL_FLOW), ('FORTIFY', check_ELF_FORTIFY)],
-        lief.ARCHITECTURES.ARM: BASE_ELF + [('FORTIFY', check_ELF_FORTIFY)],
-        lief.ARCHITECTURES.ARM64: BASE_ELF + [('FORTIFY', check_ELF_FORTIFY)],
-        lief.ARCHITECTURES.PPC: BASE_ELF + [('FORTIFY', check_ELF_FORTIFY)],
-        lief.ARCHITECTURES.RISCV: BASE_ELF, # Skip FORTIFY. See https://github.com/lief-project/LIEF/issues/1082.
+    lief.Binary.FORMATS.ELF: {
+        lief.Header.ARCHITECTURES.X86_64: BASE_ELF + [('CONTROL_FLOW', check_ELF_CONTROL_FLOW)],
+        lief.Header.ARCHITECTURES.ARM: BASE_ELF,
+        lief.Header.ARCHITECTURES.ARM64: BASE_ELF,
+        lief.Header.ARCHITECTURES.PPC64: BASE_ELF,
+        lief.Header.ARCHITECTURES.RISCV: BASE_ELF,
     },
     lief.EXE_FORMATS.PE: {
         lief.ARCHITECTURES.X86: BASE_PE,
