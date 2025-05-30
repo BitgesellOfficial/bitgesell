@@ -405,13 +405,71 @@ if(MSVC)
   # Eliminate deprecation warnings for the older, less secure functions.
   add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 else()
-  try_append_c_flags(-Wall) # GCC >= 2.95 and probably many other compilers.
-endif()  
-if(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
-  # Keep the following commands ordered lexicographically.
-  try_append_c_flags(/wd4146) # Disable warning C4146 "unary minus operator applied to unsigned type, result still unsigned".
-  try_append_c_flags(/wd4244) # Disable warning C4244 "'conversion' conversion from 'type1' to 'type2', possible loss of data".
-  try_append_c_flags(/wd4267) # Disable warning C4267 "'var' : conversion from 'size_t' to 'type', possible loss of data".
+  try_append_cxx_flags("-Wall" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wextra" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wgnu" TARGET warn_interface SKIP_LINK)
+  # Some compilers will ignore -Wformat-security without -Wformat, so just combine the two here.
+  try_append_cxx_flags("-Wformat -Wformat-security" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wvla" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wshadow-field" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wthread-safety" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wthread-safety-pointer" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wloop-analysis" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wredundant-decls" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wunused-member-function" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wdate-time" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wconditional-uninitialized" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wduplicated-branches" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wduplicated-cond" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wlogical-op" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Woverloaded-virtual" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wsuggest-override" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wimplicit-fallthrough" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wunreachable-code" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wdocumentation" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wself-assign" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wbidi-chars=any" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("-Wundef" TARGET warn_interface SKIP_LINK)
+
+  # Some compilers (gcc) ignore unknown -Wno-* options, but warn about all
+  # unknown options if any other warning is produced. Test the -Wfoo case, and
+  # set the -Wno-foo case if it works.
+  try_append_cxx_flags("-Wunused-parameter" TARGET warn_interface SKIP_LINK
+    IF_CHECK_PASSED "-Wno-unused-parameter"
+  )
+endif()
+
+configure_file(cmake/script/Coverage.cmake Coverage.cmake USE_SOURCE_PERMISSIONS COPYONLY)
+configure_file(cmake/script/CoverageFuzz.cmake CoverageFuzz.cmake USE_SOURCE_PERMISSIONS COPYONLY)
+configure_file(cmake/script/CoverageInclude.cmake.in CoverageInclude.cmake USE_SOURCE_PERMISSIONS @ONLY)
+configure_file(cmake/script/cov_tool_wrapper.sh.in cov_tool_wrapper.sh.in USE_SOURCE_PERMISSIONS COPYONLY)
+configure_file(contrib/filter-lcov.py filter-lcov.py USE_SOURCE_PERMISSIONS COPYONLY)
+
+# Don't allow extended (non-ASCII) symbols in identifiers. This is easier for code review.
+try_append_cxx_flags("-fno-extended-identifiers" TARGET core_interface SKIP_LINK)
+
+# Avoiding the `-ffile-prefix-map` compiler option because it implies
+# `-fcoverage-prefix-map` on Clang or `-fprofile-prefix-map` on GCC,
+# which can cause issues with coverage builds, particularly when using
+# Clang in the OSS-Fuzz environment due to its use of other options
+# and a third party script, or with GCC.
+try_append_cxx_flags("-fdebug-prefix-map=A=B" TARGET core_interface SKIP_LINK
+  IF_CHECK_PASSED "-fdebug-prefix-map=${PROJECT_SOURCE_DIR}/src=."
+)
+try_append_cxx_flags("-fmacro-prefix-map=A=B" TARGET core_interface SKIP_LINK
+  IF_CHECK_PASSED "-fmacro-prefix-map=${PROJECT_SOURCE_DIR}/src=."
+)
+
+# Currently all versions of gcc are subject to a class of bugs, see the
+# gccbug_90348 test case (only reproduces on GCC 11 and earlier) and
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=111843. To work around that, set
+# -fstack-reuse=none for all gcc builds. (Only gcc understands this flag).
+try_append_cxx_flags("-fstack-reuse=none" TARGET core_interface)
+
+if(MSVC)
+  try_append_linker_flag("/DYNAMICBASE" TARGET core_interface)
+  try_append_linker_flag("/HIGHENTROPYVA" TARGET core_interface)
+  try_append_linker_flag("/NXCOMPAT" TARGET core_interface)
 else()
   # Keep the following commands ordered lexicographically.
   try_append_c_flags(-pedantic)
