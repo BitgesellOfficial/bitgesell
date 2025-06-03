@@ -141,7 +141,6 @@ FUZZ_TARGET(partially_downloaded_block, .init = initialize_pdb)
         assert(!fail_check_block);
         assert(block->GetHash() == reconstructed_block.GetHash());
         break;
-    case READ_STATUS_CHECKBLOCK_FAILED: [[fallthrough]];
     case READ_STATUS_FAILED:
         assert(fail_check_block);
         break;
