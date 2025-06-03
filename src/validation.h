@@ -35,12 +35,12 @@
 #include <versionbits.h>
 
 #include <atomic>
+#include <cstdint>
 #include <map>
 #include <memory>
 #include <optional>
 #include <set>
 #include <span>
-#include <cstdint>
 #include <string>
 #include <type_traits>
 #include <utility>

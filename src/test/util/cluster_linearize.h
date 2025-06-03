@@ -13,8 +13,8 @@
 
 #include <cstdint>
 #include <numeric>
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace {
 

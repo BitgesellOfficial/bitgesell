@@ -5,8 +5,8 @@
 #ifndef BGL_CRYPTO_RIPEMD160_H
 #define BGL_CRYPTO_RIPEMD160_H
 
-#include <cstdlib>
 #include <cstdint>
+#include <cstdlib>
 
 /** A hasher class for RIPEMD-160. */
 class CRIPEMD160

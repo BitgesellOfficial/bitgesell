@@ -5,8 +5,8 @@
 #ifndef BGL_NODE_CONNECTION_TYPES_H
 #define BGL_NODE_CONNECTION_TYPES_H
 
-#include <string>
 #include <cstdint>
+#include <string>
 
 /** Different types of connections to a peer. This enum encapsulates the
  * information we have available at the time of opening or accepting the
