@@ -14,7 +14,7 @@
 #ifndef BGL_BECH32_H
 #define BGL_BECH32_H
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 

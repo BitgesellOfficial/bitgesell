@@ -8,7 +8,7 @@
 
 #ifdef ENABLE_X86_SHANI
 
-#include <stdint.h>
+#include <cstdint>
 #include <immintrin.h>
 
 #include <attributes.h>

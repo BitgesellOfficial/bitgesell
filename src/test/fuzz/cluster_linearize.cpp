@@ -12,7 +12,8 @@
 #include <util/bitset.h>
 #include <util/feefrac.h>
 
-#include <stdint.h>
+#include <algorithm>
+#include <cstdint>
 #include <vector>
 #include <utility>
 

@@ -6,10 +6,10 @@
 #ifndef BGL_TEST_SCRIPTNUM10_H
 #define BGL_TEST_SCRIPTNUM10_H
 
-#include <assert.h>
+#include <cassert>
 #include <limits>
 #include <stdexcept>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 
