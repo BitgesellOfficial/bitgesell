@@ -105,9 +105,6 @@ public:
      * reconsiderable before non-reconsiderable, then from most recent to least recent. */
     virtual std::vector<CTransactionRef> GetChildrenFromSamePeer(const CTransactionRef& parent, NodeId nodeid) const = 0;
 
-    /** Return how many entries exist in the orphange */
-    virtual size_t Size() const = 0;
-
     /** Get all orphan transactions */
     virtual std::vector<OrphanInfo> GetOrphanTransactions() const = 0;
 

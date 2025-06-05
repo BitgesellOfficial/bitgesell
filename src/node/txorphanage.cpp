@@ -253,7 +253,7 @@ public:
     std::vector<std::pair<Wtxid, NodeId>> AddChildrenToWorkSet(const CTransaction& tx, FastRandomContext& rng) override;
     bool HaveTxToReconsider(NodeId peer) override;
     std::vector<CTransactionRef> GetChildrenFromSamePeer(const CTransactionRef& parent, NodeId nodeid) const override;
-    std::vector<OrphanInfo> GetOrphanTransactions() const override;
+    std::vector<OrphanTxBase> GetOrphanTransactions() const override;
     TxOrphanage::Usage TotalOrphanUsage() const override;
     void SanityCheck() const override;
 };
