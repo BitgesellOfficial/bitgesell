@@ -495,7 +495,27 @@ if(SECP256K1_BUILD_CTIME_TESTS)
     try_append_c_flags(-fno-sanitize-memory-param-retval)
     set(print_msan_notice YES)
   endif()
-  unset(msan_enabled)
+  try_append_cxx_flags(${werror_flag} TARGET core_interface SKIP_LINK RESULT_VAR compiler_supports_werror)
+  if(NOT compiler_supports_werror)
+    message(FATAL_ERROR "WERROR set but ${werror_flag} is not usable.")
+  endif()
+  unset(werror_flag)
+endif()
+
+# Prefer Unix-style package components over frameworks on macOS.
+# This improves compatibility with Python version managers.
+set(Python3_FIND_FRAMEWORK LAST CACHE STRING "")
+# Search for generic names before more specialized ones. This
+# improves compatibility with Python version managers that use shims.
+set(Python3_FIND_UNVERSIONED_NAMES FIRST CACHE STRING "")
+mark_as_advanced(Python3_FIND_FRAMEWORK Python3_FIND_UNVERSIONED_NAMES)
+find_package(Python3 3.10 COMPONENTS Interpreter)
+if(Python3_EXECUTABLE)
+  set(PYTHON_COMMAND ${Python3_EXECUTABLE})
+else()
+  list(APPEND configure_warnings
+    "Minimum required Python not found. Rpcauth tests are disabled."
+  )
 endif()
 
 target_compile_definitions(core_interface INTERFACE ${DEPENDS_COMPILE_DEFINITIONS})
