@@ -536,14 +536,14 @@ jobs:
         run: |
           cmake --build . -j $NUMBER_OF_PROCESSORS --config Release
 
-      - name: Get bitcoind manifest
+      - name: Get BGLd manifest
         if: matrix.job-type == 'standard'
         working-directory: build
         run: |
-          mt.exe -nologo -inputresource:bin/Release/bitcoind.exe -out:bitcoind.manifest
-          cat bitcoind.manifest
+          mt.exe -nologo -inputresource:bin/Release/BGLd.exe -out:BGLd.manifest
+          cat BGLd.manifest
           echo
-          mt.exe -nologo -inputresource:bin/Release/bitcoind.exe -validate_manifest
+          mt.exe -nologo -inputresource:bin/Release/BGLd.exe -validate_manifest
 
       - name: Run test suite
         if: matrix.job-type == 'standard'
@@ -559,6 +559,7 @@ jobs:
         env:
           BGLD: '${{ github.workspace }}\build\bin\Release\BGLd.exe'
           BGLCLI: '${{ github.workspace }}\build\bin\Release\BGL-cli.exe'
+          BGLTX: '${{ github.workspace }}\build\bin\Release\BGL-tx.exe'
           BGLUTIL: '${{ github.workspace }}\build\bin\Release\BGL-util.exe'
           BGLWALLET: '${{ github.workspace }}\build\bin\Release\BGL-wallet.exe'
           TEST_RUNNER_EXTRA: ${{ github.event_name != 'pull_request' && '--extended' || '' }}
@@ -704,12 +705,12 @@ jobs:
           $sdk_latest = (Get-ChildItem "$sdk_dir\bin" -Directory | Where-Object { $_.Name -match '^\d+\.\d+\.\d+\.\d+$' } | Sort-Object Name -Descending | Select-Object -First 1).Name
           "MT_EXE=${sdk_dir}bin\${sdk_latest}\x64\mt.exe" >> $env:GITHUB_ENV
 
-      - name: Get bitcoind manifest
+      - name: Get BGLd manifest
         shell: pwsh
         run: |
-          & $env:MT_EXE -nologo -inputresource:bin\bitcoind.exe -out:bitcoind.manifest
-          Get-Content bitcoind.manifest
-          & $env:MT_EXE -nologo -inputresource:bin\bitcoind.exe -validate_manifest
+          & $env:MT_EXE -nologo -inputresource:bin\BGLd.exe -out:BGLd.manifest
+          Get-Content BGLd.manifest
+          & $env:MT_EXE -nologo -inputresource:bin\BGLd.exe -validate_manifest
 
       - name: Run unit tests
         # Can't use ctest here like other jobs as we don't have a CMake build tree.

@@ -84,6 +84,10 @@ class Binaries:
         # Add -nonamed because "bitcoin rpc" enables -named by default, but bitcoin-cli doesn't
         return self._argv("rpc", self.paths.BGLcli) + ["-nonamed"]
 
+    def tx_argv(self):
+        "Return argv array that should be used to invoke bitcoin-tx"
+        return self._argv("tx", self.paths.bitcointx)
+
     def util_argv(self):
         "Return argv array that should be used to invoke bitcoin-util"
         return self._argv("util", self.paths.BGLutil)
@@ -288,6 +292,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             "BGLd": "BGLD",
             "BGL-cli": "BGLCLI",
             "BGL-util": "BGLUTIL",
+            "BGL-tx": "BGLTX",
             "BGL-chainstate": "BGLCHAINSTATE",
             "BGL-wallet": "BGLWALLET",
         }
