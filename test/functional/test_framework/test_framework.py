@@ -285,19 +285,19 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
 
         paths = types.SimpleNamespace()
         binaries = {
-            "BGLd": ("BGLd", "BGLD"),
-            "BGL-cli": ("BGLcli", "BGLCLI"),
-            "BGL-util": ("BGLutil", "BGLUTIL"),
-            "BGL-chainstate": ("BGLchainstate", "BGLCHAINSTATE"),
-            "BGL-wallet": ("BGLwallet", "BGLWALLET"),
+            "BGLd": "BGLD",
+            "BGL-cli": "BGLCLI",
+            "BGL-util": "BGLUTIL",
+            "BGL-chainstate": "BGLCHAINSTATE",
+            "BGL-wallet": "BGLWALLET",
         }
-        for binary, [attribute_name, env_variable_name] in binaries.items():
+        for binary, env_variable_name in binaries.items():
             default_filename = os.path.join(
                 self.config["environment"]["BUILDDIR"],
                 "bin",
                 binary + self.config["environment"]["EXEEXT"],
             )
-            setattr(paths, attribute_name, os.getenv(env_variable_name, default=default_filename))
+            setattr(paths, env_variable_name.lower(), os.getenv(env_variable_name, default=default_filename))
         # BITCOIN_CMD environment variable can be specified to invoke bitcoin
         # wrapper binary instead of other executables.
         paths.BGL_cmd = shlex.split(os.getenv("BGL_CMD", "")) or None
