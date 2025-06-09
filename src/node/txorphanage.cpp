@@ -240,7 +240,7 @@ public:
     bool HaveTx(const Wtxid& wtxid) const override;
     bool HaveTxFromPeer(const Wtxid& wtxid, NodeId peer) const override;
     CTransactionRef GetTxToReconsider(NodeId peer) override;
-    int EraseTx(const Wtxid& wtxid) override;
+    bool EraseTx(const Wtxid& wtxid) override;
     void EraseForPeer(NodeId peer) override;
     void EraseForBlock(const CBlock& block) override;
     void LimitOrphans() override;
@@ -270,15 +270,256 @@ void TxOrphanageImpl::Erase(Iter<Tag> it)
         m_unique_rounded_input_scores -= it->GetLatencyScore() - 1;
         m_unique_orphan_usage -= it->GetMemUsage();
 
-        // Remove references in m_outpoint_to_orphan_it
-        const auto& wtxid{it->m_tx->GetWitnessHash()};
-        for (const auto& input : it->m_tx->vin) {
-            auto it_prev = m_outpoint_to_orphan_it.find(input.prevout);
-            if (it_prev != m_outpoint_to_orphan_it.end()) {
-                it_prev->second.erase(wtxid);
-                // Clean up keys if they point to an empty set.
-                if (it_prev->second.empty()) {
-                    m_outpoint_to_orphan_it.erase(it_prev);
+    auto ret = m_orphans.emplace(wtxid, OrphanTx{{tx, {peer}}, Now<NodeSeconds>() + ORPHAN_TX_EXPIRE_TIME, m_orphan_list.size()});
+    assert(ret.second);
+    m_orphan_list.push_back(ret.first);
+    for (const CTxIn& txin : tx->vin) {
+        m_outpoint_to_orphan_it[txin.prevout].insert(ret.first);
+    }
+    m_total_orphan_usage += sz;
+    m_total_announcements += 1;
+    auto& peer_info = m_peer_orphanage_info.try_emplace(peer).first->second;
+    peer_info.m_total_usage += sz;
+
+    LogDebug(BCLog::TXPACKAGES, "stored orphan tx %s (wtxid=%s), weight: %u (mapsz %u outsz %u)\n", hash.ToString(), wtxid.ToString(), sz,
+             m_orphans.size(), m_outpoint_to_orphan_it.size());
+    return true;
+}
+
+bool TxOrphanageImpl::AddAnnouncer(const Wtxid& wtxid, NodeId peer)
+{
+    const auto it = m_orphans.find(wtxid);
+    if (it != m_orphans.end()) {
+        Assume(!it->second.announcers.empty());
+        const auto ret = it->second.announcers.insert(peer);
+        if (ret.second) {
+            auto& peer_info = m_peer_orphanage_info.try_emplace(peer).first->second;
+            peer_info.m_total_usage += it->second.GetUsage();
+            m_total_announcements += 1;
+            LogDebug(BCLog::TXPACKAGES, "added peer=%d as announcer of orphan tx %s\n", peer, wtxid.ToString());
+            return true;
+        }
+    }
+    return false;
+}
+
+bool TxOrphanageImpl::EraseTx(const Wtxid& wtxid)
+{
+    std::map<Wtxid, OrphanTx>::iterator it = m_orphans.find(wtxid);
+    if (it == m_orphans.end())
+        return false;
+    for (const CTxIn& txin : it->second.tx->vin)
+    {
+        auto itPrev = m_outpoint_to_orphan_it.find(txin.prevout);
+        if (itPrev == m_outpoint_to_orphan_it.end())
+            continue;
+        itPrev->second.erase(it);
+        if (itPrev->second.empty())
+            m_outpoint_to_orphan_it.erase(itPrev);
+    }
+
+    const auto tx_size{it->second.GetUsage()};
+    m_total_orphan_usage -= tx_size;
+    m_total_announcements -= it->second.announcers.size();
+    // Decrement each announcer's m_total_usage
+    for (const auto& peer : it->second.announcers) {
+        auto peer_it = m_peer_orphanage_info.find(peer);
+        if (Assume(peer_it != m_peer_orphanage_info.end())) {
+            peer_it->second.m_total_usage -= tx_size;
+        }
+    }
+
+    size_t old_pos = it->second.list_pos;
+    assert(m_orphan_list[old_pos] == it);
+    if (old_pos + 1 != m_orphan_list.size()) {
+        // Unless we're deleting the last entry in m_orphan_list, move the last
+        // entry to the position we're deleting.
+        auto it_last = m_orphan_list.back();
+        m_orphan_list[old_pos] = it_last;
+        it_last->second.list_pos = old_pos;
+    }
+    const auto& txid = it->second.tx->GetHash();
+    // Time spent in orphanage = difference between current and entry time.
+    // Entry time is equal to ORPHAN_TX_EXPIRE_TIME earlier than entry's expiry.
+    LogDebug(BCLog::TXPACKAGES, "   removed orphan tx %s (wtxid=%s) after %ds\n", txid.ToString(), wtxid.ToString(),
+             Ticks<std::chrono::seconds>(NodeClock::now() + ORPHAN_TX_EXPIRE_TIME - it->second.nTimeExpire));
+    m_orphan_list.pop_back();
+
+    m_orphans.erase(it);
+    return true;
+}
+
+void TxOrphanageImpl::EraseForPeer(NodeId peer)
+{
+    // Zeroes out this peer's m_total_usage.
+    m_peer_orphanage_info.erase(peer);
+
+    int nErased = 0;
+    std::map<Wtxid, OrphanTx>::iterator iter = m_orphans.begin();
+    while (iter != m_orphans.end())
+    {
+        // increment to avoid iterator becoming invalid after erasure
+        auto& [wtxid, orphan] = *iter++;
+        auto orphan_it = orphan.announcers.find(peer);
+        if (orphan_it != orphan.announcers.end()) {
+            orphan.announcers.erase(peer);
+            m_total_announcements -= 1;
+
+            // No remaining announcers: clean up entry
+            if (orphan.announcers.empty()) {
+                nErased += EraseTx(orphan.tx->GetWitnessHash());
+            }
+        }
+    }
+    if (nErased > 0) LogDebug(BCLog::TXPACKAGES, "Erased %d orphan transaction(s) from peer=%d\n", nErased, peer);
+}
+
+void TxOrphanageImpl::LimitOrphans(FastRandomContext& rng)
+{
+    unsigned int nEvicted = 0;
+    auto nNow{Now<NodeSeconds>()};
+    if (m_next_sweep <= nNow) {
+        // Sweep out expired orphan pool entries:
+        int nErased = 0;
+        auto nMinExpTime{nNow + ORPHAN_TX_EXPIRE_TIME - ORPHAN_TX_EXPIRE_INTERVAL};
+        std::map<Wtxid, OrphanTx>::iterator iter = m_orphans.begin();
+        while (iter != m_orphans.end())
+        {
+            std::map<Wtxid, OrphanTx>::iterator maybeErase = iter++;
+            if (maybeErase->second.nTimeExpire <= nNow) {
+                nErased += EraseTx(maybeErase->first);
+            } else {
+                nMinExpTime = std::min(maybeErase->second.nTimeExpire, nMinExpTime);
+            }
+        }
+        // Sweep again 5 minutes after the next entry that expires in order to batch the linear scan.
+        m_next_sweep = nMinExpTime + ORPHAN_TX_EXPIRE_INTERVAL;
+        if (nErased > 0) LogDebug(BCLog::TXPACKAGES, "Erased %d orphan tx due to expiration\n", nErased);
+    }
+    while (m_orphans.size() > DEFAULT_MAX_ORPHAN_TRANSACTIONS)
+    {
+        // Evict a random orphan:
+        size_t randompos = rng.randrange(m_orphan_list.size());
+        EraseTx(m_orphan_list[randompos]->first);
+        ++nEvicted;
+    }
+    if (nEvicted > 0) LogDebug(BCLog::TXPACKAGES, "orphanage overflow, removed %u tx\n", nEvicted);
+}
+
+void TxOrphanageImpl::AddChildrenToWorkSet(const CTransaction& tx, FastRandomContext& rng)
+{
+    for (unsigned int i = 0; i < tx.vout.size(); i++) {
+        const auto it_by_prev = m_outpoint_to_orphan_it.find(COutPoint(tx.GetHash(), i));
+        if (it_by_prev != m_outpoint_to_orphan_it.end()) {
+            for (const auto& elem : it_by_prev->second) {
+                // Belt and suspenders, each orphan should always have at least 1 announcer.
+                if (!Assume(!elem->second.announcers.empty())) continue;
+
+                // Select a random peer to assign orphan processing, reducing wasted work if the orphan is still missing
+                // inputs. However, we don't want to create an issue in which the assigned peer can purposefully stop us
+                // from processing the orphan by disconnecting.
+                auto announcer_iter = std::begin(elem->second.announcers);
+                std::advance(announcer_iter, rng.randrange(elem->second.announcers.size()));
+                auto announcer = *(announcer_iter);
+
+                // Get this source peer's work set, emplacing an empty set if it didn't exist
+                // (note: if this peer wasn't still connected, we would have removed the orphan tx already)
+                std::set<Wtxid>& orphan_work_set = m_peer_orphanage_info.try_emplace(announcer).first->second.m_work_set;
+                // Add this tx to the work set
+                orphan_work_set.insert(elem->first);
+                LogDebug(BCLog::TXPACKAGES, "added %s (wtxid=%s) to peer %d workset\n",
+                         tx.GetHash().ToString(), tx.GetWitnessHash().ToString(), announcer);
+            }
+        }
+    }
+}
+
+bool TxOrphanageImpl::HaveTx(const Wtxid& wtxid) const
+{
+    return m_orphans.count(wtxid);
+}
+
+CTransactionRef TxOrphanageImpl::GetTx(const Wtxid& wtxid) const
+{
+    auto it = m_orphans.find(wtxid);
+    return it != m_orphans.end() ? it->second.tx : nullptr;
+}
+
+
+bool TxOrphanageImpl::HaveTxFromPeer(const Wtxid& wtxid, NodeId peer) const
+{
+    auto it = m_orphans.find(wtxid);
+    return (it != m_orphans.end() && it->second.announcers.contains(peer));
+}
+
+CTransactionRef TxOrphanageImpl::GetTxToReconsider(NodeId peer)
+{
+    auto peer_it = m_peer_orphanage_info.find(peer);
+    if (peer_it == m_peer_orphanage_info.end()) return nullptr;
+
+    auto& work_set = peer_it->second.m_work_set;
+    while (!work_set.empty()) {
+        Wtxid wtxid = *work_set.begin();
+        work_set.erase(work_set.begin());
+
+        const auto orphan_it = m_orphans.find(wtxid);
+        if (orphan_it != m_orphans.end()) {
+            return orphan_it->second.tx;
+        }
+    }
+    return nullptr;
+}
+
+bool TxOrphanageImpl::HaveTxToReconsider(NodeId peer)
+{
+    auto peer_it = m_peer_orphanage_info.find(peer);
+    if (peer_it == m_peer_orphanage_info.end()) return false;
+
+    auto& work_set = peer_it->second.m_work_set;
+    return !work_set.empty();
+}
+
+void TxOrphanageImpl::EraseForBlock(const CBlock& block)
+{
+    std::vector<Wtxid> vOrphanErase;
+
+    for (const CTransactionRef& ptx : block.vtx) {
+        const CTransaction& tx = *ptx;
+
+        // Which orphan pool entries must we evict?
+        for (const auto& txin : tx.vin) {
+            auto itByPrev = m_outpoint_to_orphan_it.find(txin.prevout);
+            if (itByPrev == m_outpoint_to_orphan_it.end()) continue;
+            for (auto mi = itByPrev->second.begin(); mi != itByPrev->second.end(); ++mi) {
+                const CTransaction& orphanTx = *(*mi)->second.tx;
+                vOrphanErase.push_back(orphanTx.GetWitnessHash());
+            }
+        }
+    }
+
+    // Erase orphan transactions included or precluded by this block
+    if (vOrphanErase.size()) {
+        int nErased = 0;
+        for (const auto& orphanHash : vOrphanErase) {
+            nErased += EraseTx(orphanHash);
+        }
+        LogDebug(BCLog::TXPACKAGES, "Erased %d orphan transaction(s) included or conflicted by block\n", nErased);
+    }
+}
+
+std::vector<CTransactionRef> TxOrphanageImpl::GetChildrenFromSamePeer(const CTransactionRef& parent, NodeId nodeid) const
+{
+    // First construct a vector of iterators to ensure we do not return duplicates of the same tx
+    // and so we can sort by nTimeExpire.
+    std::vector<OrphanMap::iterator> iters;
+
+    // For each output, get all entries spending this prevout, filtering for ones from the specified peer.
+    for (unsigned int i = 0; i < parent->vout.size(); i++) {
+        const auto it_by_prev = m_outpoint_to_orphan_it.find(COutPoint(parent->GetHash(), i));
+        if (it_by_prev != m_outpoint_to_orphan_it.end()) {
+            for (const auto& elem : it_by_prev->second) {
+                if (elem->second.announcers.contains(nodeid)) {
+                    iters.emplace_back(elem);
                 }
             }
         }
