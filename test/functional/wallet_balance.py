@@ -168,9 +168,6 @@ class WalletTest(BGLTestFramework):
             # TODO: fix getbalance tracking of coin spentness depth
             assert_equal(self.nodes[0].getbalance(minconf=1), Decimal('0'))
             assert_equal(self.nodes[1].getbalance(minconf=1), Decimal('0'))
-            # getunconfirmedbalance
-            assert_equal(self.nodes[0].getunconfirmedbalance(), Decimal('210'))  # output of node 1's spend
-            assert_equal(self.nodes[1].getunconfirmedbalance(), Decimal('30') - fee_node_1)  # Doesn't include output of node 0's send since it was spent
 
         test_balances(fee_node_1=Decimal('0.01'))
 
