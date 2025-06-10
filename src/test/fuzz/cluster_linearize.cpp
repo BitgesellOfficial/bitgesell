@@ -48,6 +48,8 @@ public:
     /** Find a candidate set using at most max_iterations iterations, and the number of iterations
      *  actually performed. If that number is less than max_iterations, then the result is optimal.
      *
+     * Always returns a connected set of transactions.
+     *
      * Complexity: O(N * M), where M is the number of connected topological subsets of the cluster.
      *             That number is bounded by M <= 2^(N-1).
      */
@@ -60,8 +62,9 @@ public:
         std::vector<std::pair<SetType, SetType>> queue;
         // Initially we have just one queue element, with the entire graph in und.
         queue.emplace_back(SetType{}, m_todo);
-        // Best solution so far.
-        SetInfo best(m_depgraph, m_todo);
+        // Best solution so far. Initialize with the remaining ancestors of the first remaining
+        // transaction.
+        SetInfo best(m_depgraph, m_depgraph.Ancestors(m_todo.First()) & m_todo);
         // Process the queue.
         while (!queue.empty() && iterations_left) {
             --iterations_left;
@@ -639,6 +642,89 @@ FUZZ_TARGET(clusterlin_ancestor_finder)
 }
 
 static constexpr auto MAX_SIMPLE_ITERATIONS = 300000;
+
+FUZZ_TARGET(clusterlin_simple_finder)
+{
+    // Verify that SimpleCandidateFinder works as expected by sanity checking the results
+    // and comparing them (if claimed to be optimal) against the sets found by
+    // ExhaustiveCandidateFinder and AncestorCandidateFinder.
+    //
+    // Note that SimpleCandidateFinder is only used in tests; the purpose of this fuzz test is to
+    // establish confidence in SimpleCandidateFinder, so that it can be used to test
+    // SearchCandidateFinder below.
+
+    // Retrieve a depgraph from the fuzz input.
+    SpanReader reader(buffer);
+    DepGraph<TestBitSet> depgraph;
+    try {
+        reader >> Using<DepGraphFormatter>(depgraph);
+    } catch (const std::ios_base::failure&) {}
+
+    // Instantiate the SimpleCandidateFinder to be tested, and the ExhaustiveCandidateFinder and
+    // AncestorCandidateFinder it is being tested against.
+    SimpleCandidateFinder smp_finder(depgraph);
+    ExhaustiveCandidateFinder exh_finder(depgraph);
+    AncestorCandidateFinder anc_finder(depgraph);
+
+    auto todo = depgraph.Positions();
+    while (todo.Any()) {
+        assert(!smp_finder.AllDone());
+        assert(!exh_finder.AllDone());
+        assert(!anc_finder.AllDone());
+        assert(anc_finder.NumRemaining() == todo.Count());
+
+        // Call SimpleCandidateFinder.
+        auto [found, iterations_done] = smp_finder.FindCandidateSet(MAX_SIMPLE_ITERATIONS);
+        bool optimal = (iterations_done != MAX_SIMPLE_ITERATIONS);
+
+        // Sanity check the result.
+        assert(iterations_done <= MAX_SIMPLE_ITERATIONS);
+        assert(found.transactions.Any());
+        assert(found.transactions.IsSubsetOf(todo));
+        assert(depgraph.FeeRate(found.transactions) == found.feerate);
+        // Check that it is topologically valid.
+        for (auto i : found.transactions) {
+            assert(found.transactions.IsSupersetOf(depgraph.Ancestors(i) & todo));
+        }
+
+        // At most 2^(N-1) iterations can be required: the number of non-empty connected subsets a
+        // graph with N transactions can have. If MAX_SIMPLE_ITERATIONS exceeds this number, the
+        // result is necessarily optimal.
+        assert(iterations_done <= (uint64_t{1} << (todo.Count() - 1)));
+        if (MAX_SIMPLE_ITERATIONS > (uint64_t{1} << (todo.Count() - 1))) assert(optimal);
+
+        // SimpleCandidateFinder only finds connected sets.
+        assert(depgraph.IsConnected(found.transactions));
+
+        // Perform further quality checks only if SimpleCandidateFinder claims an optimal result.
+        if (optimal) {
+            // Compare with AncestorCandidateFinder.
+            auto anc = anc_finder.FindCandidateSet();
+            assert(anc.feerate <= found.feerate);
+
+            if (todo.Count() <= 12) {
+                // Compare with ExhaustiveCandidateFinder. This quickly gets computationally
+                // expensive for large clusters (O(2^n)), so only do it for sufficiently small ones.
+                auto exhaustive = exh_finder.FindCandidateSet();
+                assert(exhaustive.feerate == found.feerate);
+            }
+        }
+
+        // Find a topologically valid subset of transactions to remove from the graph.
+        auto del_set = ReadTopologicalSet(depgraph, todo, reader);
+        // If we did not find anything, use found itself, because we should remove something.
+        if (del_set.None()) del_set = found.transactions;
+        todo -= del_set;
+        smp_finder.MarkDone(del_set);
+        exh_finder.MarkDone(del_set);
+        anc_finder.MarkDone(del_set);
+    }
+
+    assert(smp_finder.AllDone());
+    assert(exh_finder.AllDone());
+    assert(anc_finder.AllDone());
+    assert(anc_finder.NumRemaining() == 0);
+}
 
 FUZZ_TARGET(clusterlin_search_finder)
 {
