@@ -16,7 +16,7 @@ BEGIN
     BEGIN
         BLOCK "040904E4" // U.S. English - multilingual (hex)
         BEGIN
-            VALUE "CompanyName",        "Bitgesell"
+            VALUE "CompanyName",        CLIENT_NAME " project"
             VALUE "FileDescription",    "BGL-wallet (CLI tool for " CLIENT_NAME " wallets)"
             VALUE "FileVersion",        CLIENT_VERSION_STRING
             VALUE "InternalName",       "BGL-wallet"
