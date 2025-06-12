@@ -481,7 +481,6 @@ class BlockchainTest(BGLTestFramework):
         assert_is_hex_string(header_hex)
 
         header = from_hex(CBlockHeader(), header_hex)
-        header.calc_sha256()
         assert_equal(header.hash, besthash)
 
         assert 'previousblockhash' not in node.getblockheader(node.getblockhash(0))
