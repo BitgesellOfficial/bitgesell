@@ -17,6 +17,7 @@ RPCAUTH=@abs_top_srcdir@/share/rpcauth/rpcauth.py
 # Which components are enabled. These are commented out by cmake if they were disabled during configuration.
 @ENABLE_WALLET_TRUE@ENABLE_WALLET=true
 @BUILD_BGL_CLI_TRUE@ENABLE_CLI=true
+@BUILD_BGL_TX_TRUE@BUILD_BGL_TX=true
 @BUILD_BGL_UTIL_TRUE@ENABLE_BGL_UTIL=true
 @BUILD_BGL_CHAINSTATE_TRUE@ENABLE_BGL_CHAINSTATE=true
 @BUILD_BGL_WALLET_TRUE@ENABLE_WALLET_TOOL=true

@@ -21,6 +21,7 @@ endif()
 
   set_configure_variable(ENABLE_WALLET ENABLE_WALLET)
   set_configure_variable(BUILD_CLI BUILD_BGL_CLI)
+  set_configure_variable(BUILD_TX BUILD_BGL_TX)
   set_configure_variable(BUILD_UTIL BUILD_BGL_UTIL)
   set_configure_variable(BUILD_UTIL_CHAINSTATE BUILD_BGL_CHAINSTATE)
   set_configure_variable(BUILD_WALLET_TOOL BUILD_BGL_WALLET)
