@@ -79,8 +79,8 @@ public:
     int EraseTx(const Wtxid& wtxid) override;
     void EraseForPeer(NodeId peer) override;
     void EraseForBlock(const CBlock& block) override;
-    void LimitOrphans(FastRandomContext& rng) override;
-    void AddChildrenToWorkSet(const CTransaction& tx, FastRandomContext& rng) override;
+    void LimitOrphans() override;
+    std::vector<std::pair<Wtxid, NodeId>> AddChildrenToWorkSet(const CTransaction& tx, FastRandomContext& rng) override;
     bool HaveTxToReconsider(NodeId peer) override;
     std::vector<CTransactionRef> GetChildrenFromSamePeer(const CTransactionRef& parent, NodeId nodeid) const override;
     size_t Size() const override { return m_orphans.size(); }
@@ -247,8 +247,10 @@ void TxOrphanageImpl::LimitOrphans(FastRandomContext& rng)
     if (nEvicted > 0) LogDebug(BCLog::TXPACKAGES, "orphanage overflow, removed %u tx\n", nEvicted);
 }
 
-void TxOrphanageImpl::AddChildrenToWorkSet(const CTransaction& tx, FastRandomContext& rng)
+std::vector<std::pair<Wtxid, NodeId>> TxOrphanageImpl::AddChildrenToWorkSet(const CTransaction& tx, FastRandomContext& rng)
 {
+    std::vector<std::pair<Wtxid, NodeId>> ret;
+    auto& index_by_wtxid = m_orphans.get<ByWtxid>();
     for (unsigned int i = 0; i < tx.vout.size(); i++) {
         const auto it_by_prev = m_outpoint_to_orphan_it.find(COutPoint(tx.GetHash(), i));
         if (it_by_prev != m_outpoint_to_orphan_it.end()) {
@@ -259,9 +261,19 @@ void TxOrphanageImpl::AddChildrenToWorkSet(const CTransaction& tx, FastRandomCon
                 // Select a random peer to assign orphan processing, reducing wasted work if the orphan is still missing
                 // inputs. However, we don't want to create an issue in which the assigned peer can purposefully stop us
                 // from processing the orphan by disconnecting.
-                auto announcer_iter = std::begin(elem->second.announcers);
-                std::advance(announcer_iter, rng.randrange(elem->second.announcers.size()));
-                auto announcer = *(announcer_iter);
+                auto it_end = index_by_wtxid.upper_bound(ByWtxidView{wtxid, MAX_PEER});
+                const auto num_announcers{std::distance(it, it_end)};
+                if (!Assume(num_announcers > 0)) continue;
+                std::advance(it, rng.randrange(num_announcers));
+
+                if (!Assume(it->m_tx->GetWitnessHash() == wtxid)) break;
+
+                // Mark this orphan as ready to be reconsidered.
+                static constexpr auto mark_reconsidered_modifier = [](auto& ann) { ann.m_reconsider = true; };
+                if (!it->m_reconsider) {
+                    index_by_wtxid.modify(it, mark_reconsidered_modifier);
+                    ret.emplace_back(wtxid, it->m_announcer);
+                }
 
                 // Get this source peer's work set, emplacing an empty set if it didn't exist
                 // (note: if this peer wasn't still connected, we would have removed the orphan tx already)
@@ -273,6 +285,7 @@ void TxOrphanageImpl::AddChildrenToWorkSet(const CTransaction& tx, FastRandomCon
             }
         }
     }
+    return ret;
 }
 
 bool TxOrphanageImpl::HaveTx(const Wtxid& wtxid) const
