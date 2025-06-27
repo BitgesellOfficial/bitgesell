@@ -32,9 +32,36 @@ class TxOrphanageImpl final : public TxOrphanage {
     /** Global sequence number, increment each time an announcement is added. */
     SequenceNumber m_current_sequence{0};
 
-    /** One orphan announcement. Each announcement (i.e. combination of wtxid, nodeid) is unique. There may be multiple
-     * announcements for the same tx, and multiple transactions with the same txid but different wtxid are possible. */
-    struct Announcement
+    /** Total usage (weight) of all entries in m_orphans. */
+    TxOrphanage::Usage m_total_orphan_usage{0};
+
+    /** Total number of <peer, tx> pairs. Can be larger than m_orphans.size() because multiple peers
+     * may have announced the same orphan. */
+    TxOrphanage::Count m_total_announcements{0};
+
+    /** Map from wtxid to orphan transaction record. Limited by
+     *  DEFAULT_MAX_ORPHAN_TRANSACTIONS */
+    std::map<Wtxid, OrphanTx> m_orphans;
+
+    struct PeerOrphanInfo {
+        /** List of transactions that should be reconsidered: added to in AddChildrenToWorkSet,
+         * removed from one-by-one with each call to GetTxToReconsider. The wtxids may refer to
+         * transactions that are no longer present in orphanage; these are lazily removed in
+         * GetTxToReconsider. */
+        std::set<Wtxid> m_work_set;
+
+        /** Total weight of orphans for which this peer is an announcer.
+         * If orphans are provided by different peers, its weight will be accounted for in each
+         * PeerOrphanInfo, so the total of all peers' m_total_usage may be larger than
+         * m_total_orphan_size. If a peer is removed as an announcer, even if the orphan still
+         * remains in the orphanage, this number will be decremented. */
+        TxOrphanage::Usage m_total_usage{0};
+    };
+    std::map<NodeId, PeerOrphanInfo> m_peer_orphanage_info;
+
+    using OrphanMap = decltype(m_orphans);
+
+    struct IteratorComparator
     {
         const CTransactionRef m_tx;
         /** Which peer announced this tx */
@@ -222,7 +249,8 @@ public:
     std::vector<CTransactionRef> GetChildrenFromSamePeer(const CTransactionRef& parent, NodeId nodeid) const override;
     size_t Size() const override { return m_unique_orphans; }
     std::vector<OrphanTxBase> GetOrphanTransactions() const override;
-    TxOrphanage::Usage TotalOrphanUsage() const override;
+    TxOrphanage::Usage TotalOrphanUsage() const override { return m_total_orphan_usage; }
+    TxOrphanage::Usage UsageByPeer(NodeId peer) const override;
     void SanityCheck() const override;
 };
 
@@ -622,35 +650,21 @@ std::vector<TxOrphanage::OrphanTxBase> TxOrphanageImpl::GetOrphanTransactions() 
     std::vector<TxOrphanage::OrphanTxBase> result;
     result.reserve(m_unique_orphans);
 
-    auto& index_by_wtxid = m_orphans.get<ByWtxid>();
-    auto it = index_by_wtxid.begin();
-    std::set<NodeId> this_orphan_announcers;
-    while (it != index_by_wtxid.end()) {
-        this_orphan_announcers.insert(it->m_announcer);
-        // If this is the last entry, or the next entry has a different wtxid, build a OrphanTxBase.
-        if (std::next(it) == index_by_wtxid.end() || std::next(it)->m_tx->GetWitnessHash() != it->m_tx->GetWitnessHash()) {
-            result.emplace_back(it->m_tx, std::move(this_orphan_announcers));
-            this_orphan_announcers.clear();
-        }
-
-        ++it;
-    }
-    Assume(m_unique_orphans == result.size());
-
-    return result;
+TxOrphanage::Usage TxOrphanageImpl::UsageByPeer(NodeId peer) const
+{
+    auto peer_it = m_peer_orphanage_info.find(peer);
+    return peer_it == m_peer_orphanage_info.end() ? 0 : peer_it->second.m_total_usage;
 }
 
 void TxOrphanageImpl::SanityCheck() const
 {
-    std::unordered_map<NodeId, PeerDoSInfo> reconstructed_peer_info;
-    std::map<Wtxid, std::pair<TxOrphanage::Usage, TxOrphanage::Count>> unique_wtxids_to_scores;
-    std::set<COutPoint> all_outpoints;
+    // Check that cached m_total_announcements is correct
+    TxOrphanage::Count counted_total_announcements{0};
+    // Check that m_total_orphan_usage is correct
+    TxOrphanage::Usage counted_total_usage{0};
 
-    for (auto it = m_orphans.begin(); it != m_orphans.end(); ++it) {
-        for (const auto& input : it->m_tx->vin) {
-            all_outpoints.insert(input.prevout);
-        }
-        unique_wtxids_to_scores.emplace(it->m_tx->GetWitnessHash(), std::make_pair(it->GetMemUsage(), it->GetLatencyScore() - 1));
+    // Check that cached PeerOrphanInfo::m_total_size is correct
+    std::map<NodeId, TxOrphanage::Usage> counted_size_per_peer;
 
         auto& peer_info = reconstructed_peer_info[it->m_announcer];
         peer_info.m_total_usage += it->GetMemUsage();
