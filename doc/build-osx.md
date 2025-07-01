@@ -181,8 +181,8 @@ cmake -B build -LH
     ```
 
 ``` bash
-cmake --build build     # Use "-j N" here for N parallel jobs.
-ctest --test-dir build  # Use "-j N" for N parallel tests. Some tests are disabled if Python 3 is not available.
+cmake --build build     # Append "-j N" here for N parallel jobs.
+ctest --test-dir build  # Append "-j N" for N parallel tests. Some tests are disabled if Python 3 is not available.
 ```
 
     Configure and build the headless BGL Core binaries as well as the GUI (if Qt is found).
