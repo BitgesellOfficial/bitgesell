@@ -12,6 +12,7 @@
 #include <node/types.h>
 #include <numeric>
 #include <policy/policy.h>
+#include <policy/truc_policy.h>
 #include <primitives/transaction.h>
 #include <primitives/transaction_identifier.h>
 #include <script/script.h>
@@ -397,11 +398,8 @@ CoinsResult AvailableCoins(const CWallet& wallet,
             if (nDepth == 0 && params.check_version_trucness) {
                 if (coinControl->m_version == TRUC_VERSION) {
                     if (wtx.tx->version != TRUC_VERSION) continue;
-                    // this unconfirmed v3 transaction already has a child
-                    if (wtx.truc_child_in_mempool.has_value()) continue;
                 } else {
                     if (wtx.tx->version == TRUC_VERSION) continue;
-                    Assume(!wtx.truc_child_in_mempool.has_value());
                 }
             }
 
@@ -503,6 +501,7 @@ CoinsResult AvailableCoins(const CWallet& wallet,
 CoinsResult AvailableCoinsListUnspent(const CWallet& wallet, const CCoinControl* coinControl, CoinFilterParams params)
 {
     params.only_spendable = false;
+    params.check_version_trucness = false;
     return AvailableCoins(wallet, coinControl, /*feerate=*/ std::nullopt, params);
 }
 
