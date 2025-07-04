@@ -85,9 +85,9 @@ fi
 
 # Make sure default datadir does not exist and is never read by creating a dummy file
 if [ "$CI_OS_NAME" == "macos" ]; then
-  echo > "${HOME}/Library/Application Support/Bitcoin"
+  echo > "${HOME}/Library/Application Support/Bitgesell"
 else
-  echo > "${HOME}/.bitcoin"
+  echo > "${HOME}/.BGL"
 fi
 
 if [ -z "$NO_DEPENDS" ]; then
@@ -102,12 +102,12 @@ if [ "$DOWNLOAD_PREVIOUS_RELEASES" = "true" ]; then
   test/get_previous_releases.py --target-dir "$PREVIOUS_RELEASES_DIR"
 fi
 
-BITCOIN_CONFIG_ALL="-DBUILD_BENCH=ON -DBUILD_FUZZ_BINARY=ON"
+BGL_CONFIG_ALL="-DBUILD_BENCH=ON -DBUILD_FUZZ_BINARY=ON"
 if [ -z "$NO_DEPENDS" ]; then
-  BITCOIN_CONFIG_ALL="${BITCOIN_CONFIG_ALL} -DCMAKE_TOOLCHAIN_FILE=$DEPENDS_DIR/$HOST/toolchain.cmake"
+  BGL_CONFIG_ALL="${BGL_CONFIG_ALL} -DCMAKE_TOOLCHAIN_FILE=$DEPENDS_DIR/$HOST/toolchain.cmake"
 fi
 if [ -z "$NO_WERROR" ]; then
-  BITCOIN_CONFIG_ALL="${BITCOIN_CONFIG_ALL} -DWERROR=ON"
+  BGL_CONFIG_ALL="${BGL_CONFIG_ALL} -DWERROR=ON"
 fi
 
 ccache --zero-stats
@@ -115,18 +115,22 @@ PRINT_CCACHE_STATISTICS="ccache --version | head -n 1 && ccache --show-stats"
 
 # Folder where the build is done.
 BASE_BUILD_DIR=${BASE_BUILD_DIR:-$BASE_SCRATCH_DIR/build-$HOST}
-mkdir -p "${BASE_BUILD_DIR}"
-cd "${BASE_BUILD_DIR}"
 
-BITCOIN_CONFIG_ALL="$BITCOIN_CONFIG_ALL -DCMAKE_INSTALL_PREFIX=$BASE_OUTDIR"
+BGL_CONFIG_ALL="$BGL_CONFIG_ALL -DCMAKE_INSTALL_PREFIX=$BASE_OUTDIR"
 
 if [[ "${RUN_TIDY}" == "true" ]]; then
-  BITCOIN_CONFIG_ALL="$BITCOIN_CONFIG_ALL -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+  BGL_CONFIG_ALL="$BGL_CONFIG_ALL -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
 fi
 
-bash -c "cmake -S $BASE_ROOT_DIR $BITCOIN_CONFIG_ALL $BITCOIN_CONFIG || ( (cat $(cmake -P "${BASE_ROOT_DIR}/ci/test/GetCMakeLogFiles.cmake")) && false)"
+bash -c "cmake -S $BASE_ROOT_DIR -B ${BASE_BUILD_DIR} $BGL_CONFIG_ALL $BGL_CONFIG || ( (cat $(cmake -P "${BASE_ROOT_DIR}/ci/test/GetCMakeLogFiles.cmake")) && false)"
 
-bash -c "cmake --build . $MAKEJOBS --target all $GOAL" || ( echo "Build failure. Verbose build follows." && cmake --build . --target all "$GOAL" --verbose ; false )
+# shellcheck disable=SC2086
+cmake --build "${BASE_BUILD_DIR}" "$MAKEJOBS" --target all $GOAL || (
+  echo "Build failure. Verbose build follows."
+  # shellcheck disable=SC2086
+  cmake --build "${BASE_BUILD_DIR}" -j1 --target all $GOAL --verbose
+  false
+)
 
 bash -c "${PRINT_CCACHE_STATISTICS}"
 du -sh "${DEPENDS_DIR}"/*/
@@ -137,26 +141,42 @@ if [ -n "$USE_VALGRIND" ]; then
 fi
 
 if [ "$RUN_CHECK_DEPS" = "true" ]; then
-  "${BASE_ROOT_DIR}/contrib/devtools/check-deps.sh" .
+  "${BASE_ROOT_DIR}/contrib/devtools/check-deps.sh" "${BASE_BUILD_DIR}"
 fi
 
 if [ "$RUN_UNIT_TESTS" = "true" ]; then
-  DIR_UNIT_TEST_DATA="${DIR_UNIT_TEST_DATA}" LD_LIBRARY_PATH="${DEPENDS_DIR}/${HOST}/lib" CTEST_OUTPUT_ON_FAILURE=ON ctest --stop-on-failure "${MAKEJOBS}" --timeout $(( TEST_RUNNER_TIMEOUT_FACTOR * 60 ))
+  DIR_UNIT_TEST_DATA="${DIR_UNIT_TEST_DATA}" \
+  LD_LIBRARY_PATH="${DEPENDS_DIR}/${HOST}/lib" \
+  CTEST_OUTPUT_ON_FAILURE=ON \
+  ctest --test-dir "${BASE_BUILD_DIR}" \
+    --stop-on-failure \
+    "${MAKEJOBS}" \
+    --timeout $(( TEST_RUNNER_TIMEOUT_FACTOR * 60 ))
 fi
 
 if [ "$RUN_UNIT_TESTS_SEQUENTIAL" = "true" ]; then
-  DIR_UNIT_TEST_DATA="${DIR_UNIT_TEST_DATA}" LD_LIBRARY_PATH="${DEPENDS_DIR}/${HOST}/lib" "${BASE_BUILD_DIR}"/bin/test_bitcoin --catch_system_errors=no -l test_suite
+  DIR_UNIT_TEST_DATA="${DIR_UNIT_TEST_DATA}" LD_LIBRARY_PATH="${DEPENDS_DIR}/${HOST}/lib" "${BASE_BUILD_DIR}"/bin/test_BGL --catch_system_errors=no -l test_suite
 fi
 
 if [ "$RUN_FUNCTIONAL_TESTS" = "true" ]; then
-  # shellcheck disable=SC2086
-  LD_LIBRARY_PATH="${DEPENDS_DIR}/${HOST}/lib" test/functional/test_runner.py --ci "${MAKEJOBS}" --tmpdirprefix "${BASE_SCRATCH_DIR}"/test_runner/ --ansi --combinedlogslen=99999999 --timeout-factor="${TEST_RUNNER_TIMEOUT_FACTOR}" ${TEST_RUNNER_EXTRA} --quiet --failfast
+  # parses TEST_RUNNER_EXTRA as an array which allows for multiple arguments such as TEST_RUNNER_EXTRA='--exclude "rpc_bind.py --ipv6"'
+  eval "TEST_RUNNER_EXTRA=($TEST_RUNNER_EXTRA)"
+  LD_LIBRARY_PATH="${DEPENDS_DIR}/${HOST}/lib" \
+  "${BASE_BUILD_DIR}/test/functional/test_runner.py" \
+    --ci "${MAKEJOBS}" \
+    --tmpdirprefix "${BASE_SCRATCH_DIR}/test_runner/" \
+    --ansi \
+    --combinedlogslen=99999999 \
+    --timeout-factor="${TEST_RUNNER_TIMEOUT_FACTOR}" \
+    "${TEST_RUNNER_EXTRA[@]}" \
+    --quiet \
+    --failfast
 fi
 
 if [ "${RUN_TIDY}" = "true" ]; then
-  cmake -B /tidy-build -DLLVM_DIR=/usr/lib/llvm-"${TIDY_LLVM_V}"/cmake -DCMAKE_BUILD_TYPE=Release -S "${BASE_ROOT_DIR}"/contrib/devtools/bitcoin-tidy
+  cmake -B /tidy-build -DLLVM_DIR=/usr/lib/llvm-"${TIDY_LLVM_V}"/cmake -DCMAKE_BUILD_TYPE=Release -S "${BASE_ROOT_DIR}"/contrib/devtools/BGL-tidy
   cmake --build /tidy-build "$MAKEJOBS"
-  cmake --build /tidy-build --target bitcoin-tidy-tests "$MAKEJOBS"
+  cmake --build /tidy-build --target BGL-tidy-tests "$MAKEJOBS"
 
   set -eo pipefail
   # Filter out:
@@ -165,7 +185,7 @@ if [ "${RUN_TIDY}" = "true" ]; then
   mv tmp.json "${BASE_BUILD_DIR}/compile_commands.json"
 
   cd "${BASE_BUILD_DIR}/src/"
-  if ! ( run-clang-tidy-"${TIDY_LLVM_V}" -quiet -load="/tidy-build/libbitcoin-tidy.so" "${MAKEJOBS}" | tee tmp.tidy-out.txt ); then
+  if ! ( run-clang-tidy-"${TIDY_LLVM_V}" -quiet -load="/tidy-build/libBGL-tidy.so" "${MAKEJOBS}" | tee tmp.tidy-out.txt ); then
     grep -C5 "error: " tmp.tidy-out.txt
     echo "^^^ ⚠️ Failure generated from clang-tidy"
     false
@@ -174,7 +194,7 @@ if [ "${RUN_TIDY}" = "true" ]; then
   cd "${BASE_ROOT_DIR}"
   python3 "/include-what-you-use/iwyu_tool.py" \
            -p "${BASE_BUILD_DIR}" "${MAKEJOBS}" \
-           -- -Xiwyu --cxx17ns -Xiwyu --mapping_file="${BASE_ROOT_DIR}/contrib/devtools/iwyu/bitcoin.core.imp" \
+           -- -Xiwyu --cxx17ns -Xiwyu --mapping_file="${BASE_ROOT_DIR}/contrib/devtools/iwyu/BGL.core.imp" \
            -Xiwyu --max_line_length=160 \
            2>&1 | tee /tmp/iwyu_ci.out
   cd "${BASE_ROOT_DIR}/src"
@@ -184,5 +204,11 @@ fi
 
 if [ "$RUN_FUZZ_TESTS" = "true" ]; then
   # shellcheck disable=SC2086
-  LD_LIBRARY_PATH="${DEPENDS_DIR}/${HOST}/lib" test/fuzz/test_runner.py ${FUZZ_TESTS_CONFIG} "${MAKEJOBS}" -l DEBUG "${DIR_FUZZ_IN}" --empty_min_time=60
+  LD_LIBRARY_PATH="${DEPENDS_DIR}/${HOST}/lib" \
+  "${BASE_BUILD_DIR}/test/fuzz/test_runner.py" \
+    ${FUZZ_TESTS_CONFIG} \
+    "${MAKEJOBS}" \
+    -l DEBUG \
+    "${DIR_FUZZ_IN}" \
+    --empty_min_time=60
 fi
