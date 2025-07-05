@@ -24,7 +24,7 @@ FUZZ_TARGET(buffered_file)
     const auto key_bytes{ConsumeFixedLengthByteVector<std::byte>(fuzzed_data_provider, Obfuscation::KEY_SIZE)};
     AutoFile fuzzed_file{
         fuzzed_file_provider.open(),
-        key_bytes,
+        Obfuscation{std::span{key_bytes}.first<Obfuscation::KEY_SIZE>()},
     };
     try {
         opt_buffered_file.emplace(fuzzed_file, fuzzed_data_provider.ConsumeIntegralInRange<uint64_t>(0, 4096), fuzzed_data_provider.ConsumeIntegralInRange<uint64_t>(0, 4096));

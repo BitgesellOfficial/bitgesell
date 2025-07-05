@@ -64,6 +64,7 @@ bool LoadMempool(CTxMemPool& pool, const fs::path& load_path, Chainstate& active
         if (version == MEMPOOL_DUMP_VERSION_NO_XOR_KEY) {
             // Leave XOR-key empty
         } else if (version == MEMPOOL_DUMP_VERSION) {
+            Obfuscation obfuscation;
             file >> obfuscation;
         } else {
             return false;
@@ -182,7 +183,7 @@ bool DumpMempool(const CTxMemPool& pool, const fs::path& dump_path, FopenFn mock
 
         std::vector<std::byte> obfuscation(Obfuscation::KEY_SIZE);
         if (!pool.m_opts.persist_v1_dat) {
-            FastRandomContext{}.fillrand(obfuscation);
+            const Obfuscation obfuscation{FastRandomContext{}.randbytes<Obfuscation::KEY_SIZE>()};
             file << obfuscation;
         }
         file.SetObfuscation(obfuscation);
