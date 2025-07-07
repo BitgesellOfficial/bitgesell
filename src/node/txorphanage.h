@@ -41,15 +41,23 @@ public:
     using Count = unsigned int;
 
     /** Allows providing orphan information externally */
-    struct OrphanTxBase {
+    struct OrphanInfo {
         CTransactionRef tx;
         /** Peers added with AddTx or AddAnnouncer. */
         std::set<NodeId> announcers;
 
+<<<<<<< HEAD
         /** Get the weight of this transaction, an approximation of its memory usage. */
         TxOrphanage::Usage GetUsage() const {
             return GetTransactionWeight(*tx);
         }
+=======
+        // Constructor with moved announcers
+        OrphanInfo(CTransactionRef tx, std::set<NodeId>&& announcers) :
+            tx(std::move(tx)),
+            announcers(std::move(announcers))
+        {}
+>>>>>>> 8a58d0e87d (scripted-diff: rename OrphanTxBase to OrphanInfo)
     };
 
     virtual ~TxOrphanage() = default;
@@ -101,7 +109,7 @@ public:
     virtual size_t Size() const = 0;
 
     /** Get all orphan transactions */
-    virtual std::vector<OrphanTxBase> GetOrphanTransactions() const = 0;
+    virtual std::vector<OrphanInfo> GetOrphanTransactions() const = 0;
 
     /** Get the total usage (weight) of all orphans. If an orphan has multiple announcers, its usage is
      * only counted once within this total. */

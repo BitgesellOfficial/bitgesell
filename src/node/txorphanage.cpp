@@ -253,10 +253,8 @@ public:
     std::vector<std::pair<Wtxid, NodeId>> AddChildrenToWorkSet(const CTransaction& tx, FastRandomContext& rng) override;
     bool HaveTxToReconsider(NodeId peer) override;
     std::vector<CTransactionRef> GetChildrenFromSamePeer(const CTransactionRef& parent, NodeId nodeid) const override;
-    size_t Size() const override { return m_unique_orphans; }
-    std::vector<OrphanTxBase> GetOrphanTransactions() const override;
-    TxOrphanage::Usage TotalOrphanUsage() const override { return m_total_orphan_usage; }
-    TxOrphanage::Usage UsageByPeer(NodeId peer) const override;
+    std::vector<OrphanInfo> GetOrphanTransactions() const override;
+    TxOrphanage::Usage TotalOrphanUsage() const override;
     void SanityCheck() const override;
 };
 
@@ -917,15 +915,27 @@ std::vector<CTransactionRef> TxOrphanageImpl::GetChildrenFromSamePeer(const CTra
     return children_found;
 }
 
-std::vector<TxOrphanage::OrphanTxBase> TxOrphanageImpl::GetOrphanTransactions() const
+std::vector<TxOrphanage::OrphanInfo> TxOrphanageImpl::GetOrphanTransactions() const
 {
-    std::vector<TxOrphanage::OrphanTxBase> result;
+    std::vector<TxOrphanage::OrphanInfo> result;
     result.reserve(m_unique_orphans);
 
-TxOrphanage::Usage TxOrphanageImpl::UsageByPeer(NodeId peer) const
-{
-    auto peer_it = m_peer_orphanage_info.find(peer);
-    return peer_it == m_peer_orphanage_info.end() ? 0 : peer_it->second.m_total_usage;
+    auto& index_by_wtxid = m_orphans.get<ByWtxid>();
+    auto it = index_by_wtxid.begin();
+    std::set<NodeId> this_orphan_announcers;
+    while (it != index_by_wtxid.end()) {
+        this_orphan_announcers.insert(it->m_announcer);
+        // If this is the last entry, or the next entry has a different wtxid, build a OrphanInfo.
+        if (std::next(it) == index_by_wtxid.end() || std::next(it)->m_tx->GetWitnessHash() != it->m_tx->GetWitnessHash()) {
+            result.emplace_back(it->m_tx, std::move(this_orphan_announcers));
+            this_orphan_announcers.clear();
+        }
+
+        ++it;
+    }
+    Assume(m_unique_orphans == result.size());
+
+    return result;
 }
 
 void TxOrphanageImpl::SanityCheck() const
