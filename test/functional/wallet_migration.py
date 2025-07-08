@@ -52,7 +52,7 @@ class WalletMigrationTest(BGLTestFramework):
             extra_args=self.extra_args,
             versions=[
                 None,
-                280000,
+                280200,
             ],
         )
         self.start_nodes()
