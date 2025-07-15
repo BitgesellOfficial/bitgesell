@@ -592,7 +592,7 @@ public:
 
     //! Find the GenTxids to request now from peer.
     std::vector<GenTxid> GetRequestable(NodeId peer, std::chrono::microseconds now,
-                                               std::vector<std::pair<NodeId, GenTxid>>* expired)
+                                        std::vector<std::pair<NodeId, GenTxid>>* expired)
     {
         // Move time.
         SetTimePoint(now, expired);
@@ -743,7 +743,7 @@ void TxRequestTracker::ReceivedResponse(NodeId peer, const uint256& txhash)
 }
 
 std::vector<GenTxid> TxRequestTracker::GetRequestable(NodeId peer, std::chrono::microseconds now,
-                                                             std::vector<std::pair<NodeId, GenTxid>>* expired)
+                                                      std::vector<std::pair<NodeId, GenTxid>>* expired)
 {
     return m_impl->GetRequestable(peer, now, expired);
 }
