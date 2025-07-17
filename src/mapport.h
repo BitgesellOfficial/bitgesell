@@ -5,7 +5,7 @@
 #ifndef BGL_MAPPORT_H
 #define BGL_MAPPORT_H
 
-static constexpr bool DEFAULT_NATPMP = false;
+static constexpr bool DEFAULT_NATPMP = true;
 
 enum MapPortProtoFlag : unsigned int {
     NONE = 0x00,
