@@ -6,7 +6,7 @@
 #define BGL_BGL_CONFIG_H
 
 /* Version Build */
-#define CLIENT_VERSION_BUILD 13
+#define CLIENT_VERSION_BUILD 14
 
 /* Version is release */
 #define CLIENT_VERSION_IS_RELEASE true
@@ -27,7 +27,7 @@
 #define COPYRIGHT_HOLDERS_SUBSTITUTION "Bitgesell Core"
 
 /* Copyright year */
-#define COPYRIGHT_YEAR 2024
+#define COPYRIGHT_YEAR 2025
 
 /* Define to 1 to enable wallet functions */
 #define ENABLE_WALLET 1
@@ -59,13 +59,13 @@
 #define PACKAGE_NAME "Bitgesell Core"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "BGL Core 0.1.13"
+#define PACKAGE_STRING "BGL Core 0.1.14"
 
 /* Define to the home page for this package. */
 #define PACKAGE_URL "https://github.com/BitgesellOfficial/bitgesell/releases/"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.1.13"
+#define PACKAGE_VERSION "0.1.14"
 
 /* Define this symbol if the minimal qt platform exists */
 #define QT_QPA_PLATFORM_MINIMAL 1
