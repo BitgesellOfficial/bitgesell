@@ -4,11 +4,10 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Functionality to build scripts, as well as signature hash functions.
 
-This file is modified from python-BGLlib.
+This file is modified from python-bitcoinlib.
 """
 
 from collections import namedtuple
-import struct
 import unittest
 
 from .key import TaggedHash, tweak_add_pubkey, compute_xonly_pubkey
@@ -17,7 +16,6 @@ from .messages import (
     CTransaction,
     CTxOut,
     hash256,
-    keccak256,
     ser_string,
     ser_uint256,
     sha256,
@@ -27,7 +25,7 @@ from .messages import (
 from .crypto.ripemd160 import ripemd160
 
 MAX_SCRIPT_ELEMENT_SIZE = 520
-MAX_PUBKEYS_PER_MULTI_A = 512
+MAX_PUBKEYS_PER_MULTI_A = 999
 LOCKTIME_THRESHOLD = 500000000
 ANNEX_TAG = 0x50
 
@@ -37,7 +35,7 @@ def hash160(s):
     return ripemd160(sha256(s))
 
 def bn2vch(v):
-    """Convert number to BGL-specific little endian format."""
+    """Convert number to bitcoin-specific little endian format."""
     # We need v.bit_length() bits, plus a sign bit for every nonzero number.
     n_bits = v.bit_length() + (v != 0)
     # The number of bytes for that is:
@@ -55,13 +53,13 @@ class CScriptOp(int):
     def encode_op_pushdata(d):
         """Encode a PUSHDATA op, returning bytes"""
         if len(d) < 0x4c:
-            return b'' + bytes([len(d)]) + d # OP_PUSHDATA
+            return b'' + bytes([len(d)]) + d  # OP_PUSHDATA
         elif len(d) <= 0xff:
-            return b'\x4c' + bytes([len(d)]) + d # OP_PUSHDATA1
+            return b'\x4c' + bytes([len(d)]) + d  # OP_PUSHDATA1
         elif len(d) <= 0xffff:
-            return b'\x4d' + struct.pack(b'<H', len(d)) + d # OP_PUSHDATA2
+            return b'\x4d' + len(d).to_bytes(2, "little") + d  # OP_PUSHDATA2
         elif len(d) <= 0xffffffff:
-            return b'\x4e' + struct.pack(b'<I', len(d)) + d # OP_PUSHDATA4
+            return b'\x4e' + len(d).to_bytes(4, "little") + d  # OP_PUSHDATA4
         else:
             raise ValueError("Data too long to encode in a PUSHDATA op")
 
@@ -74,7 +72,7 @@ class CScriptOp(int):
         if n == 0:
             return OP_0
         else:
-            return CScriptOp(OP_1 + n-1)
+            return CScriptOp(OP_1 + n - 1)
 
     def decode_op_n(self):
         """Decode a small integer opcode, returning an integer"""
@@ -84,7 +82,7 @@ class CScriptOp(int):
         if not (self == OP_0 or OP_1 <= self <= OP_16):
             raise ValueError('op %r is not an OP_N' % self)
 
-        return int(self - OP_1+1)
+        return int(self - OP_1 + 1)
 
     def is_small_int(self):
         """Return true if the op pushes a small integer to the stack"""
@@ -114,7 +112,7 @@ OPCODE_NAMES: dict[CScriptOp, str] = {}
 _opcode_instances: list[CScriptOp] = []
 
 # Populate opcode instance table
-for n in range(0xff+1):
+for n in range(0xff + 1):
     CScriptOp(n)
 
 
@@ -127,7 +125,7 @@ OP_PUSHDATA4 = CScriptOp(0x4e)
 OP_1NEGATE = CScriptOp(0x4f)
 OP_RESERVED = CScriptOp(0x50)
 OP_1 = CScriptOp(0x51)
-OP_TRUE=OP_1
+OP_TRUE = OP_1
 OP_2 = CScriptOp(0x52)
 OP_3 = CScriptOp(0x53)
 OP_4 = CScriptOp(0x54)
@@ -413,10 +411,10 @@ class CScriptNum:
         if len(value) == 0:
             return result
         for i, byte in enumerate(value):
-            result |= int(byte) << 8*i
+            result |= int(byte) << 8 * i
         if value[-1] >= 0x80:
             # Mask for all but the highest result bit
-            num_mask = (2**(len(value)*8) - 1) >> 1
+            num_mask = (2**(len(value) * 8) - 1) >> 1
             result &= num_mask
             result *= -1
         return result
@@ -484,7 +482,7 @@ class CScript(bytes):
         i = 0
         while i < len(self):
             sop_idx = i
-            opcode = self[i]
+            opcode = CScriptOp(self[i])
             i += 1
 
             if opcode > OP_PUSHDATA4:
@@ -507,21 +505,20 @@ class CScript(bytes):
                     pushdata_type = 'PUSHDATA2'
                     if i + 1 >= len(self):
                         raise CScriptInvalidError('PUSHDATA2: missing data length')
-                    datasize = self[i] + (self[i+1] << 8)
+                    datasize = self[i] + (self[i + 1] << 8)
                     i += 2
 
                 elif opcode == OP_PUSHDATA4:
                     pushdata_type = 'PUSHDATA4'
                     if i + 3 >= len(self):
                         raise CScriptInvalidError('PUSHDATA4: missing data length')
-                    datasize = self[i] + (self[i+1] << 8) + (self[i+2] << 16) + (self[i+3] << 24)
+                    datasize = self[i] + (self[i + 1] << 8) + (self[i + 2] << 16) + (self[i + 3] << 24)
                     i += 4
 
                 else:
-                    assert False # shouldn't happen
+                    assert False  # shouldn't happen
 
-
-                data = bytes(self[i:i+datasize])
+                data = bytes(self[i:i + datasize])
 
                 # Check for truncation
                 if len(data) < datasize:
@@ -592,7 +589,7 @@ class CScript(bytes):
                 n += 1
             elif opcode in (OP_CHECKMULTISIG, OP_CHECKMULTISIGVERIFY):
                 if fAccurate and (OP_1 <= lastOpcode <= OP_16):
-                    n += opcode.decode_op_n()
+                    n += lastOpcode.decode_op_n()
                 else:
                     n += 20
             lastOpcode = opcode
@@ -600,7 +597,7 @@ class CScript(bytes):
 
     def IsWitnessProgram(self):
         """A witness program is any valid CScript that consists of a 1-byte
-            push opcode followed by a data push between 2 and 40 bytes."""
+           push opcode followed by a data push between 2 and 40 bytes."""
         return ((4 <= len(self) <= 42) and
                 (self[0] == OP_0 or (OP_1 <= self[0] <= OP_16)) and
                 (self[1] + 2 == len(self)))
@@ -672,7 +669,7 @@ def LegacySignatureMsg(script, txTo, inIdx, hashtype):
         txtmp.vin.append(tmp)
 
     s = txtmp.serialize_without_witness()
-    s += struct.pack(b"<I", hashtype)
+    s += hashtype.to_bytes(4, "little")
 
     return (s, None)
 
@@ -688,7 +685,7 @@ def LegacySignatureHash(*args, **kwargs):
     if msg is None:
         return (HASH_ONE, err)
     else:
-        return (keccak256(msg), err)
+        return (hash256(msg), err)
 
 def sign_input_legacy(tx, input_index, input_scriptpubkey, privkey, sighash_type=SIGHASH_ALL):
     """Add legacy ECDSA signature for a given transaction input. Note that the signature
@@ -698,6 +695,15 @@ def sign_input_legacy(tx, input_index, input_scriptpubkey, privkey, sighash_type
     assert err is None
     der_sig = privkey.sign_ecdsa(sighash)
     tx.vin[input_index].scriptSig = bytes(CScript([der_sig + bytes([sighash_type])])) + tx.vin[input_index].scriptSig
+    tx.rehash()
+
+def sign_input_segwitv0(tx, input_index, input_scriptpubkey, input_amount, privkey, sighash_type=SIGHASH_ALL):
+    """Add segwitv0 ECDSA signature for a given transaction input. Note that the signature
+       is inserted at the bottom of the witness stack, i.e. additional witness data
+       needed (e.g. pubkey for P2WPKH) can already be set before."""
+    sighash = SegwitV0SignatureHash(input_scriptpubkey, tx, input_index, sighash_type, input_amount)
+    der_sig = privkey.sign_ecdsa(sighash)
+    tx.wit.vtxinwit[input_index].scriptWitness.stack.insert(0, der_sig + bytes([sighash_type]))
     tx.rehash()
 
 # TODO: Allow cached hashPrevouts/hashSequence/hashOutputs to be provided.
@@ -714,22 +720,22 @@ def SegwitV0SignatureMsg(script, txTo, inIdx, hashtype, amount):
         serialize_prevouts = bytes()
         for i in txTo.vin:
             serialize_prevouts += i.prevout.serialize()
-        hashPrevouts = uint256_from_str(keccak256(serialize_prevouts))
+        hashPrevouts = uint256_from_str(hash256(serialize_prevouts))
 
     if (not (hashtype & SIGHASH_ANYONECANPAY) and (hashtype & 0x1f) != SIGHASH_SINGLE and (hashtype & 0x1f) != SIGHASH_NONE):
         serialize_sequence = bytes()
         for i in txTo.vin:
-            serialize_sequence += struct.pack("<I", i.nSequence)
-        hashSequence = uint256_from_str(keccak256(serialize_sequence))
+            serialize_sequence += i.nSequence.to_bytes(4, "little")
+        hashSequence = uint256_from_str(hash256(serialize_sequence))
 
     if ((hashtype & 0x1f) != SIGHASH_SINGLE and (hashtype & 0x1f) != SIGHASH_NONE):
         serialize_outputs = bytes()
         for o in txTo.vout:
             serialize_outputs += o.serialize()
-        hashOutputs = uint256_from_str(keccak256(serialize_outputs))
+        hashOutputs = uint256_from_str(hash256(serialize_outputs))
     elif ((hashtype & 0x1f) == SIGHASH_SINGLE and inIdx < len(txTo.vout)):
         serialize_outputs = txTo.vout[inIdx].serialize()
-        hashOutputs = uint256_from_str(keccak256(serialize_outputs))
+        hashOutputs = uint256_from_str(hash256(serialize_outputs))
 
     ss = bytes()
     ss += txTo.version.to_bytes(4, "little")
@@ -737,15 +743,15 @@ def SegwitV0SignatureMsg(script, txTo, inIdx, hashtype, amount):
     ss += ser_uint256(hashSequence)
     ss += txTo.vin[inIdx].prevout.serialize()
     ss += ser_string(script)
-    ss += struct.pack("<q", amount)
-    ss += struct.pack("<I", txTo.vin[inIdx].nSequence)
+    ss += amount.to_bytes(8, "little", signed=True)
+    ss += txTo.vin[inIdx].nSequence.to_bytes(4, "little")
     ss += ser_uint256(hashOutputs)
     ss += txTo.nLockTime.to_bytes(4, "little")
-    ss += struct.pack("<I", hashtype)
+    ss += hashtype.to_bytes(4, "little")
     return ss
 
 def SegwitV0SignatureHash(*args, **kwargs):
-    return keccak256(SegwitV0SignatureMsg(*args, **kwargs))
+    return hash256(SegwitV0SignatureMsg(*args, **kwargs))
 
 class TestFrameworkScript(unittest.TestCase):
     def test_bn2vch(self):
@@ -775,20 +781,34 @@ class TestFrameworkScript(unittest.TestCase):
         for value in values:
             self.assertEqual(CScriptNum.decode(CScriptNum.encode(CScriptNum(value))), value)
 
+    def test_legacy_sigopcount(self):
+        # test repeated single sig ops
+        for n_ops in range(1, 100, 10):
+            for singlesig_op in (OP_CHECKSIG, OP_CHECKSIGVERIFY):
+                singlesigs_script = CScript([singlesig_op]*n_ops)
+                self.assertEqual(singlesigs_script.GetSigOpCount(fAccurate=False), n_ops)
+                self.assertEqual(singlesigs_script.GetSigOpCount(fAccurate=True), n_ops)
+        # test multisig op (including accurate counting, i.e. BIP16)
+        for n in range(1, 16+1):
+            for multisig_op in (OP_CHECKMULTISIG, OP_CHECKMULTISIGVERIFY):
+                multisig_script = CScript([CScriptOp.encode_op_n(n), multisig_op])
+                self.assertEqual(multisig_script.GetSigOpCount(fAccurate=False), 20)
+                self.assertEqual(multisig_script.GetSigOpCount(fAccurate=True), n)
+
 def BIP341_sha_prevouts(txTo):
-    return keccak256(b"".join(i.prevout.serialize() for i in txTo.vin))
+    return sha256(b"".join(i.prevout.serialize() for i in txTo.vin))
 
 def BIP341_sha_amounts(spent_utxos):
-    return keccak256(b"".join(struct.pack("<q", u.nValue) for u in spent_utxos))
+    return sha256(b"".join(u.nValue.to_bytes(8, "little", signed=True) for u in spent_utxos))
 
 def BIP341_sha_scriptpubkeys(spent_utxos):
-    return keccak256(b"".join(ser_string(u.scriptPubKey) for u in spent_utxos))
+    return sha256(b"".join(ser_string(u.scriptPubKey) for u in spent_utxos))
 
 def BIP341_sha_sequences(txTo):
-    return keccak256(b"".join(struct.pack("<I", i.nSequence) for i in txTo.vin))
+    return sha256(b"".join(i.nSequence.to_bytes(4, "little") for i in txTo.vin))
 
 def BIP341_sha_outputs(txTo):
-    return keccak256(b"".join(o.serialize() for o in txTo.vout))
+    return sha256(b"".join(o.serialize() for o in txTo.vout))
 
 def TaprootSignatureMsg(txTo, spent_utxos, hash_type, input_index=0, *, scriptpath=False, leaf_script=None, codeseparator_pos=-1, annex=None, leaf_ver=LEAF_VERSION_TAPSCRIPT):
     assert (len(txTo.vin) == len(spent_utxos))
@@ -814,11 +834,11 @@ def TaprootSignatureMsg(txTo, spent_utxos, hash_type, input_index=0, *, scriptpa
     ss += bytes([spend_type])
     if in_type == SIGHASH_ANYONECANPAY:
         ss += txTo.vin[input_index].prevout.serialize()
-        ss += struct.pack("<q", spent_utxos[input_index].nValue)
+        ss += spent_utxos[input_index].nValue.to_bytes(8, "little", signed=True)
         ss += ser_string(spk)
-        ss += struct.pack("<I", txTo.vin[input_index].nSequence)
+        ss += txTo.vin[input_index].nSequence.to_bytes(4, "little")
     else:
-        ss += struct.pack("<I", input_index)
+        ss += input_index.to_bytes(4, "little")
     if (spend_type & 1):
         ss += sha256(ser_string(annex))
     if out_type == SIGHASH_SINGLE:

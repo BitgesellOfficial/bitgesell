@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BGL_TEST_FUZZ_UTIL_H
-#define BGL_TEST_FUZZ_UTIL_H
+#ifndef BITCOIN_TEST_FUZZ_UTIL_H
+#define BITCOIN_TEST_FUZZ_UTIL_H
 
 #include <addresstype.h>
 #include <arith_uint256.h>
@@ -70,7 +70,7 @@ template<typename B = uint8_t>
     return BytesToBits(ConsumeRandomLengthByteVector(fuzzed_data_provider, max_length));
 }
 
-[[nodiscard]] inline CDataStream ConsumeDataStream(FuzzedDataProvider& fuzzed_data_provider, const std::optional<size_t>& max_length = std::nullopt) noexcept
+[[nodiscard]] inline DataStream ConsumeDataStream(FuzzedDataProvider& fuzzed_data_provider, const std::optional<size_t>& max_length = std::nullopt) noexcept
 {
     return CDataStream{ConsumeRandomLengthByteVector(fuzzed_data_provider, max_length), SER_NETWORK, PROTOCOL_VERSION};
 }
@@ -340,4 +340,4 @@ void ReadFromStream(FuzzedDataProvider& fuzzed_data_provider, Stream& stream) no
     }
 }
 
-#endif // BGL_TEST_FUZZ_UTIL_H
+#endif // BITCOIN_TEST_FUZZ_UTIL_H

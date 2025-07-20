@@ -568,9 +568,9 @@ def add_spender(spenders, *args, **kwargs):
 def random_checksig_style(pubkey):
     """Creates a random CHECKSIG* tapscript that would succeed with only the valid signature on witness stack."""
     opcode = random.choice([OP_CHECKSIG, OP_CHECKSIGVERIFY, OP_CHECKSIGADD])
-    if (opcode == OP_CHECKSIGVERIFY):
+    if opcode == OP_CHECKSIGVERIFY:
         ret = CScript([pubkey, opcode, OP_1])
-    elif (opcode == OP_CHECKSIGADD):
+    elif opcode == OP_CHECKSIGADD:
         num = random.choice([0, 0x7fffffff, -0x7fffffff])
         ret = CScript([num, pubkey, opcode, num + 1, OP_EQUAL])
     else:
@@ -1180,6 +1180,12 @@ def spenders_taproot_active():
         tap = taproot_construct(pubs[0], scripts)
         add_spender(spenders, "alwaysvalid/notsuccessx", tap=tap, leaf="op_success", inputs=[], standard=False, failure={"leaf": "normal"}) # err_msg differs based on opcode
 
+    # == Test case for https://github.com/bitcoin/bitcoin/issues/24765 ==
+
+    zero_fn = lambda h: bytes([0 for _ in range(32)])
+    tap = taproot_construct(pubs[0], [("leaf", CScript([pubs[1], OP_CHECKSIG, pubs[1], OP_CHECKSIGADD, OP_2, OP_EQUAL])), zero_fn])
+    add_spender(spenders, "case24765", tap=tap, leaf="leaf", inputs=[getter("sign"), getter("sign")], key=secs[1], no_fail=True)
+
     # == Legacy tests ==
 
     # Also add a few legacy spends into the mix, so that transactions which combine taproot and pre-taproot spends get tested too.
@@ -1294,7 +1300,7 @@ class TaprootTest(BGLTestFramework):
         block_response = node.submitblock(block.serialize().hex())
         if err_msg is not None:
             assert block_response is not None and err_msg in block_response, "Missing error message '%s' from block response '%s': %s" % (err_msg, "(None)" if block_response is None else block_response, msg)
-        if (accept):
+        if accept:
             assert node.getbestblockhash() == block.hash, "Failed to accept: %s (response: %s)" % (msg, block_response)
             self.tip = block.sha256
             self.lastblockhash = block.hash
@@ -1331,7 +1337,7 @@ class TaprootTest(BGLTestFramework):
         host_spks = []
         host_pubkeys = []
         for i in range(16):
-            addr = node.getnewaddress(address_type=random.choice(["bech32"]))
+            addr = node.getnewaddress(address_type=random.choice(["legacy", "p2sh-segwit", "bech32"]))
             info = node.getaddressinfo(addr)
             spk = bytes.fromhex(info['scriptPubKey'])
             host_spks.append(spk)
@@ -1476,6 +1482,8 @@ class TaprootTest(BGLTestFramework):
                 if not input_utxos[i].spender.no_fail:
                     fail = fn(tx, i, [utxo.output for utxo in input_utxos], False)
                 input_data.append((fail, success))
+                if self.options.dump_tests:
+                    dump_json_test(tx, input_utxos, i, success, fail)
 
             # Sign each input incorrectly once on each complete signing pass, except the very last.
             for fail_input in list(range(len(input_utxos))) + [None]:
@@ -1736,7 +1744,7 @@ class TaprootTest(BGLTestFramework):
         aux = tx_test.setdefault("auxiliary", {})
         aux['fullySignedTx'] = tx.serialize().hex()
         keypath_tests.append(tx_test)
-        assert_equal(hashlib.sha256(tx.serialize()).hexdigest(), "9edad9338a58341384422264bd17b7597cd22be06a458cb6cae5ed72ecb9fc3f")
+        assert_equal(hashlib.sha256(tx.serialize()).hexdigest(), "da78592c5d519de1ed77a7353e4bdc3c0e4157139ed801c815feee243b339f8a")
         # Mine the spending transaction
         #self.block_submit(self.nodes[0], [tx], "Spending txn", None, sigops_weight=10000, accept=True, witness=True)
 
