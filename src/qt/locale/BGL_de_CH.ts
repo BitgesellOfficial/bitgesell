@@ -563,8 +563,8 @@ Das Signieren ist nur mit Adressen vom Typ 'Legacy' möglich.</translation>
         <translation type="unfinished">Verbinde mit Peers...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Zahlungen anfordern (erzeugt QR-Codes und "bitgesell:"-URIs)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Zahlungen anfordern (erzeugt QR-Codes und BGL: -URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -4351,7 +4351,7 @@ Die Wallet könnte manipuliert oder in böser Absicht erstellt worden sein.
 The wallet might had been created on a newer version.
 Please try running the latest software version.
 </source>
-        <translation type="unfinished">Nicht erkannter Deskriptor gefunden. Beim laden vom Wallet %s 
+        <translation type="unfinished">Nicht erkannter Deskriptor gefunden. Beim laden vom Wallet %s
 
 Die Wallet wurde möglicherweise in einer neueren Version erstellt.
 Bitte mit der neuesten Softwareversion versuchen.

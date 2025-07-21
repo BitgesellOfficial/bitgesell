@@ -626,7 +626,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ピアに接続中...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
         <translation type="unfinished">支払いをリクエストする（QRコードと bitgesell:で始まるURIを生成する）</translation>
     </message>
     <message>

@@ -624,8 +624,8 @@ La signature n'est possible qu'avec les adresses de type "patrimoine".</translat
         <translation type="unfinished">Connexion aux pairs…</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Demander des paiements (génère des codes QR et des URI bitgesell:)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Demander des paiements (génère des codes QR et des URI BGL:)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>

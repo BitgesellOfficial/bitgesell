@@ -427,8 +427,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Tulong</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Humiling ng bayad (lumilikha ng QR codes at bitgesell: URIs)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Humiling ng bayad (lumilikha ng QR codes at BGL: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>

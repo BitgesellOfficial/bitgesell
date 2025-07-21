@@ -354,7 +354,7 @@
         <translation type="unfinished">‫الاتصال بالأقران…‬</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
         <translation type="unfinished">‫أطلب مدفوعات (أنشئ رموز استجابة (QR Codes) وعناوين بتكوين)‬</translation>
     </message>
     <message>

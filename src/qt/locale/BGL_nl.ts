@@ -608,8 +608,8 @@ Ondertekenen is alleen mogelijk met adressen van het type 'legacy'.</translation
         <translation type="unfinished">Verbinden met peers...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Vraag betaling aan (genereert QR-codes en bitgesell: URI's)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Vraag betaling aan (genereert QR-codes en BGL: URI's)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -1606,7 +1606,7 @@ Het migratieproces maakt voorafgaand aan het migreren een backup van de wallet. 
     <message>
         <source>Maximum database cache size. A larger cache can contribute to faster sync, after which the benefit is less pronounced for most use cases. Lowering the cache size will reduce memory usage. Unused mempool memory is shared for this cache.</source>
         <extracomment>Tooltip text for Options window setting that sets the size of the database cache. Explains the corresponding effects of increasing/decreasing this value.</extracomment>
-        <translation type="unfinished">Maximum databank cache grootte. 
+        <translation type="unfinished">Maximum databank cache grootte.
 Een grotere cache kan bijdragen tot een snellere sync, waarna het voordeel verminderd voor de meeste use cases.
 De cache grootte verminderen verlaagt het geheugen gebruik.
 Ongebruikte mempool geheugen is gedeeld voor deze cache.</translation>

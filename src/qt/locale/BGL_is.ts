@@ -349,7 +349,7 @@
         <translation type="unfinished">Tólaborð flipa</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
         <translation type="unfinished">Óska eftir greiðslum (býr til QR kóða og bitcoin: URI)</translation>
     </message>
     <message>

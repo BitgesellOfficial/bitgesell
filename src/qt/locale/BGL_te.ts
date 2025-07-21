@@ -64,7 +64,7 @@
     <message>
         <source>These are your Bitgesell addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">చెల్లింపులను స్వీకరించడానికి ఇవి మీ బిట్‌కాయిన్ చిరునామాలు. కొత్త చిరునామాలను సృష్టించడానికి స్వీకరించే ట్యాబ్‌లోని 'కొత్త స్వీకరించే చిరునామాను సృష్టించు' బటన్‌ను ఉపయోగించండి. 
+        <translation type="unfinished">చెల్లింపులను స్వీకరించడానికి ఇవి మీ బిట్‌కాయిన్ చిరునామాలు. కొత్త చిరునామాలను సృష్టించడానికి స్వీకరించే ట్యాబ్‌లోని 'కొత్త స్వీకరించే చిరునామాను సృష్టించు' బటన్‌ను ఉపయోగించండి.
 'లెగసీ' రకం చిరునామాలతో మాత్రమే సంతకం చేయడం సాధ్యమవుతుంది.</translation>
     </message>
     <message>
@@ -568,7 +568,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">తోటివారితో కలుస్తుంది…</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
         <translation type="unfinished">చెల్లింపులను అభ్యర్థించండి (QR కోడ్‌లు మరియు బిట్‌కాయిన్‌లను ఉత్పత్తి చేస్తుంది: URIలు)</translation>
     </message>
     <message>

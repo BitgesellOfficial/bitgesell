@@ -461,7 +461,7 @@
         <translation type="unfinished">Дискідегі блоктар инедекстелуде...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
         <translation type="unfinished">Төлем талап ету (QR кодтары мен биткоин құрады: URI)</translation>
     </message>
     <message>

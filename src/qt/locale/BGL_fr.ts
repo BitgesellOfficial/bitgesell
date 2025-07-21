@@ -632,8 +632,8 @@ Il n’est possible de signer qu’avec les adresses de type « legacy ».</tr
         <translation type="unfinished">Connexion aux pairs…</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Demander des paiements (génère des codes QR et des URI bitgesell:)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Demander des paiements (génère des codes QR et des URI BGL:)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -1122,7 +1122,7 @@ If this wallet contains any solvable but not watched scripts, a different and ne
 
 The migration process will create a backup of the wallet before migrating. This backup file will be named &lt;wallet name&gt;-&lt;timestamp&gt;.legacy.bak and can be found in the directory for this wallet. In the event of an incorrect migration, the backup can be restored with the "Restore Wallet" functionality.</source>
         <translation type="unfinished">La migration du porte-monnaie le convertira en un ou plusieurs porte-monnaie de descripteurs. Une nouvelle sauvegarde du porte-monnaie devra être effectuée.
-Si ce porte-monnaie contient des scripts juste-regarder, un nouveau porte-monnaie sera créé qui comprendra ces scripts juste-regarder. 
+Si ce porte-monnaie contient des scripts juste-regarder, un nouveau porte-monnaie sera créé qui comprendra ces scripts juste-regarder.
 Si ce porte-monnaie comprend des scripts solubles, mais non surveillés, un nouveau porte-monnaie différent sera créé comportant ces scripts.
 
 Le processus de migration créera une sauvegarde du porte-monnaie avant migration. Ce fichier de sauvegarde sera nommé &lt;wallet name&gt;-&lt;timestamp&gt;.legacy.bak et se trouvera dans le dossier de ce porte-monnaie. En cas de migration erronée, la sauvegarde peut être restaurée avec la fonction « Restaurer le porte-monnaie ».</translation>

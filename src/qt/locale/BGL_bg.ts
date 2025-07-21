@@ -595,7 +595,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     </message>
     <message>
         <source>Request payments (generates QR codes and BGL: URIs)</source>
-        <translation type="unfinished">Изискване на плащания(генерира QR кодове и биткойн: URIs)</translation>
+        <translation type="unfinished">Изискване на плащания(генерира QR кодове и BGL: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>

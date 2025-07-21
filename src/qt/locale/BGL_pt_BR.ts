@@ -561,8 +561,8 @@ Só é possível assinar com endereços do tipo 'legado'.</translation>
         <translation type="unfinished">Conectando...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Solicitações de pagamentos (gera códigos QR e bitgesell: URIs)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Solicitações de pagamentos (gera códigos QR e BGL: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -4475,7 +4475,7 @@ Impossível restaurar backup da carteira.</translation>
     </message>
     <message>
         <source>Signer echoed unexpected address %s</source>
-        <translation type="unfinished">O signatário fez eco de um endereço inesperado 
+        <translation type="unfinished">O signatário fez eco de um endereço inesperado
 %s</translation>
     </message>
     <message>

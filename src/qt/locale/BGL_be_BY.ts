@@ -346,7 +346,7 @@
     </message>
     <message>
         <source>Request payments (generates QR codes and BGL: URIs)</source>
-        <translation type="unfinished">Запатрабаваць плацёж (генеруецца QR-код для біткойн URI)</translation>
+        <translation type="unfinished">Запатрабаваць плацёж (генеруецца QR-код для BGL URI)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>

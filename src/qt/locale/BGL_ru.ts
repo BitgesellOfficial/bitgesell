@@ -551,8 +551,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Подключение к узлам…</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Запросить платёж (генерирует QR-коды и URI протокола bitgesell:)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Запросить платёж (генерирует QR-коды и URI протокола BGL:)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>

@@ -606,7 +606,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">સાથીદારોએ સાથે જોડાઈ…</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
         <translation type="unfinished">ચુકવણીની વિનંતી કરો (QR કોડ અને બિટકોઈન જનરેટ કરે છે: URI)</translation>
     </message>
     <message>
@@ -855,7 +855,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Type: %1
 </source>
-        <translation type="unfinished">પ્રકાર: %1 
+        <translation type="unfinished">પ્રકાર: %1
 </translation>
     </message>
     <message>
@@ -867,7 +867,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Address: %1
 </source>
-        <translation type="unfinished">સરનામું: %1 
+        <translation type="unfinished">સરનામું: %1
 </translation>
     </message>
     <message>

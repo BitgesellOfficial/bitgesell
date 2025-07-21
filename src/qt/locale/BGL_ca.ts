@@ -589,8 +589,8 @@ Només és possible firmar amb adreces del tipus "legacy".</translation>
         <translation type="unfinished">Connectant als iguals...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Sol·licita pagaments (genera codis QR i bitgesell: URI)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Sol·licita pagaments (genera codis QR i BGL: URI)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -3676,8 +3676,8 @@ Nota: atès que la tarifa es calcula per byte, una tarifa de "100 satoshis per k
         <source>No wallet has been loaded.
 Go to File &gt; Open Wallet to load a wallet.
 - OR -</source>
-        <translation type="unfinished">No s'ha carregat cap cartera. 
-Ves a Arxiu &gt; Obrir Cartera per a carregar cartera. 
+        <translation type="unfinished">No s'ha carregat cap cartera.
+Ves a Arxiu &gt; Obrir Cartera per a carregar cartera.
 - O -</translation>
     </message>
     <message>
@@ -4069,7 +4069,7 @@ Ves a Arxiu &gt; Obrir Cartera per a carregar cartera.
     </message>
     <message>
         <source>Error: Dumpfile checksum does not match. Computed %s, expected %s</source>
-        <translation type="unfinished">Error: la suma de comprovació del fitxer bolcat no coincideix. S'ha calculat %s, s'esperava 
+        <translation type="unfinished">Error: la suma de comprovació del fitxer bolcat no coincideix. S'ha calculat %s, s'esperava
 %s</translation>
     </message>
     <message>

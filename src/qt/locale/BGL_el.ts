@@ -590,8 +590,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Σύνδεση στους χρήστες...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Αίτηση πληρωμών (δημιουργεί QR codes και διευθύνσεις bitgesell: )</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Αίτηση πληρωμών (δημιουργεί QR codes και διευθύνσεις BGL: )</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -2017,7 +2017,7 @@ The migration process will create a backup of the wallet before migrating. This 
     </message>
     <message>
         <source>Transaction broadcast successfully! Transaction ID: %1</source>
-        <translation type="unfinished">Έγινε επιτυχής αναμετάδοση της συναλλαγής! 
+        <translation type="unfinished">Έγινε επιτυχής αναμετάδοση της συναλλαγής!
 ID Συναλλαγής: %1</translation>
     </message>
     <message>

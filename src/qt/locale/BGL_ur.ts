@@ -533,7 +533,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">ساتھیوں سے منسلک کرنے</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
         <translation type="unfinished">ادائیگی کی درخواست کریں: ( کوئیک رسپانس ( کیو۔آر ) کوڈ اور بٹ کوائن ( یونیورسل ادائیگیوں کا نظام) کے ذریعے سے</translation>
     </message>
     <message>

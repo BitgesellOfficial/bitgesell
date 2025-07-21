@@ -64,13 +64,13 @@
     <message>
         <source>These are your Bitgesell addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Улар тўловларни қабул қилиш учун сизнинг Bitgesell манзилларингиз. Янги манзилларни яратиш учун қабул қилиш варағидаги "Янги қабул қилиш манзилини яратиш" устига босинг. 
+        <translation type="unfinished">Улар тўловларни қабул қилиш учун сизнинг Bitgesell манзилларингиз. Янги манзилларни яратиш учун қабул қилиш варағидаги "Янги қабул қилиш манзилини яратиш" устига босинг.
 Фақат 'legacy' туридаги манзиллар билан ҳисобга кириш мумкин.</translation>
     </message>
     <message>
         <source>These are your Bitgesell addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.
 Signing is only possible with addresses of the type 'legacy'.</source>
-        <translation type="unfinished">Улар тўловларни қабул қилиш учун сизнинг Bitgesell манзилларингиз. Янги манзилларни яратиш учун қабул қилиш варағидаги "Янги қабул қилиш манзилини яратиш" устига босинг. 
+        <translation type="unfinished">Улар тўловларни қабул қилиш учун сизнинг Bitgesell манзилларингиз. Янги манзилларни яратиш учун қабул қилиш варағидаги "Янги қабул қилиш манзилини яратиш" устига босинг.
 Фақат 'legacy' туридаги манзиллар билан ҳисобга кириш мумкин.</translation>
     </message>
     <message>
@@ -561,8 +561,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Pirlarga ulanish...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Тўловлар (QR кодлари ва bitgesell ёрдамида яратишлар: URI’лар) сўраш</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Тўловлар (QR кодлари ва BGL ёрдамида яратишлар: URI’лар) сўраш</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>

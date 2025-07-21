@@ -594,8 +594,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Повезивање са клијентима...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Zatražite plaćanje (generiše QR kodove i bitgesell: URI-e)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Zatražite plaćanje (generiše QR kodove i BGL: URI-e)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -2732,7 +2732,7 @@ For more information on using this console, type %6.
         <source>Specify a custom fee per kB (1,000 bytes) of the transaction's virtual size.
 
 Note:  Since the fee is calculated on a per-byte basis, a fee rate of "100 satoshis per kvB" for a transaction size of 500 virtual bytes (half of 1 kvB) would ultimately yield a fee of only 50 satoshis.</source>
-        <translation type="unfinished">Одредити прилагођену провизију по kB (1,000 битова) виртуелне величине трансакције. 
+        <translation type="unfinished">Одредити прилагођену провизију по kB (1,000 битова) виртуелне величине трансакције.
 
 Напомена: С обзиром да се провизија рачуна на основу броја бајтова, провизија за "100 сатошија по kB" за величину трансакције од 500 бајтова (пола од 1 kB) ће аутоматски износити само 50 сатошија.</translation>
     </message>

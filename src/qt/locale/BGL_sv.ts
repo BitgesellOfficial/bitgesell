@@ -564,8 +564,8 @@ Försök igen.</translation>
         <translation type="unfinished">Ansluter till noder...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
-        <translation type="unfinished">Begär betalningar (skapar QR-koder och bitcoin: -URIer)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Begär betalningar (skapar QR-koder och BGL: -URIer)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>

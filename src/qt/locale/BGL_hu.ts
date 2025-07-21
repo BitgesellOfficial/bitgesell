@@ -626,7 +626,7 @@ Aláírni csak régi típusú, egyessel kezdődő címekkel lehet.</translation>
         <translation type="unfinished">Csatlakozás partnerekhez…</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
         <translation type="unfinished">Fizetési kérelem (QR-kódot és "bitgesell:" URI azonosítót hoz létre)</translation>
     </message>
     <message>
@@ -2684,7 +2684,7 @@ For more information on using this console, type %6.
 %7WARNING: Scammers have been active, telling users to type commands here, stealing their wallet contents. Do not use this console without fully understanding the ramifications of a command.%8</source>
         <extracomment>RPC console welcome message. Placeholders %7 and %8 are style tags for the warning content, and they are not space separated from the rest of the text intentionally.</extracomment>
         <translation type="unfinished">Üdv a(z) %1 RPC konzoljában.
-Használja a fel- és le nyilakat az előzményekben való navigáláshoz, és %2-t a képernyő törléséhez. 
+Használja a fel- és le nyilakat az előzményekben való navigáláshoz, és %2-t a képernyő törléséhez.
 Használja %3-t és %4-t a betűméret növeléséhez vagy csökkentéséhez.
 Gépeljen %5 az elérhető parancsok áttekintéséhez. Több információért a konzol használatáról, gépeljen %6.
 
@@ -3966,7 +3966,7 @@ Megjegyzés: Mivel a díj bájtonként van kiszámítva, egy "100 satoshi kvB-nk
         <source>No wallet has been loaded.
 Go to File &gt; Open Wallet to load a wallet.
 - OR -</source>
-        <translation type="unfinished">Nincs tárca betöltve. 
+        <translation type="unfinished">Nincs tárca betöltve.
 A "Fájl &gt; Tárca megnyitása" menüben tölthet be egyet.
 - VAGY -</translation>
     </message>

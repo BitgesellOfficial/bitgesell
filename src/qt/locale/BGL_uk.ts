@@ -654,8 +654,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Встановлення з'єднань…</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Створити запит платежу (генерує QR-код та bitgesell: URI)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Створити запит платежу (генерує QR-код та BGL: URI)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -4478,7 +4478,7 @@ Go to File &gt; Open Wallet to load a wallet.
 
 The wallet might have been tampered with or created with malicious intent.
 </source>
-        <translation type="unfinished">В гаманці дескрипторів виявлено неочікуваний запис, що не підтримується. Завантаження гаманця %s 
+        <translation type="unfinished">В гаманці дескрипторів виявлено неочікуваний запис, що не підтримується. Завантаження гаманця %s
 
 Гаманець міг бути підроблений або створений зі злим умислом.
 </translation>

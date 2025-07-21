@@ -610,8 +610,8 @@ Allekirjoitus on mahdollista vain 'legacy'-tyyppisillä osoitteilla.</translatio
         <translation type="unfinished">Yhdistetään vertaisiin...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Pyydä maksuja (Luo QR koodit ja bitgesell: URIt)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Pyydä maksuja (Luo QR koodit ja BGL: URIt)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>

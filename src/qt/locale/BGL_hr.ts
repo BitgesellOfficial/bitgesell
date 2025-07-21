@@ -588,7 +588,7 @@ Potpisivanje je moguće samo sa 'legacy' adresama. </translation>
         <translation type="unfinished">Povezivanje sa peer-ovima...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
         <translation type="unfinished">Zatražite uplatu (stvara QR kod i bitgesell: URI adresu)</translation>
     </message>
     <message>

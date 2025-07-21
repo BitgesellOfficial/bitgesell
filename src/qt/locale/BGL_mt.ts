@@ -517,8 +517,8 @@ L-iffirmar huwa possibbli biss b'indirizzi tat-tip 'legacy'.</translation>
         <translation type="unfinished">Konnessjoni ma' sħabhom...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Itlob ħlasijiet (jiġġenera kodiċijiet QR u bitgesell: URIs)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Itlob ħlasijiet (jiġġenera kodiċijiet QR u BGL: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>

@@ -589,8 +589,8 @@ Cüzdan kilidini aç.</translation>
         <translation type="unfinished">Eşlere Bağlanılıyor...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Ödeme isteyin (QR kodları ve bitgesell: URI'ler üretir)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Ödeme isteyin (QR kodları ve BGL: URI'ler üretir)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>

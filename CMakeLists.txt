@@ -18,12 +18,12 @@ endif()
 # Project / Package metadata
 #=============================
 set(CLIENT_NAME "Bitgesell Core")
-set(CLIENT_VERSION_MAJOR 28)
-set(CLIENT_VERSION_MINOR 99)
-set(CLIENT_VERSION_BUILD 0)
+set(CLIENT_VERSION_MAJOR 0)
+set(CLIENT_VERSION_MINOR 1)
+set(CLIENT_VERSION_BUILD 14)
 set(CLIENT_VERSION_RC 0)
-set(CLIENT_VERSION_IS_RELEASE "false")
-set(COPYRIGHT_YEAR "2024")
+set(CLIENT_VERSION_IS_RELEASE "true")
+set(COPYRIGHT_YEAR "2025")
 
 # During the enabling of the CXX and CXXOBJ languages, we modify
 # CMake's compiler/linker invocation strings by appending the content
@@ -44,7 +44,7 @@ set(CMAKE_TRY_COMPILE_PLATFORM_VARIABLES
 project(BitgesellCore
   VERSION ${CLIENT_VERSION_MAJOR}.${CLIENT_VERSION_MINOR}.${CLIENT_VERSION_BUILD}
   DESCRIPTION "Bigesell client software"
-  HOMEPAGE_URL "https://Bitgesellcore.org/"
+  HOMEPAGE_URL "https://bitgesell.ca"
   LANGUAGES
 )
 
@@ -55,7 +55,7 @@ endif()
 
 set(COPYRIGHT_HOLDERS "The %s developers")
 set(COPYRIGHT_HOLDERS_FINAL "The ${CLIENT_NAME} developers")
-set(CLIENT_BUGREPORT "https://github.com/bitcoin/bitcoin/issues")
+set(CLIENT_BUGREPORT "https://github.com/BitgesellOfficial/bitgesell/issues")
 
 #=============================
 # Language setup

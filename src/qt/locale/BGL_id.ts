@@ -415,7 +415,7 @@ Tanda tangan hanya bisa digunakan dengan tipe alamat 'warisan'</translation>
         <translation type="unfinished">Menghubungkan ke peers...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
         <translation type="unfinished">Permintaan pembayaran (membuat kode QR dan bitcoin: URIs)</translation>
     </message>
     <message>

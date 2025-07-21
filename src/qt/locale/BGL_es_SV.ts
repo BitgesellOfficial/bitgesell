@@ -575,7 +575,7 @@ Solo es posible firmar con direcciones de tipo legacy.</translation>
     </message>
     <message>
         <source>Request payments (generates QR codes and BGL: URIs)</source>
-        <translation type="unfinished">Solicitar pagos (genera código QR y URI's de Bitcoin)</translation>
+        <translation type="unfinished">Solicitar pagos (genera código QR y URI's de BGL)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -2593,7 +2593,7 @@ For more information on using this console, type %6.
         <extracomment>RPC console welcome message. Placeholders %7 and %8 are style tags for the warning content, and they are not space separated from the rest of the text intentionally.</extracomment>
         <translation type="unfinished">Te damos la bienvenida a la consola RPC de %1.
 Utiliza las flechas hacia arriba y abajo para navegar por el historial y %2 para borrar la pantalla.
-Utiliza %3 y %4 para aumentar o disminuir el tamaño de la fuente. 
+Utiliza %3 y %4 para aumentar o disminuir el tamaño de la fuente.
 Escribe %5 para ver los comandos disponibles.
 Para obtener más información sobre cómo usar esta consola, escribe %6.
 

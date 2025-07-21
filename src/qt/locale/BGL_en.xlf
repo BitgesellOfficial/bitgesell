@@ -510,7 +510,7 @@ Signing is only possible with addresses of the type &apos;legacy&apos;.</source>
         <context-group purpose="location"><context context-type="linenumber">1146</context></context-group>
       </trans-unit>
       <trans-unit id="_msg116">
-        <source xml:space="preserve">Request payments (generates QR codes and bitgesell: URIs)</source>
+        <source xml:space="preserve">Request payments (generates QR codes and BGL: URIs)</source>
         <context-group purpose="location"><context context-type="linenumber">267</context></context-group>
       </trans-unit>
       <trans-unit id="_msg117">

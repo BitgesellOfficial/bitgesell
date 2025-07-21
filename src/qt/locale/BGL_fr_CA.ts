@@ -555,8 +555,8 @@ Kirish faqat 'legacy' turidagi manzillar uchun.</translation>
         <translation type="unfinished">Pirlarga ulanish...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and BGLs: URIs)</source>
-        <translation type="unfinished">To'lovlarni so'rash(QR kolar va bitkoin yaratish: URL manzillar)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">To'lovlarni so'rash(QR kolar va BGL yaratish: URL manzillar)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>

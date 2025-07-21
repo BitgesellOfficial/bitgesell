@@ -585,8 +585,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">连接到节点...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">请求支付 (生成二维码和 bitgesell: URI)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">请求支付 (生成二维码和 BGL: URI)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>

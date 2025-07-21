@@ -419,7 +419,7 @@
     </message>
     <message>
         <source>Request payments (generates QR codes and BGL: URIs)</source>
-        <translation>Solicitar pagos (generando códigos QR e identificadores URI "BGL:")</translation>
+        <translation>Solicitar pagos (generando códigos QR e identificadores URI BGL:)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>

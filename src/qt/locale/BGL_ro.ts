@@ -566,8 +566,8 @@ Semnarea este posibilă numai cu adrese de tip "legacy".</translation>
         <translation type="unfinished">Conectarea cu colaboratorii...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Cereţi plăţi (generează coduri QR şi bitgesell-uri: URls)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Cereţi plăţi (generează coduri QR şi BGL-uri: URls)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>

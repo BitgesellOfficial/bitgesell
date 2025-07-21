@@ -479,8 +479,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">தாவல்கள் கருவிப்பட்டி</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">கொடுப்பனவுகளை கோருதல் (QR குறியீடுகள் மற்றும் bitgesell உருவாக்குகிறது: URI கள்)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">கொடுப்பனவுகளை கோருதல் (QR குறியீடுகள் மற்றும் BGL உருவாக்குகிறது: URI கள்)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>

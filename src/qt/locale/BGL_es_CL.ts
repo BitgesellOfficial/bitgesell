@@ -579,8 +579,8 @@ Usa el boton "Crear nueva direccion de recibimiento" en la pestaña de recibir p
         <translation type="unfinished">Conectando con pares...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Solicitar pagos (genera códigos QR y bitgesell: URIs)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Solicitar pagos (genera códigos QR y BGL: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -2549,8 +2549,8 @@ For more information on using this console, type %6.
 %7WARNING: Scammers have been active, telling users to type commands here, stealing their wallet contents. Do not use this console without fully understanding the ramifications of a command.%8</source>
         <extracomment>RPC console welcome message. Placeholders %7 and %8 are style tags for the warning content, and they are not space separated from the rest of the text intentionally.</extracomment>
         <translation type="unfinished">Bienvenido a la consola RPC
-%1. Utiliza las flechas arriba y abajo para navegar por el historial, y %2 para borrar la pantalla. 
-Utiliza %3 y %4 para aumentar o disminuir el tamaño de la fuente. 
+%1. Utiliza las flechas arriba y abajo para navegar por el historial, y %2 para borrar la pantalla.
+Utiliza %3 y %4 para aumentar o disminuir el tamaño de la fuente.
 Escribe %5 para ver un resumen de los comandos disponibles. Para más información sobre cómo usar esta consola, escribe %6.
 
 %7 AVISO: Los estafadores han estado activos diciendo a los usuarios que escriban comandos aquí, robando el contenido de sus monederos. No uses esta consola sin entender completamente las ramificaciones de un comando.%8</translation>

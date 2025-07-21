@@ -514,7 +514,7 @@ Daxil olma, yalnız 'qanuni' tipli ünvanlar ilə mümkündür.</translation>
     </message>
     <message>
         <source>Request payments (generates QR codes and BGL: URIs)</source>
-        <translation type="unfinished">Ödəmə tələbi (QR-kodlar və Bitcoin URI-ləri yaradılır):</translation>
+        <translation type="unfinished">Ödəmə tələbi (QR-kodlar və BGL URI-ləri yaradılır):</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>

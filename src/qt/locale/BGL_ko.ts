@@ -622,8 +622,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">피어에 연결 중...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">지불 요청하기 (QR 코드와 bitgesell을 생성합니다: URIs)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">지불 요청하기 (QR 코드와 BGL 생성합니다: URIs)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -2532,7 +2532,7 @@ For more information on using this console, type %6.
 %7WARNING: Scammers have been active, telling users to type commands here, stealing their wallet contents. Do not use this console without fully understanding the ramifications of a command.%8</source>
         <extracomment>RPC console welcome message. Placeholders %7 and %8 are style tags for the warning content, and they are not space separated from the rest of the text intentionally.</extracomment>
         <translation type="unfinished">1%1 RPC 콘솔에 오신 것을 환영합니다.
-위쪽 및 아래쪽 화살표를 사용하여 기록 탐색을하고 2%2를 사용하여 화면을 지우세요. 
+위쪽 및 아래쪽 화살표를 사용하여 기록 탐색을하고 2%2를 사용하여 화면을 지우세요.
 3%3과 4%4을 사용하여 글꼴 크기 증가 또는 감소하세요
 사용 가능한 명령의 개요를 보려면 5%5를 입력하십시오.
 이 콘솔 사용에 대한 자세한 내용을 보려면 6%6을 입력하십시오.

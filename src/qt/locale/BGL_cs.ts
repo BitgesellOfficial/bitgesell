@@ -589,8 +589,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Připojuji se…</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Požaduj platby (generuje QR kódy a bitgesell: URI)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Požaduj platby (generuje QR kódy a BGL: URI)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
@@ -2559,7 +2559,7 @@ For more information on using this console, type %6.
  Použijte šipky nahoru a dolů k procházení historie a %2 k vymazání obrazovky.
  Použijte %3 a %4 ke zvětšení nebo zmenšení velikosti písma.
  Pro přehled dostupných příkazů zadejte %5.
- Další informace o používání této konzoly získáte zadáním %6 
+ Další informace o používání této konzoly získáte zadáním %6
 
  %7VAROVÁNÍ: Podvodníci byli aktivní a říkali uživatelům, aby sem zadávali příkazy, a kradli jim obsah peněženky.  Nepoužívejte tuto konzolu, aniž byste plně porozuměli důsledkům příkazu.%8</translation>
     </message>
@@ -4220,7 +4220,7 @@ Ověřuji peněženku.</translation>
 
 The wallet might have been tampered with or created with malicious intent.
 </source>
-        <translation type="unfinished">Nalezena neočekávaná starší položka v deskriptorové peněžence. Načítání peněženky %s 
+        <translation type="unfinished">Nalezena neočekávaná starší položka v deskriptorové peněžence. Načítání peněženky %s
 
 Peněženka mohla být zfalšována nebo vytvořena se zlým úmyslem.
 </translation>

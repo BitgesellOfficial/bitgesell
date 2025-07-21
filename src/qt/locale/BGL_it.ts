@@ -595,7 +595,7 @@ E' possibile firmare solo con indirizzi di tipo "legacy".</translation>
         <translation type="unfinished">Connessione ai nodi...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
         <translation type="unfinished">Richiedi pagamenti (genera codici QR e bitgesell: URI)</translation>
     </message>
     <message>

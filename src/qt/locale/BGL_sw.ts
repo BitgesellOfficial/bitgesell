@@ -507,7 +507,7 @@ Kutia sahihi kunawezekana tu kwa anwani za aina ya 'urithi'.</translation>
         <translation type="unfinished">Kuunganisha na wenzako wa kushirikiana...</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
         <translation type="unfinished">Omba malipo (huzalisha nambari za QR na bitgesell: URIs)</translation>
     </message>
     <message>

@@ -576,8 +576,8 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Pripája sa k partnerom…</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and bitgesell: URIs)</source>
-        <translation type="unfinished">Vyžiadať platby (vygeneruje QR kódy a bitgesell: URI)</translation>
+        <source>Request payments (generates QR codes and BGL: URIs)</source>
+        <translation type="unfinished">Vyžiadať platby (vygeneruje QR kódy a BGL: URI)</translation>
     </message>
     <message>
         <source>Show the list of used sending addresses and labels</source>
