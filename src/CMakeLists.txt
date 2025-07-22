@@ -365,7 +365,7 @@ target_link_libraries(BGL_cli
 # Bitcoin Core RPC client
 if(BUILD_CLI)
   add_executable(BGL-cli BGL-cli.cpp)
-  add_windows_resources(BGL-cli BUILDSYSTEM_TARGETS-cli-res.rc)
+  add_windows_resources(BGL-cli BGL-cli-res.rc)
   target_link_libraries(BGL-cli
     core_interface
     BGL_cli
