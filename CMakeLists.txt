@@ -1,20 +1,4 @@
-# Copyright (c) 2019 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
-
-cmake_minimum_required(VERSION 3.12)
-
-project("Libmultiprocess" CXX)
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-  set(CMAKE_CXX_STANDARD 20)
-  set(CMAKE_CXX_STANDARD_REQUIRED YES)
-endif()
-
-include("cmake/compat_find.cmake")
-
-# When adjusting CMake flag variables, we must not override those explicitly
-# set by the user. These are a subset of the CACHE_VARIABLES property.
-get_directory_property(precious_variables CACHE_VARIABLES)
+cmake_minimum_required(VERSION 3.22)
 
 #=============================
 # Project / Package metadata
@@ -23,48 +7,21 @@ project(libsecp256k1
   # The package (a.k.a. release) version is based on semantic versioning 2.0.0 of
   # the API. All changes in experimental modules are treated as
   # backwards-compatible and therefore at most increase the minor version.
-  VERSION 0.6.1
+  VERSION 0.7.1
   DESCRIPTION "Optimized C library for ECDSA signatures and secret/public key operations on curve secp256k1."
   HOMEPAGE_URL "https://github.com/bitcoin-core/secp256k1"
   LANGUAGES C
 )
 enable_testing()
+include(CTestUseLaunchers) # Allow users to set CTEST_USE_LAUNCHERS in custom `ctest -S` scripts.
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-
-# During the enabling of the CXX and CXXOBJ languages, we modify
-# CMake's compiler/linker invocation strings by appending the content
-# of the user-defined `APPEND_*` variables, which allows overriding
-# any flag. We also ensure that the APPEND_* flags are considered
-# during CMake's tests, which use the `try_compile()` command.
-#
-# CMake's docs state that the `CMAKE_TRY_COMPILE_PLATFORM_VARIABLES`
-# variable "is meant to be set by CMake's platform information modules
-# for the current toolchain, or by a toolchain file." We do our best
-# to set it before the `project()` command.
-set(CMAKE_TRY_COMPILE_PLATFORM_VARIABLES
-  CMAKE_CXX_COMPILE_OBJECT
-  CMAKE_OBJCXX_COMPILE_OBJECT
-  CMAKE_CXX_LINK_EXECUTABLE
-)
-
-project(BGLCore
-  VERSION ${CLIENT_VERSION_MAJOR}.${CLIENT_VERSION_MINOR}.${CLIENT_VERSION_BUILD}
-  DESCRIPTION "Bitgesell client software"
-  HOMEPAGE_URL "https://bitgesell.ca"
-  LANGUAGES NONE
-)
-
-set(CLIENT_VERSION_STRING ${PROJECT_VERSION})
-if(CLIENT_VERSION_RC GREATER 0)
-  string(APPEND CLIENT_VERSION_STRING "rc${CLIENT_VERSION_RC}")
-endif()
 
 # The library version is based on libtool versioning of the ABI. The set of
 # rules for updating the version can be found here:
 # https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 # All changes in experimental modules are treated as if they don't affect the
 # interface and therefore only increase the revision.
-set(${PROJECT_NAME}_LIB_VERSION_CURRENT 5)
+set(${PROJECT_NAME}_LIB_VERSION_CURRENT 6)
 set(${PROJECT_NAME}_LIB_VERSION_REVISION 1)
 set(${PROJECT_NAME}_LIB_VERSION_AGE 0)
 
@@ -105,8 +62,9 @@ option(BUILD_TESTS "Build test_BGL executable." ON)
 option(BUILD_TX "Build BGL-tx executable." ${BUILD_TESTS})
 option(BUILD_UTIL "Build BGL-util executable." ${BUILD_TESTS})
 
-option(BUILD_UTIL_CHAINSTATE "Build experimental BGL-chainstate executable." OFF)
-option(BUILD_KERNEL_LIB "Build experimental BGLkernel library." ${BUILD_UTIL_CHAINSTATE})
+option(SECP256K1_ENABLE_API_VISIBILITY_ATTRIBUTES "Enable visibility attributes in the API." ON)
+
+## Modules
 
 # We declare all options before processing them, to make sure we can express
 # dependencies while processing.
@@ -116,40 +74,6 @@ option(SECP256K1_ENABLE_MODULE_EXTRAKEYS "Enable extrakeys module." ON)
 option(SECP256K1_ENABLE_MODULE_SCHNORRSIG "Enable schnorrsig module." ON)
 option(SECP256K1_ENABLE_MODULE_MUSIG "Enable musig module." ON)
 option(SECP256K1_ENABLE_MODULE_ELLSWIFT "Enable ElligatorSwift module." ON)
-
-# Processing must be done in a topological sorting of the dependency graph
-# (dependent module first).
-if(SECP256K1_ENABLE_MODULE_ELLSWIFT)
-  add_compile_definitions(ENABLE_MODULE_ELLSWIFT=1)
-endif()
-
-if(SECP256K1_ENABLE_MODULE_MUSIG)
-  if(DEFINED SECP256K1_ENABLE_MODULE_SCHNORRSIG AND NOT SECP256K1_ENABLE_MODULE_SCHNORRSIG)
-    message(FATAL_ERROR "Module dependency error: You have disabled the schnorrsig module explicitly, but it is required by the musig module.")
-  endif()
-  set(SECP256K1_ENABLE_MODULE_SCHNORRSIG ON)
-  add_compile_definitions(ENABLE_MODULE_MUSIG=1)
-endif()
-
-if(SECP256K1_ENABLE_MODULE_SCHNORRSIG)
-  if(DEFINED SECP256K1_ENABLE_MODULE_EXTRAKEYS AND NOT SECP256K1_ENABLE_MODULE_EXTRAKEYS)
-    message(FATAL_ERROR "Module dependency error: You have disabled the extrakeys module explicitly, but it is required by the schnorrsig module.")
-  endif()
-  set(SECP256K1_ENABLE_MODULE_EXTRAKEYS ON)
-  add_compile_definitions(ENABLE_MODULE_SCHNORRSIG=1)
-endif()
-
-if(SECP256K1_ENABLE_MODULE_EXTRAKEYS)
-  add_compile_definitions(ENABLE_MODULE_EXTRAKEYS=1)
-endif()
-
-if(SECP256K1_ENABLE_MODULE_RECOVERY)
-  add_compile_definitions(ENABLE_MODULE_RECOVERY=1)
-endif()
-
-if(SECP256K1_ENABLE_MODULE_ECDH)
-  add_compile_definitions(ENABLE_MODULE_ECDH=1)
-endif()
 
 option(SECP256K1_USE_EXTERNAL_DEFAULT_CALLBACKS "Enable external default callback functions." OFF)
 if(SECP256K1_USE_EXTERNAL_DEFAULT_CALLBACKS)
@@ -616,19 +540,55 @@ else()
   set(cross_status "FALSE")
 endif()
 message("Cross compiling ....................... ${cross_status}")
-message("C++ compiler .......................... ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, ${CMAKE_CXX_COMPILER}")
-include(FlagsSummary)
-flags_summary()
-message("Attempt to harden executables ......... ${ENABLE_HARDENING}")
-message("Treat compiler warnings as errors ..... ${WERROR}")
-message("Use ccache for compiling .............. ${WITH_CCACHE}")
-message("\n")
-if(configure_warnings)
-    message("  ******\n")
-    foreach(warning IN LISTS configure_warnings)
-      message(WARNING "${warning}")
-    endforeach()
-    message("  ******\n")
+message("API visibility attributes ............. ${SECP256K1_ENABLE_API_VISIBILITY_ATTRIBUTES}")
+message("Valgrind .............................. ${SECP256K1_VALGRIND}")
+get_directory_property(definitions COMPILE_DEFINITIONS)
+string(REPLACE ";" " " definitions "${definitions}")
+message("Preprocessor defined macros ........... ${definitions}")
+message("C compiler ............................ ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}, ${CMAKE_C_COMPILER}")
+message("CFLAGS ................................ ${CMAKE_C_FLAGS}")
+get_directory_property(compile_options COMPILE_OPTIONS)
+string(REPLACE ";" " " compile_options "${compile_options}")
+message("Compile options ....................... " ${compile_options})
+if(NOT is_multi_config)
+  message("Build type:")
+  message(" - CMAKE_BUILD_TYPE ................... ${CMAKE_BUILD_TYPE}")
+  string(TOUPPER "${CMAKE_BUILD_TYPE}" build_type)
+  message(" - CFLAGS ............................. ${CMAKE_C_FLAGS_${build_type}}")
+  message(" - LDFLAGS for executables ............ ${CMAKE_EXE_LINKER_FLAGS_${build_type}}")
+  message(" - LDFLAGS for shared libraries ....... ${CMAKE_SHARED_LINKER_FLAGS_${build_type}}")
+else()
+  message("Supported configurations .............. ${CMAKE_CONFIGURATION_TYPES}")
+  message("RelWithDebInfo configuration:")
+  message(" - CFLAGS ............................. ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+  message(" - LDFLAGS for executables ............ ${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO}")
+  message(" - LDFLAGS for shared libraries ....... ${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO}")
+  message("Debug configuration:")
+  message(" - CFLAGS ............................. ${CMAKE_C_FLAGS_DEBUG}")
+  message(" - LDFLAGS for executables ............ ${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
+  message(" - LDFLAGS for shared libraries ....... ${CMAKE_SHARED_LINKER_FLAGS_DEBUG}")
+endif()
+if(SECP256K1_APPEND_CFLAGS)
+  message("SECP256K1_APPEND_CFLAGS ............... ${SECP256K1_APPEND_CFLAGS}")
+endif()
+if(SECP256K1_APPEND_LDFLAGS)
+  message("SECP256K1_APPEND_LDFLAGS .............. ${SECP256K1_APPEND_LDFLAGS}")
+endif()
+message("")
+if(print_msan_notice)
+  message(
+    "Note:\n"
+    "  MemorySanitizer detected, tried to add -fno-sanitize-memory-param-retval to compile options\n"
+    "  to avoid false positives in ctime_tests. Pass -DSECP256K1_BUILD_CTIME_TESTS=OFF to avoid this.\n"
+  )
+endif()
+if(SECP256K1_EXPERIMENTAL)
+  message(
+    "  ******\n"
+    "  WARNING: experimental build\n"
+    "  Experimental features do not have stable APIs or properties, and may not be safe for production use.\n"
+    "  ******\n"
+  )
 endif()
 
 # We want all build properties to be encapsulated properly.

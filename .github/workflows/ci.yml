@@ -57,13 +57,19 @@ defaults:
     shell: bash
 
 jobs:
-  test-each-commit:
-    name: 'test each commit'
-    runs-on: ubuntu-24.04
-    if: github.event_name == 'pull_request' && github.event.pull_request.commits != 1
-    timeout-minutes: 360  # Use maximum time, see https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idtimeout-minutes. Assuming a worst case time of 1 hour per commit, this leads to a --max-count=6 below.
-    env:
-      MAX_COUNT: 6
+  docker_cache:
+    name: "Build ${{ matrix.arch }} Docker image"
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+
     steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -111,20 +117,18 @@ jobs:
           # Run tests on commits after the last merge commit and before the PR head commit
           git rebase --exec "git merge --no-commit origin/${GITHUB_BASE_REF} && python3 ./.github/ci-test-each-commit-exec.py && git reset --hard" ${{ env.TEST_BASE }}
 
-  macos-native-arm64:
-    name: ${{ matrix.job-name }}
-    # Use any image to support the xcode-select below, but hardcode version to avoid silent upgrades (and breaks).
-    # See: https://github.com/actions/runner-images#available-images.
-    runs-on: macos-14
+      - name: Build container
+        uses: docker/build-push-action@v5
+        with:
+          file: ./ci/linux-debian.Dockerfile
+          tags: ${{ matrix.arch }}-debian-image
+          cache-from: type=gha
+          cache-to: type=gha,mode=min
 
-    # When a contributor maintains a fork of the repo, any pull request they make
-    # to their own fork, or to the main repository, will trigger two CI runs:
-    # one for the branch push and one for the pull request.
-    # This can be avoided by setting SKIP_BRANCH_PUSH=true as a custom env variable
-    # in Github repository settings.
-    if: ${{ vars.SKIP_BRANCH_PUSH != 'true' || github.event_name == 'pull_request' }}
-
-    timeout-minutes: 120
+  x86_64-debian:
+    name: "x86_64: Linux (Debian stable)"
+    runs-on: ubuntu-latest
+    needs: docker_cache
 
     strategy:
       fail-fast: false
@@ -171,9 +175,8 @@ jobs:
         id: ccache-cache
         uses: actions/cache/restore@v4
         with:
-          path: ${{ env.CCACHE_DIR }}
-          key: ${{ github.job }}-${{ matrix.job-type }}-ccache-${{ github.run_id }}
-          restore-keys: ${{ github.job }}-${{ matrix.job-type }}-ccache-
+          dockerfile: ./ci/linux-debian.Dockerfile
+          tag: x64-debian-image
 
       - name: Print logs
         uses: ./.github/actions/print-logs
@@ -208,9 +211,8 @@ jobs:
       - name: CI script
         uses: ./.github/actions/run-in-docker-action
         with:
-          path: ${{ env.CCACHE_DIR }}
-          # https://github.com/actions/cache/blob/main/tips-and-workarounds.md#update-a-cache
-          key: ${{ github.job }}-${{ matrix.job-type }}-ccache-${{ github.run_id }}
+          dockerfile: ./ci/linux-debian.Dockerfile
+          tag: x64-debian-image
 
       - name: Print logs
         uses: ./.github/actions/print-logs
@@ -242,7 +244,7 @@ jobs:
         uses: ./.github/actions/run-in-docker-action
         with:
           dockerfile: ./ci/linux-debian.Dockerfile
-          tag: linux-debian-image
+          tag: x64-debian-image
 
       - name: Print logs
         uses: ./.github/actions/print-logs
@@ -283,21 +285,19 @@ jobs:
         uses: ./.github/actions/run-in-docker-action
         with:
           dockerfile: ./ci/linux-debian.Dockerfile
-          tag: linux-debian-image
+          tag: x64-debian-image
 
       - name: Print logs
         uses: ./.github/actions/print-logs
         if: ${{ !cancelled() }}
 
-  arm64_debian:
-    name: "ARM64: Linux (Debian stable, QEMU)"
-    runs-on: ubuntu-latest
+  arm64-debian:
+    name: "arm64: Linux (Debian stable)"
+    runs-on: ubuntu-24.04-arm
     needs: docker_cache
 
     env:
-      WRAPPER_CMD: 'qemu-aarch64'
       SECP256K1_TEST_ITERS: 16
-      HOST: 'aarch64-linux-gnu'
       WITH_VALGRIND: 'no'
       ECDH: 'yes'
       RECOVERY: 'yes'
@@ -306,27 +306,26 @@ jobs:
       MUSIG: 'yes'
       ELLSWIFT: 'yes'
       CTIMETESTS: 'no'
+      CC: ${{ matrix.cc }}
 
     strategy:
       fail-fast: false
       matrix:
-        configuration:
-          - env_vars: { } # gcc
-          - env_vars: # clang
-              CC: 'clang --target=aarch64-linux-gnu'
-          - env_vars: # clang-snapshot
-              CC: 'clang-snapshot --target=aarch64-linux-gnu'
+        cc:
+          - 'gcc'
+          - 'clang'
+          - 'gcc-snapshot'
+          - 'clang-snapshot'
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: CI script
-        env: ${{ matrix.configuration.env_vars }}
         uses: ./.github/actions/run-in-docker-action
         with:
           dockerfile: ./ci/linux-debian.Dockerfile
-          tag: linux-debian-image
+          tag: arm64-debian-image
 
       - name: Print logs
         uses: ./.github/actions/print-logs
@@ -358,7 +357,7 @@ jobs:
         uses: ./.github/actions/run-in-docker-action
         with:
           dockerfile: ./ci/linux-debian.Dockerfile
-          tag: linux-debian-image
+          tag: x64-debian-image
 
       - name: Print logs
         uses: ./.github/actions/print-logs
@@ -366,32 +365,62 @@ jobs:
 
 
   valgrind_debian:
-    name: "Valgrind (memcheck)"
-    runs-on: ubuntu-latest
+    name: "Valgrind ${{ matrix.binary_arch }} (memcheck)"
+    runs-on: ${{ matrix.runner }}
     needs: docker_cache
 
     strategy:
       fail-fast: false
       matrix:
-        job-type: [standard, fuzz]
         include:
-          - job-type: standard
-            generate-options: '-DBUILD_GUI=ON -DWITH_ZMQ=ON -DBUILD_BENCH=ON -DWERROR=ON'
-            job-name: 'Windows native, VS 2022'
-          - job-type: fuzz
-            generate-options: '-DVCPKG_MANIFEST_NO_DEFAULT_FEATURES=ON -DVCPKG_MANIFEST_FEATURES="wallet" -DBUILD_GUI=OFF -DBUILD_FOR_FUZZING=ON -DWERROR=ON'
-            job-name: 'Windows native, fuzz, VS 2022'
+          - docker_arch: x64
+            runner: ubuntu-latest
+            binary_arch: x64
+            env_vars: { CC: 'clang',                                      ASM: 'auto' }
+          - docker_arch: x64
+            runner: ubuntu-latest
+            binary_arch: i686
+            env_vars: { CC: 'i686-linux-gnu-gcc', HOST: 'i686-linux-gnu', ASM: 'auto' }
+          - docker_arch: arm64
+            runner: ubuntu-24.04-arm
+            binary_arch: arm64
+            env_vars: { CC: 'clang',                                      ASM: 'auto' }
+          - docker_arch: x64
+            runner: ubuntu-latest
+            binary_arch: x64
+            env_vars: { CC: 'clang',                                      ASM: 'no', ECMULTGENKB: 2, ECMULTWINDOW: 2 }
+          - docker_arch: x64
+            runner: ubuntu-latest
+            binary_arch: i686
+            env_vars: { CC: 'i686-linux-gnu-gcc', HOST: 'i686-linux-gnu', ASM: 'no', ECMULTGENKB: 2, ECMULTWINDOW: 2 }
+          - docker_arch: arm64
+            runner: ubuntu-24.04-arm
+            binary_arch: arm64
+            env_vars: { CC: 'clang',                                      ASM: 'no', ECMULTGENKB: 2, ECMULTWINDOW: 2 }
+
+    env:
+      # The `--error-exitcode` is required to make the test fail if valgrind found errors,
+      # otherwise it will return 0 (https://www.valgrind.org/docs/manual/manual-core.html).
+      WRAPPER_CMD: 'valgrind --error-exitcode=42'
+      ECDH: 'yes'
+      RECOVERY: 'yes'
+      EXTRAKEYS: 'yes'
+      SCHNORRSIG: 'yes'
+      MUSIG: 'yes'
+      ELLSWIFT: 'yes'
+      CTIMETESTS: 'no'
+      SECP256K1_TEST_ITERS: 2
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure Developer Command Prompt for Microsoft Visual C++
-        # Using microsoft/setup-msbuild is not enough.
-        uses: ilammy/msvc-dev-cmd@v1
+      - name: CI script
+        env: ${{ matrix.env_vars }}
+        uses: ./.github/actions/run-in-docker-action
         with:
           dockerfile: ./ci/linux-debian.Dockerfile
-          tag: linux-debian-image
+          tag: ${{ matrix.docker_arch }}-debian-image
 
       - name: Print logs
         uses: ./.github/actions/print-logs
@@ -436,7 +465,7 @@ jobs:
         uses: ./.github/actions/run-in-docker-action
         with:
           dockerfile: ./ci/linux-debian.Dockerfile
-          tag: linux-debian-image
+          tag: x64-debian-image
 
       - name: Print logs
         uses: ./.github/actions/print-logs
@@ -486,8 +515,8 @@ jobs:
         env: ${{ matrix.configuration.env_vars }}
         uses: ./.github/actions/run-in-docker-action
         with:
-          path: ~/AppData/Local/vcpkg/archives
-          key: ${{ github.job }}-vcpkg-binary-${{ hashFiles('cmake_version', 'msbuild_version', 'toolset_version', 'vcpkg.json') }}
+          dockerfile: ./ci/linux-debian.Dockerfile
+          tag: x64-debian-image
 
       - name: Generate build system
         run: |
@@ -498,7 +527,7 @@ jobs:
         if: github.event_name != 'pull_request' && steps.vcpkg-binary-cache.outputs.cache-hit != 'true' && matrix.job-type == 'standard'
         with:
           dockerfile: ./ci/linux-debian.Dockerfile
-          tag: linux-debian-image
+          tag: x64-debian-image
 
       - name: Print logs
         uses: ./.github/actions/print-logs
@@ -599,13 +628,13 @@ jobs:
       fail-fast: false
       matrix:
         env_vars:
-          - { WIDEMUL: 'int64',  RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
+          - { WIDEMUL: 'int64',  RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', MUSIG: 'yes', ELLSWIFT: 'yes' }
           - { WIDEMUL: 'int128_struct', ECMULTGENPRECISION: 2, ECMULTWINDOW: 4 }
-          - { WIDEMUL: 'int128',                  ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
+          - { WIDEMUL: 'int128',                  ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', MUSIG: 'yes', ELLSWIFT: 'yes' }
           - { WIDEMUL: 'int128', RECOVERY: 'yes' }
-          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes' }
-          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes', CC: 'gcc' }
-          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', ELLSWIFT: 'yes', CPPFLAGS: '-DVERIFY' }
+          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', MUSIG: 'yes', ELLSWIFT: 'yes' }
+          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', MUSIG: 'yes', ELLSWIFT: 'yes', CC: 'gcc' }
+          - { WIDEMUL: 'int128', RECOVERY: 'yes', ECDH: 'yes', EXTRAKEYS: 'yes', SCHNORRSIG: 'yes', MUSIG: 'yes', ELLSWIFT: 'yes', CPPFLAGS: '-DVERIFY' }
           - BUILD: 'distcheck'
 
     steps:
@@ -723,10 +752,11 @@ jobs:
 
       - name: Symbol check
         if: ${{ matrix.configuration.symbol_check }}
+        shell: bash
         run: |
           py -3 --version
           py -3 -m pip install lief
-          py -3 .\tools\symbol-check.py build\bin\RelWithDebInfo\libsecp256k1-5.dll
+          py -3 ./tools/symbol-check.py build/bin/RelWithDebInfo/libsecp256k1-*.dll
 
       - name: Check
         run: |
@@ -789,7 +819,7 @@ jobs:
         if: github.event_name != 'pull_request' && steps.ccache-cache.outputs.cache-hit != 'true'
         with:
           dockerfile: ./ci/linux-debian.Dockerfile
-          tag: linux-debian-image
+          tag: x64-debian-image
 
       - name: Print logs
         uses: ./.github/actions/print-logs
@@ -808,7 +838,7 @@ jobs:
         uses: ./.github/actions/run-in-docker-action
         with:
           dockerfile: ./ci/linux-debian.Dockerfile
-          tag: linux-debian-image
+          tag: x64-debian-image
           command: |
             g++ -Werror include/*.h
             clang -Werror -x c++-header include/*.h
