@@ -84,10 +84,10 @@ For instance:
     $ BGLd -zmqpubhashtx=tcp://127.0.0.1:28332 \
                -zmqpubhashtx=tcp://192.168.1.2:28332 \
                -zmqpubhashblock="tcp://[::1]:28333" \
-               -zmqpubrawtx=ipc:///tmp/BGLd.tx.raw \
+               -zmqpubrawtx=unix:/tmp/BGLd.tx.raw \
                -zmqpubhashtxhwm=10000
 
-`bitcoin node` or `bitcoin gui` can also be substituted for `bitcoind`.
+`BGL node` or `BGL gui` can also be substituted for `BGLd`.
 
 Notification types correspond to message topics (details in next section). For instance,
 for the notification `-zmqpubhashtx` the topic is `hashtx`. These options can also be
