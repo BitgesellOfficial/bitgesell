@@ -70,67 +70,8 @@ if(SECP256K1_ASM STREQUAL "arm32")
   target_sources(secp256k1_objs INTERFACE $<TARGET_OBJECTS:secp256k1_asm_arm>)
   target_link_libraries(secp256k1_asm INTERFACE secp256k1_asm_arm)
 endif()
-#=============================
-# secp256k1 subtree
-#=============================
-message("")
-message("Configuring secp256k1 subtree...")
-set(SECP256K1_DISABLE_SHARED ON CACHE BOOL "" FORCE)
-set(SECP256K1_ENABLE_MODULE_ECDH OFF CACHE BOOL "" FORCE)
-set(SECP256K1_ENABLE_MODULE_RECOVERY ON CACHE BOOL "" FORCE)
-set(SECP256K1_ENABLE_MODULE_MUSIG ON CACHE BOOL "" FORCE)
-set(SECP256K1_BUILD_BENCHMARK OFF CACHE BOOL "" FORCE)
-set(SECP256K1_BUILD_TESTS ${BUILD_TESTS} CACHE BOOL "" FORCE)
-set(SECP256K1_BUILD_EXHAUSTIVE_TESTS ${BUILD_TESTS} CACHE BOOL "" FORCE)
-if(NOT BUILD_TESTS)
-  # Always skip the ctime tests, if we are building no other tests.
-  # Otherwise, they are built if Valgrind is available. See SECP256K1_VALGRIND.
-  set(SECP256K1_BUILD_CTIME_TESTS ${BUILD_TESTS} CACHE BOOL "" FORCE)
-endif()
-
-# Object libs don't know if they're being built for a shared or static lib.
-# Grab the PIC property from secp256k1 which knows.
-get_target_property(use_pic secp256k1 POSITION_INDEPENDENT_CODE)
-set_target_properties(secp256k1_precomputed PROPERTIES POSITION_INDEPENDENT_CODE ${use_pic})
-
-# Add the include path for parent projects so that they don't have to manually add it.
-target_include_directories(secp256k1 INTERFACE
-  $<BUILD_INTERFACE:$<$<NOT:$<BOOL:${PROJECT_IS_TOP_LEVEL}>>:${PROJECT_SOURCE_DIR}/include>>
-)
-set_target_properties(secp256k1_objs PROPERTIES
-  INTERFACE_COMPILE_DEFINITIONS "$<TARGET_PROPERTY:secp256k1,INTERFACE_COMPILE_DEFINITIONS>"
-  INTERFACE_INCLUDE_DIRECTORIES "$<TARGET_PROPERTY:secp256k1,INTERFACE_INCLUDE_DIRECTORIES>"
-)
-
-# This emulates Libtool to make sure Libtool and CMake agree on the ABI version,
-# see below "Calculate the version variables" in build-aux/ltmain.sh.
-math(EXPR ${PROJECT_NAME}_soversion "${${PROJECT_NAME}_LIB_VERSION_CURRENT} - ${${PROJECT_NAME}_LIB_VERSION_AGE}")
-set_target_properties(secp256k1 PROPERTIES
-  EXCLUDE_FROM_ALL TRUE
-)
-if(CMAKE_SYSTEM_NAME MATCHES "^(Linux|FreeBSD)$")
-  set_target_properties(secp256k1 PROPERTIES
-    VERSION ${${PROJECT_NAME}_soversion}.${${PROJECT_NAME}_LIB_VERSION_AGE}.${${PROJECT_NAME}_LIB_VERSION_REVISION}
-  )
-elseif(APPLE)
-  math(EXPR ${PROJECT_NAME}_compatibility_version "${${PROJECT_NAME}_LIB_VERSION_CURRENT} + 1")
-  set_target_properties(secp256k1 PROPERTIES
-    MACHO_COMPATIBILITY_VERSION ${${PROJECT_NAME}_compatibility_version}
-    MACHO_CURRENT_VERSION ${${PROJECT_NAME}_compatibility_version}.${${PROJECT_NAME}_LIB_VERSION_REVISION}
-  )
-  unset(${PROJECT_NAME}_compatibility_version)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  set(${PROJECT_NAME}_windows "secp256k1")
-  if(MSVC)
-    set(${PROJECT_NAME}_windows "${PROJECT_NAME}")
-  endif()
-  set_target_properties(secp256k1 PROPERTIES
-    ARCHIVE_OUTPUT_NAME "${${PROJECT_NAME}_windows}"
-    RUNTIME_OUTPUT_NAME "${${PROJECT_NAME}_windows}-${${PROJECT_NAME}_soversion}"
-  )
-  unset(${PROJECT_NAME}_windows)
-endif()
-unset(${PROJECT_NAME}_soversion)
+include(../cmake/secp256k1.cmake)
+add_secp256k1(secp256k1)
 
 if(SECP256K1_BUILD_BENCHMARK)
   add_executable(bench bench.c)
