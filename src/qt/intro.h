@@ -5,13 +5,13 @@
 #ifndef BGL_QT_INTRO_H
 #define BGL_QT_INTRO_H
 
+#include <qt/freespacechecker.h>
+
 #include <QDialog>
 #include <QMutex>
 #include <QThread>
 
 static const bool DEFAULT_CHOOSE_DATADIR = false;
-
-class FreespaceChecker;
 
 namespace interfaces {
     class Node;
@@ -25,7 +25,7 @@ namespace Ui {
   Allows the user to choose a data directory,
   in which the wallet and block chain will be stored.
  */
-class Intro : public QDialog
+class Intro : public QDialog, public FreespaceChecker::PathQuery
 {
     Q_OBJECT
 
@@ -77,7 +77,7 @@ private:
 
     void startThread();
     void checkPath(const QString &dataDir);
-    QString getPathToCheck();
+    QString getPathToCheck() override;
     void UpdatePruneLabels(bool prune_checked);
     void UpdateFreeSpaceLabel();
 
