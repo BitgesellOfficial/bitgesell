@@ -24,8 +24,8 @@ from test_framework.p2p import (
 )
 from test_framework.test_framework import BGLTestFramework
 
-MAX_FEE_FILTER = Decimal(9170997) / COIN
-NORMAL_FEE_FILTER = Decimal(100) / COIN
+MAX_FEE_FILTER = Decimal(9936506) / COIN
+NORMAL_FEE_FILTER = Decimal(10) / COIN
 
 
 class P2PIBDTxRelayTest(BGLTestFramework):
@@ -33,8 +33,8 @@ class P2PIBDTxRelayTest(BGLTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 2
         self.extra_args = [
-            ["-minrelaytxfee={}".format(NORMAL_FEE_FILTER)],
-            ["-minrelaytxfee={}".format(NORMAL_FEE_FILTER)],
+            ["-minrelaytxfee={:.8f}".format(NORMAL_FEE_FILTER)],
+            ["-minrelaytxfee={:.8f}".format(NORMAL_FEE_FILTER)],
         ]
 
     def run_test(self):
