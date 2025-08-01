@@ -2479,7 +2479,7 @@ BIP70의 광범위한 보안 결함으로 인해 모든 가맹점에서는 지�
     <message>
         <source>Outbound Manual: added using RPC %1 or %2/%3 configuration options</source>
         <extracomment>Explanatory text for an outbound peer connection that was established manually through one of several methods. The numbered arguments are stand-ins for the methods available to establish manual connections.</extracomment>
-        <translation type="unfinished">아웃바운드 매뉴얼 : RPC 1%1 이나 2%2/3%3 을 사용해서 환경설정 옵션을 추가</translation>
+        <translation type="unfinished">아웃바운드 매뉴얼 : RPC %1 이나 %2/%3 을 사용해서 환경설정 옵션을 추가</translation>
     </message>
     <message>
         <source>Outbound Feeler: short-lived, for testing addresses</source>
@@ -2491,6 +2491,16 @@ BIP70의 광범위한 보안 결함으로 인해 모든 가맹점에서는 지�
         <extracomment>Explanatory text for a short-lived outbound peer connection that is used to request addresses from a peer.</extracomment>
         <translation type="unfinished">아웃바운드 주소 가져오기: 단기, 주소 요청용
  </translation>
+    </message>
+    <message>
+        <source>v1: unencrypted, plaintext transport protocol</source>
+        <extracomment>Explanatory text for v1 transport type.</extracomment>
+        <translation type="unfinished">v1: 암호화되지 않은 평문 전송 프로토콜</translation>
+    </message>
+    <message>
+        <source>v2: BIP324 encrypted transport protocol</source>
+        <extracomment>Explanatory text for v2 transport type.</extracomment>
+        <translation type="unfinished">v2: BIP324를 사용하는 암호화된 전송 프로토콜</translation>
     </message>
     <message>
         <source>we selected the peer for high bandwidth relay</source>
@@ -2563,12 +2573,12 @@ For more information on using this console, type %6.
 
 %7WARNING: Scammers have been active, telling users to type commands here, stealing their wallet contents. Do not use this console without fully understanding the ramifications of a command.%8</source>
         <extracomment>RPC console welcome message. Placeholders %7 and %8 are style tags for the warning content, and they are not space separated from the rest of the text intentionally.</extracomment>
-        <translation type="unfinished">1%1 RPC 콘솔에 오신 것을 환영합니다.
-위쪽 및 아래쪽 화살표를 사용하여 기록 탐색을하고 2%2를 사용하여 화면을 지우세요.
-3%3과 4%4을 사용하여 글꼴 크기 증가 또는 감소하세요
-사용 가능한 명령의 개요를 보려면 5%5를 입력하십시오.
-이 콘솔 사용에 대한 자세한 내용을 보려면 6%6을 입력하십시오.
-7%7 경고: 사기꾼들은 사용자들에게 여기에 명령을 입력하라고 말하고 활발히 금품을 훔칩니다. 완전히 이해하지 않고 이 콘솔을 사용하지 마십시오. 8%8</translation>
+        <translation type="unfinished">%1 RPC 콘솔에 오신 것을 환영합니다.
+위쪽 및 아래쪽 화살표를 사용하여 기록 탐색을하고 %2를 사용하여 화면을 지우세요. 
+%3과 %4을 사용하여 글꼴 크기 증가 또는 감소하세요
+사용 가능한 명령의 개요를 보려면 %5를 입력하십시오.
+이 콘솔 사용에 대한 자세한 내용을 보려면 %6을 입력하십시오.
+%7 경고: 사기꾼들은 사용자들에게 여기에 명령을 입력하라고 말하고 활발히 금품을 훔칩니다. 완전히 이해하지 않고 이 콘솔을 사용하지 마십시오. %8</translation>
     </message>
     <message>
         <source>Executing…</source>
@@ -4416,6 +4426,14 @@ Go to File &gt; Open Wallet to load a wallet.
     <message>
         <source>Error: Could not delete watchonly transactions. </source>
         <translation type="unfinished">오류: 보기전용 트랜젝션을 제거할 수 없습니다.</translation>
+    </message>
+    <message>
+        <source>Error: Wallet does not exist</source>
+        <translation type="unfinished">오류: 지갑이 존재하지 않습니다</translation>
+    </message>
+    <message>
+        <source>Error: cannot remove legacy wallet records</source>
+        <translation type="unfinished">오류: 기존 지갑 기록을 삭제할 수 없습니다</translation>
     </message>
     <message>
         <source>User Agent comment (%s) contains unsafe characters.</source>

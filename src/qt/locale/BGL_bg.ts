@@ -187,6 +187,10 @@ Signing is only possible with addresses of the type 'legacy'.</source>
         <translation type="unfinished">Продължи</translation>
     </message>
     <message>
+        <source>Back</source>
+        <translation type="unfinished">Назад</translation>
+    </message>
+    <message>
         <source>Remember that encrypting your wallet cannot fully protect your bitgesells from being stolen by malware infecting your computer.</source>
         <translation type="unfinished">Не забравяйте, че криптирането на вашия портфейл не може напълно да защити вашите биткойни от кражба от зловреден софтуер, заразяващ компютъра ви.</translation>
     </message>
@@ -1047,7 +1051,7 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Creating Wallet &lt;b&gt;%1&lt;/b&gt;…</source>
         <extracomment>Descriptive text of the create wallet progress window which indicates to the user which wallet is currently being created.</extracomment>
-        <translation type="unfinished">Създаване на уолет 1 1%1 1</translation>
+        <translation type="unfinished">Създаване на уолет &lt;b&gt;%1&lt;/b&gt;…</translation>
     </message>
     <message>
         <source>Create wallet failed</source>
@@ -1884,6 +1888,14 @@ Signing is only possible with addresses of the type 'legacy'.</source>
     <message>
         <source>Close</source>
         <translation type="unfinished">Затвори</translation>
+    </message>
+    <message>
+        <source>Failed to load transaction: %1</source>
+        <translation type="unfinished">Неуспешно зареждане на трансакция: %1</translation>
+    </message>
+    <message>
+        <source>Failed to sign transaction: %1</source>
+        <translation type="unfinished">Неуспешно подписване на трансакция: %1</translation>
     </message>
     <message>
         <source>Cannot sign inputs while wallet is locked.</source>
