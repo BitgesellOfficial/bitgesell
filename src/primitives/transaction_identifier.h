@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or https://opensource.org/license/mit.
 
-#ifndef BGL_UTIL_TRANSACTION_IDENTIFIER_H
-#define BGL_UTIL_TRANSACTION_IDENTIFIER_H
+#ifndef BGL_PRIMITIVES_TRANSACTION_IDENTIFIER_H
+#define BGL_PRIMITIVES_TRANSACTION_IDENTIFIER_H
 
 #include <attributes.h>
 #include <uint256.h>
@@ -91,4 +91,4 @@ public:
     }
 };
 
-#endif // BGL_UTIL_TRANSACTION_IDENTIFIER_H
+#endif // BGL_PRIMITIVES_TRANSACTION_IDENTIFIER_H

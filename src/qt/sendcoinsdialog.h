@@ -5,9 +5,9 @@
 #ifndef BGL_QT_SENDCOINSDIALOG_H
 #define BGL_QT_SENDCOINSDIALOG_H
 
+#include <primitives/transaction_identifier.h>
 #include <qt/clientmodel.h>
 #include <qt/walletmodel.h>
-#include <util/transaction_identifier.h>
 
 #include <QDialog>
 #include <QMessageBox>
