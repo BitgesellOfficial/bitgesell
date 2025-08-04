@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.22)
+# Copyright (c) The Bitcoin Core developers
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #=============================
 # Project / Package metadata
@@ -62,81 +64,34 @@ option(BUILD_TESTS "Build test_BGL executable." ON)
 option(BUILD_TX "Build BGL-tx executable." ${BUILD_TESTS})
 option(BUILD_UTIL "Build BGL-util executable." ${BUILD_TESTS})
 
-option(SECP256K1_ENABLE_API_VISIBILITY_ATTRIBUTES "Enable visibility attributes in the API." ON)
+set(MPGEN_EXECUTABLE "" CACHE FILEPATH "If specified, should be full path to an external mpgen binary to use rather than the one built internally.")
 
-## Modules
-
-# We declare all options before processing them, to make sure we can express
-# dependencies while processing.
-option(SECP256K1_ENABLE_MODULE_ECDH "Enable ECDH module." ON)
-option(SECP256K1_ENABLE_MODULE_RECOVERY "Enable ECDSA pubkey recovery module." OFF)
-option(SECP256K1_ENABLE_MODULE_EXTRAKEYS "Enable extrakeys module." ON)
-option(SECP256K1_ENABLE_MODULE_SCHNORRSIG "Enable schnorrsig module." ON)
-option(SECP256K1_ENABLE_MODULE_MUSIG "Enable musig module." ON)
-option(SECP256K1_ENABLE_MODULE_ELLSWIFT "Enable ElligatorSwift module." ON)
-
-option(SECP256K1_USE_EXTERNAL_DEFAULT_CALLBACKS "Enable external default callback functions." OFF)
-if(SECP256K1_USE_EXTERNAL_DEFAULT_CALLBACKS)
-  add_compile_definitions(USE_EXTERNAL_DEFAULT_CALLBACKS=1)
-endif()
-
-set(SECP256K1_ECMULT_WINDOW_SIZE 15 CACHE STRING "Window size for ecmult precomputation for verification, specified as integer in range [2..24]. The default value is a reasonable setting for desktop machines (currently 15). [default=15]")
-set_property(CACHE SECP256K1_ECMULT_WINDOW_SIZE PROPERTY STRINGS 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24)
-include(CheckStringOptionValue)
-check_string_option_value(SECP256K1_ECMULT_WINDOW_SIZE)
-add_compile_definitions(ECMULT_WINDOW_SIZE=${SECP256K1_ECMULT_WINDOW_SIZE})
-
-set(SECP256K1_ECMULT_GEN_KB 86 CACHE STRING "The size of the precomputed table for signing in multiples of 1024 bytes (on typical platforms). Larger values result in possibly better signing or key generation performance at the cost of a larger table. Valid choices are 2, 22, 86. The default value is a reasonable setting for desktop machines (currently 86). [default=86]")
-set_property(CACHE SECP256K1_ECMULT_GEN_KB PROPERTY STRINGS 2 22 86)
-check_string_option_value(SECP256K1_ECMULT_GEN_KB)
-if(SECP256K1_ECMULT_GEN_KB EQUAL 2)
-  add_compile_definitions(COMB_BLOCKS=2)
-  add_compile_definitions(COMB_TEETH=5)
-elseif(SECP256K1_ECMULT_GEN_KB EQUAL 22)
-  add_compile_definitions(COMB_BLOCKS=11)
-  add_compile_definitions(COMB_TEETH=6)
-elseif(SECP256K1_ECMULT_GEN_KB EQUAL 86)
-  add_compile_definitions(COMB_BLOCKS=43)
-  add_compile_definitions(COMB_TEETH=6)
-endif()
-
-set(SECP256K1_TEST_OVERRIDE_WIDE_MULTIPLY "OFF" CACHE STRING "Test-only override of the (autodetected by the C code) \"widemul\" setting. Legal values are: \"OFF\", \"int128_struct\", \"int128\" or \"int64\". [default=OFF]")
-set_property(CACHE SECP256K1_TEST_OVERRIDE_WIDE_MULTIPLY PROPERTY STRINGS "OFF" "int128_struct" "int128" "int64")
-check_string_option_value(SECP256K1_TEST_OVERRIDE_WIDE_MULTIPLY)
-if(SECP256K1_TEST_OVERRIDE_WIDE_MULTIPLY)
-  string(TOUPPER "${SECP256K1_TEST_OVERRIDE_WIDE_MULTIPLY}" widemul_upper_value)
-  add_compile_definitions(USE_FORCE_WIDEMUL_${widemul_upper_value}=1)
-endif()
-mark_as_advanced(FORCE SECP256K1_TEST_OVERRIDE_WIDE_MULTIPLY)
-
-set(SECP256K1_ASM "AUTO" CACHE STRING "Assembly to use: \"AUTO\", \"OFF\", \"x86_64\" or \"arm32\" (experimental). [default=AUTO]")
-set_property(CACHE SECP256K1_ASM PROPERTY STRINGS "AUTO" "OFF" "x86_64" "arm32")
-check_string_option_value(SECP256K1_ASM)
-if(SECP256K1_ASM STREQUAL "arm32")
-  enable_language(ASM)
-  include(CheckArm32Assembly)
-  check_arm32_assembly()
-  if(HAVE_ARM32_ASM)
-    add_compile_definitions(USE_EXTERNAL_ASM=1)
-  else()
-    find_package(SQLite3 3.7.17 REQUIRED)
+option(MP_ENABLE_CLANG_TIDY "Run clang-tidy with the compiler." OFF)
+if(MP_ENABLE_CLANG_TIDY)
+  find_program(CLANG_TIDY_EXECUTABLE NAMES clang-tidy)
+  if(NOT CLANG_TIDY_EXECUTABLE)
+    message(FATAL_ERROR "MP_ENABLE_CLANG_TIDY is ON but clang-tidy is not found.")
   endif()
-endif()
-cmake_dependent_option(BUILD_WALLET_TOOL "Build BGL-wallet tool." ${BUILD_TESTS} "ENABLE_WALLET" OFF)
+  set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXECUTABLE}")
 
-option(ENABLE_HARDENING "Attempt to harden the resulting executables." ON)
-option(REDUCE_EXPORTS "Attempt to reduce exported symbols in the resulting executables." OFF)
-option(WERROR "Treat compiler warnings as errors." OFF)
-option(WITH_CCACHE "Attempt to use ccache for compiling." ON)
-
-option(WITH_ZMQ "Enable ZMQ notifications." OFF)
-if(WITH_ZMQ)
-  find_package(ZeroMQ 4.0.0 MODULE REQUIRED)
+  # Workaround for nix from https://gitlab.kitware.com/cmake/cmake/-/issues/20912#note_793338
+  # Nix injects header paths via $NIX_CFLAGS_COMPILE; CMake tags these as
+  # CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES and omits them from the compile
+  # database, so clang-tidy, which ignores $NIX_CFLAGS_COMPILE, can't find capnp
+  # headers. Setting them as standard passes them to clang-tidy.
+  set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 endif()
 
-option(WITH_USDT "Enable tracepoints for Userspace, Statically Defined Tracing." OFF)
-if(WITH_USDT)
-  find_package(USDT MODULE REQUIRED)
+option(MP_ENABLE_IWYU "Run include-what-you-use with the compiler." OFF)
+if(MP_ENABLE_IWYU)
+  find_program(IWYU_EXECUTABLE NAMES include-what-you-use iwyu)
+  if(NOT IWYU_EXECUTABLE)
+    message(FATAL_ERROR "MP_ENABLE_IWYU is ON but include-what-you-use was not found.")
+  endif()
+  set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE "${IWYU_EXECUTABLE};-Xiwyu;--error")
+  if(DEFINED ENV{IWYU_MAPPING_FILE})
+    list(APPEND CMAKE_CXX_INCLUDE_WHAT_YOU_USE "-Xiwyu" "--mapping_file=$ENV{IWYU_MAPPING_FILE}")
+  endif()
 endif()
 
 option(ENABLE_EXTERNAL_SIGNER "Enable external signer support." ON)
@@ -372,17 +327,9 @@ configure_file(contrib/filter-lcov.py filter-lcov.py USE_SOURCE_PERMISSIONS COPY
 # Don't allow extended (non-ASCII) symbols in identifiers. This is easier for code review.
 try_append_cxx_flags("-fno-extended-identifiers" TARGET core_interface SKIP_LINK)
 
-# Avoiding the `-ffile-prefix-map` compiler option because it implies
-# `-fcoverage-prefix-map` on Clang or `-fprofile-prefix-map` on GCC,
-# which can cause issues with coverage builds, particularly when using
-# Clang in the OSS-Fuzz environment due to its use of other options
-# and a third party script, or with GCC.
-try_append_cxx_flags("-fdebug-prefix-map=A=B" TARGET core_interface SKIP_LINK
-  IF_CHECK_PASSED "-fdebug-prefix-map=${PROJECT_SOURCE_DIR}/src=."
-)
-try_append_cxx_flags("-fmacro-prefix-map=A=B" TARGET core_interface SKIP_LINK
-  IF_CHECK_PASSED "-fmacro-prefix-map=${PROJECT_SOURCE_DIR}/src=."
-)
+# Generated C++ Capn'Proto schema files
+capnp_generate_cpp(MP_PROXY_SRCS MP_PROXY_HDRS include/mp/proxy.capnp)
+set_source_files_properties("${MP_PROXY_SRCS}" PROPERTIES SKIP_LINTING TRUE) # Ignored before cmake 3.27
 
 # Currently all versions of gcc are subject to a class of bugs, see the
 # gccbug_90348 test case (only reproduces on GCC 11 and earlier) and
