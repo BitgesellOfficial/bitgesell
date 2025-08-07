@@ -538,5 +538,77 @@ if(SECP256K1_EXPERIMENTAL)
   )
 endif()
 
-# We want all build properties to be encapsulated properly.
-include(WarnAboutGlobalProperties)
+  # Warnings as errors in Visual Studio for this project's targets.
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set_property(TARGET crc32c_capi_tests APPEND PROPERTY COMPILE_OPTIONS "/WX")
+
+    # The Windows SDK version currently on CI produces warnings when some
+    # headers are #included using C99 compatibility mode or above. This
+    # workaround can be removed once the Windows SDK on our CI is upgraded.
+    set_property(TARGET crc32c_capi_tests
+        APPEND PROPERTY COMPILE_OPTIONS "/wd5105")
+  endif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+
+  add_test(NAME crc32c_capi_tests COMMAND crc32c_capi_tests)
+endif(CRC32C_BUILD_TESTS)
+
+if(CRC32C_BUILD_BENCHMARKS)
+  add_executable(crc32c_bench "")
+  target_sources(crc32c_bench
+    PRIVATE
+      "${PROJECT_BINARY_DIR}/include/crc32c/crc32c_config.h"
+      "src/crc32c_benchmark.cc"
+  )
+  target_link_libraries(crc32c_bench crc32c)
+
+  # This project uses Google benchmark for benchmarking.
+  set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+  set(BENCHMARK_ENABLE_EXCEPTIONS OFF CACHE BOOL "" FORCE)
+  add_subdirectory("third_party/benchmark")
+  target_link_libraries(crc32c_bench benchmark)
+
+  if(CRC32C_USE_GLOG)
+    target_link_libraries(crc32c_bench glog)
+  endif(CRC32C_USE_GLOG)
+
+  # Warnings as errors in Visual Studio for this project's targets.
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set_property(TARGET crc32c_bench APPEND PROPERTY COMPILE_OPTIONS "/WX")
+  endif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+endif(CRC32C_BUILD_BENCHMARKS)
+
+if(CRC32C_INSTALL)
+  install(TARGETS crc32c
+    EXPORT Crc32cTargets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  )
+  install(
+    FILES
+      "include/crc32c/crc32c.h"
+    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/crc32c"
+  )
+
+  include(CMakePackageConfigHelpers)
+  configure_package_config_file(
+    "${PROJECT_NAME}Config.cmake.in"
+    "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+  )
+  write_basic_package_version_file(
+    "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+    COMPATIBILITY SameMajorVersion
+  )
+  install(
+    EXPORT Crc32cTargets
+    NAMESPACE Crc32c::
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+  )
+  install(
+    FILES
+      "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+      "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+  )
+endif(CRC32C_INSTALL)

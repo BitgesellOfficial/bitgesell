@@ -1,6 +1,6 @@
 # libmultiprocess
 
-`libmultiprocess` is a C++ library and code generator making it easy to call functions and reference objects in different processes.
+[![Build Status](https://github.com/google/crc32c/actions/workflows/build.yml/badge.svg)](https://github.com/google/crc32c/actions/workflows/build.yml)
 
 For more information see the [usage instructions](doc/usage.md), [installation instructions](doc/install.md), or [design documentation](doc/design.md).
 
