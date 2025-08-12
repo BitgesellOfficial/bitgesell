@@ -61,6 +61,12 @@ SQLite is required for the wallet:
 
 To build Bitgesell Core without the wallet, see [*Disable-wallet mode*](#disable-wallet-mode)
 
+Cap'n Proto is needed for IPC functionality (see [multiprocess.md](multiprocess.md)):
+
+    sudo apt-get install libcapnp-dev capnproto
+
+Compile with `-DENABLE_IPC=OFF` if you do not need IPC functionality.
+
 ZMQ-enabled binaries are compiled with `-DWITH_ZMQ=ON` and require the following dependency:
 
     sudo apt-get install libzmq3-dev
@@ -68,11 +74,6 @@ ZMQ-enabled binaries are compiled with `-DWITH_ZMQ=ON` and require the following
 User-Space, Statically Defined Tracing (USDT) dependencies:
 
     sudo apt install systemtap-sdt-dev
-
-IPC-enabled binaries are compiled  with `-DENABLE_IPC=ON` and require the following dependencies.
-Skip if you do not need IPC functionality.
-
-    sudo apt-get install libcapnp-dev capnproto
 
 GUI dependencies:
 
@@ -120,10 +121,11 @@ User-Space, Statically Defined Tracing (USDT) dependencies:
 
     sudo dnf install systemtap-sdt-devel
 
-IPC-enabled binaries are compiled with `-DENABLE_IPC=ON` and require the following dependency.
-Skip if you do not need IPC functionality.
+Cap'n Proto is needed for IPC functionality (see [multiprocess.md](multiprocess.md)):
 
     sudo dnf install capnproto
+
+Compile with `-DENABLE_IPC=OFF` if you do not need IPC functionality.
 
 GUI dependencies:
 
