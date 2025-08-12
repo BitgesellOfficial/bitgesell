@@ -47,6 +47,14 @@ To install, run the following from your terminal:
 brew install cmake boost pkgconf libevent
 ```
 
+#### Wallet Dependencies
+
+If you do not need wallet functionality, you can use `-DENABLE_WALLET=OFF` in
+the `cmake -B` step below.
+
+SQLite is required, but since macOS ships with a useable `sqlite` package, you don't need to
+install anything.
+
 ### 4. Clone Bitgesell repository
 
 `git` should already be installed by default on your system.
@@ -58,19 +66,6 @@ git clone https://github.com/BitgesellOfficial/bitgesell.git
 ```
 
 ### 5. Install Optional Dependencies
-
-#### Wallet Dependencies
-
-It is not necessary to build wallet functionality to run `BGLd` or  `BGL-qt`.
-
-###### Descriptor Wallet Support
-
-`sqlite` is required to support for descriptor wallets.
-
-macOS ships with a useable `sqlite` package, meaning you don't need to
-install anything.
-
----
 
 #### GUI Dependencies
 
