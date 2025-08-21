@@ -162,7 +162,13 @@ SQLite is required for the wallet:
 
     apk add sqlite-dev
 
-To build Bitcoin Core without the wallet, see [*Disable-wallet mode*](#disable-wallet-mode)
+To build Bitgesell Core without the wallet, see [*Disable-wallet mode*](#disable-wallet-mode)
+
+Cap'n Proto is needed for IPC functionality (see [multiprocess.md](multiprocess.md)):
+
+    apk add capnproto capnproto-dev
+
+Compile with `-DENABLE_IPC=OFF` if you do not need IPC functionality.
 
 ZMQ dependencies (provides ZMQ API):
 
@@ -172,7 +178,7 @@ User-Space, Statically Defined Tracing (USDT) is not supported or tested on Alpi
 
 GUI dependencies:
 
-Bitcoin Core includes a GUI built with the cross-platform Qt Framework. To compile the GUI, we need to install
+Bitgesell Core includes a GUI built with the cross-platform Qt Framework. To compile the GUI, we need to install
 the necessary parts of Qt, the libqrencode and pass `-DBUILD_GUI=ON`. Skip if you don't intend to use the GUI.
 
     apk add qt6-qtbase-dev  qt6-qttools-dev
@@ -206,9 +212,9 @@ Setup and Build Example: Arch Linux
 -----------------------------------
 This example lists the steps necessary to setup and build a command line only distribution of the latest changes on Arch Linux:
 
-    pacman --sync --needed cmake boost gcc git libevent make python sqlite
-    git clone git clone https://github.com/BitgesellOfficial/bitgesell.git
-    cd bitgesell/
+    pacman --sync --needed capnproto cmake boost gcc git libevent make python sqlite
+    git clone https://github.com/BitgesellOfficial/bitgesell.git
+    cd BGL/
     cmake -B build
     cmake --build build
     ctest --test-dir build
