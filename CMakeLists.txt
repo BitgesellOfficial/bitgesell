@@ -60,9 +60,29 @@ option(BUILD_DAEMON "Build BGLd executable." ON)
 option(BUILD_GUI "Build BGL-qt executable." OFF)
 option(BUILD_CLI "Build BGL-cli executable." ON)
 
-option(BUILD_TESTS "Build test_BGL executable." ON)
-option(BUILD_TX "Build BGL-tx executable." ${BUILD_TESTS})
-option(BUILD_UTIL "Build BGL-util executable." ${BUILD_TESTS})
+find_package(Threads REQUIRED)
+find_package(CapnProto 0.7 REQUIRED)
+
+# Check for list-of-pointers memory access bug from Nov 2022
+# https://nvd.nist.gov/vuln/detail/CVE-2022-46149
+# https://github.com/advisories/GHSA-qqff-4vw4-f6hx
+# https://github.com/capnproto/capnproto/security/advisories/GHSA-qqff-4vw4-f6hx
+# https://github.com/capnproto/capnproto/blob/master/security-advisories/2022-11-30-0-pointer-list-bounds.md
+# https://capnproto.org/news/2022-11-30-CVE-2022-46149-security-advisory.html
+# https://dwrensha.github.io/capnproto-rust/2022/11/30/out_of_bounds_memory_access_bug.html
+if(CapnProto_VERSION STREQUAL "0.7.0"
+   OR CapnProto_VERSION STREQUAL "0.8.0"
+   OR CapnProto_VERSION STREQUAL "0.9.0"
+   OR CapnProto_VERSION STREQUAL "0.9.1"
+   OR CapnProto_VERSION STREQUAL "0.10.0"
+   OR CapnProto_VERSION STREQUAL "0.10.1"
+   OR CapnProto_VERSION STREQUAL "0.10.2")
+  message(FATAL_ERROR
+    "Cap'n Proto ${CapnProto_VERSION} is affected by CVE-2022-46149.\n"
+    "Please install an updated package.\n"
+    "Details: https://github.com/advisories/GHSA-qqff-4vw4-f6hx
+  ")
+endif()
 
 set(MPGEN_EXECUTABLE "" CACHE FILEPATH "If specified, should be full path to an external mpgen binary to use rather than the one built internally.")
 
