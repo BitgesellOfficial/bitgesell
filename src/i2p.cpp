@@ -12,12 +12,12 @@
 #include <netaddress.h>
 #include <netbase.h>
 #include <random.h>
+#include <script/parsing.h>
 #include <sync.h>
 #include <tinyformat.h>
 #include <util/fs.h>
 #include <util/readwritefile.h>
 #include <util/sock.h>
-#include <util/spanparsing.h>
 #include <util/strencodings.h>
 #include <util/threadinterrupt.h>
 
@@ -26,6 +26,8 @@
 #include <ranges>
 #include <stdexcept>
 #include <string>
+
+using util::Split;
 
 namespace i2p {
 
@@ -121,7 +123,6 @@ Session::Session(const fs::path& private_key_file,
     : m_private_key_file{private_key_file},
       m_control_host{control_host},
       m_interrupt{interrupt},
-      m_control_sock{std::make_unique<Sock>(INVALID_SOCKET)},
       m_transient{false}
 {
 }
@@ -129,7 +130,6 @@ Session::Session(const fs::path& private_key_file,
 Session::Session(const Proxy& control_host, CThreadInterrupt* interrupt)
     : m_control_host{control_host},
       m_interrupt{interrupt},
-      m_control_sock{std::make_unique<Sock>(INVALID_SOCKET)},
       m_transient{true}
 {
 }
@@ -408,7 +408,7 @@ Binary Session::MyDestination() const
 void Session::CreateIfNotCreatedAlready()
 {
     std::string errmsg;
-    if (m_control_sock->IsConnected(errmsg)) {
+    if (m_control_sock && m_control_sock->IsConnected(errmsg)) {
         return;
     }
 
@@ -481,14 +481,14 @@ std::unique_ptr<Sock> Session::StreamAccept()
 
 void Session::Disconnect()
 {
-    if (m_control_sock->Get() != INVALID_SOCKET) {
+    if (m_control_sock) {
         if (m_session_id.empty()) {
             LogPrintLevel(BCLog::I2P, BCLog::Level::Info, "Destroying incomplete SAM session\n");
         } else {
             LogPrintLevel(BCLog::I2P, BCLog::Level::Info, "Destroying SAM session %s\n", m_session_id);
         }
+        m_control_sock.reset();
     }
-    m_control_sock = std::make_unique<Sock>(INVALID_SOCKET);
     m_session_id.clear();
 }
 } // namespace sam

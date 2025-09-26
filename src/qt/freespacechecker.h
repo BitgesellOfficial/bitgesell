@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_QT_FREESPACECHECKER_H
-#define BITCOIN_QT_FREESPACECHECKER_H
+#ifndef BGL_QT_FREESPACECHECKER_H
+#define BGL_QT_FREESPACECHECKER_H
 
 #include <QObject>
 #include <QString>
@@ -47,4 +47,4 @@ private:
     PathQuery* intro;
 };
 
-#endif // BITCOIN_QT_FREESPACECHECKER_H
+#endif // BGL_QT_FREESPACECHECKER_H

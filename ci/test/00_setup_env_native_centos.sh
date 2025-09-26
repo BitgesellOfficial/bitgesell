@@ -18,4 +18,4 @@ export BGL_CONFIG="\
  -DREDUCE_EXPORTS=ON \
  -DCMAKE_BUILD_TYPE=Debug \
 "
-export BITCOIN_CMD="bitcoin -m" # Used in functional tests
+export BGL_CMD="BGL -m" # Used in functional tests

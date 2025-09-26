@@ -58,7 +58,7 @@ public:
         }
         mp::ListenConnections<messages::Init>(*m_loop, listen_fd, init);
     }
-    void serve(int fd, const char* exe_name, interfaces::Init& init) override
+    void serve(int fd, const char* exe_name, interfaces::Init& init, const std::function<void()>& ready_fn = {}) override
     {
         assert(!m_loop);
         mp::g_thread_context.thread_name = mp::ThreadName(exe_name);
@@ -106,6 +106,8 @@ public:
     //! creation, decrements on destruction. The loop thread exits when the
     //! refcount reaches 0. Other IPC objects also hold their own EventLoopRef.
     std::optional<mp::EventLoopRef> m_loop_ref;
+    //! Connection to parent, if this is a child process spawned by a parent process.
+    mp::Connection* m_parent_connection{nullptr};
 };
 } // namespace
 

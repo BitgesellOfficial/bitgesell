@@ -122,7 +122,7 @@ if [[ "${RUN_TIDY}" == "true" ]]; then
   BGL_CONFIG_ALL="$BGL_CONFIG_ALL -DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
 fi
 
-bash -c "cmake -S $BASE_ROOT_DIR -B ${BASE_BUILD_DIR} $BITCOIN_CONFIG_ALL $BITCOIN_CONFIG" || (
+bash -c "cmake -S $BASE_ROOT_DIR -B ${BASE_BUILD_DIR} $BGL_CONFIG_ALL $BGL_CONFIG" || (
   # shellcheck disable=SC2046
   cat $(cmake -P "${BASE_ROOT_DIR}/ci/test/GetCMakeLogFiles.cmake")
   false

@@ -1573,19 +1573,19 @@ int SigHashCache::CacheIndex(int32_t hash_type) const noexcept
            1 * ((hash_type & 0x1f) == SIGHASH_NONE);
 }
 
-bool SigHashCache::Load(int32_t hash_type, const CScript& script_code, HashWriter& writer) const noexcept
+bool SigHashCache::Load(int32_t hash_type, const CScript& script_code, CHashWriterKeccak& writer) const noexcept
 {
     auto& entry = m_cache_entries[CacheIndex(hash_type)];
     if (entry.has_value()) {
         if (script_code == entry->first) {
-            writer = HashWriter(entry->second);
+            writer = CHashWriterKeccak(entry->second);
             return true;
         }
     }
     return false;
 }
 
-void SigHashCache::Store(int32_t hash_type, const CScript& script_code, const HashWriter& writer) noexcept
+void SigHashCache::Store(int32_t hash_type, const CScript& script_code, const CHashWriterKeccak& writer) noexcept
 {
     auto& entry = m_cache_entries[CacheIndex(hash_type)];
     entry.emplace(script_code, writer);
@@ -1606,7 +1606,7 @@ uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn
         }
     }
 
-    HashWriter ss{};
+    CHashWriterKeccak ss(SER_GETHASH, 0);
 
     // Try to compute using cached SHA256 midstate.
     if (sighash_cache && sighash_cache->Load(nHashType, scriptCode, ss)) {
@@ -1632,12 +1632,11 @@ uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn
         if ((nHashType & 0x1f) != SIGHASH_SINGLE && (nHashType & 0x1f) != SIGHASH_NONE) {
             hashOutputs = cacheready ? cache->hashOutputs : GetOutputsSHA256(txTo); // SHA256Uint256(GetOutputsSHA256(txTo));
         } else if ((nHashType & 0x1f) == SIGHASH_SINGLE && nIn < txTo.vout.size()) {
-            CHashWriterKeccak ss(SER_GETHASH, 0);
-            ss << txTo.vout[nIn];
-            hashOutputs = ss.GetHash();
+            CHashWriterKeccak inner_ss(SER_GETHASH, 0);
+            inner_ss << txTo.vout[nIn];
+            hashOutputs = inner_ss.GetHash();
         }
 
-        CHashWriterKeccak ss(SER_GETHASH, 0);
         // Version
         ss << txTo.version;
         // Input prevouts/nSequence (none/all, depending on flags)
@@ -1662,20 +1661,13 @@ uint256 SignatureHash(const CScript& scriptCode, const T& txTo, unsigned int nIn
         ss << txTmp;
     }
 
-    // Check for invalid use of SIGHASH_SINGLE
-    if ((nHashType & 0x1f) == SIGHASH_SINGLE) {
-        if (nIn >= txTo.vout.size()) {
-            //  nOut out of range
-            return uint256::ONE;
-        }
+    // If a cache object was provided, store the midstate there.
+    if (sighash_cache != nullptr) {
+        sighash_cache->Store(nHashType, scriptCode, ss);
     }
 
-    // Wrapper to serialize only the necessary parts of the transaction being signed
-    CTransactionSignatureSerializer<T> txTmp(txTo, scriptCode, nIn, nHashType);
-
-    // Serialize and hash
-    CHashWriterKeccak ss(SER_GETHASH, 0);
-    ss << txTmp << nHashType;
+    // Add sighash type and hash.
+    ss << nHashType;
     return ss.GetHash();
 }
 

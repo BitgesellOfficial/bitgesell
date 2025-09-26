@@ -46,18 +46,11 @@ public:
         /** Peers added with AddTx or AddAnnouncer. */
         std::set<NodeId> announcers;
 
-<<<<<<< HEAD
-        /** Get the weight of this transaction, an approximation of its memory usage. */
-        TxOrphanage::Usage GetUsage() const {
-            return GetTransactionWeight(*tx);
-        }
-=======
         // Constructor with moved announcers
         OrphanInfo(CTransactionRef tx, std::set<NodeId>&& announcers) :
             tx(std::move(tx)),
             announcers(std::move(announcers))
         {}
->>>>>>> 8a58d0e87d (scripted-diff: rename OrphanTxBase to OrphanInfo)
     };
 
     virtual ~TxOrphanage() = default;
@@ -114,7 +107,8 @@ public:
 
     /** Total usage (weight) of orphans for which this peer is an announcer. If an orphan has multiple
      * announcers, its weight will be accounted for in each PeerOrphanInfo, so the total of all
-     * peers' UsageByPeer() may be larger than TotalOrphanUsage(). */
+     * peers' UsageByPeer() may be larger than TotalOrphanUsage(). Similarly, UsageByPeer() may be far higher than
+     * ReservedPeerUsage(), particularly if many peers have provided the same orphans. */
     virtual Usage UsageByPeer(NodeId peer) const = 0;
 
     /** Check consistency between PeerOrphanInfo and m_orphans. Recalculate counters and ensure they

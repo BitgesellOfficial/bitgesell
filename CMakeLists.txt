@@ -1,31 +1,70 @@
-# Copyright (c) The Bitcoin Core developers
+# Copyright (c) 2023-present The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+# file COPYING or https://opensource.org/license/mit/.
+
+# Ubuntu 22.04 LTS Jammy Jellyfish, https://wiki.ubuntu.com/Releases, EOSS in June 2027:
+#  - CMake 3.22.1, https://packages.ubuntu.com/jammy/cmake
+#
+# Centos Stream 9, https://www.centos.org/cl-vs-cs/#end-of-life, EOL in May 2027:
+#  - CMake 3.26.5, https://mirror.stream.centos.org/9-stream/AppStream/x86_64/os/Packages/
+cmake_minimum_required(VERSION 3.22)
+
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+  message(FATAL_ERROR "In-source builds are not allowed.")
+endif()
+
+if(POLICY CMP0171)
+  # `codegen` is a reserved target name.
+  # See: https://cmake.org/cmake/help/latest/policy/CMP0171.html
+  cmake_policy(SET CMP0171 NEW)
+endif()
+
+# When adjusting CMake flag variables, we must not override those explicitly
+# set by the user. These are a subset of the CACHE_VARIABLES property.
+get_directory_property(precious_variables CACHE_VARIABLES)
 
 #=============================
 # Project / Package metadata
 #=============================
-project(libsecp256k1
-  # The package (a.k.a. release) version is based on semantic versioning 2.0.0 of
-  # the API. All changes in experimental modules are treated as
-  # backwards-compatible and therefore at most increase the minor version.
-  VERSION 0.7.1
-  DESCRIPTION "Optimized C library for ECDSA signatures and secret/public key operations on curve secp256k1."
-  HOMEPAGE_URL "https://github.com/bitcoin-core/secp256k1"
-  LANGUAGES C
-)
-enable_testing()
-include(CTestUseLaunchers) # Allow users to set CTEST_USE_LAUNCHERS in custom `ctest -S` scripts.
-list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+set(CLIENT_NAME "Bitgesell Core")
+set(CLIENT_VERSION_MAJOR 30)
+set(CLIENT_VERSION_MINOR 99)
+set(CLIENT_VERSION_BUILD 0)
+set(CLIENT_VERSION_RC 0)
+set(CLIENT_VERSION_IS_RELEASE "false")
+set(COPYRIGHT_YEAR "2025")
 
-# The library version is based on libtool versioning of the ABI. The set of
-# rules for updating the version can be found here:
-# https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-# All changes in experimental modules are treated as if they don't affect the
-# interface and therefore only increase the revision.
-set(${PROJECT_NAME}_LIB_VERSION_CURRENT 6)
-set(${PROJECT_NAME}_LIB_VERSION_REVISION 1)
-set(${PROJECT_NAME}_LIB_VERSION_AGE 0)
+# During the enabling of the CXX and CXXOBJ languages, we modify
+# CMake's compiler/linker invocation strings by appending the content
+# of the user-defined `APPEND_*` variables, which allows overriding
+# any flag. We also ensure that the APPEND_* flags are considered
+# during CMake's tests, which use the `try_compile()` command.
+#
+# CMake's docs state that the `CMAKE_TRY_COMPILE_PLATFORM_VARIABLES`
+# variable "is meant to be set by CMake's platform information modules
+# for the current toolchain, or by a toolchain file." We do our best
+# to set it before the `project()` command.
+set(CMAKE_TRY_COMPILE_PLATFORM_VARIABLES
+  CMAKE_CXX_COMPILE_OBJECT
+  CMAKE_OBJCXX_COMPILE_OBJECT
+  CMAKE_CXX_LINK_EXECUTABLE
+)
+
+project(BitgesellCore
+  VERSION ${CLIENT_VERSION_MAJOR}.${CLIENT_VERSION_MINOR}.${CLIENT_VERSION_BUILD}
+  DESCRIPTION "Bitgesell client software"
+  HOMEPAGE_URL "https://bitcoincore.org/"
+  LANGUAGES NONE
+)
+
+set(CLIENT_VERSION_STRING ${PROJECT_VERSION})
+if(CLIENT_VERSION_RC GREATER 0)
+  string(APPEND CLIENT_VERSION_STRING "rc${CLIENT_VERSION_RC}")
+endif()
+
+set(COPYRIGHT_HOLDERS "The %s developers")
+set(COPYRIGHT_HOLDERS_FINAL "The ${CLIENT_NAME} developers")
+set(CLIENT_BUGREPORT "https://github.com/BitgesellOfficial/bitgesell/issues")
 
 #=============================
 # Language setup
@@ -60,58 +99,36 @@ option(BUILD_DAEMON "Build BGLd executable." ON)
 option(BUILD_GUI "Build BGL-qt executable." OFF)
 option(BUILD_CLI "Build BGL-cli executable." ON)
 
-find_package(Threads REQUIRED)
-find_package(CapnProto 0.7 REQUIRED)
+option(BUILD_TESTS "Build test_BGL and other unit test executables." ON)
+option(BUILD_TX "Build BGL-tx executable." ${BUILD_TESTS})
+option(BUILD_UTIL "Build BGL-util executable." ${BUILD_TESTS})
 
-# Check for list-of-pointers memory access bug from Nov 2022
-# https://nvd.nist.gov/vuln/detail/CVE-2022-46149
-# https://github.com/advisories/GHSA-qqff-4vw4-f6hx
-# https://github.com/capnproto/capnproto/security/advisories/GHSA-qqff-4vw4-f6hx
-# https://github.com/capnproto/capnproto/blob/master/security-advisories/2022-11-30-0-pointer-list-bounds.md
-# https://capnproto.org/news/2022-11-30-CVE-2022-46149-security-advisory.html
-# https://dwrensha.github.io/capnproto-rust/2022/11/30/out_of_bounds_memory_access_bug.html
-if(CapnProto_VERSION STREQUAL "0.7.0"
-   OR CapnProto_VERSION STREQUAL "0.8.0"
-   OR CapnProto_VERSION STREQUAL "0.9.0"
-   OR CapnProto_VERSION STREQUAL "0.9.1"
-   OR CapnProto_VERSION STREQUAL "0.10.0"
-   OR CapnProto_VERSION STREQUAL "0.10.1"
-   OR CapnProto_VERSION STREQUAL "0.10.2")
-  message(FATAL_ERROR
-    "Cap'n Proto ${CapnProto_VERSION} is affected by CVE-2022-46149.\n"
-    "Please install an updated package.\n"
-    "Details: https://github.com/advisories/GHSA-qqff-4vw4-f6hx
-  ")
+option(BUILD_UTIL_CHAINSTATE "Build experimental BGL-chainstate executable." OFF)
+option(BUILD_KERNEL_LIB "Build experimental BGLkernel library." ${BUILD_UTIL_CHAINSTATE})
+
+option(ENABLE_WALLET "Enable wallet." ON)
+if(ENABLE_WALLET)
+  if(VCPKG_TARGET_TRIPLET)
+    # Use of the `unofficial::` namespace is a vcpkg package manager convention.
+    find_package(unofficial-sqlite3 CONFIG REQUIRED)
+  else()
+    find_package(SQLite3 3.7.17 REQUIRED)
+  endif()
+endif()
+cmake_dependent_option(BUILD_WALLET_TOOL "Build BGL-wallet tool." ${BUILD_TESTS} "ENABLE_WALLET" OFF)
+
+option(REDUCE_EXPORTS "Attempt to reduce exported symbols in the resulting executables." OFF)
+option(WERROR "Treat compiler warnings as errors." OFF)
+option(WITH_CCACHE "Attempt to use ccache for compiling." ON)
+
+option(WITH_ZMQ "Enable ZMQ notifications." OFF)
+if(WITH_ZMQ)
+  find_package(ZeroMQ 4.0.0 MODULE REQUIRED)
 endif()
 
-set(MPGEN_EXECUTABLE "" CACHE FILEPATH "If specified, should be full path to an external mpgen binary to use rather than the one built internally.")
-
-option(MP_ENABLE_CLANG_TIDY "Run clang-tidy with the compiler." OFF)
-if(MP_ENABLE_CLANG_TIDY)
-  find_program(CLANG_TIDY_EXECUTABLE NAMES clang-tidy)
-  if(NOT CLANG_TIDY_EXECUTABLE)
-    message(FATAL_ERROR "MP_ENABLE_CLANG_TIDY is ON but clang-tidy is not found.")
-  endif()
-  set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXECUTABLE}")
-
-  # Workaround for nix from https://gitlab.kitware.com/cmake/cmake/-/issues/20912#note_793338
-  # Nix injects header paths via $NIX_CFLAGS_COMPILE; CMake tags these as
-  # CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES and omits them from the compile
-  # database, so clang-tidy, which ignores $NIX_CFLAGS_COMPILE, can't find capnp
-  # headers. Setting them as standard passes them to clang-tidy.
-  set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
-endif()
-
-option(MP_ENABLE_IWYU "Run include-what-you-use with the compiler." OFF)
-if(MP_ENABLE_IWYU)
-  find_program(IWYU_EXECUTABLE NAMES include-what-you-use iwyu)
-  if(NOT IWYU_EXECUTABLE)
-    message(FATAL_ERROR "MP_ENABLE_IWYU is ON but include-what-you-use was not found.")
-  endif()
-  set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE "${IWYU_EXECUTABLE};-Xiwyu;--error")
-  if(DEFINED ENV{IWYU_MAPPING_FILE})
-    list(APPEND CMAKE_CXX_INCLUDE_WHAT_YOU_USE "-Xiwyu" "--mapping_file=$ENV{IWYU_MAPPING_FILE}")
-  endif()
+option(WITH_USDT "Enable tracepoints for Userspace, Statically Defined Tracing." OFF)
+if(WITH_USDT)
+  find_package(USDT MODULE REQUIRED)
 endif()
 
 option(ENABLE_EXTERNAL_SIGNER "Enable external signer support." ON)
@@ -200,6 +217,7 @@ if(BUILD_FOR_FUZZING)
   set(BUILD_TESTS OFF)
   set(BUILD_GUI_TESTS OFF)
   set(BUILD_BENCH OFF)
+  set(ENABLE_IPC OFF)
   set(BUILD_FUZZ_BINARY ON)
 
   target_compile_definitions(core_interface INTERFACE
@@ -297,12 +315,126 @@ if(WIN32)
   endif()
 endif()
 
-include(TryAppendCFlags)
+# Use 64-bit off_t on 32-bit Linux.
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_SIZEOF_VOID_P EQUAL 4)
+  # Ensure 64-bit offsets are used for filesystem accesses for 32-bit compilation.
+  target_compile_definitions(core_interface INTERFACE
+    _FILE_OFFSET_BITS=64
+  )
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  target_compile_definitions(core_interface INTERFACE OBJC_OLD_DISPATCH_PROTOTYPES=0)
+  # These flags are specific to ld64, and may cause issues with other linkers.
+  # For example: GNU ld will interpret -dead_strip as -de and then try and use
+  # "ad_strip" as the symbol for the entry point.
+  try_append_linker_flag("-Wl,-dead_strip" TARGET core_interface)
+  try_append_linker_flag("-Wl,-dead_strip_dylibs" TARGET core_interface)
+  if(CMAKE_HOST_APPLE)
+    try_append_linker_flag("-Wl,-headerpad_max_install_names" TARGET core_interface)
+  endif()
+endif()
+
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+target_link_libraries(core_interface INTERFACE
+  Threads::Threads
+)
+
+# Define sanitize_interface with -fsanitize flags intended to apply to all
+# libraries and executables.
+add_library(sanitize_interface INTERFACE)
+target_link_libraries(core_interface INTERFACE sanitize_interface)
+if(SANITIZERS)
+  # Transform list of sanitizers into -fsanitize flags, replacing "fuzzer" with
+  # "fuzzer-no-link" in sanitize_interface flags, and moving "fuzzer" to
+  # fuzzer_interface flags. If -DSANITIZERS=fuzzer is specified, the fuzz test
+  # binary should be built with -fsanitize=fuzzer (so it can use libFuzzer's
+  # main function), but libraries should be built with -fsanitize=fuzzer-no-link
+  # (so they can be linked into other executables that have their own main
+  # functions).
+  string(REGEX REPLACE "(^|,)fuzzer($|,)" "\\1fuzzer-no-link\\2" sanitize_opts "${SANITIZERS}")
+  set(fuzz_flag "")
+  if(NOT sanitize_opts STREQUAL SANITIZERS)
+    set(fuzz_flag "-fsanitize=fuzzer")
+  endif()
+
+  # First check if the compiler accepts flags. If an incompatible pair like
+  # -fsanitize=address,thread is used here, this check will fail. This will also
+  # fail if a bad argument is passed, e.g. -fsanitize=undfeined
+  try_append_cxx_flags("-fsanitize=${sanitize_opts}" TARGET sanitize_interface
+    RESULT_VAR cxx_supports_sanitizers
+    SKIP_LINK
+  )
+  if(NOT cxx_supports_sanitizers)
+    message(FATAL_ERROR "Compiler did not accept requested flags.")
+  endif()
+
+  # Some compilers (e.g. GCC) require additional libraries like libasan,
+  # libtsan, libubsan, etc. Make sure linking still works with the sanitize
+  # flag. This is a separate check so we can give a better error message when
+  # the sanitize flags are supported by the compiler but the actual sanitizer
+  # libs are missing.
+  try_append_linker_flag("-fsanitize=${sanitize_opts}" VAR SANITIZER_LDFLAGS
+    SOURCE "
+      #include <cstdint>
+      #include <cstddef>
+      extern \"C\" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) { return 0; }
+      int main() { return 0; }
+    "
+    RESULT_VAR linker_supports_sanitizers
+    NO_CACHE_IF_FAILED
+  )
+  if(NOT linker_supports_sanitizers)
+    message(FATAL_ERROR "Linker did not accept requested flags, you are missing required libraries.")
+  endif()
+endif()
+target_link_options(sanitize_interface INTERFACE ${SANITIZER_LDFLAGS})
+
+# Define fuzzer_interface with flags intended to apply to the fuzz test binary,
+# and perform a test compilation to determine correct value of
+# FUZZ_BINARY_LINKS_WITHOUT_MAIN_FUNCTION.
+if(BUILD_FUZZ_BINARY)
+  include(CheckSourceCompilesWithFlags)
+  check_cxx_source_compiles_with_flags("
+      #include <cstdint>
+      #include <cstddef>
+      extern \"C\" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) { return 0; }
+      // No main() function.
+    " FUZZ_BINARY_LINKS_WITHOUT_MAIN_FUNCTION
+    LDFLAGS ${SANITIZER_LDFLAGS} ${fuzz_flag}
+    LINK_LIBRARIES ${FUZZ_LIBS}
+  )
+  add_library(fuzzer_interface INTERFACE)
+  target_link_options(fuzzer_interface INTERFACE ${fuzz_flag})
+  target_link_libraries(fuzzer_interface INTERFACE ${FUZZ_LIBS})
+endif()
+
+include(AddBoostIfNeeded)
+add_boost_if_needed()
+
+if(BUILD_DAEMON OR BUILD_GUI OR BUILD_CLI OR BUILD_TESTS OR BUILD_BENCH OR BUILD_FUZZ_BINARY)
+  find_package(Libevent 2.1.8 MODULE REQUIRED)
+endif()
+
+include(cmake/introspection.cmake)
+
+include(cmake/ccache.cmake)
+
+add_library(warn_interface INTERFACE)
+target_link_libraries(core_interface INTERFACE warn_interface)
 if(MSVC)
-  # For both cl and clang-cl compilers.
-  try_append_c_flags(/W3) # Production quality warning level.
-  # Eliminate deprecation warnings for the older, less secure functions.
-  add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+  try_append_cxx_flags("/W3" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("/wd4018" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("/wd4146" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("/wd4244" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("/wd4267" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("/wd4715" TARGET warn_interface SKIP_LINK)
+  try_append_cxx_flags("/wd4805" TARGET warn_interface SKIP_LINK)
+  target_compile_definitions(warn_interface INTERFACE
+    _CRT_SECURE_NO_WARNINGS
+    _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+  )
 else()
   try_append_cxx_flags("-Wall" TARGET warn_interface SKIP_LINK)
   try_append_cxx_flags("-Wextra" TARGET warn_interface SKIP_LINK)
@@ -347,9 +479,17 @@ configure_file(contrib/filter-lcov.py filter-lcov.py USE_SOURCE_PERMISSIONS COPY
 # Don't allow extended (non-ASCII) symbols in identifiers. This is easier for code review.
 try_append_cxx_flags("-fno-extended-identifiers" TARGET core_interface SKIP_LINK)
 
-# Generated C++ Capn'Proto schema files
-capnp_generate_cpp(MP_PROXY_SRCS MP_PROXY_HDRS include/mp/proxy.capnp)
-set_source_files_properties("${MP_PROXY_SRCS}" PROPERTIES SKIP_LINTING TRUE) # Ignored before cmake 3.27
+# Avoiding the `-ffile-prefix-map` compiler option because it implies
+# `-fcoverage-prefix-map` on Clang or `-fprofile-prefix-map` on GCC,
+# which can cause issues with coverage builds, particularly when using
+# Clang in the OSS-Fuzz environment due to its use of other options
+# and a third party script, or with GCC.
+try_append_cxx_flags("-fdebug-prefix-map=A=B" TARGET core_interface SKIP_LINK
+  IF_CHECK_PASSED "-fdebug-prefix-map=${PROJECT_SOURCE_DIR}/src=."
+)
+try_append_cxx_flags("-fmacro-prefix-map=A=B" TARGET core_interface SKIP_LINK
+  IF_CHECK_PASSED "-fmacro-prefix-map=${PROJECT_SOURCE_DIR}/src=."
+)
 
 # Currently all versions of gcc are subject to a class of bugs, see the
 # gccbug_90348 test case (only reproduces on GCC 11 and earlier) and
@@ -362,29 +502,79 @@ if(MSVC)
   try_append_linker_flag("/HIGHENTROPYVA" TARGET core_interface)
   try_append_linker_flag("/NXCOMPAT" TARGET core_interface)
 else()
-  # Keep the following commands ordered lexicographically.
-  try_append_c_flags(-pedantic)
-  try_append_c_flags(-Wcast-align) # GCC >= 2.95.
-  try_append_c_flags(-Wcast-align=strict) # GCC >= 8.0.
-  try_append_c_flags(-Wconditional-uninitialized) # Clang >= 3.0 only.
-  try_append_c_flags(-Wextra) # GCC >= 3.4, this is the newer name of -W, which we don't use because older GCCs will warn about unused functions.
-  try_append_c_flags(-Wnested-externs)
-  try_append_c_flags(-Wno-long-long) # GCC >= 3.0, -Wlong-long is implied by -pedantic.
-  try_append_c_flags(-Wno-overlength-strings) # GCC >= 4.2, -Woverlength-strings is implied by -pedantic.
-  try_append_c_flags(-Wno-unused-function) # GCC >= 3.0, -Wunused-function is implied by -Wall.
-  try_append_c_flags(-Wreserved-identifier) # Clang >= 13.0 only.
-  try_append_c_flags(-Wshadow)
-  try_append_c_flags(-Wstrict-prototypes)
-  try_append_c_flags(-Wundef)
+
+  # _FORTIFY_SOURCE requires that there is some level of optimization,
+  # otherwise it does nothing and just creates a compiler warning.
+  try_append_cxx_flags("-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3"
+    RESULT_VAR cxx_supports_fortify_source
+    SOURCE "int main() {
+            # if !defined __OPTIMIZE__ || __OPTIMIZE__ <= 0
+              #error
+            #endif
+            }"
+  )
+  if(cxx_supports_fortify_source)
+    target_compile_options(core_interface INTERFACE
+      -U_FORTIFY_SOURCE
+      -D_FORTIFY_SOURCE=3
+    )
+  endif()
+  unset(cxx_supports_fortify_source)
+
+  try_append_cxx_flags("-Wstack-protector" TARGET core_interface SKIP_LINK)
+  try_append_cxx_flags("-fstack-protector-all" TARGET core_interface)
+  try_append_cxx_flags("-fcf-protection=full" TARGET core_interface)
+
+  if(MINGW)
+    # stack-clash-protection is a no-op for Windows.
+    # See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90458 for more details.
+  else()
+    try_append_cxx_flags("-fstack-clash-protection" TARGET core_interface)
+  endif()
+
+  if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+    if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+      try_append_cxx_flags("-mbranch-protection=bti" TARGET core_interface SKIP_LINK)
+    else()
+      try_append_cxx_flags("-mbranch-protection=standard" TARGET core_interface SKIP_LINK)
+    endif()
+  endif()
+
+  try_append_linker_flag("-Wl,--enable-reloc-section" TARGET core_interface)
+  try_append_linker_flag("-Wl,--dynamicbase" TARGET core_interface)
+  try_append_linker_flag("-Wl,--nxcompat" TARGET core_interface)
+  try_append_linker_flag("-Wl,--high-entropy-va" TARGET core_interface)
+  try_append_linker_flag("-Wl,-z,relro" TARGET core_interface)
+  try_append_linker_flag("-Wl,-z,now" TARGET core_interface)
+  # TODO: This can be dropped once Bitcoin Core no longer supports
+  #       NetBSD 10.0 or if upstream fix is backported.
+  # NetBSD's dynamic linker ld.elf_so < 11.0 supports exactly 2
+  # `PT_LOAD` segments and binaries linked with `-z separate-code`
+  # have 4 `PT_LOAD` segments.
+  # Relevant discussions:
+  # - https://github.com/bitcoin/bitcoin/pull/28724#issuecomment-2589347934
+  # - https://mail-index.netbsd.org/tech-userlevel/2023/01/05/msg013666.html
+  if(CMAKE_SYSTEM_NAME STREQUAL "NetBSD" AND CMAKE_SYSTEM_VERSION VERSION_LESS 11.0)
+    try_append_linker_flag("-Wl,-z,noseparate-code" TARGET core_interface)
+  else()
+    try_append_linker_flag("-Wl,-z,separate-code" TARGET core_interface)
+  endif()
+  if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    try_append_linker_flag("-Wl,-fixup_chains" TARGET core_interface)
+  endif()
 endif()
 
-set(print_msan_notice)
-if(SECP256K1_BUILD_CTIME_TESTS)
-  include(CheckMemorySanitizer)
-  check_memory_sanitizer(msan_enabled)
-  if(msan_enabled)
-    try_append_c_flags(-fno-sanitize-memory-param-retval)
-    set(print_msan_notice YES)
+if(REDUCE_EXPORTS)
+  set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+  try_append_linker_flag("-Wl,--exclude-libs,ALL" TARGET core_interface)
+  try_append_linker_flag("-Wl,-no_exported_symbols" VAR CMAKE_EXE_LINKER_FLAGS)
+endif()
+
+if(WERROR)
+  if(MSVC)
+    set(werror_flag "/WX")
+  else()
+    set(werror_flag "-Werror")
   endif()
   try_append_cxx_flags(${werror_flag} TARGET core_interface SKIP_LINK RESULT_VAR compiler_supports_werror)
   if(NOT compiler_supports_werror)
@@ -507,128 +697,19 @@ else()
   set(cross_status "FALSE")
 endif()
 message("Cross compiling ....................... ${cross_status}")
-message("API visibility attributes ............. ${SECP256K1_ENABLE_API_VISIBILITY_ATTRIBUTES}")
-message("Valgrind .............................. ${SECP256K1_VALGRIND}")
-get_directory_property(definitions COMPILE_DEFINITIONS)
-string(REPLACE ";" " " definitions "${definitions}")
-message("Preprocessor defined macros ........... ${definitions}")
-message("C compiler ............................ ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}, ${CMAKE_C_COMPILER}")
-message("CFLAGS ................................ ${CMAKE_C_FLAGS}")
-get_directory_property(compile_options COMPILE_OPTIONS)
-string(REPLACE ";" " " compile_options "${compile_options}")
-message("Compile options ....................... " ${compile_options})
-if(NOT is_multi_config)
-  message("Build type:")
-  message(" - CMAKE_BUILD_TYPE ................... ${CMAKE_BUILD_TYPE}")
-  string(TOUPPER "${CMAKE_BUILD_TYPE}" build_type)
-  message(" - CFLAGS ............................. ${CMAKE_C_FLAGS_${build_type}}")
-  message(" - LDFLAGS for executables ............ ${CMAKE_EXE_LINKER_FLAGS_${build_type}}")
-  message(" - LDFLAGS for shared libraries ....... ${CMAKE_SHARED_LINKER_FLAGS_${build_type}}")
-else()
-  message("Supported configurations .............. ${CMAKE_CONFIGURATION_TYPES}")
-  message("RelWithDebInfo configuration:")
-  message(" - CFLAGS ............................. ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
-  message(" - LDFLAGS for executables ............ ${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO}")
-  message(" - LDFLAGS for shared libraries ....... ${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO}")
-  message("Debug configuration:")
-  message(" - CFLAGS ............................. ${CMAKE_C_FLAGS_DEBUG}")
-  message(" - LDFLAGS for executables ............ ${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
-  message(" - LDFLAGS for shared libraries ....... ${CMAKE_SHARED_LINKER_FLAGS_DEBUG}")
-endif()
-if(SECP256K1_APPEND_CFLAGS)
-  message("SECP256K1_APPEND_CFLAGS ............... ${SECP256K1_APPEND_CFLAGS}")
-endif()
-if(SECP256K1_APPEND_LDFLAGS)
-  message("SECP256K1_APPEND_LDFLAGS .............. ${SECP256K1_APPEND_LDFLAGS}")
-endif()
-message("")
-if(print_msan_notice)
-  message(
-    "Note:\n"
-    "  MemorySanitizer detected, tried to add -fno-sanitize-memory-param-retval to compile options\n"
-    "  to avoid false positives in ctime_tests. Pass -DSECP256K1_BUILD_CTIME_TESTS=OFF to avoid this.\n"
-  )
-endif()
-if(SECP256K1_EXPERIMENTAL)
-  message(
-    "  ******\n"
-    "  WARNING: experimental build\n"
-    "  Experimental features do not have stable APIs or properties, and may not be safe for production use.\n"
-    "  ******\n"
-  )
+message("C++ compiler .......................... ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}, ${CMAKE_CXX_COMPILER}")
+include(FlagsSummary)
+flags_summary()
+message("Treat compiler warnings as errors ..... ${WERROR}")
+message("Use ccache for compiling .............. ${WITH_CCACHE}")
+message("\n")
+if(configure_warnings)
+    message("  ******\n")
+    foreach(warning IN LISTS configure_warnings)
+      message(WARNING "${warning}")
+    endforeach()
+    message("  ******\n")
 endif()
 
-  # Warnings as errors in Visual Studio for this project's targets.
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set_property(TARGET crc32c_capi_tests APPEND PROPERTY COMPILE_OPTIONS "/WX")
-
-    # The Windows SDK version currently on CI produces warnings when some
-    # headers are #included using C99 compatibility mode or above. This
-    # workaround can be removed once the Windows SDK on our CI is upgraded.
-    set_property(TARGET crc32c_capi_tests
-        APPEND PROPERTY COMPILE_OPTIONS "/wd5105")
-  endif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-
-  add_test(NAME crc32c_capi_tests COMMAND crc32c_capi_tests)
-endif(CRC32C_BUILD_TESTS)
-
-if(CRC32C_BUILD_BENCHMARKS)
-  add_executable(crc32c_bench "")
-  target_sources(crc32c_bench
-    PRIVATE
-      "${PROJECT_BINARY_DIR}/include/crc32c/crc32c_config.h"
-      "src/crc32c_benchmark.cc"
-  )
-  target_link_libraries(crc32c_bench crc32c)
-
-  # This project uses Google benchmark for benchmarking.
-  set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
-  set(BENCHMARK_ENABLE_EXCEPTIONS OFF CACHE BOOL "" FORCE)
-  add_subdirectory("third_party/benchmark")
-  target_link_libraries(crc32c_bench benchmark)
-
-  if(CRC32C_USE_GLOG)
-    target_link_libraries(crc32c_bench glog)
-  endif(CRC32C_USE_GLOG)
-
-  # Warnings as errors in Visual Studio for this project's targets.
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set_property(TARGET crc32c_bench APPEND PROPERTY COMPILE_OPTIONS "/WX")
-  endif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-endif(CRC32C_BUILD_BENCHMARKS)
-
-if(CRC32C_INSTALL)
-  install(TARGETS crc32c
-    EXPORT Crc32cTargets
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  )
-  install(
-    FILES
-      "include/crc32c/crc32c.h"
-    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/crc32c"
-  )
-
-  include(CMakePackageConfigHelpers)
-  configure_package_config_file(
-    "${PROJECT_NAME}Config.cmake.in"
-    "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
-  )
-  write_basic_package_version_file(
-    "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-    COMPATIBILITY SameMajorVersion
-  )
-  install(
-    EXPORT Crc32cTargets
-    NAMESPACE Crc32c::
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
-  )
-  install(
-    FILES
-      "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-      "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
-  )
-endif(CRC32C_INSTALL)
+# We want all build properties to be encapsulated properly.
+include(WarnAboutGlobalProperties)

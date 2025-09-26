@@ -62,7 +62,7 @@ public:
         sha.Finalize(hash);
     }
 
-    CHash256Single& Write(Span<const std::byte> input) {
+    CHash256Single& Write(std::span<const std::byte> input) {
         sha.Write(UCharCast(input.data()), input.size());
         return *this;
     }
@@ -174,6 +174,25 @@ public:
 
     CHashWriterKeccak(int nTypeIn, int nVersionIn) : nType(nTypeIn), nVersion(nVersionIn) {}
 
+    CHashWriterKeccak operator=(const CHashWriterKeccak& other)
+    {
+        if (this != &other) {
+            // copy state
+            ctx = other.ctx;
+        }
+        return *this;
+
+    }
+
+    CHashWriterKeccak(const CHashWriterKeccak& other) : nType(other.nType), nVersion(other.nVersion)
+    {
+        // copy state
+        ctx = other.ctx;
+    }
+
+    ~CHashWriterKeccak() = default;
+
+
     int GetType() const { return nType; }
     int GetVersion() const { return nVersion; }
 
@@ -234,7 +253,7 @@ public:
     int GetType() const { return nType; }
     int GetVersion() const { return nVersion; }
 
-    void write(Span<const std::byte> src)
+    void write(std::span<const std::byte> src)
     {
         ctx.Write(src);
     }

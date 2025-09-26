@@ -1,96 +1,175 @@
-add_library(secp256k1)
-
-set_property(TARGET secp256k1 PROPERTY PUBLIC_HEADER
-  ${PROJECT_SOURCE_DIR}/include/secp256k1.h
-  ${PROJECT_SOURCE_DIR}/include/secp256k1_preallocated.h
-)
-
-# Processing must be done in a topological sorting of the dependency graph
-# (dependent module first).
-if(SECP256K1_ENABLE_MODULE_ELLSWIFT)
-  add_compile_definitions(ENABLE_MODULE_ELLSWIFT=1)
-  set_property(TARGET secp256k1 APPEND PROPERTY PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/include/secp256k1_ellswift.h)
-endif()
-
-if(SECP256K1_ENABLE_MODULE_MUSIG)
-  if(DEFINED SECP256K1_ENABLE_MODULE_SCHNORRSIG AND NOT SECP256K1_ENABLE_MODULE_SCHNORRSIG)
-    message(FATAL_ERROR "Module dependency error: You have disabled the schnorrsig module explicitly, but it is required by the musig module.")
-  endif()
-  set(SECP256K1_ENABLE_MODULE_SCHNORRSIG ON)
-  add_compile_definitions(ENABLE_MODULE_MUSIG=1)
-  set_property(TARGET secp256k1 APPEND PROPERTY PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/include/secp256k1_musig.h)
-endif()
-
-if(SECP256K1_ENABLE_MODULE_SCHNORRSIG)
-  if(DEFINED SECP256K1_ENABLE_MODULE_EXTRAKEYS AND NOT SECP256K1_ENABLE_MODULE_EXTRAKEYS)
-    message(FATAL_ERROR "Module dependency error: You have disabled the extrakeys module explicitly, but it is required by the schnorrsig module.")
-  endif()
-  set(SECP256K1_ENABLE_MODULE_EXTRAKEYS ON)
-  add_compile_definitions(ENABLE_MODULE_SCHNORRSIG=1)
-  set_property(TARGET secp256k1 APPEND PROPERTY PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/include/secp256k1_schnorrsig.h)
-endif()
-
-if(SECP256K1_ENABLE_MODULE_EXTRAKEYS)
-  add_compile_definitions(ENABLE_MODULE_EXTRAKEYS=1)
-  set_property(TARGET secp256k1 APPEND PROPERTY PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/include/secp256k1_extrakeys.h)
-endif()
-
-if(SECP256K1_ENABLE_MODULE_RECOVERY)
-  add_compile_definitions(ENABLE_MODULE_RECOVERY=1)
-  set_property(TARGET secp256k1 APPEND PROPERTY PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/include/secp256k1_recovery.h)
-endif()
-
-if(SECP256K1_ENABLE_MODULE_ECDH)
-  add_compile_definitions(ENABLE_MODULE_ECDH=1)
-  set_property(TARGET secp256k1 APPEND PROPERTY PUBLIC_HEADER ${PROJECT_SOURCE_DIR}/include/secp256k1_ecdh.h)
-endif()
+# Copyright (c) 2023-present The Bitcoin Core developers
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or https://opensource.org/license/mit/.
 
 include(AddWindowsResources)
 
-# Add objects explicitly rather than linking to the object libs to keep them
-# from being exported.
-target_sources(secp256k1 PRIVATE secp256k1.c $<TARGET_OBJECTS:secp256k1_precomputed>)
+configure_file(${PROJECT_SOURCE_DIR}/cmake/BGL-build-config.h.in BGL-build-config.h USE_SOURCE_PERMISSIONS @ONLY)
+include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 
-if(NOT SECP256K1_ENABLE_API_VISIBILITY_ATTRIBUTES)
-  target_compile_definitions(secp256k1 PRIVATE SECP256K1_NO_API_VISIBILITY_ATTRIBUTES)
-endif()
-
-# Create a helper lib that parent projects can use to link secp256k1 into a
-# static lib.
-add_library(secp256k1_objs INTERFACE)
-target_sources(secp256k1_objs INTERFACE $<TARGET_OBJECTS:secp256k1> $<TARGET_OBJECTS:secp256k1_precomputed>)
-
-add_library(secp256k1_asm INTERFACE)
-if(SECP256K1_ASM STREQUAL "arm32")
-  add_library(secp256k1_asm_arm OBJECT EXCLUDE_FROM_ALL)
-  target_sources(secp256k1_asm_arm PUBLIC
-    asm/field_10x26_arm.s
-  )
-  target_sources(secp256k1 PRIVATE $<TARGET_OBJECTS:secp256k1_asm_arm>)
-  target_sources(secp256k1_objs INTERFACE $<TARGET_OBJECTS:secp256k1_asm_arm>)
-  target_link_libraries(secp256k1_asm INTERFACE secp256k1_asm_arm)
+#=============================
+# Subprojects
+#=============================
+# Subprojects include subdirectories that do or could have tests
+# and/or benchmark binaries, such as all subtrees and univalue.
+# These need to be included before CMAKE_*_OUTPUT_DIRECTORY variables
+# are set, so output locations of subproject tests and libraries are
+# not overridden.
+include(../cmake/crc32c.cmake)
+include(../cmake/leveldb.cmake)
+include(../cmake/minisketch.cmake)
+add_subdirectory(univalue)
+if (ENABLE_IPC AND NOT WITH_EXTERNAL_LIBMULTIPROCESS)
+  include(../cmake/libmultiprocess.cmake)
+  add_libmultiprocess(ipc/libmultiprocess)
 endif()
 include(../cmake/secp256k1.cmake)
 add_secp256k1(secp256k1)
 
-if(SECP256K1_BUILD_BENCHMARK)
-  add_executable(bench bench.c)
-  target_link_libraries(bench secp256k1)
-  add_executable(bench_internal bench_internal.c)
-  target_link_libraries(bench_internal secp256k1_precomputed secp256k1_asm)
-  add_executable(bench_ecmult bench_ecmult.c)
-  target_link_libraries(bench_ecmult secp256k1_precomputed secp256k1_asm)
+# Set top-level target output locations.
+if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+endif()
+if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+endif()
+if(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 endif()
 
-if(SECP256K1_BUILD_TESTS)
-  add_executable(noverify_tests tests.c)
-  target_link_libraries(noverify_tests secp256k1_precomputed secp256k1_asm)
-  add_test(NAME secp256k1_noverify_tests COMMAND noverify_tests)
-  if(NOT CMAKE_BUILD_TYPE STREQUAL "Coverage")
-    add_executable(tests tests.c)
-    target_compile_definitions(tests PRIVATE VERIFY)
-    target_link_libraries(tests secp256k1_precomputed secp256k1_asm)
-    add_test(NAME secp256k1_tests COMMAND tests)
+add_custom_target(generate_build_info
+  BYPRODUCTS ${PROJECT_BINARY_DIR}/src/BGL-build-info.h
+  COMMAND ${CMAKE_COMMAND} -DBUILD_INFO_HEADER_PATH=${PROJECT_BINARY_DIR}/src/BGL-build-info.h -DSOURCE_DIR=${PROJECT_SOURCE_DIR} -P ${PROJECT_SOURCE_DIR}/cmake/script/GenerateBuildInfo.cmake
+  COMMENT "Generating BGL-build-info.h"
+  VERBATIM
+)
+add_library(BGL_clientversion STATIC EXCLUDE_FROM_ALL
+  clientversion.cpp
+)
+target_link_libraries(BGL_clientversion
+  PRIVATE
+    core_interface
+)
+add_dependencies(BGL_clientversion generate_build_info)
+
+add_subdirectory(crypto)
+add_subdirectory(util)
+if(ENABLE_IPC)
+  add_subdirectory(ipc)
+endif()
+
+add_library(BGL_consensus STATIC EXCLUDE_FROM_ALL
+  arith_uint256.cpp
+  consensus/merkle.cpp
+  consensus/tx_check.cpp
+  hash.cpp
+  primitives/block.cpp
+  primitives/transaction.cpp
+  pubkey.cpp
+  script/interpreter.cpp
+  script/script.cpp
+  script/script_error.cpp
+  uint256.cpp
+)
+target_link_libraries(BGL_consensus
+  PRIVATE
+    core_interface
+    BGL_crypto
+    secp256k1
+)
+
+if(WITH_ZMQ)
+  add_subdirectory(zmq)
+endif()
+
+# Home for common functionality shared by different executables and libraries.
+# Similar to `bitcoin_util` library, but higher-level.
+add_library(BGL_common STATIC EXCLUDE_FROM_ALL
+  addresstype.cpp
+  base58.cpp
+  bech32.cpp
+  chain.cpp
+  chainparams.cpp
+  chainparamsbase.cpp
+  coins.cpp
+  common/args.cpp
+  common/bloom.cpp
+  common/config.cpp
+  common/init.cpp
+  common/interfaces.cpp
+  common/messages.cpp
+  common/netif.cpp
+  common/pcp.cpp
+  common/run_command.cpp
+  common/settings.cpp
+  common/signmessage.cpp
+  common/system.cpp
+  common/url.cpp
+  compressor.cpp
+  core_read.cpp
+  core_write.cpp
+  deploymentinfo.cpp
+  external_signer.cpp
+  init/common.cpp
+  kernel/chainparams.cpp
+  key.cpp
+  key_io.cpp
+  merkleblock.cpp
+  musig.cpp
+  net_permissions.cpp
+  net_types.cpp
+  netaddress.cpp
+  netbase.cpp
+  outputtype.cpp
+  policy/feerate.cpp
+  policy/policy.cpp
+  pow.cpp
+  protocol.cpp
+  psbt.cpp
+  rpc/rawtransaction_util.cpp
+  rpc/request.cpp
+  rpc/util.cpp
+  scheduler.cpp
+  script/descriptor.cpp
+  script/miniscript.cpp
+  script/parsing.cpp
+  script/sign.cpp
+  script/signingprovider.cpp
+  script/solver.cpp
+)
+target_link_libraries(BGL_common
+  PRIVATE
+    core_interface
+    BGL_consensus
+    BGL_util
+    univalue
+    secp256k1
+    Boost::headers
+    $<TARGET_NAME_IF_EXISTS:USDT::headers>
+    $<$<PLATFORM_ID:Windows>:ws2_32>
+)
+
+include(InstallBinaryComponent)
+
+if(ENABLE_WALLET)
+  add_subdirectory(wallet)
+
+  if(BUILD_WALLET_TOOL)
+    add_executable(BGL-wallet
+      BGL-wallet.cpp
+      init/BGL-wallet.cpp
+      wallet/wallettool.cpp
+    )
+    add_windows_resources(BGL-wallet BGL-wallet-res.rc)
+    add_windows_application_manifest(BGL-wallet)
+    target_link_libraries(BGL-wallet
+      core_interface
+      BGL_wallet
+      BGL_common
+      BGL_util
+      Boost::headers
+    )
+    install_binary_component(BGL-wallet HAS_MANPAGE)
   endif()
 endif()
 
@@ -246,48 +325,118 @@ if(ENABLE_IPC AND BUILD_DAEMON)
   install_binary_component(BGL-node INTERNAL)
 endif()
 
-if(SECP256K1_INSTALL)
-  include(GNUInstallDirs)
-  target_include_directories(secp256k1 INTERFACE
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-  )
-  install(TARGETS secp256k1
-    EXPORT ${PROJECT_NAME}-targets
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-  )
+if(ENABLE_IPC AND BUILD_TESTS)
+    # bitcoin_ipc_test library target is defined here in src/CMakeLists.txt
+    # instead of src/test/CMakeLists.txt so capnp files in src/test/ are able to
+    # reference capnp files in src/ipc/capnp/ by relative path. The Cap'n Proto
+    # compiler only allows importing by relative path when the importing and
+    # imported files are underneath the same compilation source prefix, so the
+    # source prefix must be src/, not src/test/
+    add_library(BGL_ipc_test STATIC EXCLUDE_FROM_ALL
+      test/ipc_test.cpp
+    )
+    target_capnp_sources(BGL_ipc_test ${PROJECT_SOURCE_DIR}
+      test/ipc_test.capnp
+    )
+    add_dependencies(BGL_ipc_test BGL_ipc_headers)
+endif()
 
-  install(EXPORT ${PROJECT_NAME}-targets
-    FILE ${PROJECT_NAME}-targets.cmake
-    NAMESPACE ${PROJECT_NAME}::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-  )
 
-  include(CMakePackageConfigHelpers)
-  configure_package_config_file(
-    ${PROJECT_SOURCE_DIR}/cmake/config.cmake.in
-    ${PROJECT_NAME}-config.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-    NO_SET_AND_CHECK_MACRO
-  )
-  write_basic_package_version_file(${PROJECT_NAME}-config-version.cmake
-    COMPATIBILITY SameMinorVersion
-  )
+add_library(BGL_cli STATIC EXCLUDE_FROM_ALL
+  compat/stdin.cpp
+  rpc/client.cpp
+)
+target_link_libraries(BGL_cli
+  PUBLIC
+    core_interface
+    univalue
+)
 
-  install(
-    FILES
-      ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
-      ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-  )
 
-  include(GeneratePkgConfigFile)
-  generate_pkg_config_file(${PROJECT_SOURCE_DIR}/libsecp256k1.pc.in)
-  install(
-    FILES
-      ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+# Bitcoin Core RPC client
+if(BUILD_CLI)
+  add_executable(BGL-cli BGL-cli.cpp)
+  add_windows_resources(BGL-cli BGL-cli-res.rc)
+  add_windows_application_manifest(BGL-cli)
+  target_link_libraries(BGL-cli
+    core_interface
+    BGL_cli
+    BGL_common
+    BGL_util
+    libevent::core
+    libevent::extra
   )
+  install_binary_component(BGL-cli HAS_MANPAGE)
+endif()
+
+
+if(BUILD_TX)
+  add_executable(BGL-tx BGL-tx.cpp)
+  add_windows_resources(BGL-tx BGL-tx-res.rc)
+  add_windows_application_manifest(BGL-tx)
+  target_link_libraries(BGL-tx
+    core_interface
+    BGL_common
+    BGL_util
+    univalue
+  )
+  install_binary_component(BGL-tx HAS_MANPAGE)
+endif()
+
+
+if(BUILD_UTIL)
+  add_executable(BGL-util BGL-util.cpp)
+  add_windows_resources(BGL-util BGL-util-res.rc)
+  add_windows_application_manifest(BGL-util)
+  target_link_libraries(BGL-util
+    core_interface
+    BGL_common
+    BGL_util
+  )
+  install_binary_component(BGL-util HAS_MANPAGE)
+endif()
+
+
+if(BUILD_GUI)
+  add_subdirectory(qt)
+endif()
+
+
+if(BUILD_KERNEL_LIB)
+  add_subdirectory(kernel)
+endif()
+
+if(BUILD_UTIL_CHAINSTATE)
+  add_executable(BGL-chainstate
+    BGL-chainstate.cpp
+  )
+  # TODO: The `SKIP_BUILD_RPATH` property setting can be deleted
+  #       in the future after reordering Guix script commands to
+  #       perform binary checks after the installation step.
+  # Relevant discussions:
+  # - https://github.com/hebasto/bitcoin/pull/236#issuecomment-2183120953
+  # - https://github.com/bitcoin/bitcoin/pull/30312#issuecomment-2191235833
+  set_target_properties(bitcoin-chainstate PROPERTIES
+    SKIP_BUILD_RPATH OFF
+  )
+  target_link_libraries(BGL-chainstate
+    PRIVATE
+      core_interface
+      BGLkernel
+  )
+  install_binary_component(BGL-chainstate INTERNAL)
+endif()
+
+
+add_subdirectory(test/util)
+if(BUILD_BENCH)
+  add_subdirectory(bench)
+endif()
+
+if(BUILD_TESTS)
+  add_subdirectory(test)
+endif()
+
+if(BUILD_FUZZ_BINARY)
+  add_subdirectory(test/fuzz)
 endif()

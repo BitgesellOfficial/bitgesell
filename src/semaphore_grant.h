@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_SEMAPHORE_GRANT_H
-#define BITCOIN_SEMAPHORE_GRANT_H
+#ifndef BGL_SEMAPHORE_GRANT_H
+#define BGL_SEMAPHORE_GRANT_H
 
 #include <semaphore>
 
@@ -90,4 +90,4 @@ public:
 
 using BinarySemaphoreGrant = CountingSemaphoreGrant<1>;
 
-#endif // BITCOIN_SEMAPHORE_GRANT_H
+#endif // BGL_SEMAPHORE_GRANT_H

@@ -61,7 +61,7 @@ public:
             memcpy(vchData.data() + nPos, src.data(), nOverwrite);
         }
         if (nOverwrite < src.size()) {
-            vchData.insert(vchData.end(), UCharCast(src.data()) + nOverwrite, UCharCast(src.end()));
+            vchData.insert(vchData.end(), UCharCast(src.data()) + nOverwrite, UCharCast(src.data() + src.size()));
         }
         nPos += src.size();
     }
@@ -266,8 +266,7 @@ public:
         : nType{nTypeIn},
           nVersion{nVersionIn} {}
 
-    explicit CDataStream(Span<const uint8_t> sp, int type, int version) : CDataStream{AsBytes(sp), type, version} {}
-    explicit CDataStream(Span<const value_type> sp, int nTypeIn, int nVersionIn)
+    explicit CDataStream(std::span<const value_type> sp, int nTypeIn, int nVersionIn)
         : DataStream{sp},
           nType{nTypeIn},
           nVersion{nVersionIn} {}
@@ -510,7 +509,7 @@ private:
     const int nVersion;
 
 public:
-    explicit CAutoFile(std::FILE* file, int type, int version, std::vector<std::byte> data_xor = {}) : AutoFile{file, std::move(data_xor)}, nType{type}, nVersion{version} {}
+    explicit CAutoFile(std::FILE* file, int type, int version,  const Obfuscation& obfuscation = {}) : AutoFile{file, std::move(obfuscation)}, nType{type}, nVersion{version} {}
     int GetType() const          { return nType; }
     int GetVersion() const       { return nVersion; }
 

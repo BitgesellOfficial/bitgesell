@@ -114,4 +114,3 @@ void UniValue::writeObject(unsigned int prettyIndent, unsigned int indentLevel, 
         indentStr(prettyIndent, indentLevel - 1, s);
     s += "}";
 }
-

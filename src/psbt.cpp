@@ -375,7 +375,7 @@ PrecomputedTransactionData PrecomputePSBTData(const PartiallySignedTransaction& 
     return txdata;
 }
 
-PSBTError SignPSBTInput(const SigningProvider& provider, PartiallySignedTransaction& psbt, int index, const PrecomputedTransactionData* txdata, int sighash,  SignatureData* out_sigdata, bool finalize)
+PSBTError SignPSBTInput(const SigningProvider& provider, PartiallySignedTransaction& psbt, int index, const PrecomputedTransactionData* txdata, std::optional<int> sighash,  SignatureData* out_sigdata, bool finalize)
 {
     PSBTInput& input = psbt.inputs.at(index);
     const CMutableTransaction& tx = *psbt.tx;
@@ -412,6 +412,18 @@ PSBTError SignPSBTInput(const SigningProvider& provider, PartiallySignedTransact
     } else {
         return PSBTError::MISSING_INPUTS;
     }
+
+    // Get the sighash type
+    // If both the field and the parameter are provided, they must match
+    // If only the parameter is provided, use it and add it to the PSBT if it is other than SIGHASH_DEFAULT
+    // for all input types, and not SIGHASH_ALL for non-taproot input types.
+    // If neither are provided, use SIGHASH_DEFAULT if it is taproot, and SIGHASH_ALL for everything else.
+    if (!sighash) sighash = utxo.scriptPubKey.IsPayToTaproot() ? SIGHASH_DEFAULT : SIGHASH_ALL;
+    Assert(sighash.has_value());
+    // For user safety, the desired sighash must be provided if the PSBT wants something other than the default set in the previous line.
+    if (input.sighash_type && input.sighash_type != sighash) {
+        return PSBTError::SIGHASH_MISMATCH;
+    }
     // Set the PSBT sighash field when sighash is not DEFAULT or ALL
     // DEFAULT is allowed for non-taproot inputs since DEFAULT may be passed for them (e.g. the psbt being signed also has taproot inputs)
     // Note that signing already aliases DEFAULT to ALL for non-taproot inputs.
@@ -438,18 +450,6 @@ PSBTError SignPSBTInput(const SigningProvider& provider, PartiallySignedTransact
         for (const auto& [_, sig] : input.partial_sigs) {
             if (sig.second.back() != *sighash) return PSBTError::SIGHASH_MISMATCH;
         }
-    }
-
-    // Get the sighash type
-    // If both the field and the parameter are provided, they must match
-    // If only the parameter is provided, use it and add it to the PSBT if it is other than SIGHASH_DEFAULT
-    // for all input types, and not SIGHASH_ALL for non-taproot input types.
-    // If neither are provided, use SIGHASH_DEFAULT if it is taproot, and SIGHASH_ALL for everything else.
-    if (!sighash) sighash = utxo.scriptPubKey.IsPayToTaproot() ? SIGHASH_DEFAULT : SIGHASH_ALL;
-    Assert(sighash.has_value());
-    // For user safety, the desired sighash must be provided if the PSBT wants something other than the default set in the previous line.
-    if (input.sighash_type && input.sighash_type != sighash) {
-        return PSBTError::SIGHASH_MISMATCH;
     }
 
     sigdata.witness = false;
@@ -487,30 +487,30 @@ PSBTError SignPSBTInput(const SigningProvider& provider, PartiallySignedTransact
     return sig_complete ? PSBTError::OK : PSBTError::INCOMPLETE;
 }
 
-void RemoveUnnecessaryTransactions(PartiallySignedTransaction& psbtx, std::optional<int> sighash_type)
+void RemoveUnnecessaryTransactions(PartiallySignedTransaction& psbtx)
 {
-    if (!sighash_type) sighash_type = SIGHASH_DEFAULT;
-    // Only drop non_witness_utxos if sighash_type != SIGHASH_ANYONECANPAY
-    if ((*sighash_type & 0x80) != SIGHASH_ANYONECANPAY) {
-        // Figure out if any non_witness_utxos should be dropped
-        std::vector<unsigned int> to_drop;
-        for (unsigned int i = 0; i < psbtx.inputs.size(); ++i) {
-            const auto& input = psbtx.inputs.at(i);
-            int wit_ver;
-            std::vector<unsigned char> wit_prog;
-            if (input.witness_utxo.IsNull() || !input.witness_utxo.scriptPubKey.IsWitnessProgram(wit_ver, wit_prog)) {
-                // There's a non-segwit input or Segwit v0, so we cannot drop any witness_utxos
-                to_drop.clear();
-                break;
-            }
-            if (wit_ver == 0) {
-                // Segwit v0, so we cannot drop any non_witness_utxos
-                to_drop.clear();
-                break;
-            }
-            if (input.non_witness_utxo) {
-                to_drop.push_back(i);
-            }
+    // Figure out if any non_witness_utxos should be dropped
+    std::vector<unsigned int> to_drop;
+    for (unsigned int i = 0; i < psbtx.inputs.size(); ++i) {
+        const auto& input = psbtx.inputs.at(i);
+        int wit_ver;
+        std::vector<unsigned char> wit_prog;
+        if (input.witness_utxo.IsNull() || !input.witness_utxo.scriptPubKey.IsWitnessProgram(wit_ver, wit_prog)) {
+            // There's a non-segwit input, so we cannot drop any non_witness_utxos
+            to_drop.clear();
+            break;
+        }
+        if (wit_ver == 0) {
+            // Segwit v0, so we cannot drop any non_witness_utxos
+            to_drop.clear();
+            break;
+        }
+        // non_witness_utxos cannot be dropped if the sighash type includes SIGHASH_ANYONECANPAY
+        // Since callers should have called SignPSBTInput which updates the sighash type in the PSBT, we only
+        // need to look at that field. If it is not present, then we can assume SIGHASH_DEFAULT or SIGHASH_ALL.
+        if (input.sighash_type != std::nullopt && (*input.sighash_type & 0x80) == SIGHASH_ANYONECANPAY) {
+            to_drop.clear();
+            break;
         }
 
         if (input.non_witness_utxo) {
@@ -533,7 +533,8 @@ bool FinalizePSBT(PartiallySignedTransaction& psbtx)
     bool complete = true;
     const PrecomputedTransactionData txdata = PrecomputePSBTData(psbtx);
     for (unsigned int i = 0; i < psbtx.tx->vin.size(); ++i) {
-        complete &= (SignPSBTInput(DUMMY_SIGNING_PROVIDER, psbtx, i, &txdata, SIGHASH_ALL, nullptr, true) == PSBTError::OK);
+        PSBTInput& input = psbtx.inputs.at(i);
+        complete &= (SignPSBTInput(DUMMY_SIGNING_PROVIDER, psbtx, i, &txdata, input.sighash_type, nullptr, true) == PSBTError::OK);
     }
 
     return complete;

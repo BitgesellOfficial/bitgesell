@@ -16,7 +16,7 @@
 /* Define a virtual block time, one block per 10 minutes after Nov 14 2014, 0:55:36am */
 static int32_t TestTime(int nHeight) { return 1415926536 + 600 * nHeight; }
 
-class TestConditionChecker : public AbstractThresholdConditionChecker
+class TestConditionChecker final : public VersionBitsConditionChecker
 {
 private:
     mutable ThresholdConditionCache cache;

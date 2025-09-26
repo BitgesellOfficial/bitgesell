@@ -20,5 +20,5 @@ RUN /install.sh && \
   rm -rf /var/lib/apt/lists/*
 
 
-WORKDIR /bitcoin
+WORKDIR /BGL
 ENTRYPOINT ["/entrypoint.sh"]

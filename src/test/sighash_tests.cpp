@@ -16,6 +16,7 @@
 #include <test/util/setup_common.h>
 #include <util/strencodings.h>
 
+#include <iostream>
 
 #include <boost/test/unit_test.hpp>
 
@@ -265,7 +266,7 @@ BOOST_AUTO_TEST_CASE(sighash_caching)
 
             // And if we store a different value for this scriptcode and hash type it will return that instead.
             {
-                HashWriter h{};
+                CHashWriterKeccak h(SER_GETHASH, SERIALIZE_TRANSACTION_NO_WITNESS);
                 h << 42;
                 cache.Store(hash_type, scriptcode, h);
                 const auto stored_hash{h.GetHash()};
@@ -278,7 +279,7 @@ BOOST_AUTO_TEST_CASE(sighash_caching)
             // case in which it'll return 1).
             if (!expect_one) {
                 BOOST_CHECK_NE(SignatureHash(scriptcode, tx, in_index, hash_type, amount, sigversion, nullptr, &cache), sighash_with_cache);
-                HashWriter h{};
+                CHashWriterKeccak h(SER_GETHASH, SERIALIZE_TRANSACTION_NO_WITNESS);
                 BOOST_CHECK(cache.Load(hash_type, scriptcode, h));
                 h << hash_type;
                 const auto new_hash{h.GetHash()};
@@ -288,7 +289,7 @@ BOOST_AUTO_TEST_CASE(sighash_caching)
             }
 
             // Wipe the cache and restore the correct cached value for this scriptcode and hash_type before starting the next iteration.
-            HashWriter dummy{};
+            CHashWriterKeccak dummy(SER_GETHASH, SERIALIZE_TRANSACTION_NO_WITNESS);
             cache.Store(hash_type, diff_scriptcode, dummy);
             (void)SignatureHash(scriptcode, tx, in_index, hash_type, amount, sigversion, nullptr, &cache);
             BOOST_CHECK(cache.Load(hash_type, scriptcode, dummy) || expect_one);

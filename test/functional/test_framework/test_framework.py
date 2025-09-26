@@ -87,7 +87,7 @@ class Binaries:
 
     def tx_argv(self):
         "Return argv array that should be used to invoke bitcoin-tx"
-        return self._argv("tx", self.paths.bitcointx)
+        return self._argv("tx", self.paths.BGLtx)
 
     def util_argv(self):
         "Return argv array that should be used to invoke bitcoin-util"

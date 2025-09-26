@@ -30,7 +30,7 @@ endif()
 
 set(GIT_TAG)
 set(GIT_COMMIT)
-if(NOT "$ENV{BITCOIN_GENBUILD_NO_GIT}" STREQUAL "1")
+if(NOT "$ENV{BGL_GENBUILD_NO_GIT}" STREQUAL "1")
   find_package(Git QUIET)
   if(Git_FOUND)
     execute_process(

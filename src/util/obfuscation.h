@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_UTIL_OBFUSCATION_H
-#define BITCOIN_UTIL_OBFUSCATION_H
+#ifndef BGL_UTIL_OBFUSCATION_H
+#define BGL_UTIL_OBFUSCATION_H
 
 #include <cstdint>
 #include <span.h>
@@ -112,4 +112,4 @@ private:
     }
 };
 
-#endif // BITCOIN_UTIL_OBFUSCATION_H
+#endif // BGL_UTIL_OBFUSCATION_H

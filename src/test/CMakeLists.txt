@@ -25,6 +25,7 @@ add_executable(test_BGL
   blockmanager_tests.cpp
   bloom_tests.cpp
   bswap_tests.cpp
+  chainstate_write_tests.cpp
   checkqueue_tests.cpp
   cluster_linearize_tests.cpp
   coins_tests.cpp
@@ -66,6 +67,7 @@ add_executable(test_BGL
   node_init_tests.cpp
   node_warnings_tests.cpp
   orphanage_tests.cpp
+  pcp_tests.cpp
   peerman_tests.cpp
   pmt_tests.cpp
   policy_fee_tests.cpp
@@ -106,6 +108,7 @@ add_executable(test_BGL
   transaction_tests.cpp
   translation_tests.cpp
   txdownload_tests.cpp
+  txgraph_tests.cpp
   txindex_tests.cpp
   txpackage_tests.cpp
   txreconciliation_tests.cpp
@@ -182,21 +185,20 @@ function(add_boost_test source_file)
 
   file(READ "${source_file}" source_file_content)
   string(REGEX
-    MATCH "(BOOST_FIXTURE_TEST_SUITE|BOOST_AUTO_TEST_SUITE)\\(([A-Za-z0-9_]+)"
+    MATCHALL "(BOOST_FIXTURE_TEST_SUITE|BOOST_AUTO_TEST_SUITE)\\(([A-Za-z0-9_]+)"
     test_suite_macro "${source_file_content}"
   )
-  string(REGEX
+  list(TRANSFORM test_suite_macro
     REPLACE "(BOOST_FIXTURE_TEST_SUITE|BOOST_AUTO_TEST_SUITE)\\(" ""
-    test_suite_name "${test_suite_macro}"
   )
-  if(test_suite_name)
+  foreach(test_suite_name IN LISTS test_suite_macro)
     add_test(NAME ${test_suite_name}
       COMMAND test_BGL --run_test=${test_suite_name} --catch_system_error=no --log_level=test_suite -- DEBUG_LOG_OUT
     )
     set_property(TEST ${test_suite_name} PROPERTY
       SKIP_REGULAR_EXPRESSION "no test cases matching filter" "skipping script_assets_test"
     )
-  endif()
+  endforeach()
 endfunction()
 
 function(add_all_test_targets)

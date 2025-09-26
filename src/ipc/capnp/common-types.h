@@ -6,6 +6,8 @@
 #define BGL_IPC_CAPNP_COMMON_TYPES_H
 
 #include <clientversion.h>
+#include <interfaces/types.h>
+#include <primitives/transaction.h>
 #include <serialize.h>
 #include <streams.h>
 #include <univalue.h>
@@ -30,6 +32,24 @@
 
 namespace ipc {
 namespace capnp {
+//! Construct a ParamStream wrapping a data stream with serialization parameters
+//! needed to pass transaction objects between bitcoin processes.
+//! In the future, more params may be added here to serialize other objects that
+//! require serialization parameters. Params should just be chosen to serialize
+//! objects completely and ensure that serializing and deserializing objects
+//! with the specified parameters produces equivalent objects. It's also
+//! harmless to specify serialization parameters here that are not used.
+template <typename S>
+auto Wrap(S& s)
+{
+    return ParamsStream{s, TX_WITH_WITNESS};
+}
+
+//! Detect if type has a deserialize_type constructor, which is
+//! used to deserialize types like CTransaction that can't be unserialized into
+//! existing objects because they are immutable.
+template <typename T>
+concept Deserializable = std::is_constructible_v<T, ::deserialize_type, ::DataStream&>;
 } // namespace capnp
 } // namespace ipc
 
@@ -61,7 +81,7 @@ requires Serializable<LocalType, DataStream> && std::is_same_v<LocalType, std::r
 //! priority, and higher priority hooks could take precedence over this one.
 template <typename LocalType, typename Input, typename ReadDest>
 decltype(auto) CustomReadField(TypeList<LocalType>, Priority<1>, InvokeContext& invoke_context, Input&& input, ReadDest&& read_dest)
-requires Unserializable<LocalType, DataStream>
+requires Unserializable<LocalType, DataStream> && (!ipc::capnp::Deserializable<LocalType>)
 {
     return read_dest.update([&](auto& value) {
         if (!input.has()) return;

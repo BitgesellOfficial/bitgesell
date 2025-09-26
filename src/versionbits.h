@@ -8,6 +8,7 @@
 #include <chain.h>
 #include <sync.h>
 
+#include <array>
 #include <map>
 #include <optional>
 #include <vector>

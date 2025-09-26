@@ -205,7 +205,7 @@ util::Result<std::unique_ptr<AddrMan>> LoadAddrman(const NetGroupManager& netgro
     const auto start{SteadyClock::now()};
     const auto path_addr{args.GetDataDirNet() / "peers.dat"};
     try {
-        DeserializeFileDB(path_addr, *addrman);
+        DeserializeFileDB(path_addr, *addrman, CLIENT_VERSION);
         LogInfo("Loaded %i addresses from peers.dat  %dms", addrman->Size(), Ticks<std::chrono::milliseconds>(SteadyClock::now() - start));
     } catch (const DbNotFoundError&) {
         // Addrman can be in an inconsistent state after failure, reset it
@@ -237,7 +237,7 @@ std::vector<CAddress> ReadAnchors(const fs::path& anchors_db_path)
 {
     std::vector<CAddress> anchors;
     try {
-        DeserializeFileDB(anchors_db_path, CAddress::V2_DISK(anchors));
+        DeserializeFileDB(anchors_db_path, CAddress::V2_DISK(anchors), CLIENT_VERSION | ADDRV2_FORMAT);
         LogInfo("Loaded %i addresses from %s", anchors.size(), fs::quoted(fs::PathToString(anchors_db_path.filename())));
     } catch (const std::exception&) {
         anchors.clear();

@@ -14,7 +14,10 @@
 #include <random.h>
 #include <serialize.h>
 #include <span.h>
+#include <sync.h>
 
+#include <chrono>
+#include <optional>
 #include <vector>
 
 void ConnmanTestMsg::Handshake(CNode& node,

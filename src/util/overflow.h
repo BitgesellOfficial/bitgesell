@@ -83,4 +83,4 @@ constexpr T SaturatingLeftShift(T input, unsigned shift) noexcept
     return input < 0 ? std::numeric_limits<T>::min() : std::numeric_limits<T>::max();
 }
 
-#endif // BITCOIN_UTIL_OVERFLOW_H
+#endif // BGL_UTIL_OVERFLOW_H

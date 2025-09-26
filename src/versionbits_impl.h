@@ -38,6 +38,8 @@ protected:
     virtual int Threshold() const =0;
 
 public:
+    virtual ~AbstractThresholdConditionChecker() = default;
+
     /** Returns the numerical statistics of an in-progress BIP9 softfork in the period including pindex
      * If provided, signalling_blocks is set to true/false based on whether each block in the period signalled
      */
@@ -47,6 +49,37 @@ public:
     ThresholdState GetStateFor(const CBlockIndex* pindexPrev, ThresholdConditionCache& cache) const;
     /** Returns the height since when the ThresholdState has started for pindex A based on parent pindexPrev B, all blocks of a period share the same */
     int GetStateSinceHeightFor(const CBlockIndex* pindexPrev, ThresholdConditionCache& cache) const;
+};
+
+/**
+ * Class to implement versionbits logic.
+ */
+class VersionBitsConditionChecker : public AbstractThresholdConditionChecker {
+private:
+    const Consensus::BIP9Deployment& dep;
+
+protected:
+    int64_t BeginTime() const override { return dep.nStartTime; }
+    int64_t EndTime() const override { return dep.nTimeout; }
+    int MinActivationHeight() const override { return dep.min_activation_height; }
+    int Period() const override { return dep.period; }
+    int Threshold() const override { return dep.threshold; }
+
+    bool Condition(const CBlockIndex* pindex) const override
+    {
+        return Condition(pindex->nVersion);
+    }
+
+public:
+    explicit VersionBitsConditionChecker(const Consensus::BIP9Deployment& dep) : dep{dep} {}
+    explicit VersionBitsConditionChecker(const Consensus::Params& params, Consensus::DeploymentPos id) : VersionBitsConditionChecker{params.vDeployments[id]} {}
+
+    uint32_t Mask() const { return (uint32_t{1}) << dep.bit; }
+
+    bool Condition(int32_t nVersion) const
+    {
+        return (((nVersion & VERSIONBITS_TOP_MASK) == VERSIONBITS_TOP_BITS) && (nVersion & Mask()) != 0);
+    }
 };
 
 #endif // BGL_VERSIONBITS_IMPL_H

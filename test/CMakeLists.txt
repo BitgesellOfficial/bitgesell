@@ -1,23 +1,19 @@
-# Copyright (c) The Bitcoin Core developers
+# Copyright (c) 2023-present The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+# file COPYING or https://opensource.org/license/mit/.
 
-# Custom test targets for convenience, based on
-# https://gitlab.kitware.com/cmake/community/-/wikis/doc/tutorials/EmulateMakeCheck.
-#
-# CTest already provides a "make test" target, but it just runs existing tests
-# that were previously built, without building anything itself. Define "make
-# tests" here as a custom target to build all available tests and "make check"
-# as a custom target to build and run them.
-add_custom_target(mptests)
-add_custom_target(mpcheck COMMAND ${CMAKE_CTEST_COMMAND} DEPENDS mptests)
+function(create_test_config)
+  set(abs_top_srcdir ${PROJECT_SOURCE_DIR})
+  set(abs_top_builddir ${PROJECT_BINARY_DIR})
+  set(EXEEXT ${CMAKE_EXECUTABLE_SUFFIX})
 
-# Only add more convenient tests and check targets if project is being built
-# standalone, to prevent clashes with external projects.
-if (MP_STANDALONE)
-  add_custom_target(tests DEPENDS mptests)
-  add_custom_target(check DEPENDS mpcheck)
-endif()
+  macro(set_configure_variable var conf_var)
+    if(${var})
+      set(${conf_var}_TRUE "")
+    else()
+      set(${conf_var}_TRUE "#")
+    endif()
+  endmacro()
 
   set_configure_variable(ENABLE_WALLET ENABLE_WALLET)
   set_configure_variable(BUILD_CLI BUILD_BGL_CLI)
@@ -30,18 +26,10 @@ endif()
   set_configure_variable(WITH_ZMQ ENABLE_ZMQ)
   set_configure_variable(ENABLE_EXTERNAL_SIGNER ENABLE_EXTERNAL_SIGNER)
   set_configure_variable(WITH_USDT ENABLE_USDT_TRACEPOINTS)
+  set_configure_variable(ENABLE_IPC ENABLE_IPC)
 
-  add_executable(mptest
-    ${MP_PROXY_HDRS}
-    mp/test/foo-types.h
-    mp/test/foo.h
-    mp/test/test.cpp
-  )
-  include(${PROJECT_SOURCE_DIR}/cmake/TargetCapnpSources.cmake)
-  target_capnp_sources(mptest ${CMAKE_CURRENT_SOURCE_DIR} mp/test/foo.capnp)
-  target_include_directories(mptest PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-  target_link_libraries(mptest PRIVATE CapnProto::kj-test)
-  target_link_libraries(mptest PRIVATE Threads::Threads)
+  configure_file(config.ini.in config.ini USE_SOURCE_PERMISSIONS @ONLY)
+endfunction()
 
 create_test_config()
 
