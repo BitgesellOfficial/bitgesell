@@ -189,7 +189,7 @@ public:
         });
         args().WriteSettingsFile();
     }
-    void mapPort(bool use_pcp) override { StartMapPort(use_pcp); }
+    void mapPort(bool enable) override { StartMapPort(enable); }
     bool getProxy(Network net, Proxy& proxy_info) override { return GetProxy(net, proxy_info); }
     size_t getNodeCount(ConnectionDirection flags) override
     {
@@ -907,7 +907,7 @@ public:
 
     std::vector<uint256> getCoinbaseMerklePath() override
     {
-        return TransactionMerklePath(m_block_template->block);
+        return TransactionMerklePath(m_block_template->block, 0);
     }
 
     bool submitSolution(uint32_t version, uint32_t timestamp, uint32_t nonce, CTransactionRef coinbase) override

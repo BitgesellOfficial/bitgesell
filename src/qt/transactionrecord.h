@@ -46,8 +46,8 @@ struct TransactionStatus {
 
     /** @name Reported status
        @{*/
-    Status status;
-    qint64 depth;
+    Status status{Unconfirmed};
+    qint64 depth{0};
     /**@}*/
 
     /** Current block hash (to know whether cached status is still valid) */
@@ -70,7 +70,6 @@ public:
         SendToOther,
         RecvWithAddress,
         RecvFromOther,
-        SendToSelf
     };
 
     /** Number of confirmation recommended for accepting a transaction */

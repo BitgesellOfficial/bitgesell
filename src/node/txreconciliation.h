@@ -43,6 +43,7 @@ enum class ReconciliationRegisterResult {
  * FAILURE. The initiator notifies the peer about the failure and announces all transactions from
  *          the corresponding set. Once the peer received the failure notification, the peer
  *          announces all transactions from their set.
+
  * This is a modification of the Erlay protocol (https://arxiv.org/abs/1905.10518) with two
  * changes (sketch extensions instead of bisections, and an extra INV exchange round), both
  * are motivated in BIP-330.

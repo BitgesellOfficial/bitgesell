@@ -126,6 +126,7 @@ class BIP65Test(BGLTestFramework):
 
         self.test_cltv_info(is_active=False)  # Not active as of current tip and next block does not need to obey rules
         peer.send_and_ping(msg_block(block))
+        self.sync_all()
         self.test_cltv_info(is_active=True)  # Not active as of current tip, but next block must obey rules
         assert_equal(self.nodes[0].getbestblockhash(), block.hash_hex)
 

@@ -162,12 +162,13 @@ bool CBlockIndexWorkComparator::operator()(const CBlockIndex* pa, const CBlockIn
     if (pa->nChainWork > pb->nChainWork) return false;
     if (pa->nChainWork < pb->nChainWork) return true;
 
-    // ... then by earliest time received, ...
+    // ... then by earliest activatable time, ...
     if (pa->nSequenceId < pb->nSequenceId) return false;
     if (pa->nSequenceId > pb->nSequenceId) return true;
 
     // Use pointer address as tie breaker (should only happen with blocks
-    // loaded from disk, as those all have id 0).
+    // loaded from disk, as those share the same id: 0 for blocks on the
+    // best chain, 1 for all others).
     if (pa < pb) return false;
     if (pa > pb) return true;
 
@@ -945,13 +946,13 @@ bool BlockManager::WriteBlockUndo(const CBlockUndo& blockundo, BlockValidationSt
         }
 
         // Open history file to append
-        CAutoFile fileout{OpenUndoFile(pos)};
-        if (fileout.IsNull()) {
+        CAutoFile file{OpenUndoFile(pos)};
+        if (file.IsNull()) {
             LogError("OpenUndoFile failed for %s while writing block undo", pos.ToString());
             return FatalError(m_opts.notifications, state, _("Failed to write undo data."));
         }
         {
-            //BufferedWriter fileout{file};
+            BufferedWriter fileout{file};
 
             // Write index header
             fileout << GetParams().MessageStart() << blockundo_size;
@@ -967,10 +968,10 @@ bool BlockManager::WriteBlockUndo(const CBlockUndo& blockundo, BlockValidationSt
         }
 
         // Make sure that the file is closed before we call `FlushUndoFile`.
-        //if (file.fclose() != 0) {
-        //    LogError("Failed to close block undo file %s: %s", pos.ToString(), SysErrorString(errno));
-        //    return FatalError(m_opts.notifications, state, _("Failed to close block undo file."));
-        //}
+        if (file.fclose() != 0) {
+            LogError("Failed to close block undo file %s: %s", pos.ToString(), SysErrorString(errno));
+            return FatalError(m_opts.notifications, state, _("Failed to close block undo file."));
+        }
 
         // rev files are written in block height order, whereas blk files are written as blocks come in (often out of order)
         // we want to flush the rev (undo) file once we've written the last block, which is indicated by the last height

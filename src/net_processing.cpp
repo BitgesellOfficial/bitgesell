@@ -1728,9 +1728,11 @@ bool PeerManagerImpl::GetNodeStateStats(NodeId nodeid, CNodeStateStats& stats) c
     if (auto tx_relay = peer->GetTxRelay(); tx_relay != nullptr) {
         stats.m_relay_txs = WITH_LOCK(tx_relay->m_bloom_filter_mutex, return tx_relay->m_relay_txs);
         stats.m_fee_filter_received = tx_relay->m_fee_filter_received.load();
+        stats.m_inv_to_send = WITH_LOCK(tx_relay->m_tx_inventory_mutex, return tx_relay->m_tx_inventory_to_send.size());
     } else {
         stats.m_relay_txs = false;
         stats.m_fee_filter_received = 0;
+        stats.m_inv_to_send = 0;
     }
 
     stats.m_ping_wait = ping_wait;
@@ -2366,6 +2368,7 @@ CTransactionRef PeerManagerImpl::FindTxForGetData(const Peer::TxRelay& tx_relay,
             return m_mempool.info_for_relay(id, tx_relay.m_last_inv_sequence);
         },
         gtxid)};
+
     if (txinfo.tx) {
         return std::move(txinfo.tx);
     }
@@ -4246,6 +4249,7 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
 
         CTransactionRef ptx;
         vRecv >> TX_WITH_WITNESS(ptx);
+        const CTransaction& tx = *ptx;
 
         const Txid& txid = ptx->GetHash();
         const Wtxid& wtxid = ptx->GetWitnessHash();
@@ -4261,13 +4265,13 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
                 // Always relay transactions received from peers with forcerelay
                 // permission, even if they were already in the mempool, allowing
                 // the node to function as a gateway for nodes hidden behind it.
-                if (!m_mempool.exists(txid)) {
+                if (!m_mempool.exists(tx.GetHash())) {
                     LogPrintf("Not relaying non-mempool transaction %s (wtxid=%s) from forcerelay peer=%d\n",
-                              txid.ToString(), wtxid.ToString(), pfrom.GetId());
+                              tx.GetHash().ToString(), tx.GetWitnessHash().ToString(), pfrom.GetId());
                 } else {
                     LogPrintf("Force relaying tx %s (wtxid=%s) from peer=%d\n",
-                              txid.ToString(), wtxid.ToString(), pfrom.GetId());
-                    RelayTransaction(txid, wtxid);
+                              tx.GetHash().ToString(), tx.GetWitnessHash().ToString(), pfrom.GetId());
+                    RelayTransaction(tx.GetHash(), tx.GetWitnessHash());
                 }
             }
 

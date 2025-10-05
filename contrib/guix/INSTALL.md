@@ -369,10 +369,10 @@ can be found
 [here](https://www.gnu.org/software/automake/manual/html_node/Standard-Directory-Variables.html).
 
 However, the Guix init scripts and service configurations for Upstart, systemd,
-SysV, and OpenRC are installed to launch
+SysV, and OpenRC are installed (in `${libdir}`) to launch
 `${localstatedir}/guix/profiles/per-user/root/current-guix/bin/guix-daemon`,
-which does not yet exist, and will only exist after `root` performs their first
-`guix pull`. TODO: Link to `guix pull` as root section
+which does not yet exist, and will only exist after [`root` performs their first
+`guix pull`](#guix-pull-as-root).
 
 We need to create a `-original` version of these init scripts that's pointed to
 the binaries we just built and `make install`'ed in `${bindir}` (normally,
@@ -382,8 +382,9 @@ Example for `systemd`, run as `root`:
 
 ```sh
 # Create guix-daemon-original.service by modifying guix-daemon.service
+libdir=# set according to your PREFIX (default is /usr/local/lib)
 bindir="$(dirname $(command -v guix-daemon))"
-sed -E -e "s|/\S*/guix/profiles/per-user/root/current-guix/bin/guix-daemon|${bindir}/guix-daemon|" /etc/systemd/system/guix-daemon.service > /etc/systemd/system/guix-daemon-original.service
+sed -E -e "s|/\S*/guix/profiles/per-user/root/current-guix/bin/guix-daemon|${bindir}/guix-daemon|" "${libdir}"/systemd/system/guix-daemon.service > /etc/systemd/system/guix-daemon-original.service
 chmod 664 /etc/systemd/system/guix-daemon-original.service
 
 # Make systemd recognize the new service
@@ -406,7 +407,7 @@ in the Guix Reference Manual for more details.
 
 ## Optional setup
 
-At this point, you are set up to [use Guix to build Bitcoin
+At this point, you are set up to [use Guix to build Bitgesell
 Core](./README.md#usage). However, if you want to polish your setup a bit and
 make it "what Guix intended", then read the next few subsections.
 
@@ -670,6 +671,8 @@ More information: https://github.com/python/cpython/issues/81765
 OpenSSL includes tests that will fail once some certificate has expired.
 The workarounds from the GnuTLS section immediately below can be used.
 
+For openssl-1.1.1l use 2022-05-01 as the date.
+
 ### GnuTLS: test-suite FAIL: status-request-revoked
 
 *The derivation is likely identified by: `/gnu/store/vhphki5sg9xkdhh2pbc8gi6vhpfzryf0-gnutls-3.6.12.drv`*
@@ -704,11 +707,12 @@ authorized.
 This workaround was described [here](https://issues.guix.gnu.org/44559#5).
 
 Basically:
-2. Turn off NTP
-3. Set system time to 2020-10-01
-4. guix build --no-substitutes /gnu/store/vhphki5sg9xkdhh2pbc8gi6vhpfzryf0-gnutls-3.6.12.drv
-5. Set system time back to accurate current time
-6. Turn NTP back on
+
+1. Turn off NTP
+2. Set system time to 2020-10-01
+3. guix build --no-substitutes /gnu/store/vhphki5sg9xkdhh2pbc8gi6vhpfzryf0-gnutls-3.6.12.drv
+4. Set system time back to accurate current time
+5. Turn NTP back on
 
 For example,
 

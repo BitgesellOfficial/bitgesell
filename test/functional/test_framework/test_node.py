@@ -2,7 +2,7 @@
 # Copyright (c) 2017-present The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
-"""Class for BGLd node under test"""
+"""Class for bitcoind node under test"""
 
 import contextlib
 import decimal
@@ -69,7 +69,7 @@ class ErrorMatch(Enum):
 
 
 class TestNode():
-    """A class for representing a BGLd node under test.
+    """A class for representing a bitcoind node under test.
 
     This class contains:
 
@@ -111,8 +111,8 @@ class TestNode():
         # Note that common args are set in the config file (see initialize_datadir)
         self.extra_args = extra_args
         self.version = version
-        # Configuration for logging is set as command-line args rather than in the BGL.conf file.
-        # This means that starting a BGLd using the temp dir to debug a failed test won't
+        # Configuration for logging is set as command-line args rather than in the bitcoin.conf file.
+        # This means that starting a bitcoind using the temp dir to debug a failed test won't
         # spam debug.log.
         self.args = self.binaries.node_argv() + [
             f"-datadir={self.datadir_path}",
@@ -121,7 +121,7 @@ class TestNode():
             "-debugexclude=libevent",
             "-debugexclude=leveldb",
             "-debugexclude=rand",
-            "-uacomment=testnode%d" % i,
+            "-uacomment=testnode%d" % i,  # required for subversion uniqueness across peers
         ]
         if uses_wallet is not None and not uses_wallet:
             self.args.append("-disablewallet")
@@ -217,7 +217,7 @@ class TestNode():
         raise AssertionError(self._node_msg(msg))
 
     def __del__(self):
-        # Ensure that we don't leave any BGLd processes lying around after
+        # Ensure that we don't leave any bitcoind processes lying around after
         # the test ends
         if self.process:
             # Should only happen on test failure
@@ -263,7 +263,7 @@ class TestNode():
             cwd = self.cwd
 
         # Delete any existing cookie file -- if such a file exists (eg due to
-        # unclean shutdown), it will get overwritten anyway by BGLd, and
+        # unclean shutdown), it will get overwritten anyway by bitcoind, and
         # potentially interfere with our attempt to authenticate
         delete_cookie_file(self.datadir_path, self.chain)
 
@@ -281,7 +281,7 @@ class TestNode():
             self._start_perf()
 
     def wait_for_rpc_connection(self, *, wait_for_import=True):
-        """Sets up an RPC connection to the BGLd process. Returns False if unable to connect."""
+        """Sets up an RPC connection to the bitcoind process. Returns False if unable to connect."""
         # Poll at a rate of four times per second
         poll_per_s = 4
 
@@ -380,7 +380,7 @@ class TestNode():
                 get_auth_cookie(self.datadir_path, self.chain)
                 self.log.debug("Cookie credentials successfully retrieved")
                 return
-            except ValueError:  # cookie file not found and no rpcuser or rpcpassword; BGLd is still starting
+            except ValueError:  # cookie file not found and no rpcuser or rpcpassword; bitcoind is still starting
                 pass            # so we continue polling until RPC credentials are retrieved
             time.sleep(1.0 / poll_per_s)
         self._raise_assertion_error("Unable to retrieve cookie credentials after {}s".format(self.rpc_timeout))
@@ -476,8 +476,9 @@ class TestNode():
         return True
 
     def wait_until_stopped(self, *, timeout=BGLD_PROC_WAIT_TIMEOUT, expect_error=False, **kwargs):
-        expected_ret_code = 1 if expect_error else 0  # Whether node shutdown return EXIT_FAILURE or EXIT_SUCCESS
-        self.wait_until(lambda: self.is_node_stopped(expected_ret_code=expected_ret_code, **kwargs), timeout=timeout)
+        if "expected_ret_code" not in kwargs:
+            kwargs["expected_ret_code"] = 1 if expect_error else 0  # Whether node shutdown return EXIT_FAILURE or EXIT_SUCCESS
+        self.wait_until(lambda: self.is_node_stopped(**kwargs), timeout=timeout)
 
     def kill_process(self):
         self.process.kill()
@@ -693,11 +694,11 @@ class TestNode():
     def assert_start_raises_init_error(self, extra_args=None, expected_msg=None, match=ErrorMatch.FULL_TEXT, *args, **kwargs):
         """Attempt to start the node and expect it to raise an error.
 
-        extra_args: extra arguments to pass through to BGLd
-        expected_msg: regex that stderr should match when BGLd fails
+        extra_args: extra arguments to pass through to bitcoind
+        expected_msg: regex that stderr should match when bitcoind fails
 
-        Will throw if BGLd starts without an error.
-        Will throw if an expected_msg is provided and it does not match BGLd's stdout."""
+        Will throw if bitcoind starts without an error.
+        Will throw if an expected_msg is provided and it does not match bitcoind's stdout."""
         assert not self.running
         with tempfile.NamedTemporaryFile(dir=self.stderr_dir, delete=False) as log_stderr, \
              tempfile.NamedTemporaryFile(dir=self.stdout_dir, delete=False) as log_stdout:
@@ -735,7 +736,7 @@ class TestNode():
                     assert_msg += "with expected error " + expected_msg
                 self._raise_assertion_error(assert_msg)
 
-    def add_p2p_connection(self, p2p_conn, *, wait_for_verack=True, send_version=True, supports_v2_p2p=None, wait_for_v2_handshake=True, **kwargs):
+    def add_p2p_connection(self, p2p_conn, *, wait_for_verack=True, send_version=True, supports_v2_p2p=None, wait_for_v2_handshake=True, expect_success=True, **kwargs):
         """Add an inbound p2p connection to the node.
 
         This method adds the p2p connection to the self.p2ps list and also
@@ -761,6 +762,8 @@ class TestNode():
         p2p_conn.peer_connect(**kwargs, send_version=send_version, net=self.chain, timeout_factor=self.timeout_factor, supports_v2_p2p=supports_v2_p2p)()
 
         self.p2ps.append(p2p_conn)
+        if not expect_success:
+            return p2p_conn
         p2p_conn.wait_until(lambda: p2p_conn.is_connected, check_connected=False)
         if supports_v2_p2p and wait_for_v2_handshake:
             p2p_conn.wait_until(lambda: p2p_conn.v2_state.tried_v2_handshake)
@@ -932,7 +935,7 @@ class TestNodeCLI():
         return results
 
     def send_cli(self, clicommand=None, *args, **kwargs):
-        """Run BGL-cli command. Deserializes returned string as python object."""
+        """Run bitcoin-cli command. Deserializes returned string as python object."""
         pos_args = [arg_to_cli(arg) for arg in args]
         named_args = [key + "=" + arg_to_cli(value) for (key, value) in kwargs.items() if value is not None]
         p_args = self.binaries.rpc_argv() + [f"-datadir={self.datadir}"] + self.options
@@ -974,24 +977,3 @@ class TestNodeCLI():
             return json.loads(cli_stdout, parse_float=decimal.Decimal)
         except (json.JSONDecodeError, decimal.InvalidOperation):
             return cli_stdout.rstrip("\n")
-
-class RPCOverloadWrapper():
-    def __init__(self, rpc):
-        self.rpc = rpc
-
-    def __getattr__(self, name):
-        return getattr(self.rpc, name)
-
-    def importpubkey(self, pubkey, *, label=None, rescan=None):
-        wallet_info = self.getwalletinfo()
-        if 'descriptors' not in wallet_info or ('descriptors' in wallet_info and not wallet_info['descriptors']):
-            return self.__getattr__('importpubkey')(pubkey, label, rescan)
-        desc = descsum_create('combo(' + pubkey + ')')
-        req = [{
-            'desc': desc,
-            'timestamp': 0 if rescan else 'now',
-            'label': label if label else '',
-        }]
-        import_res = self.importdescriptors(req)
-        if not import_res[0]['success']:
-            raise JSONRPCException(import_res[0]['error'])

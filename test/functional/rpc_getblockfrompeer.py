@@ -145,7 +145,7 @@ class GetBlockFromPeerTest(BGLTestFramework):
         self.sync_blocks([self.nodes[0], pruned_node])
         pruneheight += 251 + 3
         assert_equal(pruned_node.pruneblockchain(700), pruneheight)
-        assert_equal(pruned_node.getblock(pruned_block)["hash"], "196ee3a1a6db2353965081c48ef8e6b031cb2115d084bec6fec937e91a2c6277")
+        assert_equal(pruned_node.getblock(pruned_block)["hash"], "1587b54847019d3f62689721b6642f036d4deb6e22106e09444f99a832d5c4f4")
 
         self.log.info("Fetched block can be pruned again when prune height exceeds the height of the tip at the time when the block was fetched")
         self.generate(self.nodes[0], 250, sync_fun=self.no_op)

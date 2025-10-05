@@ -123,10 +123,11 @@ class RPCPackagesTest(BGLTestFramework):
         assert_equal(testres_bad_sig, self.independent_txns_testres + [{
             "txid": tx_bad_sig_txid,
             "wtxid": tx_bad_sig_wtxid, "allowed": False,
-            "reject-reason": "mempool-script-verify-flag-failed (Operation not valid with the current stack size)",
-            "reject-details": "mempool-script-verify-flag-failed (Operation not valid with the current stack size), " +
+            "reject-reason": "mempool-script-verify-flag-failed (Witness program hash mismatch)",
+            "reject-details": "mempool-script-verify-flag-failed (Witness program hash mismatch), " +
                               f"input 0 of {tx_bad_sig_txid} (wtxid {tx_bad_sig_wtxid}), spending {coin['txid']}:{coin['vout']}"
         }])
+        # Replaced 'Operation not valid with the current stack size' with 'Witness program hash mismatch' 
 
         self.log.info("Check testmempoolaccept reports txns in packages that exceed max feerate")
         tx_high_fee = self.wallet.create_self_transfer(fee=Decimal("0.999"))

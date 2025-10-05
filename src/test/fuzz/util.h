@@ -1,4 +1,4 @@
-// Copyright (c) 2009-2022 The Bitcoin Core developers
+// Copyright (c) 2009-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -28,6 +28,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <span>
 
 class PeerManager;
 
@@ -70,9 +71,11 @@ template<typename B = uint8_t>
     return BytesToBits(ConsumeRandomLengthByteVector(fuzzed_data_provider, max_length));
 }
 
-[[nodiscard]] inline DataStream ConsumeDataStream(FuzzedDataProvider& fuzzed_data_provider, const std::optional<size_t>& max_length = std::nullopt) noexcept
+[[nodiscard]] inline CDataStream ConsumeDataStream(FuzzedDataProvider& fuzzed_data_provider, const std::optional<size_t>& max_length = std::nullopt) noexcept
 {
-    return CDataStream{ConsumeRandomLengthByteVector(fuzzed_data_provider, max_length), SER_NETWORK, PROTOCOL_VERSION};
+    std::vector<unsigned char> my_uchar_vector = ConsumeRandomLengthByteVector(fuzzed_data_provider, max_length);
+    std::span<const std::byte> my_byte_span(reinterpret_cast<const std::byte*>(my_uchar_vector.data()),my_uchar_vector.size());
+    return CDataStream{my_byte_span, SER_NETWORK, PROTOCOL_VERSION};
 }
 
 [[nodiscard]] inline std::vector<std::string> ConsumeRandomLengthStringVector(FuzzedDataProvider& fuzzed_data_provider, const size_t max_vector_size = 16, const size_t max_string_length = 16) noexcept

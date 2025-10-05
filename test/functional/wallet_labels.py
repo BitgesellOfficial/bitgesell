@@ -16,13 +16,12 @@ from test_framework.descriptors import descsum_create
 from test_framework.test_framework import BGLTestFramework
 from test_framework.util import assert_equal, assert_raises_rpc_error
 from test_framework.wallet_util import test_address
-import random
 
 
 class WalletLabelsTest(BGLTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
-        self.num_nodes = 1
+        self.num_nodes = 2
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -35,7 +34,6 @@ class WalletLabelsTest(BGLTestFramework):
             [node.getnewaddress],
             [node.setlabel, address],
             [node.getaddressesbylabel],
-            [node.importpubkey, pubkey],
             [node.getreceivedbylabel],
             [node.listsinceblock, node.getblockhash(0), 1, False, True, False],
         ]
@@ -68,7 +66,7 @@ class WalletLabelsTest(BGLTestFramework):
         assert_equal(node.getbalance(), 400)
 
         # there should be 2 address groups
-        # each with 1 address with a balance of 200 BGLs
+        # each with 1 address with a balance of 50 Bitcoins
         address_groups = node.listaddressgroupings()
         assert_equal(len(address_groups), 2)
         # the addresses aren't linked now, but will be after we send to the
@@ -82,7 +80,7 @@ class WalletLabelsTest(BGLTestFramework):
             linked_addresses.add(address_group[0][0])
 
         # send 200 from each address to a third address not in this wallet
-        common_address = "rbgl1qqzhun7algln9jg3734me3ch679yzu06spda08r"
+        common_address = 'MAMYWDWqd46sYwL7h9ExCpzaPba53HhMh8'
         node.sendmany(
             amounts={common_address: 400},
             subtractfeefrom=[common_address],
@@ -111,8 +109,14 @@ class WalletLabelsTest(BGLTestFramework):
             label.add_receive_address(address)
             label.verify(node)
 
+        # Check listlabels when passing 'purpose'
+        node2_addr = self.nodes[1].getnewaddress()
+        node.setlabel(node2_addr, "node2_addr")
+        assert_equal(node.listlabels(purpose="send"), ["node2_addr"])
+        assert_equal(node.listlabels(purpose="receive"), sorted(['coinbase'] + [label.name for label in labels]))
+
         # Check all labels are returned by listlabels.
-        assert_equal(node.listlabels(), sorted(['coinbase'] + [label.name for label in labels]))
+        assert_equal(node.listlabels(), sorted(['coinbase'] + [label.name for label in labels] + ["node2_addr"]))
 
         # Send a transaction to each label.
         for label in labels:
@@ -161,9 +165,9 @@ class WalletLabelsTest(BGLTestFramework):
         node.createwallet(wallet_name='watch_only', disable_private_keys=True)
         wallet_watch_only = node.get_wallet_rpc('watch_only')
         BECH32_VALID = {
-            '✔️_VER15_PROG40': 'bcrt10qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqxkg7fn',
-            '✔️_VER16_PROG03': 'bcrt1sqqqqq8uhdgr',
-            '✔️_VER16_PROB02': 'bcrt1sqqqq4wstyw',
+            '✔️_VER15_PROG40': 'rbgl1qjmprdr7rq522gw9ghkgfly7yng25n4m3nrxtmdujqsakvm9jfapqthsqed',
+            '✔️_VER16_PROG03': 'rbgl1pfeespx2vff',
+            '✔️_VER16_PROB02': 'rbgl1qtmp74ayg7p24uslctssvjm06q5phz4yrlr4q2x',
         }
         BECH32_INVALID = {
             '❌_VER15_PROG41': 'bcrt1sqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqajlxj8',

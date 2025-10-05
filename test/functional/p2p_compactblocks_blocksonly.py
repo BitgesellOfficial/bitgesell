@@ -13,6 +13,7 @@ from test_framework.messages import (
     CInv,
     from_hex,
     msg_block,
+    msg_getdata,
     msg_headers,
     msg_sendcmpct,
 )

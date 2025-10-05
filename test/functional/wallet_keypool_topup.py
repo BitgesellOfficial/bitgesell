@@ -22,8 +22,10 @@ from test_framework.util import (
 class KeypoolRestoreTest(BGLTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
-        self.num_nodes = 4
-        self.extra_args = [[], ['-keypool=100'], ['-keypool=100'], ['-keypool=100']]
+        self.num_nodes = 5
+        self.extra_args = [[]]
+        for _ in range(self.num_nodes - 1):
+            self.extra_args.append(['-keypool=100'])
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
@@ -37,11 +39,8 @@ class KeypoolRestoreTest(BGLTestFramework):
         self.stop_node(1)
         shutil.copyfile(wallet_path, wallet_backup_path)
         self.start_node(1, self.extra_args[1])
-        self.connect_nodes(0, 1)
-        self.connect_nodes(0, 2)
-        self.connect_nodes(0, 3)
-
-        for i, output_type in enumerate(["legacy", "p2sh-segwit", "bech32"]):
+        for i in [1, 2, 3, 4]:
+            self.connect_nodes(0, i)
 
         output_types = ["legacy", "p2sh-segwit", "bech32", "bech32m"]
         for i, output_type in enumerate(output_types):
@@ -58,9 +57,10 @@ class KeypoolRestoreTest(BGLTestFramework):
                 assert not address_details["isscript"] and not address_details["iswitness"]
             elif i == 1:
                 assert address_details["isscript"] and not address_details["iswitness"]
-            else:
+            elif i == 2:
                 assert not address_details["isscript"] and address_details["iswitness"]
-
+            elif i == 3:
+                assert address_details["isscript"] and address_details["iswitness"]
 
             self.log.info("Send funds to wallet")
             self.nodes[0].sendtoaddress(addr_oldpool, 10)

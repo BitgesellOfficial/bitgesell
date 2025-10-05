@@ -596,13 +596,9 @@ std::string SHA256AutoDetect(sha256_implementation::UseImplementation use_implem
     bool have_sse4 = false;
     bool have_xsave = false;
     bool have_avx = false;
-    bool have_avx2 = false;
-    bool have_x86_shani = false;
-    bool enabled_avx = false;
-
-    (void)have_avx2;
-    (void)have_x86_shani;
-    (void)enabled_avx;
+    [[maybe_unused]] bool have_avx2 = false;
+    [[maybe_unused]] bool have_x86_shani = false;
+    [[maybe_unused]] bool enabled_avx = false;
 
     uint32_t eax, ebx, ecx, edx;
     GetCPUID(1, 0, eax, ebx, ecx, edx);
@@ -624,7 +620,7 @@ std::string SHA256AutoDetect(sha256_implementation::UseImplementation use_implem
         }
     }
 
-#if defined(ENABLE_X86_SHANI)
+#if defined(ENABLE_SSE41) && defined(ENABLE_X86_SHANI)
     if (have_x86_shani) {
         Transform = sha256_x86_shani::Transform;
         TransformD64 = TransformD64Wrapper<sha256_x86_shani::Transform>;

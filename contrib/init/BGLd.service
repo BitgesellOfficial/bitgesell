@@ -1,16 +1,16 @@
 # It is not recommended to modify this file in-place, because it will
 # be overwritten during package upgrades. If you want to add further
 # options or overwrite existing ones then use
-# $ systemctl edit BGLd.service
+# $ systemctl edit bitcoind.service
 # See "man systemd.service" for details.
 
 # Note that almost all daemon options could be specified in
-# /etc/BGL/BGL.conf, but keep in mind those explicitly
+# /etc/bitcoin/bitcoin.conf, but keep in mind those explicitly
 # specified as arguments in ExecStart= will override those in the
 # config file.
 
 [Unit]
-Description=BGL daemon
+Description=Bitgesell daemon
 Documentation=https://github.com/BitgesellOfficial/bitgesell/blob/master/doc/init.md
 
 # https://www.freedesktop.org/wiki/Software/systemd/NetworkTarget/
@@ -42,17 +42,17 @@ TimeoutStopSec=600
 ####################################
 
 # Run as bitcoin:bitcoin
-User=bitgesell
+User=BGL
 
-# /run/BGLd
+# /run/bitcoind
 RuntimeDirectory=BGLd
 RuntimeDirectoryMode=0710
 
-# /etc/BGL
+# /etc/bitcoin
 ConfigurationDirectory=BGL
 ConfigurationDirectoryMode=0710
 
-# /var/lib/BGLd
+# /var/lib/bitcoind
 StateDirectory=BGLd
 StateDirectoryMode=0710
 
@@ -78,6 +78,9 @@ PrivateDevices=true
 
 # Deny the creation of writable and executable memory mappings.
 MemoryDenyWriteExecute=true
+
+# Restrict ABIs to help ensure MemoryDenyWriteExecute is enforced
+SystemCallArchitectures=native
 
 [Install]
 WantedBy=multi-user.target

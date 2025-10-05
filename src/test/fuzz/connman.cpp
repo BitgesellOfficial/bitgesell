@@ -43,7 +43,8 @@ FUZZ_TARGET(connman, .init = initialize_connman)
     auto addr_man_ptr{std::make_unique<AddrManDeterministic>(netgroupman, fuzzed_data_provider, GetCheckRatio())};
     if (fuzzed_data_provider.ConsumeBool()) {
         const std::vector<uint8_t> serialized_data{ConsumeRandomLengthByteVector(fuzzed_data_provider)};
-        DataStream ds{serialized_data};
+        std::span<const std::byte> byte_span{reinterpret_cast<const std::byte*>(serialized_data.data()),serialized_data.size() };
+        CDataStream ds(byte_span, SER_NETWORK, PROTOCOL_VERSION);
         try {
             ds >> *addr_man_ptr;
         } catch (const std::ios_base::failure&) {

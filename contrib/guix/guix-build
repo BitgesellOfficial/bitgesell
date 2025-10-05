@@ -164,7 +164,7 @@ done
 if (( total_required_KiB > avail_KiB )); then
     total_required_GiB=$((total_required_KiB / 1048576))
     avail_GiB=$((avail_KiB / 1048576))
-    echo "Performing a Bitcoin Core Guix build for the selected HOSTS requires ${total_required_GiB} GiB, however, only ${avail_GiB} GiB is available. Please free up some disk space before performing the build."
+    echo "Performing a Bitgesell Core Guix build for the selected HOSTS requires ${total_required_GiB} GiB, however, only ${avail_GiB} GiB is available. Please free up some disk space before performing the build."
     exit 1
 fi
 
@@ -392,24 +392,24 @@ EOF
         #
         #     When --container is specified, the default behavior is to share
         #     the current working directory with the isolated container at the
-        #     same exact path (e.g. mapping '/home/satoshi/BGL/' to
-        #     '/home/satoshi/BGL/'). This means that the $PWD inside the
+        #     same exact path (e.g. mapping '/home/satoshi/bitcoin/' to
+        #     '/home/satoshi/bitcoin/'). This means that the $PWD inside the
         #     container becomes a source of irreproducibility. --no-cwd disables
         #     this behaviour.
         #
         #   --share=SPEC       for containers, share writable host file system
         #                      according to SPEC
         #
-        #   --share="$PWD"=/BGL
+        #   --share="$PWD"=/bitcoin
         #
-        #                     maps our current working directory to /BGL
+        #                     maps our current working directory to /bitcoin
         #                     inside the isolated container, which we later cd
         #                     into.
         #
         #     While we don't want to map our current working directory to the
         #     same exact path (as this introduces irreproducibility), we do want
         #     it to be at a _fixed_ path _somewhere_ inside the isolated
-        #     container so that we have something to build. '/BGL' was
+        #     container so that we have something to build. '/bitcoin' was
         #     chosen arbitrarily.
         #
         #   ${SOURCES_PATH:+--share="$SOURCES_PATH"}
@@ -452,6 +452,7 @@ EOF
                                  ${SDK_PATH:+--share="$SDK_PATH"} \
                                  --cores="$JOBS" \
                                  --keep-failed \
+                                 --fallback \
                                  --link-profile \
                                  --root="$(profiledir_for_host "${HOST}")" \
                                  ${SUBSTITUTE_URLS:+--substitute-urls="$SUBSTITUTE_URLS"} \

@@ -40,6 +40,7 @@ class FiltersClient(P2PInterface):
         """Store cfilters received in a list."""
         self.cfilters.append(message)
 
+
 class CompactFiltersTest(BGLTestFramework):
     def set_test_params(self):
         self.setup_clean_chain = True
@@ -218,29 +219,45 @@ class CompactFiltersTest(BGLTestFramework):
         self.log.info("Check that invalid requests result in disconnection.")
         requests = [
             # Requesting too many filters results in disconnection.
-            msg_getcfilters(
-                filter_type=FILTER_TYPE_BASIC,
-                start_height=0,
-                stop_hash=int(main_block_hash, 16),
+            (
+                msg_getcfilters(
+                    filter_type=FILTER_TYPE_BASIC,
+                    start_height=0,
+                    stop_hash=int(main_block_hash, 16),
+                ), "requested too many cfilters/cfheaders"
             ),
             # Requesting too many filter headers results in disconnection.
-            msg_getcfheaders(
-                filter_type=FILTER_TYPE_BASIC,
-                start_height=0,
-                stop_hash=int(tip_hash, 16),
+            (
+                msg_getcfheaders(
+                    filter_type=FILTER_TYPE_BASIC,
+                    start_height=0,
+                    stop_hash=int(tip_hash, 16),
+                ), "requested too many cfilters/cfheaders"
             ),
             # Requesting unknown filter type results in disconnection.
-            msg_getcfcheckpt(
-                filter_type=255,
-                stop_hash=int(main_block_hash, 16),
+            (
+                msg_getcfcheckpt(
+                    filter_type=255,
+                    stop_hash=int(main_block_hash, 16),
+                ), "requested unsupported block filter type"
             ),
             # Requesting unknown hash results in disconnection.
-            msg_getcfcheckpt(
-                filter_type=FILTER_TYPE_BASIC,
-                stop_hash=123456789,
+            (
+                msg_getcfcheckpt(
+                    filter_type=FILTER_TYPE_BASIC,
+                    stop_hash=123456789,
+                ), "requested invalid block hash"
+            ),
+            (
+                # Request with (start block height > stop block height) results in disconnection.
+                msg_getcfheaders(
+                    filter_type=FILTER_TYPE_BASIC,
+                    start_height=1000,
+                    stop_hash=int(self.nodes[0].getblockhash(999), 16),
+                ), "sent invalid getcfilters/getcfheaders with start height 1000 and stop height 999"
             ),
         ]
-        for request in requests:
+        for request, expected_log_msg in requests:
             peer_0 = self.nodes[0].add_p2p_connection(P2PInterface())
             with self.nodes[0].assert_debug_log(expected_msgs=[expected_log_msg]):
                 peer_0.send_without_ping(request)

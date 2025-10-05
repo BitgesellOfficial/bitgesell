@@ -6,6 +6,7 @@
 Test transaction download behavior
 """
 from decimal import Decimal
+from enum import Enum
 import time
 
 from test_framework.mempool_util import (
@@ -49,12 +50,20 @@ class TestP2PConn(P2PInterface):
 # Constants from txdownloadman
 MAX_PEER_TX_REQUEST_IN_FLIGHT = 100
 MAX_PEER_TX_ANNOUNCEMENTS = 5000
-NONPREF_PEER_TX_DELAY = 2
 
 # Python test constants
 NUM_INBOUND = 10
 MAX_GETDATA_INBOUND_WAIT = GETDATA_TX_INTERVAL + NONPREF_PEER_TX_DELAY + TXID_RELAY_DELAY
 
+class ConnectionType(Enum):
+    """ Different connection types
+    1. INBOUND: Incoming connection, not whitelisted
+    2. OUTBOUND: Outgoing connection
+    3. WHITELIST: Incoming connection, but whitelisted
+    """
+    INBOUND = 0
+    OUTBOUND = 1
+    WHITELIST = 2
 
 class TxDownloadTest(BGLTestFramework):
     def set_test_params(self):
@@ -198,12 +207,19 @@ class TxDownloadTest(BGLTestFramework):
         peer_notfound.send_and_ping(msg_notfound(vec=[CInv(MSG_WTX, WTXID)]))  # Send notfound, so that fallback peer is selected
         peer_fallback.wait_until(lambda: peer_fallback.tx_getdata_count >= 1, timeout=1)
 
-    def test_preferred_inv(self, preferred=False):
-        if preferred:
-            self.log.info('Check invs from preferred peers are downloaded immediately')
+    def test_preferred_inv(self, connection_type: ConnectionType):
+        if connection_type == ConnectionType.WHITELIST:
+            self.log.info('Check invs from preferred (whitelisted) peers are downloaded immediately')
             self.restart_node(0, extra_args=['-whitelist=noban@127.0.0.1'])
-        else:
+        elif connection_type == ConnectionType.OUTBOUND:
+            self.log.info('Check invs from preferred (outbound) peers are downloaded immediately')
+            self.restart_node(0)
+        elif connection_type == ConnectionType.INBOUND:
             self.log.info('Check invs from non-preferred peers are downloaded after {} s'.format(NONPREF_PEER_TX_DELAY))
+            self.restart_node(0)
+        else:
+            raise Exception("invalid connection_type")
+
         mock_time = int(time.time() + 1)
         self.nodes[0].setmocktime(mock_time)
 
@@ -366,8 +382,10 @@ class TxDownloadTest(BGLTestFramework):
         self.test_expiry_fallback()
         self.test_disconnect_fallback()
         self.test_notfound_fallback()
-        self.test_preferred_inv()
-        self.test_preferred_inv(True)
+        self.test_preferred_tiebreaker_inv()
+        self.test_preferred_inv(ConnectionType.INBOUND)
+        self.test_preferred_inv(ConnectionType.OUTBOUND)
+        self.test_preferred_inv(ConnectionType.WHITELIST)
         self.test_txid_inv_delay()
         self.test_txid_inv_delay(True)
         self.test_large_inv_batch()
@@ -393,7 +411,6 @@ class TxDownloadTest(BGLTestFramework):
                         self.peers.append(node.add_p2p_connection(TestP2PConn()))
                 self.log.info("Nodes are setup with {} incoming connections each".format(NUM_INBOUND))
             test()
-
 
 if __name__ == '__main__':
     TxDownloadTest(__file__).main()

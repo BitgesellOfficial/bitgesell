@@ -169,7 +169,7 @@ class AssumeutxoTest(BGLTestFramework):
 
     def test_headers_not_synced(self, valid_snapshot_path):
         for node in self.nodes[1:]:
-            msg = "Unable to load UTXO snapshot: The base block header (7cc695046fec709f8c9394b6f928f81e81fd3ac20977bb68760fa1faa7916ea2) must appear in the headers chain. Make sure all headers are syncing, and call loadtxoutset again."
+            msg = "Unable to load UTXO snapshot: The base block header (52ba7d96e860e35931a449680a831dd8c0c54429ba08bc19707db4854430eb74) must appear in the headers chain. Make sure all headers are syncing, and call loadtxoutset again."
             assert_raises_rpc_error(-32603, msg, node.loadtxoutset, valid_snapshot_path)
 
     def test_invalid_chainstate_scenarios(self):
@@ -228,7 +228,7 @@ class AssumeutxoTest(BGLTestFramework):
             block_hash = node.getblockhash(height)
             node.invalidateblock(block_hash)
             assert_equal(node.getblockcount(), height - 1)
-            msg = "Unable to load UTXO snapshot: The base block header (7cc695046fec709f8c9394b6f928f81e81fd3ac20977bb68760fa1faa7916ea2) is part of an invalid chain."
+            msg = "Unable to load UTXO snapshot: The base block header (52ba7d96e860e35931a449680a831dd8c0c54429ba08bc19707db4854430eb74) is part of an invalid chain."
             assert_raises_rpc_error(-32603, msg, node.loadtxoutset, dump_output_path)
             node.reconsiderblock(block_hash)
 
@@ -446,7 +446,7 @@ class AssumeutxoTest(BGLTestFramework):
         def check_dump_output(output):
             assert_equal(
                 output['txoutset_hash'],
-                "d2b051ff5e8eef46520350776f4100dd710a63447a8e01d917e92e79751a63e2")
+                "efb21c0f6a7e5efc5d4882ec3cc23951d51615951035588895e429b07b19b723")
             assert_equal(output["nchaintx"], blocks[SNAPSHOT_BASE_HEIGHT].chain_tx)
 
         check_dump_output(dump_output)
@@ -476,7 +476,7 @@ class AssumeutxoTest(BGLTestFramework):
         dump_output4 = n0.dumptxoutset(path='utxos4.dat', rollback=prev_snap_height)
         assert_equal(
             dump_output4['txoutset_hash'],
-            "45ac2777b6ca96588210e2a4f14b602b41ec37b8b9370673048cc0af434a1ec8")
+            "5cff0a909d6ad9eb718bb2e43d6823688e744f92400679433408a0cb5694645b")
         assert_not_equal(sha256sum_file(dump_output['path']), sha256sum_file(dump_output4['path']))
 
         # Use a hash instead of a height

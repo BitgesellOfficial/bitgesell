@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE(addrman_new_collisions)
 
     BOOST_CHECK_EQUAL(addrman->Size(), num_addrs);
 
-    while (num_addrs < 22) { // Magic number! 250.1.1.1 - 250.1.1.22 do not collide with deterministic key = 1
+    while (num_addrs < 26) { // Magic number! 250.1.1.1 - 250.1.1.22 do not collide with deterministic key = 1
         CService addr = ResolveService("250.1.1." + ToString(++num_addrs));
         BOOST_CHECK(addrman->Add({CAddress(addr, NODE_NONE)}, source));
 

@@ -35,7 +35,9 @@ bool Warnings::Set(warning_type id, bilingual_str message)
 
 bool Warnings::Unset(warning_type id)
 {
-    return WITH_LOCK(m_mutex, return m_warnings.erase(id));
+    auto success{WITH_LOCK(m_mutex, return m_warnings.erase(id))};
+    if (success) uiInterface.NotifyAlertChanged();
+    return success;
 }
 
 std::vector<bilingual_str> Warnings::GetMessages() const

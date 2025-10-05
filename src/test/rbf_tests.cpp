@@ -362,7 +362,7 @@ BOOST_FIXTURE_TEST_CASE(improves_feerate, TestChain100Setup)
     const CAmount normal_fee{CENT/10};
 
     // low feerate parent with normal feerate child
-    const auto tx1 = make_tx(/*inputs=*/ {m_coinbase_txns[0], m_coinbase_txns[1]}, /*output_values=*/ {160 * COIN});
+    const auto tx1 = make_tx(/*inputs=*/ {m_coinbase_txns[0], m_coinbase_txns[1]}, /*output_values=*/ {50 * COIN});
     AddToMempool(pool, entry.Fee(low_fee).FromTx(tx1));
     const auto tx2 = make_tx(/*inputs=*/ {tx1}, /*output_values=*/ {995 * CENT});
     AddToMempool(pool, entry.Fee(normal_fee).FromTx(tx2));
@@ -456,13 +456,13 @@ BOOST_FIXTURE_TEST_CASE(calc_feerate_diagram_rbf, TestChain100Setup)
 
     // low -> high -> medium fee transactions that would result in two chunks together since they
     // are all same size
-    const auto low_tx = make_tx(/*inputs=*/ {m_coinbase_txns[0]}, /*output_values=*/ {160 * COIN});
+    const auto low_tx = make_tx(/*inputs=*/ {m_coinbase_txns[0]}, /*output_values=*/ {10 * COIN});
     AddToMempool(pool, entry.Fee(low_fee).FromTx(low_tx));
 
     const auto entry_low = pool.GetIter(low_tx->GetHash()).value();
     const auto low_size = entry_low->GetTxSize();
 
-    const auto replacement_tx = make_tx(/*inputs=*/ {m_coinbase_txns[0]}, /*output_values=*/ {159 * COIN});
+    const auto replacement_tx = make_tx(/*inputs=*/ {m_coinbase_txns[0]}, /*output_values=*/ {9 * COIN});
     auto entry_replacement = entry.FromTx(replacement_tx);
 
     // Replacement of size 1
@@ -492,7 +492,7 @@ BOOST_FIXTURE_TEST_CASE(calc_feerate_diagram_rbf, TestChain100Setup)
     }
 
     // Add a second transaction to the cluster that will make a single chunk, to be evicted in the RBF
-    const auto high_tx = make_tx(/*inputs=*/ {low_tx}, /*output_values=*/ {1145 * CENT});
+    const auto high_tx = make_tx(/*inputs=*/ {low_tx}, /*output_values=*/ {995 * CENT});
     AddToMempool(pool, entry.Fee(high_fee).FromTx(high_tx));
     const auto entry_high = pool.GetIter(high_tx->GetHash()).value();
     const auto high_size = entry_high->GetTxSize();
@@ -524,7 +524,7 @@ BOOST_FIXTURE_TEST_CASE(calc_feerate_diagram_rbf, TestChain100Setup)
     }
 
     // third transaction causes the topology check to fail
-    const auto normal_tx = make_tx(/*inputs=*/ {high_tx}, /*output_values=*/ {1145 * CENT});
+    const auto normal_tx = make_tx(/*inputs=*/ {high_tx}, /*output_values=*/ {995 * CENT});
     AddToMempool(pool, entry.Fee(normal_fee).FromTx(normal_tx));
     const auto entry_normal = pool.GetIter(normal_tx->GetHash()).value();
 

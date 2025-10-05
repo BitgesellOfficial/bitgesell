@@ -83,7 +83,8 @@ void initialize()
     static const auto testing_setup = MakeNoLogFileContext<const TestingSetup>();
     g_setup = testing_setup.get();
     for (uint32_t i = 0; i < uint32_t{NUM_COINS}; ++i) {
-        COINS[i] = COutPoint{Txid::FromUint256((HashWriter() << i).GetHash()), i};
+        CHashWriterKeccak h(SER_GETHASH, PROTOCOL_VERSION);
+        COINS[i] = COutPoint{Txid::FromUint256((h << i).GetHash()), i};
     }
     size_t outpoints_index = 0;
     // 2 transactions same txid different witness

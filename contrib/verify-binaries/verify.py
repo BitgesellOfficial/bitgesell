@@ -48,7 +48,7 @@ from pathlib import PurePath, Path
 # The primary host; this will fail if we can't retrieve files from here.
 HOST1 = "https://bitcoincore.org"
 HOST2 = "https://bitcoin.org"
-VERSIONPREFIX = "bitcoin-core-"
+VERSIONPREFIX = "bitgesell-core-"
 SUMS_FILENAME = 'SHA256SUMS'
 SIGNATUREFILENAME = f"{SUMS_FILENAME}.asc"
 
@@ -98,106 +98,6 @@ def bool_from_env(key, default=False) -> bool:
 
 VERSION_FORMAT = "<major>.<minor>[.<patch>][-rc[0-9]][-platform]"
 VERSION_EXAMPLE = "22.0 or 23.1-rc1-darwin.dmg or 27.0-x86_64-linux-gnu"
-
-parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument(
-    'version', type=str, help=(
-        f'version of the bitcoin release to download; of the format '
-        f'{VERSION_FORMAT}. Example: {VERSION_EXAMPLE}')
-)
-parser.add_argument(
-    '-v', '--verbose', action='store_true',
-    default=bool_from_env('BINVERIFY_VERBOSE'),
-)
-parser.add_argument(
-    '-q', '--quiet', action='store_true',
-    default=bool_from_env('BINVERIFY_QUIET'),
-)
-parser.add_argument(
-    '--cleanup', action='store_true',
-    default=bool_from_env('BINVERIFY_CLEANUP'),
-    help='if specified, clean up files afterwards'
-)
-parser.add_argument(
-    '--import-keys', action='store_true',
-    default=bool_from_env('BINVERIFY_IMPORTKEYS'),
-    help='if specified, ask to import each unknown builder key'
-)
-parser.add_argument(
-    '--require-all-hosts', action='store_true',
-    default=bool_from_env('BINVERIFY_REQUIRE_ALL_HOSTS'),
-    help=(
-        f'If set, require all hosts ({HOST1}, {HOST2}) to provide signatures. '
-        '(Sometimes bitcoin.org lags behind bitcoincore.org.)')
-)
-parser.add_argument(
-    '--min-good-sigs', type=int, action='store', nargs='?',
-    default=int(os.environ.get('BINVERIFY_MIN_GOOD_SIGS', 3)),
-    help=(
-        'The minimum number of good signatures to require successful termination.'),
-)
-parser.add_argument(
-    '--keyserver', action='store', nargs='?',
-    default=os.environ.get('BINVERIFY_KEYSERVER', 'hkp://keyserver.ubuntu.com'),
-    help='which keyserver to use',
-)
-parser.add_argument(
-    '--trusted-keys', action='store', nargs='?',
-    default=os.environ.get('BINVERIFY_TRUSTED_KEYS', ''),
-    help='A list of trusted signer GPG keys, separated by commas. Not "trusted keys" in the GPG sense.',
-)
-parser.add_argument(
-    '--json', action='store_true',
-    default=bool_from_env('BINVERIFY_JSON'),
-    help='If set, output the result as JSON',
-)
-
-
-class ReturnCode(enum.IntEnum):
-    SUCCESS = 0
-    INTEGRITY_FAILURE = 1
-    FILE_GET_FAILED = 4
-    FILE_MISSING_FROM_ONE_HOST = 5
-    FILES_NOT_EQUAL = 6
-    NO_BINARIES_MATCH = 7
-    NOT_ENOUGH_GOOD_SIGS = 9
-    BINARY_DOWNLOAD_FAILED = 10
-    BAD_VERSION = 11
-
-
-def set_up_logger(is_verbose: bool = True) -> logging.Logger:
-    """Set up a logger that writes to stderr."""
-    log = logging.getLogger(__name__)
-    log.setLevel(logging.INFO if is_verbose else logging.WARNING)
-    console = logging.StreamHandler(sys.stderr)  # log to stderr
-    console.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('[%(levelname)s] %(message)s')
-    console.setFormatter(formatter)
-    log.addHandler(console)
-    return log
-
-
-log = set_up_logger()
-
-
-def indent(output: str) -> str:
-    return textwrap.indent(output, '  ')
-
-
-def bool_from_env(key, default=False) -> bool:
-    if key not in os.environ:
-        return default
-    raw = os.environ[key]
-
-    if raw.lower() in ('1', 'true'):
-        return True
-    elif raw.lower() in ('0', 'false'):
-        return False
-    raise ValueError(f"Unrecognized environment value {key}={raw!r}")
-
-
-VERSION_FORMAT = "<major>.<minor>[.<patch>][-rc[0-9]][-platform]"
-VERSION_EXAMPLE = "22.0-x86_64 or 0.21.0-rc2-osx"
 
 def parse_version_string(version_str):
     # "<version>[-rcN][-platform]"
@@ -552,6 +452,7 @@ def verify_binary_hashes(hashes_to_verify: list[list[str]]) -> tuple[ReturnCode,
     return (ReturnCode.SUCCESS, files_to_hashes)
 
 
+def verify_published_handler(args: argparse.Namespace) -> ReturnCode:
     WORKINGDIR = Path(tempfile.gettempdir()) / f"bitcoin_verify_binaries.{args.version}"
 
     def cleanup():
@@ -587,37 +488,25 @@ def verify_binary_hashes(hashes_to_verify: list[list[str]]) -> tuple[ReturnCode,
         return got_sig_status
 
     # Multi-sig verification is available after 22.0.
-    if version_tuple[0] >= 22:
-        min_good_sigs = args.min_good_sigs
-        gpg_allowed_codes = [0, 2]  # 2 is returned when untrusted signatures are present.
-
-        got_sums_status = get_files_from_hosts_and_compare(
-            hosts, remote_sums_path, SUMS_FILENAME, args.require_all_hosts)
-        if got_sums_status != ReturnCode.SUCCESS:
-            return got_sums_status
-
-        gpg_retval, gpg_output, good, unknown, bad = check_multisig(SIGNATUREFILENAME, args)
-    else:
+    if version_tuple[0] < 22:
         log.error("Version too old - single sig not supported. Use a previous "
                   "version of this script from the repo.")
         return ReturnCode.BAD_VERSION
 
-    if gpg_retval not in gpg_allowed_codes:
-        if gpg_retval == 1:
-            log.critical(f"Bad signature (code: {gpg_retval}).")
-        if gpg_retval == 2:
-            log.critical(
-                "gpg error. Do you have the Bitcoin Core binary release "
-                "signing key installed?")
-        else:
-            log.critical(f"unexpected GPG exit code ({gpg_retval})")
+    got_sums_status = get_files_from_hosts_and_compare(
+        hosts, remote_sums_path, SUMS_FILENAME, args.require_all_hosts)
+    if got_sums_status != ReturnCode.SUCCESS:
+        return got_sums_status
 
-        log.error(f"gpg output:\n{indent(gpg_output)}")
-        cleanup()
-        return ReturnCode.INTEGRITY_FAILURE
+    # Verify the signature on the SHA256SUMS file
+    sigs_status, good_trusted, good_untrusted, unknown, bad = verify_shasums_signature(SIGNATUREFILENAME, SUMS_FILENAME, args)
+    if sigs_status != ReturnCode.SUCCESS:
+        if sigs_status == ReturnCode.INTEGRITY_FAILURE:
+            cleanup()
+        return sigs_status
 
     # Extract hashes and filenames
-    hashes_to_verify = parse_sums_file(SUMS_FILENAME, os_filter)
+    hashes_to_verify = parse_sums_file(SUMS_FILENAME, [os_filter])
     if not hashes_to_verify:
         available_versions = ["-".join(line[1].split("-")[2:]) for line in parse_sums_file(SUMS_FILENAME, [])]
         closest_match = difflib.get_close_matches(os_filter, available_versions, cutoff=0, n=1)[0]
@@ -648,23 +537,10 @@ def verify_binary_hashes(hashes_to_verify: list[list[str]]) -> tuple[ReturnCode,
             return ReturnCode.BINARY_DOWNLOAD_FAILED
 
     # verify hashes
-    offending_files = []
-    files_to_hashes = {}
+    hashes_status, files_to_hashes = verify_binary_hashes(hashes_to_verify)
+    if hashes_status != ReturnCode.SUCCESS:
+        return hashes_status
 
-    for hash_expected, binary_filename in hashes_to_verify:
-        with open(binary_filename, 'rb') as binary_file:
-            hash_calculated = sha256(binary_file.read()).hexdigest()
-        if hash_calculated != hash_expected:
-            offending_files.append(binary_filename)
-        else:
-            files_to_hashes[binary_filename] = hash_calculated
-
-    if offending_files:
-        joined_files = '\n'.join(offending_files)
-        log.critical(
-            "Hashes don't match.\n"
-            f"Offending files:\n{joined_files}")
-        return ReturnCode.INTEGRITY_FAILURE
 
     if args.cleanup:
         cleanup()

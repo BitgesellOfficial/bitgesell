@@ -121,7 +121,8 @@ FUZZ_TARGET(addrman, .init = initialize_addrman)
     auto addr_man_ptr = std::make_unique<AddrManDeterministic>(netgroupman, fuzzed_data_provider, GetCheckRatio());
     if (fuzzed_data_provider.ConsumeBool()) {
         const std::vector<uint8_t> serialized_data{ConsumeRandomLengthByteVector(fuzzed_data_provider)};
-        CDataStream ds(serialized_data, SER_NETWORK, PROTOCOL_VERSION);
+        std::span<const std::byte> byte_span{reinterpret_cast<const std::byte*>(serialized_data.data()),serialized_data.size() };
+        CDataStream ds(byte_span, SER_NETWORK, PROTOCOL_VERSION);
         try {
             ds >> *addr_man_ptr;
         } catch (const std::ios_base::failure&) {
@@ -143,19 +144,30 @@ FUZZ_TARGET(addrman, .init = initialize_addrman)
                 LIMITED_WHILE(fuzzed_data_provider.ConsumeBool(), 10000) {
                     addresses.push_back(ConsumeAddress(fuzzed_data_provider));
                 }
-                addr_man.Add(addresses, ConsumeNetAddr(fuzzed_data_provider), std::chrono::seconds{ConsumeTime(fuzzed_data_provider, 0, 100000000)});
+                auto net_addr = ConsumeNetAddr(fuzzed_data_provider);
+                auto time_penalty = std::chrono::seconds{ConsumeTime(fuzzed_data_provider, 0, 100000000)};
+                addr_man.Add(addresses, net_addr, time_penalty);
             },
             [&] {
-                addr_man.Good(ConsumeService(fuzzed_data_provider), NodeSeconds{std::chrono::seconds{ConsumeTime(fuzzed_data_provider)}});
+                auto addr = ConsumeService(fuzzed_data_provider);
+                auto time = NodeSeconds{std::chrono::seconds{ConsumeTime(fuzzed_data_provider)}};
+                addr_man.Good(addr, time);
             },
             [&] {
-                addr_man.Attempt(ConsumeService(fuzzed_data_provider), fuzzed_data_provider.ConsumeBool(), NodeSeconds{std::chrono::seconds{ConsumeTime(fuzzed_data_provider)}});
+                auto addr = ConsumeService(fuzzed_data_provider);
+                auto count_failure = fuzzed_data_provider.ConsumeBool();
+                auto time = NodeSeconds{std::chrono::seconds{ConsumeTime(fuzzed_data_provider)}};
+                addr_man.Attempt(addr, count_failure, time);
             },
             [&] {
-                addr_man.Connected(ConsumeService(fuzzed_data_provider), NodeSeconds{std::chrono::seconds{ConsumeTime(fuzzed_data_provider)}});
+                auto addr = ConsumeService(fuzzed_data_provider);
+                auto time = NodeSeconds{std::chrono::seconds{ConsumeTime(fuzzed_data_provider)}};
+                addr_man.Connected(addr, time);
             },
             [&] {
-                addr_man.SetServices(ConsumeService(fuzzed_data_provider), ConsumeWeakEnum(fuzzed_data_provider, ALL_SERVICE_FLAGS));
+                auto addr = ConsumeService(fuzzed_data_provider);
+                auto n_services = ConsumeWeakEnum(fuzzed_data_provider, ALL_SERVICE_FLAGS);
+                addr_man.SetServices(addr, n_services);
             });
     }
     const AddrMan& const_addr_man{addr_man};

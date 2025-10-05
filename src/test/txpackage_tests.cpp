@@ -487,16 +487,16 @@ BOOST_AUTO_TEST_CASE(package_submission_tests)
         auto tx_parent_1 = MakeTransactionRef(CreateValidMempoolTransaction(/*input_transaction=*/m_coinbase_txns[1], /*input_vout=*/0,
                                                                             /*input_height=*/0, /*input_signing_key=*/coinbaseKey,
                                                                             /*output_destination=*/parent_locking_script,
-                                                                            /*output_amount=*/CAmount(50 * COIN - low_fee_amt), /*submit=*/false));
+                                                                            /*output_amount=*/CAmount(200 * COIN - low_fee_amt), /*submit=*/false));
         auto tx_parent_2 = MakeTransactionRef(CreateValidMempoolTransaction(/*input_transaction=*/m_coinbase_txns[2], /*input_vout=*/0,
                                                                             /*input_height=*/0, /*input_signing_key=*/coinbaseKey,
                                                                             /*output_destination=*/parent_locking_script,
-                                                                            /*output_amount=*/CAmount(50 * COIN - 800), /*submit=*/false));
+                                                                            /*output_amount=*/CAmount(200 * COIN - 800), /*submit=*/false));
 
         auto tx_child_missing_parent = MakeTransactionRef(CreateValidMempoolTransaction({tx_parent_1, tx_parent_2},
                                                                                         {{tx_parent_1->GetHash(), 0}, {tx_parent_2->GetHash(), 0}},
                                                                                         /*input_height=*/0, {parent_key},
-                                                                                        {{49 * COIN, child_locking_script}}, /*submit=*/false));
+                                                                                        {{199 * COIN, child_locking_script}}, /*submit=*/false));
 
         Package package_missing_parent{tx_parent_1, tx_child_missing_parent};
 

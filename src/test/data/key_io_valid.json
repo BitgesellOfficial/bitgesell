@@ -91,15 +91,6 @@
         }
     ],
     [
-        "BJbDxW4yf9URyQV24y1HWMR5JPiR5ujmjt",
-        "a9149b1c0d2f7958c547d03d696543d2e840c371967c87",
-        {
-            "chain": "testnet4",
-            "isCompressed": false,
-            "isPrivkey": true
-        }
-    ],
-    [
         "cV83kKisF3RQSvXbUCm9ox3kaz5JjEUBWcx8tNydfGJcyeUxuH47",
         "e0fcd4ce4e3d0e3de091f21415bb7cd011fac288c42020a879f28c2a4387df9b",
         {
@@ -153,16 +144,7 @@
         }
     ],
     [
-        "F5AZPJvyaGkCbxRHFKCHuw92bF1DX79ZT1",
-        "76a914f8b56aa35b7044e56acd7d667c6b3d6c0d05fdb688ac",
-        {
-            "chain": "testnet4",
-            "isPrivkey": false,
-            "tryCaseFlip": true
-        }
-    ],
-    [
-        "tb1quyl9ujpgwr2chdzdnnalen48sup245vdfnh2jxhsuq3yx80rrwlq5hqfe4",
+        "tbgl1quyl9ujpgwr2chdzdnnalen48sup245vdfnh2jxhsuq3yx80rrwlq77rr07",
         "0020e13e5e482870d58bb44d9cfbfccea78702aad18d4ceea91af0e022431de31bbe",
         {
             "chain": "testnet4",
@@ -171,7 +153,7 @@
         }
     ],
     [
-        "tb1p35n52jy6xkm4wd905tdy8qtagrn73kqdz73xe4zxpvq9t3fp50aqk3s6gz",
+        "tbgl1p35n52jy6xkm4wd905tdy8qtagrn73kqdz73xe4zxpvq9t3fp50aqucns7f",
         "51208d2745489a35b75734afa2da43817d40e7e8d80d17a26cd4460b0055c521a3fa",
         {
             "chain": "testnet4",
@@ -180,7 +162,7 @@
         }
     ],
     [
-        "tb1rgv5m6uvdk3kc7qsuz0c79v88ycr5w4wa",
+        "tbgl1rgv5m6uvdk3kc7qsuz0c79v88yckstptw",
         "53104329bd718db46d8f021c13f1e2b0e726",
         {
             "chain": "testnet4",

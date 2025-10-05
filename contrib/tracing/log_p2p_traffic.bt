@@ -25,4 +25,3 @@ usdt:./build/bin/BGLd:net:outbound_message
 
   printf("outbound '%s' msg to peer %d (%s, %s) with %d bytes\n", $msg_type, $peer_id, $peer_type, $peer_addr, $msg_len);
 }
-

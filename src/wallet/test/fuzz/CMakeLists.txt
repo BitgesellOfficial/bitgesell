@@ -12,4 +12,4 @@ target_sources(fuzz
     spend.cpp
     wallet_bdb_parser.cpp
 )
-target_link_libraries(fuzz bitcoin_wallet)
+target_link_libraries(fuzz BGL_wallet)

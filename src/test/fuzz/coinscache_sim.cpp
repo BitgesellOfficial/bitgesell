@@ -148,13 +148,9 @@ class CoinsViewBottom final : public CCoinsView
 public:
     std::optional<Coin> GetCoin(const COutPoint& outpoint) const final
     {
-        auto it = m_data.find(outpoint);
-        if (it == m_data.end()) {
-            return false;
-        } else {
-            coin = it->second;
-            return true; // TODO GetCoin shouldn't return spent coins
-        }
+        // TODO GetCoin shouldn't return spent coins
+        if (auto it = m_data.find(outpoint); it != m_data.end()) return it->second;
+        return std::nullopt;
     }
 
     bool HaveCoin(const COutPoint& outpoint) const final

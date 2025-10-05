@@ -200,18 +200,18 @@ class CoinStatsIndexTest(BGLTestFramework):
         self.sync_all()
 
         for hash_option in index_hash_options:
-            res7 = index_node.gettxoutsetinfo(hash_option, 109)
-            assert_equal(res7['total_unspendable_amount'], Decimal('380.99928980'))
+            res7 = index_node.gettxoutsetinfo(hash_option, 108)
+            assert_equal(res7['total_unspendable_amount'], Decimal('220.99928980'))
             assert_equal(res7['block_info'], {
-                'unspendable': Decimal('160.00000000'),
-                'prevout_spent': 0,
-                'new_outputs_ex_coinbase': 0,
-                'coinbase': 40,
+                'unspendable': Decimal('20.99900900'),
+                'prevout_spent':  Decimal('221.00000000'),
+                'new_outputs_ex_coinbase': Decimal('199.99999000'),
+                'coinbase': Decimal('200.00100100'),
                 'unspendables': {
                     'genesis_block': 0,
                     'bip30': 0,
-                    'scripts': 0,
-                    'unclaimed_rewards': Decimal('160.00000000')
+                    'scripts': Decimal('20.99000000'),
+                    'unclaimed_rewards': Decimal('0.00900900')
                 }
             })
             self.block_sanity_check(res7['block_info'])

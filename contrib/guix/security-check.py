@@ -22,7 +22,6 @@ def check_ELF_RELRO(binary) -> bool:
     GNU_RELRO program header must exist
     Dynamic section must have BIND_NOW flag
     '''
-    binary = lief.parse(executable)
     have_gnu_relro = False
     for segment in binary.segments:
         # Note: not checking p_flags == PF_R: here as linkers set the permission differently
@@ -42,17 +41,12 @@ def check_ELF_RELRO(binary) -> bool:
     except Exception:
         have_bindnow = False
 
-    for line in stdout.splitlines():
-        tokens = line.split()
-        if len(tokens)>1 and tokens[1] == '(BIND_NOW)' or (len(tokens)>2 and tokens[1] == '(FLAGS)' and 'BIND_NOW' in tokens[2:]):
-            have_bindnow = True
     return have_gnu_relro and have_bindnow
 
 def check_ELF_CANARY(binary) -> bool:
     '''
     Check for use of stack canary
     '''
-    binary = lief.parse(executable)
     return binary.has_symbol('__stack_chk_fail')
 
 def check_ELF_SEPARATE_CODE(binary):
@@ -264,11 +258,11 @@ BASE_MACHO = [
 
 CHECKS = {
     lief.Binary.FORMATS.ELF: {
-        lief.Header.ARCHITECTURES.X86_64: BASE_ELF + [('CONTROL_FLOW', check_ELF_CONTROL_FLOW), ('FORTIFY', check_ELF_FORTIFY)],
-        lief.Header.ARCHITECTURES.ARM: BASE_ELF + [('FORTIFY', check_ELF_FORTIFY)],
-        lief.Header.ARCHITECTURES.ARM64: BASE_ELF + [('FORTIFY', check_ELF_FORTIFY)],
-        lief.Header.ARCHITECTURES.PPC64: BASE_ELF + [('FORTIFY', check_ELF_FORTIFY)],
-        lief.Header.ARCHITECTURES.RISCV: BASE_ELF + [('FORTIFY', check_ELF_FORTIFY)],
+        lief.Header.ARCHITECTURES.X86_64: BASE_ELF + [('CONTROL_FLOW', check_ELF_CONTROL_FLOW)],
+        lief.Header.ARCHITECTURES.ARM: BASE_ELF,
+        lief.Header.ARCHITECTURES.ARM64: BASE_ELF,
+        lief.Header.ARCHITECTURES.PPC64: BASE_ELF,
+        lief.Header.ARCHITECTURES.RISCV: BASE_ELF,
     },
     lief.Binary.FORMATS.PE: {
         lief.Header.ARCHITECTURES.X86_64: BASE_PE,

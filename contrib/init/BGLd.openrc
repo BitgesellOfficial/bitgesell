@@ -1,3 +1,4 @@
+
 #!/sbin/openrc-run
 
 # backward compatibility for existing gentoo layout 
@@ -18,8 +19,8 @@ BGLD_BIN=${BGLD_BIN:-/usr/bin/BGLd}
 BGLD_NICE=${BGLD_NICE:-${NICELEVEL:-0}}
 BGLD_OPTS="${BGLD_OPTS:-${BGL_OPTS}}"
 
-name="BGL Core Daemon"
-description="BGL cryptocurrency P2P network daemon"
+name="Bitgesell Core Daemon"
+description="Bitgesell cryptocurrency P2P network daemon"
 
 command="/usr/bin/BGLd"
 command_args="-pid=\"${BGLD_PIDFILE}\" \
@@ -60,16 +61,17 @@ start_pre() {
 	"${BGLD_PIDDIR}"
 
 	checkpath -f \
-	-o ${BGLD_USER}:${BGLD_GROUP} \
+	-o "${BGLD_USER}:${BGLD_GROUP}" \
 	-m 0660 \
-	${BGLD_CONFIGFILE}
+	"${BGLD_CONFIGFILE}"
 
 	checkconfig || return 1
 }
 
 checkconfig()
 {
-	if ! grep -qs '^rpcpassword=' "${BGLD_CONFIGFILE}" ; then
+	if grep -qs '^rpcuser=' "${BGLD_CONFIGFILE}" && \
+		! grep -qs '^rpcpassword=' "${BGLD_CONFIGFILE}" ; then
 		eerror ""
 		eerror "ERROR: You must set a secure rpcpassword to run BGLd."
 		eerror "The setting must appear in ${BGLD_CONFIGFILE}"
@@ -84,7 +86,7 @@ checkconfig()
 		eerror "It is recommended that you also set alertnotify so you are "
 		eerror "notified of problems:"
 		eerror ""
-		eerror "ie: alertnotify=echo %%s | mail -s \"BGL Alert\"" \
+		eerror "ie: alertnotify=echo %%s | mail -s \"Bitgesell Alert\"" \
 			"admin@foo.com"
 		eerror ""
 		return 1

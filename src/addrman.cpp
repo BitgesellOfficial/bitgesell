@@ -63,7 +63,7 @@ int AddrInfo::GetNewBucket(const uint256& nKey, const CNetAddr& src, const NetGr
 int AddrInfo::GetBucketPosition(const uint256& nKey, bool fNew, int bucket) const
 {
 
-    uint64_t hash1 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << (fNew ? uint8_t{'D'} : uint8_t{'T'}) << bucket << GetKey()).GetCheapHash();
+    uint64_t hash1 = (CHashWriterKeccak(SER_GETHASH, 0) << nKey << (fNew ? uint8_t{'X'} : uint8_t{'T'}) << bucket << GetKey()).GetCheapHash();
     return hash1 % ADDRMAN_BUCKET_SIZE;
 }
 

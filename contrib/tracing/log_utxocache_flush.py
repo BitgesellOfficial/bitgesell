@@ -7,7 +7,7 @@ import sys
 import ctypes
 from bcc import BPF, USDT
 
-"""Example logging BGL Core utxo set cache flushes utilizing
+"""Example logging Bitcoin Core utxo set cache flushes utilizing
     the utxocache:flush tracepoint."""
 
 # USAGE:  ./contrib/tracing/log_utxocache_flush.py path/to/bitcoind
@@ -72,7 +72,7 @@ def print_event(event):
 
 def main(pid):
     print(f"Hooking into BGLd with pid {pid}")
-    bitcoind_with_usdts = USDT(pid=int(pid))
+    BGLd_with_usdts = USDT(pid=int(pid))
 
     # attaching the trace functions defined in the BPF program
     # to the tracepoints

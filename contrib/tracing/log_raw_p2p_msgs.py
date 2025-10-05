@@ -146,7 +146,7 @@ def print_message(event, inbound):
 
 def main(pid):
     print(f"Hooking into BGLd with pid {pid}")
-    bitcoind_with_usdts = USDT(pid=int(pid))
+    BGLd_with_usdts = USDT(pid=int(pid))
 
     # attaching the trace functions defined in the BPF program to the tracepoints
     BGLd_with_usdts.enable_probe(

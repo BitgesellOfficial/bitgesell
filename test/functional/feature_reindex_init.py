@@ -4,13 +4,13 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test reindex works on init after a db load failure"""
 
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 from test_framework.util import assert_equal
 import os
 import shutil
 
 
-class ReindexInitTest(BitcoinTestFramework):
+class ReindexInitTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
 

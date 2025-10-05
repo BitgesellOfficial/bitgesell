@@ -1,4 +1,4 @@
-// Copyright (c) 2024 The Bitcoin Core developers
+// Copyright (c) 2024-present The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -141,7 +141,8 @@ FUZZ_TARGET(feefrac_div_fallback)
     assert(Abs256(res) == quot_abs);
 
     // Compare approximately with floating-point.
-    long double expect = std::floor(num_high * 4294967296.0L + num_low) / den;
+    long double expect = round_down ? std::floor(num_high * 4294967296.0L + num_low) / den
+                                    : std::ceil(num_high * 4294967296.0L + num_low) / den;
     // Expect to be accurate within 50 bits of precision, +- 1 sat.
     if (expect == 0.0L) {
         assert(res >= -1 && res <= 1);
@@ -183,7 +184,7 @@ FUZZ_TARGET(feefrac_mul_div)
     // If the result is not representable by an int64_t, bail out.
     if ((is_negative && quot_abs > MAX_ABS_INT64) || (!is_negative && quot_abs >= MAX_ABS_INT64)) {
         // If 0 <= mul32 <= div, then the result is guaranteed to be representable. In the context
-        // of the Evaluate call below, this corresponds to 0 <= at_size <= feefrac.size.
+        // of the Evaluate{Down,Up} calls below, this corresponds to 0 <= at_size <= feefrac.size.
         assert(mul32 < 0 || mul32 > div);
         return;
     }
@@ -198,7 +199,8 @@ FUZZ_TARGET(feefrac_mul_div)
     assert(res == res_fallback);
 
     // Compare approximately with floating-point.
-    long double expect = std::floor(static_cast<long double>(mul32) * mul64 / div);
+    long double expect = round_down ? std::floor(static_cast<long double>(mul32) * mul64 / div)
+                                    : std::ceil(static_cast<long double>(mul32) * mul64 / div);
     // Expect to be accurate within 50 bits of precision, +- 1 sat.
     if (expect == 0.0L) {
         assert(res >= -1 && res <= 1);
@@ -210,9 +212,11 @@ FUZZ_TARGET(feefrac_mul_div)
         assert(res <= expect * 0.999999999999999L + 1.0L);
     }
 
-    // Verify the behavior of FeeFrac::Evaluate.
+    // Verify the behavior of FeeFrac::Evaluate{Down,Up}.
     if (mul32 >= 0) {
-        auto res_fee = FeeFrac{mul64, div}.EvaluateFee(mul32);
+        auto res_fee = round_down ?
+            FeeFrac{mul64, div}.EvaluateFeeDown(mul32) :
+            FeeFrac{mul64, div}.EvaluateFeeUp(mul32);
         assert(res == res_fee);
 
         // Compare approximately with CFeeRate.

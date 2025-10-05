@@ -19,7 +19,7 @@ from test_framework.script import (
 
 from test_framework.script_util import bulk_vout
 
-from test_framework.test_framework import BitcoinTestFramework
+from test_framework.test_framework import BGLTestFramework
 from test_framework.util import (
     assert_equal,
     assert_greater_than,
@@ -59,7 +59,7 @@ def cleanup(func):
 
     return wrapper
 
-class WalletV3Test(BitcoinTestFramework):
+class WalletV3Test(BGLTestFramework):
     def skip_test_if_missing_module(self):
         self.skip_if_no_wallet()
 
@@ -179,7 +179,7 @@ class WalletV3Test(BitcoinTestFramework):
         self.send_tx(self.alice, [alice_unspent], outputs, 3)
 
         # bob tries to spend money
-        outputs = {self.bob.getnewaddress() : 1.999}
+        outputs = {self.bob.getnewaddress() : 2.000}
         bob_tx = self.bob.createrawtransaction(inputs=[], outputs=outputs, version=3)
 
         assert_raises_rpc_error(
@@ -208,7 +208,7 @@ class WalletV3Test(BitcoinTestFramework):
         self.send_tx(self.bob, [bob_unspent], outputs, 3)
 
         # alice tries to spend money
-        outputs = {self.alice.getnewaddress() : 1.999}
+        outputs = {self.alice.getnewaddress() : 6.000}
         alice_tx = self.alice.createrawtransaction(inputs=[], outputs=outputs, version=3)
 
         assert_raises_rpc_error(
@@ -301,7 +301,7 @@ class WalletV3Test(BitcoinTestFramework):
         outputs = {self.charlie.getnewaddress() : alice_v2_unspent['amount'] + alice_unspent['amount'] - Decimal(0.00005120)}
         self.send_tx(self.alice, [alice_v2_unspent, alice_unspent], outputs, 3)
         # bob can't create a transaction
-        outputs = {self.bob.getnewaddress() : 1.999}
+        outputs = {self.bob.getnewaddress() : 2.000}
         bob_tx = self.bob.createrawtransaction(inputs=[], outputs=outputs, version=3)
 
         assert_raises_rpc_error(

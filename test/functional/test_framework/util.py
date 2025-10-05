@@ -228,7 +228,7 @@ def assert_array_result(object_array, to_match, expected, should_not_find=False)
 
 
 def check_json_precision():
-    """Make sure json library being used does not lose precision converting BGL values"""
+    """Make sure json library being used does not lose precision converting BTC values"""
     n = Decimal("20000000.00000003")
     satoshis = int(json.loads(json.dumps(float(n))) * 1.0e8)
     if satoshis != 2000000000000003:
@@ -298,7 +298,7 @@ def wait_until_helper_internal(predicate, *, timeout=60, lock=None, timeout_fact
 
     Warning: Note that this method is not recommended to be used in tests as it is
     not aware of the context of the test framework. Using the `wait_until()` members
-    from `BGLTestFramework` or `P2PInterface` class ensures the timeout is
+    from `BitcoinTestFramework` or `P2PInterface` class ensures the timeout is
     properly scaled. Furthermore, `wait_until()` from `P2PInterface` class in
     `p2p.py` has a preset lock.
     """
@@ -557,12 +557,12 @@ def check_node_connections(*, node, num_in, num_out):
 
 # Create large OP_RETURN txouts that can be appended to a transaction
 # to make it large (helper for constructing large transactions). The
-# total serialized size of the txouts is about 6k vbytes.
+# total serialized size of the txouts is about 66k vbytes.
 def gen_return_txouts():
     from .messages import CTxOut
     from .script import CScript, OP_RETURN
-    txouts = [CTxOut(nValue=0, scriptPubKey=CScript([OP_RETURN, b'\x01'*6743]))]
-    assert_equal(sum([len(txout.serialize()) for txout in txouts]), 6758)
+    txouts = [CTxOut(nValue=0, scriptPubKey=CScript([OP_RETURN, b'\x01'*67437]))]
+    assert_equal(sum([len(txout.serialize()) for txout in txouts]), 67456)
     return txouts
 
 

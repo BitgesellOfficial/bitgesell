@@ -39,8 +39,6 @@ int GetPruneTargetGB()
 Intro::Intro(QWidget *parent, int64_t blockchain_size_gb, int64_t chain_state_size_gb) :
     QDialog(parent, GUIUtil::dialog_flags),
     ui(new Ui::Intro),
-    thread(nullptr),
-    signalled(false),
     m_blockchain_size_gb(blockchain_size_gb),
     m_chain_state_size_gb(chain_state_size_gb),
     m_prune_target_gb{GetPruneTargetGB()}
@@ -70,6 +68,7 @@ Intro::Intro(QWidget *parent, int64_t blockchain_size_gb, int64_t chain_state_si
     UpdatePruneLabels(ui->prune->isChecked());
 
     connect(ui->prune, &QCheckBox::toggled, [this](bool prune_checked) {
+        m_prune_checkbox_is_default = false;
         UpdatePruneLabels(prune_checked);
         UpdateFreeSpaceLabel();
     });
@@ -205,7 +204,7 @@ void Intro::setStatus(int status, const QString &message, quint64 bytesAvailable
         ui->freeSpace->setText("");
     } else {
         m_bytes_available = bytesAvailable;
-        if (ui->prune->isEnabled() && !(gArgs.IsArgSet("-prune") && gArgs.GetIntArg("-prune", 0) == 0)) {
+        if (ui->prune->isEnabled() && m_prune_checkbox_is_default) {
             ui->prune->setChecked(m_bytes_available < (m_blockchain_size_gb + m_chain_state_size_gb + 10) * GB_BYTES);
         }
         UpdateFreeSpaceLabel();
@@ -307,7 +306,7 @@ void Intro::UpdatePruneLabels(bool prune_checked)
         //: Explanatory text on the capability of the current prune target.
         tr("(sufficient to restore backups %n day(s) old)", "", expected_backup_days));
     ui->sizeWarningLabel->setText(
-        tr("%1 will download and store a copy of the Bitgesell block chain.").arg(CLIENT_NAME) + " " +
+        tr("%1 will download and store a copy of the Bitcoin block chain.").arg(CLIENT_NAME) + " " +
         storageRequiresMsg.arg(m_required_space_gb) + " " +
         tr("The wallet will also be stored in this directory.")
     );

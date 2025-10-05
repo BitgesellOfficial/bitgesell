@@ -72,7 +72,7 @@ parser = argparse.ArgumentParser(description='Script to get coins from a faucet.
 parser.add_argument('-c', '--cmd', dest='cmd', default='BGL-cli', help='BGL-cli command to use')
 parser.add_argument('-f', '--faucet', dest='faucet', default=DEFAULT_GLOBAL_FAUCET, help='URL of the faucet')
 parser.add_argument('-g', '--captcha', dest='captcha', default=DEFAULT_GLOBAL_CAPTCHA, help='URL of the faucet captcha, or empty if no captcha is needed')
-parser.add_argument('-a', '--addr', dest='addr', default='', help='BGL address to which the faucet should send')
+parser.add_argument('-a', '--addr', dest='addr', default='', help='Bitgesell address to which the faucet should send')
 parser.add_argument('-p', '--password', dest='password', default='', help='Faucet password, if any')
 parser.add_argument('-n', '--amount', dest='amount', default='0.001', help='Amount to request (0.001-0.1, default is 0.001)')
 parser.add_argument('-i', '--imagemagick', dest='imagemagick', default=CONVERT, help='Path to imagemagick convert utility')

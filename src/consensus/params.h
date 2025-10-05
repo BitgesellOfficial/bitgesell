@@ -6,11 +6,14 @@
 #ifndef BGL_CONSENSUS_PARAMS_H
 #define BGL_CONSENSUS_PARAMS_H
 
+#include <script/verify_flags.h>
 #include <uint256.h>
 
+#include <array>
 #include <chrono>
 #include <limits>
 #include <map>
+#include <vector>
 
 namespace Consensus {
 
@@ -30,7 +33,6 @@ constexpr bool ValidDeployment(BuriedDeployment dep) { return dep <= DEPLOYMENT_
 
 enum DeploymentPos : uint16_t {
     DEPLOYMENT_TESTDUMMY,
-    DEPLOYMENT_TAPROOT_DISCARDED,
     DEPLOYMENT_TAPROOT, // Deployment of Schnorr/Taproot (BIPs 340-342)
     // NOTE: Also add new deployments to VersionBitsDeploymentInfo in deploymentinfo.cpp
     MAX_VERSION_BITS_DEPLOYMENTS
@@ -88,7 +90,7 @@ struct Params {
      * - buried in the chain, and
      * - fail if the default script verify flags are applied.
      */
-    std::map<uint256, uint32_t> script_flag_exceptions;
+    std::map<uint256, script_verify_flags> script_flag_exceptions;
     /** Block height and hash at which BIP34 becomes active */
     int BIP34Height;
     uint256 BIP34Hash;

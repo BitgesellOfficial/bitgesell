@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # Copyright (c) 2010 ArtForz -- public domain half-a-node
 # Copyright (c) 2012 Jeff Garzik
-# Copyright (c) 2010-2020 The Bitcoin Core developers
+# Copyright (c) 2010-2022 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
-"""BGL test framework primitive and message structures
+"""Bitcoin test framework primitive and message structures
 
 CBlock, CTransaction, CBlockHeader, CTxIn, CTxOut, etc....:
     data structures that should map to corresponding structures in
-    BGL/primitives
+    bitcoin/primitives
 
 msg_block, msg_tx, msg_headers, etc.:
     data structures that represent network messages
@@ -18,7 +18,6 @@ ser_*, deser_*: functions that handle serialization/deserialization.
 Classes use __slots__ to ensure extraneous attributes aren't accidentally added
 by tests, compromising their intended effect.
 """
-from codecs import encode
 from base64 import b32decode, b32encode
 import copy
 import hashlib
@@ -28,8 +27,6 @@ import random
 import socket
 import time
 import unittest
-
-#import sha3  It causes `hashlib.sha3_256(s)` to fail. It injects sha3 module which mangle with that from hashlib
 
 from test_framework.crypto.siphash import siphash256
 from test_framework.util import assert_equal
@@ -41,8 +38,7 @@ MINIMUM_BLOCK_RESERVED_WEIGHT = 2000
 MAX_BLOOM_FILTER_SIZE = 36000
 MAX_BLOOM_HASH_FUNCS = 50
 
-MAX_BIP125_RBF_SEQUENCE = 0xfffffffd  # Sequence number that is rbf-opt-in (BIP 125) and csv-opt-out (BIP 68)
-COIN = 100000000  # 1 bgl in satoshis
+COIN = 100000000  # 1 btc in satoshis
 MAX_MONEY = 21000000 * COIN
 
 MAX_BIP125_RBF_SEQUENCE = 0xfffffffd  # Sequence number that is rbf-opt-in (BIP 125) and csv-opt-out (BIP 68)
@@ -84,6 +80,9 @@ MAX_OP_RETURN_RELAY = 100_000
 
 DEFAULT_MEMPOOL_EXPIRY_HOURS = 336  # hours
 
+TX_MIN_STANDARD_VERSION = 1
+TX_MAX_STANDARD_VERSION = 3
+
 # Serialization/deserialization tools
 def keccak256(s):
     from sha3 import keccak_256
@@ -94,15 +93,15 @@ def keccak256(s):
     return h.digest()
 
 MAGIC_BYTES = {
-    "mainnet": b"\xf9\xbe\xb4\xd9",
-    "testnet4": b"\x1c\x16\x3f\x28",
-    "regtest": b"\xfa\xbf\xb5\xda",
-    "signet": b"\x0a\x03\xcf\x40",
+    "mainnet": b"\x8a\xb4\x91\xe8",  # mainnet
+    "testnet3": b"\x0b\x11\x09\x07",  # testnet3
+    "regtest": b"\xd9\x8c\xbf\xba",  # regtest
+    "signet": b"\x0a\x03\xcf\x40",  # signet
 }
 
-
 def sha256(s):
-    return hashlib.new('sha256', s).digest()
+    return hashlib.sha256(s).digest()
+
 
 def sha3(s):
     return hashlib.sha3_256(s).digest()
@@ -110,6 +109,7 @@ def sha3(s):
 
 def hash256(s):
     return sha256(sha256(s))
+
 
 def ser_compact_size(l):
     r = b""
@@ -261,6 +261,7 @@ def tx_from_hex(hex_string):
     """Deserialize from hex string to a transaction object"""
     return from_hex(CTransaction(), hex_string)
 
+
 # like from_hex, but without the hex part
 def from_binary(cls, stream):
     """deserialize a binary stream (or bytes object) into an object"""
@@ -273,6 +274,7 @@ def from_binary(cls, stream):
     if was_bytes:
         assert len(stream.read()) == 0
     return obj
+
 
 # Objects that map to bitcoind objects, which can be serialized/deserialized
 
@@ -623,7 +625,7 @@ class CTransaction:
         if len(self.vin) == 0:
             flags = int.from_bytes(f.read(1), "little")
             # Not sure why flags can't be zero, but this
-            # matches the implementation in BGLd
+            # matches the implementation in bitcoind
             if (flags != 0):
                 self.vin = deser_vector(f, CTxIn)
                 self.vout = deser_vector(f, CTxOut)
@@ -675,22 +677,22 @@ class CTransaction:
     @property
     def wtxid_hex(self):
         """Return wtxid (transaction hash with witness) as hex string."""
-        return hash256(self.serialize())[::-1].hex()
+        return sha256(self.serialize())[::-1].hex()
 
     @property
     def wtxid_int(self):
         """Return wtxid (transaction hash with witness) as integer."""
-        return uint256_from_str(hash256(self.serialize_with_witness()))
+        return uint256_from_str(sha256(self.serialize_with_witness()))
 
     @property
     def txid_hex(self):
         """Return txid (transaction hash without witness) as hex string."""
-        return hash256(self.serialize_without_witness())[::-1].hex()
+        return sha256(self.serialize_without_witness())[::-1].hex()
 
     @property
     def txid_int(self):
         """Return txid (transaction hash without witness) as integer."""
-        return uint256_from_str(hash256(self.serialize_without_witness()))
+        return uint256_from_str(sha256(self.serialize_without_witness()))
 
     def is_valid(self):
         for tout in self.vout:
@@ -760,12 +762,12 @@ class CBlockHeader:
     @property
     def hash_hex(self):
         """Return block header hash as hex string."""
-        return hash256(self._serialize_header())[::-1].hex()
+        return keccak256(self._serialize_header())[::-1].hex()
 
     @property
     def hash_int(self):
         """Return block header hash as integer."""
-        return uint256_from_str(hash256(self._serialize_header()))
+        return uint256_from_str(keccak256(self._serialize_header()))
 
     def __repr__(self):
         return "CBlockHeader(nVersion=%i hashPrevBlock=%064x hashMerkleRoot=%064x nTime=%s nBits=%08x nNonce=%08x)" \
@@ -1536,7 +1538,7 @@ class msg_headers:
         self.headers = headers if headers is not None else []
 
     def deserialize(self, f):
-        # comment in BGLd indicates these should be deserialized as blocks
+        # comment in bitcoind indicates these should be deserialized as blocks
         blocks = deser_vector(f, CBlock)
         for x in blocks:
             self.headers.append(CBlockHeader(x))
@@ -1745,7 +1747,7 @@ class msg_getcfilters:
     __slots__ = ("filter_type", "start_height", "stop_hash")
     msgtype =  b"getcfilters"
 
-    def __init__(self, filter_type, start_height, stop_hash):
+    def __init__(self, filter_type=None, start_height=None, stop_hash=None):
         self.filter_type = filter_type
         self.start_height = start_height
         self.stop_hash = stop_hash
@@ -1795,7 +1797,7 @@ class msg_getcfheaders:
     __slots__ = ("filter_type", "start_height", "stop_hash")
     msgtype =  b"getcfheaders"
 
-    def __init__(self, filter_type, start_height, stop_hash):
+    def __init__(self, filter_type=None, start_height=None, stop_hash=None):
         self.filter_type = filter_type
         self.start_height = start_height
         self.stop_hash = stop_hash
@@ -1848,7 +1850,7 @@ class msg_getcfcheckpt:
     __slots__ = ("filter_type", "stop_hash")
     msgtype =  b"getcfcheckpt"
 
-    def __init__(self, filter_type, stop_hash):
+    def __init__(self, filter_type=None, stop_hash=None):
         self.filter_type = filter_type
         self.stop_hash = stop_hash
 

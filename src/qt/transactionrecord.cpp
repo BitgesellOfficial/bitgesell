@@ -44,18 +44,14 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
             all_from_me = all_from_me && mine;
             if (mine) any_from_me = true;
         }
+    }
 
     if (all_from_me || !any_from_me) {
         CAmount nTxFee = nDebit - wtx.tx->GetValueOut();
 
         for(unsigned int i = 0; i < wtx.tx->vout.size(); i++)
         {
-            // Payment to self
-            std::string address;
-            for (auto it = wtx.txout_address.begin(); it != wtx.txout_address.end(); ++it) {
-                if (it != wtx.txout_address.begin()) address += ", ";
-                address += EncodeDestination(*it);
-            }
+            const CTxOut& txout = wtx.tx->vout[i];
 
             if (all_from_me) {
                 // Change is only really possible if we're the sender
@@ -73,9 +69,9 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const interface
 
                 if (!std::get_if<CNoDestination>(&wtx.txout_address[i]))
                 {
-                    // Sent to BGL Address
+                    // Sent to Bitcoin Address
                     sub.type = TransactionRecord::SendToAddress;
-                    sub.address = EncodeDestination(wtx.txout_address[nOut]);
+                    sub.address = EncodeDestination(wtx.txout_address[i]);
                 }
                 else
                 {
@@ -142,11 +138,21 @@ void TransactionRecord::updateStatus(const interfaces::WalletTxStatus& wtx, cons
     // Determine transaction status
 
     // Sort order, unrecorded transactions sort to the top
-    status.sortKey = strprintf("%010d-%01d-%010u-%03d",
+    int typesort;
+    switch (type) {
+    case SendToAddress: case SendToOther:
+        typesort = 2; break;
+    case RecvWithAddress: case RecvFromOther:
+        typesort = 3; break;
+    default:
+        typesort = 9;
+    }
+    status.sortKey = strprintf("%010d-%01d-%010u-%03d-%d",
         wtx.block_height,
         wtx.is_coinbase ? 1 : 0,
         wtx.time_received,
-        idx);
+        idx,
+        typesort);
     status.countsForBalance = wtx.is_trusted && !(wtx.blocks_to_maturity > 0);
     status.depth = wtx.depth_in_main_chain;
     status.m_cur_block_hash = block_hash;

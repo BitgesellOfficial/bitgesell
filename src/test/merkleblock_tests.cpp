@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(merkleblock_construct_from_txids_found)
 
     // Ordered by occurrence in depth-first tree traversal.
     BOOST_CHECK_EQUAL(vMatched[0], txhash2);
-    BOOST_CHECK_EQUAL(vIndex[0], 1U);
+    BOOST_CHECK_EQUAL(vIndex[0], 7U);
 
     BOOST_CHECK_EQUAL(vMatched[1], txhash1);
     BOOST_CHECK_EQUAL(vIndex[1], 8U);

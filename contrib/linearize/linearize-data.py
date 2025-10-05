@@ -11,19 +11,18 @@ import struct
 import re
 import os
 import os.path
-import sha3
 import sys
 import hashlib
 import datetime
 import time
+import glob
 from collections import namedtuple
 
 settings = {}
 
 def calc_hash_str(blk_hdr):
-    blk_hdr_hash = sha3.keccak_256()
-    blk_hdr_hash.update(blk_hdr)
-    return blk_hdr_hash.digest()[::-1].hex()
+    blk_hdr_hash = hashlib.sha256(hashlib.sha256(blk_hdr).digest()).digest()
+    return blk_hdr_hash[::-1].hex()
 
 def get_blk_dt(blk_hdr):
     members = struct.unpack("<I", blk_hdr[68:68+4])
@@ -96,7 +95,9 @@ class BlockDataCopier:
         self.blkindex = blkindex
         self.blkmap = blkmap
 
-        self.inFn = 0
+        # Get first occurring block file id - for pruned nodes this
+        # will not necessarily be 0
+        self.inFn = getFirstBlockFileId(self.settings['input'])
         self.inF = None
         self.outFn = 0
         self.outsz = 0

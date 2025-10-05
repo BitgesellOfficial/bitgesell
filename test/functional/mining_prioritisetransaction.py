@@ -21,6 +21,7 @@ from test_framework.util import (
 )
 from test_framework.wallet import MiniWallet
 
+
 class PrioritiseTransactionTest(BGLTestFramework):
     def set_test_params(self):
         self.num_nodes = 1
@@ -142,6 +143,7 @@ class PrioritiseTransactionTest(BGLTestFramework):
 
     def run_test(self):
         self.wallet = MiniWallet(self.nodes[0])
+
         # Test `prioritisetransaction` required parameters
         assert_raises_rpc_error(-1, "prioritisetransaction", self.nodes[0].prioritisetransaction)
         assert_raises_rpc_error(-1, "prioritisetransaction", self.nodes[0].prioritisetransaction, '')
@@ -226,7 +228,7 @@ class PrioritiseTransactionTest(BGLTestFramework):
         assert txids[0][1] in mempool
 
         high_fee_tx = None
-        for x in txids[2]:
+        for x in txids[0]:
             if x not in mempool:
                 high_fee_tx = x
 
@@ -256,7 +258,7 @@ class PrioritiseTransactionTest(BGLTestFramework):
         mempool = self.nodes[0].getrawmempool()
         self.log.info("Assert that de-prioritised transaction is still in mempool")
         assert high_fee_tx in mempool
-        assert_equal(self.nodes[0].getprioritisedtransactions()[high_fee_tx], { "fee_delta" : -2*base_fee*COIN, "in_mempool" : True, "modified_fee": int(-2*base_fee*COIN + COIN * 3 * base_fee)})
+        assert_equal(self.nodes[0].getprioritisedtransactions()[high_fee_tx], { "fee_delta" : -2*base_fee*COIN, "in_mempool" : True, "modified_fee": -int(-2*base_fee*COIN + COIN * 3 * base_fee)})
         for x in txids[2]:
             if (x != high_fee_tx):
                 assert x not in mempool

@@ -21,4 +21,3 @@ index f4626ad..4ae1b00 100644
 +fcobjshash.h:
  	$(AM_V_GEN) $(GPERF) --pic -m 100 fcobjshash.gperf > $@.tmp && \
  	mv -f $@.tmp $@ || ( $(RM) $@.tmp && false )
-
