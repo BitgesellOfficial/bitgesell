@@ -15,12 +15,21 @@ import unittest
 class TestRPCAuth(unittest.TestCase):
     def setUp(self):
         config = configparser.ConfigParser()
-        config_path = os.path.abspath(
-            os.path.join(os.sep, os.path.abspath(os.path.dirname(__file__)),
-            "../config.ini"))
-        with open(config_path, encoding="utf8") as config_file:
-            config.read_file(config_file)
-        sys.path.insert(0, os.path.dirname(config['environment']['RPCAUTH']))
+        test_dir = os.path.abspath(os.path.dirname(__file__))
+        config_path = os.path.join(test_dir, "../config.ini")
+
+        if os.path.exists(config_path):
+            with open(config_path, encoding="utf8") as config_file:
+                config.read_file(config_file)
+            rpcauth_path = config['environment']['RPCAUTH']
+        else:
+            # Allow running this unit test directly from a source checkout
+            # where test/config.ini has not been generated yet.
+            rpcauth_path = os.path.abspath(os.path.join(test_dir, "../../share/rpcauth/rpcauth.py"))
+
+        rpcauth_dir = os.path.dirname(rpcauth_path)
+        if rpcauth_dir not in sys.path:
+            sys.path.insert(0, rpcauth_dir)
         self.rpcauth = importlib.import_module('rpcauth')
 
     def test_generate_salt(self):
