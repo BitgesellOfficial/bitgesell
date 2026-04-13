@@ -18,9 +18,16 @@ class TestRPCAuth(unittest.TestCase):
         config_path = os.path.abspath(
             os.path.join(os.sep, os.path.abspath(os.path.dirname(__file__)),
             "../config.ini"))
-        with open(config_path, encoding="utf8") as config_file:
-            config.read_file(config_file)
-        sys.path.insert(0, os.path.dirname(config['environment']['RPCAUTH']))
+        if os.path.exists(config_path):
+            with open(config_path, encoding="utf8") as config_file:
+                config.read_file(config_file)
+            sys.path.insert(0, os.path.dirname(config['environment']['RPCAUTH']))
+        else:
+            # Fallback: use share/rpcauth directly for fresh checkouts
+            share_rpcauth_path = os.path.abspath(
+                os.path.join(os.sep, os.path.abspath(os.path.dirname(__file__)),
+                "../../share/rpcauth"))
+            sys.path.insert(0, share_rpcauth_path)
         self.rpcauth = importlib.import_module('rpcauth')
 
     def test_generate_salt(self):
