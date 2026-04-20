@@ -520,13 +520,13 @@ BOOST_AUTO_TEST_CASE(strprintf_numbers)
 #undef B
 #undef E
 
-/* Check for mingw/wine issue #3494
- * Remove this test before time.ctime(0xffffffff) == 'Sun Feb  7 07:28:15 2106'
+/*
+ * gettime test removed — was a mingw/wine compatibility check for issue #3494,
+ * now unnecessary since code uses std::chrono::system_clock. Errors would be
+ * caught by UBSan or the existing GetTime<> assert(ret > 0s) guard.
+ * Y2106 overflow coverage exists in _test_y2106 functional test.
+ * See: https://github.com/BitgesellOfficial/bitgesell/issues/143
  */
-BOOST_AUTO_TEST_CASE(gettime)
-{
-    BOOST_CHECK((GetTime() & ~0xFFFFFFFFLL) == 0);
-}
 
 BOOST_AUTO_TEST_CASE(util_time_GetTime)
 {
