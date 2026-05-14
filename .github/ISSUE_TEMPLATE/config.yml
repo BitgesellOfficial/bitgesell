@@ -1,8 +1,8 @@
 blank_issues_enabled: true
 contact_links:
-  - name: Bitcoin Core Security Policy
-    url: https://github.com/bitcoin/bitcoin/blob/master/SECURITY.md
-    about: View security policy
-  - name: Bitcoin Core Developers
-    url: https://bitcoincore.org
-    about: Bitcoin Core homepage
+  - name: BGL Core Security Policy
+    url: https://github.com/BitgesellOfficial/bitgesell/blob/master/SECURITY.md
+    about: View the project's security reporting policy
+  - name: Bitgesell Website
+    url: https://bitgesell.ca/
+    about: Bitgesell project homepage
