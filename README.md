@@ -13,9 +13,9 @@
     <a href="https://bitgesell.ca/"><strong>Explore more about project »</strong></a>
     <br />
     <br />
-    <a href="#">English</a>
+    <a href="https://github.com/BitgesellOfficial/bitgesell/blob/master/README.md">English</a>
     ·
-    <a href="https://github.com/BitgesellOfficial/bitgesell/blob/master/README-zh.md">Chinese</a>
+    <a href="https://github.com/BitgesellOfficial/bitgesell/blob/master/doc/README.md">Project documentation</a>
   </p>
 </p>
 
