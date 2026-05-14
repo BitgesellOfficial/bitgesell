@@ -7,14 +7,13 @@ security updates: https://bitgesell.ca
 
 ## Reporting a Vulnerability
 
-To report security issues send an email to security@bitcoincore.org (not for support).
+Please do not report suspected security vulnerabilities through public GitHub
+issues.
 
-The following keys may be used to communicate sensitive information to developers:
+Use GitHub's private vulnerability reporting flow if it is enabled for this
+repository, or contact the Bitgesell maintainers through the project website:
+https://bitgesell.ca.
 
-| Name | Fingerprint |
-|------|-------------|
-| Pieter Wuille | 133E AC17 9436 F14A 5CF1  B794 860F EB80 4E66 9320 |
-| Michael Ford | E777 299F C265 DD04 7930  70EB 944D 35F9 AC3D B76A |
-| Ava Chow | 1528 1230 0785 C964 44D3  334D 1756 5732 E08E 5E41 |
-
-You can import a key by running the following command with that individual’s fingerprint: `gpg --keyserver hkps://keys.openpgp.org --recv-keys "<fingerprint>"` Ensure that you put quotes around fingerprints containing spaces.
+Include enough detail for maintainers to reproduce and assess the issue, such
+as affected versions, configuration, logs, proof-of-concept steps, and the
+potential impact.
