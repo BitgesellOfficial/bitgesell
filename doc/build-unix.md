@@ -205,7 +205,7 @@ This example lists the steps necessary to setup and build a command line only di
 
     pacman --sync --needed autoconf automake boost gcc git libevent libtool make pkgconf python sqlite
     git clone https://github.com/BitgesellOfficial/bitgesell.git
-    cd /bitgesell
+    cd bitgesell
     ./autogen.sh
     ./configure
     make check
