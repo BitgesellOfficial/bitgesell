@@ -326,8 +326,8 @@ mkdir -p "$DISTSRC"
                 ;;
         esac
 
-        # copy over the example bitcoin.conf file. if contrib/devtools/gen-bitcoin-conf.sh
-        # has not been run before buildling, this file will be a stub
+        # copy over the example BGL.conf file. if contrib/devtools/gen-BGL-conf.sh
+        # has not been run before building, this file will be a stub
         cp "${DISTSRC}/share/examples/BGL.conf" "${DISTNAME}/"
 
         cp -r "${DISTSRC}/share/rpcauth" "${DISTNAME}/share/"
