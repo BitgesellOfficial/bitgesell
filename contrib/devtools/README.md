@@ -102,8 +102,8 @@ options, as all its configuration is set at the top of the file. It runs many ti
 pypy3 contrib/devtools/headerssync-params.py
 ```
 
-gen-bitcoin-conf.sh
-===================
+gen-BGL-conf.sh
+===============
 
 Generates a BGL.conf file in `share/examples/` by parsing the output from `BGLd --help`. This script is run during the
 release process to include a BGL.conf with the release binaries and can also be run by users to generate a file locally.
