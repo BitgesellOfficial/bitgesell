@@ -195,11 +195,10 @@ Facebook: [Bitgesell](https://www.facebook.com/Bitgesell)
 <!-- ACKNOWLEDGEMENTS -->
 ## Translations
 
-Changes to translations as well as new translations can be submitted to
-[BGL Core's Transifex page](https://www.transifex.com/bitcoin/bitcoin/).
+Changes to translations as well as new translations can be submitted by following the
+[translation process](doc/translation_process.md).
 
-Translations are periodically pulled from Transifex and merged into the git repository. See the
-[translation process](doc/translation_process.md) for details on how this works.
+Translations are periodically pulled from Transifex and merged into the git repository.
 
 See [SECURITY.md](SECURITY.md)
 
