@@ -106,10 +106,10 @@ Section -post SEC0001
     WriteRegStr HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" UninstallString $INSTDIR\uninstall.exe
     WriteRegDWORD HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" NoModify 1
     WriteRegDWORD HKCU "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)" NoRepair 1
-    WriteRegStr HKCR "bitcoin" "URL Protocol" ""
-    WriteRegStr HKCR "bitcoin" "" "URL:BGL"
-    WriteRegStr HKCR "bitcoin\DefaultIcon" "" $INSTDIR\BGL-qt
-    WriteRegStr HKCR "bitcoin\shell\open\command" "" '"$INSTDIR\BGL-qt" "%1"'
+    WriteRegStr HKCR "BGL" "URL Protocol" ""
+    WriteRegStr HKCR "BGL" "" "URL:BGL"
+    WriteRegStr HKCR "BGL\DefaultIcon" "" $INSTDIR\BGL-qt
+    WriteRegStr HKCR "BGL\shell\open\command" "" '"$INSTDIR\BGL-qt" "%1"'
 SectionEnd
 
 # Macro for selecting uninstaller sections
@@ -149,7 +149,7 @@ Section -un.post UNSEC0001
     DeleteRegValue HKCU "${REGKEY}" Path
     DeleteRegKey /IfEmpty HKCU "${REGKEY}\Components"
     DeleteRegKey /IfEmpty HKCU "${REGKEY}"
-    DeleteRegKey HKCR "bitcoin"
+    DeleteRegKey HKCR "BGL"
     RmDir /REBOOTOK $SMPROGRAMS\$StartMenuGroup
     RmDir /REBOOTOK $INSTDIR
     Push $R0
