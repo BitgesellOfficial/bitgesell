@@ -1073,7 +1073,7 @@ bool AppInitParameterInteraction(const ArgsManager& args)
 
 static bool LockDataDirectory(bool probeOnly)
 {
-    // Make sure only a single Bitcoin process is using the data directory.
+    // Make sure only a single BGL process is using the data directory.
     const fs::path& datadir = gArgs.GetDataDirNet();
     switch (util::LockDirectory(datadir, ".lock", probeOnly)) {
     case util::LockResult::ErrorWrite:
