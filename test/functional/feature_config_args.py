@@ -123,7 +123,7 @@ class ConfArgsTest(BGLTestFramework):
         self.log.info('Test that correct configuration path is changed when configuration file changes the datadir')
 
         # Create a temporary directory that will be treated as the default data
-        # directory by bitcoind.
+        # directory by BGLd.
         env, default_datadir = util.get_temp_default_datadir(Path(self.options.tmpdir, "test_config_file_log"))
         default_datadir.mkdir(parents=True)
 
@@ -332,7 +332,7 @@ class ConfArgsTest(BGLTestFramework):
             f'is being used instead.') + r"[\s\S]*", match=ErrorMatch.FULL_REGEX)
 
         # Test that passing a redundant -conf command line argument pointing to
-        # the same bitcoin.conf that would be loaded anyway does not trigger an
+        # the same BGL.conf that would be loaded anyway does not trigger an
         # error.
         self.start_node(0, [f'-conf={node.datadir_path}/BGL.conf'])
         self.stop_node(0)
@@ -347,7 +347,7 @@ class ConfArgsTest(BGLTestFramework):
                       'and it contains a different BGL.conf file that would be ignored')
 
         # Create a temporary directory that will be treated as the default data
-        # directory by bitcoind.
+        # directory by BGLd.
         env, default_datadir = util.get_temp_default_datadir(Path(self.options.tmpdir, "home"))
         default_datadir.mkdir(parents=True)
 

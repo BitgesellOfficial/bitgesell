@@ -114,7 +114,7 @@ class AsmapTest(BGLTestFramework):
         os.remove(self.default_asmap)
 
     def test_asmap_health_check(self):
-        self.log.info('Test bitcoind -asmap logs ASMap Health Check with basic stats')
+        self.log.info('Test BGLd -asmap logs ASMap Health Check with basic stats')
         shutil.copyfile(self.asmap_raw, self.default_asmap)
         msg = "ASMap Health Check: 4 clearnet peers are mapped to 3 ASNs with 0 peers being unmapped"
         with self.node.assert_debug_log(expected_msgs=[msg]):
