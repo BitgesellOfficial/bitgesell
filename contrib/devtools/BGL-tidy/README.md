@@ -1,4 +1,4 @@
-# Bitcoin Tidy
+# BGL Tidy
 
 Example Usage:
 
