@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\BGLd.cpp" />
+    <ResourceCompile Include="..\..\src\BGLd-res.rc" />
     <ClCompile Include="..\..\src\init\BGLd.cpp">
       <ObjectFileName>$(IntDir)init_BGLd.obj</ObjectFileName>
     </ClCompile>
