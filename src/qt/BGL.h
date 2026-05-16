@@ -60,7 +60,7 @@ public:
     /// Request core initialization
     void requestInitialize();
 
-    /// Get window identifier of QMainWindow (BitcoinGUI)
+    /// Get window identifier of QMainWindow (BGLGUI)
     WId getMainWinId() const;
 
     /// Setup platform style
