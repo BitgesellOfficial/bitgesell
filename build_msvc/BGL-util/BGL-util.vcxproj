@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\BGL-util.cpp" />
+    <ResourceCompile Include="..\..\src\BGL-util-res.rc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\libBGL_common\libBGL_common.vcxproj">

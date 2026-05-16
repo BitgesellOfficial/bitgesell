@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\BGL-wallet.cpp" />
+    <ResourceCompile Include="..\..\src\BGL-wallet-res.rc" />
     <ClCompile Include="..\..\src\init\BGL-wallet.cpp">
       <ObjectFileName>$(IntDir)init_BGL-wallet.obj</ObjectFileName>
     </ClCompile>
