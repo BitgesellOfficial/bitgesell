@@ -138,7 +138,7 @@ void AddButtonShortcut(QAbstractButton* button, const QKeySequence& shortcut)
 
 bool parseBGLURI(const QUrl &uri, SendCoinsRecipient *out)
 {
-    // return if URI is not valid or is no bitcoin: URI
+    // return if URI is not valid or is no BGL: URI
     if(!uri.isValid() || uri.scheme() != QString("bgl"))
         return false;
 
@@ -437,7 +437,7 @@ bool openBGLConf()
 
     configFile.close();
 
-    /* Open bitcoin.conf with the associated application */
+    /* Open BGL.conf with the associated application */
     bool res = QDesktopServices::openUrl(QUrl::fromLocalFile(PathToQString(pathConfig)));
 #ifdef Q_OS_MACOS
     // Workaround for macOS-specific behavior; see #15409.
@@ -509,7 +509,7 @@ fs::path static StartupShortcutPath()
 
 bool GetStartOnSystemStartup()
 {
-    // check for Bitcoin*.lnk
+    // check for BGL*.lnk
     return fs::exists(StartupShortcutPath());
 }
 
@@ -584,7 +584,7 @@ fs::path static GetAutostartFilePath()
 {
     ChainType chain = gArgs.GetChainType();
     if (chain == ChainType::MAIN)
-        return GetAutostartDir() / "bitcoin.desktop";
+        return GetAutostartDir() / "BGL.desktop";
     return GetAutostartDir() / fs::u8path(strprintf("BGL-%s.desktop", ChainTypeToString(chain)));
 }
 
@@ -626,7 +626,7 @@ bool SetStartOnSystemStartup(bool fAutoStart)
         if (!optionFile.good())
             return false;
         ChainType chain = gArgs.GetChainType();
-        // Write a bitcoin.desktop file to the autostart directory:
+        // Write a BGL.desktop file to the autostart directory:
         optionFile << "[Desktop Entry]\n";
         optionFile << "Type=Application\n";
         if (chain == ChainType::MAIN)
