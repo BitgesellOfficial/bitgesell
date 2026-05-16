@@ -91,7 +91,7 @@ complete \
     --arguments "(__fish_BGL_cli_get_options --nofiles)"
 
 # Add commands
-# Permit command completions after `bitcoin-cli help` but not after other commands
+# Permit command completions after `BGL-cli help` but not after other commands
 complete \
     --command BGL-cli \
     --no-files \
