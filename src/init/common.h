@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 //! @file
-//! @brief Common init functions shared by bitcoin-node, bitcoin-wallet, etc.
+//! @brief Common init functions shared by BGL-node, BGL-wallet, etc.
 
 #ifndef BGL_INIT_COMMON_H
 #define BGL_INIT_COMMON_H
