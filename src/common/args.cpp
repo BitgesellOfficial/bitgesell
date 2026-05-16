@@ -697,10 +697,10 @@ bool HasTestOption(const ArgsManager& args, const std::string& test_option)
 fs::path GetDefaultDataDir()
 {
     // Windows:
-    //   old: C:\Users\Username\AppData\Roaming\Bitcoin
-    //   new: C:\Users\Username\AppData\Local\Bitcoin
-    // macOS: ~/Library/Application Support/Bitcoin
-    // Unix-like: ~/.bitcoin
+    //   old: C:\Users\Username\AppData\Roaming\BGL
+    //   new: C:\Users\Username\AppData\Local\BGL
+    // macOS: ~/Library/Application Support/BGL
+    // Unix-like: ~/.BGL
 #ifdef WIN32
     // Windows
     // Check for existence of datadir in old location and keep it there
