@@ -899,7 +899,7 @@ BGL_util_LDADD = \
   $(LIBSECP256K1)
 #
 
-# bitcoin-chainstate binary #
+# BGL-chainstate binary #
 BGL_chainstate_SOURCES = BGL-chainstate.cpp
 BGL_chainstate_CPPFLAGS = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BOOST_CPPFLAGS)
 BGL_chainstate_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -908,7 +908,7 @@ BGL_chainstate_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(PTHREAD_FLAGS) $(LIBTOOL_A
 BGL_chainstate_LDADD = $(LIBBGLKERNEL)
 
 # libtool is unable to calculate this indirect dependency, presumably because it's a subproject.
-# libsecp256k1 only needs to be linked in when libbitcoinkernel is static.
+# libsecp256k1 only needs to be linked in when libBGLkernel is static.
 BGL_chainstate_LDADD += $(LIBSECP256K1)
 #
 
@@ -920,7 +920,7 @@ libBGLkernel_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(PTHREAD_FLA
 libBGLkernel_la_LIBADD = $(LIBBGL_CRYPTO) $(LIBLEVELDB) $(LIBMEMENV) $(LIBSECP256K1)
 libBGLkernel_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
 
-# libbitcoinkernel requires default symbol visibility, explicitly specify that
+# libBGLkernel requires default symbol visibility, explicitly specify that
 # here so that things still work even when user configures with
 #   --enable-reduce-exports
 #
@@ -928,7 +928,7 @@ libBGLkernel_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k
 # to export from the library.
 libBGLkernel_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -fvisibility=default
 
-# TODO: libbitcoinkernel is a work in progress consensus engine library, as more
+# TODO: libBGLkernel is a work in progress consensus engine library, as more
 #       and more modules are decoupled from the consensus engine, this list will
 #       shrink to only those which are absolutely necessary.
 libBGLkernel_la_SOURCES = \
