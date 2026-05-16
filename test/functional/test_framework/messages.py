@@ -244,7 +244,7 @@ def from_binary(cls, stream):
         assert len(stream.read()) == 0
     return obj
 
-# Objects that map to bitcoind objects, which can be serialized/deserialized
+# Objects that map to BGLd objects, which can be serialized/deserialized
 
 
 class CAddress:
@@ -421,7 +421,7 @@ class CBlockLocator:
 
     def serialize(self):
         r = b""
-        r += (0).to_bytes(4, "little", signed=True)  # Bitcoin Core ignores the version field. Set it to 0.
+        r += (0).to_bytes(4, "little", signed=True)  # BGL Core ignores the version field. Set it to 0.
         r += ser_uint256_vector(self.vHave)
         return r
 
@@ -1149,7 +1149,7 @@ class msg_version:
         self.nStartingHeight = int.from_bytes(f.read(4), "little", signed=True)
 
         # Relay field is optional for version 70001 onwards
-        # But, unconditionally check it to match behaviour in bitcoind
+        # But, unconditionally check it to match behaviour in BGLd
         self.relay = int.from_bytes(f.read(1), "little")  # f.read(1) may return an empty b''
 
     def serialize(self):

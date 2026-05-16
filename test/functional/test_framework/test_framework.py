@@ -719,7 +719,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
         return blocks
 
     def create_outpoints(self, node, *, outputs):
-        """Send funds to a given list of `{address: amount}` targets using the bitcoind
+        """Send funds to a given list of `{address: amount}` targets using the BGLd
         wallet and return the corresponding outpoints as a list of dictionaries
         `[{"txid": txid, "vout": vout1}, {"txid": txid, "vout": vout2}, ...]`.
         The result can be used to specify inputs for RPCs like `createrawtransaction`,
@@ -920,7 +920,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             raise SkipTest("bcc python module not available")
 
     def skip_if_no_BGLd_tracepoints(self):
-        """Skip the running test if bitcoind has not been compiled with USDT tracepoint support."""
+        """Skip the running test if BGLd has not been compiled with USDT tracepoint support."""
         if not self.is_usdt_compiled():
             raise SkipTest("BGLd has not been built with USDT tracepoints enabled.")
 
@@ -941,7 +941,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             raise SkipTest("not on a POSIX system")
 
     def skip_if_no_BGLd_zmq(self):
-        """Skip the running test if bitcoind has not been compiled with zmq support."""
+        """Skip the running test if BGLd has not been compiled with zmq support."""
         if not self.is_zmq_compiled():
             raise SkipTest("BGLd has not been built with zmq enabled.")
 
@@ -971,7 +971,7 @@ class BGLTestFramework(metaclass=BGLTestMetaClass):
             raise SkipTest("BGL-wallet has not been compiled")
 
     def skip_if_no_BGL_util(self):
-        """Skip the running test if bitcoin-util has not been compiled."""
+        """Skip the running test if BGL-util has not been compiled."""
         if not self.is_BGL_util_compiled():
             raise SkipTest("BGL-util has not been compiled")
 
