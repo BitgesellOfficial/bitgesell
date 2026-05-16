@@ -116,15 +116,15 @@ src/qt/BGL-qt.includes
 *.qm
 Makefile
 !depends/Makefile
-src/qt/bitcoin-qt
-Bitcoin-Qt.app
+src/qt/BGL-qt
+BGL-Qt.app
 
 # Qt Creator
 Makefile.am.user
 
 # Unit-tests
 Makefile.test
-bitcoin-qt_test
+src/qt/test/test_BGL-qt
 
 # Resources cpp
 qrc_*.cpp
@@ -140,7 +140,7 @@ releases
 *.gcno
 *.gcda
 /*.info
-test_bitcoin.coverage/
+test_BGL.coverage/
 total.coverage/
 fuzz.coverage/
 coverage_percent.txt
