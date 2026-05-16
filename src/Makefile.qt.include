@@ -315,7 +315,7 @@ QT_FORMS_H=$(join $(dir $(QT_FORMS_UI)),$(addprefix ui_, $(notdir $(QT_FORMS_UI:
 $(QT_MOC): $(QT_FORMS_H)
 $(qt_libBGLqt_a_OBJECTS) $(qt_BGL_qt_OBJECTS) $(BGL_gui_OBJECTS) : | $(QT_MOC)
 
-# bitcoin-qt and bitcoin-gui binaries #
+# BGL-qt and BGL-gui binaries #
 BGL_qt_cppflags = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BGL_QT_INCLUDES) \
   $(QT_INCLUDES) $(QR_CFLAGS)
 BGL_qt_cxxflags = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
