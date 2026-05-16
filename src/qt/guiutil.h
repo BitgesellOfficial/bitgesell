@@ -52,7 +52,7 @@ class QUrl;
 class QWidget;
 QT_END_NAMESPACE
 
-/** Utility functions used by the Bitcoin Qt UI.
+/** Utility functions used by the BGL Qt UI.
  */
 namespace GUIUtil
 {
@@ -77,7 +77,7 @@ namespace GUIUtil
      */
     void AddButtonShortcut(QAbstractButton* button, const QKeySequence& shortcut);
 
-    // Parse "bitcoin:" URI into recipient object, return true on successful parsing
+    // Parse "BGL:" URI into recipient object, return true on successful parsing
     bool parseBGLURI(const QUrl &uri, SendCoinsRecipient *out);
     bool parseBGLURI(QString uri, SendCoinsRecipient *out);
     QString formatBGLURI(const SendCoinsRecipient &info);
