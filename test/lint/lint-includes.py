@@ -17,7 +17,7 @@ from subprocess import check_output, CalledProcessError
 from lint_ignore_dirs import SHARED_EXCLUDED_SUBTREES
 
 
-EXCLUDED_DIRS = ["contrib/devtools/bitcoin-tidy/",
+EXCLUDED_DIRS = ["contrib/devtools/BGL-tidy/",
                 ] + SHARED_EXCLUDED_SUBTREES
 
 EXPECTED_BOOST_INCLUDES = ["boost/date_time/posix_time/posix_time.hpp",
