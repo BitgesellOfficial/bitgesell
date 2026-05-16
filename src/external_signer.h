@@ -21,7 +21,7 @@ private:
     //! The command which handles interaction with the external signer.
     std::string m_command;
 
-    //! Bitcoin mainnet, testnet, etc
+    //! BGL mainnet, testnet, etc
     std::string m_chain;
 
     std::string NetworkArg() const;
