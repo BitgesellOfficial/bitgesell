@@ -2,7 +2,7 @@
 # Copyright (c) 2018-2022 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
-"""Check that it's not possible to start a second bitcoind instance using the same datadir or wallet."""
+"""Check that it's not possible to start a second BGLd instance using the same datadir or wallet."""
 import random
 import string
 
@@ -30,9 +30,9 @@ class FilelockTest(BGLTestFramework):
         expected_msg = f"Error: Cannot obtain a lock on data directory {datadir}. {self.config['environment']['PACKAGE_NAME']} is probably already running."
         self.nodes[1].assert_start_raises_init_error(extra_args=[f'-datadir={self.nodes[0].datadir_path}', '-noserver'], expected_msg=expected_msg)
 
-        self.log.info("Check that cookie and PID file are not deleted when attempting to start a second bitcoind using the same datadir")
+        self.log.info("Check that cookie and PID file are not deleted when attempting to start a second BGLd using the same datadir")
         cookie_file = datadir / ".cookie"
-        assert cookie_file.exists()  # should not be deleted during the second bitcoind instance shutdown
+        assert cookie_file.exists()  # should not be deleted during the second BGLd instance shutdown
         pid_file = datadir / "BGLd.pid"
         assert pid_file.exists()
 
