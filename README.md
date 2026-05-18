@@ -176,18 +176,15 @@ In "Developer Command Prompt for VS 2022":
     >cmake -G "Visual Studio 17 2022" -A x64 -S . -B build
     >cmake --build build --config RelWithDebInfo
 
-Usage examples
------------
-Usage examples can be found in the [examples](examples) directory. To compile them you need to configure with `--enable-examples`.
-  * [ECDSA example](examples/ecdsa.c)
-  * [Schnorr signatures example](examples/schnorr.c)
-  * [Deriving a shared secret (ECDH) example](examples/ecdh.c)
-
-To compile the Schnorr signature and ECDH examples, you also need to configure with `--enable-module-schnorrsig` and `--enable-module-ecdh`.
-
-Benchmark
+Developer documentation
 ------------
-If configured with `--enable-benchmark` (which is the default), binaries for benchmarking the libsecp256k1 functions will be present in the root directory after the build.
+Bitgesell Core developer and operator documentation is maintained under the
+[doc](doc) directory.
+
+Useful starting points:
+  * [Build instructions](doc/build-unix.md)
+  * [Functional tests](test/functional/README.md)
+  * [JSON-RPC interface](doc/JSON-RPC-interface.md)
 
 Facebook: [Bitgesell](https://www.facebook.com/Bitgesell)
 
