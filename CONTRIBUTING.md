@@ -1,106 +1,84 @@
-# Contributing to libsecp256k1
+# Contributing to Bitgesell Core
 
 ## Scope
 
-libsecp256k1 is a library for elliptic curve cryptography on the curve secp256k1, not a general-purpose cryptography library.
-The library primarily serves the needs of the Bitcoin Core project but provides additional functionality for the benefit of the wider Bitcoin ecosystem.
+Bitgesell Core is a Bitcoin-derived full-node and wallet implementation for the
+Bitgesell (BGL) network. Contributions should preserve consensus safety,
+network compatibility, wallet correctness, and reproducible build behavior.
 
-## Adding new functionality or modules
+Useful contributions include focused bug fixes, tests, CI/build improvements,
+documentation corrections, wallet and Qt fixes, and careful refactoring that
+reduces maintenance cost without changing behavior.
 
-The libsecp256k1 project welcomes contributions in the form of new functionality or modules, provided they are within the project's scope.
+## Adding new functionality
 
-It is the responsibility of the contributors to convince the maintainers that the proposed functionality is within the project's scope, high-quality and maintainable.
-Contributors are recommended to provide the following in addition to the new code:
+New functionality should be small enough to review, clearly motivated, and
+covered by tests where practical. Consensus, wallet, networking, and RPC changes
+should explain why the behavior is correct for Bitgesell and whether the change
+diverges from upstream Bitcoin Core behavior.
+
+Contributors are recommended to provide the following in addition to the new
+code:
 
 * **Specification:**
     A specification can help significantly in reviewing the new code as it provides documentation and context.
     It may justify various design decisions, give a motivation and outline security goals.
-    If the specification contains pseudocode, a reference implementation or test vectors, these can be used to compare with the proposed libsecp256k1 code.
+    If the specification contains pseudocode, a reference implementation or test vectors, these can be used to compare with the proposed Bitgesell Core code.
 * **Security Arguments:**
     In addition to a defining the security goals, it should be argued that the new functionality meets these goals.
     Depending on the nature of the new functionality, a wide range of security arguments are acceptable, ranging from being "obviously secure" to rigorous proofs of security.
 * **Relevance Arguments:**
-    The relevance of the new functionality for the Bitcoin ecosystem should be argued by outlining clear use cases.
+    The relevance of the new functionality for the Bitgesell ecosystem should be argued by outlining clear use cases.
 
 These are not the only factors taken into account when considering to add new functionality.
-The proposed new libsecp256k1 code must be of high quality, including API documentation and tests, as well as featuring a misuse-resistant API design.
+The proposed Bitgesell Core code must be of high quality, including API documentation and tests, as well as featuring a misuse-resistant API design.
 
 We recommend reaching out to other contributors (see [Communication Channels](#communication-channels)) and get feedback before implementing new functionality.
 
 ## Communication channels
 
-Most communication about libsecp256k1 occurs on the GitHub repository: in issues, pull request or on the discussion board.
+Most communication about Bitgesell Core occurs on the GitHub repository through
+issues and pull requests.
 
-Additionally, there is an IRC channel dedicated to libsecp256k1, with biweekly meetings (see channel topic).
-The channel is `#secp256k1` on Libera Chat.
-The easiest way to participate on IRC is with the web client, [web.libera.chat](https://web.libera.chat/#secp256k1).
-Chat history logs can be found at https://gnusha.org/secp256k1/.
+Project discussion is also available in the Bitgesell forum thread and Discord
+community linked from the project bounty and improvement issues.
 
 ## Contributor workflow & peer review
 
-The Contributor Workflow & Peer Review in libsecp256k1 are similar to Bitcoin Core's workflow and review processes described in its [CONTRIBUTING.md](https://github.com/bitcoin/bitcoin/blob/master/CONTRIBUTING.md).
+The contributor workflow and peer review process are similar to Bitcoin Core's
+workflow and review process described in its
+[CONTRIBUTING.md](https://github.com/bitcoin/bitcoin/blob/master/CONTRIBUTING.md),
+but patches should be scoped and justified for the Bitgesell Core repository.
 
 ### Coding conventions
 
-In addition, libsecp256k1 tries to maintain the following coding conventions:
+In addition, Bitgesell Core tries to maintain the following coding conventions:
 
-* No runtime heap allocation (e.g., no `malloc`) unless explicitly requested by the caller (via `secp256k1_context_create` or `secp256k1_scratch_space_create`, for example). Moreover, it should be possible to use the library without any heap allocations.
-* The tests should cover all lines and branches of the library (see [Test coverage](#coverage)).
-* Operations involving secret data should be tested for being constant time with respect to the secrets (see [src/ctime_tests.c](src/ctime_tests.c)).
-* Local variables containing secret data should be cleared explicitly to try to delete secrets from memory.
-* Use `secp256k1_memcmp_var` instead of `memcmp` (see [#823](https://github.com/bitcoin-core/secp256k1/issues/823)).
+* Follow the style of the surrounding Bitgesell/Bitcoin Core code.
+* Keep consensus and wallet changes as small and reviewable as possible.
+* Prefer explicit tests for bug fixes and behavior changes.
+* Avoid drive-by formatting in files that are otherwise unrelated to the change.
+* Do not include private keys, RPC credentials, wallet data, or test secrets in a commit.
 
 #### Style conventions
 
 * Commits should be atomic and diffs should be easy to read. For this reason, do not mix any formatting fixes or code moves with actual code changes. Make sure each individual commit is hygienic: that it builds successfully on its own without warnings, errors, regressions, or test failures.
 * New code should adhere to the style of existing, in particular surrounding, code. Other than that, we do not enforce strict rules for code formatting.
-* The code conforms to C89. Most notably, that means that only `/* ... */` comments are allowed (no `//` line comments). Moreover, any declarations in a `{ ... }` block (e.g., a function) must appear at the beginning of the block before any statements. When you would like to declare a variable in the middle of a block, you can open a new block:
-    ```C
-    void secp256k_foo(void) {
-        unsigned int x;              /* declaration */
-        int y = 2*x;                 /* declaration */
-        x = 17;                      /* statement */
-        {
-            int a, b;                /* declaration */
-            a = x + y;               /* statement */
-            secp256k_bar(x, &b);     /* statement */
-        }
-    }
-    ```
-* Use `unsigned int` instead of just `unsigned`.
-* Use `void *ptr` instead of `void* ptr`.
-* Arguments of the publicly-facing API must have a specific order defined in [include/secp256k1.h](include/secp256k1.h).
-* User-facing comment lines in headers should be limited to 80 chars if possible.
-* All identifiers in file scope should start with `secp256k1_`.
+* The build currently requires a C++20 compiler, as configured in `configure.ac`.
+* User-facing log and RPC messages should be clear, translatable where appropriate, and covered by tests when the behavior changes.
 * Avoid trailing whitespace.
 
 ### Tests
 
-#### Coverage
-
-This library aims to have full coverage of reachable lines and branches.
-
-To create a test coverage report, configure with `--enable-coverage` (use of GCC is necessary):
-
-    $ ./configure --enable-coverage
-
-Run the tests:
+Run the tests that match the area changed. Common entry points include:
 
     $ make check
+    $ test/functional/test_runner.py
+    $ ci/lint_run_all.sh
 
-To create a report, `gcovr` is recommended, as it includes branch coverage reporting:
-
-    $ gcovr --exclude 'src/bench*' --print-summary
-
-To create a HTML report with coloured and annotated source code:
-
-    $ mkdir -p coverage
-    $ gcovr --exclude 'src/bench*' --html --html-details -o coverage/coverage.html
-
-#### Exhaustive tests
-
-There are tests of several functions in which a small group replaces secp256k1.
-These tests are *exhaustive* since they provide all elements and scalars of the small group as input arguments (see [src/tests_exhaustive.c](src/tests_exhaustive.c)).
+If a full build is not practical for a documentation-only change, include the
+lighter validation you did run, such as `git diff --check` or a targeted link
+check.
 
 ### Benchmarks
 
@@ -143,7 +121,7 @@ subsequent comment to the PR.
 ### Translation changes
 
 Note that translations should not be submitted as pull requests. Please see
-[Translation Process](https://github.com/bitcoin/bitcoin/blob/master/doc/translation_process.md)
+[Translation Process](doc/translation_process.md)
 for more information on helping with translations.
 
 ### Work in Progress Changes and Requests for Comments
@@ -256,11 +234,10 @@ workload on reviewing.
 "Decision Making" Process
 -------------------------
 
-The following applies to code changes to the Bitcoin Core project (and related
-projects such as libsecp256k1), and is not to be confused with overall Bitcoin
-Network Protocol consensus changes.
+The following applies to code changes to the Bitgesell Core project, and is not
+to be confused with broader Bitgesell network consensus changes.
 
-Whether a pull request is merged into Bitcoin Core rests with the project merge
+Whether a pull request is merged into Bitgesell Core rests with the project merge
 maintainers.
 
 Maintainers will take into consideration if a patch is in line with the general
@@ -279,11 +256,10 @@ In general, all pull requests must:
     demonstrating the bug and also proving the fix. This helps prevent regression.
   - Change relevant comments and documentation when behaviour of code changes.
 
-Patches that change Bitcoin consensus rules are considerably more involved than
-normal because they affect the entire ecosystem and so must be preceded by
-extensive mailing list discussions and have a numbered BIP. While each case will
-be different, one should be prepared to expend more time and effort than for
-other kinds of patches because of increased peer review and consensus building
+Patches that change Bitgesell consensus rules are considerably more involved
+than normal because they affect the entire ecosystem. While each case will be
+different, one should be prepared to expend more time and effort than for other
+kinds of patches because of increased peer review and consensus-building
 requirements.
 
 
@@ -294,7 +270,7 @@ request. Typically reviewers will review the code for obvious errors, as well as
 test out the patch set and opine on the technical merits of the patch. Project
 maintainers take into account the peer review when determining if there is
 consensus to merge a pull request (remember that discussions may have been
-spread out over GitHub, mailing list and IRC discussions).
+spread out over GitHub issues, pull requests, and community channels).
 
 Code review is a burdensome but important part of the development process, and
 as such, certain types of pull requests are rejected. In general, if the
@@ -340,10 +316,9 @@ higher in terms of discussion and peer review requirements, keeping in mind that
 mistakes could be very costly to the wider community. This includes refactoring
 of consensus-critical code.
 
-Where a patch set proposes to change the Bitcoin consensus, it must have been
-discussed extensively on the mailing list and IRC, be accompanied by a widely
-discussed BIP and have a generally widely perceived technical consensus of being
-a worthwhile change based on the judgement of the maintainers.
+Where a patch set proposes to change Bitgesell consensus, it must be discussed
+extensively before implementation and have a generally perceived technical
+consensus of being worthwhile based on the judgement of the maintainers.
 
 ### Finding Reviewers
 
@@ -363,15 +338,15 @@ about:
     that personally, though! Instead, take another critical look at what you are suggesting
     and see if it: changes too much, is too broad, doesn't adhere to the
     [developer notes](doc/developer-notes.md), is dangerous or insecure, is messily written, etc.
-    Identify and address any of the issues you find. Then ask e.g. on IRC if someone could give
-    their opinion on the concept itself.
+    Identify and address any of the issues you find. Then ask in the relevant GitHub issue or
+    community channel if someone could give their opinion on the concept itself.
   - It may be because your code is too complex for all but a few people, and those people
     may not have realized your pull request even exists. A great way to find people who
     are qualified and care about the code you are touching is the
     [Git Blame feature](https://docs.github.com/en/github/managing-files-in-a-repository/managing-files-on-github/tracking-changes-in-a-file). Simply
     look up who last modified the code you are changing and see if you can find
     them and give them a nudge. Don't be incessant about the nudging, though.
-  - Finally, if all else fails, ask on IRC or elsewhere for someone to give your pull request
+  - Finally, if all else fails, ask in the relevant project channel for someone to give your pull request
     a look. If you think you've been waiting for an unreasonably long time (say,
     more than a month) for no particular reason (a few lines changed, etc.),
     this is totally fine. Try to return the favor when someone else is asking
