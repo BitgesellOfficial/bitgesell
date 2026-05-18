@@ -15,7 +15,7 @@
     <br />
     <a href="#">English</a>
     ·
-    <a href="https://github.com/BitgesellOfficial/bitgesell/blob/master/README-zh.md">Chinese</a>
+    <a href="#translations">Translations</a>
   </p>
 </p>
 
@@ -196,7 +196,7 @@ Facebook: [Bitgesell](https://www.facebook.com/Bitgesell)
 ## Translations
 
 Changes to translations as well as new translations can be submitted to
-[BGL Core's Transifex page](https://www.transifex.com/bitcoin/bitcoin/).
+[BGL Core's Transifex page](https://www.transifex.com/BGL/BGL/).
 
 Translations are periodically pulled from Transifex and merged into the git repository. See the
 [translation process](doc/translation_process.md) for details on how this works.
