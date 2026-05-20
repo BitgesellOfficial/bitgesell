@@ -9,4 +9,4 @@ class CRPCTable;
 
 void RegisterZMQRPCCommands(CRPCTable& t);
 
-#endif // BGL_ZMQ_ZMRRPC_H
+#endif // BGL_ZMQ_ZMQRPC_H
