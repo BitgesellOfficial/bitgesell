@@ -19,7 +19,21 @@ HEADER_ID_PREFIX = 'BGL_'
 HEADER_ID_SUFFIX = '_H'
 
 EXCLUDE_FILES_WITH_PREFIX = ['contrib/devtools/bitcoin-tidy',
+                             'contrib/devtools/BGL-tidy',
+                             'build_msvc/BGL_config.h',
                              'src/crypto/ctaes',
+                             'src/assumptions.h',
+                             'src/checkmem.h',
+                             'src/config/BGL-config.h',
+                             'src/crc32c_arm64_check.h',
+                             'src/crypto/sha3/sha3.h',
+                             'src/ecmult_compute_table',
+                             'src/ecmult_gen_compute_table',
+                             'src/hsort',
+                             'src/int128',
+                             'src/precomputed_ecmult',
+                             'src/selftest.h',
+                             'src/testutil.h',
                              'src/tinyformat.h',
                              'src/bench/nanobench.h',
                              'src/test/fuzz/FuzzedDataProvider.h'] + SHARED_EXCLUDED_SUBTREES

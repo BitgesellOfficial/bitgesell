@@ -44,4 +44,4 @@
 #endif
 
 
-#endif /* BGL_UTIL_TRACE_H */
+#endif // BGL_UTIL_TRACE_H

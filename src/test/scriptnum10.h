@@ -179,5 +179,5 @@ private:
 };
 
 
-#endif // BGL_TEST_BIGNUM_H
+#endif // BGL_TEST_SCRIPTNUM10_H
 

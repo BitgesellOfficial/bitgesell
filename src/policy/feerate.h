@@ -77,5 +77,5 @@ public:
     SERIALIZE_METHODS(CFeeRate, obj) { READWRITE(obj.nSatoshisPerK); }
 };
 
-#endif //  BGL_POLICY_FEERATE_H
+#endif // BGL_POLICY_FEERATE_H
 
