@@ -105,6 +105,23 @@ base_template: &BASE_TEMPLATE
     - git config --global user.name "ci"
     - git merge FETCH_HEAD  # Merge base to detect silent merge conflicts
 
+merge_base_template: &MERGE_BASE
+  merge_base_script:
+    # Unconditionally install git (used in fingerprint_script).
+    - git --version || bash -c "$PACKAGE_MANAGER_INSTALL git"
+    - if [ "$CIRRUS_PR" = "" ]; then exit 0; fi
+    - git fetch $CIRRUS_REPO_CLONE_URL $CIRRUS_BASE_BRANCH
+    - git config --global user.email "ci@ci.ci"
+    - git config --global user.name "ci"
+    - git merge FETCH_HEAD  # Merge base to detect silent merge conflicts
+
+cat_logs_template: &CAT_LOGS {}
+
+global_task_template: &GLOBAL_TASK_TEMPLATE
+  << : *BASE_TEMPLATE
+  test_script:
+    - ./ci/cirrus.sh
+
 env_matrix_snippet: &ENV_MATRIX_VALGRIND
   - env:
       ENABLE_FIELDS: "7,32,58"
