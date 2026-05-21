@@ -435,7 +435,12 @@ public:
             * for the next iteration.
             */
             last_loc = locs[(1 + (std::find(locs.begin(), locs.end(), last_loc) - locs.begin())) & 7];
-            std::swap(table[last_loc], e);
+            // Avoid std::swap here: when Element is bool, table[last_loc]
+            // is a std::vector<bool>::reference proxy and cannot be swapped
+            // directly with the local bool on newer standard libraries.
+            Element evicted = std::move(table[last_loc]);
+            table[last_loc] = std::move(e);
+            e = std::move(evicted);
             // Can't std::swap a std::vector<bool>::reference and a bool&.
             bool epoch = last_epoch;
             last_epoch = epoch_flags[last_loc];
