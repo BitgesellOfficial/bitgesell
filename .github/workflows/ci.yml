@@ -23,7 +23,7 @@ jobs:
 
       - name: Validate CI YAML syntax
         run: |
-          ruby -e 'require "yaml"; Dir[".github/workflows/*.{yml,yaml}", ".cirrus.yml"].each { |f| YAML.load_file(f); puts "valid YAML: #{f}" }'
+          ruby -e 'require "yaml"; Dir[".github/workflows/*.{yml,yaml}", ".cirrus.yml"].each { |f| Gem::Version.new(Psych::VERSION) >= Gem::Version.new("4") ? YAML.load_file(f, aliases: true) : YAML.load_file(f); puts "valid YAML: #{f}" }'
 
       - name: Check test-suite naming
         run: python3 test/lint/lint-tests.py
