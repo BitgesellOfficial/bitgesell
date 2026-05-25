@@ -185,6 +185,13 @@ Usage examples can be found in the [examples](examples) directory. To compile th
 
 To compile the Schnorr signature and ECDH examples, you also need to configure with `--enable-module-schnorrsig` and `--enable-module-ecdh`.
 
+## Contributing
+
+For a short fork-to-pull-request workflow, see
+[doc/contributor-quickstart.md](doc/contributor-quickstart.md). It covers
+focused branches, useful change scopes, local validation, and bounty submission
+notes.
+
 Benchmark
 ------------
 If configured with `--enable-benchmark` (which is the default), binaries for benchmarking the libsecp256k1 functions will be present in the root directory after the build.
