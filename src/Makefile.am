@@ -66,6 +66,12 @@ LIBBGL_CRYPTO += $(LIBBGL_CRYPTO_ARM_SHANI)
 endif
 noinst_LTLIBRARIES += $(LIBBGL_CRYPTO)
 
+# Ensure libsecp256k1 is fully built before any parallel link target picks it
+# up. Without this, `make -j$(nproc)` can race between multiple bin_PROGRAMS
+# targets all triggering `cd secp256k1 && $(MAKE)` concurrently, causing
+# intermittent error 1 exit codes on high-core-count CI runners. See #139.
+BUILT_SOURCES = $(LIBSECP256K1)
+
 $(LIBSECP256K1): $(wildcard secp256k1/src/*.h) $(wildcard secp256k1/src/*.c) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
 
