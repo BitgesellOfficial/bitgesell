@@ -91,18 +91,6 @@ BUILDDIR=$PWD/build contrib/devtools/gen-manpages.py
 ```
 
 gen-BGL-conf.sh
-=======
-headerssync-params.py
-=====================
-
-A script to generate optimal parameters for the headerssync module (src/headerssync.cpp). It takes no command-line
-options, as all its configuration is set at the top of the file. It runs many times faster inside PyPy. Invocation:
-
-```bash
-pypy3 contrib/devtools/headerssync-params.py
-```
-
-gen-bitcoin-conf.sh
 ===================
 
 Generates a BGL.conf file in `share/examples/` by parsing the output from `BGLd --help`. This script is run during the
@@ -115,6 +103,16 @@ example:
 
 ```bash
 BUILDDIR=$PWD/build contrib/devtools/gen-BGL-conf.sh
+```
+
+headerssync-params.py
+=====================
+
+A script to generate optimal parameters for the headerssync module (src/headerssync.cpp). It takes no command-line
+options, as all its configuration is set at the top of the file. It runs many times faster inside PyPy. Invocation:
+
+```bash
+pypy3 contrib/devtools/headerssync-params.py
 ```
 
 security-check.py and test-security-check.py
