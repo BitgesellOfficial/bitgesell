@@ -10,7 +10,7 @@ from bcc import BPF, USDT
 """Example logging BGL Core utxo set cache flushes utilizing
     the utxocache:flush tracepoint."""
 
-# USAGE:  ./contrib/tracing/log_utxocache_flush.py path/to/bitcoind
+# USAGE:  ./contrib/tracing/log_utxocache_flush.py path/to/BGLd
 
 # BCC: The C program to be compiled to an eBPF program (by BCC) and loaded into
 # a sandboxed Linux kernel VM.
