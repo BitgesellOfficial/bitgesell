@@ -207,3 +207,76 @@ Contributing to libsecp256k1
 ------------
 
 See [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## Contributing to Bitgesell
+
+We're excited to invite the community to contribute to Bitgesell by submitting pull requests. Whether you're looking to improve code quality, fix bugs, enhance documentation, or add new features, your contributions are valuable and will be rewarded with a $100 USDT bounty upon approval. Larger or more impactful contributions may receive higher payouts.
+
+To get started, fork the repository from [github.com/bitgesellofficial/bitgesell](https://github.com/bitgesellofficial/bitgesell), make your changes, and submit a pull request. Below are some examples of the types of contributions that are welcome:
+
+### Refactoring and Simplification
+
+Refactoring code to improve readability and maintainability is a great way to contribute. For example, simplifying complex logic or breaking down large functions into smaller, more manageable pieces.
+
+```cpp
+// Before
+void processTransaction(Transaction* tx) {
+    // Complex logic here
+}
+
+// After
+void validateTransaction(Transaction* tx) {
+    // Simplified validation logic
+}
+
+void applyTransaction(Transaction* tx) {
+    // Simplified application logic
+}
+```
+
+### Bug Fixes
+
+Fixing bugs is a crucial part of maintaining a reliable and secure project. Here's an example of a simple bug fix:
+
+```cpp
+// Before
+bool isValidSignature(const Signature& sig, const PubKey& pk) {
+    return sig.verify(pk);
+}
+
+// After
+bool isValidSignature(const Signature& sig, const PubKey& pk) {
+    return sig.verify(pk) && sig.isCompact();
+}
+```
+
+### Documentation and Comments
+
+Improving documentation and adding comments can greatly help other contributors understand the codebase. For example, adding a comment to explain a complex algorithm:
+
+```cpp
+// This function implements the wNAF algorithm for efficient scalar multiplication
+// It uses precomputed tables to reduce the number of operations
+void scalarMultiply(const Scalar& scalar, const Point& point, Point* result) {
+    // Implementation here
+}
+```
+
+### Test Fixes
+
+Fixing test cases is also highly encouraged. Here's an example of a test case that was fixed:
+
+```cpp
+// Before
+TEST_F(SignatureTest, TestVerify) {
+    EXPECT_TRUE(signature.verify(publicKey));
+}
+
+// After
+TEST_F(SignatureTest, TestVerify) {
+    EXPECT_TRUE(signature.verify(publicKey));
+    EXPECT_FALSE(signature.verify(invalidPublicKey));
+}
+```
+
+We encourage all contributors to become maintainers of the project and help shape the future of Bitgesell. Your contributions are essential to the growth and success of this open-source project.
