@@ -139,8 +139,6 @@ private:
     QAction* sendCoinsAction = nullptr;
     QAction* usedSendingAddressesAction = nullptr;
     QAction* usedReceivingAddressesAction = nullptr;
-    QAction* signMessageAction = nullptr;
-    QAction* verifyMessageAction = nullptr;
     QAction* m_load_psbt_action = nullptr;
     QAction* m_load_psbt_clipboard_action = nullptr;
     QAction* aboutAction = nullptr;
@@ -285,10 +283,6 @@ public Q_SLOTS:
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
 
-    /** Show Sign/Verify Message dialog and switch to sign message tab */
-    void gotoSignMessageTab(QString addr = "");
-    /** Show Sign/Verify Message dialog and switch to verify message tab */
-    void gotoVerifyMessageTab(QString addr = "");
     /** Load Partially Signed Bitcoin Transaction from file or clipboard */
     void gotoLoadPSBT(bool from_clipboard = false);
     /** Enable history action when privacy is changed */

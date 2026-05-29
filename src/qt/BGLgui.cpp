@@ -313,10 +313,6 @@ void BGLGUI::createActions()
     backupWalletAction->setStatusTip(tr("Backup wallet to another location"));
     changePassphraseAction = new QAction(tr("&Change Passphrase…"), this);
     changePassphraseAction->setStatusTip(tr("Change the passphrase used for wallet encryption"));
-    signMessageAction = new QAction(tr("Sign &message…"), this);
-    signMessageAction->setStatusTip(tr("Sign messages with your Bitgesell addresses to prove you own them"));
-    verifyMessageAction = new QAction(tr("&Verify message…"), this);
-    verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified Bitgesell addresses"));
     m_load_psbt_action = new QAction(tr("&Load PSBT from file…"), this);
     m_load_psbt_action->setStatusTip(tr("Load Partially Signed Bitcoin Transaction"));
     m_load_psbt_clipboard_action = new QAction(tr("Load PSBT from &clipboard…"), this);
@@ -385,12 +381,8 @@ void BGLGUI::createActions()
         connect(encryptWalletAction, &QAction::triggered, walletFrame, &WalletFrame::encryptWallet);
         connect(backupWalletAction, &QAction::triggered, walletFrame, &WalletFrame::backupWallet);
         connect(changePassphraseAction, &QAction::triggered, walletFrame, &WalletFrame::changePassphrase);
-        connect(signMessageAction, &QAction::triggered, [this]{ showNormalIfMinimized(); });
-        connect(signMessageAction, &QAction::triggered, [this]{ gotoSignMessageTab(); });
         connect(m_load_psbt_action, &QAction::triggered, [this]{ gotoLoadPSBT(); });
         connect(m_load_psbt_clipboard_action, &QAction::triggered, [this]{ gotoLoadPSBT(true); });
-        connect(verifyMessageAction, &QAction::triggered, [this]{ showNormalIfMinimized(); });
-        connect(verifyMessageAction, &QAction::triggered, [this]{ gotoVerifyMessageTab(); });
         connect(usedSendingAddressesAction, &QAction::triggered, walletFrame, &WalletFrame::usedSendingAddresses);
         connect(usedReceivingAddressesAction, &QAction::triggered, walletFrame, &WalletFrame::usedReceivingAddresses);
         connect(openAction, &QAction::triggered, this, &BGLGUI::openClicked);
@@ -488,8 +480,6 @@ void BGLGUI::createMenuBar()
         file->addAction(m_restore_wallet_action);
         file->addSeparator();
         file->addAction(openAction);
-        file->addAction(signMessageAction);
-        file->addAction(verifyMessageAction);
         file->addAction(m_load_psbt_action);
         file->addAction(m_load_psbt_clipboard_action);
         file->addSeparator();
@@ -799,8 +789,6 @@ void BGLGUI::setWalletActionsEnabled(bool enabled)
     encryptWalletAction->setEnabled(enabled);
     backupWalletAction->setEnabled(enabled);
     changePassphraseAction->setEnabled(enabled);
-    signMessageAction->setEnabled(enabled);
-    verifyMessageAction->setEnabled(enabled);
     usedSendingAddressesAction->setEnabled(enabled);
     usedReceivingAddressesAction->setEnabled(enabled);
     openAction->setEnabled(enabled);
@@ -838,14 +826,10 @@ void BGLGUI::createTrayIconMenu()
 
     QAction* send_action{nullptr};
     QAction* receive_action{nullptr};
-    QAction* sign_action{nullptr};
-    QAction* verify_action{nullptr};
     if (enableWallet) {
         send_action = trayIconMenu->addAction(sendCoinsAction->text(), sendCoinsAction, &QAction::trigger);
         receive_action = trayIconMenu->addAction(receiveCoinsAction->text(), receiveCoinsAction, &QAction::trigger);
         trayIconMenu->addSeparator();
-        sign_action = trayIconMenu->addAction(signMessageAction->text(), signMessageAction, &QAction::trigger);
-        verify_action = trayIconMenu->addAction(verifyMessageAction->text(), verifyMessageAction, &QAction::trigger);
         trayIconMenu->addSeparator();
     }
     QAction* options_action = trayIconMenu->addAction(optionsAction->text(), optionsAction, &QAction::trigger);
@@ -879,7 +863,7 @@ void BGLGUI::createTrayIconMenu()
         // Using QSystemTrayIcon::Context is not reliable.
         // See https://bugreports.qt.io/browse/QTBUG-91697
         trayIconMenu.get(), &QMenu::aboutToShow,
-        [this, show_hide_action, send_action, receive_action, sign_action, verify_action, options_action, node_window_action, quit_action] {
+        [this, show_hide_action, send_action, receive_action, options_action, node_window_action, quit_action] {
             if (m_node.shutdownRequested()) return; // nothing to do, node is shutting down.
 
             if (show_hide_action) show_hide_action->setText(
@@ -895,8 +879,6 @@ void BGLGUI::createTrayIconMenu()
                 if (enableWallet) {
                     send_action->setEnabled(sendCoinsAction->isEnabled());
                     receive_action->setEnabled(receiveCoinsAction->isEnabled());
-                    sign_action->setEnabled(signMessageAction->isEnabled());
-                    verify_action->setEnabled(verifyMessageAction->isEnabled());
                 }
                 options_action->setEnabled(optionsAction->isEnabled());
                 node_window_action->setEnabled(openRPCConsoleAction->isEnabled());
@@ -970,15 +952,6 @@ void BGLGUI::gotoSendCoinsPage(QString addr)
     if (walletFrame) walletFrame->gotoSendCoinsPage(addr);
 }
 
-void BGLGUI::gotoSignMessageTab(QString addr)
-{
-    if (walletFrame) walletFrame->gotoSignMessageTab(addr);
-}
-
-void BGLGUI::gotoVerifyMessageTab(QString addr)
-{
-    if (walletFrame) walletFrame->gotoVerifyMessageTab(addr);
-}
 void BGLGUI::gotoLoadPSBT(bool from_clipboard)
 {
     if (walletFrame) walletFrame->gotoLoadPSBT(from_clipboard);

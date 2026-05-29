@@ -1,6 +1,10 @@
 // Copyright (c) 2011-2022 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
+//
+// NOTE: Bitgesell only supports segwit addresses (no legacy addresses), so
+// the sign/verify message feature is not supported. This file is kept for
+// reference but is no longer reachable from the UI. See BGL Bounty #81.
 
 #include <qt/signverifymessagedialog.h>
 #include <qt/forms/ui_signverifymessagedialog.h>
