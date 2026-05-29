@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2019-present The Bitcoin Core developers
+# Copyright (c) The Bitgesell Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 export LC_ALL=C.UTF-8
 
-export CONTAINER_NAME=ci_native_nowallet_libbitcoinkernel
+export CONTAINER_NAME=ci_native_nowallet_libBGLkernel
 export CI_IMAGE_NAME_TAG="docker.io/debian:bullseye"
 # Use minimum supported python3.9 and clang-16, see doc/dependencies.md
 export PACKAGES="python3-zmq clang-16 llvm-16 libc++abi-16-dev libc++-16-dev"
