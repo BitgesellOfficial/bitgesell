@@ -30,8 +30,8 @@ Drag BGL Core to your applications folder, and then run BGL Core.
 
 * See the documentation at the [BGL Wiki](https://en.bitcoin.it/wiki/Main_Page)
 for help and more information.
-* Ask for help on [BGL StackExchange](https://bitcoin.stackexchange.com).
-* Ask for help on #BGL on Libera Chat. If you don't have an IRC client, you can use [web.libera.chat](https://web.libera.chat/#bitcoin).
+* Ask for help on [BGL StackExchange](https://BGL.stackexchange.com).
+* Ask for help on #BGL on Libera Chat. If you don't have an IRC client, you can use [web.libera.chat](https://web.libera.chat/#BGL).
 * Ask for help on the [BitcoinTalk](https://bitcointalk.org/) forums, in the [Technical Support board](https://bitcointalk.org/index.php?board=4.0).
 
 Building
@@ -66,7 +66,7 @@ The BGL repo's [root README](/README.md) contains relevant information on the de
 
 ### Resources
 * Discuss on the [BitcoinTalk](https://bitcointalk.org/) forums, in the [Development & Technical Discussion board](https://bitcointalk.org/index.php?board=6.0).
-* Discuss project-specific development on #bitcoin-core-dev on Libera Chat. If you don't have an IRC client, you can use [web.libera.chat](https://web.libera.chat/#bitcoin-core-dev).
+* Discuss project-specific development on #BGL-core-dev on Libera Chat. If you don't have an IRC client, you can use [web.libera.chat](https://web.libera.chat/#BGL-core-dev).
 
 ### Miscellaneous
 - [Assets Attribution](assets-attribution.md)
