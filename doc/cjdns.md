@@ -1,6 +1,6 @@
-# CJDNS support in Bitcoin Core
+# CJDNS support in BGL Core
 
-It is possible to run Bitcoin Core over CJDNS, an encrypted IPv6 network that
+It is possible to run BGL Core over CJDNS, an encrypted IPv6 network that
 uses public-key cryptography for address allocation and a distributed hash table
 for routing.
 
@@ -9,7 +9,7 @@ for routing.
 CJDNS is like a distributed, shared VPN with multiple entry points where every
 participant can reach any other participant. All participants use addresses from
 the `fc00::/8` network (reserved IPv6 range). Installation and configuration is
-done outside of Bitcoin Core, similarly to a VPN (either in the host/OS or on
+done outside of BGL Core, similarly to a VPN (either in the host/OS or on
 the network router). See https://github.com/cjdelisle/cjdns#readme and
 https://github.com/hyperboria/docs#hyperboriadocs for more information.
 
