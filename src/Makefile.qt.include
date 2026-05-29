@@ -10,7 +10,7 @@ endif
 
 EXTRA_LIBRARIES += qt/libBGLqt.a
 
-# bitcoin qt core #
+# BGL qt core #
 include Makefile.qt_locale.include
 
 QT_FORMS_UI = \
@@ -315,7 +315,7 @@ QT_FORMS_H=$(join $(dir $(QT_FORMS_UI)),$(addprefix ui_, $(notdir $(QT_FORMS_UI:
 $(QT_MOC): $(QT_FORMS_H)
 $(qt_libBGLqt_a_OBJECTS) $(qt_BGL_qt_OBJECTS) $(BGL_gui_OBJECTS) : | $(QT_MOC)
 
-# bitcoin-qt and bitcoin-gui binaries #
+# BGL-qt and BGL-gui binaries #
 BGL_qt_cppflags = $(AM_CPPFLAGS) $(BGL_INCLUDES) $(BGL_QT_INCLUDES) \
   $(QT_INCLUDES) $(QR_CFLAGS)
 BGL_qt_cxxflags = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
@@ -360,7 +360,7 @@ $(srcdir)/qt/BGLstrings.cpp: FORCE
 	@test -n $(XGETTEXT) || echo "xgettext is required for updating translations"
 	$(AM_V_GEN) cd $(srcdir); XGETTEXT=$(XGETTEXT) COPYRIGHT_HOLDERS="$(COPYRIGHT_HOLDERS)" $(PYTHON) ../share/qt/extract_strings_qt.py $(libBGL_node_a_SOURCES) $(libBGL_wallet_a_SOURCES) $(libBGL_common_a_SOURCES) $(libBGL_zmq_a_SOURCES) $(libBGL_consensus_a_SOURCES) $(libBGL_util_a_SOURCES)
 
-# The resulted bitcoin_en.xlf source file should follow Transifex requirements.
+# The resulted BGL_en.xlf source file should follow Transifex requirements.
 # See: https://docs.transifex.com/formats/xliff#how-to-distinguish-between-a-source-file-and-a-translation-file
 translate: $(srcdir)/qt/BGLstrings.cpp $(QT_FORMS_UI) $(QT_FORMS_UI) $(BGL_QT_BASE_CPP) qt/BGL.cpp $(BGL_QT_WINDOWS_CPP) $(BGL_QT_WALLET_CPP) $(BGL_QT_H) $(BGL_MM)
 	@test -n $(LUPDATE) || echo "lupdate is required for updating translations"

@@ -17,7 +17,7 @@ namespace util {
  *
  * This implements a small subset of the functionality in C++17's std::any
  * class, and can be dropped when the project updates to C++17
- * (https://github.com/bitcoin/bitcoin/issues/16684)
+ * (https://github.com/BitgesellOfficial/bitgesell/issues/16684)
  */
 class Ref
 {
