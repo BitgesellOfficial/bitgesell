@@ -1,4 +1,28 @@
-# Contributing to libsecp256k1
+# Contributing to Bitgesell
+
+## BGL PR bounty hunt
+
+Bitgesell welcomes pull requests from the community. Reasonable contributions
+can include refactoring, tests, cleanup, documentation and comment improvements,
+bug fixes, build improvements, and new features.
+
+Approved pull requests may receive a bounty starting at $100 USDT. Larger or
+more impactful contributions may qualify for higher payouts at the maintainers'
+discretion. Bounty eligibility and final payout amounts are confirmed during
+maintainer review and approval.
+
+To contribute:
+
+1. Fork [BitgesellOfficial/bitgesell](https://github.com/BitgesellOfficial/bitgesell).
+2. Create a focused branch for your change.
+3. Open a pull request with a clear explanation of what changed and why.
+4. Respond to maintainer feedback until the pull request is ready for approval.
+
+Keep pull requests focused and reviewable. Separate unrelated changes into
+separate pull requests, and include tests or documentation updates when they are
+relevant to the change.
+
+## libsecp256k1 contribution notes
 
 ## Scope
 

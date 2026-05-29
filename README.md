@@ -203,7 +203,18 @@ Translations are periodically pulled from Transifex and merged into the git repo
 
 See [SECURITY.md](SECURITY.md)
 
-Contributing to libsecp256k1
-------------
+## Contributing
+
+### BGL PR bounty hunt
+
+Bitgesell welcomes community pull requests that improve the project. Reasonable
+contributions can include bug fixes, refactoring, tests, build improvements,
+documentation updates, cleanup, comments, and new features.
+
+Approved pull requests may receive a bounty starting at $100 USDT. Larger or
+more impactful contributions may qualify for higher payouts at the maintainers'
+discretion. To get started, fork
+[github.com/BitgesellOfficial/bitgesell](https://github.com/BitgesellOfficial/bitgesell),
+open a focused pull request, and describe what changed and why.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md)
