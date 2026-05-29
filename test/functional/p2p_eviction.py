@@ -4,12 +4,19 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 """ Test node eviction logic
+
+Adapted from Bitcoin Core PR #16756.
+
 When the number of peers has reached the limit of maximum connections,
 the next connecting inbound peer will trigger the eviction mechanism.
 We cannot currently test the parts of the eviction logic that are based on
 address/netgroup since in the current framework, all peers are connecting from
-the same local address. See Issue #14210 for more info.
-Therefore, this test is limited to the remaining protection criteria.
+the same local address. See upstream issue #14210 for more info.
+Therefore, this test is limited to the remaining protection criteria:
+
+- Peers that have sent us a recent block are protected from eviction.
+- Peers that have sent us a recent transaction are protected from eviction.
+- Peers with faster ping times are protected from eviction.
 """
 import time
 
