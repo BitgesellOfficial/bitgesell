@@ -700,7 +700,7 @@ fs::path GetDefaultDataDir()
     //   old: C:\Users\Username\AppData\Roaming\Bitcoin
     //   new: C:\Users\Username\AppData\Local\Bitcoin
     // macOS: ~/Library/Application Support/Bitcoin
-    // Unix-like: ~/.bitcoin
+    // Unix-like: ~/.BGL
 #ifdef WIN32
     // Windows
     // Check for existence of datadir in old location and keep it there
