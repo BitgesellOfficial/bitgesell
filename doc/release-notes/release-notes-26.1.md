@@ -1,7 +1,7 @@
 26.1 Release Notes
 ==================
 
-Bitcoin Core version 26.1 is now available from:
+Bitgesell version 26.1 is now available from:
 
   <https://bitcoincore.org/bin/bitcoin-core-26.1/>
 
@@ -21,20 +21,20 @@ How to Upgrade
 
 If you are running an older version, shut it down. Wait until it has completely
 shut down (which might take a few minutes in some cases), then run the
-installer (on Windows) or just copy over `/Applications/Bitcoin-Qt` (on macOS)
+installer (on Windows) or just copy over `/Applications/Bitgesell` (on macOS)
 or `bitcoind`/`bitcoin-qt` (on Linux).
 
-Upgrading directly from a version of Bitcoin Core that has reached its EOL is
+Upgrading directly from a version of Bitgesell that has reached its EOL is
 possible, but it might take some time if the data directory needs to be migrated. Old
-wallet versions of Bitcoin Core are generally supported.
+wallet versions of Bitgesell are generally supported.
 
 Compatibility
 ==============
 
-Bitcoin Core is supported and extensively tested on operating systems
-using the Linux kernel, macOS 11.0+, and Windows 7 and newer.  Bitcoin
+Bitgesell is supported and extensively tested on operating systems
+using the Linux kernel, macOS 11.0+, and Windows 7 and newer.  Bitgesell
 Core should also work on most other Unix-like systems but is not as
-frequently tested on them.  It is not recommended to use Bitcoin Core on
+frequently tested on them.  It is not recommended to use Bitgesell on
 unsupported systems.
 
 Notable changes

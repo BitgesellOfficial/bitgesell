@@ -1,7 +1,7 @@
 0.20.0 Release Notes
 ====================
 
-Bitcoin Core version 0.20.0 is now available from:
+Bitgesell version 0.20.0 is now available from:
 
   <https://bitcoincore.org/bin/bitcoin-core-0.20.0/>
 
@@ -21,24 +21,24 @@ How to Upgrade
 
 If you are running an older version, shut it down. Wait until it has completely
 shut down (which might take a few minutes in some cases), then run the
-installer (on Windows) or just copy over `/Applications/Bitcoin-Qt` (on Mac)
+installer (on Windows) or just copy over `/Applications/Bitgesell` (on Mac)
 or `bitcoind`/`bitcoin-qt` (on Linux).
 
-Upgrading directly from a version of Bitcoin Core that has reached its EOL is
+Upgrading directly from a version of Bitgesell that has reached its EOL is
 possible, but it might take some time if the data directory needs to be migrated. Old
-wallet versions of Bitcoin Core are generally supported.
+wallet versions of Bitgesell are generally supported.
 
 Compatibility
 ==============
 
-Bitcoin Core is supported and extensively tested on operating systems
-using the Linux kernel, macOS 10.12+, and Windows 7 and newer.  Bitcoin
+Bitgesell is supported and extensively tested on operating systems
+using the Linux kernel, macOS 10.12+, and Windows 7 and newer.  Bitgesell
 Core should also work on most other Unix-like systems but is not as
-frequently tested on them.  It is not recommended to use Bitcoin Core on
+frequently tested on them.  It is not recommended to use Bitgesell on
 unsupported systems.
 
-From Bitcoin Core 0.20.0 onwards, macOS versions earlier than 10.12 are no
-longer supported. Additionally, Bitcoin Core does not yet change appearance
+From Bitgesell 0.20.0 onwards, macOS versions earlier than 10.12 are no
+longer supported. Additionally, Bitgesell does not yet change appearance
 when macOS "dark mode" is activated.
 
 Known Bugs
@@ -61,20 +61,20 @@ Notable changes
 P2P and network changes
 -----------------------
 
-#### Removal of BIP61 reject network messages from Bitcoin Core
+#### Removal of BIP61 reject network messages from Bitgesell
 
 The `-enablebip61` command line option to enable BIP61 has been removed.
 (#17004)
 
-This feature has been disabled by default since Bitcoin Core version 0.18.0.
+This feature has been disabled by default since Bitgesell version 0.18.0.
 Nodes on the network can not generally be trusted to send valid messages
 (including reject messages), so this should only ever be used when
 connected to a trusted node.  Please use the alternatives recommended
 below if you rely on this removed feature:
 
-- Testing or debugging of implementations of the Bitcoin P2P network protocol
+- Testing or debugging of implementations of the Bitgesell P2P network protocol
   should be done by inspecting the log messages that are produced by a recent
-  version of Bitcoin Core. Bitcoin Core logs debug messages
+  version of Bitgesell. Bitgesell logs debug messages
   (`-debug=<category>`) to a stream (`-printtoconsole`) or to a file
   (`-debuglogfile=<debug.log>`).
 
@@ -138,9 +138,9 @@ Updated RPCs
 Build System
 ------------
 
-- OpenSSL is no longer used by Bitcoin Core.  (#17265)
+- OpenSSL is no longer used by Bitgesell.  (#17265)
 
-- BIP70 support has been fully removed from Bitcoin Core. The
+- BIP70 support has been fully removed from Bitgesell. The
   `--enable-bip70` option remains, but it will throw an error during configure.
   (#17165)
 
@@ -172,7 +172,7 @@ New settings
 Updated settings
 ----------------
 
-- All custom settings configured when Bitcoin Core starts are now
+- All custom settings configured when Bitgesell starts are now
   written to the `debug.log` file to assist troubleshooting.  (#16115)
 
 - Importing blocks upon startup via the `bootstrap.dat` file no longer
@@ -198,7 +198,7 @@ Removed settings
 GUI changes
 -----------
 
-- The "Start Bitcoin Core on system login" option has been removed on macOS.
+- The "Start Bitgesell on system login" option has been removed on macOS.
   (#17567)
 
 - In the Peers window, the details for a peer now displays a `Mapped AS`
@@ -208,15 +208,15 @@ GUI changes
 
 - A "known bug" [announced](https://bitcoincore.org/en/releases/0.18.0/#wallet-gui)
   in the release notes of version 0.18 has been fixed.  The issue
-  affected anyone who simultaneously used multiple Bitcoin Core wallets
+  affected anyone who simultaneously used multiple Bitgesell wallets
   and the GUI coin control feature. (#18894)
 
 - For watch-only wallets, creating a new transaction in the Send screen
   or fee bumping an existing transaction in the Transactions screen will
-  automatically copy a Partially-Signed Bitcoin Transaction (PSBT) to
+  automatically copy a Partially-Signed Bitgesell Transaction (PSBT) to
   the system clipboard.  This can then be pasted into an external
   program such as [HWI](https://github.com/bitcoin-core/HWI) for
-  signing.  Future versions of Bitcoin Core should support a GUI option
+  signing.  Future versions of Bitgesell should support a GUI option
   for finalizing and broadcasting PSBTs, but for now the debug console
   may be used with the `finalizepsbt` and `sendrawtransaction` RPCs.
   (#16944, #17492)
@@ -246,7 +246,7 @@ Wallet
 Documentation changes
 ---------------------
 
-- Bitcoin Core's automatically-generated source code documentation is
+- Bitgesell's automatically-generated source code documentation is
   now available at https://doxygen.bitcoincore.org.  (#17596)
 
 Low-level changes
@@ -747,7 +747,7 @@ Build system
 
 ### Documentation
 - #16947 Doxygen-friendly script/descriptor.h comments (ch4ot1c)
-- #16983 Add detailed info about Bitcoin Core files (hebasto)
+- #16983 Add detailed info about Bitgesell files (hebasto)
 - #16986 Doxygen-friendly CuckooCache comments (ch4ot1c)
 - #17022 move-only: Steps for "before major release branch-off" (MarcoFalke)
 - #17026 Update bips.md for default bech32 addresses in 0.20.0 (MarcoFalke)
