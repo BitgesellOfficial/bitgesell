@@ -224,10 +224,8 @@ const char *uvTypeName(UniValue::VType t)
     case UniValue::VARR: return "array";
     case UniValue::VSTR: return "string";
     case UniValue::VNUM: return "number";
+    default: return "unknown";
     }
-
-    // not reached
-    return nullptr;
 }
 
 const UniValue& UniValue::find_value(std::string_view key) const
