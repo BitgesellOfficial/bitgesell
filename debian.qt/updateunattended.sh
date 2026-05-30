@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 export DEBIAN_FRONTEND=noninteractive
 export TZ=Etc/UTC
 apt-get update && apt-get install -y tzdata

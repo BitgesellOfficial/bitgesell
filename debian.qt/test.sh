@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 finish() {
     docker stop $container >/dev/null
