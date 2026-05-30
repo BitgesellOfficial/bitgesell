@@ -1,4 +1,6 @@
 #!/bin/sh
+export LC_ALL=C
+
 set -e
 if [ $# -ne 3 ];
     then echo "usage: $0 <input> <stripped-binary> <debug-binary>"

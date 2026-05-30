@@ -1,8 +1,8 @@
 #!/bin/sh
 
-set -eux
-
 export LC_ALL=C
+
+set -eux
 
 # Print commit and relevant CI environment to allow reproducing the job outside of CI.
 git show --no-patch
