@@ -17,7 +17,9 @@ FOLDER_GREP = 'src'
 FOLDER_TEST = 'src/test/'
 REGEX_ARG = r'\b(?:GetArg|GetArgs|GetBoolArg|GetIntArg|GetPathArg|IsArgSet|get_net)\("(-[^"]+)"'
 REGEX_DOC = r'AddArg\("(-[^"=]+?)(?:=|")'
-CMD_ROOT_DIR = '$(git rev-parse --show-toplevel)/{}'.format(FOLDER_GREP)
+# Quote the resolved path because contributors often keep checkouts in folders
+# with spaces, and these commands are evaluated through the shell below.
+CMD_ROOT_DIR = '"$(git rev-parse --show-toplevel)/{}"'.format(FOLDER_GREP)
 CMD_GREP_ARGS = r"git grep --perl-regexp '{}' -- {} ':(exclude){}'".format(REGEX_ARG, CMD_ROOT_DIR, FOLDER_TEST)
 CMD_GREP_WALLET_ARGS = r"git grep --function-context 'void WalletInit::AddWalletOptions' -- {} | grep AddArg".format(CMD_ROOT_DIR)
 CMD_GREP_WALLET_HIDDEN_ARGS = r"git grep --function-context 'void DummyWalletInit::AddWalletOptions' -- {}".format(CMD_ROOT_DIR)
