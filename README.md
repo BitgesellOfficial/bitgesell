@@ -203,7 +203,11 @@ Translations are periodically pulled from Transifex and merged into the git repo
 
 See [SECURITY.md](SECURITY.md)
 
-Contributing to libsecp256k1
+Contributing
 ------------
 
 See [CONTRIBUTING.md](CONTRIBUTING.md)
+
+Quick onboarding guide for small PRs:
+
+See [doc/contributor_quickstart.md](doc/contributor_quickstart.md)
