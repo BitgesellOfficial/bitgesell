@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export LC_ALL=C
+
 #finish() {
 #    docker stop $container >/dev/null
 #    docker container rm $container >/dev/null

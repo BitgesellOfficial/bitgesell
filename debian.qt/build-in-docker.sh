@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export LC_ALL=C
+
 set -e
 
 debuild -S

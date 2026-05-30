@@ -1,4 +1,6 @@
 #!/bin/bash
+export LC_ALL=C
+
 export DEBIAN_FRONTEND=noninteractive
 export TZ=Etc/UTC
 apt-get update && apt-get install -y tzdata
