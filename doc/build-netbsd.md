@@ -2,7 +2,7 @@
 
 **Updated for NetBSD [10.0](https://netbsd.org/releases/formal-10/NetBSD-10.0.html)**
 
-This guide describes how to build bitcoind, command-line utilities, and GUI on NetBSD.
+This guide describes how to build BGLd, command-line utilities, and the GUI on NetBSD.
 
 ## Preparation
 
@@ -36,7 +36,7 @@ See [dependencies.md](dependencies.md) for a complete overview.
 
 ### 2. Clone BGL Repo
 
-Clone the Bitcoin Core repository to a directory. All build scripts and commands will run from this directory.
+Clone the Bitgesell repository to a directory. All build scripts and commands will run from this directory.
 
 ```bash
 git clone https://github.com/BitgesellOfficial/bitgesell.git
@@ -46,7 +46,7 @@ git clone https://github.com/BitgesellOfficial/bitgesell.git
 
 #### Wallet Dependencies
 
-It is not necessary to build wallet functionality to run bitcoind or the GUI.
+It is not necessary to build wallet functionality to run BGLd or the GUI.
 
 ###### Descriptor Wallet Support
 
@@ -66,7 +66,7 @@ pkgin install db4
 
 #### GUI Dependencies
 
-Bitcoin Core includes a GUI built with the cross-platform Qt Framework. To compile the GUI, Qt 5 is required.
+BGL Core includes a GUI built with the cross-platform Qt Framework. To compile the GUI, Qt 5 is required.
 
 ```bash
 pkgin install qt5-qtbase qt5-qttools
@@ -94,7 +94,7 @@ pkgin install python39
 
 ### 1. Configuration
 
-There are many ways to configure Bitcoin Core. Here is an example that
+There are many ways to configure BGL Core. Here is an example that
 explicitly disables the wallet and GUI:
 
 ```bash
