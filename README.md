@@ -38,6 +38,7 @@
         <li><a href="#installation">Installation</a></li>
       </ul> -->
     </li>
+    <li><a href="#testing-and-qa">Testing and QA</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
@@ -189,6 +190,14 @@ Benchmark
 ------------
 If configured with `--enable-benchmark` (which is the default), binaries for benchmarking the libsecp256k1 functions will be present in the root directory after the build.
 
+Testing and QA
+------------
+The repository includes unit, functional, fuzz, lint, and benchmark tooling.
+Start with [test/README.md](test/README.md) for the functional test runner and
+[test/lint/README.md](test/lint/README.md) for the lint suite. Additional
+developer notes are available in [doc/benchmarking.md](doc/benchmarking.md) and
+[doc/fuzzing.md](doc/fuzzing.md).
+
 Facebook: [Bitgesell](https://www.facebook.com/Bitgesell)
 
 
@@ -196,7 +205,7 @@ Facebook: [Bitgesell](https://www.facebook.com/Bitgesell)
 ## Translations
 
 Changes to translations as well as new translations can be submitted to
-[BGL Core's Transifex page](https://www.transifex.com/bitcoin/bitcoin/).
+[BGL Core's Transifex page](https://www.transifex.com/BGL/BGL/).
 
 Translations are periodically pulled from Transifex and merged into the git repository. See the
 [translation process](doc/translation_process.md) for details on how this works.
