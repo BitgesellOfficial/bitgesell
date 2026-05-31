@@ -44,3 +44,16 @@ Use this shape:
 
 Small, well-justified PRs generally review faster than broad refactors.
 
+## 6) Common pitfalls to avoid
+
+- Do not combine unrelated fixes in one PR.
+- Do not include generated or local-environment files by accident.
+- Do not force-push repeatedly after review starts unless strictly necessary.
+- Do not leave validation claims without exact command output.
+
+## 7) Final pre-push checklist
+
+1. Re-read changed files once for clarity and typos.
+2. Re-run the smallest relevant validation command.
+3. Confirm `git status` only shows intended files.
+4. Ensure PR description includes validation and rollback note.
