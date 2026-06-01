@@ -178,10 +178,10 @@ In "Developer Command Prompt for VS 2022":
 
 Usage examples
 -----------
-Usage examples can be found in the [examples](examples) directory. To compile them you need to configure with `--enable-examples`.
-  * [ECDSA example](examples/ecdsa.c)
-  * [Schnorr signatures example](examples/schnorr.c)
-  * [Deriving a shared secret (ECDH) example](examples/ecdh.c)
+Usage examples can be found in the [examples](src/secp256k1/examples) directory. To compile them you need to configure with `--enable-examples`.
+  * [ECDSA example](src/secp256k1/examples/ecdsa.c)
+  * [Schnorr signatures example](src/secp256k1/examples/schnorr.c)
+  * [Deriving a shared secret (ECDH) example](src/secp256k1/examples/ecdh.c)
 
 To compile the Schnorr signature and ECDH examples, you also need to configure with `--enable-module-schnorrsig` and `--enable-module-ecdh`.
 
