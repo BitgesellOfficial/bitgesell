@@ -61,7 +61,7 @@ if USE_NATPMP
 FUZZ_SUITE_LD_COMMON += $(NATPMP_LIBS)
 endif
 
-# test_bitcoin binary #
+# test_BGL binary #
 BGL_TESTS =\
   test/addrman_tests.cpp \
   test/allocator_tests.cpp \
