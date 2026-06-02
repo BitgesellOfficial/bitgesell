@@ -52,6 +52,7 @@ The BGL repo's [root README](/README.md) contains relevant information on the de
 
 - [Developer Notes](developer-notes.md)
 - [Productivity Notes](productivity.md)
+- [PR Review Checklist](pr-review-checklist.md)
 - [Release Process](release-process.md)
 - [Source Code Documentation (External Link)](https://doxygen.bitgesell.ca/)
 - [Translation Process](translation_process.md)
