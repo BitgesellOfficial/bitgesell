@@ -56,77 +56,24 @@
 
 
 Features:
-* secp256k1 ECDSA signing/verification and key generation.
-* Additive and multiplicative tweaking of secret/public keys.
-* Serialization/parsing of secret keys, public keys, signatures.
-* Constant time, constant memory access signing and public key generation.
-* Derandomized ECDSA (via RFC6979 or with a caller provided function.)
-* Very efficient implementation.
-* Suitable for embedded systems.
-* Optional module for public key recovery.
-* Optional module for ECDH key exchange.
-* Optional module for Schnorr signatures according to [BIP-340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki).
+* Bitcoin Core-derived full node, wallet, and RPC software for the Bitgesell network.
+* Keccak (SHA-3) block hashing.
+* 100% SegWit transaction policy.
+* 90% transaction-fee burn model: miners receive `nFees * 0.1 + GetBlockSubsidy()`.
+* Smaller 400,000-unit block weight target.
+* One-year halving interval (`210000 / 4` blocks) with a 21,000,000 BGL maximum supply.
 
-<b>Bitgesell is a fork of Bitcoin with the following changes:</b> <br>
-* Block Reward [Burn rate is 90% of tx fees]
-  ```sh
-  nFees*0.1 + GetBlockSubsidy()
-  ```
-* Block Weight [10 times smaller than Bitcoin]
-  ```sh
-  <= 400,000
-  ```
-* 100% Segwit
-  ```sh
-  Eliminates problems with legacy type of transactions
-  ```
-* Halving Interval [Halving cycle of Bitgesell is 1 year while that of Bitcoin is 4 years]
-  ```sh
-  210000 blocks/4
-  ```
-* Block Subsidy [Max coins = 21,000,000] <br>
-  `210000 blocks/4` <br> <hr>
-  `Hashing algorithm for blocks is Keccak (sha-3).` <br> <hr>
-  `The master branch is regularly built (see` [doc/build-*.md](https://github.com/BitgesellOfficial/bitgesell/tree/master/doc) `for instructions) and tested, but is not guaranteed to be completely stable.` <br> <hr>
-  [tags](https://github.com/BitgesellOfficial/bitgesell/tags) `are created regularly to indicate new official, stable release versions of BGL Core.` <br>
+`master` is regularly built and tested, but it is not guaranteed to be completely stable. See the platform-specific guides in [`doc/`](https://github.com/BitgesellOfficial/bitgesell/tree/master/doc) for full build instructions. [Tags](https://github.com/BitgesellOfficial/bitgesell/tags) are created for official stable BGL Core releases.
 
 
 ### Built With
 
-* General
-  * No runtime heap allocation.
-  * Extensive testing infrastructure.
-  * Structured to facilitate review and analysis.
-  * Intended to be portable to any system with a C89 compiler and uint64_t support.
-  * No use of floating types.
-  * Expose only higher level interfaces to minimize the API surface and improve application security. ("Be difficult to use insecurely.")
-* Field operations
-  * Optimized implementation of arithmetic modulo the curve's field size (2^256 - 0x1000003D1).
-    * Using 5 52-bit limbs
-    * Using 10 26-bit limbs (including hand-optimized assembly for 32-bit ARM, by Wladimir J. van der Laan).
-      * This is an experimental feature that has not received enough scrutiny to satisfy the standard of quality of this library but is made available for testing and review by the community.
-* Scalar operations
-  * Optimized implementation without data-dependent branches of arithmetic modulo the curve's order.
-    * Using 4 64-bit limbs (relying on __int128 support in the compiler).
-    * Using 8 32-bit limbs.
-* Modular inverses (both field elements and scalars) based on [safegcd](https://gcd.cr.yp.to/index.html) with some modifications, and a variable-time variant (by Peter Dettman).
-* Group operations
-  * Point addition formula specifically simplified for the curve equation (y^2 = x^3 + 7).
-  * Use addition between points in Jacobian and affine coordinates where possible.
-  * Use a unified addition/doubling formula where necessary to avoid data-dependent branches.
-  * Point/x comparison without a field inversion by comparison in the Jacobian coordinate space.
-* Point multiplication for verification (a*P + b*G).
-  * Use wNAF notation for point multiplicands.
-  * Use a much larger window for multiples of G, using precomputed multiples.
-  * Use Shamir's trick to do the multiplication with the public key and the generator simultaneously.
-  * Use secp256k1's efficiently-computable endomorphism to split the P multiplicand into 2 half-sized ones.
-* Point multiplication for signing
-  * Use a precomputed table of multiples of powers of 16 multiplied with the generator, so general multiplication becomes a series of additions.
-  * Intended to be completely free of timing sidechannels for secret-key operations (on reasonable hardware/toolchains)
-    * Access the table with branch-free conditional moves so memory access is uniform.
-    * No data-dependent branches
-  * Optional runtime blinding which attempts to frustrate differential power analysis.
-  * The precomputed tables add and eventually subtract points for which no known scalar (secret key) is known, preventing even an attacker with control over the secret key used to control the data internally.
+* C++ full-node and wallet code derived from Bitcoin Core.
+* Autotools-based build system with platform-specific documentation under `doc/`.
+* LevelDB for chain-state storage.
+* secp256k1 cryptography for ECDSA/Schnorr primitives.
+* Qt GUI components for the desktop wallet.
+* Functional, unit, and lint test suites under `test/` and `src/test/`.
 
 Building with Autotools
 -----------------------
@@ -137,12 +84,12 @@ Building with Autotools
     $ make check  # run the test suite
     $ sudo make install  # optional
 
-To compile optional modules (such as Schnorr signatures), you need to run `./configure` with additional flags (such as `--enable-module-schnorrsig`). Run `./configure --help` to see the full list of available flags.
+For dependency and platform-specific setup, start with the guides in [`doc/`](doc/), especially the Unix, Windows, macOS, and OpenBSD build documents.
 
 Building with CMake (experimental)
 ----------------------------------
 
-To maintain a pristine source tree, CMake encourages to perform an out-of-source build by using a separate dedicated build tree.
+To maintain a pristine source tree, CMake encourages out-of-source builds using a separate build directory.
 
 ### Building on POSIX systems
 
@@ -151,8 +98,6 @@ To maintain a pristine source tree, CMake encourages to perform an out-of-source
     $ make
     $ make check  # run the test suite
     $ sudo make install  # optional
-
-To compile optional modules (such as Schnorr signatures), you need to run `cmake` with additional flags (such as `-DSECP256K1_ENABLE_MODULE_SCHNORRSIG=ON`). Run `cmake .. -LH` to see the full list of available flags.
 
 ### Cross compiling
 
