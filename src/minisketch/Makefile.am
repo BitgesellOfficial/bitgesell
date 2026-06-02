@@ -57,8 +57,9 @@ noinst_PROGRAMS =
 if USE_BENCHMARK
 noinst_PROGRAMS += bench
 endif
+check_PROGRAMS =
 if USE_TESTS
-noinst_PROGRAMS += test test-verify
+check_PROGRAMS += test test-verify
 TESTS = test test-verify
 endif
 
