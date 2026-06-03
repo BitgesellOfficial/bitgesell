@@ -15,13 +15,13 @@ BEGIN
         BLOCK "040904E4" // U.S. English - multilingual (hex)
         BEGIN
             VALUE "CompanyName",        "Bitgesell"
-            VALUE "FileDescription",    "BGLd (Bitgesell node with a JSON-RPC server)"
+            VALUE "FileDescription",    "BGL-tx (CLI Bitgesell transaction editor utility)"
             VALUE "FileVersion",        PACKAGE_VERSION
-            VALUE "InternalName",       "BGLd"
+            VALUE "InternalName",       "BGL-tx"
             VALUE "LegalCopyright",     COPYRIGHT_STR
             VALUE "LegalTrademarks1",   "Distributed under the MIT software license, see the accompanying file COPYING or http://www.opensource.org/licenses/mit-license.php."
-            VALUE "OriginalFilename",   "BGLd.exe"
-            VALUE "ProductName",        "BGLd"
+            VALUE "OriginalFilename",   "BGL-tx.exe"
+            VALUE "ProductName",        "BGL-tx"
             VALUE "ProductVersion",     PACKAGE_VERSION
         END
     END
