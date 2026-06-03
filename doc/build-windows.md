@@ -21,10 +21,12 @@ Follow the upstream installation instructions, available [here](https://learn.mi
 Cross-compilation for Ubuntu and Windows Subsystem for Linux
 ===
 
-The dependencies for cross-compile for Windows x64 + x32 on Linux are already compiled at:   */bitgesell/depends/*    folder, see codes below to now compile Windows wallets on Linux 18.04:
+The depends build system can build the Windows x64 and x32 dependencies under the
+`depends/` directory. Use the examples below from the repository root after
+preparing the appropriate depends host.
 
 
-To compile for Windows on Linux 18.04:
+To compile for Windows from Ubuntu or WSL:
 ------------------------------------------------------------
 
    - x64:
@@ -65,7 +67,7 @@ If you want to build the windows installer with `make deploy` you need [NSIS](ht
 
 Acquire the source in the usual way:
 
-    git clone https://github.com/Original-Tasty/bitgesell.git
+    git clone https://github.com/BitgesellOfficial/bitgesell.git
     cd bitgesell
 
 ## Building for 64-bit Windows
