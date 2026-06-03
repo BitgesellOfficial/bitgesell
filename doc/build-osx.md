@@ -149,17 +149,8 @@ In that case the Homebrew package will prevail.
 
 #### Berkeley DB
 
-It is recommended to use Berkeley DB 4.8. If you have to build it yourself,
-you can use [this](/contrib/install_db4.sh) script to install it
-like so:
-
-```shell
-./contrib/install_db4.sh .
-```
-
-from the root of the repository.
-
-Also, the Homebrew package could be installed:
+It is recommended to use Berkeley DB 4.8. The Homebrew package can be
+installed with:
 
 ```shell
 brew install berkeley-db4
