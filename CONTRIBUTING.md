@@ -69,7 +69,7 @@ In addition, libsecp256k1 tries to maintain the following coding conventions:
     ```
 * Use `unsigned int` instead of just `unsigned`.
 * Use `void *ptr` instead of `void* ptr`.
-* Arguments of the publicly-facing API must have a specific order defined in [include/secp256k1.h](include/secp256k1.h).
+* Arguments of the publicly-facing API must have a specific order defined in [src/secp256k1/include/secp256k1.h](src/secp256k1/include/secp256k1.h).
 * User-facing comment lines in headers should be limited to 80 chars if possible.
 * All identifiers in file scope should start with `secp256k1_`.
 * Avoid trailing whitespace.
@@ -100,7 +100,7 @@ To create a HTML report with coloured and annotated source code:
 #### Exhaustive tests
 
 There are tests of several functions in which a small group replaces secp256k1.
-These tests are *exhaustive* since they provide all elements and scalars of the small group as input arguments (see [src/tests_exhaustive.c](src/tests_exhaustive.c)).
+These tests are *exhaustive* since they provide all elements and scalars of the small group as input arguments (see [src/secp256k1/src/tests_exhaustive.c](src/secp256k1/src/tests_exhaustive.c)).
 
 ### Benchmarks
 
