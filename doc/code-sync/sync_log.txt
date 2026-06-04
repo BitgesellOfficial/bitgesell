@@ -641,7 +641,7 @@ v  2020-03-02 09:27:35 df3a818d2a9fe48e656a8ad2da18fab8a1bfd6e3 wallet: make get
 v  2020-03-02 09:27:36 79facb11e92f8b61063f301027dee7c7344eb1be wallet: use constant CWallets in rpcwallet.cpp
 pr 2020-03-02 10:47:59 1f886243e464032123045cbf70ff2a72de9b9c80 Merge #18224: Make AnalyzePSBT next role calculation simple, correct
 pr 2020-03-02 17:10:55 ac5c5d0162a963be6fbaa53261c01705436a65f3 Merge #18168: httpserver: use own HTTP status codes
-v  2020-03-02 22:25:05 fa6df0de538c15a6d393830af373ac9af6f48125 test: Bump timeouts to accomodate really slow disks
+v  2020-03-02 22:25:05 fa6df0de538c15a6d393830af373ac9af6f48125 test: Bump timeouts to accommodate really slow disks
 v  2020-03-03 08:07:21 9b0e16226e6c1fb6a3550d635339f1bbb49a852f doc: Correct spelling errors in comments
 v  2020-03-03 18:42:52 faae5a9a356d821f0cbdea32030b0ce356351a1d test: Add bad-txns-*-toolarge test cases to invalid_txs
 pr 2020-03-04 05:22:17 088604221b4a5d4cb7eaee34158550a7cce19e6f Merge #18253: doc: Correct spelling errors in comments
@@ -662,7 +662,7 @@ v  2020-03-04 19:45:29 7a810b1d7a9d03818706dc94457dc3255f062796 refactor: Conver
 v  2020-03-04 20:52:16 d831831822885717e9841f1ff67c19add566fa45 lockedpool: When possible, use madvise to avoid including sensitive information in core dumps
 v  2020-03-04 22:35:15 9b5950db8683f9b4be03f79ee0aae8a780b01a4b bnb: exit selection when best_waste is 0
 pr 2020-03-05 03:25:39 2492dc0068f84e2cc4d776c87f489bce79afa47b Merge #18259: doc: Merge release notes for 0.20.0 release
-pr 2020-03-05 08:06:52 cbc32d67dc0cbe636ee3510802ae863bee73ac13 Merge #18249: test: Bump timeouts to accomodate really slow disks
+pr 2020-03-05 08:06:52 cbc32d67dc0cbe636ee3510802ae863bee73ac13 Merge #18249: test: Bump timeouts to accommodate really slow disks
 v  2020-03-05 10:44:50 1891245e7318bf625bbf67aab08a79fc3e87b61d refactor: Cast ping values to double before output
 pr 2020-03-05 13:13:33 d0601e67f151a753bc71e41e5a5c56a3fa09c1f1 Merge #17812: config, net, test: asmap feature refinements and functional tests
 pr 2020-03-05 16:33:54 a2a77ba34f713d6406c31a4baa991666b13794a0 Merge #18056: ci: Check for submodules
@@ -17187,7 +17187,7 @@ v  2024-01-19 15:04:56 +0100 6f569ac903e5ddaac275996a5d0c31b2220b7b81 refactor: 
 v  2024-01-19 15:04:56 +0100 f7384b921c3460c7a3cc7827a68b2c613bd98f8e refactor: move parsing to new function
 v  2024-01-19 15:19:25 +0100 3bfc5bd36e38ca07306a41a3f56ea102ffe02b67 test: ensure output is large enough to pay for its fees
 v  2024-01-20 14:56:41 +0100 2d58629ee63eebc760e2a9226afcd0c46d3ec2bd wallet: fix coin selection tracing to return -1 when no change pos
-v  2024-01-20 14:58:17 +0100 d55fdb1a495190e213b1b5127f5d91e4a409765e Move TRACEx parameters to seperate lines
+v  2024-01-20 14:58:17 +0100 d55fdb1a495190e213b1b5127f5d91e4a409765e Move TRACEx parameters to separate lines
 pr 2024-01-22 11:03:57 +0100 651fb034d85eb5db561bfd24b74f7271417defa5 Merge bitcoin/bitcoin#29260: refactor: remove CTxMemPool::queryHashes()
 cr 2024-01-22 13:38:48 +0100 28287cfbe18b6c468f76389e9f66bdcf2d00f8d1 test: add script compression coverage for not-on-curve P2PK outputs
 v  2024-01-22 13:42:36 +0100 e2ad343f69af4f924b22dccf94a52b6431ef6e3c wallet: remove unused `SignatureData` instances in spkm's `FillPSBT` methods
@@ -17541,7 +17541,7 @@ v  2024-03-01 20:47:28 +0100 d9318a37ec09fe0b002815a7e48710e530620ae2 net: split
 v  2024-03-01 20:47:29 +0100 567cec9a05e1261e955535f734826b12341684b6 doc: add release notes and help text for unix sockets
 v  2024-03-01 20:47:29 +0100 a88bf9dedd1d8c1db0a9c8b663dab3e3c2f0f030 i2p: construct Session with Proxy instead of CService
 cr 2024-03-01 20:47:29 +0100 bfe51928911daf484ae07deb52a7ff0bcb2526ae test: cover UNIX sockets in feature_proxy.py
-v  2024-03-01 20:47:29 +0100 c3bd43142eba77dcf1acd4984e437759f65e237a gui: accomodate unix socket Proxy in updateDefaultProxyNets()
+v  2024-03-01 20:47:29 +0100 c3bd43142eba77dcf1acd4984e437759f65e237a gui: accommodate unix socket Proxy in updateDefaultProxyNets()
 v  2024-03-01 20:47:29 +0100 c65c0d01630b44fa71321ea7ad68d5f9fbb7aefb init: allow UNIX socket path for -proxy and -onion
 cr 2024-03-02 00:10:09 +0100 6962c66b4a9657fd2a6fcca8e9a31beb90d13924 build, msvc: Do not compile redundant sources
 v  2024-03-02 02:14:14 +0100 57e6e2279ee5562fe31eb418d9bcd8b80634ec8b ci: Fix functional tests step for pull requests in Windows GHA job
@@ -17765,7 +17765,7 @@ v  2024-03-27 20:37:36 +0100 2eb5175de87c798af328de3f2147aac7879eaa10 test: fix 
 pr 2024-03-28 12:43:10 +0100 d1e9a02126634f9e2ca0b916b69b173a8646524d Merge bitcoin/bitcoin#29402: mempool: Log added for dumping mempool transactions to disk
 v  2024-03-28 12:50:12 +0100 f8f5cece4dfda5c614e087be75af074181a36c39 doc: Override `-g` properly to skip debugging information
 v  2024-03-29 09:33:43 +0100 a3c6a13cb23999fa70c428f1229acbf1b3883f11 doc: Suggest installing dev packages for debian/ubuntu qt5 build
-v  2024-03-29 11:17:39 +0100 6c2990416e2dabd845f5ec50ec6ff138136c9b08 ci: Pull in qtbase5-dev instead of seperate low-level libraries
+v  2024-03-29 11:17:39 +0100 6c2990416e2dabd845f5ec50ec6ff138136c9b08 ci: Pull in qtbase5-dev instead of separate low-level libraries
 pr 2024-03-29 11:39:57 +0100 4373414d26ffd2cd004a59a095ce30b433059780 Merge bitcoin/bitcoin#29130: wallet: Add `createwalletdescriptor` and `gethdkeys` RPCs for adding new automatically generated descriptors
 v  2024-03-29 15:19:08 +0100 fad23a06469607689c4f637bb407c96af4902a27 ci: Bump clang+llvm in i686_multiprocess task
 cr 2024-03-29 16:41:18 +0100 fa75220ac5e0ea401a26dd2f16a88627e51c240a ci: Use clang-18 in asan/fuzz/tsan task
