@@ -128,7 +128,7 @@ test-framework**. Modules such as
 [key.py](/test/functional/test_framework/key.py),
 [script.py](/test/functional/test_framework/script.py) and
 [messages.py](/test/functional/test_framework/messages.py) are particularly
-useful in constructing objects which can be passed to the bitcoind nodes managed
+useful in constructing objects which can be passed to the BGLd nodes managed
 by a running `TestShell` object.
 
 ## 5. Shutting the `TestShell` down
@@ -182,7 +182,7 @@ can be called after the TestShell is shut down.
 | `rpc_timeout` | `60` | Sets the RPC server timeout for the underlying BGLd processes. |
 | `setup_clean_chain` | `False` | A 200-block-long chain is initialized from cache by default. Instead, `setup_clean_chain` initializes an empty blockchain if set to `True`. |
 | `randomseed` | Random Integer | `TestShell().options.randomseed` is a member of `TestShell` which can be accessed during a test to seed a random generator. User can override default with a constant value for reproducible test runs. |
-| `supports_cli` | `False` | Whether the bitcoin-cli utility is compiled and available for the test. |
+| `supports_cli` | `False` | Whether the BGL-cli utility is compiled and available for the test. |
 | `tmpdir` | `"/var/folders/.../"` | Sets directory for test logs. Will be deleted upon a successful test run unless `nocleanup` is set to `True` |
 | `trace_rpc` | `False` | Logs all RPC calls if set to `True`. |
 | `usecli` | `False` | Uses the BGL-cli interface for all BGLd commands instead of directly calling the RPC server. Requires `supports_cli`. |
