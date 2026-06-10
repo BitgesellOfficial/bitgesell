@@ -19,6 +19,13 @@ import subprocess
 import sys
 import hashlib
 
+PREVIOUS_RELEASE_BINARY_RENAMES = {
+    'bitcoind': 'BGLd',
+    'bitcoin-cli': 'BGL-cli',
+    'bitcoin-tx': 'BGL-tx',
+    'bitcoin-wallet': 'BGL-wallet',
+}
+
 SHA256_SUMS = {
     "0e2819135366f150d9906e294b61dff58fd1996ebd26c2f8e979d6c0b7a79580": {"tag": "v0.14.3", "tarball": "bitcoin-0.14.3-aarch64-linux-gnu.tar.gz"},
     "d86fc90824a85c38b25c8488115178d5785dbc975f5ff674f9f5716bc8ad6e65": {"tag": "v0.14.3", "tarball": "bitcoin-0.14.3-arm-linux-gnueabihf.tar.gz"},
@@ -92,6 +99,16 @@ def pushd(new_dir) -> None:
         os.chdir(previous_dir)
 
 
+def normalize_previous_release_binary_names(bin_path) -> None:
+    """Rename upstream Bitcoin binary names to the BGL names used by tests."""
+    bin_path = Path(bin_path)
+    for old_name, new_name in PREVIOUS_RELEASE_BINARY_RENAMES.items():
+        old_path = bin_path / old_name
+        new_path = bin_path / new_name
+        if old_path.exists() and not new_path.exists():
+            old_path.rename(new_path)
+
+
 def download_binary(tag, args) -> int:
     if Path(tag).is_dir():
         if not args.remove_dir:
@@ -150,6 +167,8 @@ def download_binary(tag, args) -> int:
     if ret != 0:
         print(f"Failed to extract the {tag} tarball")
         return ret
+
+    normalize_previous_release_binary_names(Path(tag) / 'bin')
 
     Path(tarball).unlink()
 
@@ -225,9 +244,15 @@ def build_release(tag, args) -> int:
         # Move binaries, so they're in the same place as in the
         # release download
         Path('bin').mkdir(exist_ok=True)
-        files = ['bitcoind', 'bitcoin-cli', 'bitcoin-tx']
+        files = [
+            *PREVIOUS_RELEASE_BINARY_RENAMES.keys(),
+            *PREVIOUS_RELEASE_BINARY_RENAMES.values(),
+        ]
         for f in files:
-            Path('src/'+f).rename('bin/'+f)
+            src_path = Path('src') / f
+            if src_path.exists():
+                src_path.rename(Path('bin') / f)
+        normalize_previous_release_binary_names('bin')
     return 0
 
 
