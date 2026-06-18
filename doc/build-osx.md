@@ -153,7 +153,7 @@ It is recommended to use Berkeley DB 4.8. The Homebrew package can be
 installed with:
 
 ```shell
-brew install berkeley-db4
+brew install berkeley-db@4
 ```
 
 ## Build BGL Core
