@@ -2,19 +2,21 @@
 
 ## Supported Versions
 
-See our website for versions of BGL Core that are currently supported with
-security updates: https://bitgesell.ca
+See the Bitgesell website for BGL Core versions that are currently supported with security updates:
+
+https://bitgesell.ca
 
 ## Reporting a Vulnerability
 
-To report security issues send an email to security@bitcoincore.org (not for support).
+Please report suspected Bitgesell Core vulnerabilities privately before opening a public issue.
 
-The following keys may be used to communicate sensitive information to developers:
+When reporting, include:
 
-| Name | Fingerprint |
-|------|-------------|
-| Pieter Wuille | 133E AC17 9436 F14A 5CF1  B794 860F EB80 4E66 9320 |
-| Michael Ford | E777 299F C265 DD04 7930  70EB 944D 35F9 AC3D B76A |
-| Ava Chow | 1528 1230 0785 C964 44D3  334D 1756 5732 E08E 5E41 |
+- The affected version or commit.
+- A clear description of the vulnerability.
+- Reproduction steps or a proof of concept, when safe to share.
+- Any logs, configuration details, or platform information needed to reproduce the issue.
 
-You can import a key by running the following command with that individual’s fingerprint: `gpg --keyserver hkps://keys.openpgp.org --recv-keys "<fingerprint>"` Ensure that you put quotes around fingerprints containing spaces.
+Do not publish exploit details publicly until maintainers have had a reasonable opportunity to investigate and prepare a fix.
+
+Bitgesell is derived from Bitcoin Core, but Bitgesell-specific reports should be sent to the Bitgesell maintainers rather than to the Bitcoin Core security mailing list.
