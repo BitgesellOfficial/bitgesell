@@ -28,11 +28,11 @@ Drag BGL Core to your applications folder, and then run BGL Core.
 
 ### Need Help?
 
-* See the documentation at the [BGL Wiki](https://en.bitcoin.it/wiki/Main_Page)
+* See the project documentation in this `doc/` directory and the [BGL configuration guide](BGL-conf.md)
 for help and more information.
-* Ask for help on [BGL StackExchange](https://bitcoin.stackexchange.com).
-* Ask for help on #BGL on Libera Chat. If you don't have an IRC client, you can use [web.libera.chat](https://web.libera.chat/#bitcoin).
-* Ask for help on the [BitcoinTalk](https://bitcointalk.org/) forums, in the [Technical Support board](https://bitcointalk.org/index.php?board=4.0).
+* Ask for help through the Bitgesell project channels listed by the maintainers.
+* Ask for help on the Bitgesell community channels listed by the maintainers.
+* Ask for help in Bitgesell-specific support threads when maintainers announce them.
 
 Building
 ---------------------
@@ -65,8 +65,8 @@ The BGL repo's [root README](/README.md) contains relevant information on the de
 - [Internal Design Docs](design/)
 
 ### Resources
-* Discuss on the [BitcoinTalk](https://bitcointalk.org/) forums, in the [Development & Technical Discussion board](https://bitcointalk.org/index.php?board=6.0).
-* Discuss project-specific development on #bitcoin-core-dev on Libera Chat. If you don't have an IRC client, you can use [web.libera.chat](https://web.libera.chat/#bitcoin-core-dev).
+* Discuss project-specific development in Bitgesell repositories and maintainer-designated community channels.
+* Keep BGL Core development discussion tied to Bitgesell-specific issues, pull requests, and maintainer-designated community channels.
 
 ### Miscellaneous
 - [Assets Attribution](assets-attribution.md)
