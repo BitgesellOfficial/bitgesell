@@ -40,6 +40,11 @@ FUNCTION_NAMES_AND_NUMBER_OF_LEADING_ARGUMENTS = [
     'WalletLogPrintf,0',
 ]
 RUN_LINT_FILE = 'test/lint/run-lint-format-strings.py'
+EXCLUDED_FILES_PATTERN = (
+    r'^src/(leveldb|secp256k1|minisketch|tinyformat|test/fuzz/strprintf\.cpp)'
+    r'|^src/precompute_ecmult_gen\.c$'
+    r'|^contrib/devtools/(bitcoin|BGL)-tidy/example_logprintf\.cpp$'
+)
 
 def check_doctest():
     command = [
@@ -82,15 +87,16 @@ def main():
 
         matching_files_filtered = []
         for matching_file in matching_files:
-            if not re.search('^src/(leveldb|secp256k1|minisketch|tinyformat|test/fuzz/strprintf.cpp)|contrib/devtools/bitcoin-tidy/example_logprintf.cpp', matching_file):
+            if not re.search(EXCLUDED_FILES_PATTERN, matching_file):
                 matching_files_filtered.append(matching_file)
         matching_files_filtered.sort()
 
         run_lint_args = [
-                    RUN_LINT_FILE,
-                    '--skip-arguments',
-                    skip_arguments,
-                    function_name,
+            sys.executable,
+            RUN_LINT_FILE,
+            '--skip-arguments',
+            skip_arguments,
+            function_name,
         ]
         run_lint_args.extend(matching_files_filtered)
 
