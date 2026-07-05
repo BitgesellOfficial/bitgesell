@@ -1,8 +1,8 @@
 #ifndef SECP256K1_INT128_STRUCT_IMPL_H
 #define SECP256K1_INT128_STRUCT_IMPL_H
 
-#include "int128.h"
-#include "util.h"
+#include <int128.h>
+#include <util.h>
 
 #if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_ARM64)) /* MSVC */
 #    include <intrin.h>

@@ -6,10 +6,10 @@
 #ifndef SECP256K1_TESTUTIL_H
 #define SECP256K1_TESTUTIL_H
 
-#include "field.h"
-#include "group.h"
-#include "testrand.h"
-#include "util.h"
+#include <field.h>
+#include <group.h>
+#include <testrand.h>
+#include <util.h>
 
 static void testutil_random_fe(secp256k1_fe *x) {
     unsigned char bin[32];

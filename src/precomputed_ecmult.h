@@ -11,8 +11,8 @@
 extern "C" {
 #endif
 
-#include "ecmult.h"
-#include "group.h"
+#include <ecmult.h>
+#include <group.h>
 #if defined(EXHAUSTIVE_TEST_ORDER)
 #    if EXHAUSTIVE_TEST_ORDER == 7
 #        define WINDOW_G 3
