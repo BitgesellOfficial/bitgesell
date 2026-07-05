@@ -10,8 +10,6 @@
 #include <cstddef>
 #include <span>
 #include <type_traits>
-#include <cstddef>
-#include <algorithm>
 #include <assert.h>
 
 #ifdef DEBUG

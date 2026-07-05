@@ -9,7 +9,7 @@
 
 #include <limits.h>
 
-#include "util.h"
+#include <util.h>
 
 /* This library, like most software, relies on a number of compiler implementation defined (but not undefined)
    behaviours. Although the behaviours we require are essentially universal we test them specifically here to

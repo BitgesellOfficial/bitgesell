@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-#include "logging.h"
+#include <logging.h>
 
 extern "C" {
 #include <crypto/sha3/sha3.h>

@@ -7,11 +7,11 @@
 #ifndef SECP256K1_ECMULT_COMPUTE_TABLE_IMPL_H
 #define SECP256K1_ECMULT_COMPUTE_TABLE_IMPL_H
 
-#include "ecmult_compute_table.h"
-#include "group_impl.h"
-#include "field_impl.h"
-#include "ecmult.h"
-#include "util.h"
+#include <ecmult_compute_table.h>
+#include <group_impl.h>
+#include <field_impl.h>
+#include <ecmult.h>
+#include <util.h>
 
 static void secp256k1_ecmult_compute_table(secp256k1_ge_storage* table, int window_g, const secp256k1_gej* gen) {
     secp256k1_gej gj;
