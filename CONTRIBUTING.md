@@ -40,6 +40,10 @@ Chat history logs can be found at https://gnusha.org/secp256k1/.
 
 The Contributor Workflow & Peer Review in libsecp256k1 are similar to Bitcoin Core's workflow and review processes described in its [CONTRIBUTING.md](https://github.com/bitcoin/bitcoin/blob/master/CONTRIBUTING.md).
 
+Contributors participating in the Bitgesell pull request bounty program can
+also use [doc/pr-bounty-contribution.md](doc/pr-bounty-contribution.md) for a
+short checklist on preparing small, reviewable bounty pull requests.
+
 ### Coding conventions
 
 In addition, libsecp256k1 tries to maintain the following coding conventions:
