@@ -7,8 +7,8 @@ Regular releases are releases of a new major or minor version as well as patches
 Maintenance releases, on the other hand, are required for patches of older releases.
 
 * Update release candidate version in `configure.ac` (`CLIENT_VERSION_RC`).
-* Update manpages (after rebuilding the binaries), see [gen-manpages.py](https://github.com/bitcoin/bitcoin/blob/master/contrib/devtools/README.md#gen-manpagespy).
-* Update bitcoin.conf and commit changes if they exist, see [gen-bitcoin-conf.sh](https://github.com/bitcoin/bitcoin/blob/master/contrib/devtools/README.md#gen-bitcoin-confsh).
+* Update manpages (after rebuilding the binaries), see [gen-manpages.py](../contrib/devtools/README.md#gen-manpagespy).
+* Update BGL.conf and commit changes if they exist, see [gen-BGL-conf.sh](../contrib/devtools/README.md#gen-BGL-confsh).
 
 This process also assumes that there will be no minor releases for old major releases.
 
